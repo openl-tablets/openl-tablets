@@ -3317,14 +3317,8 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        }
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "400": {
                         "content": {

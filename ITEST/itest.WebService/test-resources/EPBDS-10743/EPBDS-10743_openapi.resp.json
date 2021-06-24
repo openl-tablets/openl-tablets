@@ -68,6 +68,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "200": {
             "description": "Successful operation",
             "content": {
@@ -140,6 +143,9 @@
                 }
               }
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "200": {
             "description": "Successful operation",
@@ -214,6 +220,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "200": {
             "description": "Successful operation",
             "content": {
@@ -283,6 +292,9 @@
                 }
               }
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "200": {
             "description": "Successful operation",

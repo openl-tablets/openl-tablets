@@ -31,6 +31,9 @@ Content-Type: application/json
                             "type": "boolean"
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
                         "examples": {
@@ -92,6 +95,9 @@ Content-Type: application/json
                         "schema": {
                             "type": "boolean"
                         }
+                    },
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",

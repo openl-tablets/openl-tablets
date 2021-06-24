@@ -30,6 +30,9 @@
               "$ref": "#/definitions/DateWrapper"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -94,6 +97,9 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -160,6 +166,9 @@
               "format": "date-time"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -213,6 +222,9 @@
             "schema": {
               "$ref": "#/definitions/DateWrapper"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -279,6 +291,9 @@
               "format": "int64"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -344,6 +359,9 @@
               "format": "date"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -406,6 +424,9 @@
             "schema": {
               "$ref": "#/definitions/LocalTime"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -471,6 +492,9 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",

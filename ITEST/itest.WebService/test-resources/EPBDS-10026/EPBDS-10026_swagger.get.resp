@@ -37,6 +37,9 @@ Content-Type: application/json
               "$ref": "#/definitions/Main"
             }
           },
+          "204": {
+              "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -106,6 +109,9 @@ Content-Type: application/json
                 "$ref": "#/definitions/AnySpreadsheetResult"
               }
             }
+          },
+          "204": {
+              "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -177,6 +183,9 @@ Content-Type: application/json
               }
             }
           },
+          "204": {
+              "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -247,6 +256,9 @@ Content-Type: application/json
               }
             }
           },
+          "204": {
+              "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -314,6 +326,9 @@ Content-Type: application/json
               "$ref": "#/definitions/MySpr"
             }
           },
+          "204": {
+              "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -380,6 +395,9 @@ Content-Type: application/json
             "schema": {
               "$ref": "#/definitions/MySpr2"
             }
+          },
+          "204": {
+              "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",

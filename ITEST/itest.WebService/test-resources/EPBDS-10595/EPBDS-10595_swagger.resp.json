@@ -35,6 +35,9 @@
               "format": "double"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -102,6 +105,9 @@
               "type": "number",
               "format": "double"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -173,6 +179,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -240,6 +249,9 @@
               "$ref": "#/definitions/MyDatatype"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -306,6 +318,9 @@
             "schema": {
               "type": "object"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",

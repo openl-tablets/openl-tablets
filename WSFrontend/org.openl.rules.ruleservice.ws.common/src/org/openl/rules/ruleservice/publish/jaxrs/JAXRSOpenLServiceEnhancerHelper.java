@@ -18,7 +18,23 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.MatrixParam;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -533,6 +549,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private boolean isTextMediaType(Class<?> type) {
+            if (type == void.class || type == Void.class) {
+                return false;
+            }
             if (type.isPrimitive()) {
                 return true;
             }
@@ -624,13 +643,33 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                                                     originalMethod.getParameterTypes(),
                                                                     false);
                 String truncatedSummary = summary.substring(0, Math.min(summary.length(), 120));
+                Class<?> type = extractOriginalType(originalMethod.getReturnType());
+                final boolean isVoidType = void.class == type || Void.class == type;
                 if (!originalMethod.isAnnotationPresent(ApiOperation.class)) {
                     AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiOperation.class), true);
                     av.visit("value", truncatedSummary);
                     av.visit("notes", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
-                    av.visit("response", Type.getType(extractOriginalType(originalMethod.getReturnType())));
+                    if (isVoidType) {
+                        av.visit("code", Response.Status.NO_CONTENT.getStatusCode());
+                        av.visit("response", Type.getType(Void.class));
+                    } else {
+                        av.visit("response", Type.getType(type));
+                    }
                     av.visit("nickname", nickname);
                     av.visitEnd();
+                    if (isVoidType || !type.isPrimitive()) {
+                        // empty response body can be only for void or non-primitive types
+                        AnnotationVisitor av1 = mv
+                            .visitAnnotation(Type.getDescriptor(io.swagger.annotations.ApiResponses.class), true);
+                        AnnotationVisitor arrayAv = av1.visitArray("value");
+                        AnnotationVisitor apiResponseAv = arrayAv.visitAnnotation(null,
+                            Type.getDescriptor(io.swagger.annotations.ApiResponse.class));
+                        apiResponseAv.visit("code", Response.Status.NO_CONTENT.getStatusCode());
+                        apiResponseAv.visit("message", "Successful operation");
+                        apiResponseAv.visitEnd();
+                        arrayAv.visitEnd();
+                        av1.visitEnd();
+                    }
                 }
                 if (!originalMethod.isAnnotationPresent(Operation.class)) {
                     AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
@@ -645,19 +684,31 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     }
                     if (!originalMethod.isAnnotationPresent(ApiResponse.class)) {
                         AnnotationVisitor av1 = av.visitArray("responses");
-                        AnnotationVisitor av2 = av1.visitAnnotation("responses", Type.getDescriptor(ApiResponse.class));
-                        av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
-                        av2.visit("description", "Successful operation");
-                        AnnotationVisitor av3 = av2.visitArray("content");
-                        AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
-                        if (dim < 2) {
-                            addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
-                        } else {
-                            addSchemaOpenApiAnnotation(av4, Object.class);
+                        if (isVoidType || !type.isPrimitive()) {
+                            // empty response body can be only for void or non-primitive types
+                            AnnotationVisitor noContentAv = av1.visitAnnotation(null,
+                                Type.getDescriptor(ApiResponse.class));
+                            noContentAv.visit("responseCode",
+                                String.valueOf(Response.Status.NO_CONTENT.getStatusCode()));
+                            noContentAv.visit("description", "Successful operation");
+                            noContentAv.visitEnd();
                         }
-                        av4.visitEnd();
-                        av3.visitEnd();
-                        av2.visitEnd();
+                        if (!isVoidType) {
+                            AnnotationVisitor av2 = av1.visitAnnotation("responses",
+                                Type.getDescriptor(ApiResponse.class));
+                            av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
+                            av2.visit("description", "Successful operation");
+                            AnnotationVisitor av3 = av2.visitArray("content");
+                            AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
+                            if (dim < 2) {
+                                addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
+                            } else {
+                                addSchemaOpenApiAnnotation(av4, Object.class);
+                            }
+                            av4.visitEnd();
+                            av3.visitEnd();
+                            av2.visitEnd();
+                        }
                         av1.visitEnd();
                     }
 

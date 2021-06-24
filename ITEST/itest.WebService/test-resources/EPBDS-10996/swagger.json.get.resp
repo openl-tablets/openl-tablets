@@ -67,6 +67,9 @@ Content-Type: application/json
                             "type": "array"
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "400": {
                         "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
                         "examples": {

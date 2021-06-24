@@ -33,6 +33,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -98,6 +101,9 @@
                 "$ref": "#/definitions/MyCalc7"
               }
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -165,6 +171,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -230,6 +239,9 @@
                 "$ref": "#/definitions/MyCalc"
               }
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -297,6 +309,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -362,6 +377,9 @@
                 "$ref": "#/definitions/MyCalc9"
               }
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -429,6 +447,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -494,6 +515,9 @@
                 "$ref": "#/definitions/MyCalc4"
               }
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -561,6 +585,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -623,6 +650,9 @@
             "schema": {
               "$ref": "#/definitions/MyCalc9"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -687,6 +717,9 @@
               "$ref": "#/definitions/MyCalc5"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -749,6 +782,9 @@
             "schema": {
               "$ref": "#/definitions/MyCalc11"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -813,6 +849,9 @@
               "$ref": "#/definitions/MyCalc6"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -875,6 +914,9 @@
             "schema": {
               "$ref": "#/definitions/MyCalc7"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -939,6 +981,9 @@
               "$ref": "#/definitions/MyCalc3"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -1001,6 +1046,9 @@
             "schema": {
               "$ref": "#/definitions/MyCalc2"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -1065,6 +1113,9 @@
               "$ref": "#/definitions/MyCalc4"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -1127,6 +1178,9 @@
             "schema": {
               "$ref": "#/definitions/MyCalc10"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -1191,6 +1245,9 @@
               "$ref": "#/definitions/MyCalc"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -1253,6 +1310,9 @@
             "schema": {
               "$ref": "#/definitions/MyCalc8"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -1320,6 +1380,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -1385,6 +1448,9 @@
                 "$ref": "#/definitions/MyCalc3"
               }
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
