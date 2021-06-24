@@ -733,8 +733,27 @@ public final class DecisionTableHelper {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
                     .fuzzyExtract(token.getValue(), fuzzyContext.getParameterTokens().getTokens(), false);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
-                    List<Pair<IOpenField[], FuzzyResult>> resultList = bestFuzzyResultsMap
-                        .computeIfAbsent(fuzzyResult.getToken(), e -> new ArrayList<>());
+                    final int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
+                    final IOpenField[] paramFieldsChain = fuzzyContext.getParameterTokens()
+                        .getFieldsChain(fuzzyResult.getToken());
+                    List<Pair<IOpenField[], FuzzyResult>> resultList = bestFuzzyResultsMap.get(fuzzyResult.getToken());
+                    if (resultList == null) {
+                        resultList = bestFuzzyResultsMap.entrySet()
+                            .stream()
+                            .filter(e -> {
+                                final int eParamIndex = fuzzyContext.getParameterTokens().getParameterIndex(e.getKey());
+                                return paramIndex == eParamIndex && OpenLFuzzyUtils.isEqualsFieldsChains(
+                                    paramFieldsChain,
+                                    fuzzyContext.getParameterTokens().getFieldsChain(e.getKey()));
+                            })
+                            .map(Entry::getValue)
+                            .findFirst()
+                            .orElse(null);
+                        if (resultList == null) {
+                            resultList = new ArrayList<>();
+                            bestFuzzyResultsMap.put(fuzzyResult.getToken(), resultList);
+                        }
+                    }
                     if (resultList.isEmpty()) {
                         resultList.add(Pair.of(fieldsChain, fuzzyResult));
                     } else {
