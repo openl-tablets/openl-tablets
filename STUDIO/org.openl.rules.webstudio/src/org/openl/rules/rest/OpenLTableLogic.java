@@ -30,28 +30,8 @@ import org.openl.util.text.TextInfo;
 
 public class OpenLTableLogic {
 
-    public static String[] getErrorCode(ILocation location, String sourceCode) {
-        String code = StringUtils.isBlank(sourceCode) ? StringUtils.EMPTY : sourceCode;
-
-        int pstart = 0;
-        int pend = code.length();
-
-        if (StringUtils.isNotBlank(code) && location != null && location.isTextLocation()) {
-            TextInfo info = new TextInfo(code);
-            pstart = location.getStart().getAbsolutePosition(info);
-            pend = Math.min(location.getEnd().getAbsolutePosition(info) + 1, code.length());
-        }
-
-        if (pend != 0) {
-            return new String[] { code.substring(0, pstart), code.substring(pstart, pend), code.substring(pend) };
-        }
-
-        return new String[0];
-    }
-
     public static List<TableBean.TableDescription> getTargetTables(IOpenLTable table,
-            ProjectModel model,
-            WebStudio webStudio) {
+            ProjectModel model) {
         List<TableBean.TableDescription> targetTables = new ArrayList<>();
         String tableType = table.getType();
         if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || tableType
@@ -74,7 +54,7 @@ public class OpenLTableLogic {
                     if (methodInfo != null) {
                         TableSyntaxNode tsn = (TableSyntaxNode) methodInfo.getSyntaxNode();
                         IOpenLTable targetTable = new TableSyntaxNodeAdapter(tsn);
-                        targetTables.add((new TableBean.TableDescription(webStudio.url(targetTable.getUri()),
+                        targetTables.add((new TableBean.TableDescription(targetTable.getUri(),
                             targetTable.getId(),
                             getTableName(targetTable))));
                     }
@@ -123,10 +103,28 @@ public class OpenLTableLogic {
                 hasLinkToCell,
                 messageNodeId,
                 cell,
-                webStudio.url(errorUri),
                 message.getSeverity()));
         }
         return problems;
+    }
+
+    private static String[] getErrorCode(ILocation location, String sourceCode) {
+        String code = StringUtils.isBlank(sourceCode) ? StringUtils.EMPTY : sourceCode;
+
+        int pstart = 0;
+        int pend = code.length();
+
+        if (StringUtils.isNotBlank(code) && location != null && location.isTextLocation()) {
+            TextInfo info = new TextInfo(code);
+            pstart = location.getStart().getAbsolutePosition(info);
+            pend = Math.min(location.getEnd().getAbsolutePosition(info) + 1, code.length());
+        }
+
+        if (pend != 0) {
+            return new String[] { code.substring(0, pstart), code.substring(pstart, pend), code.substring(pend) };
+        }
+
+        return new String[0];
     }
 
     private static String getTableName(IOpenLTable table) {

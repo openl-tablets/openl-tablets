@@ -192,6 +192,7 @@ public class WorkspaceCompileService {
     }
 
     @GET
+    @Produces(MediaType.TEXT_PLAIN)
     @Path("error/{errorId}/{openedModule}")
     public String error(@PathParam("errorId") final long errorId,
             @PathParam("openedModule") final boolean openedModule) {
@@ -238,7 +239,7 @@ public class WorkspaceCompileService {
         }
 
         // if the current table is a test then check tested target tables on errors.
-        List<TableBean.TableDescription> targetTables = OpenLTableLogic.getTargetTables(table, model, webStudio);
+        List<TableBean.TableDescription> targetTables = OpenLTableLogic.getTargetTables(table, model);
         for (TableBean.TableDescription targetTable : targetTables) {
             if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
                 warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
