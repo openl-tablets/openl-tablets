@@ -52,6 +52,9 @@ Content-Type: application/json
                         },
                         "description": "Successful operation"
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "400": {
                         "content": {
                             "application/json": {

@@ -330,11 +330,8 @@ paths:
               example:
                 message: Failed to load lazy method.
                 type: COMPILATION
-        "200":
-          content:
-            text/plain:
-              schema:
-                type: string
+        "204":
+          description: Successful operation
   /BalanceDynamicIndexCalculation:
     post:
       summary: Double BalanceDynamicIndexCalculation(IRulesRuntimeContext, FinancialData,

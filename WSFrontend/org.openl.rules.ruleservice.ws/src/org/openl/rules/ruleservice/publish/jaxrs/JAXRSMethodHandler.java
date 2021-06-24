@@ -50,7 +50,7 @@ public class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Metho
         if (o instanceof Response) {
             return o;
         } else {
-            return Response.status(Response.Status.OK).entity(o).build();
+            return Response.status(o == null ? Response.Status.NO_CONTENT : Response.Status.OK).entity(o).build();
         }
     }
 }

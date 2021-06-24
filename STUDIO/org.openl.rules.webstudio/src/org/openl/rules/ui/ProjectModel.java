@@ -19,7 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -955,28 +956,23 @@ public class ProjectModel {
             .collect(Collectors.toList());
     }
 
-    private Collection<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
-        if (searchScope == SearchScope.ALL_WITH_EXTRA_PROJECTS) {
-            Collection<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
-            Set<TableSyntaxNode> unique = new HashSet<>(nodes);
-            final Predicate<TableSyntaxNode> contains = unique::contains;
-            getAllTableSyntaxNodes().stream().filter(contains.negate()).sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
+    //Logic in this block of code implemented with a recursion to achieve sorting of each dataset by comparator
+    //and place this sets in the proper order.
+    private SortedSet<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
+        if (searchScope == SearchScope.ALL) {
+            SortedSet<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
+            getAllTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
         } else if (searchScope == SearchScope.CURRENT_PROJECT) {
-            Collection<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_MODULE);
-            Set<TableSyntaxNode> unique = new HashSet<>(nodes);
-            final Predicate<TableSyntaxNode> contains = unique::contains;
-            getCurrentProjectTableSyntaxNodes().stream()
-                .filter(contains.negate())
-                .sorted(DEFAULT_NODE_CMP)
-                .forEach(nodes::add);
+            SortedSet<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_MODULE);
+            getCurrentProjectTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
         } else if (searchScope == SearchScope.CURRENT_MODULE) {
-            List<TableSyntaxNode> nodes = new ArrayList<>(Arrays.asList(getXlsModuleNode().getXlsTableSyntaxNodes()));
-            nodes.sort(DEFAULT_NODE_CMP);
+            SortedSet<TableSyntaxNode> nodes = new TreeSet<>(DEFAULT_NODE_CMP);
+            nodes.addAll(Arrays.asList(getXlsModuleNode().getXlsTableSyntaxNodes()));
             return nodes;
         } else {
-            throw new UnsupportedOperationException();
+            throw new IllegalStateException();
         }
     }
 
