@@ -11,7 +11,6 @@ public class OpenlProblemMessage {
     private final boolean hasLinkToCell;
     private final String tableId;
     private final String errorCell;
-    private final String errorUri;
     private final Severity severity;
 
     public OpenlProblemMessage(long id,
@@ -21,7 +20,6 @@ public class OpenlProblemMessage {
             boolean hasLinkToCell,
             String tableId,
             String errorCell,
-            String errorUri,
             Severity severity) {
         this.id = id;
         this.summary = summary;
@@ -30,7 +28,6 @@ public class OpenlProblemMessage {
         this.hasLinkToCell = hasLinkToCell;
         this.tableId = tableId;
         this.errorCell = errorCell;
-        this.errorUri = errorUri;
         this.severity = severity;
     }
 
@@ -60,10 +57,6 @@ public class OpenlProblemMessage {
 
     public String getErrorCell() {
         return errorCell;
-    }
-
-    public String getErrorUri() {
-        return errorUri;
     }
 
     public Severity getSeverity() {
