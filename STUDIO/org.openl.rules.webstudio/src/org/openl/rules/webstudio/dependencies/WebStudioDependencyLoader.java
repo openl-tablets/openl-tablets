@@ -9,6 +9,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
+import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -59,8 +60,8 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
     }
 
     @Override
-    protected void onCompilationComplete(CompiledDependency compiledDependency) {
-        super.onCompilationComplete(compiledDependency);
-        webStudioWorkspaceRelatedDependencyManager.fireCompilationListeners(compiledDependency);
+    protected void onCompilationComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
+        super.onCompilationComplete(dependencyLoader, compiledDependency);
+        webStudioWorkspaceRelatedDependencyManager.fireCompilationListeners(dependencyLoader, compiledDependency);
     }
 }

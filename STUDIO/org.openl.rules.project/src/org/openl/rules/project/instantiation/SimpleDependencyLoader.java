@@ -31,7 +31,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     protected Map<String, Object> configureExternalParameters(IDependencyManager dependencyManager) {
         return ProjectExternalDependenciesHelper
-                .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), getModules());
+            .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), getModules());
     }
 
     @Override
@@ -133,7 +133,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
             CompiledDependency compiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
             if (isActualDependency()) {
-                onCompilationComplete(compiledDependency);
+                onCompilationComplete(this, compiledDependency);
                 this.compiledDependency = compiledDependency;
                 log.debug("Dependency '{}' is saved in cache.", dependencyName);
             }
@@ -148,7 +148,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         }
     }
 
-    protected void onCompilationComplete(CompiledDependency compiledDependency) {
+    protected void onCompilationComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
     }
 
     protected CompiledDependency onCompilationFailure(Exception ex,

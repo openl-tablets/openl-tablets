@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -43,7 +44,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private final AtomicLong highThreadPriorityFlag = new AtomicLong(0);
     private final ThreadLocal<ThreadPriority> threadPriority = new ThreadLocal<>();
     private volatile boolean active = true;
-    private final List<Consumer<CompiledDependency>> compilationListeners = new ArrayList<>();
+    private final List<BiConsumer<IDependencyLoader, CompiledDependency>> compilationListeners = new ArrayList<>();
 
     public WebStudioWorkspaceRelatedDependencyManager(Collection<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,
@@ -216,14 +217,14 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
             .collect(Collectors.toCollection(ArrayList::new)));
     }
 
-    public void registerListeners(Consumer<CompiledDependency> compilationListener) {
+    public void registerListener(BiConsumer<IDependencyLoader, CompiledDependency> compilationListener) {
         compilationListeners.add(compilationListener);
     }
 
-    public void fireCompilationListeners(CompiledDependency compiledDependency) {
-        for (Consumer<CompiledDependency> listener : compilationListeners) {
+    public void fireCompilationListeners(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
+        for (BiConsumer<IDependencyLoader, CompiledDependency> listener : compilationListeners) {
             try {
-                listener.accept(compiledDependency);
+                listener.accept(dependencyLoader, compiledDependency);
             } catch (Exception e) {
                 log.error("Fail during compilation listener.", e);
             }

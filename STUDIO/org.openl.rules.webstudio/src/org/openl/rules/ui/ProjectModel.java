@@ -12,13 +12,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +33,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
-import org.openl.meta.IMetaHolder;
+import org.openl.meta.IMetaInfo;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -50,6 +50,7 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -115,7 +116,7 @@ public class ProjectModel {
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
-    private final Collection<XlsModuleSyntaxNode> currentProjectXlsModuleSyntaxNodes = new HashSet<>();
+    private final Collection<XlsModuleSyntaxNode> currentProjectXlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
     private WorkbookSyntaxNode[] workbookSyntaxNodes;
 
     private Module moduleInfo;
@@ -843,7 +844,7 @@ public class ProjectModel {
     }
 
     private synchronized List<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {
-        if (isProjectCompiledSuccessfully()) {
+        if (isProjectCompilationCompleted() && isCompiledSuccessfully()) {
             return currentProjectXlsModuleSyntaxNodes.stream()
                 .filter(Objects::nonNull)
                 .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
@@ -931,7 +932,7 @@ public class ProjectModel {
         return runTest(test,
             isParallel,
             currentOpenedModule ? openedModuleCompiledOpenClass.getOpenClassWithErrors()
-                       : compiledOpenClass.getOpenClassWithErrors());
+                                : compiledOpenClass.getOpenClassWithErrors());
     }
 
     private TestUnitsResults runTest(TestSuite test, boolean isParallel, IOpenClass openClass) {
@@ -956,8 +957,8 @@ public class ProjectModel {
             .collect(Collectors.toList());
     }
 
-    //Logic in this block of code implemented with a recursion to achieve sorting of each dataset by comparator
-    //and place this sets in the proper order.
+    // Logic in this block of code implemented with a recursion to achieve sorting of each dataset by comparator
+    // and place this sets in the proper order.
     private SortedSet<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
         if (searchScope == SearchScope.ALL) {
             SortedSet<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
@@ -1005,8 +1006,8 @@ public class ProjectModel {
             CompiledDependency compiledDependency = dl.getRefToCompiledDependency();
             if (compiledDependency != null) {
                 XlsMetaInfo metaInfo = (XlsMetaInfo) compiledDependency.getCompiledOpenClass()
-                        .getOpenClassWithErrors()
-                        .getMetaInfo();
+                    .getOpenClassWithErrors()
+                    .getMetaInfo();
                 if (metaInfo != null) {
                     allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
                 }
@@ -1014,34 +1015,19 @@ public class ProjectModel {
         }
     }
 
-    private void addSyntaxNodes(CompiledDependency compiledDependency) {
-        XlsMetaInfo metaInfo = (XlsMetaInfo) compiledDependency.getCompiledOpenClass()
-                .getOpenClassWithErrors()
-                .getMetaInfo();
-        if (metaInfo != null) {
-            allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
-        }
-    }
-
-    private void collectSyntaxNodes() {
+    private void addSyntaxNodes(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         String projectName = Optional.ofNullable(studio.getCurrentProject()).map(AProjectFolder::getName).orElse(null);
-        webStudioWorkspaceDependencyManager.getDependencyLoaders()
-                .values()
-                .stream()
-                .flatMap(Collection::stream)
-                .forEach(dependencyLoader -> Optional.ofNullable(dependencyLoader.getRefToCompiledDependency())
-                        .map(CompiledDependency::getCompiledOpenClass)
-                        .map(CompiledOpenClass::getOpenClassWithErrors)
-                        .map(IMetaHolder::getMetaInfo)
-                        .filter(XlsMetaInfo.class::isInstance)
-                        .map(XlsMetaInfo.class::cast)
-                        .map(XlsMetaInfo::getXlsModuleNode)
-                        .ifPresent(xlsModuleSyntaxNode -> {
-                            if (dependencyLoader.getProject().getName().equals(projectName)) {
-                                currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
-                            }
-                            allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
-                        }));
+        IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+        if (metaInfo instanceof XlsMetaInfo) {
+            XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) metaInfo;
+            XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
+            if (xlsModuleSyntaxNode != null) {
+                allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+                if (dependencyLoader.getProject().getName().equals(projectName)) {
+                    currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+                }
+            }
+        }
     }
 
     public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
@@ -1091,7 +1077,6 @@ public class ProjectModel {
 
             // Find all dependent XlsModuleSyntaxNode-s
             addAllSyntaxNodes();
-            collectSyntaxNodes();
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(thisModuleCompiledOpenClass);
             openedModuleCompiledOpenClass = thisModuleCompiledOpenClass;
@@ -1118,29 +1103,29 @@ public class ProjectModel {
             this.projectCompilationCompleted = false;
             if (!moduleInfo.getStandalone()) {
                 webStudioWorkspaceDependencyManager.loadDependencyAsync(new Dependency(DependencyType.MODULE,
-                        new IdentifierNode(DependencyType.MODULE.name(),
+                    new IdentifierNode(DependencyType.MODULE.name(),
                                 null,
                                 SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(), null),
-                                null)), (e) -> {
-                    List<Module> modules = this.moduleInfo.getProject().getModules();
-                    RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(
-                            modules,
-                            webStudioWorkspaceDependencyManager,
-                            false);
-                    Map<String, Object> externalParameters = ProjectExternalDependenciesHelper.buildExternalParamsWithProjectDependencies(
-                            studio.getExternalProperties(),
-                            modules);
-                    instantiationStrategy.setExternalParameters(externalParameters);
-                    try {
-                        this.compiledOpenClass = this.validate(instantiationStrategy);
-                        this.projectCompilationCompleted = true;
-                        XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                                .getMetaInfo();
-                        allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
-                        redraw();
-                    } catch (RulesInstantiationException ignored) {
-                    }
-                });
+                                null)),
+                        (e) -> {
+                            List<Module> modules = this.moduleInfo.getProject().getModules();
+                            RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(
+                                modules,
+                                webStudioWorkspaceDependencyManager,
+                                false);
+                            Map<String, Object> externalParameters = ProjectExternalDependenciesHelper
+                                .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
+                            instantiationStrategy.setExternalParameters(externalParameters);
+                            try {
+                                this.compiledOpenClass = this.validate(instantiationStrategy);
+                                this.projectCompilationCompleted = true;
+                                XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                                    .getMetaInfo();
+                                allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
+                                redraw();
+                            } catch (RulesInstantiationException ignored) {
+                            }
+                        });
             } else {
                 projectCompilationCompleted = true;
             }
@@ -1178,7 +1163,7 @@ public class ProjectModel {
         if (webStudioWorkspaceDependencyManager == null) {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                 .buildDependencyManager(this.moduleInfo.getProject());
-            webStudioWorkspaceDependencyManager.registerListeners(this::addSyntaxNodes);
+            webStudioWorkspaceDependencyManager.registerListener(this::addSyntaxNodes);
         } else {
             List<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
                 .resolveWorkspace(this.moduleInfo.getProject());
@@ -1201,7 +1186,7 @@ public class ProjectModel {
                     webStudioWorkspaceDependencyManager.resetAll();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                         .buildDependencyManager(this.moduleInfo.getProject());
-                    webStudioWorkspaceDependencyManager.registerListeners(this::addSyntaxNodes);
+                    webStudioWorkspaceDependencyManager.registerListener(this::addSyntaxNodes);
                 } else {
                     // If loaded projects are a part of the new opened project, then we can reuse dependency manager
                     webStudioWorkspaceDependencyManager.expand(
@@ -1213,7 +1198,8 @@ public class ProjectModel {
 
     public synchronized void traceElement(TestSuite testSuite) {
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
-        boolean currentOpenedModule = Boolean.parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
+        boolean currentOpenedModule = Boolean
+            .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
         try {
             if (currentOpenedModule) {
                 Thread.currentThread().setContextClassLoader(openedModuleCompiledOpenClass.getClassLoader());
@@ -1250,8 +1236,9 @@ public class ProjectModel {
     }
 
     public synchronized boolean isOpenedModuleCompiledSuccessfully() {
-        return openedModuleCompiledOpenClass != null && openedModuleCompiledOpenClass.getOpenClassWithErrors() != null && !(openedModuleCompiledOpenClass
-            .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
+        return openedModuleCompiledOpenClass != null && openedModuleCompiledOpenClass
+            .getOpenClassWithErrors() != null && !(openedModuleCompiledOpenClass
+                .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
     }
 
     public synchronized DependencyRulesGraph getDependencyGraph() {

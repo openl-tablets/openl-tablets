@@ -145,7 +145,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
     }
 
-    private Map<String, Collection<IDependencyLoader>> getDependencyLoaders() {
+    public Map<String, Collection<IDependencyLoader>> getDependencyLoaders() {
         if (dependencyLoaders == null) {
             synchronized (this) {
                 if (dependencyLoaders == null) {
