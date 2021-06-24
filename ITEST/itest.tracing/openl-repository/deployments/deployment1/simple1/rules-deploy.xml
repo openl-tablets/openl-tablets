@@ -1,0 +1,15 @@
+<rules-deploy>
+    <serviceName>simple1-tracing</serviceName>
+    <publishers>
+        <publisher>WEBSERVICE</publisher>
+        <publisher>RESTFUL</publisher>
+        <publisher>KAFKA</publisher>
+    </publishers>
+    <configuration>
+        <entry>
+            <string>rootClassNamesBinding</string>
+            <string>org.openl.rules.calculation.result.convertor2.CodeStep
+            </string>
+        </entry>
+    </configuration>
+</rules-deploy>

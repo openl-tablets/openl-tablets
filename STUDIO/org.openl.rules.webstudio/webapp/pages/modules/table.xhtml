@@ -1011,14 +1011,25 @@
             ws.changes.configure(projectAdapter);
 
             $j(".title").each(function () {
-                var elem = $j(this);
-                if (elem.position().top < 40) {
-                    if (!elem.hasClass('title-bottom')) {
-                        elem.addClass('title-bottom');
+                let elem = $j(this);
+                let tooltip = elem.find("em");
+                elem.mouseover(function () {
+                    let left = Math.ceil(elem.position().left - tooltip.outerWidth() + elem.outerWidth());
+                    if (left < 0) {
+                        tooltip.css({"right": left + "px"});
                     }
-                } else {
-                    elem.removeClass('title-bottom');
-                }
+                    let top = Math.ceil(elem.position().top - tooltip.outerHeight());
+                    if (top < 22) { //bottom offset is 22 for tooltip
+                        if (!elem.hasClass('title-bottom')) {
+                            elem.addClass('title-bottom');
+                        }
+                    } else {
+                        elem.removeClass('title-bottom');
+                    }
+                });
+                elem.mouseout(function () {
+                    tooltip.removeAttr('style'); //reset custom css
+                });
             });
         });
         

@@ -22,6 +22,10 @@ class PropertiesEngine {
 
         File properties = new File(propertiesFolder, propertiesFileName);
         try {
+            final File projectFolder = getProjectFolder(pathInProject);
+            if (!projectFolder.exists()) {
+                throw new IllegalStateException("Folder '" + projectFolder + "' is absent.");
+            }
             File parent = properties.getParentFile();
             if (!parent.mkdirs() && !parent.exists()) {
                 throw new IllegalStateException("Cannot create the folder " + parent);
@@ -72,10 +76,17 @@ class PropertiesEngine {
         Path pathAbsolute;
         try {
             base = Paths.get(root.getAbsolutePath()).toRealPath();
+        } catch (IOException e) {
+            log.debug(e.getMessage(), e);
+            base = Paths.get(root.getAbsolutePath()).normalize();
+        }
+        try {
             pathAbsolute = Paths.get(path).toRealPath();
         } catch (IOException e) {
-            throw new IllegalStateException("Cannot determine properties folder: " + e.getMessage(), e);
+            log.debug(e.getMessage(), e);
+            pathAbsolute = Paths.get(path).normalize();
         }
+
         String relativePath = base.relativize(pathAbsolute).toString();
         log.debug("Relative: {}", relativePath);
         return relativePath;

@@ -1,0 +1,4 @@
+PUT /web/admin/tag-config/types/1/tags/2 HTTP/1.1
+Content-Type: text/plain
+
+my_finance

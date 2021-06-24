@@ -36,7 +36,6 @@ import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -113,7 +112,7 @@ public class MergeConflictBean {
             }
 
             return new ArrayList<>(groups.values());
-        } catch (WorkspaceException e) {
+        } catch (Exception e) {
             return Collections.emptyList();
         }
     }
@@ -142,7 +141,7 @@ public class MergeConflictBean {
                 repository = ((BranchRepository) getUserWorkspace().getDesignTimeRepository().getRepository(id))
                     .forBranch(mergeConflict.getMergeBranchTo());
             }
-        } catch (WorkspaceException | IOException e) {
+        } catch (IOException e) {
             log.error(e.getMessage(), e);
             return path;
         }
@@ -388,7 +387,7 @@ public class MergeConflictBean {
             if (mergeOperation) {
                 ((BranchRepository) designRepository).forBranch(mergeConflict.getMergeBranchTo())
                     .merge(mergeConflict.getMergeBranchFrom(),
-                        userWorkspace.getUser().getUserId(),
+                        userWorkspace.getUser().getUserName(),
                         conflictResolveData);
             } else {
                 project.save(conflictResolveData);
@@ -447,7 +446,7 @@ public class MergeConflictBean {
     }
 
     private Map<String, List<Module>> findModulesToAppend(MergeConflictInfo mergeConflict,
-        List<FileItem> resolvedFiles) throws WorkspaceException, IOException {
+        List<FileItem> resolvedFiles) throws IOException {
         UserWorkspace userWorkspace = getUserWorkspace();
         String repositoryId = mergeConflict.getRepositoryId();
         Map<String, List<Module>> modulesToAppend = new HashMap<>();
@@ -499,7 +498,8 @@ public class MergeConflictBean {
         return modulesToAppend;
     }
 
-    private void updateRulesXmlFiles(String repositoryId, Map<String, List<Module>> modulesToAppend, String branch) throws WorkspaceException, IOException {
+    private void updateRulesXmlFiles(String repositoryId, Map<String, List<Module>> modulesToAppend, String branch) throws
+                                                                                                                    IOException {
         // Update rules.xml files if needed after merge was successful.
         if (!modulesToAppend.isEmpty()) {
             Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository(repositoryId);
@@ -533,7 +533,7 @@ public class MergeConflictBean {
             if (!files.isEmpty()) {
                 FileData folderData = new FileData();
                 folderData.setName("");
-                folderData.setAuthor(getUserWorkspace().getUser().getUserId());
+                folderData.setAuthor(getUserWorkspace().getUser().getUserName());
                 folderData.setComment(mergeMessage);
                 folderData.setBranch(branch);
                 ((FolderRepository) repository).save(folderData, files, ChangesetType.DIFF);
@@ -710,18 +710,18 @@ public class MergeConflictBean {
             }
 
             return value;
-        } catch (WorkspaceException | IOException e) {
+        } catch (IOException e) {
             log.error(e.getMessage(), e);
             return false;
         }
     }
 
-    private UserWorkspace getUserWorkspace() throws WorkspaceException {
+    private UserWorkspace getUserWorkspace() {
         WorkspaceUser user = new WorkspaceUserImpl(SecurityContextHolder.getContext().getAuthentication().getName());
         return workspaceManager.getUserWorkspace(user);
     }
 
-    private String getRulesLocation() throws WorkspaceException {
+    private String getRulesLocation() {
         UserWorkspace userWorkspace = getUserWorkspace();
         return userWorkspace.getDesignTimeRepository().getRulesLocation();
     }

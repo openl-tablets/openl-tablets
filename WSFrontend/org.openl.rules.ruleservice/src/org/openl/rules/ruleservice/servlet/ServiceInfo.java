@@ -14,7 +14,7 @@ public class ServiceInfo {
     private final boolean hasManifest;
     private final String deploymentName;
 
-    private enum ServiceStatus {
+    public enum ServiceStatus {
         DEPLOYED,
         FAILED
     }

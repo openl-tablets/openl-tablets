@@ -28,8 +28,10 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
+import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataException;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.slf4j.Logger;
@@ -37,11 +39,12 @@ import org.slf4j.LoggerFactory;
 
 public final class KafkaService implements Runnable {
 
-    private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
+    private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(
+        Runtime.getRuntime().availableProcessors(),
         Runtime.getRuntime().availableProcessors() * 2,
         60L,
         TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>());
+        new LinkedBlockingQueue<>());
 
     private final Logger log = LoggerFactory.getLogger(KafkaService.class);
 
@@ -58,6 +61,7 @@ public final class KafkaService implements Runnable {
     private final ObjectSerializer objectSerializer;
     private final boolean storageEnabled;
     private StoreLogDataManager storeLogDataManager;
+    private final KafkaTracingProvider kafkaTracingProvider;
 
     public static KafkaService createService(OpenLService service,
             String inTopic,
@@ -68,7 +72,8 @@ public final class KafkaService implements Runnable {
             KafkaProducer<String, byte[]> dltProducer,
             ObjectSerializer objectSerializer,
             StoreLogDataManager storeLogDataManager,
-            boolean storeLogDataEnabled) {
+            boolean storeLogDataEnabled,
+            KafkaTracingProvider kafkaTracingProvider) {
         return new KafkaService(service,
             inTopic,
             outTopic,
@@ -78,7 +83,8 @@ public final class KafkaService implements Runnable {
             dltProducer,
             objectSerializer,
             storeLogDataManager,
-            storeLogDataEnabled);
+            storeLogDataEnabled,
+            kafkaTracingProvider);
     }
 
     private KafkaService(OpenLService service,
@@ -90,7 +96,8 @@ public final class KafkaService implements Runnable {
             KafkaProducer<String, byte[]> dltProducer,
             ObjectSerializer objectSerializer,
             StoreLogDataManager storeLogDataManager,
-            boolean storageEnabled) {
+            boolean storageEnabled,
+            KafkaTracingProvider kafkaTracingProvider) {
         this.service = Objects.requireNonNull(service);
         this.inTopic = Objects.requireNonNull(inTopic);
         this.producer = Objects.requireNonNull(producer);
@@ -103,6 +110,7 @@ public final class KafkaService implements Runnable {
         this.outTopic = outTopic;
         this.dltTopic = dltTopic;
         this.storageEnabled = storageEnabled;
+        this.kafkaTracingProvider = kafkaTracingProvider;
     }
 
     public boolean isStoreLogDataEnabled() {
@@ -111,6 +119,10 @@ public final class KafkaService implements Runnable {
 
     public StoreLogDataManager getStoreLogDataManager() {
         return storeLogDataManager;
+    }
+
+    public boolean isTracingEnabled() {
+        return kafkaTracingProvider != null;
     }
 
     public OpenLService getService() {
@@ -207,8 +219,16 @@ public final class KafkaService implements Runnable {
                                 }
                                 String outputTopic = getOutTopic(consumerRecord);
                                 if (!StringUtils.isBlank(outputTopic)) {
+                                    boolean tracingEnabled = isTracingEnabled();
+                                    Object span = null;
+                                    if (tracingEnabled) {
+                                        span = kafkaTracingProvider.start(consumerRecord.headers(), service.getName());
+                                    }
                                     Object result = requestMessage.getMethod()
                                         .invoke(service.getServiceBean(), requestMessage.getParameters());
+                                    if (tracingEnabled) {
+                                        kafkaTracingProvider.finish(span);
+                                    }
                                     Header header = consumerRecord.headers().lastHeader(KafkaHeaders.REPLY_PARTITION);
                                     ProducerRecord<String, Object> producerRecord;
                                     if (header == null) {
@@ -224,12 +244,25 @@ public final class KafkaService implements Runnable {
                                             result);
                                     }
                                     forwardHeadersToOutput(consumerRecord, producerRecord);
+
+                                    if (tracingEnabled) {
+                                        kafkaTracingProvider.injectTracingHeaders(consumerRecord.headers(),
+                                            producerRecord.headers());
+                                    }
+
                                     if (storeLogData != null) {
                                         storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
                                     }
                                     producer.send(producerRecord, (metadata, exception) -> {
                                         if (storeLogData != null) {
                                             storeLogData.setProducerRecord(producerRecord);
+                                        }
+                                        if (exception == null && storeLogData != null) {
+                                            try {
+                                                getStoreLogDataManager().store(storeLogData);
+                                            } catch (StoreLogDataException e) {
+                                                exception = e;
+                                            }
                                         }
                                         if (exception != null) {
                                             try {
@@ -244,8 +277,6 @@ public final class KafkaService implements Runnable {
                                                 log.error("Unexpected error.", e);
                                             }
                                             sendErrorToDlt(consumerRecord, exception, storeLogData);
-                                        } else if (storeLogData != null) {
-                                            getStoreLogDataManager().store(storeLogData);
                                         }
                                     });
                                 } else {
@@ -260,6 +291,9 @@ public final class KafkaService implements Runnable {
                                         String.format("Failed to process a message from input topic '%s'.",
                                             getInTopic()),
                                         e);
+                                }
+                                if (isTracingEnabled()) {
+                                    kafkaTracingProvider.traceError(consumerRecord.headers(), service.getName(), e);
                                 }
                                 sendErrorToDlt(consumerRecord, e, storeLogData);
                             } finally {
@@ -370,7 +404,11 @@ public final class KafkaService implements Runnable {
                         System.lineSeparator(),
                         record.value().asText()), exception);
                 } else if (storeLogData != null) {
-                    getStoreLogDataManager().store(storeLogData);
+                    try {
+                        getStoreLogDataManager().store(storeLogData);
+                    } catch (StoreLogDataException e1) {
+                        log.error("Failed on data store operation.", e1);
+                    }
                 }
             });
         } catch (Exception e1) {

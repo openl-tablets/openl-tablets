@@ -14,12 +14,11 @@ import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.Inject;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataException;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLogDataToElasticsearch;
 import org.openl.spring.config.ConditionalOnEnable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -31,8 +30,6 @@ import org.springframework.stereotype.Component;
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.elasticsearch.enabled")
 public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataService {
-
-    private final Logger log = LoggerFactory.getLogger(ElasticSearchStoreLogDataService.class);
 
     @Autowired
     private ElasticsearchOperations elasticsearchOperations;
@@ -50,7 +47,7 @@ public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataServic
     }
 
     @Override
-    protected boolean isSync(StoreLogData storeLogData) {
+    public boolean isSync(StoreLogData storeLogData) {
         StoreLogDataToElasticsearch storeLogDataToElasticsearch = AnnotationUtils
             .getAnnotationInServiceClassOrServiceMethod(storeLogData, StoreLogDataToElasticsearch.class);
         if (storeLogDataToElasticsearch != null) {
@@ -74,7 +71,7 @@ public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataServic
     }
 
     @Override
-    protected void save(StoreLogData storeLogData, boolean sync) {
+    protected void save(StoreLogData storeLogData, boolean sync) throws StoreLogDataException {
         Object[] entities;
 
         StoreLogDataToElasticsearch storeLogDataToElasticsearchAnnotation = storeLogData.getServiceClass()
@@ -100,14 +97,11 @@ public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataServic
                     try {
                         entities[i] = entityClass.newInstance();
                     } catch (InstantiationException | IllegalAccessException e) {
-                        if (log.isErrorEnabled()) {
-                            log.error(String.format(
-                                "Failed to instantiate ElasticSearch index builder%s. Please, check that class '%s' is not abstract and has a default constructor.",
-                                serviceMethod != null ? " for method '" + MethodUtil
-                                    .printQualifiedMethodName(serviceMethod) + "'" : StringUtils.EMPTY,
-                                entityClass.getTypeName()), e);
-                        }
-                        return;
+                        throw new StoreLogDataException(String.format(
+                            "Failed to instantiate ElasticSearch index builder%s. Please, check that class '%s' is not abstract and has a default constructor.",
+                            serviceMethod != null ? " for method '" + MethodUtil
+                                .printQualifiedMethodName(serviceMethod) + "'" : StringUtils.EMPTY,
+                            entityClass.getTypeName()), e);
                     }
                 }
                 i++;
@@ -121,19 +115,18 @@ public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataServic
             try {
                 storeLogDataMapper.map(storeLogData, entity);
             } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    if (serviceMethod != null) {
-                        log.error("Failed to populate Elasticsearch index related to method '{}' in class '{}'.",
+                if (serviceMethod != null) {
+                    throw new StoreLogDataException(
+                        String.format("Failed to populate Elasticsearch index related to method '%s' in class '%s'.",
                             MethodUtil.printQualifiedMethodName(serviceMethod),
-                            entity.getClass().getTypeName(),
-                            e);
-                    } else {
-                        log.error("Failed to populate Elasticsearch index related to class '{}'.",
-                            entity.getClass().getTypeName(),
-                            e);
-                    }
+                            entity.getClass().getTypeName()),
+                        e);
+                } else {
+                    throw new StoreLogDataException(
+                        String.format("Failed to populate Elasticsearch index related to class '%s'.",
+                            entity.getClass().getTypeName()),
+                        e);
                 }
-                return;
             }
         }
 
@@ -155,14 +148,13 @@ public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataServic
                     elasticsearchOperations.index(indexQuery);
                     elasticsearchOperations.refresh(indexQuery.getIndexName());
                 } catch (Exception e) {
-                    // Continue the loop if exception occurs
-                    log.error("Failed on ElasticSearch entity save operation.", e);
+                    throw new StoreLogDataException("Failed on ElasticSearch entity save operation.", e);
                 }
             }
         }
     }
 
-    private String extractId(Object entity) {
+    private String extractId(Object entity) throws StoreLogDataException {
         String existingId = null;
 
         for (Field f : entity.getClass().getDeclaredFields()) {
@@ -172,8 +164,9 @@ public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataServic
                     f.setAccessible(true);
                     existingId = (String) f.get(entity);
                 } catch (IllegalAccessException e) {
-                    log.error("Failed on ElasticSearch entity '{}' extract ID operation.",
-                        entity.getClass().getTypeName(),
+                    throw new StoreLogDataException(
+                        String.format("Failed on ElasticSearch entity '%s' extract ID operation.",
+                            entity.getClass().getTypeName()),
                         e);
                 }
             }

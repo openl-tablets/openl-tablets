@@ -31,6 +31,41 @@ public class FileSystemRepositoryTest {
         testRepo(repo);
     }
 
+    @Test
+    public void createFolderOnDemand() throws IOException {
+        File base = new File("target/test-file-repository-on-demand/");
+        FileUtils.deleteQuietly(base);
+
+        try {
+            File root = new File(base, "my-repo");
+
+            FileSystemRepository repo = new FileSystemRepository();
+            repo.setRoot(root);
+            repo.initialize();
+            assertFalse("Repo folder must not be created after initialize().", root.exists());
+
+            assertList(repo, "", 0);
+            assertFalse("We didn't modify repository. Repo folder must not be created.", root.exists());
+
+            assertSave(repo, "folder1/text", "The file in the folder");
+            assertTrue("We added the file to repo. Repo folder must exist.", root.exists());
+
+            assertSave(repo, "folder2/text", "The file in the folder");
+            assertTrue("We added the file to repo. Repo folder must exist.", root.exists());
+
+            assertDelete(repo, "folder2/text", true);
+            assertTrue("Repo still contains at least 1 file. Repo folder must exist.", root.exists());
+
+            assertDelete(repo, "folder1/text", true);
+            assertFalse("Repo folder must be deleted when all files in it were deleted.", root.exists());
+
+            assertTrue("Repository's base folder must not be deleted: Repo isn't responsible for it.", base.exists());
+        } finally {
+            // Cleanup
+            FileUtils.deleteQuietly(base);
+        }
+    }
+
     private void testRepo(FileSystemRepository repo) throws IOException {
         Calendar calendar = Calendar.getInstance();
         calendar.set(2018, Calendar.NOVEMBER, 25, 10, 11, 12);

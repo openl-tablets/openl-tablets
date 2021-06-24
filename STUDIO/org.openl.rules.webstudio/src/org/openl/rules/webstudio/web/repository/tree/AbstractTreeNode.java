@@ -81,6 +81,8 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     private AProjectArtefact data;
 
+    private boolean expanded = false;
+
     /**
      * Creates tree node that can have children.
      *
@@ -373,5 +375,13 @@ public abstract class AbstractTreeNode implements TreeNode {
     @Override
     public ArtefactPath getInternalArtifactPath() {
         return getData().getArtefactPath().withoutFirstSegment();
+    }
+
+    public boolean isExpanded() {
+        return expanded;
+    }
+
+    public void setExpanded(boolean expanded) {
+        this.expanded = expanded;
     }
 }

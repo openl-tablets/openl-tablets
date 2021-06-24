@@ -10,21 +10,18 @@ import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.Inject;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataException;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
 import org.openl.spring.config.ConditionalOnEnable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.cassandra.enabled")
 public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CassandraStoreLogDataService.class);
 
     @Autowired
     private CassandraOperations cassandraOperations;
@@ -42,7 +39,7 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
     private volatile Collection<Inject<?>> supportedInjects;
 
     @Override
-    protected boolean isSync(StoreLogData storeLogData) {
+    public boolean isSync(StoreLogData storeLogData) {
         StoreLogDataToCassandra storeLogDataToCassandra = AnnotationUtils
             .getAnnotationInServiceClassOrServiceMethod(storeLogData, StoreLogDataToCassandra.class);
         if (storeLogDataToCassandra != null) {
@@ -66,7 +63,7 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
     }
 
     @Override
-    protected void save(StoreLogData storeLogData, boolean sync) {
+    protected void save(StoreLogData storeLogData, boolean sync) throws StoreLogDataException {
         Object[] entities;
 
         StoreLogDataToCassandra storeLogDataToCassandraAnnotation = storeLogData.getServiceClass()
@@ -93,14 +90,11 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
                     try {
                         entities[i] = entityClass.newInstance();
                     } catch (InstantiationException | IllegalAccessException e) {
-                        if (LOG.isErrorEnabled()) {
-                            LOG.error(String.format(
-                                "Failed to instantiate cassandra entity%s. Please, check that class '%s' is not abstract and has a default constructor.",
-                                serviceMethod != null ? (" for method '" + MethodUtil
-                                    .printQualifiedMethodName(serviceMethod) + "'") : StringUtils.EMPTY,
-                                entityClass.getTypeName()), e);
-                        }
-                        return;
+                        throw new StoreLogDataException(String.format(
+                            "Failed to instantiate cassandra entity%s. Please, check that class '%s' is not abstract and has a default constructor.",
+                            serviceMethod != null ? (" for method '" + MethodUtil
+                                .printQualifiedMethodName(serviceMethod) + "'") : StringUtils.EMPTY,
+                            entityClass.getTypeName()), e);
                     }
                 }
                 i++;
@@ -110,17 +104,17 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
             try {
                 storeLogDataMapper.map(storeLogData, entity);
             } catch (Exception e) {
-                if (LOG.isErrorEnabled()) {
-                    if (serviceMethod != null) {
-                        LOG.error("Failed to populate cassandra entity '{}' for method '{}'.",
+                if (serviceMethod != null) {
+                    throw new StoreLogDataException(
+                        String.format("Failed to populate cassandra entity '%s' for method '%s'.",
                             entity.getClass().getTypeName(),
-                            MethodUtil.printQualifiedMethodName(serviceMethod),
-                            e);
-                    } else {
-                        LOG.error("Failed to populate cassandra entity '{}'.", entity.getClass().getTypeName(), e);
-                    }
+                            MethodUtil.printQualifiedMethodName(serviceMethod)),
+                        e);
+                } else {
+                    throw new StoreLogDataException(
+                        String.format("Failed to populate cassandra entity '%s'.", entity.getClass().getTypeName()),
+                        e);
                 }
-                return;
             }
         }
         for (Object entity : entities) {
@@ -129,7 +123,7 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
                     cassandraOperations.save(entity, sync);
                 } catch (Exception e) {
                     // Continue the loop if exception occurs
-                    LOG.error("Failed on cassandra entity save operation.", e);
+                    throw new StoreLogDataException("Failed on cassandra entity save operation.", e);
                 }
             }
         }

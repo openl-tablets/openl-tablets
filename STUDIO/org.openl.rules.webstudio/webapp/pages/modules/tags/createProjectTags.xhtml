@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich">
+
+    <rich:popupPanel id="modalCreateProjectTags" minWidth="330" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Tags"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="hideCreateProjectTags()" alt="Close"/>
+        </f:facet>
+
+        <h:form id="createProjectTagsForm">
+            <div>
+                <table class="formfields">
+                    <ui:repeat value="#{projectTagsBean.tags}" var="tag">
+                        <tr>
+                            <td>
+                                <label class="#{not tag.type.nullable  ? 'required' : ''}"><h:outputText value="#{tag.type.name}:"/></label>
+                            </td>
+                            <td>
+                                <h:inputHidden id="tag-type-name" value="#{tag.type.name}"/>
+                                <h:inputHidden id="tag-name" value="#{tag.name}"/>
+
+                                <select class="editable-select #{tag.type.extensible ? '' : 'readonly'}">
+                                    <h:panelGroup rendered="#{tag.type.nullable}">
+                                        <h:panelGroup rendered="#{tag.name == '[None]'}">
+                                            <option value="[None]" selected="selected">[None]</option>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{tag.name != '[None]'}">
+                                            <option value="[None]">[None]</option>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{not tag.type.nullable and tag.name == '[None]'}">
+                                        <option value="[None]" disabled="disabled" selected="selected">[None]</option>
+                                    </h:panelGroup>
+
+                                    <ui:repeat value="#{projectTagsBean.getTagValues(tag.type.name)}" var="t">
+                                        <h:panelGroup rendered="#{tag.name == t.name}">
+                                            <option value="#{t.name}" selected="selected"><h:outputText value="#{t.name}"/></option>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{tag.name != t.name}">
+                                            <option value="#{t.name}"><h:outputText value="#{t.name}"/></option>
+                                        </h:panelGroup>
+                                    </ui:repeat>
+                                </select>
+                            </td>
+                        </tr>
+                    </ui:repeat>
+
+                </table>
+            </div>
+
+            <footer>
+                <a4j:commandButton value="Save"
+                                   onclick="if (!confirmCreateTags()) return false;"
+                                   action="#{projectTagsBean.validateCreate}"
+                                   oncomplete="if(!#{facesContext.validationFailed}) {hideCreateProjectTags(); submitCreateProjectForm(); }"
+                                   render="@form"
+                                   styleClass="button-primary"/>
+                <input type="button" value="Cancel" onclick="hideCreateProjectTags()"/>
+            </footer>
+
+            <a4j:jsFunction name="renderCreateProjectTagsForm" render="@form"/>
+            <a4j:jsFunction name="initCreateProjectTagsDialog" action="#{projectTagsBean.initFromTemplate}" render="@form" oncomplete="showCreateProjectTagsDialog();">
+                <a4j:param name="projectName" assignTo="#{projectTagsBean.projectName}"/>
+            </a4j:jsFunction>
+
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        let submitForm = function () {};
+
+        function createProjectTags(projectName, submitFormFunction) {
+            submitForm = submitFormFunction;
+            initCreateProjectTagsDialog(projectName);
+        }
+
+        function submitCreateProjectForm() {
+            submitForm();
+        }
+
+        function showCreateProjectTagsDialog() {
+            $j('#createProjectTagsForm .editable-select').editableSelect({
+                duration: 0,
+                filter: false
+            }).on('select.editable-select', function (e, $li) {
+                $li.parent().prev().prev('input[type=hidden]').val($li.text());
+            }).on('hidden.editable-select', function (e, $li) {
+                // Workaround for a bug in Editor: input fields are hidden when combobox is changed.
+                $j('#createProjectTagsForm .editable-select.es-input').show();
+            });
+
+            let $editableInput = $j('#createProjectTagsForm .editable-select.es-input');
+            // Support extensible tags filled from template
+            $editableInput.prev('input[type=hidden]').each(function () {
+                $j(this).next('#createProjectTagsForm .editable-select.es-input').val($j(this).val());
+            });
+            $editableInput.change(function () {
+                $j(this).prev('input[type=hidden]').val($j(this).val());
+            });
+
+            $editableInput.each(function () {
+                let handler = $j._data(this, "events")['keydown'][0]['handler'];
+                $j(this).off('keydown').on('keydown', function (e) {
+                    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                        handler.apply(this, arguments);
+                        setTimeout(() => {
+                            let selectedValue = $j(this).next('.es-list').find('li.selected').text();
+                            $j(this).val(selectedValue);
+                        });
+                        return;
+                    }
+                    if (e.key !== "Enter" && e.key !== "Escape" && e.key !== "Tab") {
+                        if ($j(this).val() === "[None]" && !$j(this).prop('readonly')) {
+                            $j(this).val("");
+                        }
+                    }
+                    handler.apply(this, arguments);
+                });
+            });
+
+            $j('#createProjectTagsForm .editable-select').prop('readonly', false);
+            $j('#createProjectTagsForm .editable-select.readonly').prop('readonly', true);
+
+            RichFaces.$('modalCreateProjectTags').show();
+        }
+
+        function hideCreateProjectTags() {
+            RichFaces.$("modalCreateProjectTags").hide();
+
+            // Reset form
+            $j("#createProjectTagsForm")[0].reset();
+        }
+
+        function confirmCreateTags() {
+            let tagsToAdd = 0;
+            let message = '';
+            let $tagTypeNames = $j('#createProjectTagsForm').find('input[type=hidden][id$="tag-type-name"]');
+            $tagTypeNames.each(function () {
+                let tagType = $j(this).val();
+                let tagName = $j(this).parent().find('input[type=hidden][id$="tag-name"]').val();
+                let exist = $j(this).parent().find('.es-list').find('li').filter(function () {
+                    return $j(this).text().toLowerCase() === tagName.toLowerCase();
+                }).length > 0;
+
+                if (!exist) {
+                    tagsToAdd++;
+                    message += 'Tag "' + tagName + '" does not exist for tag type "' + tagType + '".\n';
+                }
+            });
+
+            if (tagsToAdd > 0) {
+                if (tagsToAdd === 1) {
+                    message += 'Do you want to add it?';
+                } else {
+                    message += 'Do you want to add them?';
+                }
+
+                return window.confirm(message);
+            }
+
+            return true;
+        }
+
+        //]]>
+    </script>
+
+</ui:composition>

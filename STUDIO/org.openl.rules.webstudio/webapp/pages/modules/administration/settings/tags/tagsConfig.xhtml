@@ -1,0 +1,534 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:a4j="http://richfaces.org/a4j">
+
+    <style>
+        #tag-types-list {
+            max-width: max-content;
+        }
+
+        .tag-type {
+            padding: 5px;
+            margin-bottom: 15px;
+            border: 1px solid black;
+        }
+
+        .tags-list {
+            padding: 5px;
+            margin: 5px 0;
+            border: 1px solid #dddddd;
+        }
+
+        .tag-value {
+            display: inline-block;
+            padding: 2px;
+            margin-right: 5px;
+            background-color: #f5f5f5;
+            border: 1px solid;
+            border-radius: 3px;
+            cursor: default;
+        }
+
+        .tag-will-create {
+            background: lightgreen;
+        }
+
+        .tag-cannot-create {
+            background: orangered;
+        }
+
+        .tag-current-value {
+            background: lightgray;
+        }
+
+        .tag-replace {
+            border-style: dotted;
+            border-width: 2px;
+            padding: 5px 2px;
+            white-space: nowrap;
+            margin-right: 5px;
+        }
+
+        .tag-replace > .tag-value {
+            margin-right: 0;
+        }
+
+        .tag-type .delete-icon {
+            float: right;
+        }
+
+        .tag-value .delete-icon {
+            text-align: right;
+        }
+
+        input.tag-type-name, input.tag-name {
+            width: auto;
+        }
+
+        #tag-template {
+            border-top: 1px solid #ddd;
+            margin-top: 20px;
+        }
+
+        #tagTemplateForm\:tagTemplates {
+            height: 60px;
+        }
+    </style>
+
+    <div>
+        <h1>Tag Types and Values</h1>
+        <div>
+            <p><strong>Tag type</strong> is a category that includes tag values of the same group. For example, the
+                <strong>Product</strong> tag type can include tags Auto, Life, and Home.</p>
+            <p>Proceed as follows:
+                <ul>
+                    <li>To add a tag type, in the <strong>New Tag Type</strong> field, enter the tag type name and press
+                        <strong>Enter</strong> or <strong>Tab</strong>. The tag type is added, and fields for tag values appear.</li>
+                    <li>To add a tag value, in the <strong>New Tag</strong> field, enter the tag name and press
+                        <strong>Enter</strong>.</li>
+                </ul>
+            </p>
+            <p>All created tag types and values are saved automatically.</p>
+        </div>
+        <div id="tag-types-list"></div>
+    </div>
+
+    <div id="tag-template">
+        <ui:include src="/pages/modules/administration/settings/tags/projectsWithoutTags.xhtml"/>
+        <h:form id="tagTemplateForm">
+            <h1>Tags from a Project Name</h1>
+            <div>
+                <p>Tags can be extracted from a project name using a project name template.</p>
+                <p>Each template must be defined on its own line. The order of the templates is important: the first template has the highest priority, the last template has the lowest priority.</p>
+                <p>Tag types are wrapped with the percentage '%' symbol.</p>
+                <p>'?' stands for any symbol.</p>
+                <p>'*' stands for any text of any length.</p>
+                <p><strong>Example:</strong></p>
+                <p>For the <strong>%Domain%-%LOB%-*</strong> template, for the <strong>Policy-L&amp;A-rules</strong> project, the tags are
+                    <strong>Policy</strong> for the <strong>Domain</strong> tag type and <strong>L&amp;A</strong> for
+                    <strong>LOB</strong>.</p>
+            </div>
+            <table>
+                <tr>
+                    <td>Project name templates:</td>
+                    <td>
+                        <h:inputTextarea id="tagTemplates"
+                                         onblur="$j('#tagTemplateForm\\:saveTemplatesButton').click();"
+                                         value="#{tagTemplateBean.templates}"
+                                         validator="#{tagTemplateBean.templateValidator}"/>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a4j:outputPanel ajaxRendered="true">
+                        <h:message for="tagTemplates" styleClass="error"/>
+                    </a4j:outputPanel></td>
+                </tr>
+            </table>
+            <a4j:commandButton id="saveTemplatesButton"
+                               value="Save templates"
+                               action="#{tagTemplateBean.save}"
+                               render="commonProps repositoryProps javaProps restartMessage tags"
+                               title="Apply changes"/>
+            <input type="button" value="Fill tags for projects" onclick="openProjectsWithoutTags()"/>
+
+        </h:form>
+    </div>
+
+    <script>
+        //<![CDATA[
+        $j(() => {
+            let tc = new TagsConfig();
+
+            $j('#tag-types-list').bind('refresh', () => tc.reload());
+            $j('#tag-types-list').trigger('refresh');
+
+            $j(window).click(event => {
+                if (!event.target.matches('.dropdown-icon')) {
+                    $j('.dropdown-content').hide();
+                }
+            });
+        });
+
+        let TagsConfig = function () {
+            const createTagType = function (tagType) {
+                let $tagType = $j('<div></div>');
+                $tagType.addClass('tag-type');
+                $tagType.data('id', tagType.id);
+
+                let $tagTypeName = createTagTypeName(tagType);
+                $tagType.append($tagTypeName);
+
+                let $optionalComponent = createOptional(tagType);
+                $tagType.append($optionalComponent);
+
+                let $extensibleComponent = createExtensible(tagType);
+                $tagType.append($extensibleComponent);
+
+                let $tagTypeDelete = createDeleteTagTypeButton(tagType, $tagType);
+                $tagType.append($tagTypeDelete);
+
+                let $tags = createTagsList(tagType);
+                $tagType.append($tags);
+
+                return $tagType;
+            };
+
+            const createDeleteTagTypeButton = function (tagType, $tagType) {
+                let $tagTypeDelete = $j('<span class="clickable delete-icon" title="Delete tag type"></span>');
+                $tagTypeDelete.click(() => {
+                    if (!window.confirm('Are you sure you want to delete tag type?')) {
+                        return false;
+                    }
+
+                    $j.ajax({
+                        type: "DELETE",
+                        url: "#{contextPath}/web/admin/tag-config/types/" + tagType.id,
+                        beforeSend: showLoader
+                    }).done(
+                        () => $tagType.remove()
+                    ).fail(
+                        response => handleError(response.status)
+                    ).always(
+                        () => hideLoader()
+                    );
+                });
+                return $tagTypeDelete;
+            };
+
+            const createTagTypeName = function (tagType) {
+                let $tagTypeName = $j('<input type="text" placeholder="Enter Tag Type" title="Tag type" maxlength="30">');
+                $tagTypeName.addClass('tag-type-name');
+                $tagTypeName.val(tagType.name);
+
+                const applyChanges = () => {
+                    let name = $tagTypeName.val();
+                    if (name !== tagType.name) {
+                        let obj = {
+                            id: tagType.id,
+                            name: name,
+                            extensible: tagType.extensible,
+                            nullable: tagType.nullable
+                        }
+                        updateTagType(obj, () => tagType.name = name, response => {
+                            let json = JSON.parse(response.responseText);
+                            ws.ui.error(json && json.message? json.message : 'Cannot update tag type');
+                            $tagTypeName.focus();
+                        });
+                    }
+                };
+
+                $tagTypeName.on('keyup', (e) => {
+                    if (e.key === "Enter") applyChanges();
+                    if (e.key === "Escape") $tagTypeName.val(tagType.name);
+                });
+                $tagTypeName.focusout(applyChanges);
+
+                return $tagTypeName;
+            };
+
+            const createNewTagTypeName = function () {
+                let $tagTypeName = $j('<input type="text" placeholder="New Tag Type" maxlength="30">');
+                $tagTypeName.addClass('tag-type-name');
+
+                const applyChanges = () => {
+                    let name = $tagTypeName.val();
+                    if (name !== '') {
+                        let obj = {
+                            name: name,
+                            extensible: false,
+                            nullable: false
+                        }
+                        updateTagType(obj,
+                            () => $j('#tag-types-list').trigger('refresh'),
+                            response => {
+                                let json = JSON.parse(response.responseText);
+                                ws.ui.error(json && json.message ? json.message : 'Cannot update tag type');
+                                $tagTypeName.focus();
+                            }
+                        );
+                    }
+                };
+
+                $tagTypeName.on('keyup', (e) => {
+                    if (e.key === "Enter") applyChanges();
+                    if (e.key === "Escape") $tagTypeName.val('');
+                });
+                $tagTypeName.focusout(applyChanges);
+
+                return $tagTypeName;
+            };
+
+            const createOptional = function (tagType) {
+                let $optional = $j('<input type="checkbox">');
+                $optional.prop('checked', tagType.nullable);
+                let $optionalLabel = $j('<label title="If selected, tag type definition is optional. If cleared, tag type definition is mandatory.">Optional</label>')
+                $optionalLabel.prepend($optional);
+                $optional.click(() => {
+                    let optional = $optional.prop("checked");
+                    let obj = {
+                        id: tagType.id,
+                        name: tagType.name,
+                        extensible: tagType.extensible,
+                        nullable: optional
+                    }
+                    updateTagType(obj, () => tagType.nullable = optional);
+                });
+                return $optionalLabel;
+            };
+            const createExtensible = function (tagType) {
+                let $extensible = $j('<input type="checkbox">');
+                $extensible.prop('checked', tagType.extensible);
+                let $extensibleLabel = $j('<label title="If selected, tag values can be created by any user. If cleared, tag values can be created by an administrator only.">Extensible</label>')
+                $extensibleLabel.prepend($extensible);
+                $extensible.click(() => {
+                    let extensible = $extensible.prop("checked");
+                    let obj = {
+                        id: tagType.id,
+                        name: tagType.name,
+                        nullable: tagType.nullable,
+                        extensible: extensible
+                    }
+                    updateTagType(obj, () => tagType.extensible = extensible);
+                });
+                return $extensibleLabel;
+            };
+
+            const createTag = function (tag) {
+                let $tag = $j('<div></div>');
+                $tag.addClass('tag-value');
+                $tag.data('id', tag.id);
+
+                let $tagText = $j('<span></span>');
+                $tagText.text(tag.name);
+                $tag.append($tagText);
+
+                $tag.append(createDropdown(tag, $tag, $tagText));
+
+                return $tag;
+            };
+
+            const createDeleteTagButton = function (tag, $tag) {
+                let $tagDelete = $j('<a href="#" title="Delete tag">Delete</span>');
+                $tagDelete.click(() => {
+                    if (!window.confirm('Are you sure you want to delete the tag?')) {
+                        return false;
+                    }
+
+                    $j.ajax({
+                        type: "DELETE",
+                        url: "#{contextPath}/web/admin/tag-config/types/" + tag.tagTypeId + "/tags/" + tag.id,
+                        beforeSend: showLoader
+                    }).done(
+                        () => $tag.remove()
+                    ).fail(
+                        response => handleError(response.status)
+                    ).always(
+                        () => hideLoader()
+                    );
+                });
+                return $tagDelete;
+            };
+
+            const createEditTagButton = function (tag, $tagText) {
+                let $editTagButton = $j('<a href="#" title="Edit tag">Edit</span>');
+                $editTagButton.click(() => {
+                    let $editTagName = createEditTagName(tag);
+                    $tagText.replaceWith($editTagName);
+                    $editTagName.focus();
+                });
+                return $editTagButton;
+            };
+
+            const createDropdown = function (tag, $tag, $tagText) {
+                let $dropdown = $j('<div class="dropdown"></div>');
+
+                let $dropdownContent = $j('<div class="dropdown-content"></div>');
+                $dropdownContent.append(createEditTagButton(tag, $tagText));
+                $dropdownContent.append(createDeleteTagButton(tag, $tag));
+
+                let $dropdownButton = $j('<span class="clickable dropdown-icon" title="Actions"></span>');
+                $dropdownButton.click(() => {
+                    // Close previous dropdowns
+                    $j('.dropdown-content').hide();
+                    $dropdownContent.show();
+                });
+
+                $dropdown.append($dropdownButton);
+                $dropdown.append($dropdownContent);
+
+                return $dropdown;
+            };
+
+            const createNewTagName = function (tagType) {
+                let $tagName = $j('<input type="text" placeholder="New Tag" maxlength="30">');
+                $tagName.addClass('tag-name');
+
+                const triggerRefresh = () => $j('#tag-types-list').trigger('refresh');
+
+                const applyChanges = () => {
+                    let name = $tagName.val();
+                    if (name !== '') {
+                        let obj = {
+                            tagTypeId: tagType.id,
+                            name: name
+                        }
+                        updateTag(obj,
+                            () => triggerRefresh(),
+                            response => {
+                                let json = JSON.parse(response.responseText);
+                                ws.ui.error(json && json.message ? json.message : 'Cannot update tag');
+                                $tagName.focus();
+                            }
+                        );
+                    }
+                };
+                $tagName.on('keyup', (e) => {
+                    if (e.key === "Enter") applyChanges();
+                    if (e.key === "Escape") triggerRefresh();
+                });
+                $tagName.focusout(applyChanges);
+
+                return $tagName;
+            };
+
+            const createEditTagName = function (tag) {
+                let $tagName = $j('<input type="text" placeholder="Enter Tag Name" maxlength="30">');
+                $tagName.addClass('tag-name');
+                $tagName.val(tag.name);
+
+                const triggerRefresh = () => $j('#tag-types-list').trigger('refresh');
+
+                const applyChanges = () => {
+                    let name = $tagName.val();
+
+                    if (name !== tag.name) {
+                        let obj = {
+                            tagId: tag.id,
+                            tagTypeId: tag.tagTypeId,
+                            name: name
+                        }
+                        updateTag(obj,
+                            () => triggerRefresh(),
+                            response => {
+                                let json = JSON.parse(response.responseText);
+                                ws.ui.error(json && json.message ? json.message : 'Cannot update tag');
+                                $tagName.focus();
+                            }
+                        );
+                    } else {
+                        triggerRefresh();
+                    }
+                };
+
+
+                $tagName.on('keyup', (e) => {
+                    if (e.key === "Enter") applyChanges();
+                    if (e.key === "Escape") triggerRefresh();
+                });
+                $tagName.focusout(applyChanges);
+
+                return $tagName;
+            };
+
+            const createTagsList = function (tagType) {
+                let $tags = $j('<div></div>');
+                $tags.addClass('tags-list');
+
+                if (Array.isArray(tagType.tags)) {
+                    for (let tag of tagType.tags) {
+                        let $tag = createTag(tag);
+
+                        $tags.append($tag);
+                    }
+                }
+
+                $tags.append(createNewTagName(tagType));
+
+                return $tags;
+            };
+
+            const updateTagType = function (obj, onDoneFunc, onFailFunc) {
+                let method;
+                let url;
+                if (obj.id) {
+                    method = "PUT";
+                    url = "#{contextPath}/web/admin/tag-config/types/" + obj.id;
+                } else {
+                    method = "POST";
+                    url = "#{contextPath}/web/admin/tag-config/types";
+                }
+                $j.ajax({
+                    type: method,
+                    url: url,
+                    data: JSON.stringify(obj),
+                    contentType: 'application/json',
+                    beforeSend: showLoader
+                }).done(
+                    () => onDoneFunc()
+                ).fail(
+                    response => onFailFunc ? onFailFunc(response) : handleError(response.status)
+                ).always(
+                    () => hideLoader()
+                );
+            };
+
+            const updateTag = function (obj, onDoneFunc, onFailFunc) {
+                let method;
+                let url;
+
+                if (obj.tagId) {
+                    method = "PUT";
+                    url = "#{contextPath}/web/admin/tag-config/types/" + obj.tagTypeId + "/tags/" + obj.tagId;
+                } else {
+                    method = "POST";
+                    url = "#{contextPath}/web/admin/tag-config/types/" + obj.tagTypeId + "/tags";
+                }
+                $j.ajax({
+                    type: method,
+                    url: url,
+                    data: obj.name,
+                    contentType: 'text/plain',
+                    beforeSend: showLoader
+                }).done(
+                    () => onDoneFunc()
+                ).fail(
+                    response => onFailFunc ? onFailFunc(response) : handleError(response.status)
+                ).always(
+                    () => hideLoader()
+                );
+            };
+
+            return {
+                reload: function () {
+                    $j.ajax({
+                        url: "#{contextPath}/web/admin/tag-config/types",
+                        datatype: "json",
+                        beforeSend: showLoader
+                    }).done(data => {
+                        let $tagTypesList = $j('#tag-types-list');
+                        $tagTypesList.empty();
+
+                        if (Array.isArray(data)) {
+                            for (let tagType of data) {
+                                let $tagType = createTagType(tagType);
+                                $tagTypesList.append($tagType);
+                            }
+
+                            let $newTagType = createNewTagTypeName();
+                            $tagTypesList.append($newTagType);
+                        }
+                    }).fail(
+                        response => handleError(response.status)
+                    ).always(
+                        () => hideLoader()
+                    );
+                }
+            };
+        };
+
+        //]]>
+    </script>
+</ui:composition>

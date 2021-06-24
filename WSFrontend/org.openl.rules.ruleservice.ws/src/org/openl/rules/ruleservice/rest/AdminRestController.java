@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.rest;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import javax.ws.rs.core.Response;
 import org.openl.info.OpenLVersion;
 import org.openl.info.SysInfo;
 import org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher;
+import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -69,7 +71,6 @@ public class AdminRestController {
         return Response.ok(SysInfo.get()).build();
     }
 
-
     /**
      * @return a list of properties about the OpenL build.
      */
@@ -92,7 +93,6 @@ public class AdminRestController {
      * @return a list of messages of the given OpenL service.
      */
     @GET
-    //space
     @Path("/services/{deployPath:.+}/errors/")
     public Response getServiceErrors(@PathParam("deployPath") final String deployPath) {
         return okOrNotFound(serviceManager.getServiceErrors(deployPath));
@@ -102,6 +102,22 @@ public class AdminRestController {
     @Path("/services/{deployPath:.+}/MANIFEST.MF")
     public Response getManifest(@PathParam("deployPath") final String deployPath) {
         return okOrNotFound(serviceManager.getManifest(deployPath));
+    }
+
+    @GET
+    @Path("/healthcheck/readiness")
+    public Response readiness() {
+        Collection<ServiceInfo> servicesInfo = serviceManager.getServicesInfo();
+        boolean anyFailed = servicesInfo.stream()
+            .anyMatch(info -> ServiceInfo.ServiceStatus.FAILED.equals(info.getStatus()));
+
+        return anyFailed ? Response.status(Response.Status.SERVICE_UNAVAILABLE).build() : Response.ok().build();
+    }
+
+    @GET
+    @Path("/healthcheck/startup")
+    public Response startup() {
+        return Response.ok().build();
     }
 
     private static Response okOrNotFound(Object entity) {

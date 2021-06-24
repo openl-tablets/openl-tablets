@@ -19,7 +19,6 @@ import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -136,8 +135,8 @@ public class BranchesBean {
                 String nameBeforeMerge = project.getName();
                 String nameAfterMerge = nameBeforeMerge;
 
-                String userId = getUserWorkspace().getUser().getUserId();
-                ((BranchRepository) designRepository).forBranch(branchToMergeTo).merge(branchToMergeFrom, userId, null);
+                String author = getUserWorkspace().getUser().getUserName();
+                ((BranchRepository) designRepository).forBranch(branchToMergeTo).merge(branchToMergeFrom, author, null);
 
                 if (opened) {
                     if (project.isDeleted()) {
@@ -187,19 +186,14 @@ public class BranchesBean {
             return false;
         }
         UserWorkspace userWorkspace;
-        try {
-            RulesProject project = getProject(currentProjectName);
-            if (project == null) {
-                return false;
-            }
-            userWorkspace = getUserWorkspace();
-            LockEngine projectsLockEngine = userWorkspace.getProjectsLockEngine();
-            LockInfo lockInfo = projectsLockEngine.getLockInfo(currentRepositoryId, branchToMergeTo, project.getRealPath());
-            return lockInfo.isLocked();
-        } catch (WorkspaceException e) {
-            LOG.error(e.getMessage(), e);
+        RulesProject project = getProject(currentProjectName);
+        if (project == null) {
+            return false;
         }
-        return false;
+        userWorkspace = getUserWorkspace();
+        LockEngine projectsLockEngine = userWorkspace.getProjectsLockEngine();
+        LockInfo lockInfo = projectsLockEngine.getLockInfo(currentRepositoryId, branchToMergeTo, project.getRealPath());
+        return lockInfo.isLocked();
     }
 
     public boolean isProjectLockedInAnotherBranch() {
@@ -263,7 +257,7 @@ public class BranchesBean {
                 Repository repository = project.getDesignRepository();
                 if (repository.supports().branches()) {
                     try {
-                        ((BranchRepository) repository).pull(getUserWorkspace().getUser().getUserId());
+                        ((BranchRepository) repository).pull(getUserWorkspace().getUser().getUserName());
                     } catch (Exception e) {
                         // Report error and continue with local copy of git repository.
                         LOG.error(e.getMessage(), e);
@@ -286,8 +280,7 @@ public class BranchesBean {
         this.editorMode = editorMode;
     }
 
-    private void initBranchToMerge(RulesProject project, BranchRepository repository) throws IOException,
-                                                                                           WorkspaceException {
+    private void initBranchToMerge(RulesProject project, BranchRepository repository) throws IOException {
         // Try to find a parent branch based on project's branch names.
         List<String> projectBranches = repository.getBranches(project.getDesignFolderName());
         Collections.sort(projectBranches);
@@ -392,7 +385,7 @@ public class BranchesBean {
         }
     }
 
-    private static UserWorkspace getUserWorkspace() throws WorkspaceException {
+    private static UserWorkspace getUserWorkspace() {
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         return rulesUserSession.getUserWorkspace();
     }

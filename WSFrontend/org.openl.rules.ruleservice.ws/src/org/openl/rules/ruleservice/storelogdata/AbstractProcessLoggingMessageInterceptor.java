@@ -144,7 +144,7 @@ public abstract class AbstractProcessLoggingMessageInterceptor extends AbstractP
         }
     }
 
-    protected abstract void handleMessage(LoggingMessage message);
+    protected abstract void handleMessage(Message message, LoggingMessage loggingMessage);
 
     public void setSaveBinaryContent(boolean saveBinaryContent) {
         this.saveBinaryContent = saveBinaryContent;

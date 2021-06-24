@@ -37,9 +37,9 @@
         }
 
         function filterRepoProjects(repo, pattern) {
-            var filterId;
-            var clearFilterId;
-            if (repo == "design") {
+            let filterId;
+            let clearFilterId;
+            if (repo === "design") {
                 filterId = "#nameFilter";
                 clearFilterId = '#clearFilter';
             } else {
@@ -49,20 +49,53 @@
             if (pattern && pattern.length) {
                 $j(filterId).addClass('withClearButton');
                 $j(clearFilterId).removeClass('hidden');
+                $j('.filtered-mark').removeClass('hidden');
             } else {
                 $j(filterId).removeClass('withClearButton');
                 $j(clearFilterId).addClass('hidden');
+                $j('.filtered-mark').addClass('hidden');
             }
 
             sessionStorage.setItem(FILTER_PATTERN_ITEM, pattern);
 
-            var treeId = (repo == "design" ? "#projectTree" : "#prodTree");
-            var projects = $j(treeId + " > div > div.rf-tr-nd");
+            const treeId = (repo === "design" ? "#projectTree" : "#prodTree");
+
+            // Show all previously hidden elements
+            $j(treeId + " div.rf-tr-nd").each(function () {
+                $j(this).show();
+            });
+
+            // Filter out projects from tree
+            let projects = $j(treeId + " div.rf-tr-nd").filter(function () {
+                return $j(this).children().first().hasClass('filter-node');
+            });
 
             projects.each(function() {
-                var projectNode = $j(this).find(".rf-trn-lbl").first();
-                var projectName = projectNode.clone().children().children().remove().end().text();
+                let projectNode = $j(this).find(".rf-trn-lbl").first();
+                let projectName = projectNode.clone().children().children().remove().end().end().text();
                 $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
+            });
+
+            // Filter out projects from table
+            let projectsInTable = $j(".filtered-table > tbody > tr");
+            projectsInTable.each(function() {
+                let projectName = $j(this).find(".project-name-column").text();
+                $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
+            });
+
+            // Filter out empty groups from tree if they are expanded
+            let groups = $j(treeId + " div.rf-tr-nd.rf-tr-nd-exp").filter(function () {
+                return $j(this).children().first().hasClass('filter-node-container');
+            });
+
+            groups.each(function() {
+                let $visibleProjectsInside = $j(this).find("div.rf-tr-nd").filter(function () {
+                    return $j(this).is(":visible") && $j(this).children().first().hasClass('filter-node');
+                });
+                let $collapsedGroupsInside = $j(this).find("div.rf-tr-nd.rf-tr-nd-colps").filter(function () {
+                    return $j(this).children().first().hasClass('filter-node-container');
+                })
+                $j(this).toggle($visibleProjectsInside.length > 0 || $collapsedGroupsInside.length > 0);
             });
         }
 
@@ -92,14 +125,26 @@
             prodFilterProjects('');
         }
 
-        initFilter();
-
         var productionFlag = #{repositorySelectNodeStateHolder.isProductionRepository()};
-        if(productionFlag) {
-            goToRepo('production', 'design');
-        } else {
-            goToRepo('design', 'production')
+
+
+        function reInitRepoFilter() {
+            if (productionFlag) {
+                initProdFilter();
+            } else {
+                initFilter();
+            }
         }
+
+        $j(() => {
+            reInitRepoFilter();
+
+            if (productionFlag) {
+                goToRepo('production', 'design');
+            } else {
+                goToRepo('design', 'production')
+            }
+        });
 
       //]]>
     </script>

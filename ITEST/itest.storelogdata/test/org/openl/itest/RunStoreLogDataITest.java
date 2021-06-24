@@ -406,6 +406,11 @@ public class RunStoreLogDataITest {
     }
 
     @Test
+    public void testSyncStoreFails() {
+        client.send("simple7_Hello.json");
+    }
+
+    @Test
     public void testRestServiceOk() throws Exception {
         final String REQUEST = getText("simple3_Hello.req.json");
         final String RESPONSE = getText("simple3_Hello.resp.txt");
@@ -829,6 +834,8 @@ public class RunStoreLogDataITest {
 
     @Test
     public void testStoreAndGetFromCassandra() {
+        client.send("simple6_openapi.json.get");
+
         client.send("simple6_Hello1.post");
         client.send("simple6_ResponseById1.get");
 
@@ -840,6 +847,8 @@ public class RunStoreLogDataITest {
 
         client.send("simple6_Hello4.post");
         client.send("simple6_ResponseById4.get");
+
+        client.send("simple6_DoSomethingExtra.get");
     }
 
     private interface Procedure {
