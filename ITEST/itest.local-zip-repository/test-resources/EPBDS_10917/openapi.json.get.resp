@@ -70,6 +70,9 @@ Content-Type: application/json
                             }
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "200": {
                         "description": "Successful operation",
                         "content": {
@@ -140,6 +143,9 @@ Content-Type: application/json
                                 }
                             }
                         }
+                    },
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "200": {
                         "description": "Successful operation",
@@ -212,6 +218,9 @@ Content-Type: application/json
                             }
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "200": {
                         "description": "Successful operation",
                         "content": {
@@ -282,6 +291,9 @@ Content-Type: application/json
                                 }
                             }
                         }
+                    },
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "200": {
                         "description": "Successful operation",
@@ -354,6 +366,9 @@ Content-Type: application/json
                             }
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "200": {
                         "description": "Successful operation",
                         "content": {
@@ -423,6 +438,9 @@ Content-Type: application/json
                                 }
                             }
                         }
+                    },
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "200": {
                         "description": "Successful operation",
@@ -495,6 +513,9 @@ Content-Type: application/json
                             }
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "200": {
                         "description": "Successful operation",
                         "content": {
@@ -564,6 +585,9 @@ Content-Type: application/json
                                 }
                             }
                         }
+                    },
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "200": {
                         "description": "Successful operation",
@@ -636,6 +660,9 @@ Content-Type: application/json
                             }
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "200": {
                         "description": "Successful operation",
                         "content": {
@@ -705,6 +732,9 @@ Content-Type: application/json
                                 }
                             }
                         }
+                    },
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "200": {
                         "description": "Successful operation",
@@ -776,6 +806,9 @@ Content-Type: application/json
                             }
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "200": {
                         "description": "Successful operation",
                         "content": {
@@ -846,15 +879,8 @@ Content-Type: application/json
                             }
                         }
                     },
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        }
+                    "204": {
+                        "description": "Successful operation"
                     }
                 }
             }

@@ -35,6 +35,9 @@
               "$ref": "#/definitions/EPBDS_9437"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -101,6 +104,9 @@
             "schema": {
               "$ref": "#/definitions/Tiktak"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",

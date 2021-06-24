@@ -32,6 +32,9 @@ Content-Type: application/json
                             "type": "string"
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
                         "examples": {
@@ -94,6 +97,9 @@ Content-Type: application/json
                             "type": "number",
                             "format": "double"
                         }
+                    },
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
@@ -158,6 +164,9 @@ Content-Type: application/json
                             "format": "double"
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
                         "examples": {
@@ -220,6 +229,9 @@ Content-Type: application/json
                             "type": "number",
                             "format": "double"
                         }
+                    },
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
@@ -284,6 +296,9 @@ Content-Type: application/json
                             "format": "double"
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
                         "examples": {
@@ -345,6 +360,9 @@ Content-Type: application/json
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
@@ -408,6 +426,9 @@ Content-Type: application/json
                             "type": "string"
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
                         "examples": {
@@ -470,6 +491,9 @@ Content-Type: application/json
                             "type": "string"
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
                         "examples": {
@@ -515,7 +539,7 @@ Content-Type: application/json
                 "description": "Method: void Greeting5(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
                 "operationId": "Greeting5",
                 "consumes": ["application/json"],
-                "produces": ["text/plain"],
+                "produces": ["application/json"],
                 "parameters": [{
                         "in": "body",
                         "name": "body",
@@ -526,6 +550,9 @@ Content-Type: application/json
                     }
                 ],
                 "responses": {
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
                         "examples": {
@@ -589,6 +616,9 @@ Content-Type: application/json
                             "format": "double"
                         }
                     },
+                    "204": {
+                        "description": "Successful operation"
+                    },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
                         "examples": {
@@ -650,6 +680,9 @@ Content-Type: application/json
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",
@@ -713,6 +746,9 @@ Content-Type: application/json
                             "type": "number",
                             "format": "double"
                         }
+                    },
+                    "204": {
+                        "description": "Successful operation"
                     },
                     "422": {
                         "description": "Custom user errors in rules or validation errors in input parameters",

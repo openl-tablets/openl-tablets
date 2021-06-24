@@ -34,6 +34,9 @@
               "$ref": "#/definitions/MyMethod5"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -104,6 +107,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -170,6 +176,9 @@
             "schema": {
               "$ref": "#/definitions/MyMethod6"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -241,6 +250,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -310,6 +322,9 @@
                 "$ref": "#/definitions/MyType2"
               }
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -381,6 +396,9 @@
               }
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -447,6 +465,9 @@
             "schema": {
               "$ref": "#/definitions/MyMethod"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -515,6 +536,9 @@
               "$ref": "#/definitions/MyMethod3"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -582,6 +606,9 @@
               "$ref": "#/definitions/MyMethod4"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -648,6 +675,9 @@
             "schema": {
               "$ref": "#/definitions/MyMethod2"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",

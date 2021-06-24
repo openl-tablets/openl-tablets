@@ -637,4 +637,21 @@ public class RunWebservicesITest {
     public void EPBDS_11123() {
         client.get("/EPBDS-11123/Project1/mySpr/3", "/EPBDS-11123/EPBDS-11123_mySpr.resp.json");
     }
+
+    @Test
+    public void EPBDS_11682() {
+        client.send("EPBDS-11682/openapi.json.get");
+        client.send("EPBDS-11682/swagger.json.get");
+        client.send("EPBDS-11682/VoidResponse.json.post");
+        client.send("EPBDS-11682/VoidResponse2.json.post");
+        client.send("EPBDS-11682/IntegerResponse.json.post");
+        client.send("EPBDS-11682/IntegerResponse2.json.post");
+        client.send("EPBDS-11682/StringResponse.json.post");
+        client.send("EPBDS-11682/StringResponse2.json.post");
+        client.send("EPBDS-11682/StringValueResponse.json.post");
+        client.send("EPBDS-11682/StringValueResponse2.json.post");
+        client.send("EPBDS-11682/IntResponse.json.post");
+        client.send("EPBDS-11682/GetOptionalResponse.json.post");
+        client.send("EPBDS-11682/GetOptionalResponse2.json.post");
+    }
 }

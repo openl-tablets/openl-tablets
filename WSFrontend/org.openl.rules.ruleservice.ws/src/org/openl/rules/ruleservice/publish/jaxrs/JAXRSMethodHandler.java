@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import javax.ws.rs.core.Response;
 
+import org.openl.meta.StringValue;
 import org.openl.runtime.AbstractOpenLMethodHandler;
 
 public class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
@@ -50,7 +51,14 @@ public class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Metho
         if (o instanceof Response) {
             return o;
         } else {
-            return Response.status(Response.Status.OK).entity(o).build();
+            Response.Status status;
+            if (o == null || ((o instanceof String) && ((String) o)
+                .isEmpty()) || ((o instanceof StringValue) && ((StringValue) o).getValue().isEmpty())) {
+                status = Response.Status.NO_CONTENT;
+            } else {
+                status = Response.Status.OK;
+            }
+            return Response.status(status).entity(o).build();
         }
     }
 }

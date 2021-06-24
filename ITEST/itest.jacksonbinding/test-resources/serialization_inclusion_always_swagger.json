@@ -25,6 +25,9 @@
               "$ref": "#/definitions/MyType"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
