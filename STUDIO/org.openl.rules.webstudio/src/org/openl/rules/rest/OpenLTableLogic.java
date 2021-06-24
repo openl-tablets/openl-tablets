@@ -116,9 +116,15 @@ public class OpenLTableLogic {
             String[] errorCode = OpenLTableLogic.getErrorCode(location, sourceCode);
             boolean hasLinkToCell = errorUri != null && (code != null || module instanceof StringSourceCodeModule);
             String cell = errorUri != null ? new XlsUrlParser(errorUri).getCell() : null;
-            //add url
-            problems.add(new OpenlProblemMessage(message.getId(), message
-                .getSummary(), hasStackTrace, errorCode, hasLinkToCell, messageNodeId, cell, webStudio.url(errorUri)));
+            problems.add(new OpenlProblemMessage(message.getId(),
+                message.getSummary(),
+                hasStackTrace,
+                errorCode,
+                hasLinkToCell,
+                messageNodeId,
+                cell,
+                webStudio.url(errorUri),
+                message.getSeverity()));
         }
         return problems;
     }
