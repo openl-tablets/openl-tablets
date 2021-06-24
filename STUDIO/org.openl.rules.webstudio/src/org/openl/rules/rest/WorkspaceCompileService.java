@@ -247,8 +247,8 @@ public class WorkspaceCompileService {
         }
         
         Map<String, Object> tableInfo = new HashMap<>();
-        tableInfo.put("errors", OpenLTableLogic.processTableProblems(errors, model));
-        tableInfo.put("warnings", OpenLTableLogic.processTableProblems(warnings, model));
+        tableInfo.put("errors", OpenLTableLogic.processTableProblems(errors, model, webStudio));
+        tableInfo.put("warnings", OpenLTableLogic.processTableProblems(warnings, model, webStudio));
         tableInfo.put("targetTables", targetTables);
 
         return tableInfo;

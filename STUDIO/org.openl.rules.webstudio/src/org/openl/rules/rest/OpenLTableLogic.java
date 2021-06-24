@@ -83,7 +83,10 @@ public class OpenLTableLogic {
         }
         return targetTables;
     }
-    public static List<OpenlProblemMessage> processTableProblems(List<OpenLMessage> messages, ProjectModel model) {
+
+    public static List<OpenlProblemMessage> processTableProblems(List<OpenLMessage> messages,
+            ProjectModel model,
+            WebStudio webStudio) {
         List<OpenlProblemMessage> problems = new ArrayList<>();
         for (OpenLMessage message : messages) {
             ILocation location = null;
@@ -113,8 +116,9 @@ public class OpenLTableLogic {
             String[] errorCode = OpenLTableLogic.getErrorCode(location, sourceCode);
             boolean hasLinkToCell = errorUri != null && (code != null || module instanceof StringSourceCodeModule);
             String cell = errorUri != null ? new XlsUrlParser(errorUri).getCell() : null;
-            problems.add(new OpenlProblemMessage(message
-                .getSummary(), hasStackTrace, errorCode, hasLinkToCell, messageNodeId, cell, errorUri));
+            //add url
+            problems.add(new OpenlProblemMessage(message.getId(), message
+                .getSummary(), hasStackTrace, errorCode, hasLinkToCell, messageNodeId, cell, webStudio.url(errorUri)));
         }
         return problems;
     }
