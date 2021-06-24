@@ -2,6 +2,7 @@ package org.openl.rules.rest;
 
 public class OpenlProblemMessage {
 
+    private final long id;
     private final String summary;
     private final boolean hasStacktrace;
     private final String[] errorCode;
@@ -10,13 +11,14 @@ public class OpenlProblemMessage {
     private final String errorCell;
     private final String errorUri;
 
-    public OpenlProblemMessage(String summary,
+    public OpenlProblemMessage(long id, String summary,
             boolean hasStacktrace,
             String[] errorCode,
             boolean hasLinkToCell,
             String tableId,
             String errorCell,
             String errorUri) {
+        this.id = id;
         this.summary = summary;
         this.hasStacktrace = hasStacktrace;
         this.errorCode = errorCode;
@@ -24,6 +26,10 @@ public class OpenlProblemMessage {
         this.tableId = tableId;
         this.errorCell = errorCell;
         this.errorUri = errorUri;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getSummary() {
