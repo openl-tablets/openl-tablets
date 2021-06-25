@@ -3,6 +3,7 @@ package org.openl.rules.testmethod;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.CompiledOpenClass;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -61,17 +62,11 @@ public final class ProjectHelper {
      * with empty test cases are not being processed. If you need to get all test methods, including run methods and
      * empty ones, use {@link #isTestForMethod(IOpenMethod, IOpenMethod)}.
      */
-    public static IOpenMethod[] testers(IOpenMethod tested) {
-
-        List<IOpenMethod> res = new ArrayList<>();
-        for (IOpenMethod tester : tested.getDeclaringClass().getMethods()) {
-            if (isTester(tester) && isTestForMethod(tester, tested)) {
-                res.add(tester);
-            }
-
-        }
-
-        return res.toArray(IOpenMethod.EMPTY_ARRAY);
+    public static IOpenMethod[] testers(IOpenMethod tested, CompiledOpenClass openClass) {
+        return openClass.getOpenClassWithErrors().getMethods().stream()
+                .filter(ProjectHelper::isTester)
+                .filter(tester -> isTestForMethod(tester, tested))
+                .toArray(IOpenMethod[]::new);
     }
 
     /**
