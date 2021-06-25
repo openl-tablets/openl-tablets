@@ -61,6 +61,8 @@ public class TestBean {
     private boolean testsFailuresOnly;
     private int testsFailuresPerTest;
     private boolean showComplexResult;
+    private boolean currentOpenedModule;
+    private boolean waitForProjectCompilation;
 
     private boolean ranTestsSorted = false;
     private Integer numberOfFailedTests = null;
@@ -78,6 +80,8 @@ public class TestBean {
         if (table != null) {
             uri = table.getUri();
         }
+
+        initOnlyCurrentModule();
 
         testAll();
 
@@ -136,6 +140,13 @@ public class TestBean {
             showComplexResult = Boolean.parseBoolean(isShowComplexResultParameter);
         }
     }
+    
+    private void initOnlyCurrentModule() {
+        currentOpenedModule = Boolean
+            .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
+
+        waitForProjectCompilation = !currentOpenedModule && !studio.getModel().isProjectCompilationCompleted();
+    }
 
     public int getPage() {
         return page;
@@ -148,9 +159,12 @@ public class TestBean {
     private void testAll() {
         String id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
         String testRanges = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
-        String testOnlyModule = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE);
 
-        this.ranResults = Utils.runTests(id, testRanges, Boolean.parseBoolean(testOnlyModule), WebStudioUtils.getSession());
+        if (!isWaitForProjectCompilation()) {
+            this.ranResults = Utils.runTests(id, testRanges, currentOpenedModule, WebStudioUtils.getSession());
+        } else {
+            this.ranResults = new TestUnitsResults[0];
+        }
     }
 
     public TestUnitsResults[] getRanTests() {
@@ -354,7 +368,7 @@ public class TestBean {
     }
 
     public boolean isExpired() {
-        return StringUtils.isNotBlank(uri) && (ranResults == null || ranResults.length == 0);
+        return StringUtils.isNotBlank(uri) && (ranResults == null || ranResults.length == 0) && !isWaitForProjectCompilation();
     }
 
     public int getTestsPerPage() {
@@ -392,5 +406,13 @@ public class TestBean {
 
     public boolean isShowComplexResult() {
         return showComplexResult;
+    }
+
+    public boolean isCurrentOpenedModule() {
+        return currentOpenedModule;
+    }
+
+    public boolean isWaitForProjectCompilation() {
+        return waitForProjectCompilation;
     }
 }
