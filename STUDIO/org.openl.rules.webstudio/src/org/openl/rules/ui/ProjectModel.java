@@ -419,7 +419,7 @@ public class ProjectModel {
     public IOpenMethod[] getTestMethods(String forTable) {
         IOpenMethod method = getMethod(forTable);
         if (method != null) {
-            return ProjectHelper.testers(method);
+            return ProjectHelper.testers(method, compiledOpenClass);
         }
         return null;
     }
@@ -591,7 +591,7 @@ public class ProjectModel {
             return false;
         }
 
-        return ProjectHelper.testers(m).length > 0;
+        return ProjectHelper.testers(m, compiledOpenClass).length > 0;
     }
 
     public synchronized void buildProjectTree() {
