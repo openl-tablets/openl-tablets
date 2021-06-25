@@ -346,7 +346,7 @@
                         let messageIndex = -1;
 
                         $j('#wait-for-compilation-end-panel').bind('refresh', function () {
-                            $j.ajax({
+                            $jq.ajax({
                                 url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
                                 datatype: "text"
                             }).done(function (data) {
