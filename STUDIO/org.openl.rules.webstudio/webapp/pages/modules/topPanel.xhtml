@@ -289,11 +289,13 @@
             })
                 .done(function (data) {
                     data.count > 0 ? $j('.test-section').show() : $j('.test-section').hide();
-                    document.getElementById("testCountSpan").textContent = data.count;
-                    if (!data.compiled) {
-                        setTimeout(function () {
-                            $j('#testPanel').trigger('refresh')
-                        }, 1000);
+                    if (document.getElementById("testCountSpan") !== null) {
+                        document.getElementById("testCountSpan").textContent = data.count;
+                        if (!data.compiled) {
+                            setTimeout(function () {
+                                $j('#testPanel').trigger('refresh')
+                            }, 1000);
+                        }
                     }
                 });
         });
