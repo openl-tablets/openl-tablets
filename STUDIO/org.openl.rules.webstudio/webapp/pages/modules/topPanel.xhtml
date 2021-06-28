@@ -168,10 +168,10 @@
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#" onclick="onTestOpen()"><b class="caret" /></a>
                 <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-65px">
                     <li onclick="event.stopPropagation()">
-                        <span style="margin-bottom: -3px" tabindex="-1" title="Run for the currently opened module only">
-                            <span style="margin-right: 10px">Run for the currently opened module only</span>
+                        <span style="margin-bottom: -3px" tabindex="-1" title="Within Current Module Only">
+                            <span style="margin-right: 10px">Within Current Module Only</span>
                             <input id="testModuleOnlyField" name="currentOpenedModule" type="checkbox"
-                                   value="true" style="vertical-align:-2px;margin:-4px" />
+                                   value="true" style="vertical-align:-2px;margin:-4px"/>
                         </span>
                     </li>
                     <li onclick="event.stopPropagation()">
@@ -329,7 +329,7 @@
                 if (!compiled) {
                     ws.ui.confirm({
                         title: 'Tests',
-                        message: 'Tests can be run for the currently opened module only because the project is not compiled yet.',
+                        message: 'Tests can be run within current module only because the project is not compiled yet.',
                         onOK: () => ws.nav.go("#{studio.url('test/test')}?currentOpenedModule=true", true)
                     });
                 } else {

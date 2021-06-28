@@ -1101,7 +1101,7 @@ public class ProjectModel {
             WorkbookLoaders.resetCurrentFactory();
 
             this.projectCompilationCompleted = false;
-            if (!moduleInfo.getStandalone()) {
+            if (!moduleInfo.getOpenCurrentModuleOnly()) {
                 webStudioWorkspaceDependencyManager.loadDependencyAsync(new Dependency(DependencyType.MODULE,
                     new IdentifierNode(DependencyType.MODULE.name(),
                                 null,

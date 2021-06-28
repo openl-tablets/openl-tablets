@@ -111,8 +111,8 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         }
 
         for (Module module : descriptor.getModules()) {
-            if (module.getStandalone() == null) {
-                module.setStandalone(Boolean.FALSE);
+            if (module.getOpenCurrentModuleOnly() == null) {
+                module.setOpenCurrentModuleOnly(Boolean.FALSE);
             }
         }
     }
@@ -127,8 +127,8 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         }
 
         for (Module module : descriptor.getModules()) {
-            if (Boolean.FALSE.equals(module.getStandalone())) {
-                module.setStandalone(null);
+            if (Boolean.FALSE.equals(module.getOpenCurrentModuleOnly())) {
+                module.setOpenCurrentModuleOnly(null);
             }
         }
     }

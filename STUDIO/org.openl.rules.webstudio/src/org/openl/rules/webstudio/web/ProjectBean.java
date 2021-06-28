@@ -518,7 +518,7 @@ public class ProjectBean {
         String path = WebStudioUtils.getRequestParameter("modulePath");
         String includes = WebStudioUtils.getRequestParameter("moduleIncludes");
         String excludes = WebStudioUtils.getRequestParameter("moduleExcludes");
-        String standalone = WebStudioUtils.getRequestParameter("moduleStandalone");
+        String openCurrentModuleOnly = WebStudioUtils.getRequestParameter("moduleOpenCurrentModuleOnly");
 
         Module module;
 
@@ -583,7 +583,7 @@ public class ProjectBean {
                 }
             }
 
-            module.setStandalone("on".equals(standalone));
+            module.setOpenCurrentModuleOnly("on".equals(openCurrentModuleOnly));
 
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
