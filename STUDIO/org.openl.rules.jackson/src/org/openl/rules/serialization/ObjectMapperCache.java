@@ -42,12 +42,14 @@ public class ObjectMapperCache {
         ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
         try {
             writeLock.lock();
-            ObjectMapper objectMapper = JsonUtils.createJacksonObjectMapper(classes, false);
-            cache.put(key, objectMapper);
+            ObjectMapper objectMapper = cache.get(key);
+            if (objectMapper == null) {
+                objectMapper = JsonUtils.createJacksonObjectMapper(classes, false);
+                cache.put(key, objectMapper);
+            }
             return objectMapper;
         } finally {
             writeLock.unlock();
-
         }
     }
 
