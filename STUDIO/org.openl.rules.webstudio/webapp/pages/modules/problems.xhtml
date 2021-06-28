@@ -85,7 +85,7 @@
                 $jq('#progress-info-panel').bind('refresh', function () {
                     $jq.ajax({
                         url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
-                        datatype: "text"
+                        datatype: "json"
                     })
                         .done(function (data) {
                             progressInfoPanel.text("Compiled " + Math.round(data.modulesCompiled / data.modulesCount * 100) + "% (" + data.modulesCompiled + "/" + data.modulesCount + ")");

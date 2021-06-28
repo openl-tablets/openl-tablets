@@ -10,6 +10,7 @@
 
     <ui:param name="failuresOnly" value="#{testBean.testsFailuresOnly}" />
     <ui:param name="complexResult" value="#{testBean.showComplexResult}" />
+    <ui:param name="currentOpenedModule" value="#{testBean.currentOpenedModule}" />
     <c:set var="failuresPerTest" value="#{testBean.testsFailuresPerTest}" />
 
     <script src="#{contextPath}/webresource/js/tooltip.js"></script>
@@ -43,7 +44,7 @@
             <c:set var="perPage" value="#{testBean.testsPerPage}" />
 
             <c:set var="pageUri" value="#{studio.url('test/test')}" />
-            <c:set var="pageUriPagerExtra" value="&amp;pp=#{perPage}#{!empty param.id ? ('&amp;id='.concat(param.id)) : ''}#{!empty param.failuresOnly ? ('&amp;failuresOnly='.concat(failuresOnly).concat('&amp;failures=').concat(failuresPerTest)) : ''}#{!empty param.complexResult ? ('&amp;complexResult='.concat(complexResult)) : ''}" />
+            <c:set var="pageUriPagerExtra" value="&amp;pp=#{perPage}#{!empty param.id ? ('&amp;id='.concat(param.id)) : ''}#{!empty param.failuresOnly ? ('&amp;failuresOnly='.concat(failuresOnly).concat('&amp;failures=').concat(failuresPerTest)) : ''}#{!empty param.complexResult ? ('&amp;complexResult='.concat(complexResult)) : ''}#{!empty param.currentOpenedModule ? ('&amp;currentOpenedModule='.concat(currentOpenedModule)) : ''}" />
 
             <span style="font-size: 13px;">
                 <span class="dropdown" style="position:absolute;top:20px;margin-left:90px">
@@ -77,6 +78,10 @@
                     <label title="Display the full result of running test cases, not only values which are being tested" style="margin-left:50px">
                         Compound Result <input type="checkbox" style="vertical-align:-2px" checked="#{complexResult ? 'checked' : ''}"
                         onchange="ws.nav.reload({'complexResult':this.checked})" />
+                    </label>
+                    <label title="Run for the currently opened module only" style="margin-left:50px">
+                        Run for the currently opened module only <input type="checkbox" style="vertical-align:-2px" checked="#{currentOpenedModule ? 'checked' : ''}"
+                                             onchange="ws.nav.reload({'currentOpenedModule':this.checked})" />
                     </label>
                 </span>
             </span>
@@ -121,7 +126,7 @@
                 </ul>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{!testBean.expired}">
+            <h:panelGroup rendered="#{!testBean.expired and !testBean.waitForProjectCompilation}">
                 <h:form>
                 <ui:repeat value="#{testBean.ranTests}" var="test">
                 <ui:param name="testFailed" value="#{test.numberOfFailures > 0}" />
@@ -328,6 +333,40 @@
 
             </h:form>
 
+            </h:panelGroup>
+
+            <h:panelGroup rendered="#{testBean.waitForProjectCompilation}">
+                <div id="wait-for-compilation-end-panel">
+                    Waiting for the end of compilation...
+                </div>
+                <script>
+                    //<![CDATA[
+                    $j(function () {
+                        let messageId = -1;
+                        let messageIndex = -1;
+
+                        let $messagePanel = $j('#wait-for-compilation-end-panel');
+                        $messagePanel.bind('refresh', function () {
+                            $jq.ajax({
+                                url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
+                                datatype: "json"
+                            }).done(function (data) {
+                                if (data.messageIndex !== -1 || data.messageId !== -1) {
+                                    messageIndex = data.messageIndex;
+                                    messageId = data.messageId;
+                                }
+                                if (data.compilationCompleted) {
+                                    ws.nav.reload();
+                                } else {
+                                    setTimeout(function () {$messagePanel.trigger('refresh')}, 1000);
+                                }
+                            });
+                        });
+
+                        $messagePanel.trigger('refresh');
+                    });
+                    //]]>
+                </script>
             </h:panelGroup>
         </div>
     </div>
