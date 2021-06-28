@@ -42,7 +42,7 @@ public final class JsonUtils {
         }
     }
 
-    private static ObjectMapper getDefaultJacksonObjectMapper() {
+    static ObjectMapper getDefaultJacksonObjectMapper() {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setSupportVariations(true);
         try {
@@ -76,6 +76,10 @@ public final class JsonUtils {
 
     public static Map<String, String> splitJSON(String jsonString) throws IOException {
         ObjectMapper objectMapper = getDefaultJacksonObjectMapper();
+        return splitJSON(jsonString, objectMapper);
+    }
+
+    public static Map<String, String> splitJSON(String jsonString, ObjectMapper objectMapper) throws IOException {
         JsonNode rootNode = objectMapper.readTree(jsonString);
         Map<String, String> splitMap = new HashMap<>();
         Iterator<Map.Entry<String, JsonNode>> fieldsIterator = rootNode.fields();
