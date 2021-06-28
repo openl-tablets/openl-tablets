@@ -1,14 +1,26 @@
 package org.openl.rules.serialization;
 
+/*-
+ * #%L
+ * OpenL - STUDIO - Jackson
+ * %%
+ * Copyright (C) 2016 - 2021 OpenL Tablets
+ * %%
+ * See the file LICENSE.txt for copying permission.
+ * #L%
+ */
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.WeakHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ObjectMapperCache {
 
     private static final WeakHashMap<List<Class<?>>, ObjectMapper> cache = new WeakHashMap<>();
+    private final static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private static volatile ObjectMapper defaultObjectMapper;
 
     /**
@@ -19,15 +31,24 @@ public class ObjectMapperCache {
      */
     public static ObjectMapper getObjectMapper(Class<?>[] classes) {
         List<Class<?>> key = Arrays.asList(classes);
-        if (!cache.containsKey(key)) {
-            synchronized (cache) {
-                if (!cache.containsKey(key)) {
-                    ObjectMapper objectMapper = JsonUtils.createJacksonObjectMapper(classes, false);
-                    cache.put(key, objectMapper);
-                }
-            }
+        ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
+        try {
+            readLock.lock();
+            ObjectMapper objectMapper = cache.get(key);
+            if (objectMapper != null) return objectMapper;
+        } finally {
+            readLock.unlock();
         }
-        return cache.get(key);
+        ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+        try {
+            writeLock.lock();
+            ObjectMapper objectMapper = JsonUtils.createJacksonObjectMapper(classes, false);
+            cache.put(key, objectMapper);
+            return objectMapper;
+        } finally {
+            writeLock.unlock();
+
+        }
     }
 
     /**
