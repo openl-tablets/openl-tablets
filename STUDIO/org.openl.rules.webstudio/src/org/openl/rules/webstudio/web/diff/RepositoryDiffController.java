@@ -75,8 +75,6 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     public void setBranch(String branch) {
         this.branch = branch;
-        // In the new branch that revision can be absent. Clear it.
-        selectedVersionRepo = null;
     }
 
     public void setSelectedExcelFileUW(String selectedExcelFileUW) {
@@ -178,6 +176,13 @@ public class RepositoryDiffController extends AbstractDiffController {
 
             Repository designRepository = projectUW.getDesignRepository();
             if (designRepository.supports().branches()) {
+                final List<ProjectVersion> versions = new AProject(
+                    ((BranchRepository) designRepository).forBranch(branch),
+                    projectUW.getRealPath()).getVersions();
+                if (versions.stream()
+                    .noneMatch(projectVersion -> projectVersion.getVersionName().equals(selectedVersionRepo))) {
+                    selectedVersionRepo = null;
+                }
                 projectRepo = designTimeRepository
                     .getProjectByPath(designRepository.getId(), branch, projectUW.getRealPath(), selectedVersionRepo);
             } else {
