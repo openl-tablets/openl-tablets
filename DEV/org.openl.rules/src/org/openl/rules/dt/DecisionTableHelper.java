@@ -2256,10 +2256,10 @@ public final class DecisionTableHelper {
         if (onlyReturns && !fuzzyContext.isFuzzySupportsForReturnType()) {
             return Collections.emptyList();
         }
-        int w = originalTable.getSource().getCell(column, 0).getWidth();
-        if (firstColumnHeight == 1 && numberOfHConditions > 0 && column + w >= lastColumn) {
+        if (numberOfHConditions > 0 && column >= lastColumn) {
             return Collections.emptyList();
         }
+        int w = originalTable.getSource().getCell(column, 0).getWidth();
         IGridTable gt = originalTable.getSource().getSubtable(column, 0, w, firstColumnHeight);
         List<DTHeader> newDtHeaders = new ArrayList<>();
         matchWithFuzzySearchRec(decisionTable,
@@ -2947,10 +2947,10 @@ public final class DecisionTableHelper {
             column = column + originalTable.getSource().getCell(column, 0).getWidth();
         }
 
-        if (ret > 0 && ret < w - 1) {
-            String value = originalTable.getSource().getCell(ret, firstColumnHeight - 1).getStringValue();
+        if (ret < w - 1) {
+            String value = originalTable.getSource().getCell(Math.max(ret, 0), firstColumnHeight - 1).getStringValue();
             if (StringUtils.isNotBlank(value) && value.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)) {
-                return Pair.of(ret + 1, Boolean.TRUE);
+                return Pair.of(Math.max(ret, 0) + 1, Boolean.TRUE);
             }
         }
 
