@@ -87,7 +87,7 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void toJSONTest() throws JsonProcessingException {
+    public void toJSONTest() throws JsonProcessingException, ClassNotFoundException {
         assertEquals("{\"model\":\"BMW\",\"year\":null}", JsonUtils.toJSON(new Car("BMW", null)));
         assertEquals("{\"model\":\"BMW\",\"year\":null}",
             JsonUtils.toJSON(new Car("BMW", null), new Class[] { Car.class }));
@@ -96,7 +96,7 @@ public class JsonUtilsTest {
     }
 
     @Test
-    public void fromJSONTest() throws IOException {
+    public void fromJSONTest() throws IOException, ClassNotFoundException {
         final Car expected = new Car("BMW", null);
         assertEquals(expected, JsonUtils.fromJSON("{\"model\":\"BMW\",\"year\":null}", Car.class));
         assertEquals(expected,
