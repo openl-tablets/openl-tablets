@@ -798,7 +798,7 @@
                         message: 'Can be run for the currently opened module only because the project is not compiled yet.',
                         onOK: proceed
                     });
-                } else if (projectHasErrorsForTable()){
+                } else if (projectHasErrorsForTable()) {
                     ws.ui.confirm({
                         title: 'Tests',
                         message: 'Can be run for the currently opened module only because other modules contain errors.',
@@ -1149,7 +1149,7 @@
               })
               .done(function (data) {
                   const hasProblems = data.warnings.length > 0 || data.errors.length > 0;
-                  if ((hasProblems || #{editableTablePart})){
+                  if ((hasProblems || #{editableTablePart})) {
                       $jq(".table-problems").show()
                   }
                   if (data.errors.length > 0 && opened) {
@@ -1195,7 +1195,7 @@
                 const htmlTemplate = $j('<div/>').append(rowTemplate).html();
                 let messages = "";
                 const hiddenStyle = " display: none; ";
-                errors.concat(warnings).each(function(item, i){
+                errors.concat(warnings).each(function(item, i) {
                     const messageBoxClass = item.severity == 'ERROR' ? 'problem-error' : (item.severity == 'WARN' ? 'problem-warning' : 'problem-info');
                     let linkTitle = "Edit cell containing ";
                     linkTitle += message.severity == 'ERROR' ? 'error' : (message.severity == 'WARN' ? 'warning' : 'info');
@@ -1221,7 +1221,7 @@
          };
 
          function applyTargetTables(targetTables) {
-             if (Object.keys(targetTables).length > 0){
+             if (Object.keys(targetTables).length > 0) {
                 let targetTablesHeader = "Target Table";
                 $jq('#targetTablesPanel').show();
                 $jq('#targetTablesSection span').remove();
