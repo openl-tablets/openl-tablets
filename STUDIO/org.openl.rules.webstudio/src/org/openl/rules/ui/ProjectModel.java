@@ -785,8 +785,8 @@ public class ProjectModel {
 
         if (type.startsWith(IProjectTypes.PT_TABLE + ".")) {
             TableSyntaxNode tsn = element.getTableSyntaxNode();
-            url = WebStudioUtils.getWebStudio().url("table?" + Constants.REQUEST_PARAM_ID + "=" + tsn.getId());
-            if (WebStudioUtils.getProjectModel().isTestable(element.getTableSyntaxNode().getUri())) {
+            url = studio.url("table?" + Constants.REQUEST_PARAM_ID + "=" + tsn.getId());
+            if (studio.getModel().isTestable(element.getTableSyntaxNode().getUri())) {
                 state = 2; // has tests
             }
 
@@ -1116,7 +1116,7 @@ public class ProjectModel {
             WorkbookLoaders.resetCurrentFactory();
 
             this.projectCompilationCompleted = false;
-            if (!moduleInfo.getStandalone()) {
+            if (!moduleInfo.getOpenCurrentModuleOnly()) {
                 webStudioWorkspaceDependencyManager.loadDependencyAsync(new Dependency(DependencyType.MODULE,
                     new IdentifierNode(DependencyType.MODULE.name(),
                                 null,

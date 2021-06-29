@@ -79,8 +79,8 @@
                         Compound Result <input type="checkbox" style="vertical-align:-2px" checked="#{complexResult ? 'checked' : ''}"
                         onchange="ws.nav.reload({'complexResult':this.checked})" />
                     </label>
-                    <label title="Run for the currently opened module only" style="margin-left:50px">
-                        Run for the currently opened module only <input type="checkbox" style="vertical-align:-2px" checked="#{currentOpenedModule ? 'checked' : ''}"
+                    <label title="Within Current Module Only" style="margin-left:50px">
+                        Within Current Module Only <input type="checkbox" style="vertical-align:-2px" checked="#{currentOpenedModule ? 'checked' : ''}"
                                              onchange="ws.nav.reload({'currentOpenedModule':this.checked})" />
                     </label>
                 </span>
@@ -345,10 +345,11 @@
                         let messageId = -1;
                         let messageIndex = -1;
 
-                        $j('#wait-for-compilation-end-panel').bind('refresh', function () {
-                            $j.ajax({
+                        let $messagePanel = $j('#wait-for-compilation-end-panel');
+                        $messagePanel.bind('refresh', function () {
+                            $jq.ajax({
                                 url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
-                                datatype: "text"
+                                datatype: "json"
                             }).done(function (data) {
                                 if (data.messageIndex !== -1 || data.messageId !== -1) {
                                     messageIndex = data.messageIndex;
@@ -357,12 +358,12 @@
                                 if (data.compilationCompleted) {
                                     ws.nav.reload();
                                 } else {
-                                    setTimeout(function () {$j('#wait-for-compilation-end-panel').trigger('refresh')}, 1000);
+                                    setTimeout(function () {$messagePanel.trigger('refresh')}, 1000);
                                 }
                             });
                         });
 
-                        $j('#wait-for-compilation-end-panel').trigger('refresh');
+                        $messagePanel.trigger('refresh');
                     });
                     //]]>
                 </script>

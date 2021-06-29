@@ -213,8 +213,8 @@
         <c:set var="traceUrl" value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
         <h:form prependId="false">
             <h:panelGroup id="runModuleOnlySetting" layout="block">
-                <div style="margin: 10px 15px 0; white-space:nowrap;" title="Run for the currently opened module only">
-                    <span style="margin-right: 10px">Run for the currently opened module only</span>
+                <div style="margin: 10px 15px 0; white-space:nowrap;" title="Within Current Module Only">
+                    <span style="margin-right: 10px">Within Current Module Only</span>
                     <input id="runTestModuleOnly" name="currentOpenedModule" type="checkbox"
                            value="true" style="vertical-align:-2px;margin:-4px"/>
                 </div>
@@ -502,8 +502,8 @@
                                 </c:if>
                                 <div id="inputArgsMenu" style="display: none" >
                                     <h:panelGroup layout="block">
-                                        <div style="margin: 10px" title="Run for the currently opened module only">
-                                            <span style="margin-right: 10px">Run for the currently opened module only</span>
+                                        <div style="margin: 10px" title="Within Current Module Only">
+                                            <span style="margin-right: 10px">Within Current Module Only</span>
                                             <input id="runTestModuleOnlyInputArgs" name="currentOpenedModule" type="checkbox"
                                                    value="true" style="vertical-align:-2px;margin:-4px"/>
                                         </div>
@@ -795,7 +795,7 @@
                 if (!compiled) {
                     ws.ui.confirm({
                         title: 'Tests',
-                        message: 'Can be run for the currently opened module only because the project is not compiled yet.',
+                        message: 'Can be run within current module only because the project is not compiled yet.',
                         onOK: proceed
                     });
                 } else if (projectHasErrorsForTable()) {
@@ -822,7 +822,7 @@
                 if (!compiled) {
                     ws.ui.confirm({
                         title: 'Trace',
-                        message: 'Trace can be run for the currently opened module only because the project is not compiled yet.',
+                        message: 'Trace can be run within current module only because the project is not compiled yet.',
                         onOK: proceed
                     });
                 } else if (projectHasErrorsForTable()) {
@@ -849,7 +849,7 @@
                 if (!compiled) {
                     ws.ui.confirm({
                         title: 'Benchmark',
-                        message: 'Benchmark can be run for the currently opened module only because the project is not compiled yet.',
+                        message: 'Benchmark can be run within current module only because the project is not compiled yet.',
                         onOK: proceed
                     });
                 } else if (projectHasErrorsForTable()) {

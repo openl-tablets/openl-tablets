@@ -8,7 +8,7 @@ public class Module {
     private PathEntry rulesRootPath;
     private ProjectDescriptor project;
     private Map<String, Object> properties;
-    private Boolean standalone = Boolean.FALSE;
+    private Boolean openCurrentModuleOnly = Boolean.FALSE;
     private String wildcardName;
     private String wildcardRulesRootPath;
     private MethodFilter methodFilter;
@@ -29,12 +29,12 @@ public class Module {
         this.wildcardRulesRootPath = wildcardRulesRootPath;
     }
 
-    public Boolean getStandalone() {
-        return standalone;
+    public Boolean getOpenCurrentModuleOnly() {
+        return openCurrentModuleOnly;
     }
 
-    public void setStandalone(Boolean standalone) {
-        this.standalone = standalone;
+    public void setOpenCurrentModuleOnly(Boolean openCurrentModuleOnly) {
+        this.openCurrentModuleOnly = openCurrentModuleOnly;
     }
 
     public String getWildcardName() {
