@@ -66,13 +66,6 @@
             border-collapse: collapse;
             text-align: center;
         }
-        .targetTablesPopup {
-            display: none;
-            padding: 3px 4px 2px;
-        }
-        .targetTablesPopup div {
-            margin-bottom: 3px;
-        }
 
         #runCasesSettings, #testSelector {
             border-bottom: 1px solid #eee;
@@ -81,62 +74,80 @@
             background: #fdfdfd;
             line-height: 1.5;
         }
+
         #runCasesSettings > div, #testSelector > div {
             padding: 4px 15px;
         }
+
         #runCasesSettings > div > span, #testSelector > div > span {
             display: inline-block;
             min-width: 110px;
         }
+
         .te_toolbar {
             width: 100% !important;
             padding: 5px 10px !important;
             -moz-box-sizing: border-box;
                  box-sizing: border-box;
         }
+
         #t_te_table {
             margin: 12px 11px;
         }
+
         .table-problems {
             margin: 9px 12px 12px 10px;
         }
+
         .table-problems > header {
             font-size: 12px;
             margin: 0px 2px 5px 2px;
+        }
+
+        .dropdown-additional-content-toggle:hover {
+            background-color: #7777771c;
+        }
+
+        #targetTablesSection > div:nth-child(1) {
+            display: none;
         }
 
         #testsSection > div:nth-child(1) {
             display: none;
         }
 
-        #testsSection {
+        #problems-messages-panel-id > table:nth-child(1) {
+            display: none;
+        }
+
+        #problems-messages-panel-id {
+            display: none;
+        }
+
+        .padding-top-3px {
             padding-top: 3px;
         }
 
-        .test-link:hover {
+        .dropdown-link:hover {
             background: #7777771c;
             text-decoration: none;
         }
 
-        .test-link {
+        .dropdown-link {
             text-decoration: none;
             padding-bottom: 1px;
         }
 
-        #tests-section-toggle-id:hover {
-            background-color: #7777771c;
-        }
-
-        #tests-section-toggle-id .caret::before {
+        .dropdown-additional-content-toggle .caret::before {
             top: 0;
             display:none
         }
 
-        #tests-section-toggle-id .caret {
+        .dropdown-additional-content-toggle .caret {
             margin-top: 5px;
         }
 
-        #tests-section-toggle-id {
+        .dropdown-additional-content-toggle {
             padding-left: 0px;
             padding-right: 4px;
             margin-left: -2px;
@@ -144,11 +155,55 @@
             display:none;
         }
 
-        #tests-section-available-tests-id {
+        .dropdown-additional-content {
             position: absolute;
             z-index: 9000;
             display: none;
             max-height: 150px;
+            padding: 3px 4px 2px;
+        }
+
+        .tableTestPanelContainer {
+            padding: 0 10px;
+        }
+
+        .stacktrace-links {
+            cursor: pointer;
+        }
+
+        .dropdown-additional-content div {
+            margin-bottom: 3px;
+        }
+
+        #targetTablesPanel {
+            display: none;
+        }
+
+        .dropdown-header {
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 2px;
+        }
+
+        .problems-message-table {
+            margin-top: 3px;
+        }
+
+        .border-padding-0 {
+            border: 0;
+            padding: 0;
+        }
+
+        .summary-panels {
+            display: inline;
+        }
+
+        .white-space-pre-wrap {
+            white-space: pre-wrap;
+        }
+
+        .stacktrace-panels {
+            display: none;
         }
     </style>
 
@@ -237,25 +292,25 @@
                 <a4j:commandButton id="testButton" value="Test"
                                    rendered="#{tableBean.canRun}"
                                    title="Test" onclick="runTestCases();"
-                                   styleClass="hidden b-test"/>
+                                   styleClass="hidden on-errors-hide b-test"/>
                 <a4j:commandButton id="runButton" value="Run"
                                    rendered="#{tableBean.canRun}"
                                    title="Run" onclick="return isAnyTestSelected();" oncomplete="runTestCases();"
-                                   styleClass="hidden b-run"/>
+                                   styleClass="hidden on-errors-hide b-run"/>
                 <a4j:commandButton id="runToExcel"
                                    rendered="#{tableBean.canRun}"
                                    onclick="return isAnyTestSelected();" oncomplete="downloadTestCases();"
                                    value="Run into File" title="Run into File"
-                                   styleClass="hidden b-run"/>
+                                   styleClass="hidden on-errors-hide b-run"/>
                 <a4j:commandButton id="testToExcel"
                                    rendered="#{tableBean.canRun}"
                                    onclick="return isAnyTestSelected();" oncomplete="downloadTestCases();"
                                    value="Test into File" title="Test into File"
-                                   styleClass="hidden b-test"/>
+                                   styleClass="hidden on-errors-hide b-test"/>
                 <a4j:commandButton id="traceButton"
                                    rendered="#{tableBean.canTrace}"
                                    value="Trace" title="Trace"
-                                   styleClass="hidden b-trace changes-listener"
+                                   styleClass="hidden on-errors-hide b-trace changes-listener"
                                    action="#{runTestHelper.initTrace}"
                                    oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
                                    onclick="if (isAnyTestSelected()) {return true;} else {ws.changes.restoreChangedState();} return false;"/>
@@ -263,12 +318,12 @@
                 <h:commandButton id="traceIntoFileButton" action="#{traceIntoFileBean.traceIntoFile}"
                                  rendered="#{tableBean.canTrace}"
                                  value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
-                                 styleClass="hidden b-trace"/>
+                                 styleClass="hidden on-errors-hide b-trace"/>
                 <a4j:commandButton id="benchmarkButton" action="#{benchmarkBean.addLastBenchmark}"
                                    rendered="#{tableBean.canBenchmark}"
                                    value="Benchmark" title="Benchmark" onclick="return isAnyTestSelected();"
                                    oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')"
-                                   styleClass="hidden b-benchmark"/>
+                                   styleClass="hidden on-errors-hide b-benchmark"/>
             </div>
             <input type="hidden" name="testRanges" value="" id="testRangesHiddenInput"/>
             <input type="hidden" name="currentOpenedModule" value="" id="testModuleOnlyHiddenInput"/>
@@ -327,16 +382,16 @@
                     </h:form>
                 </td>
 
-                <c:if test="#{tableBean.testable and !tableBean.hasErrors}">
+                <c:if test="#{tableBean.testable}">
 
                 <!-- Second Block -->
-                <td>
+                <td class="on-errors-hide">
 
                     <h:form prependId="false">
                         <table>
                             <tr>
                                 <td>
-                                    <a4j:commandLink id="runLink" title="Run" styleClass="toolbarButton menuButton"
+                                    <a4j:commandLink id="runLink" title="Run" styleClass="toolbarButton on-errors-hide menuButton"
                                         rendered="#{tableBean.canRun}"
                                         onclick="onRun(); return false;"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
@@ -362,7 +417,7 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink id="traceLink" title="Trace" styleClass="toolbarButton menuButton changes-listener"
+                                    <a4j:commandLink id="traceLink" title="Trace" styleClass="toolbarButton on-errors-hide menuButton changes-listener"
                                                      rendered="#{tableBean.canTrace}"
                                                      onclick="onTrace(); return false;"
                                                      onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
@@ -389,7 +444,7 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink id="benchmarkLink" title="Benchmark" styleClass="toolbarButton menuButton"
+                                    <a4j:commandLink id="benchmarkLink" title="Benchmark" styleClass="toolbarButton on-errors-hide menuButton"
                                         rendered="#{tableBean.canBenchmark}"
                                         onclick="onBenchmark(); return false;"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
@@ -432,14 +487,14 @@
                             <c:set target="#{inputArgsBean}" property="uri" value="#{tableBean.uri}" />
                             <c:if test="#{inputArgsBean.methodHasParameters}">
                                 <c:if test="#{tableBean.canRun}">
-                                    <a class="toolbarButton" title="Launch the table" href="javascript:void(0)"
+                                    <a class="toolbarButton on-errors-hide" title="Launch the table" href="javascript:void(0)"
                                         onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-run').show();$j('.manual-trace').hide();">
                                         <img src="#{contextPath}/webresource/images/run.gif" />
                                         <div>Run</div>
                                     </a>
                                 </c:if>
                                 <c:if test="#{tableBean.canTrace}">
-                                    <a class="toolbarButton" title="Launch the table and trace steps" href="javascript:void(0)"
+                                    <a class="toolbarButton on-errors-hide" title="Launch the table and trace steps" href="javascript:void(0)"
                                         onclick=" showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-trace').show();$j('.manual-run').hide();">
                                         <img src="#{contextPath}/webresource/images/trace.gif" />
                                         <div>Trace</div>
@@ -495,14 +550,14 @@
                                 </div>
                             </c:if>
                             <c:if test="#{not inputArgsBean.methodHasParameters}">
-                                <a4j:commandLink styleClass="toolbarButton" title="Run"
+                                <a4j:commandLink styleClass="toolbarButton on-errors-hide" title="Run"
                                     rendered="#{tableBean.canRun}"
                                     oncomplete="ws.nav.go('#{runLink}')">
                                     <img src="#{contextPath}/webresource/images/run.gif" />
                                     <div>Run</div>
                                     <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
-                                <a4j:commandLink action="#{runTestHelper.initTrace}" styleClass="toolbarButton changes-listener"
+                                <a4j:commandLink action="#{runTestHelper.initTrace}" styleClass="toolbarButton on-errors-hide changes-listener"
                                                  rendered="#{tableBean.canTrace}"
                                                  oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" title="Trace">
                                     <img src="#{contextPath}/webresource/images/trace.gif" />
@@ -519,7 +574,7 @@
                 <c:if test="#{tableBean.hasTests}">
                     <td>
                         <c:set var="testLink" value="#{studio.url('test/test')}?id=#{tableBean.id}" />
-                        <h:outputLink value="#{testLink}" title="Run Tests" styleClass="toolbarButton menuButton"
+                        <h:outputLink value="#{testLink}" title="Run Tests" styleClass="toolbarButton on-errors-hide menuButton"
                                       onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                       onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                       onclick="onRun(true); return false;"
@@ -560,53 +615,30 @@
                 </td>
                 </c:if>
 
-                <c:if test="#{!empty tableBean.targetTables}">
-                <c:set var="oneTargetTable" value="#{fn:length(tableBean.targetTables) == 1}" />
-                <td style="padding: 0 10px">
-                    <div style="font-weight: bold; color: #333333; margin-bottom: 2px">
-                        <h:outputText value="Target Table" />
-                        <h:outputText value="s" rendered="#{!oneTargetTable}" />
-                    </div>
-                    <div>
-                        <ui:repeat value="#{tableBean.targetTables}" var="targetTable" varStatus="i">
-                        <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#{studio.url('table', targetTable.uri)}">
-                                <f:param name="id" value="#{targetTable.id}" />
-                                <h:outputText value="#{targetTable.name}" />
-                            </h:outputLink>
-                            <h:outputLink value="javascript:void(0)" rendered="#{!oneTargetTable}"
-                                onclick="ws.ui.showPopupMenu(event, 'targetTables', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
-                                style="margin-left: 4px">
-                                <h:graphicImage url="/webresource/images/arrow_down.png" title="Other Target Tables" />
-                            </h:outputLink>
-                        </h:panelGroup>
-                        </ui:repeat>
-                    </div>
-                    <h:panelGroup id="targetTables" class="targetTablesPopup" rendered="#{!oneTargetTable}" layout="block">
-                        <ui:repeat value="#{tableBean.targetTables}" var="targetTable" varStatus="i">
-                        <h:panelGroup rendered="#{i.index > 0}">
-                        <div>
-                            <h:outputLink value="#{studio.url('table', targetTable.uri)}">
-                                <f:param name="id" value="#{targetTable.id}" />
-                                <h:outputText value="#{targetTable.name}" />
-                            </h:outputLink>
-                        </div>
-                        </h:panelGroup>
-                        </ui:repeat>
-                    </h:panelGroup>
-                </td>
-                </c:if>
-                <!-- If table has tests and runs -->
-                <div id="tableTestsPanel">
+                <div id="targetTablesPanel">
                     <td style="padding: 0 10px">
-                        <div id="testsPanel" style="font-weight: bold; color: #333333; margin-bottom: 2px">Available Tests/Runs</div>
+                        <div id="targetTablesHeader" class="dropdown-header"></div>
                         <div>
-                            <section id="testsSection">
+                            <section id="targetTablesSection" class="padding-top-3px">
                                 <div>
-                                    <a class="test-link" href="{testLink}?id={testId}">{testName}</a>
+                                    <a class="dropdown-link" href="{tableLink}?id={tableId}">{tableName}</a>
                                 </div>
-                                <a id="tests-section-toggle-id" onclick="ws.ui.showPopupMenu(event, 'tests-section-available-tests-id', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})" title="Other Available Tests/Runs" href="javascript:void(0)"><b class="caret"></b></a>
-                                <div id="tests-section-available-tests-id" class="targetTablesPopup"></div>
+                                <a id="target-tables-toggle-id" class="dropdown-additional-content-toggle" style="display: none" onclick="ws.ui.showPopupMenu(event, 'target-tables-additional-tables-id', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})" title="Other Target Tables" href="javascript:void(0)"><b class="caret"></b></a>
+                                <div id="target-tables-additional-tables-id" class="dropdown-additional-content"></div>
+                            </section>
+                        </div>
+                    </td>
+                </div>
+                <div id="tableTestsPanel">
+                    <td class="tableTestPanelContainer">
+                        <div id="testsPanel" class="dropdown-header">Available Tests/Runs</div>
+                        <div>
+                            <section id="testsSection" class="padding-top-3px">
+                                <div>
+                                    <a class="dropdown-link" href="{testLink}?id={testId}">{testName}</a>
+                                </div>
+                                <a id="tests-section-toggle-id" class="dropdown-additional-content-toggle" onclick="ws.ui.showPopupMenu(event, 'tests-section-available-tests-id', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})" title="Other Available Tests/Runs" href="javascript:void(0)"><b class="caret"></b></a>
+                                <div id="tests-section-available-tests-id" class="dropdown-additional-content"></div>
                             </section>
                         </div>
                     </td>
@@ -620,7 +652,7 @@
     <div id="tablePanel">
         <div>
             <c:set var="editableTablePart" value="#{tableBean.tablePart and studio.model.editable}" />
-            <h:panelGroup rendered="#{tableBean.hasProblems or editableTablePart}" layout="block" styleClass="table-problems">
+            <h:panelGroup style="display: none;" layout="block" styleClass="table-problems">
                 <header>
                     <span style="margin-right:2px">Problems</span>
                     <img src="#{contextPath}/webresource/images/arrow_down.gif" title="Hide Problems" style="vertical-align:-2px"
@@ -631,12 +663,34 @@
                         style="display:inline-block;margin:2px">
                         The table is composed of several partial tables. To edit partial tables, please use "Open in Excel"
                     </h:panelGroup>
-                    <h:panelGroup rendered="#{tableBean.hasProblems}" layout="block">
-                        <ui:include src="/pages/modules/messages.xhtml">
-                            <ui:param name="messages" value="#{tableBean.problems}" />
-                            <ui:param name="editable" value="#{tableBean.canEdit}" />
-                        </ui:include>
-                    </h:panelGroup>
+                    <div id="problems-messages-panel-id">
+                        <table class="problems-message-table"><tr><td class="border-padding-0">
+                            <div data-message-id="{messageId}" class="{messageBoxClass}" style="{messageBoxStyle}">
+                                <span id="summary_panel" class="summary-panels">
+                                    <span class="white-space-pre-wrap">{messageSummary}</span>
+                                </span>
+
+                                <span id="stacktrace_panel" class="stacktrace-panels">
+                                    <span id="stacktrace" class="white-space-pre-wrap"></span>
+                                </span>
+
+                                <span style="{messageErrorCodeStyle}" class="code">
+                                    <br />
+                                    <span>{messageErrorCode1}</span>
+                                    <span class="codeerror">{messageErrorCode2}</span>
+                                    <span>{messageErrorCode3}</span>
+                                </span>
+
+                                <a onclick="if (!canOverwriteRevision()) return false; ws.nav.go(this.href.replace(/^.+#/, '')); return false;" style="{messageEditStyle}" title="{messageTitle}" href="{messageLink}?id={tableId}&amp;cell={messageCell}&amp;mode=edit">
+                                    <img src="#{request.contextPath}/webresource/images/edit2.gif"/>
+                                </a>
+
+                                <div class="arrow-bottom" style="{messageArrowStyle}">
+                                    <a onclick="toggleStacktrace(this); return false;" class="stacktrace-links"><div class="stacktrace-hidden"/></a>
+                                </div>
+                            </div>
+                        </td></tr></table>
+                    </div>
                 </div>
             </h:panelGroup>
 
@@ -700,13 +754,6 @@
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);
-            if (popupId === "inputArgsMenu") {
-                compiled(function (data) {
-                    var runTestModuleOnlyInputArgs = $j("#runTestModuleOnlyInputArgs");
-                    runTestModuleOnlyInputArgs.prop('checked', !data);
-                    runTestModuleOnlyInputArgs.prop('disabled', !data);
-                });
-            }
             ws.ui.showPopupMenu(event, popupId, button, {'offsetLeft' : -1, 'offsetTop' : 6, 'fitToScreen' : true});
         }
 
@@ -751,6 +798,12 @@
                         message: 'Can be run for the currently opened module only because the project is not compiled yet.',
                         onOK: proceed
                     });
+                } else if (projectHasErrors()){
+                    ws.ui.confirm({
+                        title: 'Tests',
+                        message: 'Can be run for the currently opened module only because other modules contain errors.',
+                        onOK: proceed
+                    });
                 } else {
                     proceed();
                 }
@@ -770,6 +823,12 @@
                     ws.ui.confirm({
                         title: 'Trace',
                         message: 'Trace can be run for the currently opened module only because the project is not compiled yet.',
+                        onOK: proceed
+                    });
+                } else if (projectHasErrors()) {
+                    ws.ui.confirm({
+                        title: 'Trace',
+                        message: 'Trace can be run for the currently opened module only because other modules contain errors.',
                         onOK: proceed
                     });
                 } else {
@@ -793,6 +852,12 @@
                         message: 'Benchmark can be run for the currently opened module only because the project is not compiled yet.',
                         onOK: proceed
                     });
+                } else if (projectHasErrors()) {
+                    ws.ui.confirm({
+                        title: 'Benchmark',
+                        message: 'Benchmark can be run for the currently opened module only because other modules contain errors.',
+                        onOK: proceed
+                    });
                 } else {
                     proceed();
                 }
@@ -812,7 +877,7 @@
 
         function compiled(callback) {
             return $jq.ajax({
-                url: "#{contextPath}/web/compile/module",
+                url: "#{contextPath}/web/compile/project",
                 datatype: "text"
             })
                 .done(function (data) {
@@ -889,22 +954,12 @@
             showButtonMenu(event, 'unitsMenu', 'a');
             $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
             $j('#unitsMenu .' + block).show();
-            compiled(function (data) {
-                var runTestModuleOnly = $j("#runTestModuleOnly");
-                runTestModuleOnly.prop('checked', !data);
-                runTestModuleOnly.prop('disabled', !data);
-            });
         }
 
         function showUnitsMenu(event, block) {
             showButtonMenu(event, 'unitsMenu', 'a');
             $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
             $j('#unitsMenu .' + block).show();
-            compiled(function (data) {
-                var runTestModuleOnly = $j("#runTestModuleOnly");
-                runTestModuleOnly.prop('checked', !data);
-                runTestModuleOnly.prop('disabled', !data);
-            });
         }
 
         function getTestQuery(currentOpenedModule) {
@@ -1050,11 +1105,11 @@
                 datatype: "text"
             })
                 .done(function (data) {
-                    $jq('#ftableTestsPanel').toggle(data.allTests.length !== 0);
+                    $jq('#tableTestsPanel').toggle(data.allTests.length !== 0);
                     $jq('#testsPanel').toggle(data.allTests.length !== 0);
+                    $jq('#testsSection span').remove();
                     var rowTemplate = $j('#testsSection>div:nth-child(1)');
-                    var htmlTemplate = $j('<div/>').append(rowTemplate).html();
-                    $j('#testsSection div.row').remove();
+                    var htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
 
                     var availableTests = '';
                     data.allTests.forEach(function (item, i) {
@@ -1062,7 +1117,7 @@
                                 .replace(/{testName}/g, item.name)
                                 .replace(/{testId}/g, item.id);
                         if (i === 0) {
-                            $j("#testsSection").prepend(testLinkRow.replace(/div/g, "span"));
+                            rowTemplate.after(testLinkRow.replace(/div/g, "span"));
                         } else {
                             $j("#tests-section-toggle-id").show();
                             availableTests += testLinkRow;
@@ -1076,8 +1131,152 @@
                 });
         });
 
+         updatePageRest(true);
+         (function updateOnCompiled(){
+             compiled(function (data) {
+                 if (data !== true) {
+                    setTimeout(function () {updateOnCompiled()}, 1000);
+                 } else {
+                    updatePageRest(false);
+                 }
+             });
+         })();
+
+         function updatePageRest(opened) {
+              $jq.ajax({
+                  url: "#{contextPath}/web/compile/table/#{tableBean.id}/" + opened,
+                  datatype: "json"
+              })
+              .done(function (data) {
+                  var hasProblems = data.warnings.length > 0 || data.errors.length > 0;
+                  if ((hasProblems || #{editableTablePart})){
+                      $jq(".table-problems").show()
+                  }
+                  if (data.errors.length > 0 && opened) {
+                      $j(".on-errors-hide").hide();
+                  }
+                  applyTargetTables(data.targetTables);
+                  applyProblems(data.errors, data.warnings, data.tableUrl);
+                  applyRunOpenedModuleCheckboxes(!opened, hasProblems);
+              });
+         }
+
+        function applyRunOpenedModuleCheckboxes(compiled, hasProblems){
+            var runTestModuleOnly = $j("#runTestModuleOnly");
+            var runTestModuleOnlyInputArgs = $j("#runTestModuleOnlyInputArgs");
+            var testModuleOnlyField = $j("#testModuleOnlyField");
+            if (compiled && !hasProblems) {
+                runTestModuleOnly.prop('checked', false);
+                runTestModuleOnly.prop('disabled', false);
+                runTestModuleOnlyInputArgs.prop('checked', false);
+                runTestModuleOnlyInputArgs.prop('disabled', false);
+                testModuleOnlyField.prop('checked', false);
+                testModuleOnlyField.prop('disabled', false);
+            } else {
+                runTestModuleOnly.prop('checked', true);
+                runTestModuleOnly.prop('disabled', true);
+                runTestModuleOnlyInputArgs.prop('checked', true);
+                runTestModuleOnlyInputArgs.prop('disabled', true);
+                testModuleOnlyField.prop('checked', true);
+                testModuleOnlyField.prop('disabled', true);
+            }
+        }
+
+        function projectHasErrors(){
+            return $j("#runTestModuleOnly").prop('disabled')
+                || $j("#runTestModuleOnlyInputArgs").prop('disabled')
+                || $j("#testModuleOnlyField").prop('disabled');
+        }
+
+         function applyProblems(errors, warnings, tableUrl){
+            if (errors.length > 0 || warnings.length > 0) {
+                $j("#problems-messages-panel-id").show();
+                var rowTemplate = $j('#problems-messages-panel-id>table:nth-child(1)');
+                var htmlTemplate = $j('<div/>').append(rowTemplate).html();
+                var messages = "";
+                var hiddenStyle = " display: none; ";
+                errors.concat(warnings).each(function(item, i){
+                    var messageBoxClass = item.severity == 'ERROR' ? 'problem-error' : (item.severity == 'WARN' ? 'problem-warning' : 'problem-info');
+                    var linkTitle = "Edit cell containing ";
+                    linkTitle += message.severity == 'ERROR' ? 'error' : (message.severity == 'WARN' ? 'warning' : 'info');
+                    var hasErrorCode = item.errorCode && item.errorCode.length > 0;
+                    messages += htmlTemplate.replace(/{messageBoxClass}/g, messageBoxClass)
+                        .replace(/{messageArrowStyle}/g, item.hasStacktrace ? "" : hiddenStyle)
+                        .replace(/{messageSummary}/g, item.summary)
+                        .replace(/{messageTitle}/g, linkTitle)
+                        .replace(/{tableId}/g, item.tableId)
+                        .replace(/{messageId}/g, item.id)
+                        .replace(/{messageCell}/g, item.errorCell)
+                        .replace(/{messageLink}/g, tableUrl)
+                        .replace(/{messageBoxStyle}/g, item.hasStacktrace ? 'padding-bottom: 3px' : '')
+                        .replace(/{messageErrorCode1}/g, hasErrorCode ? item.errorCode[0] : "")
+                        .replace(/{messageErrorCode2}/g, hasErrorCode ? item.errorCode[1] : "")
+                        .replace(/{messageErrorCode3}/g, hasErrorCode ? item.errorCode[2] : "")
+                        .replace(/{messageEditStyle}/g, (!#{tableBean.canEdit} || !item.hasLinkToCell) ? hiddenStyle : "")
+                        .replace(/{messageErrorCodeStyle}/g, (!item.hasLinkToCell || !hasErrorCode) ? hiddenStyle : "");
+                });
+
+                $j("#problems-messages-panel-id").html(htmlTemplate + messages);
+              }
+         };
+
+         function applyTargetTables(targetTables){
+             if (Object.keys(targetTables).length > 0){
+                var targetTablesHeader = "Target Table";
+                $jq('#targetTablesPanel').show();
+                $jq('#targetTablesSection span').remove();
+                var rowTemplate = $j('#targetTablesSection>div:nth-child(1)');
+                var htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
+                var additionalTargetTables = '';
+                var targetTableIndex = -1;
+                for (key in targetTables) {
+                    targetTableIndex++;
+                    var entry = targetTables[key];
+                    var targetTableLinkRow = htmlTemplate.replace(/{tableLink}/g, key)
+                       .replace(/{tableName}/g, entry.name)
+                       .replace(/{tableId}/g, entry.id);
+                    if (targetTableIndex === 0) {
+                        rowTemplate.after(targetTableLinkRow.replace(/div/g, "span"));
+                    } else {
+                        $j("#target-tables-toggle-id").show();
+                        additionalTargetTables += targetTableLinkRow;
+                    }
+                };
+                if (Object.keys(targetTables).length > 1) {
+                    targetTablesHeader += "s";
+                }
+                $j("#targetTablesHeader").html(targetTablesHeader);
+                $j('#target-tables-additional-tables-id').html(additionalTargetTables);
+             }
+         };
+
         $jq('#tableTestsPanel').trigger('refresh');
 
+        function toggleStacktrace(arrowBlock) {
+            var $j = jQuery.noConflict();
+            var arrow = $j(arrowBlock).find("div");
+            var isHidden = arrow.hasClass("stacktrace-hidden")
+            var messageBox = $j(arrowBlock).parent().parent();
+            $j(".summary-panels").show();
+            $j(".stacktrace-panels").hide();
+            $j(".stacktrace-showed").each(function(i, e) { $j(e).addClass("stacktrace-hidden").removeClass("stacktrace-showed"); });
+            $j(".arrow-top a div").removeClass("stacktrace-hidden");
+            if (isHidden) {
+                compiled(function (data) {
+                     $j.ajax({
+                        url: "#{contextPath}/web/compile/error/" + messageBox.attr("data-message-id") + "/" + !data,
+                        datatype: "text"
+                    })
+                    .done(function (data) {
+                        messageBox.find(".stacktrace-panels span").text(data);
+                        messageBox.find('[id$="stacktrace_panel"]').show();
+                        messageBox.find('[id$="summary_panel"]').hide();
+                        arrow.addClass("stacktrace-showed").removeClass("stacktrace-hidden");
+                        $j(arrowBlock).parent().parent().find(".arrow-top a div").addClass("stacktrace-showed");
+                    });
+                });
+            }
+        }
         //]]>
     </script>
 

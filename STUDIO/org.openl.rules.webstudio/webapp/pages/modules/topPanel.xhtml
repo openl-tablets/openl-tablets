@@ -316,7 +316,7 @@
 
         function compiled(callback) {
             return $jq.ajax({
-                url: "#{contextPath}/web/compile/module",
+                url: "#{contextPath}/web/compile/project",
                 datatype: "text"
             })
                 .done(function (data) {
