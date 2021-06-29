@@ -798,7 +798,7 @@
                         message: 'Can be run for the currently opened module only because the project is not compiled yet.',
                         onOK: proceed
                     });
-                } else if (projectHasErrors()){
+                } else if (projectHasErrorsForTable()){
                     ws.ui.confirm({
                         title: 'Tests',
                         message: 'Can be run for the currently opened module only because other modules contain errors.',
@@ -825,7 +825,7 @@
                         message: 'Trace can be run for the currently opened module only because the project is not compiled yet.',
                         onOK: proceed
                     });
-                } else if (projectHasErrors()) {
+                } else if (projectHasErrorsForTable()) {
                     ws.ui.confirm({
                         title: 'Trace',
                         message: 'Trace can be run for the currently opened module only because other modules contain errors.',
@@ -852,7 +852,7 @@
                         message: 'Benchmark can be run for the currently opened module only because the project is not compiled yet.',
                         onOK: proceed
                     });
-                } else if (projectHasErrors()) {
+                } else if (projectHasErrorsForTable()) {
                     ws.ui.confirm({
                         title: 'Benchmark',
                         message: 'Benchmark can be run for the currently opened module only because other modules contain errors.',
@@ -1108,12 +1108,12 @@
                     $jq('#tableTestsPanel').toggle(data.allTests.length !== 0);
                     $jq('#testsPanel').toggle(data.allTests.length !== 0);
                     $jq('#testsSection span').remove();
-                    var rowTemplate = $j('#testsSection>div:nth-child(1)');
-                    var htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
+                    const rowTemplate = $j('#testsSection>div:nth-child(1)');
+                    const htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
 
-                    var availableTests = '';
+                    let availableTests = '';
                     data.allTests.forEach(function (item, i) {
-                        var testLinkRow = htmlTemplate.replace(/{testLink}/g, item.uri)
+                        const testLinkRow = htmlTemplate.replace(/{testLink}/g, item.uri)
                                 .replace(/{testName}/g, item.name)
                                 .replace(/{testId}/g, item.id);
                         if (i === 0) {
@@ -1132,7 +1132,7 @@
         });
 
          updatePageRest(true);
-         (function updateOnCompiled(){
+         (function updateOnCompiled() {
              compiled(function (data) {
                  if (data !== true) {
                     setTimeout(function () {updateOnCompiled()}, 1000);
@@ -1148,7 +1148,7 @@
                   datatype: "json"
               })
               .done(function (data) {
-                  var hasProblems = data.warnings.length > 0 || data.errors.length > 0;
+                  const hasProblems = data.warnings.length > 0 || data.errors.length > 0;
                   if ((hasProblems || #{editableTablePart})){
                       $jq(".table-problems").show()
                   }
@@ -1161,10 +1161,10 @@
               });
          }
 
-        function applyRunOpenedModuleCheckboxes(compiled, hasProblems){
-            var runTestModuleOnly = $j("#runTestModuleOnly");
-            var runTestModuleOnlyInputArgs = $j("#runTestModuleOnlyInputArgs");
-            var testModuleOnlyField = $j("#testModuleOnlyField");
+        function applyRunOpenedModuleCheckboxes(compiled, hasProblems) {
+            const runTestModuleOnly = $j("#runTestModuleOnly");
+            const runTestModuleOnlyInputArgs = $j("#runTestModuleOnlyInputArgs");
+            const testModuleOnlyField = $j("#testModuleOnlyField");
             if (compiled && !hasProblems) {
                 runTestModuleOnly.prop('checked', false);
                 runTestModuleOnly.prop('disabled', false);
@@ -1182,24 +1182,24 @@
             }
         }
 
-        function projectHasErrors(){
+        function projectHasErrorsForTable() {
             return $j("#runTestModuleOnly").prop('disabled')
                 || $j("#runTestModuleOnlyInputArgs").prop('disabled')
                 || $j("#testModuleOnlyField").prop('disabled');
         }
 
-         function applyProblems(errors, warnings, tableUrl){
+         function applyProblems(errors, warnings, tableUrl) {
             if (errors.length > 0 || warnings.length > 0) {
                 $j("#problems-messages-panel-id").show();
-                var rowTemplate = $j('#problems-messages-panel-id>table:nth-child(1)');
-                var htmlTemplate = $j('<div/>').append(rowTemplate).html();
-                var messages = "";
-                var hiddenStyle = " display: none; ";
+                const rowTemplate = $j('#problems-messages-panel-id>table:nth-child(1)');
+                const htmlTemplate = $j('<div/>').append(rowTemplate).html();
+                let messages = "";
+                const hiddenStyle = " display: none; ";
                 errors.concat(warnings).each(function(item, i){
-                    var messageBoxClass = item.severity == 'ERROR' ? 'problem-error' : (item.severity == 'WARN' ? 'problem-warning' : 'problem-info');
-                    var linkTitle = "Edit cell containing ";
+                    const messageBoxClass = item.severity == 'ERROR' ? 'problem-error' : (item.severity == 'WARN' ? 'problem-warning' : 'problem-info');
+                    let linkTitle = "Edit cell containing ";
                     linkTitle += message.severity == 'ERROR' ? 'error' : (message.severity == 'WARN' ? 'warning' : 'info');
-                    var hasErrorCode = item.errorCode && item.errorCode.length > 0;
+                    const hasErrorCode = item.errorCode && item.errorCode.length > 0;
                     messages += htmlTemplate.replace(/{messageBoxClass}/g, messageBoxClass)
                         .replace(/{messageArrowStyle}/g, item.hasStacktrace ? "" : hiddenStyle)
                         .replace(/{messageSummary}/g, item.summary)
@@ -1220,19 +1220,19 @@
               }
          };
 
-         function applyTargetTables(targetTables){
+         function applyTargetTables(targetTables) {
              if (Object.keys(targetTables).length > 0){
-                var targetTablesHeader = "Target Table";
+                let targetTablesHeader = "Target Table";
                 $jq('#targetTablesPanel').show();
                 $jq('#targetTablesSection span').remove();
-                var rowTemplate = $j('#targetTablesSection>div:nth-child(1)');
-                var htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
-                var additionalTargetTables = '';
-                var targetTableIndex = -1;
+                const rowTemplate = $j('#targetTablesSection>div:nth-child(1)');
+                const htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
+                let additionalTargetTables = '';
+                let targetTableIndex = -1;
                 for (key in targetTables) {
                     targetTableIndex++;
-                    var entry = targetTables[key];
-                    var targetTableLinkRow = htmlTemplate.replace(/{tableLink}/g, key)
+                    const entry = targetTables[key];
+                    const targetTableLinkRow = htmlTemplate.replace(/{tableLink}/g, key)
                        .replace(/{tableName}/g, entry.name)
                        .replace(/{tableId}/g, entry.id);
                     if (targetTableIndex === 0) {
@@ -1254,9 +1254,9 @@
 
         function toggleStacktrace(arrowBlock) {
             var $j = jQuery.noConflict();
-            var arrow = $j(arrowBlock).find("div");
-            var isHidden = arrow.hasClass("stacktrace-hidden")
-            var messageBox = $j(arrowBlock).parent().parent();
+            const arrow = $j(arrowBlock).find("div");
+            const isHidden = arrow.hasClass("stacktrace-hidden")
+            const messageBox = $j(arrowBlock).parent().parent();
             $j(".summary-panels").show();
             $j(".stacktrace-panels").hide();
             $j(".stacktrace-showed").each(function(i, e) { $j(e).addClass("stacktrace-hidden").removeClass("stacktrace-showed"); });
