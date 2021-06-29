@@ -81,8 +81,10 @@ public class WorkspaceCompileService {
                     for (IDependencyLoader dependencyLoader : loadersForProject) {
                         CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
                         if (compiledDependency != null) {
-                            processMessages(compiledDependency.getCompiledOpenClass()
-                                .getCurrentMessages(), messageCounter, model, newMessages);
+                            processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
+                                messageCounter,
+                                model,
+                                newMessages);
                         }
                     }
                     for (Module module : projectDescriptor.getModules()) {
@@ -91,8 +93,10 @@ public class WorkspaceCompileService {
                         for (IDependencyLoader dependencyLoader : dependencyLoadersForModule) {
                             CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
                             if (compiledDependency != null) {
-                                processMessages(compiledDependency.getCompiledOpenClass()
-                                    .getCurrentMessages(), messageCounter, model, newMessages);
+                                processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
+                                    messageCounter,
+                                    model,
+                                    newMessages);
                                 compiledCount++;
                             }
                             modulesCount++;
@@ -117,8 +121,10 @@ public class WorkspaceCompileService {
                 }
                 CompiledOpenClass compiledOpenClass = model.getCompiledOpenClass();
                 if (compiledOpenClass instanceof ValidatedCompiledOpenClass) {
-                    processMessages(((ValidatedCompiledOpenClass) compiledOpenClass)
-                        .getValidationMessages(), messageCounter, model, newMessages);
+                    processMessages(((ValidatedCompiledOpenClass) compiledOpenClass).getValidationMessages(),
+                        messageCounter,
+                        model,
+                        newMessages);
                 }
                 compileModuleInfo.put("dataType", "new");
                 if (messageIndex != -1 && messageId != -1) {
@@ -239,18 +245,20 @@ public class WorkspaceCompileService {
         }
 
         // if the current table is a test then check tested target tables on errors.
-        List<TableBean.TableDescription> targetTables = OpenLTableLogic.getTargetTables(table, model);
-        for (TableBean.TableDescription targetTable : targetTables) {
+        HashMap<String, TableBean.TableDescription> targetTables = new HashMap<>();
+        for (TableBean.TableDescription targetTable : OpenLTableLogic.getTargetTables(table, model)) {
+            targetTables.put(webStudio.url("table", targetTable.getUri()), targetTable);
             if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
                 warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
                 break;
             }
         }
-        
+
         Map<String, Object> tableInfo = new HashMap<>();
         tableInfo.put("errors", OpenLTableLogic.processTableProblems(errors, model, webStudio));
         tableInfo.put("warnings", OpenLTableLogic.processTableProblems(warnings, model, webStudio));
         tableInfo.put("targetTables", targetTables);
+        tableInfo.put("tableUrl", webStudio.url("table"));
 
         return tableInfo;
     }
@@ -261,7 +269,8 @@ public class WorkspaceCompileService {
         return String.format("%s (%s)", name, info);
     }
 
-    private void processMessages(Collection<OpenLMessage> messages, MessageCounter counter,
+    private void processMessages(Collection<OpenLMessage> messages,
+            MessageCounter counter,
             ProjectModel model,
             List<MessageDescription> newMessages) {
         for (OpenLMessage message : messages) {
