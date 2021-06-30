@@ -1221,28 +1221,28 @@
          };
 
          function applyTargetTables(targetTables) {
-             if (Object.keys(targetTables).length > 0) {
+             if (targetTables.length > 0) {
                 let targetTablesHeader = "Target Table";
                 $jq('#targetTablesPanel').show();
                 $jq('#targetTablesSection span').remove();
                 const rowTemplate = $j('#targetTablesSection>div:nth-child(1)');
                 const htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
                 let additionalTargetTables = '';
-                let targetTableIndex = -1;
-                for (key in targetTables) {
-                    targetTableIndex++;
-                    const entry = targetTables[key];
-                    const targetTableLinkRow = htmlTemplate.replace(/{tableLink}/g, key)
-                       .replace(/{tableName}/g, entry.name)
-                       .replace(/{tableId}/g, entry.id);
-                    if (targetTableIndex === 0) {
-                        rowTemplate.after(targetTableLinkRow.replace(/div/g, "span"));
-                    } else {
-                        $j("#target-tables-toggle-id").show();
-                        additionalTargetTables += targetTableLinkRow;
-                    }
-                };
-                if (Object.keys(targetTables).length > 1) {
+                targetTables.each(function(item, i) {
+                    for (keyUrl in item) {
+                        const table = item[keyUrl];
+                        const targetTableLinkRow = htmlTemplate.replace(/{tableLink}/g, keyUrl)
+                           .replace(/{tableName}/g, table.name)
+                           .replace(/{tableId}/g, table.id);
+                        if (i === 0) {
+                            rowTemplate.after(targetTableLinkRow.replace(/div/g, "span"));
+                        } else {
+                            $j("#target-tables-toggle-id").show();
+                            additionalTargetTables += targetTableLinkRow;
+                        }
+                    };
+                });
+                if (targetTables.length > 1) {
                     targetTablesHeader += "s";
                 }
                 $j("#targetTablesHeader").html(targetTablesHeader);

@@ -17,6 +17,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.message.OpenLErrorMessage;
@@ -245,9 +246,9 @@ public class WorkspaceCompileService {
         }
 
         // if the current table is a test then check tested target tables on errors.
-        HashMap<String, TableBean.TableDescription> targetTables = new HashMap<>();
+        List<Pair<String, TableBean.TableDescription>> targetTableUrlPairs = new ArrayList<>();
         for (TableBean.TableDescription targetTable : OpenLTableLogic.getTargetTables(table, model)) {
-            targetTables.put(webStudio.url("table", targetTable.getUri()), targetTable);
+            targetTableUrlPairs.add(Pair.of(webStudio.url("table", targetTable.getUri()), targetTable));
             if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
                 warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
                 break;
@@ -257,7 +258,7 @@ public class WorkspaceCompileService {
         Map<String, Object> tableInfo = new HashMap<>();
         tableInfo.put("errors", OpenLTableLogic.processTableProblems(errors, model, webStudio));
         tableInfo.put("warnings", OpenLTableLogic.processTableProblems(warnings, model, webStudio));
-        tableInfo.put("targetTables", targetTables);
+        tableInfo.put("targetTables", targetTableUrlPairs);
         tableInfo.put("tableUrl", webStudio.url("table"));
 
         return tableInfo;
