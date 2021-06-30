@@ -12,12 +12,20 @@ import org.openl.message.Severity;
 import org.openl.syntax.exception.CompositeOpenlException;
 import org.openl.types.IOpenClass;
 
-public class ValidatedCompiledOpenClass extends CompiledOpenClass {
+public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
     private final CompiledOpenClass delegate;
     private final Collection<OpenLMessage> validationMessages = new LinkedHashSet<>();
     boolean hasErrors;
 
-    public ValidatedCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
+    public static ValidatedCompiledOpenClass instanceOf(CompiledOpenClass compiledOpenClass) {
+        if (compiledOpenClass instanceof ValidatedCompiledOpenClass) {
+            return (ValidatedCompiledOpenClass) compiledOpenClass;
+        } else {
+            return new ValidatedCompiledOpenClass(compiledOpenClass);
+        }
+    }
+
+    private ValidatedCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
         super(compiledOpenClass.getOpenClassWithErrors(), compiledOpenClass.getMessages());
         this.delegate = Objects.requireNonNull(compiledOpenClass, "compiledOpenClass cannot be null");
         this.hasErrors = compiledOpenClass.hasErrors();
