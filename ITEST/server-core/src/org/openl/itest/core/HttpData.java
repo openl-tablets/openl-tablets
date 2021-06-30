@@ -26,6 +26,7 @@ import org.springframework.util.StreamUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.util.StringUtils;
 
 class HttpData {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -35,6 +36,7 @@ class HttpData {
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final byte[] body;
     private final String resource;
+    private String cookie;
 
     private HttpData(String firstLine, Map<String, String> headers, byte[] body, String resource) {
         this.firstLine = firstLine;
@@ -67,19 +69,22 @@ class HttpData {
         }
     }
 
-    static HttpData send(URL baseURL, String resource) throws IOException {
+    static HttpData send(URL baseURL, String resource, String sessionId) throws IOException {
         HttpData httpData = readFile(resource);
         if (httpData == null) {
             throw new FileNotFoundException(resource);
         }
         HttpURLConnection connection = openConnection(URI.create(baseURL.toString() + httpData.getUrl()).toURL(),
-            httpData.getHttpMethod());
+            httpData.getHttpMethod(), sessionId);
         write(connection, httpData);
         return readData(connection, resource);
     }
 
-    private static HttpURLConnection openConnection(URL url, String httpMethod) throws IOException {
+    private static HttpURLConnection openConnection(URL url, String httpMethod, String cookie) throws IOException {
         URLConnection connection = url.openConnection();
+        if (StringUtils.hasLength(cookie)) {
+            connection.setRequestProperty("Cookie", cookie);
+        }
         if (!(connection instanceof HttpURLConnection)) {
             throw new IllegalStateException("HttpURLConnection required for [" + url + "] but got: " + connection);
         }
@@ -195,15 +200,21 @@ class HttpData {
         }
         try {
             String firstLine = connection.getHeaderField(0);
+            String cookie = "";
             Map<String, String> headers = new HashMap<>();
             for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
                 if (entries.getKey() != null) {
+                    if (entries.getKey().equals("Set-Cookie")) {
+                        cookie = String.join("; ", entries.getValue());
+                    }
                     headers.put(entries.getKey(), String.join(", ", entries.getValue()));
                 }
             }
 
             byte[] body = input != null ? StreamUtils.copyToByteArray(input) : new byte[0];
-            return new HttpData(firstLine, headers, body, resource);
+            HttpData httpData = new HttpData(firstLine, headers, body, resource);
+            httpData.setCookie(cookie);
+            return httpData;
         } finally {
             if (input != null) {
                 input.close();
@@ -335,5 +346,13 @@ class HttpData {
             throw new IOException("Unexpected end of the stream.");
         }
         return line.toString();
+    }
+
+    public String getCookie() {
+        return cookie;
+    }
+
+    public void setCookie(String cookie) {
+        this.cookie = cookie;
     }
 }
