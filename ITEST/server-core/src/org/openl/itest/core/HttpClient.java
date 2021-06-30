@@ -25,6 +25,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
@@ -51,7 +52,7 @@ public class HttpClient {
 
     private final RestTemplate rest;
     private final URL baseURL;
-    private String cookie;
+    private final ThreadLocal<String> cookie = new ThreadLocal<>();
 
     private HttpClient(RestTemplate rest, URL baseURL) {
         this.rest = rest;
@@ -291,10 +292,13 @@ public class HttpClient {
         send("/" + reqRespFiles + ".req", "/" + reqRespFiles + ".resp");
     }
 
-    public <T> T getForObject(String url, Class<T> cl) {
+    public <T> T getForObject(String url, Class<T> cl, HttpStatus status) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Cookie", cookie );
+        if (StringUtils.hasLength(cookie.get())) {
+            headers.add("Cookie", cookie.get());
+        }
         ResponseEntity<T> exchange = rest.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), cl);
+        assertEquals("URL :" + url, status, exchange.getStatusCode());
         return exchange.getBody();
     }
 
@@ -309,10 +313,10 @@ public class HttpClient {
      */
     private void send(String requestFile, String responseFile) {
         try {
-            HttpData header = HttpData.send(baseURL, requestFile, cookie);
+            HttpData header = HttpData.send(baseURL, requestFile, cookie.get());
 
             if (StringUtils.hasLength(header.getCookie())) {
-                cookie = header.getCookie();
+                cookie.set(header.getCookie());
             }
 
             HttpData respHeader = HttpData.readFile(responseFile);

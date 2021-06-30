@@ -69,13 +69,14 @@ class HttpData {
         }
     }
 
-    static HttpData send(URL baseURL, String resource, String sessionId) throws IOException {
+    static HttpData send(URL baseURL, String resource, String cookie) throws IOException {
         HttpData httpData = readFile(resource);
         if (httpData == null) {
             throw new FileNotFoundException(resource);
         }
         HttpURLConnection connection = openConnection(URI.create(baseURL.toString() + httpData.getUrl()).toURL(),
-            httpData.getHttpMethod(), sessionId);
+            httpData.getHttpMethod(),
+            cookie);
         write(connection, httpData);
         return readData(connection, resource);
     }
@@ -200,12 +201,13 @@ class HttpData {
         }
         try {
             String firstLine = connection.getHeaderField(0);
-            String cookie = "";
+            String cookie = null;
             Map<String, String> headers = new HashMap<>();
             for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
                 if (entries.getKey() != null) {
                     if (entries.getKey().equals("Set-Cookie")) {
                         cookie = String.join("; ", entries.getValue());
+                        continue;
                     }
                     headers.put(entries.getKey(), String.join(", ", entries.getValue()));
                 }
@@ -352,7 +354,7 @@ class HttpData {
         return cookie;
     }
 
-    public void setCookie(String cookie) {
+    private void setCookie(String cookie) {
         this.cookie = cookie;
     }
 }
