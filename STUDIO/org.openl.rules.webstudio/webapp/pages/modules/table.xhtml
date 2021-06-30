@@ -67,6 +67,11 @@
             text-align: center;
         }
 
+        #testSelector {
+            min-height: 50px;
+            max-height: clamp(50px, 100vh - 470px, 50vh);
+        }
+
         #runCasesSettings, #testSelector {
             border-bottom: 1px solid #eee;
             margin-bottom: 2px;
@@ -244,7 +249,7 @@
                            style="vertical-align:-2px;margin:-4px" />
                 </div>
             </h:panelGroup>
-            <h:panelGroup id="testSelector" layout="block" styleClass="hidden b-run b-benchmark b-trace">
+            <h:panelGroup id="testSelector" layout="block" styleClass="hidden b-run b-benchmark b-trace scrollable">
                 <div title="Define a range of IDs instead of checkboxes">
                     <span>Use the Range</span>
                     <input type="checkbox" id="useTestRanges"
