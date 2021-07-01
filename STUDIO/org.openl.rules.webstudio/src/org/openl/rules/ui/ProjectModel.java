@@ -1123,16 +1123,8 @@ public class ProjectModel {
                                 SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(), null),
                                 null)),
                         (e) -> {
-                            List<Module> modules = this.moduleInfo.getProject().getModules();
-                            RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(
-                                modules,
-                                webStudioWorkspaceDependencyManager,
-                                false);
-                            Map<String, Object> externalParameters = ProjectExternalDependenciesHelper
-                                .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
-                            instantiationStrategy.setExternalParameters(externalParameters);
                             try {
-                                this.compiledOpenClass = this.validate(instantiationStrategy);
+                                this.compiledOpenClass = this.validate(e.getCompiledOpenClass());
                                 this.projectCompilationCompleted = true;
                                 XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
                                     .getMetaInfo();
@@ -1168,10 +1160,16 @@ public class ProjectModel {
         return modificationTime != moduleLastModified;
     }
 
-    private CompiledOpenClass validate(
-            RulesInstantiationStrategy rulesInstantiationStrategy) throws RulesInstantiationException {
+    private CompiledOpenClass validate(CompiledOpenClass compiledOpenClass) throws RulesInstantiationException {
+        List<Module> modules = moduleInfo.getProject().getModules();
+        RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
+            webStudioWorkspaceDependencyManager,
+            false);
+        Map<String, Object> externalParameters = ProjectExternalDependenciesHelper
+            .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
+        instantiationStrategy.setExternalParameters(externalParameters);
         OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
-        return openApiProjectValidator.validate(moduleInfo.getProject(), rulesInstantiationStrategy);
+        return openApiProjectValidator.validate(moduleInfo.getProject(), compiledOpenClass, instantiationStrategy);
     }
 
     private void prepareWorkspaceDependencyManager() {

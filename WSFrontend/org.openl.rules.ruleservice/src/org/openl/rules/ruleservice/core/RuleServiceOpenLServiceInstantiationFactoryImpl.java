@@ -109,6 +109,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         if (!service.getModules().isEmpty()) {
             for (ProjectValidator projectValidator : getProjectValidators()) {
                 compiledOpenClass = projectValidator.validate(service.getModules().iterator().next().getProject(),
+                    service.getCompiledOpenClass(),
                     instantiationStrategy);
             }
         }
