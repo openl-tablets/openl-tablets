@@ -79,6 +79,7 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.ui.tree.VersionedTreeNode;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
@@ -754,8 +755,8 @@ public class ProjectModel {
         String type = element.getType();
         String url = null;
         int state = 0;
-        int numErrors = 0;
         boolean active = true;
+        TreeNode node = new TreeNode(leaf);
 
         if (type.startsWith(IProjectTypes.PT_TABLE + ".")) {
             TableSyntaxNode tsn = element.getTableSyntaxNode();
@@ -764,8 +765,9 @@ public class ProjectModel {
                 state = 2; // has tests
             }
 
-            String uri = tsn.getUri();
-            numErrors = getErrorsByUri(uri).size();
+            if (!(element instanceof VersionedTreeNode)) {
+                node.setNumErrors(getErrorsByUri(tsn.getUri()).size());
+            }
             ITableProperties tableProperties = tsn.getTableProperties();
             if (tableProperties != null) {
                 Boolean act = tableProperties.getActive();
@@ -774,13 +776,11 @@ public class ProjectModel {
                 }
             }
         }
-        TreeNode node = new TreeNode(leaf);
         node.setName(name);
         node.setTitle(title);
         node.setType(type);
         node.setUrl(url);
         node.setState(state);
-        node.setNumErrors(numErrors);
         node.setActive(active);
 
         return node;
