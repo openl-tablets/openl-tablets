@@ -82,6 +82,7 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
+import org.openl.rules.webstudio.util.POIFixer;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
@@ -1137,6 +1138,18 @@ public class ProjectModel {
             WorkbookLoaders.resetCurrentFactory();
         }
     }
+
+    public boolean isCorruptedModuleCanBeFixed() {
+        return POIFixer.isCorruptedModuleCanBeFixed(compiledOpenClass, moduleInfo);
+    }
+
+    public void fixCorruptedModule() throws Exception {
+        if (POIFixer.fixCorruptedModule(compiledOpenClass, moduleInfo)) {
+            studio.getCurrentProject().setModified();
+            studio.compile();
+        }
+    }
+
 
     private boolean isModified() {
         if (moduleInfo == null) {
