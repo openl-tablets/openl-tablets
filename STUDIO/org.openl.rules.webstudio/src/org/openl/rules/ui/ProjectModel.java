@@ -1101,8 +1101,10 @@ public class ProjectModel {
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
 
-            allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
-            currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+            if (xlsModuleSyntaxNode != null) {
+                allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+                currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+            }
             if (!isSingleModuleMode()) {
                 List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<>();
                 for (XlsModuleSyntaxNode xlsSyntaxNode : allXlsModuleSyntaxNodes) {
