@@ -672,7 +672,6 @@ public final class DecisionTableHelper {
                     List<String> parameterNames = new ArrayList<>();
                     List<IOpenClass> typeOfColumns = new ArrayList<>();
                     int totalColumnsUnder = getTotalColumnsUnder(originalTable, c);
-                    int column = c;
                     for (int paramIndex = 0; paramIndex < parameters.size(); paramIndex++) {
                         IParameterDeclaration param = parameters.get(paramIndex);
                         IOpenClass paramType;
@@ -680,17 +679,17 @@ public final class DecisionTableHelper {
                             String paramName = declaredReturn.getMatchedDefinition().getParameter(param.getName());
                             parameterNames.add(paramName);
                             String value = param.getType().getName() + (paramName != null ? " " + paramName : "");
-                            grid.setCellValue(column, 2, value);
+                            grid.setCellValue(c, 2, value);
                             paramType = param.getType();
                         } else {
                             paramType = declaredReturn.getCompositeMethod().getType();
                         }
                         typeOfColumns.add(paramType);
-                        int h = originalTable.getSource().getCell(column, 0).getHeight();
-                        int w1 = originalTable.getSource().getCell(column, h).getWidth();
+                        int h = originalTable.getSource().getCell(c, 0).getHeight();
+                        int w1 = originalTable.getSource().getCell(c, h).getWidth();
                         if (paramType != null && paramType.isArray()) {
                             // If we have more columns than parameters use excess columns for array typed parameter
-                            int tmpC = column;
+                            int tmpC = c;
                             for (int i = 0; i < totalColumnsUnder - parameters.size(); i++) {
                                 int w2 = originalTable.getSource().getCell(tmpC, h).getWidth();
                                 w1 = w1 + w2;
@@ -698,9 +697,9 @@ public final class DecisionTableHelper {
                             }
                         }
                         if (w1 > 1) {
-                            grid.addMergedRegion(new GridRegion(2, column, 2, column + w1 - 1));
+                            grid.addMergedRegion(new GridRegion(2, c, 2, c + w1 - 1));
                         }
-                        column = column + w1;
+                        c = c + w1;
                     }
                     if (!bindingContext.isExecutionMode()) {
                         StringBuilder sb = new StringBuilder();
@@ -722,15 +721,11 @@ public final class DecisionTableHelper {
                     break;
                 }
             }
-            c = c + cell.getWidth();
         }
 
-        if (declaredReturn.getWidth() > 1) {
+        if (c - declaredReturn.getColumn() > 1) {
             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
-                grid.addMergedRegion(new GridRegion(row,
-                    declaredReturn.getColumn(),
-                    row,
-                    declaredReturn.getColumn() + declaredReturn.getWidth() - 1));
+                grid.addMergedRegion(new GridRegion(row, declaredReturn.getColumn(), row, c - 1));
             }
         }
     }
