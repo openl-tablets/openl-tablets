@@ -67,7 +67,7 @@
             text-align: center;
         }
 
-        #testSelector {
+        #testSelector, #inputArgsForm\:inputTestCasePanel {
             min-height: 50px;
             max-height: clamp(50px, 100vh - 470px, 50vh);
         }
@@ -524,7 +524,7 @@
                                                     render=":inputArgsForm:inputTestCasePanelWrapper" />
                                         </h:selectOneRadio>
                                         <h:panelGroup id="inputTestCasePanel" layout="block"
-                                                      styleClass="#{inputArgsBean.inputTestCaseType == 'TEXT'?'hidden':''}">
+                                                      styleClass="#{inputArgsBean.inputTestCaseType == 'TEXT'?'hidden':''} scrollable">
                                             <ui:include src="/pages/modules/test/inputTestCase.xhtml"/>
                                         </h:panelGroup>
                                         <h:panelGroup id="inputTestCaseText" layout="block"
