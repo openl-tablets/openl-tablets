@@ -1437,6 +1437,7 @@ public final class DecisionTableHelper {
             IBindingContext bindingContext) throws OpenLCompilationException {
 
         List<DTHeader> conditions = dtHeaders.stream()
+            .filter(e -> !(e instanceof UnmatchedDtHeader))
             .filter(DTHeader::isCondition)
             .collect(collectingAndThen(toList(), Collections::unmodifiableList));
 
@@ -2945,7 +2946,11 @@ public final class DecisionTableHelper {
         if (ret < w - 1) {
             String value = originalTable.getSource().getCell(Math.max(ret, 0), firstColumnHeight - 1).getStringValue();
             if (StringUtils.isNotBlank(value) && value.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)) {
-                return Pair.of(Math.max(ret, 0) + 1, Boolean.TRUE);
+                String part1 = value.substring(0, value.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER));
+                String part2 = value.substring(value.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) + 1);
+                if (StringUtils.isNotBlank(part1) && StringUtils.isNotBlank(part2)) {
+                    return Pair.of(Math.max(ret, 0) + 1, Boolean.TRUE);
+                }
             }
         }
 
