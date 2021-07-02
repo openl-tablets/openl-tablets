@@ -185,9 +185,12 @@ public class WorkspaceCompileService {
         Map<String, Object> moduleTestsInfo = new HashMap<>();
         WebStudio studio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         ProjectModel model = studio.getModel();
+        Module moduleInfo = model.getModuleInfo();
         TestSuiteMethod[] allTestMethods = model.getAllTestMethods();
         moduleTestsInfo.put("count", CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0);
         moduleTestsInfo.put("compiled", model.isProjectCompilationCompleted());
+        moduleTestsInfo.put("openCurrentModuleOnly",
+            moduleInfo != null ? moduleInfo.getOpenCurrentModuleOnly() : false);
         return moduleTestsInfo;
     }
 
@@ -222,6 +225,7 @@ public class WorkspaceCompileService {
             @PathParam("openedModule") final boolean openedModule) {
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         ProjectModel model = webStudio.getModel();
+        Module moduleInfo = model.getModuleInfo();
         IOpenLTable table = model.getTableById(tableId);
         String tableUri = table.getUri();
         List<OpenLMessage> errors;
@@ -260,7 +264,8 @@ public class WorkspaceCompileService {
         tableInfo.put("warnings", OpenLTableLogic.processTableProblems(warnings, model, webStudio));
         tableInfo.put("targetTables", targetTableUrlPairs);
         tableInfo.put("tableUrl", webStudio.url("table"));
-
+        tableInfo.put("openCurrentModuleOnly",
+            moduleInfo != null ? moduleInfo.getOpenCurrentModuleOnly() : false);
         return tableInfo;
     }
 
