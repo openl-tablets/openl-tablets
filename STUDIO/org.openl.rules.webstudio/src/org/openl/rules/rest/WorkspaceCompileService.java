@@ -8,6 +8,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import javax.ws.rs.GET;
@@ -82,10 +83,17 @@ public class WorkspaceCompileService {
                     for (IDependencyLoader dependencyLoader : loadersForProject) {
                         CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
                         if (compiledDependency != null) {
-                            processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
-                                messageCounter,
-                                model,
-                                newMessages);
+                            if (Objects.equals(projectDescriptor.getName(), moduleInfo.getProject().getName())) {
+                                processMessages(model.getCompiledOpenClass().getMessages(),
+                                    messageCounter,
+                                    model,
+                                    newMessages);
+                            } else {
+                                processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
+                                    messageCounter,
+                                    model,
+                                    newMessages);
+                            }
                         }
                     }
                     for (Module module : projectDescriptor.getModules()) {
@@ -94,10 +102,18 @@ public class WorkspaceCompileService {
                         for (IDependencyLoader dependencyLoader : dependencyLoadersForModule) {
                             CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
                             if (compiledDependency != null) {
-                                processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
-                                    messageCounter,
-                                    model,
-                                    newMessages);
+                                if (Objects.equals(module.getName(), moduleInfo.getName()) && Objects
+                                    .equals(module.getProject().getName(), moduleInfo.getProject().getName())) {
+                                    processMessages(model.getOpenedModuleCompiledOpenClass().getMessages(),
+                                        messageCounter,
+                                        model,
+                                        newMessages);
+                                } else {
+                                    processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
+                                        messageCounter,
+                                        model,
+                                        newMessages);
+                                }
                                 compiledCount++;
                             }
                             modulesCount++;
