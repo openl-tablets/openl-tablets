@@ -1124,7 +1124,7 @@ public class ProjectModel {
                                 null)),
                         (e) -> {
                             try {
-                                this.compiledOpenClass = this.validate(e.getCompiledOpenClass());
+                                this.compiledOpenClass = this.validate();
                                 this.projectCompilationCompleted = true;
                                 XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
                                     .getMetaInfo();
@@ -1160,7 +1160,7 @@ public class ProjectModel {
         return modificationTime != moduleLastModified;
     }
 
-    private CompiledOpenClass validate(CompiledOpenClass compiledOpenClass) throws RulesInstantiationException {
+    private CompiledOpenClass validate() throws RulesInstantiationException {
         List<Module> modules = moduleInfo.getProject().getModules();
         RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
             webStudioWorkspaceDependencyManager,
@@ -1169,7 +1169,7 @@ public class ProjectModel {
             .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
         instantiationStrategy.setExternalParameters(externalParameters);
         OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
-        return openApiProjectValidator.validate(moduleInfo.getProject(), compiledOpenClass, instantiationStrategy);
+        return openApiProjectValidator.validate(moduleInfo.getProject(), instantiationStrategy);
     }
 
     private void prepareWorkspaceDependencyManager() {

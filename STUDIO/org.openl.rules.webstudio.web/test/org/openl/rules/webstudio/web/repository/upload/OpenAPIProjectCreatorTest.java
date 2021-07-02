@@ -108,7 +108,7 @@ public class OpenAPIProjectCreatorTest {
             RulesInstantiationStrategy rulesInstantiationStrategy) {
         try {
             OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
-            return openApiProjectValidator.validate(projectDescriptor, compiledOpenClass, rulesInstantiationStrategy);
+            return openApiProjectValidator.validate(projectDescriptor, rulesInstantiationStrategy);
         } catch (RulesInstantiationException e) {
             return compiledOpenClass;
         }

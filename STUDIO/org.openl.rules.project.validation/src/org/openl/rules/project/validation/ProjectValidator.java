@@ -7,6 +7,5 @@ import org.openl.rules.project.model.ProjectDescriptor;
 
 public interface ProjectValidator {
     CompiledOpenClass validate(ProjectDescriptor projectDescriptor,
-            CompiledOpenClass compiledOpenClass,
             RulesInstantiationStrategy rulesInstantiationStrategy) throws RulesInstantiationException;
 }
