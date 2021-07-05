@@ -32,7 +32,7 @@ public final class JsonUtils {
         }
     }
 
-    private static ObjectMapper getDefaultJacksonObjectMapper() {
+    static ObjectMapper getDefaultJacksonObjectMapper() {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setSupportVariations(true);
         try {
