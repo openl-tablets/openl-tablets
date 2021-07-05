@@ -340,10 +340,10 @@ public final class DecisionTableHelper {
         int numberOfHConditions = isLookup(tableSyntaxNode) ? getNumberOfHConditions(originalTable) : 0;
         int firstColumnHeight = originalTable.getSource().getCell(0, 0).getHeight();
         int firstColumnForHCondition = -1;
-        boolean withVerticalTitles = false;
+        WithVerticalTitles withVerticalTitles = WithVerticalTitles.NO;
 
         if (numberOfHConditions > 0) {
-            Pair<Integer, Boolean> p = getFirstColumnForHCondition(originalTable,
+            Pair<Integer, WithVerticalTitles> p = getFirstColumnForHCondition(originalTable,
                 numberOfHConditions,
                 firstColumnHeight);
             firstColumnForHCondition = p.getLeft();
@@ -404,7 +404,7 @@ public final class DecisionTableHelper {
 
         writeUnmatchedColumns(decisionTable, originalTable, dtHeaders, firstColumnHeight, bindingContext);
 
-        writeActions(decisionTable, originalTable, grid, dtHeaders, bindingContext);
+        writeActions(decisionTable, originalTable, grid, dtHeaders, firstColumnHeight, bindingContext);
 
         writeReturns(tableSyntaxNode,
             decisionTable,
@@ -442,6 +442,7 @@ public final class DecisionTableHelper {
                             columnParameters,
                             retColumn,
                             0,
+                            1,
                             1,
                             matchedDefinition,
                             true);
@@ -1215,6 +1216,7 @@ public final class DecisionTableHelper {
             IWritableGrid grid,
             DeclaredDTHeader declaredDtHeader,
             String header,
+            int firstColumnHeight,
             IBindingContext bindingContext) {
         int column = declaredDtHeader.getColumn();
         grid.setCellValue(column, 0, header);
@@ -1239,8 +1241,12 @@ public final class DecisionTableHelper {
                     parameterNames.add(null);
                     typeOfColumns.add(declaredDtHeader.getCompositeMethod().getType());
                 }
-                int h = originalTable.getSource().getCell(column, 0).getHeight();
-                int w1 = originalTable.getSource().getCell(column, h).getWidth();
+                int w1;
+                if (declaredDtHeader.isHCondition()) {
+                    w1 = 1;
+                } else {
+                    w1 = originalTable.getSource().getCell(column, firstColumnHeight).getWidth();
+                }
                 if (w1 > 1) {
                     grid.addMergedRegion(new GridRegion(2, column, 2, column + w1 - 1));
                 }
@@ -1272,12 +1278,12 @@ public final class DecisionTableHelper {
                 }
             }
         }
-        if (column < firstColumn + declaredDtHeader.getWidth()) {
+        if (column < firstColumn + declaredDtHeader.getWidthForMerge()) {
             grid.addMergedRegion(new GridRegion(IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1,
                 lastParamFirstColumn,
                 IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1,
-                firstColumn + declaredDtHeader.getWidth() - 1));
-            column = firstColumn + declaredDtHeader.getWidth();
+                firstColumn + declaredDtHeader.getWidthForMerge() - 1));
+            column = firstColumn + declaredDtHeader.getWidthForMerge();
         }
         // merge columns
         if (column - firstColumn > 1) {
@@ -1319,6 +1325,7 @@ public final class DecisionTableHelper {
             ILogicalTable originalTable,
             IWritableGrid grid,
             List<DTHeader> dtHeaders,
+            int firstColumnHeight,
             IBindingContext bindingContext) throws OpenLCompilationException {
         List<DTHeader> actions = dtHeaders.stream()
             .filter(DTHeader::isAction)
@@ -1332,7 +1339,13 @@ public final class DecisionTableHelper {
 
             DeclaredDTHeader declaredAction = (DeclaredDTHeader) action;
             String header = (DecisionTableColumnHeaders.ACTION.getHeaderKey() + (num + 1));
-            writeDeclaredDtHeader(decisionTable, originalTable, grid, declaredAction, header, bindingContext);
+            writeDeclaredDtHeader(decisionTable,
+                originalTable,
+                grid,
+                declaredAction,
+                header,
+                firstColumnHeight,
+                bindingContext);
             num++;
         }
     }
@@ -1433,7 +1446,7 @@ public final class DecisionTableHelper {
             int numberOfHConditions,
             int firstColumnHeight,
             int firstColumnForHCondition,
-            boolean withVerticalTitles,
+            WithVerticalTitles withVerticalTitles,
             IBindingContext bindingContext) throws OpenLCompilationException {
 
         List<DTHeader> conditions = dtHeaders.stream()
@@ -1444,7 +1457,7 @@ public final class DecisionTableHelper {
         int numOfVCondition = 0;
         int numOfHCondition = 0;
 
-        int firstColumnForHConditions = dtHeaders.stream()
+        int firstColumnForHConditionsOrReturns = dtHeaders.stream()
             .filter(e -> e.isCondition() && !e.isHCondition() || e.isAction())
             .mapToInt(e -> e.getColumn() + e.getWidth())
             .max()
@@ -1491,13 +1504,14 @@ public final class DecisionTableHelper {
                     grid,
                     (DeclaredDTHeader) condition,
                     header,
+                    firstColumnHeight,
                     bindingContext);
             } else {
                 grid.setCellValue(column, 0, header);
                 final int numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(column);
                 IOpenClass type = getTypeForCondition(decisionTable, condition);
                 if (condition instanceof FuzzyDTHeader && numberOfColumnsUnderTitle == 2 && condition
-                    .getWidth() == numberOfColumnsUnderTitleCounter.getWidth(column,
+                    .getWidthForMerge() == numberOfColumnsUnderTitleCounter.getWidth(column,
                         0) + numberOfColumnsUnderTitleCounter.getWidth(column, 1) && type
                             .getInstanceClass() != null && (type.getInstanceClass()
                                 .isPrimitive() || ClassUtils.isAssignable(type.getInstanceClass(), Comparable.class))) {
@@ -1541,10 +1555,10 @@ public final class DecisionTableHelper {
                                 new IOpenClass[] { type, type },
                                 null);
                         }
-                        if (condition.getWidth() > 1) {
+                        if (condition.getWidthForMerge() > 1) {
                             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
                                 grid.addMergedRegion(
-                                    new GridRegion(row, column, row, column + condition.getWidth() - 1));
+                                    new GridRegion(row, column, row, column + condition.getWidthForMerge() - 1));
                             }
                         }
                     }
@@ -1554,7 +1568,7 @@ public final class DecisionTableHelper {
                         originalTable,
                         condition,
                         numOfHCondition,
-                        firstColumnForHConditions,
+                        firstColumnForHConditionsOrReturns,
                         numberOfColumnsUnderTitle,
                         bindingContext);
                     grid.setCellValue(column, 1, typeOfValue.getRight());
@@ -1680,13 +1694,13 @@ public final class DecisionTableHelper {
             DecisionTable decisionTable,
             List<DTHeader> conditions,
             int firstColumnForHCondition,
-            boolean withVerticalTitles,
+            WithVerticalTitles withVerticalTitles,
             Map<DTHeader, IOpenClass> hConditionTypes) {
         MetaInfoReader metaInfoReader = decisionTable.getSyntaxNode().getMetaInfoReader();
         int j = 0;
         List<DTHeader> hDtHeaders = conditions.stream().filter(DTHeader::isHCondition).collect(toList());
         int minColumn;
-        if (withVerticalTitles && firstColumnForHCondition > 0) {
+        if (!WithVerticalTitles.NO.equals(withVerticalTitles) && firstColumnForHCondition > 0) {
             minColumn = firstColumnForHCondition - 1;
         } else {
             minColumn = hDtHeaders.stream().mapToInt(DTHeader::getColumn).min().orElse(0);
@@ -1993,27 +2007,35 @@ public final class DecisionTableHelper {
             List<String> parts,
             int sourceTableColumn,
             int firstColumnForHCondition,
-            boolean withVerticalTitles,
+            boolean skipNextColumn,
+            WithVerticalTitles withVerticalTitles,
             boolean onlyReturns) {
         int w0 = gridTable.getCell(w, h).getWidth();
         int h0 = gridTable.getCell(w, h).getHeight();
 
         String d = gridTable.getCell(w, h).getStringValue();
         String mergedPartsTitle;
-        if (withVerticalTitles && sourceTableColumn + originalTable.getSource()
+        if (sourceTableColumn + originalTable.getSource()
             .getCell(sourceTableColumn, 0)
-            .getWidth() == firstColumnForHCondition && numberOfColumnsUnderTitleCounter.get(w) == 1 && StringUtils
-                .isNotBlank(d) && d.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)) {
+            .getWidth() == firstColumnForHCondition && numberOfColumnsUnderTitleCounter
+                .get(w) == 1 && h == firstColumnHeight - 1 && (WithVerticalTitles.SLASH_IN_TITLE
+                    .equals(withVerticalTitles) && StringUtils.isNotBlank(
+                        d) && d.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) || WithVerticalTitles.MERGED_COLUMN
+                            .equals(withVerticalTitles) || WithVerticalTitles.EMPTY_COLUMN
+                                .equals(withVerticalTitles))) {
             if (!onlyReturns) {
                 List<String> hTitles = new ArrayList<>(parts);
-                hTitles.add(d.substring(d.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) + 1).trim());
-                int vertical = 0;
+                String p = d;
+                if (WithVerticalTitles.SLASH_IN_TITLE.equals(withVerticalTitles)) {
+                    p = d.substring(d.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) + 1).trim();
+                }
+                hTitles.add(p);
+                int horizontal = 0;
                 for (String hTitle : hTitles) {
                     String tokenizedTitleString = OpenLFuzzyUtils.toTokenString(hTitle);
                     List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
                         .fuzzyExtract(tokenizedTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
                     addFuzzyDtHeader(decisionTable,
-                        gridTable,
                         fuzzyContext,
                         numberOfHConditions,
                         firstColumnForHCondition,
@@ -2021,17 +2043,22 @@ public final class DecisionTableHelper {
                         h,
                         hTitle,
                         sourceTableColumn,
-                        w0,
+                        1,
+                        1,
                         fuzzyResults,
                         dtHeaders,
-                        false,
-                        vertical + 1);
-                    vertical++;
+                        horizontal + 1);
+                    horizontal++;
                 }
             }
-            d = d.substring(0, d.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)).trim();
-            parts.add(d);
-            mergedPartsTitle = d;
+            String p;
+            if (WithVerticalTitles.SLASH_IN_TITLE.equals(withVerticalTitles)) {
+                p = d.substring(0, d.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)).trim();
+            } else {
+                return;
+            }
+            parts.add(p);
+            mergedPartsTitle = p;
         } else {
             parts.add(d);
             mergedPartsTitle = String.join(" | ", parts);
@@ -2053,6 +2080,7 @@ public final class DecisionTableHelper {
                     parts,
                     sourceTableColumn,
                     firstColumnForHCondition,
+                    skipNextColumn,
                     withVerticalTitles,
                     onlyReturns);
                 w2 = w2 + w1;
@@ -2073,6 +2101,7 @@ public final class DecisionTableHelper {
                             sourceTableColumn,
                             sourceTableColumn + w,
                             h,
+                            w0,
                             w0,
                             fuzzyResult,
                             true,
@@ -2106,8 +2135,8 @@ public final class DecisionTableHelper {
                     }
                 }
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.fuzzyExtract(tokenizedTitleString, tokens, true);
+
                 addFuzzyDtHeader(decisionTable,
-                    gridTable,
                     fuzzyContext,
                     numberOfHConditions,
                     firstColumnForHCondition,
@@ -2115,39 +2144,17 @@ public final class DecisionTableHelper {
                     h,
                     mergedPartsTitle,
                     sourceTableColumn,
+                    skipNextColumn ? w0 + originalTable.getSource().getCell(sourceTableColumn + w0, h).getWidth() : w0,
                     w0,
                     fuzzyResults,
                     dtHeaders,
-                    false,
                     0);
-
-                if (w == 0 && numberOfColumnsUnderTitleCounter.get(sourceTableColumn) == 2) {
-                    String prevTitle = String.join(StringUtils.SPACE, parts.subList(0, parts.size() - 1));
-                    String tokenizedPrevTitleString = OpenLFuzzyUtils.toTokenString(prevTitle);
-                    List<FuzzyResult> fuzzyResultsForMinMax = OpenLFuzzyUtils
-                        .fuzzyExtract(tokenizedPrevTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
-                    addFuzzyDtHeader(decisionTable,
-                        gridTable,
-                        fuzzyContext,
-                        numberOfHConditions,
-                        firstColumnForHCondition,
-                        w,
-                        h,
-                        mergedPartsTitle,
-                        sourceTableColumn,
-                        w0,
-                        fuzzyResultsForMinMax,
-                        dtHeaders,
-                        true,
-                        0);
-                }
             }
         }
         parts.remove(parts.size() - 1);
     }
 
     private static void addFuzzyDtHeader(DecisionTable decisionTable,
-            IGridTable gridTable,
             FuzzyContext fuzzyContext,
             int numberOfHConditions,
             int firstColumnForHCondition,
@@ -2156,17 +2163,16 @@ public final class DecisionTableHelper {
             String title,
             int sourceTableColumn,
             int w0,
+            int widthForMerge,
             List<FuzzyResult> fuzzyResults,
             List<DTHeader> dtHeaders,
-            boolean minMaxCondition,
-            int vertical) {
+            int horizontal) {
         for (FuzzyResult fuzzyResult : fuzzyResults) {
             Integer paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
             if (paramIndex != null) {
                 IOpenField[] fieldsChain = fuzzyContext.getParameterTokens().getFieldsChain(fuzzyResult.getToken());
                 StringBuilder conditionStatement = new StringBuilder(
                     decisionTable.getSignature().getParameterName(paramIndex));
-                IOpenClass type = decisionTable.getSignature().getParameterType(paramIndex);
                 if (fieldsChain != null) {
                     Pair<String, IOpenClass> c = buildStatementByFieldsChain(
                         decisionTable.getSignature().getParameterType(paramIndex),
@@ -2174,38 +2180,19 @@ public final class DecisionTableHelper {
                     String chainStatement = c.getLeft();
                     conditionStatement.append(".");
                     conditionStatement.append(chainStatement);
-                    type = c.getRight();
                 }
-                if (minMaxCondition) {
-                    if (type.getInstanceClass() != null && (type.getInstanceClass().isPrimitive() || ClassUtils
-                        .isAssignable(type.getInstanceClass(), Comparable.class))) {
-                        int totalW = gridTable.getCell(0, 0).getWidth();
-                        int firstW = gridTable.getCell(w, h).getWidth();
-                        dtHeaders.add(new FuzzyDTHeader(paramIndex,
-                            conditionStatement.toString(),
-                            title + " | " + gridTable.getCell(w + firstW, h).getStringValue(),
-                            fieldsChain,
-                            sourceTableColumn,
-                            sourceTableColumn,
-                            h,
-                            totalW,
-                            fuzzyResult,
-                            false,
-                            false));
-                    }
-                } else {
-                    dtHeaders.add(new FuzzyDTHeader(paramIndex,
-                        conditionStatement.toString(),
-                        title,
-                        fieldsChain,
-                        sourceTableColumn,
-                        vertical > 0 ? sourceTableColumn + vertical : sourceTableColumn + w,
-                        h,
-                        vertical > 0 ? 1 : w0,
-                        fuzzyResult,
-                        false,
-                        vertical > 0));
-                }
+                dtHeaders.add(new FuzzyDTHeader(paramIndex,
+                    conditionStatement.toString(),
+                    title,
+                    fieldsChain,
+                    sourceTableColumn,
+                    horizontal > 0 ? sourceTableColumn + horizontal : sourceTableColumn + w,
+                    h,
+                    horizontal > 0 ? 1 : w0,
+                    horizontal > 0 ? 1 : widthForMerge,
+                    fuzzyResult,
+                    false,
+                    horizontal > 0));
             } else {
                 if (isPredicateToken(decisionTable,
                     numberOfHConditions > 0 && firstColumnForHCondition < 0,
@@ -2218,12 +2205,13 @@ public final class DecisionTableHelper {
                         title,
                         new IOpenField[] {},
                         sourceTableColumn,
-                        vertical > 0 ? sourceTableColumn + vertical : sourceTableColumn,
+                        horizontal > 0 ? sourceTableColumn + horizontal : sourceTableColumn,
                         h,
-                        vertical > 0 ? 1 : w0,
+                        horizontal > 0 ? 1 : w0,
+                        horizontal > 0 ? 1 : widthForMerge,
                         fuzzyResult,
                         false,
-                        vertical > 0));
+                        horizontal > 0));
                 }
                 if (isRuleToken(sourceTableColumn, fuzzyResult.getToken().getValue())) {
                     dtHeaders.add(new FuzzyRulesDTHeader(title, sourceTableColumn, h, w0, fuzzyResult));
@@ -2247,7 +2235,7 @@ public final class DecisionTableHelper {
             List<DTHeader> dtHeaders,
             int firstColumnHeight,
             int firstColumnForHCondition,
-            boolean withVerticalTitles,
+            WithVerticalTitles withVerticalTitles,
             boolean onlyReturns) {
         if (onlyReturns && !fuzzyContext.isFuzzySupportsForReturnType()) {
             return Collections.emptyList();
@@ -2258,6 +2246,13 @@ public final class DecisionTableHelper {
         int w = originalTable.getSource().getCell(column, 0).getWidth();
         IGridTable gt = originalTable.getSource().getSubtable(column, 0, w, firstColumnHeight);
         List<DTHeader> newDtHeaders = new ArrayList<>();
+
+        int w0 = column + originalTable.getSource().getCell(column, 0).getWidth();
+        boolean skipNextColumn = w0 + originalTable.getSource()
+            .getCell(w0, 0)
+            .getWidth() == firstColumnForHCondition && (WithVerticalTitles.EMPTY_COLUMN
+                .equals(withVerticalTitles) || WithVerticalTitles.MERGED_COLUMN.equals(withVerticalTitles));
+
         matchWithFuzzySearchRec(decisionTable,
             originalTable,
             gt,
@@ -2271,6 +2266,7 @@ public final class DecisionTableHelper {
             new ArrayList<>(),
             column,
             firstColumnForHCondition,
+            skipNextColumn,
             withVerticalTitles,
             onlyReturns);
         dtHeaders.addAll(newDtHeaders);
@@ -2926,7 +2922,14 @@ public final class DecisionTableHelper {
         return ret.isEmpty() ? fits : ret;
     }
 
-    public static Pair<Integer, Boolean> getFirstColumnForHCondition(ILogicalTable originalTable,
+    private enum WithVerticalTitles {
+        NO,
+        SLASH_IN_TITLE,
+        EMPTY_COLUMN,
+        MERGED_COLUMN;
+    }
+
+    public static Pair<Integer, WithVerticalTitles> getFirstColumnForHCondition(ILogicalTable originalTable,
             int numberOfHConditions,
             int firstColumnHeight) {
         int w = originalTable.getSource().getWidth();
@@ -2944,17 +2947,39 @@ public final class DecisionTableHelper {
         }
 
         if (ret < w - 1) {
-            String value = originalTable.getSource().getCell(Math.max(ret, 0), firstColumnHeight - 1).getStringValue();
+            int r = Math.max(ret, 0);
+            String value = originalTable.getSource().getCell(r, firstColumnHeight - 1).getStringValue();
             if (StringUtils.isNotBlank(value) && value.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)) {
                 String part1 = value.substring(0, value.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER));
                 String part2 = value.substring(value.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) + 1);
                 if (StringUtils.isNotBlank(part1) && StringUtils.isNotBlank(part2)) {
-                    return Pair.of(Math.max(ret, 0) + 1, Boolean.TRUE);
+                    return Pair.of(r + 1, WithVerticalTitles.SLASH_IN_TITLE);
+                }
+            }
+            int h = firstColumnHeight;
+            boolean allEmpty = firstColumnHeight < originalTable.getSource().getHeight();
+            while (h < originalTable.getSource().getHeight()) {
+                String v = originalTable.getSource().getCell(r, h).getStringValue();
+                if (StringUtils.isNotBlank(v)) {
+                    allEmpty = false;
+                    break;
+                }
+                h = h + originalTable.getSource().getCell(r, h).getHeight();
+            }
+            if (allEmpty) {
+                return Pair.of(r + 1, WithVerticalTitles.EMPTY_COLUMN);
+            }
+            if (r > 0) {
+                h = firstColumnHeight;
+                if (originalTable.getSource().getCell(r - 1, h).getWidth() > originalTable.getSource()
+                    .getCell(r - 1, h - 1)
+                    .getWidth()) {
+                    return Pair.of(r + 1, WithVerticalTitles.MERGED_COLUMN);
                 }
             }
         }
 
-        return Pair.of(ret, Boolean.FALSE);
+        return Pair.of(ret, WithVerticalTitles.NO);
     }
 
     private static boolean columnWithFormulas(ILogicalTable originalTable, int firstColumnHeight, int column) {
@@ -2975,11 +3000,11 @@ public final class DecisionTableHelper {
     }
 
     private static boolean conflictsWithStrongDtHeader(List<DTHeader> strongDtHeaders,
-            boolean withVerticalTitles,
+            WithVerticalTitles withVerticalTitles,
             int firstColumnForHCondition,
             int column,
             int width) {
-        if (withVerticalTitles && column + width == firstColumnForHCondition) {
+        if (!WithVerticalTitles.NO.equals(withVerticalTitles) && column + width == firstColumnForHCondition) {
             return false;
         }
         for (DTHeader dtHeader : strongDtHeaders) {
@@ -3001,7 +3026,7 @@ public final class DecisionTableHelper {
             int numberOfHConditions,
             int firstColumnHeight,
             int firstColumnForHCondition,
-            boolean withVerticalTitles,
+            WithVerticalTitles withVerticalTitles,
             IBindingContext bindingContext) throws OpenLCompilationException {
         boolean isSmart = isSmart(tableSyntaxNode);
 
@@ -3079,6 +3104,7 @@ public final class DecisionTableHelper {
                                     column,
                                     column,
                                     row,
+                                    width,
                                     width,
                                     returnTypeFuzzyExtractResult.get(0),
                                     true,
@@ -3252,33 +3278,41 @@ public final class DecisionTableHelper {
             XlsDefinitions definitions,
             NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
             List<DTHeader> dtHeaders,
-            int firstColumnForHConditions,
-            boolean withVerticalTitles,
+            int firstColumnForHCondition,
+            WithVerticalTitles withVerticalTitles,
             int firstColumnHeight,
             int numberOfHConditions,
             IBindingContext bindingContext) {
-        for (DTColumnsDefinition definition : definitions.getDtColumnsDefinitions()) {
-            int numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(column);
-            boolean isLastColumnBeforeHConditions = withVerticalTitles && numberOfColumnsUnderTitle == 1 && column + originalTable
-                .getSource()
+        int numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(column);
+        boolean parseAsHorizontalVerticalTitle = WithVerticalTitles.SLASH_IN_TITLE
+            .equals(withVerticalTitles) && numberOfColumnsUnderTitle == 1 && column + originalTable.getSource()
                 .getCell(column, 0)
-                .getWidth() == firstColumnForHConditions;
-            if (isLastColumnBeforeHConditions || originalTable.getSource()
-                .getCell(column, 0)
-                .getHeight() == firstColumnHeight) {
+                .getWidth() == firstColumnForHCondition;
+        int w0 = column + originalTable.getSource().getCell(column, 0).getWidth();
+        boolean skipNextColumn = w0 + originalTable.getSource()
+            .getCell(w0, 0)
+            .getWidth() == firstColumnForHCondition && (WithVerticalTitles.EMPTY_COLUMN
+                .equals(withVerticalTitles) || WithVerticalTitles.MERGED_COLUMN.equals(withVerticalTitles));
+        if (parseAsHorizontalVerticalTitle || originalTable.getSource()
+            .getCell(column, 0)
+            .getHeight() == firstColumnHeight) {
+            for (DTColumnsDefinition definition : definitions.getDtColumnsDefinitions()) {
+                int currentNumberOfColumnsUnderTitle = numberOfColumnsUnderTitle;
                 Set<String> titles = new HashSet<>(definition.getTitles());
                 Pair<String, Integer> extractedTitle = extractTokenizedVerticalTitleString(originalTable,
                     column,
                     firstColumnHeight,
-                    isLastColumnBeforeHConditions);
+                    parseAsHorizontalVerticalTitle);
                 Pair<String, Integer> lastExtractedTitle = extractedTitle;
                 int i = 0;
                 int x = column;
                 IParameterDeclaration[][] columnParameters = null;
-                while ((numberOfHConditions > 0 && x < firstColumnForHConditions || x < originalTable.getSource()
-                    .getWidth()) && titles.contains(extractedTitle.getLeft()) && isMatchedByUnderColumns(
-                        definition.getParameters(extractedTitle.getLeft()),
-                        numberOfColumnsUnderTitle)) {
+                while (!titles
+                    .isEmpty() && ((numberOfHConditions > 0 && x < firstColumnForHCondition || x < originalTable
+                        .getSource()
+                        .getWidth()) && titles.contains(extractedTitle.getLeft()) && isMatchedByUnderColumns(
+                            definition.getParameters(extractedTitle.getLeft()),
+                            currentNumberOfColumnsUnderTitle))) {
                     titles.remove(extractedTitle.getLeft());
                     for (String s : definition.getTitles()) {
                         if (s.equals(extractedTitle.getLeft())) {
@@ -3297,8 +3331,8 @@ public final class DecisionTableHelper {
                     extractedTitle = extractTokenizedVerticalTitleString(originalTable,
                         x,
                         firstColumnHeight,
-                        isLastColumnBeforeHConditions);
-                    numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(x);
+                        parseAsHorizontalVerticalTitle);
+                    currentNumberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(x);
                 }
                 if (titles.isEmpty()) {
                     MatchedDefinition matchedDefinition = matchByDTColumnDefinition(decisionTable,
@@ -3312,6 +3346,7 @@ public final class DecisionTableHelper {
                             columnParameters,
                             column,
                             lastExtractedTitle.getRight(),
+                            x - column + (skipNextColumn ? originalTable.getSource().getCell(x, 0).getWidth() : 0),
                             x - column,
                             matchedDefinition,
                             false);
@@ -3320,19 +3355,19 @@ public final class DecisionTableHelper {
                 }
             }
         }
-        if (withVerticalTitles && column + originalTable.getSource()
+        if (!WithVerticalTitles.NO.equals(withVerticalTitles) && column + originalTable.getSource()
             .getCell(column, 0)
-            .getWidth() == firstColumnForHConditions) {
+            .getWidth() == firstColumnForHCondition) {
             for (DTColumnsDefinition definition : definitions.getDtColumnsDefinitions()) {
                 if (definition.getNumberOfTitles() == 1) {
                     String definitionTitle = definition.getTitles().iterator().next();
                     int h = 0;
                     int x = 0;
-                    int numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(column);
                     while (h < firstColumnHeight) {
                         int h0 = originalTable.getSource().getCell(column, h).getHeight();
                         String title = originalTable.getSource().getCell(column, h).getStringValue();
-                        if (h + h0 >= firstColumnHeight) {
+                        if (h + h0 >= firstColumnHeight && WithVerticalTitles.SLASH_IN_TITLE
+                            .equals(withVerticalTitles)) {
                             title = title.substring(title.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) + 1).trim();
                         }
                         if (x < numberOfHConditions && numberOfColumnsUnderTitle == 1) {
@@ -3353,9 +3388,11 @@ public final class DecisionTableHelper {
                                         column + 1 + x,
                                         h,
                                         1,
+                                        1,
                                         matchedDefinition,
                                         true);
                                     dtHeaders.add(vDtHeader);
+                                    break;
                                 }
                             }
                         }
@@ -3370,8 +3407,8 @@ public final class DecisionTableHelper {
     private static Pair<String, Integer> extractTokenizedVerticalTitleString(ILogicalTable originalTable,
             int column,
             int firstColumnHeight,
-            boolean isLastColumnBeforeHConditions) {
-        if (isLastColumnBeforeHConditions) {
+            boolean parseAsHorizontalVerticalTitle) {
+        if (parseAsHorizontalVerticalTitle) {
             String title = originalTable.getSource().getCell(column, firstColumnHeight - 1).getStringValue();
             if (StringUtils.isNotBlank(title) && title.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)) {
                 title = title.substring(0, title.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)).trim();
@@ -3461,7 +3498,7 @@ public final class DecisionTableHelper {
             ILogicalTable originalTable,
             DTHeader condition,
             int indexOfHCondition,
-            int firstColumnForHConditions,
+            int firstColumnForHConditionsOrReturns,
             int numberOfColumnsUnderTitle,
             IBindingContext bindingContext) {
         int column = condition.getColumn();
@@ -3475,7 +3512,7 @@ public final class DecisionTableHelper {
         if (condition.isHCondition()) {
             decisionValues = LogicalTableHelper.logicalTable(originalTable.getSource().getRow(indexOfHCondition - 1));
             width = decisionValues.getWidth();
-            skip = firstColumnForHConditions;
+            skip = firstColumnForHConditionsOrReturns;
             numberOfColumnsForCondition = 1;
         } else {
             decisionValues = LogicalTableHelper

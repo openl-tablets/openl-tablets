@@ -6,13 +6,13 @@ class SimpleDTHeader extends DTHeader {
     private String title;
 
     SimpleDTHeader(int methodParameterIndex, String statement, String title, int column, int row, int width) {
-        super(new int[] { methodParameterIndex }, statement, column, row, width);
+        super(new int[] { methodParameterIndex }, statement, column, row, width, width);
         this.title = title;
         this.horizontal = false;
     }
 
     SimpleDTHeader(int methodParameterIndex, String statement, int column, int row) {
-        super(new int[] { methodParameterIndex }, statement, column, row, 1);
+        super(new int[] { methodParameterIndex }, statement, column, row, 1, 1);
         this.horizontal = true;
     }
 

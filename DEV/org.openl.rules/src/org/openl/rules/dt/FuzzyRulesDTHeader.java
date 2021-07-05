@@ -10,7 +10,7 @@ public class FuzzyRulesDTHeader extends DTHeader {
     private final FuzzyResult fuzzyResult;
 
     FuzzyRulesDTHeader(String title, int column, int row, int width, FuzzyResult fuzzyResult) {
-        super(EMPTY_INDEXES, StringUtils.EMPTY, column, row, width);
+        super(EMPTY_INDEXES, StringUtils.EMPTY, column, row, width, width);
         this.title = title;
         this.fuzzyResult = fuzzyResult;
     }
