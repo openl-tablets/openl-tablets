@@ -22,6 +22,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.serialization.JsonUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonUtilsTest {
 
@@ -164,6 +165,79 @@ public class JsonUtilsTest {
         public int hashCode() {
             return Objects.hash(model, year);
         }
+    }
+
+    static class BindingClasses {
+        private String key;
+        private String value;
+    }
+
+    static class KeyClass {
+        private String field;
+
+        public KeyClass(String field) {
+            this.field = field;
+        }
+    }
+
+    @Test
+    public void getObjectMapperTest_notNull() {
+        KeyClass key = new KeyClass("Project1");
+        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        Assert.assertNotNull(objectMapper1);
+    }
+
+    @Test
+    public void getObjectMapperTest_Cached() {
+        KeyClass key = new KeyClass("Project2");
+        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        Assert.assertNotNull(objectMapper1);
+        ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        Assert.assertNotNull(objectMapper2);
+        Assert.assertEquals(objectMapper1, objectMapper2);
+    }
+
+    @Test
+    public void getObjectMapperTest_GC_keep() {
+        KeyClass key = new KeyClass("Project3");
+        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        Runtime rt = Runtime.getRuntime();
+        rt.gc();
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        Assert.assertEquals(objectMapper1, objectMapper2);
+    }
+
+    @Test
+    public void getObjectMapperTest_GC_no_longer() {
+        KeyClass key = new KeyClass("Project4");
+        ObjectMapper objectMapper1 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        Runtime rt = Runtime.getRuntime();
+        key = null;
+        rt.gc();
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        key = new KeyClass("Project4");
+        ObjectMapper objectMapper2 = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        Assert.assertNotEquals(objectMapper1, objectMapper2);
+    }
+
+    @Test
+    public void splitJSONTest_CachedObjectMapper() throws IOException {
+        KeyClass key = new KeyClass("Project4");
+        ObjectMapper objectMapper = JsonUtils.getCachedObjectMapper(key, new Class[]{BindingClasses.class});
+        Map<String, String> actual = JsonUtils.splitJSON("{\"context\":{}, \"car\":{\"model\":\"BMW\",\"year\":null}}", objectMapper);
+        assertNotNull(actual);
+        assertEquals(2, actual.size());
+        assertEquals("{}", actual.get("context"));
+        assertEquals("{\"model\":\"BMW\",\"year\":null}", actual.get("car"));
     }
 
 }
