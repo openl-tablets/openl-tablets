@@ -337,6 +337,8 @@
     </div>
 
     <div id="tableToolbarPanel">
+        <input type="hidden" id="tableHasProblems" value="false" />
+        <input type="hidden" id="openCurrentModuleOnlyTable" value="false" />
         <table>
             <tr>
 
@@ -803,7 +805,7 @@
                         message: 'Can be run within current module only because the project is not compiled yet.',
                         onOK: proceed
                     });
-                } else if (projectHasErrorsForTable()) {
+                } else if ($j("#tableHasProblems") === 'true') {
                     ws.ui.confirm({
                         title: 'Tests',
                         message: 'Can be run for the currently opened module only because other modules contain errors.',
@@ -830,7 +832,7 @@
                         message: 'Trace can be run within current module only because the project is not compiled yet.',
                         onOK: proceed
                     });
-                } else if (projectHasErrorsForTable()) {
+                } else if ($j("#tableHasProblems") === 'true') {
                     ws.ui.confirm({
                         title: 'Trace',
                         message: 'Trace can be run for the currently opened module only because other modules contain errors.',
@@ -857,7 +859,7 @@
                         message: 'Benchmark can be run within current module only because the project is not compiled yet.',
                         onOK: proceed
                     });
-                } else if (projectHasErrorsForTable()) {
+                } else if ($j("#tableHasProblems") === 'true') {
                     ws.ui.confirm({
                         title: 'Benchmark',
                         message: 'Benchmark can be run for the currently opened module only because other modules contain errors.',
@@ -1153,6 +1155,7 @@
                   datatype: "json"
               })
               .done(function (data) {
+                  $j("#openCurrentModuleOnlyTable").val(data.openCurrentModuleOnly);
                   const hasProblems = data.warnings.length > 0 || data.errors.length > 0;
                   if ((hasProblems || #{editableTablePart})) {
                       $jq(".table-problems").show()
@@ -1170,7 +1173,7 @@
             const runTestModuleOnly = $j("#runTestModuleOnly");
             const runTestModuleOnlyInputArgs = $j("#runTestModuleOnlyInputArgs");
             const testModuleOnlyField = $j("#testModuleOnlyField");
-            if (compiled && !hasProblems) {
+            if (compiled && !hasProblems && $j("#openCurrentModuleOnlyTable").val() !== 'true') {
                 runTestModuleOnly.prop('checked', false);
                 runTestModuleOnly.prop('disabled', false);
                 runTestModuleOnlyInputArgs.prop('checked', false);
@@ -1187,14 +1190,9 @@
             }
         }
 
-        function projectHasErrorsForTable() {
-            return $j("#runTestModuleOnly").prop('disabled')
-                || $j("#runTestModuleOnlyInputArgs").prop('disabled')
-                || $j("#testModuleOnlyField").prop('disabled');
-        }
-
          function applyProblems(errors, warnings, tableUrl) {
             if (errors.length > 0 || warnings.length > 0) {
+                $j("#tableHasProblems").val(true);
                 $j("#problems-messages-panel-id").show();
                 const rowTemplate = $j('#problems-messages-panel-id>table:nth-child(1)');
                 const htmlTemplate = $j('<div/>').append(rowTemplate).html();
