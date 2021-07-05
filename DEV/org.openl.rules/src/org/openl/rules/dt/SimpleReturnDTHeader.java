@@ -5,7 +5,7 @@ class SimpleReturnDTHeader extends DTHeader {
     private final String title;
 
     SimpleReturnDTHeader(String statement, String title, int column, int row, int width) {
-        super(new int[] {}, statement, column, row, width);
+        super(new int[] {}, statement, column, row, width, width);
         this.title = title;
     }
 
