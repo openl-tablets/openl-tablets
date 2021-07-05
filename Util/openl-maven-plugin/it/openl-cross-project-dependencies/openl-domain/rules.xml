@@ -1,0 +1,9 @@
+<project>
+    <name>OpenL Domain</name>
+
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+</project>

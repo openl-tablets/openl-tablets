@@ -1,0 +1,25 @@
+<project>
+    <name>OpenL API</name>
+
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <name>OpenL Domain</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+        <dependency>
+            <name>OpenL Global</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+        <dependency>
+            <name>OpenL Europe</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+
+</project>
