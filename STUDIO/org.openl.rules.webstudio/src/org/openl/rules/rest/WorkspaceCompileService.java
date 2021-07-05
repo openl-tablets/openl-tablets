@@ -141,6 +141,7 @@ public class WorkspaceCompileService {
                     uniqueNewMessages.clear();
                     Collection<OpenLMessage> messages = model.getCompiledOpenClass().getMessages();
                     processMessages(messages, messageCounter, model, newMessages, uniqueNewMessages);
+                    compiledCount = modulesCount;
                 }
                 compileModuleInfo.put("dataType", "new");
                 if (messageIndex != -1 && messageId != -1) {
@@ -149,9 +150,6 @@ public class WorkspaceCompileService {
                         newMessages = newMessages.subList(messageIndex + 1, newMessages.size());
                         compileModuleInfo.put("dataType", "add");
                     }
-                }
-                if (model.isProjectCompilationCompleted()) {
-                    compiledCount = modulesCount;
                 }
                 compileModuleInfo.put("modulesCount", modulesCount);
                 compileModuleInfo.put("modulesCompiled", compiledCount);
@@ -295,21 +293,20 @@ public class WorkspaceCompileService {
             MessageCounter counter,
             ProjectModel model,
             List<MessageDescription> newMessages, Set<OpenLMessage> uniqueMessages) {
-        if (messages == null) {
-            return;
-        }
-        for (OpenLMessage message : messages) {
-            switch (message.getSeverity()) {
-                case WARN:
-                    counter.warningsCount++;
-                    break;
-                case ERROR:
-                    counter.errorsCount++;
-                    break;
-            }
-            if (uniqueMessages.add(message)) {
-                MessageDescription messageDescription = getMessageDescription(message, model);
-                newMessages.add(messageDescription);
+        if (messages != null) {
+            for (OpenLMessage message : messages) {
+                switch (message.getSeverity()) {
+                    case WARN:
+                        counter.warningsCount++;
+                        break;
+                    case ERROR:
+                        counter.errorsCount++;
+                        break;
+                }
+                if (uniqueMessages.add(message)) {
+                    MessageDescription messageDescription = getMessageDescription(message, model);
+                    newMessages.add(messageDescription);
+                }
             }
         }
     }
