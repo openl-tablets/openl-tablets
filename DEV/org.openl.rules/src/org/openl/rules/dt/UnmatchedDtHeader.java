@@ -4,7 +4,7 @@ class UnmatchedDtHeader extends DTHeader {
     private final boolean vertical;
 
     UnmatchedDtHeader(String statement, int column, int row, int width, boolean vertical) {
-        super(new int[] {}, statement, column, row, width);
+        super(new int[] {}, statement, column, row, width, width);
         this.vertical = vertical;
     }
 

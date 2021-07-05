@@ -21,10 +21,11 @@ class FuzzyDTHeader extends DTHeader {
             int column,
             int row,
             int width,
+            int widthForMerge,
             FuzzyResult fuzzyResult,
             boolean returnDTHeader,
             boolean vertical) {
-        super(new int[] { methodParameterIndex }, statement, column, row, width);
+        super(new int[] { methodParameterIndex }, statement, column, row, width, widthForMerge);
         this.topColumn = topColumn;
         this.fieldsChain = fieldsChain;
         this.returnDTHeader = returnDTHeader;
@@ -40,10 +41,11 @@ class FuzzyDTHeader extends DTHeader {
             int column,
             int row,
             int width,
+            int widthForMerge,
             FuzzyResult fuzzyResult,
             boolean returnDTHeader,
             boolean vertical) {
-        super(EMPTY_INDEXES, statement, column, row, width);
+        super(EMPTY_INDEXES, statement, column, row, width, widthForMerge);
         this.topColumn = topColumn;
         this.fieldsChain = fieldsChain;
         this.returnDTHeader = returnDTHeader;
