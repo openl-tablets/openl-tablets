@@ -10,13 +10,14 @@ package org.openl.rules.serialization;
  * #L%
  */
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+/**
+ * Class that caches object mapper when it frequently used for the same set of classes.
+ */
 public class ObjectMapperCache {
 
     private static final WeakHashMap<Object, ObjectMapper> cache = new WeakHashMap<>();
