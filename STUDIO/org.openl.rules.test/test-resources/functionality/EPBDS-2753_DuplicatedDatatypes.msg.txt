@@ -1,1 +1,2 @@
 ERROR: Type 'TestType2' has already been defined.
+ERROR: Type 'TestType2' has already been defined.

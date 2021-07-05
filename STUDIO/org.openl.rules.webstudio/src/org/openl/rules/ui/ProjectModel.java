@@ -1085,15 +1085,11 @@ public class ProjectModel {
         try {
             WorkbookLoaders.setCurrentFactory(factory);
 
-            RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(
-                Collections.singletonList(moduleInfo),
-                webStudioWorkspaceDependencyManager,
-                false);
-            Map<String, Object> externalParameters = ProjectExternalDependenciesHelper
-                .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(),
-                    Collections.singletonList(moduleInfo));
-            instantiationStrategy.setExternalParameters(externalParameters);
-            CompiledOpenClass thisModuleCompiledOpenClass = instantiationStrategy.compile();
+            CompiledOpenClass thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
+                .loadDependency(new Dependency(DependencyType.MODULE,
+                    new IdentifierNode(DependencyType.MODULE.name(), null, moduleInfo.getName(), null)))
+                .getCompiledOpenClass();
+
             // Find all dependent XlsModuleSyntaxNode-s
             addAllSyntaxNodes();
 

@@ -9,3 +9,4 @@ ERROR: Default value for field 'txt' in class 'org.openl.generated.epbds6830.Bea
 ERROR: Invalid access modifier is found on field 'a' in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
 ERROR: Invalid access modifier is found on field 'aa' in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
 ERROR: Mandatory constructor with parameters is not found in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.
+ERROR: Field 'xB' is not transient in class 'org.openl.generated.epbds6830.BeanA'. Please, update the class to be compatible with the datatype.

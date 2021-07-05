@@ -1,1 +1,2 @@
 ERROR: Illegal parameter declaration.
+ERROR: Illegal parameter declaration.

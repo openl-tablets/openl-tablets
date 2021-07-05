@@ -1,1 +1,2 @@
 ERROR: Type 'SomeDataType' is not found.
+ERROR: Type 'SomeDataType' is not found.

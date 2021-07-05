@@ -1,1 +1,2 @@
 ERROR: Type 'Boolean' is ambiguous:
+ERROR: Type 'Boolean' is ambiguous:

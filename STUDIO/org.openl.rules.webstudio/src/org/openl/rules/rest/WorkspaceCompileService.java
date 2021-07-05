@@ -6,10 +6,13 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -72,27 +75,23 @@ public class WorkspaceCompileService {
                 int compiledCount = 0;
                 int modulesCount = 0;
                 List<MessageDescription> newMessages = new ArrayList<>();
+                Set<OpenLMessage> uniqueNewMessages = new HashSet<>();
                 Deque<ProjectDescriptor> queue = new ArrayDeque<>();
                 queue.add(moduleInfo.getProject());
                 while (!queue.isEmpty()) {
                     ProjectDescriptor projectDescriptor = queue.poll();
-                    String dependencyName = ProjectExternalDependenciesHelper
-                        .buildDependencyNameForProject(projectDescriptor.getName());
-                    Collection<IDependencyLoader> loadersForProject = webStudioWorkspaceDependencyManager
-                        .findDependencyLoadersByName(dependencyName);
-                    for (IDependencyLoader dependencyLoader : loadersForProject) {
-                        CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
-                        if (compiledDependency != null) {
-                            if (Objects.equals(projectDescriptor.getName(), moduleInfo.getProject().getName())) {
-                                processMessages(model.getCompiledOpenClass().getMessages(),
-                                    messageCounter,
-                                    model,
-                                    newMessages);
-                            } else {
-                                processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
-                                    messageCounter,
-                                    model,
-                                    newMessages);
+                    if (!model.isProjectCompilationCompleted()) {
+                        String dependencyName = ProjectExternalDependenciesHelper
+                            .buildDependencyNameForProject(projectDescriptor.getName());
+                        Collection<IDependencyLoader> loadersForProject = webStudioWorkspaceDependencyManager
+                            .findDependencyLoadersByName(dependencyName);
+                        for (IDependencyLoader dependencyLoader : loadersForProject) {
+                            CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
+                            if (compiledDependency != null) {
+                                if (!Objects.equals(projectDescriptor.getName(), moduleInfo.getProject().getName())) {
+                                    processMessages(compiledDependency.getCompiledOpenClass()
+                                        .getCurrentMessages(), messageCounter, model, newMessages, uniqueNewMessages);
+                                }
                             }
                         }
                     }
@@ -102,17 +101,18 @@ public class WorkspaceCompileService {
                         for (IDependencyLoader dependencyLoader : dependencyLoadersForModule) {
                             CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
                             if (compiledDependency != null) {
-                                if (Objects.equals(module.getName(), moduleInfo.getName()) && Objects
-                                    .equals(module.getProject().getName(), moduleInfo.getProject().getName())) {
-                                    processMessages(model.getOpenedModuleCompiledOpenClass().getMessages(),
-                                        messageCounter,
-                                        model,
-                                        newMessages);
-                                } else {
-                                    processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
-                                        messageCounter,
-                                        model,
-                                        newMessages);
+                                if (!model.isProjectCompilationCompleted()) {
+                                    if (Objects.equals(module.getName(), moduleInfo.getName()) && Objects
+                                        .equals(module.getProject().getName(), moduleInfo.getProject().getName())) {
+                                        processMessages(model.getOpenedModuleCompiledOpenClass()
+                                            .getMessages(), messageCounter, model, newMessages, uniqueNewMessages);
+                                    } else {
+                                        processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
+                                            messageCounter,
+                                            model,
+                                            newMessages,
+                                            uniqueNewMessages);
+                                    }
                                 }
                                 compiledCount++;
                             }
@@ -136,12 +136,11 @@ public class WorkspaceCompileService {
                         }
                     }
                 }
-                CompiledOpenClass compiledOpenClass = model.getCompiledOpenClass();
-                if (compiledOpenClass instanceof ValidatedCompiledOpenClass) {
-                    processMessages(((ValidatedCompiledOpenClass) compiledOpenClass).getValidationMessages(),
-                        messageCounter,
-                        model,
-                        newMessages);
+                if (model.isProjectCompilationCompleted()) {
+                    newMessages.clear();
+                    uniqueNewMessages.clear();
+                    Collection<OpenLMessage> messages = model.getCompiledOpenClass().getMessages();
+                    processMessages(messages, messageCounter, model, newMessages, uniqueNewMessages);
                 }
                 compileModuleInfo.put("dataType", "new");
                 if (messageIndex != -1 && messageId != -1) {
@@ -294,7 +293,10 @@ public class WorkspaceCompileService {
     private void processMessages(Collection<OpenLMessage> messages,
             MessageCounter counter,
             ProjectModel model,
-            List<MessageDescription> newMessages) {
+            List<MessageDescription> newMessages, Set<OpenLMessage> uniqueMessages) {
+        if (messages == null) {
+            return;
+        }
         for (OpenLMessage message : messages) {
             switch (message.getSeverity()) {
                 case WARN:
@@ -304,8 +306,10 @@ public class WorkspaceCompileService {
                     counter.errorsCount++;
                     break;
             }
-            MessageDescription messageDescription = getMessageDescription(message, model);
-            newMessages.add(messageDescription);
+            if (uniqueMessages.add(message)) {
+                MessageDescription messageDescription = getMessageDescription(message, model);
+                newMessages.add(messageDescription);
+            }
         }
     }
 
