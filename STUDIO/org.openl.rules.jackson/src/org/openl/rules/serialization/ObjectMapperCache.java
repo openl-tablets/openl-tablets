@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ObjectMapperCache {
 
-    private static final WeakHashMap<List<Class<?>>, ObjectMapper> cache = new WeakHashMap<>();
+    private static final WeakHashMap<Object, ObjectMapper> cache = new WeakHashMap<>();
     private final static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private static volatile ObjectMapper defaultObjectMapper;
 
@@ -29,8 +29,7 @@ public class ObjectMapperCache {
      * @param classes set of classes
      * @return objectMapper
      */
-    public static ObjectMapper getObjectMapper(Class<?>[] classes) throws ClassNotFoundException {
-        List<Class<?>> key = Arrays.asList(classes);
+    public static ObjectMapper getObjectMapper(Object key, Class<?>[] classes) {
         ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
         try {
             readLock.lock();
