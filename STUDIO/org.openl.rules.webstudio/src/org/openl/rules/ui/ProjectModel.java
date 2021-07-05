@@ -19,8 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -943,20 +942,20 @@ public class ProjectModel {
             .collect(Collectors.toList());
     }
 
-    //Logic in this block of code implemented with a recursion to achieve sorting of each dataset by comparator
-    //and place this sets in the proper order.
-    private SortedSet<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
+    // Logic in this block of code implemented with a recursion to achieve sorting of each dataset by comparator
+    // and place this sets in the proper order.
+    private Set<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
         if (searchScope == SearchScope.ALL) {
-            SortedSet<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
+            Set<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
             getAllTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
         } else if (searchScope == SearchScope.CURRENT_PROJECT) {
-            SortedSet<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_MODULE);
+            Set<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_MODULE);
             getCurrentProjectTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
         } else if (searchScope == SearchScope.CURRENT_MODULE) {
-            SortedSet<TableSyntaxNode> nodes = new TreeSet<>(DEFAULT_NODE_CMP);
-            nodes.addAll(Arrays.asList(getXlsModuleNode().getXlsTableSyntaxNodes()));
+            Set<TableSyntaxNode> nodes = new LinkedHashSet<>();
+            Arrays.stream(getXlsModuleNode().getXlsTableSyntaxNodes()).sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
         } else {
             throw new IllegalStateException();
