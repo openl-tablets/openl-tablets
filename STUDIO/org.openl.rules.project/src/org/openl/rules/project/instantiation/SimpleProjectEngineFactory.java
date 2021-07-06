@@ -6,9 +6,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.IDependencyManager;
@@ -209,14 +211,14 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         return rulesInstantiationStrategy;
     }
 
-    private List<ProjectDescriptor> getDependentProjects(ProjectDescriptor project,
+    private Set<ProjectDescriptor> getDependentProjects(ProjectDescriptor project,
             Collection<ProjectDescriptor> projectsInWorkspace) {
-        List<ProjectDescriptor> projectDescriptors = new ArrayList<>();
+        Set<ProjectDescriptor> projectDescriptors = new HashSet<>();
         addDependentProjects(projectDescriptors, project, projectsInWorkspace);
         return projectDescriptors;
     }
 
-    private void addDependentProjects(List<ProjectDescriptor> projectDescriptors,
+    private void addDependentProjects(Set<ProjectDescriptor> projectDescriptors,
             ProjectDescriptor project,
             Collection<ProjectDescriptor> projectsInWorkspace) {
         if (project.getDependencies() != null) {
@@ -254,7 +256,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
-            List<ProjectDescriptor> dependentProjects = getDependentProjects(projectDescriptor, projects);
+            Set<ProjectDescriptor> dependentProjects = getDependentProjects(projectDescriptor, projects);
             projectDescriptors.addAll(dependentProjects);
         }
         projectDescriptors.add(projectDescriptor);

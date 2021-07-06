@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.internal</groupId>
+        <artifactId>openl-cross-project-dependencies</artifactId>
+        <version>0.0.0</version>
+    </parent>
+
+    <artifactId>openl-europe</artifactId>
+    <packaging>openl</packaging>
+
+    <name>OpenL Plugin: Europe</name>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <deploymentPackage>true</deploymentPackage>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.internal</groupId>
+            <artifactId>openl-domain</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+            <type>zip</type>
+        </dependency>
+    </dependencies>
+
+</project>
