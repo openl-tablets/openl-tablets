@@ -137,7 +137,7 @@
                                 errorsPanel.appendChild(errorsDiv);
                             }
 
-                            if (!(ws.nav.isModuleChanged() && data.compilationCompleted)) {
+                            if (!(ws.nav.isModuleChanged() && data.compilationCompleted) && !data.openCurrentModuleOnly) {
                                 if (progressInfoPanel.attr("data-compilation-status") === "finished" && data.compilationCompleted) {
                                     inProgress();
                                     finished();
