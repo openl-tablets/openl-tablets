@@ -245,10 +245,10 @@
                     <li><a tabindex="-1" href="#{studio.url('dependencies')}">Table Dependencies</a></li>
                     </h:panelGroup>
                     <li><a tabindex="-1" target="_blank"
-                        onclick="openCompareWindow(); return false;"
+                        onclick="topPanelCompareWindowOpen(); return false;"
                         href="#">Compare Excel files</a></li>
                 </ul>
-                <a4j:jsFunction name="openCompareWindow" action="#{uploadExcelDiffController.reset()}"
+                <a4j:jsFunction name="topPanelCompareWindowOpen" action="#{uploadExcelDiffController.reset()}"
                                 oncomplete="window.open('#{contextPath}/faces/pages/modules/compare.xhtml','Compare','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');"/>
             </h:panelGroup>
         </div>
