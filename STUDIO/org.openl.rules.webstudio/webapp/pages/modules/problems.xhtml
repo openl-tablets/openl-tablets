@@ -137,8 +137,9 @@
                                 errorsPanel.appendChild(errorsDiv);
                             }
 
-                            if (!(ws.nav.isModuleChanged() && data.compilationCompleted) && !data.openCurrentModuleOnly) {
-                                if (progressInfoPanel.attr("data-compilation-status") === "finished" && data.compilationCompleted) {
+                            var prevCompilationStatus = progressInfoPanel.attr("data-compilation-status");
+                            if (!(ws.nav.isModuleChanged() && data.compilationCompleted && prevCompilationStatus !== "inProgress") && !data.openCurrentModuleOnly) {
+                                if (prevCompilationStatus === "finished" && data.compilationCompleted) {
                                     inProgress();
                                     finished();
                                 } else if (!data.compilationCompleted) {
