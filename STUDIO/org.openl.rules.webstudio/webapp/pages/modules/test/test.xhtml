@@ -15,6 +15,11 @@
 
     <script src="#{contextPath}/webresource/js/tooltip.js"></script>
     <script>
+        if (#{testBean.openCurrentModuleOnly}) {
+            let currentModuleOnlyCheckbox = $j("#currentModuleOnly");
+            currentModuleOnlyCheckbox.prop('checked', true);
+            currentModuleOnlyCheckbox.prop('disabled', true);
+        }
         function explain(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
                + '&amp;requestId=#{mainBean.requestId}'
@@ -80,7 +85,7 @@
                         onchange="ws.nav.reload({'complexResult':this.checked})" />
                     </label>
                     <label title="Within Current Module Only" style="margin-left:50px">
-                        Within Current Module Only <input type="checkbox" style="vertical-align:-2px" checked="#{currentOpenedModule ? 'checked' : ''}"
+                        Within Current Module Only <input id="currentModuleOnly" type="checkbox" style="vertical-align:-2px" checked="#{currentOpenedModule ? 'checked' : ''}"
                                              onchange="ws.nav.reload({'currentOpenedModule':this.checked})" />
                     </label>
                 </span>

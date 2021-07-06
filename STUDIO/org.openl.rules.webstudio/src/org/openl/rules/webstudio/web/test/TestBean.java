@@ -321,6 +321,10 @@ public class TestBean {
         return column;
     }
 
+    public boolean getOpenCurrentModuleOnly() {
+        return studio.getModel().getModuleInfo().getOpenCurrentModuleOnly();
+    }
+
     /**
      * Get the row of a field in Spreadsheet.
      *
