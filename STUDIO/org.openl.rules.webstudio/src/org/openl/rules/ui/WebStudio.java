@@ -526,8 +526,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
                 } else if (needCompile) {
-                    //if moduleChanged is true - we need to reset the project because we change tableSyntaxNode directly
-                    //must be rewritten - tableSyntaxNode must be changed only on project saving
                     reset(ReloadType.SINGLE);
                 } else if (moduleChanged) {
                     model.setModuleInfo(module, ReloadType.SINGLE);

@@ -1073,7 +1073,7 @@
             })
                 .done(function (data) {
                     if (data === "true" && confirm('Project source file was modified.\nClick \'OK\' to reload WebStudio with changes, and \'Cancel\' to ignore changes.')) {
-                        forceReload(); // from the topPanel.xhtml
+                        reloadModule(); // from the topPanel.xhtml
                     }
                 })
                 .complete(function () {
@@ -1143,6 +1143,7 @@
             <a4j:jsFunction name="onPageUnload" action="#{mainBean.onPageUnload}" onbegin="ws.ui.showLoader()" oncomplete="ws.ui.hideLoader()">
                 <a4j:param name="requestId" assignTo="#{mainBean.requestId}" />
             </a4j:jsFunction>
+            <a4j:jsFunction name="reloadModule" action="#{studio.compile}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
         </h:form>
     </div>
 
