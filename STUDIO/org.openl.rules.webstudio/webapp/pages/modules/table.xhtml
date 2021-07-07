@@ -673,6 +673,10 @@
                     <div id="problems-messages-panel-id">
                         <table class="problems-message-table"><tr><td class="border-padding-0">
                             <div data-message-id="{messageId}" class="{messageBoxClass}" style="{messageBoxStyle}">
+                                <div class="arrow-top">
+                                    <a onclick="toggleStacktrace(this); return false;" class="stacktrace-links"><div/></a>
+                                </div>
+
                                 <span id="summary_panel" class="summary-panels">
                                     <span class="white-space-pre-wrap">{messageSummary}</span>
                                 </span>
