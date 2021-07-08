@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+   "tableUrl":"#local/Sample/Main/table",
+   "warnings":[
+
+   ],
+   "errors":[
+
+   ],
+   "targetTables":[
+
+   ],
+   "openCurrentModuleOnly":false
+}
