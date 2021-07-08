@@ -23,6 +23,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.engine.OpenLManager;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.message.OpenLMessage;
 import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
@@ -652,27 +653,43 @@ public class XlsBinder implements IOpenBinder {
             SyntaxNodeExceptionHolder syntaxNodeExceptionHolder,
             IMemberBoundNode[] children,
             int index) {
+        SyntaxNodeException[] errors = null;
+        Collection<OpenLMessage> messages = null;
         try {
             AExecutableNodeBinder aExecutableNodeBinder = (AExecutableNodeBinder) getBinderFactories()
                 .get(tableSyntaxNode.getType());
             IOpenSourceCodeModule source = aExecutableNodeBinder.createHeaderSource(tableSyntaxNode,
                 rulesModuleBindingContext);
-
-            OpenMethodHeader openMethodHeader = (OpenMethodHeader) OpenLManager
-                .makeMethodHeader(openl, source, rulesModuleBindingContext);
-            XlsBinderExecutableMethodBind xlsBinderExecutableMethodBind = new XlsBinderExecutableMethodBind(module,
-                openl,
-                tableSyntaxNode,
-                children,
-                index,
-                openMethodHeader,
-                rulesModuleBindingContext,
-                syntaxNodeExceptionHolder);
-            rulesModuleBindingContext.addBinderMethod(openMethodHeader, xlsBinderExecutableMethodBind);
-            return openMethodHeader;
+            try {
+                rulesModuleBindingContext.pushErrors();
+                rulesModuleBindingContext.pushMessages();
+                OpenMethodHeader openMethodHeader = (OpenMethodHeader) OpenLManager
+                    .makeMethodHeader(openl, source, rulesModuleBindingContext);
+                XlsBinderExecutableMethodBind xlsBinderExecutableMethodBind = new XlsBinderExecutableMethodBind(module,
+                    openl,
+                    tableSyntaxNode,
+                    children,
+                    index,
+                    openMethodHeader,
+                    rulesModuleBindingContext,
+                    syntaxNodeExceptionHolder);
+                rulesModuleBindingContext.addBinderMethod(openMethodHeader, xlsBinderExecutableMethodBind);
+                return openMethodHeader;
+            } finally {
+                errors = rulesModuleBindingContext.getErrors();
+                messages = rulesModuleBindingContext.getMessages();
+                rulesModuleBindingContext.popErrors();
+                rulesModuleBindingContext.popMessages();
+            }
         } catch (Exception | LinkageError e) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
             processError(error, tableSyntaxNode, rulesModuleBindingContext);
+            if (messages != null) {
+                rulesModuleBindingContext.addMessages(messages);
+            }
+            if (errors != null) {
+                Arrays.stream(errors).forEach(rulesModuleBindingContext::addError);
+            }
         }
         return null;
     }

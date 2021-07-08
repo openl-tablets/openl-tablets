@@ -7,4 +7,3 @@ ERROR: OpenAPI Reconciliation: Type of cell '$Step13' must be compatible with Op
 ERROR: OpenAPI Reconciliation: Expected non transient cell for schema property 'Step14' is not found.
 ERROR: OpenAPI Reconciliation: Unexpected schema property 'Step14213' related to cell '$Step14213' is found.
 ERROR: OpenAPI Reconciliation: Expected method is not found for path '/spr1'.
-ERROR: Type 'Test' is not found

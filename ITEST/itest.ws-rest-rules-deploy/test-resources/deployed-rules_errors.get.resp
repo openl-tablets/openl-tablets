@@ -2,6 +2,5 @@ HTTP/1.1 200
 Content-Type: application/json
 
 [
-  "Type 'St23ring' is not found.***",
   "Type 'St23ring' is not found.***"
 ]

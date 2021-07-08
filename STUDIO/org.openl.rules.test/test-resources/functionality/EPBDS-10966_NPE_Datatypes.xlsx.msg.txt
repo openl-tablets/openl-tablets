@@ -6,4 +6,3 @@ ERROR: Type 'RateCardPremium' is not found.
 ERROR: Method 'RatingDetails(null-Class, null-Class)' is not found.
 ERROR: Type 'SpreadsheetResultPolicyRatesAndPremiums' is not found.
 ERROR: Type 'PolicyFactor' is not found.
-ERROR: Type 'Policy' is not found.

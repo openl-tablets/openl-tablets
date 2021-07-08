@@ -1,2 +1,1 @@
 ERROR: Encountered " <IDENTIFIER> "trash "" at line 1, column 26.
-ERROR: Encountered " <IDENTIFIER> "trash "" at line 1, column 26.
