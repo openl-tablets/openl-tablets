@@ -110,12 +110,12 @@
                                     if (item.severity === 'WARN') {
                                         warningsHtml +=
                                             "<div class='message-block problem-warning problem-small'>"
-                                                + "<a href = " + item.url + " class='message-block-link'>" + item.summary + "</a>"
+                                                + "<a href = " + item.url + " class='message-block-link'>" + ws.utils.escapeHtml(item.summary) + "</a>"
                                             + "</div>";
                                     } else if (item.severity === 'ERROR') {
                                         errorsHtml +=
                                             "<div class='message-block problem-error problem-small'>"
-                                                + "<a href = " + item.url + " class='message-block-link'>" + item.summary + "</a>"
+                                                + "<a href = " + item.url + " class='message-block-link'>" + ws.utils.escapeHtml(item.summary) + "</a>"
                                             + "</div>";
                                     }
                                 });

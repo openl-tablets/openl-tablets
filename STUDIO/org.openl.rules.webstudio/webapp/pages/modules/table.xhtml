@@ -1205,11 +1205,11 @@
                 errors.concat(warnings).each(function(item, i) {
                     const messageBoxClass = item.severity == 'ERROR' ? 'problem-error' : (item.severity == 'WARN' ? 'problem-warning' : 'problem-info');
                     let linkTitle = "Edit cell containing ";
-                    linkTitle += message.severity == 'ERROR' ? 'error' : (message.severity == 'WARN' ? 'warning' : 'info');
+                    linkTitle += item.severity == 'ERROR' ? 'error' : (item.severity == 'WARN' ? 'warning' : 'info');
                     const hasErrorCode = item.errorCode && item.errorCode.length > 0;
                     messages += htmlTemplate.replace(/{messageBoxClass}/g, messageBoxClass)
                         .replace(/{messageArrowStyle}/g, item.hasStacktrace ? "" : hiddenStyle)
-                        .replace(/{messageSummary}/g, item.summary)
+                        .replace(/{messageSummary}/g, ws.utils.escapeHtml(item.summary))
                         .replace(/{messageTitle}/g, linkTitle)
                         .replace(/{tableId}/g, item.tableId)
                         .replace(/{messageId}/g, item.id)
