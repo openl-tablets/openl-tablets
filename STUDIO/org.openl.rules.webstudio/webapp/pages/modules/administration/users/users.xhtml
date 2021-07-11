@@ -1,18 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:h="http://java.sun.com/jsf/html">
+        xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <h:form id="userListForm"/>
+
+    <style>
+        #users-list>tbody>tr:nth-child(1) {
+            display: none;
+        }
+        #user-groups>span:nth-child(1) {
+            display: none;
+        }
+        .white-space-pre {
+            white-space: pre;
+        }
+        .margin-right-2px {
+            margin-right: 2px
+        }
+    </style>
+
+    <table class="table" id="users-list">
+        <thead>
+            <tr>
+                <th scope="col">Username</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Groups</th>
+                <th class="local-user-element" scope="col">Local user</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <span onclick="editUser({editUserParams})" class="clickable white-space-pre usernameBox" title="Edit">{username}</span>
+                    <span class="warning-icon" style="{userUnsafeDefaultPasswordStyle}" title="Unsafe default password"/>
+                </td>
+                <td>{firstName}</td>
+                <td>{lastName}</td>
+                <td>{email}</td>
+                <td id="user-groups">
+                    <span>
+                        <span class="{userGroupClass} margin-right-2px">{userGroup}</span>
+                    </span>
+                    {userGroups}
+                </td>
+                <td class="local-user-element">{localUser}</td>
+                <td>
+                    <a href="#" onclick="{userDeleteOnClick}" class="{userDeleteClass}" title="Delete"></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <br/>
+    <br/>
+    <a href="javascript:void(0)" onclick="RichFaces.$('modalAddUser').show()" id="addNewUser">Add New User</a>
 
     <ui:include src="/pages/modules/administration/users/addUser.xhtml" />
     <ui:include src="/pages/modules/administration/users/editUser.xhtml" />
 
     <script>
         //<![CDATA[
-        $j(function () {
-            initUsersPage();
-        });
 
         function initUsersPage() {
             $j.ajax({
@@ -20,64 +68,54 @@
                 url: "#{contextPath}/web/user",
                 datatype: "json"
             })
-                .done(function (data) {
-                    var userForm = document.getElementById('userListForm');
-                    var el = document.createElement("TABLE");
-                    //headers
-                    var html = '<thead><tr>' +
-                        '<th scope="col">Username</th>' +
-                        '<th scope="col">First Name</th>' +
-                        '<th scope="col">Last Name</th>' +
-                        '<th scope="col">Email</th>' +
-                        '<th scope="col">Groups</th>' +
-                        '<th scope="col"></th>' +
-                        '</tr></thead><tbody>';
-                    //rows
-                    data.forEach(el => {
-                            html += '<tr><td><span ' +
-                                'onclick="editUser(\'' + el.username + '\',\'' + el.firstName + '\',\'' + el.lastName + '\',\'' + el.internalUser + '\',\'' + el.groups + '\',\'' + el.superUser + '\',\'' + el.currentUser + '\')" ' + 'style="white-space: pre;" class="clickable" title="Edit">' + toJSText(el.username) + '</span>';
-                            if (el.unsafePassword) {
-                                html +='<span class="warning-icon" title="Unsafe default password"/>'
-                            }
-                            html += '</td><td>' + toJSText(el.firstName) + '</td><td>' + toJSText(el.lastName) + '</td><td>' + toJSText(el.email) + '</td><td>';
-                            //add groups
-                            if (typeof el.groups !== "undefined") {
-                                el.groups.forEach(group => {
-                                    html += '<span class="' + (group === "Administrators" ? 'badge badge-error' : 'badge badge-info') + '" style="margin-right: 2px">' + group + '</span>';
-                                });
-                            }
-                            //
-                            html += '</td><td><a href="#" onclick="return confirm(\'Are you sure you want to delete the user?\')' +
-                                ' && deleteUser(\'' + el.username + '\'); return false;" class="delete-icon ' + (el.superUser || el.currentUser ? 'disabled' : ' ') + '" title="Delete"></a></td></tr>';
-                        }
-                    );
-                    html += '</tbody>';
-                    el.classList.add("table");
-                    el.innerHTML = html;
-                    userForm.innerHTML = el.outerHTML;
-                    addUserLabel();
-                });
-
-            $j('#addNewUser').on("click", function (e) {
-                e.preventDefault();
-                editGroup();
-            });
-        }
-
-        function addUserLabel() {
-            $j.ajax({
-                type: "GET",
-                url: "#{contextPath}/web/user/options",
-                datatype: "json"
-            })
-                .done(function (data) {
-                    if(data.canCreateInternalUsers || data.canCreateExternalUsers){
-                        var userForm = document.getElementById('userListForm');
-                        userForm.innerHTML +='<br/><br/><a href="javascript:void(0)" onclick="RichFaces.$(\'modalAddUser\').show()" id="addNewUser">Add New User</a>';
+            .done(function (data) {
+                if (!#{environment.getProperty('user.mode') == 'ad'}) {
+                    $j(".local-user-element").hide();
+                }
+                const rowTemplate = $j('#users-list>tbody>tr:nth-child(1)');
+                const htmlTemplate = $j('<tr/>').append(rowTemplate.clone()).html();
+                let users = "";
+                const hiddenStyle = " display: none; ";
+                data.forEach(el => {
+                    let userGroups = '';
+                    if (typeof el.groups !== "undefined") {
+                        const userGroupRowTemplate = $j('#user-groups>span:nth-child(1)');
+                        const userGroupHtmlTemplate = userGroupRowTemplate.clone().html();
+                        el.groups.forEach(group => {
+                            userGroups += userGroupHtmlTemplate.replace(/{userGroupClass}/g, group === "Administrators" ? 'badge badge-error' : 'badge badge-info')
+                                .replace(/{userGroup}/g, toJSText(group))
+                        });
                     }
+                    users += htmlTemplate.replace(/{editUserParams}/g, '\'' + toJSText(el.username) + '\',\'' + toJSText(el.firstName) + '\',\'' + toJSText(el.lastName) + '\',\'' + toJSText(el.email) + '\',\'' + el.internalUser + '\',\'' + el.groups + '\',\'' + el.superUser + '\',\'' + el.currentUser + '\'')
+                        .replace(/{username}/g, toJSText(el.username))
+                        .replace(/{userUnsafeDefaultPasswordStyle}/g, !el.unsafePassword ? hiddenStyle : '')
+                        .replace(/{firstName}/g, toJSText(el.firstName))
+                        .replace(/{lastName}/g, toJSText(el.lastName))
+                        .replace(/{userGroups}/g, userGroups)
+                        .replace(/{localUser}/g, el.internalUser ? 'Yes' : 'No')
+                        .replace(/{email}/g, toJSText(el.email))
+                        .replace(/{userDeleteOnClick}/g, 'return confirm(\'Are you sure you want to delete the user?\') && deleteUser(\'' + el.username + '\'); return false;')
+                        .replace(/{userDeleteClass}/g, 'delete-icon ' + (el.superUser || el.currentUser ? 'disabled ' : ' '));
                 });
-        }
 
+                $j("#users-list tbody").html(htmlTemplate + users);
+                $j.ajax({
+                    type: "GET",
+                    url: "#{contextPath}/web/user/options",
+                    datatype: "json"
+                })
+                .done(function (data) {
+                    if (!(data.canCreateInternalUsers || data.canCreateExternalUsers)) {
+                        $j(".usernameBox").prop("onclick", null).off("click")
+                    }
+                    $j("#addNewUser").toggle(data.canCreateInternalUsers || data.canCreateExternalUsers);
+                });
+            });
+        };
+
+        initUsersPage();
+
+        //TODO replace to ws.utils.escapeHtml
         function toJSText(value) {
             return value ? value.replace(/[&<>"'\/]/g, function (s) {
                 return escaped[s];
@@ -92,9 +130,9 @@
                 contentType: 'application/json',
                 dataType: 'json'
             })
-                .done(function () {
-                    initUsersPage();
-                });
+            .done(function () {
+                initUsersPage();
+            });
         }
 
         //]]>

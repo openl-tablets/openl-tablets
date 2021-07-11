@@ -3,8 +3,20 @@
         xmlns:ui="http://java.sun.com/jsf/facelets"
         xmlns:h="http://java.sun.com/jsf/html"
         xmlns:f="http://java.sun.com/jsf/core"
-        xmlns:a4j="http://richfaces.org/a4j"
         xmlns:rich="http://richfaces.org/rich">
+
+    <style>
+        #edit_userGroups>div:nth-child(1) {
+            display: none;
+        }
+        #editUserTable {
+            max-height: 370px;
+            overflow: auto;
+        }
+        .font-weight-bold {
+            font-weight: bold;
+        }
+    </style>
 
     <rich:popupPanel id="modalEditUser" width="530" autosized="true">
         <f:facet name="header">
@@ -16,109 +28,138 @@
                             onclick="hideEditUser()" alt="Close"/>
         </f:facet>
 
-        <h:form id="editUserForm">
-            <div style="max-height: 370px; overflow: auto;">
-                <div class="problem-warning superuser">This user cannot be deleted and Administrator privilege cannot be revoked<br/>because the user is defined in
-                    <b>security.administrators</b> property.
-                </div>
-                <div class="problem-warning currentuser">It is your account. You cannot delete yourself or revoke Administrator privilege.</div>
-                <h:panelGrid id="editUserPanel" columns="3" cellspacing="5">
-                    <label>Username:</label>
-                    <h:outputText id="username" style="font-weight: bold"/>
-                    <h:inputHidden id="usernameHidden"/>
-
-                    <label>Password:</label>
-                    <h:inputSecret id="password" styleClass="internal-user"/>
-                    <a4j:outputPanel ajaxRendered="true" id="passwordError">
-                        <h:message for="password" styleClass="error"/>
-                    </a4j:outputPanel>
-
-                    <label>First Name:</label>
-                    <h:inputText id="firstName" styleClass="internal-user"/>
-                    <a4j:outputPanel ajaxRendered="true" id="firstNameError">
-                        <h:message for="firstName" styleClass="error"/>
-                    </a4j:outputPanel>
-
-                    <label>Last Name:</label>
-                    <h:inputText id="lastName" styleClass="internal-user"/>
-                    <a4j:outputPanel ajaxRendered="true" id="lastNameError">
-                        <h:message for="lastName" styleClass="error"/>
-                    </a4j:outputPanel>
-                </h:panelGrid>
+        <table id="editUserTable" cellspacing="5">
+            <div class="problem-warning superUser">
+                This user cannot be deleted and Administrator privilege cannot be revoked
+                <br/>
+                because the user is defined in <b>security.administrators</b> property.
             </div>
+            <div class="problem-warning currentUser">It is your account. You cannot delete yourself or revoke Administrator privilege.</div>
 
-            <footer>
-                <input id="editUserButton" type="button" title="Save" value="Save" class="button-primary"/>
-                <input type="button" value="Cancel" onclick="hideEditUser()"/>
-            </footer>
-        </h:form>
+            <tr>
+                <td><label id="edit_username_label">Username:</label></td>
+                <td><span id="edit_username_field" class="font-weight-bold"></span></td>
+            </tr>
+            <tr class="internalUser">
+                <td><label id="edit_password_label" class="required">Password:</label></td>
+                <td><input id="edit_password_field" type="password"></input></td>
+                <td><span id="edit_password_error" class="error"></span></td>
+            </tr>
+            <tr>
+                <td><label id="edit_firstName_label">First Name:</label></td>
+                <td>
+                    <input id="edit_firstName_field" class="internalUser" type="text"></input>
+                    <span id="edit_firstName_field_span" class="externalUser font-weight-bold"></span>
+                </td>
+                <td><span id="edit_firstName_error" class="error"></span></td>
+            </tr>
+            <tr>
+                <td><label id="edit_lastName_label">Last Name:</label></td>
+                <td>
+                    <input id="edit_lastName_field" class="internalUser" type="text"></input>
+                    <span id="edit_lastName_field_span" class="externalUser font-weight-bold"></span>
+                </td>
+                <td><span id="edit_lastName_error" class="error"></span></td>
+            </tr>
+            <tr>
+                <td><label id="edit_email_label">Email:</label></td>
+                <td>
+                    <input id="edit_email_field" class="internalUser" type="text"></input>
+                    <span id="edit_email_field_span" class="externalUser font-weight-bold"></span>
+                </td>
+                <td><span id="edit_email_error" class="error"></span></td>
+            </tr>
+            <tr id="edit_groupsRow">
+                <td><label id="edit_groups_label">Groups:</label></td>
+                <td id="edit_userGroups">
+                    <div id="edit_groups_field">
+                        <input value="{edit_groupValue}" type="checkbox"/>
+                        <label class="">{edit_groupName}</label>
+                    </div>
+                </td>
+                <td><span id="edit_groups_error" class="error"></span></td>
+            </tr>
+        </table>
+
+        <footer>
+            <input id="editUserButton" type="button" title="Save" value="Save" class="button-primary"/>
+            <input type="button" value="Cancel" onclick="hideEditUser()"/>
+        </footer>
 
     </rich:popupPanel>
 
     <script>
         //<![CDATA[
-        function editUser(username, firstName, lastName, internalUser, userGroups, isSuperuser, isCurrentUser) {
-            $j("#editUserForm .superuser").toggle(isSuperuser === "true");
-            $j("#editUserForm .currentuser").toggle(!(isSuperuser === "true") && isCurrentUser === "true");
+        function editUser(username, firstName, lastName, email, internalUser, userGroups, isSuperuser, isCurrentUser) {
+            $j(".superUser").toggle(isSuperuser === "true");
+            $j(".currentUser").toggle(!(isSuperuser === "true") && isCurrentUser === "true");
+            $j(".internalUser").toggle(internalUser);
+            $j(".externalUser").toggle(!internalUser);
 
-            $j("#editUserForm\\:username").text(username);
-            $j("#editUserForm\\:usernameHidden").val(username);
-            $j("#editUserForm\\:firstName").val(firstName);
-            $j("#editUserForm\\:lastName").val(lastName);
+            $j("#edit_username_field").text(username);
+            $j("#edit_firstName_field").val(firstName);
+            $j("#edit_lastName_field").val(lastName);
+            $j("#edit_email_field").val(email);
+            $j("#edit_email_field_span").html(email);
+            $j("#edit_firstName_field_span").html(firstName);
+            $j("#edit_lastName_field_span").html(lastName);
 
-            $j(".external-user").remove();
-            $j(".internal-user").toggle(internalUser);
-            $j("#editUserForm\\:password").closest('tr').toggle(internalUser);
-            if (!internalUser) {
-                $j(".internal-user").each(function () {
-                    let $elem = $j(this);
-                    $elem.parent().append($j('<span/>').addClass('external-user').html($elem.val()));
-                });
-            }
-
-            for (let i = 0; i < $j("#editUserForm :checkbox").size(); i++) {
-                if($j.inArray($j("#editUserForm :checkbox")[i].value, userGroups.split(',')) !== -1){
-                    $j("#editUserForm :checkbox")[i].checked = true;
-                }
-            }
+            var userGroupsList = userGroups.split(',');
+            $j("#edit_groupsRow input:checkbox").each(function() {
+                $j(this).prop("checked", userGroupsList.includes($j(this).val()));
+            });
 
             RichFaces.$("modalEditUser").show();
         }
 
-        $j(function () {
-            $j.ajax({
-                type: "GET",
-                url: "#{contextPath}/web/admin/management/groups",
-                datatype: "json"
-            })
-                .done(function (data) {
-                    var groupListBlock = document.getElementById('editUserForm:editUserPanel');
-                    var el = document.createElement("TR");
-                    var html = '<td><label>Groups:</label></td><td><table><tbody>';
-                    $j.map(data, function (val, i) {
-                        html += '<tr><td><input value="' + i + '" type="checkbox"/>' +
-                            '<label class=""> ' + i + ' </label></td></tr>';
-                    });
-                    html += '</tbody></table></td>';
-                    el.innerHTML = html;
-                    groupListBlock.append(el);
-                });
+        $j.ajax({
+            type: "GET",
+            url: "#{contextPath}/web/admin/management/groups",
+            datatype: "json"
+        })
+        .done(function (data) {
+            const rowTemplate = $j('#edit_userGroups>div:nth-child(1)');
+            const htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
+            let groups = "";
+            $j.map(data, function (val, i) {
+                $j("#edit_groupsRow").show();
+                groups += htmlTemplate.replace(/{edit_groupValue}/g, i).replace(/{edit_groupName}/g, i);
+            });
 
-            $j("#editUserButton").on("click", function (e) {
-              //TODO
+            $j("#edit_userGroups").html(htmlTemplate + groups);
+        });
+
+        $j("#editUserButton").click(function (e) {
+          e.preventDefault();
+            var groupValues = [];
+            $j("#edit_groupsRow input:checkbox").each(function() {
+                if ($j(this).is(":checked")) {
+                    groupValues.push($j(this).val());
+                }
+            });
+            $j.ajax({
+                type: "PUT",
+                url: "#{contextPath}/web/user",
+                data: JSON.stringify({
+                    username : $j("#edit_username_field").html(),
+                    firstName : $j("#edit_firstName_field").val(),
+                    lastName : $j("#edit_lastName_field").val(),
+                    email : $j("#edit_email_field").val(),
+                    password : $j("#edit_password_field").val(),
+                    groups : groupValues
+                }),
+                contentType: 'application/json',
+                dataType: 'json'
+            })
+            .done(function () {
+                location.reload();
+                hideEditUser();
             });
         });
 
         function hideEditUser() {
             RichFaces.$("modalEditUser").hide();
-
-            $j("#editUserForm\\:firstNameError,#editUserForm\\:lastNameError,#editUserForm\\:groupsError").text("");
-
-            $j("input[id$='_hidden_admin']").remove();
-            $j("input[id^='editUserForm\\:editUserGroups']").attr("disabled", false);
-
-            // Reset form
-            $j("#editUserForm")[0].reset();
+            $j("#edit_firstName_error,#edit_password_error,#edit_lastName_error,#edit_groups_error").text("");
         }
 
         //]]>
