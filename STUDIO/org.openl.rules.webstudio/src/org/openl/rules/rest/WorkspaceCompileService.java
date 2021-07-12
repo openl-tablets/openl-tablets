@@ -237,49 +237,49 @@ public class WorkspaceCompileService {
     @Path("table/{tableId}/{openedModule}")
     public Map<String, Object> table(@PathParam("tableId") final String tableId,
             @PathParam("openedModule") final boolean openedModule) {
+        Map<String, Object> tableInfo = new HashMap<>();
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         ProjectModel model = webStudio.getModel();
         Module moduleInfo = model.getModuleInfo();
         IOpenLTable table = model.getTableById(tableId);
-        String tableUri = table.getUri();
-        List<OpenLMessage> errors;
-        List<OpenLMessage> warnings;
-        if (openedModule) {
-            errors = new ArrayList<>(model.getOpenedModuleMessagesByTsn(tableUri, Severity.ERROR));
-            warnings = new ArrayList<>(model.getOpenedModuleMessagesByTsn(tableUri, Severity.WARN));
-        } else {
-            errors = new ArrayList<>(model.getMessagesByTsn(tableUri, Severity.ERROR));
-            warnings = new ArrayList<>(model.getMessagesByTsn(tableUri, Severity.WARN));
-        }
-
-        if (warnings.size() >= MAX_PROBLEMS) {
-            warnings = warnings.subList(0, MAX_PROBLEMS);
-            warnings.add(OpenLMessagesUtils
-                .newErrorMessage("Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
-        }
-        if (errors.size() >= MAX_PROBLEMS) {
-            errors = errors.subList(0, MAX_PROBLEMS);
-            errors.add(OpenLMessagesUtils
-                .newErrorMessage("Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
-        }
-
-        // if the current table is a test then check tested target tables on errors.
-        List<Pair<String, TableBean.TableDescription>> targetTableUrlPairs = new ArrayList<>();
-        for (TableBean.TableDescription targetTable : OpenLTableLogic.getTargetTables(table, model)) {
-            targetTableUrlPairs.add(Pair.of(webStudio.url("table", targetTable.getUri()), targetTable));
-            if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
-                warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
-                break;
+        if (table != null) {
+            String tableUri = table.getUri();
+            List<OpenLMessage> errors;
+            List<OpenLMessage> warnings;
+            if (openedModule) {
+                errors = new ArrayList<>(model.getOpenedModuleMessagesByTsn(tableUri, Severity.ERROR));
+                warnings = new ArrayList<>(model.getOpenedModuleMessagesByTsn(tableUri, Severity.WARN));
+            } else {
+                errors = new ArrayList<>(model.getMessagesByTsn(tableUri, Severity.ERROR));
+                warnings = new ArrayList<>(model.getMessagesByTsn(tableUri, Severity.WARN));
             }
-        }
 
-        Map<String, Object> tableInfo = new HashMap<>();
-        tableInfo.put("errors", OpenLTableLogic.processTableProblems(errors, model, webStudio));
-        tableInfo.put("warnings", OpenLTableLogic.processTableProblems(warnings, model, webStudio));
-        tableInfo.put("targetTables", targetTableUrlPairs);
-        tableInfo.put("tableUrl", webStudio.url("table"));
-        tableInfo.put("openCurrentModuleOnly",
-            moduleInfo != null ? moduleInfo.getOpenCurrentModuleOnly() : false);
+            if (warnings.size() >= MAX_PROBLEMS) {
+                warnings = warnings.subList(0, MAX_PROBLEMS);
+                warnings.add(OpenLMessagesUtils
+                    .newErrorMessage("Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
+            }
+            if (errors.size() >= MAX_PROBLEMS) {
+                errors = errors.subList(0, MAX_PROBLEMS);
+                errors.add(OpenLMessagesUtils
+                    .newErrorMessage("Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
+            }
+
+            // if the current table is a test then check tested target tables on errors.
+            List<Pair<String, TableBean.TableDescription>> targetTableUrlPairs = new ArrayList<>();
+            for (TableBean.TableDescription targetTable : OpenLTableLogic.getTargetTables(table, model)) {
+                targetTableUrlPairs.add(Pair.of(webStudio.url("table", targetTable.getUri()), targetTable));
+                if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
+                    warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
+                    break;
+                }
+            }
+            tableInfo.put("errors", OpenLTableLogic.processTableProblems(errors, model, webStudio));
+            tableInfo.put("warnings", OpenLTableLogic.processTableProblems(warnings, model, webStudio));
+            tableInfo.put("targetTables", targetTableUrlPairs);
+            tableInfo.put("tableUrl", webStudio.url("table"));
+            tableInfo.put("openCurrentModuleOnly", moduleInfo != null ? moduleInfo.getOpenCurrentModuleOnly() : false);
+        }
         return tableInfo;
     }
 

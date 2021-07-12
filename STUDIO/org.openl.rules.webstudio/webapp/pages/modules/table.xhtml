@@ -1161,7 +1161,7 @@
               .done(function (data) {
                   $j("#openCurrentModuleOnlyTable").val(data.openCurrentModuleOnly);
                   const hasProblems = data.warnings.length > 0 || data.errors.length > 0;
-                  if ((hasProblems || #{editableTablePart})) {
+                  if ((hasProblems || #{tableBean.tablePart and studio.model.editable})) {
                       $jq(".table-problems").show()
                   }
                   if (data.errors.length > 0 && opened) {
