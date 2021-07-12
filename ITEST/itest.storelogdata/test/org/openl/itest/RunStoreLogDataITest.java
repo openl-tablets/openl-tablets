@@ -4,7 +4,12 @@ import static net.mguenther.kafka.junit.EmbeddedKafkaCluster.provisionWith;
 import static org.awaitility.Awaitility.given;
 import static org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner.newConfigs;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,6 +35,7 @@ import org.openl.itest.cassandra.HelloEntity1;
 import org.openl.itest.cassandra.HelloEntity2;
 import org.openl.itest.cassandra.HelloEntity3;
 import org.openl.itest.cassandra.HelloEntity4;
+import org.openl.itest.cassandra.HelloEntity8;
 import org.openl.itest.common.ExpectedLogValues;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -37,6 +43,7 @@ import org.openl.itest.elasticsearch.CustomElasticEntity1;
 import org.openl.itest.elasticsearch.CustomElasticEntity2;
 import org.openl.itest.elasticsearch.CustomElasticEntity3;
 import org.openl.itest.elasticsearch.CustomElasticEntity4;
+import org.openl.itest.elasticsearch.CustomElasticEntity8;
 import org.openl.itest.elasticsearch.ElasticFields;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
@@ -541,25 +548,29 @@ public class RunStoreLogDataITest {
         final String helloEntity2TableName = getTableName(HelloEntity2.class);
         final String helloEntity3TableName = getTableName(HelloEntity3.class);
         final String helloEntity4TableName = getTableName(HelloEntity4.class);
+        final String helloEntity8TableName = getTableName(HelloEntity8.class);
 
         final String customElasticIndexName1 = CustomElasticEntity1.class.getAnnotation(Document.class).indexName();
         final String customElasticIndexName2 = CustomElasticEntity2.class.getAnnotation(Document.class).indexName();
         final String customElasticIndexName3 = CustomElasticEntity3.class.getAnnotation(Document.class).indexName();
         final String customElasticIndexName4 = CustomElasticEntity4.class.getAnnotation(Document.class).indexName();
+        final String customElasticIndexName8 = CustomElasticEntity8.class.getAnnotation(Document.class).indexName();
 
         truncateTableIfExists(KEYSPACE, helloEntity1TableName);
         truncateTableIfExists(KEYSPACE, helloEntity2TableName);
         truncateTableIfExists(KEYSPACE, helloEntity3TableName);
         truncateTableIfExists(KEYSPACE, helloEntity4TableName);
+        truncateTableIfExists(KEYSPACE, helloEntity8TableName);
 
         given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
             removeIndexIfExists(customElasticIndexName1);
             removeIndexIfExists(customElasticIndexName2);
             removeIndexIfExists(customElasticIndexName3);
             removeIndexIfExists(customElasticIndexName4);
-            return !elasticRunner.indexExists(customElasticIndexName1) && !elasticRunner
-                .indexExists(customElasticIndexName2) && !elasticRunner
-                    .indexExists(customElasticIndexName3) && !elasticRunner.indexExists(customElasticIndexName4);
+            removeIndexIfExists(customElasticIndexName8);
+            return !elasticRunner.indexExists(customElasticIndexName1) && !elasticRunner.indexExists(
+                customElasticIndexName2) && !elasticRunner.indexExists(customElasticIndexName3) && !elasticRunner
+                    .indexExists(customElasticIndexName4) && !elasticRunner.indexExists(customElasticIndexName8);
         }, equalTo(true));
 
         client.post("/deployment4/simple4/Hello", "/simple4_Hello.req.json", "/simple4_Hello.resp.txt");
@@ -628,6 +639,11 @@ public class RunStoreLogDataITest {
             .getKeyspace(KEYSPACE)
             .getTable(helloEntity4TableName));
 
+        assertNull(EmbeddedCassandraServerHelper.getCluster()
+            .getMetadata()
+            .getKeyspace(KEYSPACE)
+            .getTable(helloEntity8TableName));
+
         SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
         if (hits.length == 0) {
             fail("SearchHit is not found.");
@@ -675,6 +691,7 @@ public class RunStoreLogDataITest {
         assertNull(source3.get(ElasticFields.RESULT));
 
         assertFalse(elasticRunner.indexExists(customElasticIndexName4));
+        assertFalse(elasticRunner.indexExists(customElasticIndexName8));
     }
 
     @Test

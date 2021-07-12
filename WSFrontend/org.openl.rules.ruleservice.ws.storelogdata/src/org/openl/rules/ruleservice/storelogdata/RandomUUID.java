@@ -4,7 +4,7 @@ import java.util.UUID;
 
 public final class RandomUUID implements StoreLogDataConverter<String> {
     @Override
-    public String convert(StoreLogData storeLogData) {
+    public String apply(StoreLogData value) {
         return UUID.randomUUID().toString();
     }
 }

@@ -11,13 +11,13 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Request;
 import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
 import org.openl.rules.ruleservice.storelogdata.annotation.Url;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
+import org.openl.rules.ruleservice.storelogdata.annotation.Value;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
 
 @Entity("openl_log_data")
 public class DefaultHiveEntity {
 
-    @WithStoreLogDataConverter(converter = RandomUUID.class)
+    @Value(converter = RandomUUID.class)
     private String id;
 
     @IncomingTime

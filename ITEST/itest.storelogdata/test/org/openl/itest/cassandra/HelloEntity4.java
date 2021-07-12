@@ -17,7 +17,7 @@ import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 @QualifyPublisherType(PublisherType.WEBSERVICE)
 public class HelloEntity4 {
     @PartitionKey(0)
-    @WithStoreLogDataConverter(converter = TimeBasedUUID.class)
+    @Value(converter = TimeBasedUUID.class)
     private String id;
 
     @IncomingTime

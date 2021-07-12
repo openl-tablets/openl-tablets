@@ -12,5 +12,5 @@ import org.openl.rules.ruleservice.storelogdata.Converter;
 public @interface Value {
     String value() default "";
 
-    Class<? extends Converter<?, ?>> converter() default DefaultConverter.class;
+    Class<? extends Converter<?, ?>> converter() default NoConverter.class;
 }

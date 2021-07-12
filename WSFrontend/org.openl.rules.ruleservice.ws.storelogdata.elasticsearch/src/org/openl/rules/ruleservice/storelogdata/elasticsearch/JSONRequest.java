@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public final class JSONRequest implements StoreLogDataConverter<Object> {
 
     @Override
-    public Object convert(StoreLogData storeLogData) {
+    public Object apply(StoreLogData storeLogData) {
         if (storeLogData.getRequestMessage() != null && storeLogData.getRequestMessage().getPayload() != null) {
             String payloadAsString = storeLogData.getRequestMessage().getPayload().toString();
             JsonNode validJSON = tryMakeJson(payloadAsString);

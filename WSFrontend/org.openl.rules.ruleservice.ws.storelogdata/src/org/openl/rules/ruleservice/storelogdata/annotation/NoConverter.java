@@ -2,9 +2,9 @@ package org.openl.rules.ruleservice.storelogdata.annotation;
 
 import org.openl.rules.ruleservice.storelogdata.Converter;
 
-public final class DefaultStringConverter implements Converter<String, Object> {
+public final class NoConverter implements Converter<Object, Object> {
     @Override
-    public Object apply(String value) {
+    public Object apply(Object value) {
         throw new UnsupportedOperationException();
     }
 }

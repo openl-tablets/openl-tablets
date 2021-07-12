@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
@@ -63,17 +64,16 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
 
     @Override
     protected void save(StoreLogData storeLogData, boolean sync) throws StoreLogDataException {
-        StoreLogDataToHive storeLogDataAnnotation = getAnnotation(storeLogData);
-        if (storeLogDataAnnotation == null)
+        StoreLogDataToHive storeLogDataToHive = getAnnotation(storeLogData);
+        if (storeLogDataToHive == null) {
             return;
-
-        Object[] entities = getEntities(storeLogDataAnnotation, storeLogData.getServiceMethod());
-
+        }
+        List<Object> entities = getEntities(storeLogData, storeLogDataToHive);
         mapEntities(storeLogData, entities, storeLogData.getServiceMethod());
         saveEntities(entities);
     }
 
-    private void saveEntities(Object[] entities) throws StoreLogDataException {
+    private void saveEntities(List<Object> entities) throws StoreLogDataException {
         for (Object entity : entities) {
             if (entity != null) {
                 try {
@@ -86,7 +86,7 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
     }
 
     private void mapEntities(StoreLogData storeLogData,
-            Object[] entities,
+            List<Object> entities,
             Method serviceMethod) throws StoreLogDataException {
         for (Object entity : entities) {
             try {
@@ -107,29 +107,31 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
         }
     }
 
-    private Object[] getEntities(StoreLogDataToHive storeLogDataAnnotation,
-            Method serviceMethod) throws StoreLogDataException {
-        Object[] entities;
-        if (storeLogDataAnnotation.value().length == 0) {
-            entities = new DefaultHiveEntity[] { new DefaultHiveEntity() };
+    private List<Object> getEntities(StoreLogData storeLogData,
+            StoreLogDataToHive storeLogDataToHive) throws StoreLogDataException {
+        List<Object> entities = new ArrayList<>();
+        if (storeLogDataToHive.value().length == 0) {
+            if (!storeLogData.isIgnorable(DefaultHiveEntity.class)) {
+                entities.add(new DefaultHiveEntity());
+            }
         } else {
-            entities = new Object[storeLogDataAnnotation.value().length];
-            int i = 0;
-            for (Class<?> entityClass : storeLogDataAnnotation.value()) {
-                if (StoreLogDataToHive.DEFAULT.class == entityClass) {
-                    entities[i] = new DefaultHiveEntity();
-                } else {
-                    try {
-                        entities[i] = entityClass.getDeclaredConstructor().newInstance();
-                    } catch (Exception e) {
-                        throw new StoreLogDataException(String.format(
-                            "Failed to instantiate Hive entity '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
-                            serviceMethod != null ? " for method '" + MethodUtil
-                                .printQualifiedMethodName(serviceMethod) + "'" : StringUtils.EMPTY,
-                            entityClass.getTypeName()), e);
+            for (Class<?> entityClass : storeLogDataToHive.value()) {
+                if (!storeLogData.isIgnorable(entityClass)) {
+                    if (StoreLogDataToHive.DEFAULT.class == entityClass) {
+                        entities.add(new DefaultHiveEntity());
+                    } else {
+                        try {
+                            entities.add(entityClass.getDeclaredConstructor().newInstance());
+                        } catch (Exception e) {
+                            throw new StoreLogDataException(String.format(
+                                "Failed to instantiate Hive entity '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                                storeLogData.getServiceMethod() != null ? " for method '" + MethodUtil
+                                    .printQualifiedMethodName(storeLogData.getServiceMethod()) + "'"
+                                                                        : StringUtils.EMPTY,
+                                entityClass.getTypeName()), e);
+                        }
                     }
                 }
-                i++;
             }
         }
         return entities;

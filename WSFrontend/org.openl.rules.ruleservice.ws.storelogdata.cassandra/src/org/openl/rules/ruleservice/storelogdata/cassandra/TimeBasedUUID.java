@@ -7,7 +7,8 @@ import com.datastax.oss.driver.api.core.uuid.Uuids;
 
 public final class TimeBasedUUID implements StoreLogDataConverter<String> {
     @Override
-    public String convert(StoreLogData storeLogData) {
+    public String apply(StoreLogData value) {
         return Uuids.timeBased().toString();
     }
+
 }

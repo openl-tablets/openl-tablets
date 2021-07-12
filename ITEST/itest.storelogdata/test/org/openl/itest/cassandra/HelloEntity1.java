@@ -17,7 +17,7 @@ import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 @CqlName("openl_logging_hello_entity1")
 public class HelloEntity1 {
     @PartitionKey(0)
-    @WithStoreLogDataConverter(converter = TimeBasedUUID.class)
+    @Value(converter = TimeBasedUUID.class)
     private String id;
 
     @IncomingTime

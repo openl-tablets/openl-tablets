@@ -7,6 +7,7 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
@@ -72,8 +73,6 @@ public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataServic
 
     @Override
     protected void save(StoreLogData storeLogData, boolean sync) throws StoreLogDataException {
-        Object[] entities;
-
         StoreLogDataToElasticsearch storeLogDataToElasticsearchAnnotation = storeLogData.getServiceClass()
             .getAnnotation(StoreLogDataToElasticsearch.class);
 
@@ -85,30 +84,32 @@ public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataServic
             return;
         }
 
+        List<Object> entities = new ArrayList<>();
         if (storeLogDataToElasticsearchAnnotation.value().length == 0) {
-            entities = new DefaultElasticEntity[] { new DefaultElasticEntity() };
+            if (!storeLogData.isIgnorable(DefaultElasticEntity.class)) {
+                entities.add(new DefaultElasticEntity());
+            }
         } else {
-            entities = new Object[storeLogDataToElasticsearchAnnotation.value().length];
-            int i = 0;
             for (Class<?> entityClass : storeLogDataToElasticsearchAnnotation.value()) {
-                if (StoreLogDataToElasticsearch.DEFAULT.class == entityClass) {
-                    entities[i] = new DefaultElasticEntity();
-                } else {
-                    try {
-                        entities[i] = entityClass.newInstance();
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        throw new StoreLogDataException(String.format(
-                            "Failed to instantiate ElasticSearch index builder%s. Please, check that class '%s' is not abstract and has a default constructor.",
-                            serviceMethod != null ? " for method '" + MethodUtil
-                                .printQualifiedMethodName(serviceMethod) + "'" : StringUtils.EMPTY,
-                            entityClass.getTypeName()), e);
+                if (!storeLogData.isIgnorable(entityClass)) {
+                    if (StoreLogDataToElasticsearch.DEFAULT.class == entityClass) {
+                        entities.add(new DefaultElasticEntity());
+                    } else {
+                        try {
+                            entities.add(entityClass.newInstance());
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            throw new StoreLogDataException(String.format(
+                                "Failed to instantiate ElasticSearch index builder%s. Please, check that class '%s' is not abstract and has a default constructor.",
+                                serviceMethod != null ? " for method '" + MethodUtil
+                                    .printQualifiedMethodName(serviceMethod) + "'" : StringUtils.EMPTY,
+                                entityClass.getTypeName()), e);
+                        }
                     }
                 }
-                i++;
             }
         }
 
-        IndexQuery[] indexQueries = new IndexQuery[entities.length];
+        IndexQuery[] indexQueries = new IndexQuery[entities.size()];
         int i = 0;
 
         for (Object entity : entities) {
