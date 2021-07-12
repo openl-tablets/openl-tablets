@@ -44,6 +44,8 @@ public class StoreLogData {
 
     private boolean ignorable = false;
 
+    private Map<Class<?>, Boolean> ignorableByEntity;
+
     private boolean fault = true;
 
     public ProducerRecord<String, Object> getProducerRecord() {
@@ -154,8 +156,22 @@ public class StoreLogData {
         this.ignorable = ignorable;
     }
 
+    public boolean isIgnorable(Class<?> entityClass) {
+        if (ignorableByEntity == null) {
+            return false;
+        }
+        return Boolean.TRUE.equals(ignorableByEntity.get(entityClass));
+    }
+
     public void ignore() {
         this.ignorable = true;
+    }
+
+    public void ignore(Class<?> entityClass) {
+        if (ignorableByEntity == null) {
+            ignorableByEntity = new HashMap<>();
+        }
+        ignorableByEntity.put(entityClass, Boolean.TRUE);
     }
 
     public ObjectSerializer getObjectSerializer() {

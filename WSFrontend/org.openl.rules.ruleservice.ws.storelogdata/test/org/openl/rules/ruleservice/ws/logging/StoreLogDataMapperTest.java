@@ -11,9 +11,17 @@ import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.Converter;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataConverter;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
-import org.openl.rules.ruleservice.storelogdata.annotation.*;
+import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
+import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
+import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
+import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
+import org.openl.rules.ruleservice.storelogdata.annotation.QualifyPublisherType;
+import org.openl.rules.ruleservice.storelogdata.annotation.Request;
+import org.openl.rules.ruleservice.storelogdata.annotation.Response;
+import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
+import org.openl.rules.ruleservice.storelogdata.annotation.Url;
+import org.openl.rules.ruleservice.storelogdata.annotation.Value;
 
 public class StoreLogDataMapperTest {
 
@@ -133,9 +141,9 @@ public class StoreLogDataMapperTest {
         Assert.assertEquals(customString3, testEntity.getStringValue3());
     }
 
-    public static class SomeValueConvertor implements StoreLogDataConverter<String> {
+    public static class SomeValueConvertor implements Converter<StoreLogData, String> {
         @Override
-        public String convert(StoreLogData storeLogData) {
+        public String apply(StoreLogData value) {
             return SOME_VALUE;
         }
     }
@@ -180,7 +188,7 @@ public class StoreLogDataMapperTest {
             return id;
         }
 
-        @WithStoreLogDataConverter(converter = SomeValueConvertor.class)
+        @Value(converter = SomeValueConvertor.class)
         public void setId(String id) {
             this.id = id;
         }

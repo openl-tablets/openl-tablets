@@ -9,14 +9,14 @@ import org.springframework.data.elasticsearch.annotations.Document;
 
 @Document(indexName = "openl_log_data")
 public class DefaultElasticEntity {
-    @WithStoreLogDataConverter(converter = RandomUUID.class)
+    @Value(converter = RandomUUID.class)
     @Id
     private String id;
 
-    @IncomingTime(converter = ZonedDataTimeToDateConvertor.class)
+    @IncomingTime(converter = ZonedDateTimeToDateConvertor.class)
     private Date incomingTime;
 
-    @OutcomingTime(converter = ZonedDataTimeToDateConvertor.class)
+    @OutcomingTime(converter = ZonedDateTimeToDateConvertor.class)
     private Date outcomingTime;
 
     @Request
@@ -25,11 +25,11 @@ public class DefaultElasticEntity {
     @Response
     private String responseBody;
 
-    @WithStoreLogDataConverter(converter = JSONRequest.class)
+    @Value(converter = JSONRequest.class)
     @QualifyPublisherType(PublisherType.RESTFUL)
     private Object request;
 
-    @WithStoreLogDataConverter(converter = JSONResponse.class)
+    @Value(converter = JSONResponse.class)
     @QualifyPublisherType(PublisherType.RESTFUL)
     private Object response;
 

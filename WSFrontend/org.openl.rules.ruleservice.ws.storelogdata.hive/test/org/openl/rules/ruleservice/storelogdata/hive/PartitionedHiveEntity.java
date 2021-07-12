@@ -6,14 +6,14 @@ import org.openl.rules.ruleservice.storelogdata.RandomUUID;
 import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
 import org.openl.rules.ruleservice.storelogdata.annotation.Request;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
+import org.openl.rules.ruleservice.storelogdata.annotation.Value;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.Partition;
 
 @Entity("partitioned_data")
 public class PartitionedHiveEntity {
 
-    @WithStoreLogDataConverter(converter = RandomUUID.class)
+    @Value(converter = RandomUUID.class)
     private String id;
 
     @IncomingTime

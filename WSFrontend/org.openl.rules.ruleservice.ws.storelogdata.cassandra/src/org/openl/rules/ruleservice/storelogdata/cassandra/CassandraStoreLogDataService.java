@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
@@ -64,8 +65,6 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
 
     @Override
     protected void save(StoreLogData storeLogData, boolean sync) throws StoreLogDataException {
-        Object[] entities;
-
         StoreLogDataToCassandra storeLogDataToCassandraAnnotation = storeLogData.getServiceClass()
             .getAnnotation(StoreLogDataToCassandra.class);
 
@@ -77,27 +76,28 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
         if (storeLogDataToCassandraAnnotation == null) {
             return;
         }
-
+        List<Object> entities = new ArrayList<>();
         if (storeLogDataToCassandraAnnotation.value().length == 0) {
-            entities = new DefaultCassandraEntity[] { new DefaultCassandraEntity() };
+            if (!storeLogData.isIgnorable(DefaultCassandraEntity.class)) {
+                entities.add(new DefaultCassandraEntity());
+            }
         } else {
-            entities = new Object[storeLogDataToCassandraAnnotation.value().length];
-            int i = 0;
             for (Class<?> entityClass : storeLogDataToCassandraAnnotation.value()) {
-                if (StoreLogDataToCassandra.DEFAULT.class == entityClass) {
-                    entities[i] = new DefaultCassandraEntity();
-                } else {
-                    try {
-                        entities[i] = entityClass.newInstance();
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        throw new StoreLogDataException(String.format(
-                            "Failed to instantiate cassandra entity%s. Please, check that class '%s' is not abstract and has a default constructor.",
-                            serviceMethod != null ? (" for method '" + MethodUtil
-                                .printQualifiedMethodName(serviceMethod) + "'") : StringUtils.EMPTY,
-                            entityClass.getTypeName()), e);
+                if (!storeLogData.isIgnorable(entityClass)) {
+                    if (StoreLogDataToCassandra.DEFAULT.class == entityClass) {
+                        entities.add(new DefaultCassandraEntity());
+                    } else {
+                        try {
+                            entities.add(entityClass.newInstance());
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            throw new StoreLogDataException(String.format(
+                                "Failed to instantiate cassandra entity%s. Please, check that class '%s' is not abstract and has a default constructor.",
+                                serviceMethod != null ? (" for method '" + MethodUtil
+                                    .printQualifiedMethodName(serviceMethod) + "'") : StringUtils.EMPTY,
+                                entityClass.getTypeName()), e);
+                        }
                     }
                 }
-                i++;
             }
         }
         for (Object entity : entities) {

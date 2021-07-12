@@ -46,7 +46,6 @@ public class StoreLogDataMapper {
         mappingAnnotations.add(Response.class);
         mappingAnnotations.add(ServiceName.class);
         mappingAnnotations.add(KafkaMessageHeader.class);
-        mappingAnnotations.add(WithStoreLogDataConverter.class);
 
         MAPPING_ANNOTATIONS = Collections.unmodifiableSet(mappingAnnotations);
     }
@@ -147,8 +146,6 @@ public class StoreLogDataMapper {
                         }
                 }
                 injectValue(storeLogData, target, annotation, annotatedElement, response);
-            } else if (annotation instanceof WithStoreLogDataConverter) {
-                withLogDataConverterInsertValue(storeLogData, target, annotation, annotatedElement);
             } else if (annotation instanceof KafkaMessageHeader) {
                 KafkaMessageHeader kafkaMessageHeader = (KafkaMessageHeader) annotation;
                 if (KafkaMessageHeader.Type.CONSUMER_RECORD.equals(kafkaMessageHeader.type())) {
@@ -183,12 +180,16 @@ public class StoreLogDataMapper {
             AnnotatedElement annotatedElement = entry.getValue();
             if (annotation instanceof Value) {
                 Value valueAnnotation = (Value) annotation;
-                String key = valueAnnotation.value();
-                injectValue(storeLogData,
-                    target,
-                    annotation,
-                    annotatedElement,
-                    storeLogData.getCustomValues().get(key));
+                if (StoreLogDataConverter.class.isAssignableFrom(valueAnnotation.converter())) {
+                    injectValue(storeLogData, target, annotation, annotatedElement, storeLogData);
+                } else {
+                    String key = valueAnnotation.value();
+                    injectValue(storeLogData,
+                        target,
+                        annotation,
+                        annotatedElement,
+                        storeLogData.getCustomValues().get(key));
+                }
             }
         }
     }
@@ -232,17 +233,22 @@ public class StoreLogDataMapper {
                     annotation.getClass().getTypeName()));
         }
 
-        if (!(DefaultConverter.class == converterClass || DefaultStringConverter.class == converterClass || DefaultDateConverter.class == converterClass)) {
+        if (!(NoConverter.class == converterClass || NoStringConverter.class == converterClass || NoDateConverter.class == converterClass)) {
             Converter<Object, Object> converter = null;
             try {
-                converter = (Converter<Object, Object>) converterClass.getDeclaredConstructor().newInstance();
+                converter = (Converter<Object, Object>) converterClass.getDeclaredConstructor(StoreLogData.class)
+                    .newInstance(storeLogData);
             } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    log.error(String.format(
-                        "Converter class instantiation is failed. Please, check that class '%s' is not abstract and has a default constructor.",
-                        converterClass.getTypeName()), e);
+                try {
+                    converter = (Converter<Object, Object>) converterClass.getDeclaredConstructor().newInstance();
+                } catch (Exception e1) {
+                    if (log.isErrorEnabled()) {
+                        log.error(String.format(
+                            "Converter class instantiation is failed. Please, check that class '%s' is not abstract and has a default constructor.",
+                            converterClass.getTypeName()), e1);
+                    }
+                    value = null;
                 }
-                value = null;
             }
             if (converter != null) {
                 try {
@@ -308,50 +314,6 @@ public class StoreLogDataMapper {
             return;
         }
         throw new IllegalStateException("Wrong type of annotated element! Only methods and fields are supported.");
-    }
-
-    @SuppressWarnings("unchecked")
-    private void withLogDataConverterInsertValue(StoreLogData storeLogData,
-            Object target,
-            Annotation annotation,
-            AnnotatedElement annotatedElement) {
-        WithStoreLogDataConverter withLogDataConverter = (WithStoreLogDataConverter) annotation;
-        QualifyPublisherType qualifyPublisherType = annotatedElement.getAnnotation(QualifyPublisherType.class);
-        if (qualifyPublisherType == null || matchPublisherType(qualifyPublisherType.value(),
-            storeLogData.getPublisherType())) {
-            Class<? extends StoreLogDataConverter<?>> converterClass = withLogDataConverter.converter();
-            StoreLogDataConverter<Object> converter;
-            try {
-                converter = (StoreLogDataConverter<Object>) converterClass.getDeclaredConstructor().newInstance();
-            } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    log.error(String.format(
-                        "LogDataConverter instantiation is failed. Please, check that class '%s' is not abstract and has a default constructor.",
-                        converterClass.getTypeName()), e);
-                }
-                return;
-            }
-            Object convertedValue;
-            try {
-                convertedValue = converter.convert(storeLogData);
-            } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    log.error(String.format(
-                        "Failed on type conversion for annotated element '%s'! Null value is used as a result.",
-                        getAnnotatedElementRef(annotatedElement)), e);
-                }
-                convertedValue = null;
-            }
-            try {
-                setValueWithAnnotatedElement(target, annotatedElement, convertedValue);
-            } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    log.error(String.format(
-                        "Failed on set a value! Please, check that the element '%s' is annotated correctly.",
-                        getAnnotatedElementRef(annotatedElement)), e);
-                }
-            }
-        }
     }
 
     private boolean matchPublisherType(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType[] value,

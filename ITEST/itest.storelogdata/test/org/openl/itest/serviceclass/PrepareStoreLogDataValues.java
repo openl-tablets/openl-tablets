@@ -2,9 +2,12 @@ package org.openl.itest.serviceclass;
 
 import java.util.Map;
 
+import org.openl.itest.cassandra.HelloEntity8;
+import org.openl.itest.elasticsearch.CustomElasticEntity8;
 import org.openl.rules.ruleservice.core.interceptors.IOpenClassAware;
 import org.openl.rules.ruleservice.core.interceptors.IOpenMemberAware;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 import org.openl.rules.ruleservice.storelogdata.advice.ObjectSerializerAware;
 import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
@@ -53,5 +56,8 @@ public class PrepareStoreLogDataValues implements StoreLogDataAdvice, ObjectSeri
         values.put("cassandraSessionFound", cassandraSession != null);
 
         values.put("elasticsearchOperationsFound", elasticsearchOperations != null);
+
+        StoreLogDataHolder.get().ignore(HelloEntity8.class);
+        StoreLogDataHolder.get().ignore(CustomElasticEntity8.class);
     }
 }

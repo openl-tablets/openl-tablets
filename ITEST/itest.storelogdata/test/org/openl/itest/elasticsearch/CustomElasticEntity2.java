@@ -13,7 +13,6 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
 import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
 import org.openl.rules.ruleservice.storelogdata.cassandra.TimeBasedUUID;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.JSONRequest;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.JSONResponse;
@@ -24,7 +23,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 public class CustomElasticEntity2 {
 
     @Id
-    @WithStoreLogDataConverter(converter = TimeBasedUUID.class)
+    @Value(converter = TimeBasedUUID.class)
     private String id;
 
     @IncomingTime
@@ -39,11 +38,11 @@ public class CustomElasticEntity2 {
     @Response
     private String responseBody;
 
-    @WithStoreLogDataConverter(converter = JSONRequest.class)
+    @Value(converter = JSONRequest.class)
     @QualifyPublisherType(PublisherType.RESTFUL)
     private Object request;
 
-    @WithStoreLogDataConverter(converter = JSONResponse.class)
+    @Value(converter = JSONResponse.class)
     @QualifyPublisherType(PublisherType.RESTFUL)
     private Object response;
 

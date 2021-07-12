@@ -17,8 +17,7 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
 import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
-import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
-import org.openl.rules.ruleservice.storelogdata.annotation.ZonedDataTimeToDateConvertor;
+import org.openl.rules.ruleservice.storelogdata.annotation.ZonedDateTimeToDateConvertor;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.JSONRequest;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.JSONResponse;
 import org.openl.rules.ruleservice.storelogdata.RandomUUID;
@@ -28,14 +27,14 @@ import org.springframework.data.elasticsearch.annotations.Document;
 @Document(indexName = "openl_log_custom_index_1")
 public class CustomElasticEntity1 {
 
-    @WithStoreLogDataConverter(converter = RandomUUID.class)
+    @Value(converter = RandomUUID.class)
     @Id
     private String id;
 
-    @IncomingTime(converter = ZonedDataTimeToDateConvertor.class)
+    @IncomingTime(converter = ZonedDateTimeToDateConvertor.class)
     private Date incomingTime;
 
-    @OutcomingTime(converter = ZonedDataTimeToDateConvertor.class)
+    @OutcomingTime(converter = ZonedDateTimeToDateConvertor.class)
     private Date outcomingTime;
 
     @Request
@@ -44,11 +43,11 @@ public class CustomElasticEntity1 {
     @Response
     private String responseBody;
 
-    @WithStoreLogDataConverter(converter = JSONRequest.class)
+    @Value(converter = JSONRequest.class)
     @QualifyPublisherType(PublisherType.RESTFUL)
     private Object request;
 
-    @WithStoreLogDataConverter(converter = JSONResponse.class)
+    @Value(converter = JSONResponse.class)
     @QualifyPublisherType(PublisherType.RESTFUL)
     private Object response;
 

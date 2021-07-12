@@ -11,5 +11,5 @@ import org.openl.rules.ruleservice.storelogdata.Converter;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(value = { ElementType.FIELD, ElementType.METHOD })
 public @interface OutcomingTime {
-    Class<? extends Converter<ZonedDateTime, ?>> converter() default DefaultDateConverter.class;
+    Class<? extends Converter<ZonedDateTime, ?>> converter() default NoDateConverter.class;
 }
