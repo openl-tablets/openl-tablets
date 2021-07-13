@@ -970,10 +970,12 @@
             if (needRedirect) {
                 ws.nav.go("#{studio.url()}", true);
             }
+            setTimeout(checkModification, 10000); // Time in milliseconds
         });
 
         function checkModification() {
-            $j.ajax({
+            const $jq = jQuery.noConflict();
+            $jq.ajax({
                 url: "#{contextPath}/web/module/isModified",
                 datatype: "text",
                 timeout: 5000
@@ -983,12 +985,11 @@
                         forceReload(); // from the topPanel.xhtml
                     }
                 })
-                .complete(function () {
+                .always(function () {
                     setTimeout(checkModification, 5000)
                 });
         }
 
-        setTimeout(checkModification, 10000);//time in milliseconds
     //]]>
     </script>
 
