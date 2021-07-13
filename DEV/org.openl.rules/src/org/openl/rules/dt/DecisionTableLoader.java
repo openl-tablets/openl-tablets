@@ -6,6 +6,7 @@ import static org.openl.rules.dt.DecisionTableHelper.isSmart;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,6 +30,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -488,6 +490,9 @@ public class DecisionTableLoader {
         }
         List<SyntaxNodeException> errors = bindingContext.popErrors();
         Collection<OpenLMessage> messages = bindingContext.popMessages();
+
+        filterErrorsAndMessagesNotRelatedToThisTable(tableSyntaxNode, errors, messages, bindingContext);
+
         DecisionTableMetaInfoReader.MetaInfoHolder metaInfos = null;
         if (decisionTableMetaInfoReader != null) {
             metaInfos = decisionTableMetaInfoReader.popMetaInfos();
@@ -502,12 +507,43 @@ public class DecisionTableLoader {
         return new CompilationErrors(errors, messages, metaInfos, ex);
     }
 
+    private void filterErrorsAndMessagesNotRelatedToThisTable(TableSyntaxNode tableSyntaxNode,
+            List<SyntaxNodeException> errors,
+            Collection<OpenLMessage> messages,
+            IBindingContext bindingContext) {
+        Iterator<SyntaxNodeException> errorItr = errors.iterator();
+        while (errorItr.hasNext()) {
+            SyntaxNodeException error = errorItr.next();
+            try {
+                XlsUrlParser xlsUrlParser = new XlsUrlParser(error.getSourceLocation());
+                if (!tableSyntaxNode.getUriParser().intersects(xlsUrlParser)) {
+                    bindingContext.addError(error);
+                    errorItr.remove();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        Iterator<OpenLMessage> messagesItr = messages.iterator();
+        while (messagesItr.hasNext()) {
+            OpenLMessage message = messagesItr.next();
+            try {
+                XlsUrlParser xlsUrlParser = new XlsUrlParser(message.getSourceLocation());
+                if (!tableSyntaxNode.getUriParser().intersects(xlsUrlParser)) {
+                    bindingContext.addMessage(message);
+                    messagesItr.remove();
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     private void validateReturnType(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             TableStructure tableStructure) throws SyntaxNodeException {
         if (tableStructure.actions.isEmpty()) {
-            throw SyntaxNodeExceptionUtils
-                .createError("Invalid Decision Table headers: At least one return column header is required.", tableSyntaxNode);
+            throw SyntaxNodeExceptionUtils.createError(
+                "Invalid Decision Table headers: At least one return column header is required.",
+                tableSyntaxNode);
         }
         if (NullOpenClass.isAnyNull(decisionTable.getType())) {
             return;
