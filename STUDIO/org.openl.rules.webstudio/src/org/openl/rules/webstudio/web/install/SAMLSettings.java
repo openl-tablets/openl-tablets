@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.install;
 
 public class SAMLSettings {
     private String webStudioUrl;
+    private String entityId;
     private String samlServerMetadataUrl;
     private int requestTimeout;
     private final String keystoreFilePath;
@@ -25,6 +26,7 @@ public class SAMLSettings {
     private String serverCertificate;
 
     public SAMLSettings(String webStudioUrl,
+            String entityId,
             String samlServerMetadataUrl,
             int requestTimeout,
             String keystoreFilePath,
@@ -47,6 +49,7 @@ public class SAMLSettings {
             boolean isAppAfterBalancer,
             String serverCertificate) {
         this.webStudioUrl = webStudioUrl;
+        this.entityId = entityId;
         this.samlServerMetadataUrl = samlServerMetadataUrl;
         this.requestTimeout = requestTimeout;
         this.keystoreFilePath = keystoreFilePath;
@@ -76,6 +79,14 @@ public class SAMLSettings {
 
     public void setWebStudioUrl(String webStudioUrl) {
         this.webStudioUrl = webStudioUrl;
+    }
+
+    public String getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(String entityId) {
+        this.entityId = entityId;
     }
 
     public String getSamlServerMetadataUrl() {
