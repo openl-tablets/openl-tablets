@@ -4,6 +4,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.dt.IBaseDecisionRow;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -33,6 +34,8 @@ public interface IDecisionRow extends IBaseDecisionRow {
     boolean isAction();
 
     boolean isCondition();
+
+    ILogicalTable getInfoTable();
 
     void prepareParams(OpenL openl, IBindingContext bindingContext);
 

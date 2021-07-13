@@ -1,6 +1,8 @@
 package org.openl.rules.dt.algorithm;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -23,6 +25,7 @@ import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.rules.dt.element.RuleRow;
+import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
@@ -120,12 +123,36 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
     }
 
+    private void prepareParams(IDecisionRow decisionRow,
+            IBindingContext bindingContext,
+            Map<String, Boolean> usedHeaderNames) {
+        Boolean v = usedHeaderNames.get(decisionRow.getName());
+        if (v == null) {
+            usedHeaderNames.put(decisionRow.getName(), Boolean.FALSE);
+        } else if (Boolean.FALSE.equals(v)) {
+            usedHeaderNames.put(decisionRow.getName(), Boolean.TRUE);
+            String columnType = "Condition";
+            if (decisionRow instanceof IBaseAction) {
+                IBaseAction baseAction = (IBaseAction) decisionRow;
+                columnType = baseAction.isReturnAction() ? "Return" : "Action";
+            }
+            GridCellSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(
+                decisionRow.getInfoTable().getSource(),
+                bindingContext);
+            BindHelper.processError(String.format("%s '%s' is already defined.", columnType, decisionRow.getName()),
+                cellSourceCodeModule,
+                bindingContext);
+        }
+        decisionRow.prepareParams(openl, bindingContext);
+    }
+
     private void prepareCondAndActionParams(IBindingContext bindingContext) {
+        Map<String, Boolean> usedHeaderNames = new HashMap<>();
         for (IBaseCondition condition : table.getConditionRows()) {
-            ((IDecisionRow) condition).prepareParams(openl, bindingContext);
+            prepareParams((IDecisionRow) condition, bindingContext, usedHeaderNames);
         }
         for (IBaseAction action : table.getActionRows()) {
-            ((IDecisionRow) action).prepareParams(openl, bindingContext);
+            prepareParams((IDecisionRow) action, bindingContext, usedHeaderNames);
         }
     }
 
