@@ -529,6 +529,16 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     FileData local = lp.getFileData();
                     LocalRepository repository = (LocalRepository) lp.getRepository();
 
+                    // Project can be closed during refresh. See closeProject variable above.
+                    try {
+                        if (repository.check(local.getName()) == null) {
+                            continue;
+                        }
+                    } catch (IOException e) {
+                        log.warn(e.getMessage(), e);
+                        continue;
+                    }
+
                     ProjectState state = repository.getProjectState(lp.getFolderPath());
                     if (state != null) {
                         if (!LocalWorkspaceImpl.LOCAL_ID.equals(state.getRepositoryId())) {
