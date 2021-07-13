@@ -7,7 +7,6 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -22,7 +21,6 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
@@ -47,7 +45,6 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
-import org.openl.validation.ValidatedCompiledOpenClass;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -203,8 +200,9 @@ public class WorkspaceCompileService {
         TestSuiteMethod[] allTestMethods = model.getAllTestMethods();
         moduleTestsInfo.put("count", CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0);
         moduleTestsInfo.put("compiled", model.isProjectCompilationCompleted());
-        moduleTestsInfo.put("openCurrentModuleOnly",
-            moduleInfo != null ? moduleInfo.getOpenCurrentModuleOnly() : false);
+        moduleTestsInfo.put("tableRunState",
+            (moduleInfo != null && moduleInfo.getOpenCurrentModuleOnly()) ? TableRunState.CAN_RUN_MODULE
+                                                                          : TableRunState.CAN_RUN);
         return moduleTestsInfo;
     }
 
@@ -234,24 +232,31 @@ public class WorkspaceCompileService {
     }
 
     @GET
-    @Path("table/{tableId}/{openedModule}")
-    public Map<String, Object> table(@PathParam("tableId") final String tableId,
-            @PathParam("openedModule") final boolean openedModule) {
+    @Path("table/{tableId}")
+    public Map<String, Object> table(@PathParam("tableId") final String tableId) {
         Map<String, Object> tableInfo = new HashMap<>();
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         ProjectModel model = webStudio.getModel();
-        Module moduleInfo = model.getModuleInfo();
         IOpenLTable table = model.getTableById(tableId);
+        Module moduleInfo = model.getModuleInfo();
+        boolean projectCompiled = model.isProjectCompilationCompleted();
+        TableRunState state = (model.getModuleInfo() != null && moduleInfo
+            .getOpenCurrentModuleOnly()) || !projectCompiled ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN;
         if (table != null) {
             String tableUri = table.getUri();
-            List<OpenLMessage> errors;
+            List<OpenLMessage> errors = model.getOpenedModuleMessagesByTsn(tableUri, Severity.ERROR);
             List<OpenLMessage> warnings;
-            if (openedModule) {
-                errors = new ArrayList<>(model.getOpenedModuleMessagesByTsn(tableUri, Severity.ERROR));
-                warnings = new ArrayList<>(model.getOpenedModuleMessagesByTsn(tableUri, Severity.WARN));
+            if (!errors.isEmpty()) {
+                state = TableRunState.CANNOT_RUN;
+            }
+            if (projectCompiled) {
+                errors = model.getMessagesByTsn(tableUri, Severity.ERROR);
+                warnings = model.getMessagesByTsn(tableUri, Severity.WARN);
+                if (TableRunState.CAN_RUN.equals(state) && !errors.isEmpty()) {
+                    state = TableRunState.CAN_RUN_MODULE;
+                }
             } else {
-                errors = new ArrayList<>(model.getMessagesByTsn(tableUri, Severity.ERROR));
-                warnings = new ArrayList<>(model.getMessagesByTsn(tableUri, Severity.WARN));
+                warnings = model.getOpenedModuleMessagesByTsn(tableUri, Severity.WARN);
             }
 
             if (warnings.size() >= MAX_PROBLEMS) {
@@ -271,6 +276,7 @@ public class WorkspaceCompileService {
                 targetTableUrlPairs.add(Pair.of(webStudio.url("table", targetTable.getUri()), targetTable));
                 if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
                     warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
+                    state = TableRunState.CANNOT_RUN;
                     break;
                 }
             }
@@ -278,7 +284,7 @@ public class WorkspaceCompileService {
             tableInfo.put("warnings", OpenLTableLogic.processTableProblems(warnings, model, webStudio));
             tableInfo.put("targetTables", targetTableUrlPairs);
             tableInfo.put("tableUrl", webStudio.url("table"));
-            tableInfo.put("openCurrentModuleOnly", moduleInfo != null ? moduleInfo.getOpenCurrentModuleOnly() : false);
+            tableInfo.put("tableRunState", state);
         }
         return tableInfo;
     }
@@ -322,5 +328,11 @@ public class WorkspaceCompileService {
     private class MessageCounter {
         int warningsCount = 0;
         int errorsCount = 0;
+    }
+
+    private enum TableRunState {
+        CAN_RUN,
+        CAN_RUN_MODULE,
+        CANNOT_RUN
     }
 }

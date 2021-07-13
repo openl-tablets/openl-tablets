@@ -338,7 +338,6 @@
 
     <div id="tableToolbarPanel">
         <input type="hidden" id="tableHasProblems" value="false" />
-        <input type="hidden" id="openCurrentModuleOnlyTable" value="false" />
         <table>
             <tr>
 
@@ -1142,7 +1141,7 @@
                 });
         });
 
-         updatePageRest(true);
+         updatePageRest();
          (function updateOnCompiled() {
              compiled(function (data) {
                  if (data !== true) {
@@ -1153,31 +1152,29 @@
              });
          })();
 
-         function updatePageRest(opened) {
+         function updatePageRest() {
               $jq.ajax({
-                  url: "#{contextPath}/web/compile/table/#{tableBean.id}/" + opened,
+                  url: "#{contextPath}/web/compile/table/#{tableBean.id}",
                   datatype: "json"
               })
               .done(function (data) {
-                  $j("#openCurrentModuleOnlyTable").val(data.openCurrentModuleOnly);
-                  const hasProblems = data.warnings.length > 0 || data.errors.length > 0;
-                  if ((hasProblems || #{tableBean.tablePart and studio.model.editable})) {
+                  if (data.warnings.length > 0 || data.errors.length > 0 || #{tableBean.tablePart and studio.model.editable}) {
                       $jq(".table-problems").show()
                   }
-                  if (data.errors.length > 0 && opened) {
+                  if (data.tableRunState === 'CANNOT_RUN') {
                       $j(".on-errors-hide").hide();
                   }
                   applyTargetTables(data.targetTables);
                   applyProblems(data.errors, data.warnings, data.tableUrl);
-                  applyRunOpenedModuleCheckboxes(!opened, hasProblems);
+                  applyRunOpenedModuleCheckboxes(data.tableRunState);
               });
          }
 
-        function applyRunOpenedModuleCheckboxes(compiled, hasProblems) {
+        function applyRunOpenedModuleCheckboxes(tableRunState) {
             const runTestModuleOnly = $j("#runTestModuleOnly");
             const runTestModuleOnlyInputArgs = $j("#runTestModuleOnlyInputArgs");
             const testModuleOnlyField = $j("#testModuleOnlyField");
-            if (compiled && !hasProblems && $j("#openCurrentModuleOnlyTable").val() !== 'true') {
+            if (tableRunState === 'CAN_RUN') {
                 runTestModuleOnly.prop('checked', false);
                 runTestModuleOnly.prop('disabled', false);
                 runTestModuleOnlyInputArgs.prop('checked', false);

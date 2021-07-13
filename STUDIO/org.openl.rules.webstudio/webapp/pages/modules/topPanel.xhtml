@@ -51,7 +51,7 @@
     </h:panelGroup>
 
     <h:form id="headerForm" prependId="false" styleClass="navbar">
-        <input type="hidden" id="openCurrentModuleOnlyTopPanel" value="false" />
+        <input type="hidden" id="tableRunState" value="CAN_RUN" />
         <div class="breadcrumbs" style="margin-right:15px">
             <a href="#{contextPath}/" class="changes-listener">Projects</a>
             <h:panelGroup rendered="#{!empty rProject.name}">
@@ -289,7 +289,7 @@
                 datatype: "text"
             })
                 .done(function (data) {
-                  $j("#openCurrentModuleOnlyTopPanel").val(data.openCurrentModuleOnly);
+                  $j("#tableRunState").val(data.tableRunState);
                     data.count > 0 ? $j('.test-section').show() : $j('.test-section').hide();
                     if (document.getElementById("testCountSpan") !== null) {
                         document.getElementById("testCountSpan").textContent = data.count;
@@ -313,7 +313,7 @@
         function onTestOpen() {
             compiled(function(data) {
                 var testModuleOnlyField = $j("#testModuleOnlyField");
-                if (compiled && $j("#openCurrentModuleOnlyTopPanel").val() !== 'true') {
+                if (compiled && $j("#tableRunState").val() === 'CAN_RUN') {
                     testModuleOnlyField.prop('checked', false);
                     testModuleOnlyField.prop('disabled', false);
                 } else {
