@@ -193,7 +193,8 @@ public class DecisionTableLoader {
                         // Select compilation with less errors count for smart tables
                         if (isNotUnmatchedTableError(
                             altLoadAndBindErrors) && loadAndBindErrors.getBindingSyntaxNodeException()
-                                .size() > altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
+                                .size() > altLoadAndBindErrors.getBindingSyntaxNodeException()
+                                    .size() && isExceptionIsNotWorse(loadAndBindErrors, altLoadAndBindErrors)) {
                             putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
                             altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
                             if (altLoadAndBindErrors.getEx() != null) {
@@ -222,6 +223,14 @@ public class DecisionTableLoader {
                 throw loadAndBindErrors.getEx();
             }
         }
+    }
+
+    private boolean isExceptionIsNotWorse(CompilationErrors loadAndBindErrors, CompilationErrors altLoadAndBindErrors) {
+        boolean alt = altLoadAndBindErrors
+            .getEx() != null && !(altLoadAndBindErrors.getEx() instanceof OpenLCompilationException);
+        boolean orig = loadAndBindErrors
+            .getEx() != null && !(loadAndBindErrors.getEx() instanceof OpenLCompilationException);
+        return orig || !alt;
     }
 
     private boolean isNotUnmatchedTableError(CompilationErrors altLoadAndBindErrors) {
