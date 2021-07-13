@@ -123,6 +123,15 @@
         </div>
         </h:panelGroup>
 
+        <h:panelGroup rendered="#{studio.model.corruptedModuleCanBeFixed}">
+            <p>
+                <span class="error">The module is corrupted. Do you want to try to recover it?</span>
+                <h:form>
+                    <a4j:commandButton value="Recover" action="#{studio.model.fixCorruptedModule()}" oncomplete="ws.nav.go('#{studio.url()}', true);"/>
+                </h:form>
+            </p>
+        </h:panelGroup>
+
     </div>
 
     <c:if test="#{editable}">

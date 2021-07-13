@@ -100,6 +100,7 @@
         <io.swagger.core.v3.version>2.1.3</io.swagger.core.v3.version>
         <log4j.version>2.14.1</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
+        <!-- TODO: when update version check https://bz.apache.org/bugzilla/show_bug.cgi?id=64473 . If it's fixed, remove POIFixer class. -->
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
         <org.bouncycastle.version>1.69</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.11.4</com.fasterxml.jackson.version>
