@@ -686,7 +686,8 @@ public final class DecisionTableHelper {
         }
     }
 
-    private static void writeInputParametersToReturn(DecisionTable decisionTable,
+    private static void writeInputParametersToReturn(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
             FuzzyContext fuzzyContext,
             List<DTHeader> dtHeaders,
             Set<String> generatedNames,
@@ -732,8 +733,27 @@ public final class DecisionTableHelper {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
                     .fuzzyExtract(token.getValue(), fuzzyContext.getParameterTokens().getTokens(), false);
                 for (FuzzyResult fuzzyResult : fuzzyResults) {
-                    List<Pair<IOpenField[], FuzzyResult>> resultList = bestFuzzyResultsMap
-                        .computeIfAbsent(fuzzyResult.getToken(), e -> new ArrayList<>());
+                    final int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(fuzzyResult.getToken());
+                    final IOpenField[] paramFieldsChain = fuzzyContext.getParameterTokens()
+                        .getFieldsChain(fuzzyResult.getToken());
+                    List<Pair<IOpenField[], FuzzyResult>> resultList = bestFuzzyResultsMap.get(fuzzyResult.getToken());
+                    if (resultList == null) {
+                        resultList = bestFuzzyResultsMap.entrySet()
+                            .stream()
+                            .filter(e -> {
+                                final int eParamIndex = fuzzyContext.getParameterTokens().getParameterIndex(e.getKey());
+                                return paramIndex == eParamIndex && OpenLFuzzyUtils.isEqualsFieldsChains(
+                                    paramFieldsChain,
+                                    fuzzyContext.getParameterTokens().getFieldsChain(e.getKey()));
+                            })
+                            .map(Entry::getValue)
+                            .findFirst()
+                            .orElse(null);
+                        if (resultList == null) {
+                            resultList = new ArrayList<>();
+                            bestFuzzyResultsMap.put(fuzzyResult.getToken(), resultList);
+                        }
+                    }
                     if (resultList.isEmpty()) {
                         resultList.add(Pair.of(fieldsChain, fuzzyResult));
                     } else {
@@ -747,6 +767,7 @@ public final class DecisionTableHelper {
                             for (Pair<IOpenField[], FuzzyResult> pair : resultList) {
                                 if (OpenLFuzzyUtils.isEqualsFieldsChains(pair.getKey(), fieldsChain)) {
                                     f = false;
+                                    break;
                                 }
                             }
                             if (f) {
@@ -758,6 +779,7 @@ public final class DecisionTableHelper {
             }
         }
 
+        Map<String, Set<String>> ambiguousReturnStatementMatching = new HashMap<>();
         for (Entry<Token, List<Pair<IOpenField[], FuzzyResult>>> entry : bestFuzzyResultsMap.entrySet()) {
             Token paramToken = entry.getKey();
             for (Pair<IOpenField[], FuzzyResult> pair : entry.getValue()) {
@@ -785,18 +807,26 @@ public final class DecisionTableHelper {
                             statement,
                             variableAssignments,
                             sb);
+                        final String statementInReturn = fuzzyContext.getFuzzyReturnType()
+                            .getName() + "." + buildStatementByFieldsChain(fuzzyContext.getFuzzyReturnType(),
+                                fieldsChain).getKey();
+                        Set<String> matchedStatements = ambiguousReturnStatementMatching
+                            .computeIfAbsent(statementInReturn, k -> new HashSet<>());
+                        matchedStatements.add(statement);
                         if (!bindingContext.isExecutionMode()) {
-                            final String statementInReturn = fuzzyContext.getFuzzyReturnType()
-                                .getName() + "." + buildStatementByFieldsChain(fuzzyContext.getFuzzyReturnType(),
-                                    fieldsChain).getKey();
                             writeInputParametersToReturnMetaInfo(decisionTable, statement, statementInReturn);
                         }
-
                     }
                 }
             }
         }
 
+        ambiguousReturnStatementMatching.entrySet()
+            .stream()
+            .filter(e -> e.getValue().size() > 1)
+            .forEach(e -> bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
+                String.format("More than one input parameter is set to return '%s'.", e.getKey()),
+                tableSyntaxNode)));
     }
 
     private static void writeFuzzyReturns(TableSyntaxNode tableSyntaxNode,
@@ -838,7 +868,8 @@ public final class DecisionTableHelper {
         String[] compoundColumnParamNames = generatedNames.toArray(new String[] {});
         Map<String, Map<IOpenField, String>> variables = new HashMap<>();
 
-        writeInputParametersToReturn(decisionTable,
+        writeInputParametersToReturn(tableSyntaxNode,
+            decisionTable,
             fuzzyContext,
             dtHeaders,
             generatedNames,
