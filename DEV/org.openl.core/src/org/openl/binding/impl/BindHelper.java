@@ -155,8 +155,7 @@ public final class BindHelper {
             }
         } else if (field instanceof ArrayLengthOpenField) {
             processWarn(
-                "DEPRECATED 'length' field for arrays will be removed in the next version. " +
-                    "Use length() function instead.",
+                "DEPRECATED 'length' field for arrays will be removed in the next version. " + "Use length() function instead.",
                 node,
                 context);
         }
@@ -206,11 +205,7 @@ public final class BindHelper {
     }
 
     public static void processWarn(String message, ISyntaxNode source, IBindingContext bindingContext) {
-        if (bindingContext.isExecutionMode()) {
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message));
-        } else {
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, source));
-        }
+        bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, source));
     }
 
     /**
