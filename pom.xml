@@ -79,7 +79,7 @@
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <org.springframework.version>5.3.8</org.springframework.version>
-        <org.springsecurity.version>5.5.0</org.springsecurity.version>
+        <org.springsecurity.version>5.5.1</org.springsecurity.version>
         <org.hibernate.version>5.4.32.Final</org.hibernate.version>
         <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
             At the time of writing the latest official version is 2.3.9.
