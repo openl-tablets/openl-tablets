@@ -276,7 +276,7 @@
         //<![CDATA[
         // TODO Add to namespace
         function getGlobalTestQuery() {
-            var query = '';
+            var query = $j("#testSettings").find("select,input").serialize();
             jQuery('#testSettings').find('input[type=checkbox]').each(function () {
                 query += '&' + this.name + '=' + this.checked;
             });
