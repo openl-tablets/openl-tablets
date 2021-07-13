@@ -21,20 +21,15 @@ final class JavaDownCast implements IOpenCast {
         if (from == null) {
             return null;
         }
-        if (from.getClass().isAssignableFrom(to.getInstanceClass())) {
+        if (to.getInstanceClass().isAssignableFrom(from.getClass())) {
             return from;
         } else {
-            // Allow upcast if posible
-            if (to.getInstanceClass().isAssignableFrom(from.getClass())) {
-                return from;
-            } else {
-                IOpenCast openCast = castFactory.getCast(JavaOpenClass.getOpenClass(from.getClass()), to);
-                if (openCast != null && !(openCast instanceof JavaDownCast)) {
-                    return openCast.convert(from);
-                }
-                throw new ClassCastException(String
-                    .format("Cannot cast from '%s' to '%s'.", from.getClass().getTypeName(), to.getDisplayName(0)));
+            IOpenCast openCast = castFactory.getCast(JavaOpenClass.getOpenClass(from.getClass()), to);
+            if (openCast != null && !(openCast instanceof JavaDownCast)) {
+                return openCast.convert(from);
             }
+            throw new ClassCastException(
+                String.format("Cannot cast from '%s' to '%s'.", from.getClass().getTypeName(), to.getDisplayName(0)));
         }
     }
 
