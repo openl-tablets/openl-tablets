@@ -125,4 +125,8 @@ public class FieldBoundNode extends ATargetBoundNode {
         dependencies.addFieldDependency(boundField, this);
     }
 
+    @Override
+    public int getDims() {
+        return dims;
+    }
 }

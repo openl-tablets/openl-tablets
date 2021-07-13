@@ -1,0 +1,2 @@
+ERROR: Multi-reference assignment is not supported.
+ERROR: Multi-reference assignment is not supported.

@@ -45,4 +45,8 @@ public interface IBoundNode {
 
     void updateDependency(BindingDependencies dependencies);
 
+    default int getDims() {
+        return 0;
+    }
+
 }

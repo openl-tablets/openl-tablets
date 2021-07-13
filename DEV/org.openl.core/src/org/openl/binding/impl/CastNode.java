@@ -70,4 +70,9 @@ public class CastNode extends ABoundNode {
     public boolean isLvalue() {
         return children[0].isLvalue();
     }
+
+    @Override
+    public int getDims() {
+        return children[0].getDims();
+    }
 }
