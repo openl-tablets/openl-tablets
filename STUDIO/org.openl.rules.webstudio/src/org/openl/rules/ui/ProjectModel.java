@@ -117,7 +117,7 @@ public class ProjectModel {
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
     private final Collection<XlsModuleSyntaxNode> currentProjectXlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
-    private WorkbookSyntaxNode[] workbookSyntaxNodes;
+    private final Collection<WorkbookSyntaxNode> workbookSyntaxNodes = ConcurrentHashMap.newKeySet();
 
     private Module moduleInfo;
     private long moduleLastModified;
@@ -497,7 +497,7 @@ public class ProjectModel {
      * 
      * @return all workbooks
      */
-    public WorkbookSyntaxNode[] getAllWorkbookNodes() {
+    public Collection<WorkbookSyntaxNode> getAllWorkbookNodes() {
         if (!isCompiledSuccessfully()) {
             return null;
         }
@@ -1009,7 +1009,7 @@ public class ProjectModel {
         allXlsModuleSyntaxNodes.clear();
         currentProjectXlsModuleSyntaxNodes.clear();
         projectRoot = null;
-        workbookSyntaxNodes = null;
+        workbookSyntaxNodes.clear();
     }
 
     public void setModuleInfo(Module moduleInfo) throws Exception {
@@ -1045,6 +1045,17 @@ public class ProjectModel {
         }
     }
 
+    private void addWorkbookSyntaxNodes(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
+        IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+        if (metaInfo instanceof XlsMetaInfo) {
+            XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) metaInfo;
+            XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
+            if (xlsModuleSyntaxNode != null && !(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
+                workbookSyntaxNodes.addAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
+            }
+        }
+    }
+
     public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
         if (moduleInfo == null || this.moduleInfo == moduleInfo && reloadType == ReloadType.NO) {
             return;
@@ -1073,7 +1084,7 @@ public class ProjectModel {
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
         currentProjectXlsModuleSyntaxNodes.clear();
-        workbookSyntaxNodes = null;
+        workbookSyntaxNodes.clear();
 
         prepareWorkspaceDependencyManager();
 
@@ -1099,13 +1110,6 @@ public class ProjectModel {
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
 
-            List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<>();
-            for (XlsModuleSyntaxNode xlsSyntaxNode : allXlsModuleSyntaxNodes) {
-                if (!(xlsSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
-                    workbookSyntaxNodes.addAll(Arrays.asList(xlsSyntaxNode.getWorkbookSyntaxNodes()));
-                }
-            }
-            this.workbookSyntaxNodes = workbookSyntaxNodes.toArray(new WorkbookSyntaxNode[0]);
             // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode does not contain Virtual Module with dispatcher
             // table syntax nodes.
             // Such dispatcher syntax nodes are needed to show dispatcher tables in Trace.
@@ -1177,6 +1181,7 @@ public class ProjectModel {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                 .buildDependencyManager(this.moduleInfo.getProject());
             webStudioWorkspaceDependencyManager.registerListener(this::addSyntaxNodes);
+            webStudioWorkspaceDependencyManager.registerListener(this::addWorkbookSyntaxNodes);
         } else {
             List<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
                 .resolveWorkspace(this.moduleInfo.getProject());
@@ -1200,6 +1205,7 @@ public class ProjectModel {
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                         .buildDependencyManager(this.moduleInfo.getProject());
                     webStudioWorkspaceDependencyManager.registerListener(this::addSyntaxNodes);
+                    webStudioWorkspaceDependencyManager.registerListener(this::addWorkbookSyntaxNodes);
                 } else {
                     // If loaded projects are a part of the new opened project, then we can reuse dependency manager
                     webStudioWorkspaceDependencyManager.expand(
