@@ -88,6 +88,7 @@
                       <h:selectOneMenu value="#{repositoryDiffController.branch}">
                         <f:selectItems value="#{repositoryTreeController.projectBranches}"/>
                         <f:ajax event="change" action="#{repositoryDiffController.initProjectRepo}"
+                                execute="@this repositoryRevision repositoryExcelCombo"
                                 render="repositoryRevision repositoryExcelCombo compareBtn"/>
                       </h:selectOneMenu>
                     </td>
@@ -101,7 +102,8 @@
                   <h:selectOneMenu id="repositoryRevision" value="#{repositoryDiffController.selectedVersionRepo}">
                     <f:selectItems value="#{repositoryTreeController.toSelectItems(repositoryDiffController.versionsRepo)}"/>
                     <f:ajax event="change" action="#{repositoryDiffController.initProjectRepo}"
-                      render="repositoryExcelCombo compareBtn" />
+                            execute="@this repositoryExcelCombo"
+                            render="repositoryExcelCombo compareBtn" />
                   </h:selectOneMenu>
                 </td>
               </tr>
