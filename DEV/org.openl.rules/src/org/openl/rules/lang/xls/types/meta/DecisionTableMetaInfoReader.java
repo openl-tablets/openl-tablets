@@ -221,7 +221,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             IGridRegion region,
             Function<HeaderMetaInfo, String> headerToString) {
         if (headerMetaInfos.size() > 2) {
-            throw new IllegalStateException();
+            return;
         }
         int row = key.getRow();
         int col = key.getColumn();
