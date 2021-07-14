@@ -277,13 +277,13 @@ public class WorkspaceCompileService {
                 if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
                     warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
                     if (!TableRunState.CANNOT_RUN.equals(state) && model
-                        .getOpenedModuleMessagesByTsn(tableUri, Severity.ERROR)
+                        .getOpenedModuleMessagesByTsn(targetTable.getUri(), Severity.ERROR)
                         .isEmpty()) {
                         state = TableRunState.CAN_RUN_MODULE;
                     } else {
                         state = TableRunState.CANNOT_RUN;
+                        break;
                     }
-                    break;
                 }
             }
             tableInfo.put("errors", OpenLTableLogic.processTableProblems(errors, model, webStudio));
