@@ -2042,7 +2042,7 @@ public final class DecisionTableHelper {
                         w,
                         h,
                         hTitle,
-                        sourceTableColumn,
+                        sourceTableColumn + originalTable.getSource().getCell(sourceTableColumn, 0).getWidth(),
                         1,
                         1,
                         fuzzyResults,
@@ -2186,7 +2186,7 @@ public final class DecisionTableHelper {
                     title,
                     fieldsChain,
                     sourceTableColumn,
-                    horizontal > 0 ? sourceTableColumn + horizontal : sourceTableColumn + w,
+                    horizontal > 0 ? sourceTableColumn + horizontal - 1 : sourceTableColumn + w,
                     h,
                     horizontal > 0 ? 1 : w0,
                     horizontal > 0 ? 1 : widthForMerge,
@@ -2205,7 +2205,7 @@ public final class DecisionTableHelper {
                         title,
                         new IOpenField[] {},
                         sourceTableColumn,
-                        horizontal > 0 ? sourceTableColumn + horizontal : sourceTableColumn,
+                        horizontal > 0 ? sourceTableColumn + horizontal - 1 : sourceTableColumn,
                         h,
                         horizontal > 0 ? 1 : w0,
                         horizontal > 0 ? 1 : widthForMerge,
@@ -2947,35 +2947,43 @@ public final class DecisionTableHelper {
         }
 
         if (ret < w - 1) {
-            int r = Math.max(ret, 0);
-            String value = originalTable.getSource().getCell(r, firstColumnHeight - 1).getStringValue();
-            if (StringUtils.isNotBlank(value) && value.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)) {
-                String part1 = value.substring(0, value.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER));
-                String part2 = value.substring(value.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) + 1);
-                if (StringUtils.isNotBlank(part1) && StringUtils.isNotBlank(part2)) {
-                    return Pair.of(r + 1, WithVerticalTitles.SLASH_IN_TITLE);
+            int begin = Math.max(ret, 0);
+            int end = begin > 0 ? begin + 1 : originalTable.getSource().getWidth();
+            int i = begin;
+            while (i < end) {
+                String value = originalTable.getSource().getCell(i, firstColumnHeight - 1).getStringValue();
+                if (StringUtils.isNotBlank(value) && value.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)) {
+                    String part1 = value.substring(0, value.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER));
+                    String part2 = value.substring(value.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) + 1);
+                    if (StringUtils.isNotBlank(part1) && StringUtils.isNotBlank(part2)) {
+                        return Pair.of(i + originalTable.getSource().getCell(i, 0).getWidth(),
+                            WithVerticalTitles.SLASH_IN_TITLE);
+                    }
                 }
-            }
-            int h = firstColumnHeight;
-            boolean allEmpty = firstColumnHeight < originalTable.getSource().getHeight();
-            while (h < originalTable.getSource().getHeight()) {
-                String v = originalTable.getSource().getCell(r, h).getStringValue();
-                if (StringUtils.isNotBlank(v)) {
-                    allEmpty = false;
-                    break;
+                int h = firstColumnHeight;
+                boolean allEmpty = firstColumnHeight < originalTable.getSource().getHeight();
+                while (h < originalTable.getSource().getHeight()) {
+                    String v = originalTable.getSource().getCell(i, h).getStringValue();
+                    if (StringUtils.isNotBlank(v)) {
+                        allEmpty = false;
+                        break;
+                    }
+                    h = h + originalTable.getSource().getCell(i, h).getHeight();
                 }
-                h = h + originalTable.getSource().getCell(r, h).getHeight();
-            }
-            if (allEmpty) {
-                return Pair.of(r + 1, WithVerticalTitles.EMPTY_COLUMN);
-            }
-            if (r > 0) {
-                h = firstColumnHeight;
-                if (originalTable.getSource().getCell(r - 1, h).getWidth() > originalTable.getSource()
-                    .getCell(r - 1, h - 1)
-                    .getWidth()) {
-                    return Pair.of(r + 1, WithVerticalTitles.MERGED_COLUMN);
+                if (allEmpty) {
+                    return Pair.of(i + originalTable.getSource().getCell(i, 0).getWidth(),
+                        WithVerticalTitles.EMPTY_COLUMN);
                 }
+                if (i > 0) {
+                    h = firstColumnHeight;
+                    if (originalTable.getSource().getCell(i - 1, h).getWidth() > originalTable.getSource()
+                        .getCell(i - 1, h - 1)
+                        .getWidth()) {
+                        return Pair.of(i + originalTable.getSource().getCell(i, 0).getWidth(),
+                            WithVerticalTitles.MERGED_COLUMN);
+                    }
+                }
+                i = i + originalTable.getSource().getCell(i, 0).getWidth();
             }
         }
 
