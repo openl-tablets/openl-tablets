@@ -3196,11 +3196,11 @@ public final class DecisionTableHelper {
             List<DTHeader> fitHCond = new ArrayList<>(fit);
             for (int c = maxColumnMatched; c < column; c++) {
                 int num = numberOfColumnsUnderTitleCounter.get(c);
-                int col = c;
+                int col1 = c;
                 for (int j = 0; j < num; j++) {
-                    int width = numberOfColumnsUnderTitleCounter.getWidth(col, j);
-                    fitHCond.add(new UnmatchedDtHeader(StringUtils.EMPTY, col, 0, width, false));
-                    col = col + width;
+                    int width = numberOfColumnsUnderTitleCounter.getWidth(c, j);
+                    fitHCond.add(new UnmatchedDtHeader(StringUtils.EMPTY, col1, 0, width, false));
+                    col1 = col1 + width;
                 }
             }
 
