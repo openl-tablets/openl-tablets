@@ -1225,9 +1225,9 @@ public final class DecisionTableHelper {
         int firstColumn = column;
         int lastParamFirstColumn = firstColumn;
 
+        List<String> parameterNames = new ArrayList<>();
+        List<IOpenClass> typeOfColumns = new ArrayList<>();
         for (int j = 0; j < declaredDtHeader.getColumnParameters().length; j++) {
-            List<String> parameterNames = new ArrayList<>();
-            List<IOpenClass> typeOfColumns = new ArrayList<>();
             for (int k = 0; k < declaredDtHeader.getColumnParameters()[j].length; k++) {
                 IParameterDeclaration param = declaredDtHeader.getColumnParameters()[j][k];
                 if (param != null) {
@@ -1253,31 +1253,32 @@ public final class DecisionTableHelper {
                 lastParamFirstColumn = column;
                 column = column + w1;
             }
+        }
 
-            if (!bindingContext.isExecutionMode()) {
-                if (declaredDtHeader.isAction()) {
-                    writeMetaInfoForAction(decisionTable,
-                        originalTable,
-                        declaredDtHeader.getColumn(),
-                        declaredDtHeader.getRow(),
-                        header,
-                        parameterNames.toArray(new String[] {}),
-                        declaredDtHeader.getStatement(),
-                        typeOfColumns.toArray(IOpenClass.EMPTY),
-                        declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
-                } else if (declaredDtHeader.isCondition() && !declaredDtHeader.isHCondition()) {
-                    writeMetaInfoForVCondition(originalTable,
-                        decisionTable,
-                        declaredDtHeader.getColumn(),
-                        declaredDtHeader.getRow(),
-                        header,
-                        parameterNames.toArray(new String[] {}),
-                        declaredDtHeader.getStatement(),
-                        typeOfColumns.toArray(IOpenClass.EMPTY),
-                        declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
-                }
+        if (!bindingContext.isExecutionMode()) {
+            if (declaredDtHeader.isAction()) {
+                writeMetaInfoForAction(decisionTable,
+                    originalTable,
+                    declaredDtHeader.getColumn(),
+                    declaredDtHeader.getRow(),
+                    header,
+                    parameterNames.toArray(new String[] {}),
+                    declaredDtHeader.getStatement(),
+                    typeOfColumns.toArray(IOpenClass.EMPTY),
+                    declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
+            } else if (declaredDtHeader.isCondition() && !declaredDtHeader.isHCondition()) {
+                writeMetaInfoForVCondition(originalTable,
+                    decisionTable,
+                    declaredDtHeader.getColumn(),
+                    declaredDtHeader.getRow(),
+                    header,
+                    parameterNames.toArray(new String[] {}),
+                    declaredDtHeader.getStatement(),
+                    typeOfColumns.toArray(IOpenClass.EMPTY),
+                    declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
             }
         }
+
         if (column < firstColumn + declaredDtHeader.getWidthForMerge()) {
             grid.addMergedRegion(new GridRegion(IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1,
                 lastParamFirstColumn,
