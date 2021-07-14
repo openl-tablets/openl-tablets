@@ -276,7 +276,13 @@ public class WorkspaceCompileService {
                 targetTableUrlPairs.add(Pair.of(webStudio.url("table", targetTable.getUri()), targetTable));
                 if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
                     warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
-                    state = TableRunState.CANNOT_RUN;
+                    if (!TableRunState.CANNOT_RUN.equals(state) && model
+                        .getOpenedModuleMessagesByTsn(tableUri, Severity.ERROR)
+                        .isEmpty()) {
+                        state = TableRunState.CAN_RUN_MODULE;
+                    } else {
+                        state = TableRunState.CANNOT_RUN;
+                    }
                     break;
                 }
             }
