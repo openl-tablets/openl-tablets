@@ -111,7 +111,8 @@ public class DecisionTableLoader {
         int numberOfHCondition = DecisionTableHelper.getNumberOfHConditions(tableBody);
         int firstColumnHeight = tableBody.getSource().getCell(0, 0).getHeight();
         int firstColumnForHCondition = DecisionTableHelper
-            .getFirstColumnForHCondition(tableBody, numberOfHCondition, firstColumnHeight);
+            .getFirstColumnForHCondition(tableBody, numberOfHCondition, firstColumnHeight)
+            .getLeft();
         if (firstColumnForHCondition > 0 && firstColumnHeight != tableBody.getSource()
             .getCell(firstColumnForHCondition, 0)
             .getHeight()) {
@@ -135,6 +136,12 @@ public class DecisionTableLoader {
         if (isSmart(tableSyntaxNode)) {
             ILogicalTable tableBody = tableSyntaxNode.getTableBody();
             if (tableBody != null && isLookup(tableSyntaxNode)) {
+                if (DecisionTableHelper.isLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody)) {
+                    return Direction.NORMAL;
+                }
+                if (DecisionTableHelper.isLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody.transpose())) {
+                    return Direction.TRANSPOSED;
+                }
                 if (isLookupByHConditions(tableBody)) {
                     direction = Direction.NORMAL;
                 }
@@ -191,7 +198,8 @@ public class DecisionTableLoader {
                         // Select compilation with less errors count for smart tables
                         if (isNotUnmatchedTableError(
                             altLoadAndBindErrors) && loadAndBindErrors.getBindingSyntaxNodeException()
-                                .size() > altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
+                                .size() > altLoadAndBindErrors.getBindingSyntaxNodeException()
+                                    .size() && isExceptionIsNotWorse(loadAndBindErrors, altLoadAndBindErrors)) {
                             putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
                             altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
                             if (altLoadAndBindErrors.getEx() != null) {
@@ -220,6 +228,14 @@ public class DecisionTableLoader {
                 throw loadAndBindErrors.getEx();
             }
         }
+    }
+
+    private boolean isExceptionIsNotWorse(CompilationErrors loadAndBindErrors, CompilationErrors altLoadAndBindErrors) {
+        boolean alt = altLoadAndBindErrors
+            .getEx() != null && !(altLoadAndBindErrors.getEx() instanceof OpenLCompilationException);
+        boolean orig = loadAndBindErrors
+            .getEx() != null && !(loadAndBindErrors.getEx() instanceof OpenLCompilationException);
+        return orig || !alt;
     }
 
     private boolean isNotUnmatchedTableError(CompilationErrors altLoadAndBindErrors) {
@@ -506,8 +522,9 @@ public class DecisionTableLoader {
             DecisionTable decisionTable,
             TableStructure tableStructure) throws SyntaxNodeException {
         if (tableStructure.actions.isEmpty()) {
-            throw SyntaxNodeExceptionUtils
-                .createError("Invalid Decision Table headers: At least one return column header is required.", tableSyntaxNode);
+            throw SyntaxNodeExceptionUtils.createError(
+                "Invalid Decision Table headers: At least one return column header is required.",
+                tableSyntaxNode);
         }
         if (NullOpenClass.isAnyNull(decisionTable.getType())) {
             return;

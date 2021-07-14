@@ -1,0 +1,2 @@
+ERROR: The value 'coveredEvents' is outside of valid domain 'CoveredEvents'. Valid values: [AccidentSickness, SicknessOnly]
+ERROR: The value 'ageBand' is outside of valid domain 'AgeBand'. Valid values: [0-4, 5-9, 10-14, 15-19, 20-24, 25-29, 30-34, 35-39, 40-44, 45-49, 50-54, 55-59, 60-64, 65-74, 75+]

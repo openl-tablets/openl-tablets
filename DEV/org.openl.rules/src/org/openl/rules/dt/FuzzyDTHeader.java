@@ -11,6 +11,7 @@ class FuzzyDTHeader extends DTHeader {
     private final FuzzyResult fuzzyResult;
     private final int topColumn;
     private final boolean returnDTHeader;
+    private final boolean horizontal;
 
     FuzzyDTHeader(int methodParameterIndex,
             String statement,
@@ -18,15 +19,19 @@ class FuzzyDTHeader extends DTHeader {
             IOpenField[] fieldsChain,
             int topColumn,
             int column,
+            int row,
             int width,
+            int widthForMerge,
             FuzzyResult fuzzyResult,
-            boolean returnDTHeader) {
-        super(new int[] { methodParameterIndex }, statement, column, width);
+            boolean returnDTHeader,
+            boolean horizontal) {
+        super(new int[] { methodParameterIndex }, statement, column, row, width, widthForMerge);
         this.topColumn = topColumn;
         this.fieldsChain = fieldsChain;
         this.returnDTHeader = returnDTHeader;
         this.title = title;
         this.fuzzyResult = fuzzyResult;
+        this.horizontal = horizontal;
     }
 
     FuzzyDTHeader(String statement,
@@ -34,15 +39,19 @@ class FuzzyDTHeader extends DTHeader {
             IOpenField[] fieldsChain,
             int topColumn,
             int column,
+            int row,
             int width,
+            int widthForMerge,
             FuzzyResult fuzzyResult,
-            boolean returnDTHeader) {
-        super(EMPTY_INDEXES, statement, column, width);
+            boolean returnDTHeader,
+            boolean horizontal) {
+        super(EMPTY_INDEXES, statement, column, row, width, widthForMerge);
         this.topColumn = topColumn;
         this.fieldsChain = fieldsChain;
         this.returnDTHeader = returnDTHeader;
         this.title = title;
         this.fuzzyResult = fuzzyResult;
+        this.horizontal = horizontal;
     }
 
     String getTitle() {
@@ -60,7 +69,7 @@ class FuzzyDTHeader extends DTHeader {
 
     @Override
     boolean isHCondition() {
-        return false;
+        return horizontal;
     }
 
     @Override
