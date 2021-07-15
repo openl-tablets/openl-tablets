@@ -1,6 +1,6 @@
 package org.openl.rules.fuzzy;
 
-public final class Token {
+public class Token {
 
     private final String value;
     private final int distance;
