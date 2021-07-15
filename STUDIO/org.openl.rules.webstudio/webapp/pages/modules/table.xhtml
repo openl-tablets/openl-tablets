@@ -1167,8 +1167,17 @@
                   applyTargetTables(data.targetTables);
                   applyProblems(data.errors, data.warnings, data.tableUrl);
                   applyRunOpenedModuleCheckboxes(data.tableRunState);
+                  adjustJSFElements();
               });
          }
+
+        function adjustJSFElements() {
+            const editorWrapper = $j("#t_te_editorWrapper");
+            if (editorWrapper.attr("data-jsf-adjusted") !=='true') {
+                editorWrapper.css({"top": editorWrapper.position().top + $j(".table-problems").outerHeight(true) + "px"});
+                editorWrapper.attr("data-jsf-adjusted", "true");
+            }
+        }
 
         function applyRunOpenedModuleCheckboxes(tableRunState) {
             const runTestModuleOnly = $j("#runTestModuleOnly");
