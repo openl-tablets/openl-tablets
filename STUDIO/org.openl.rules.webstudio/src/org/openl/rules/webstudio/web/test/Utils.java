@@ -85,7 +85,7 @@ public final class Utils {
 
                 TestSuite testSuite = new TestSuite(testSuiteMethod);
                 TestUnitsResults testUnitsResults;
-                if (model.getErrorsByUri(sourceUrl).isEmpty()) {
+                if (currentOpenedModule || model.getErrorsByUri(sourceUrl).isEmpty()) {
                     testUnitsResults = model.runTest(testSuite, currentOpenedModule);
                 } else {
                     testUnitsResults = new TestUnitsResults(testSuite);
