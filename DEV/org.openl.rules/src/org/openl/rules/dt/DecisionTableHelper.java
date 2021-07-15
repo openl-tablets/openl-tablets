@@ -1120,7 +1120,7 @@ public final class DecisionTableHelper {
                     originalTable,
                     grid,
                     lookupReturnDtHeader,
-                    RET1_COLUMN_NAME,
+                    isCollect ? CRET1_COLUMN_NAME : RET1_COLUMN_NAME,
                     true,
                     bindingContext);
             } else {
