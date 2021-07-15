@@ -1256,26 +1256,30 @@ public final class DecisionTableHelper {
         }
 
         if (!bindingContext.isExecutionMode()) {
-            if (declaredDtHeader.isAction()) {
-                writeMetaInfoForAction(decisionTable,
-                    originalTable,
-                    declaredDtHeader.getColumn(),
-                    declaredDtHeader.getRow(),
-                    header,
-                    parameterNames.toArray(new String[] {}),
-                    declaredDtHeader.getStatement(),
-                    typeOfColumns.toArray(IOpenClass.EMPTY),
-                    declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
-            } else if (declaredDtHeader.isCondition() && !declaredDtHeader.isHCondition()) {
-                writeMetaInfoForVCondition(originalTable,
-                    decisionTable,
-                    declaredDtHeader.getColumn(),
-                    declaredDtHeader.getRow(),
-                    header,
-                    parameterNames.toArray(new String[] {}),
-                    declaredDtHeader.getStatement(),
-                    typeOfColumns.toArray(IOpenClass.EMPTY),
-                    declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
+            int column1 = declaredDtHeader.getColumn();
+            while (column1 < declaredDtHeader.getColumn() + declaredDtHeader.getWidth()) {
+                if (declaredDtHeader.isAction()) {
+                    writeMetaInfoForAction(decisionTable,
+                        originalTable,
+                        column1,
+                        declaredDtHeader.getRow(),
+                        header,
+                        parameterNames.toArray(new String[] {}),
+                        declaredDtHeader.getStatement(),
+                        typeOfColumns.toArray(IOpenClass.EMPTY),
+                        declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
+                } else if (declaredDtHeader.isCondition() && !declaredDtHeader.isHCondition()) {
+                    writeMetaInfoForVCondition(originalTable,
+                        decisionTable,
+                        column1,
+                        declaredDtHeader.getRow(),
+                        header,
+                        parameterNames.toArray(new String[] {}),
+                        declaredDtHeader.getStatement(),
+                        typeOfColumns.toArray(IOpenClass.EMPTY),
+                        declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
+                }
+                column1 = column1 + originalTable.getSource().getCell(column1, declaredDtHeader.getRow()).getWidth();
             }
         }
 
