@@ -1995,6 +1995,25 @@ public final class DecisionTableHelper {
         return new ParameterTokens(tokens.toArray(new Token[] {}), tokenToParameterIndex, tokenToFieldsChain);
     }
 
+    private static class PredicateToken extends Token {
+        boolean isTrue;
+
+        public PredicateToken(String value, int distance, int minMatchedTokens, boolean isTrue) {
+            super(value, distance, minMatchedTokens);
+            this.isTrue = isTrue;
+        }
+
+        public boolean isTrue() {
+            return isTrue;
+        }
+    }
+
+    private static class RuleToken extends Token {
+        public RuleToken(String value, int distance, int minMatchedTokens) {
+            super(value, distance, minMatchedTokens);
+        }
+    }
+
     private static void matchWithFuzzySearchRec(DecisionTable decisionTable,
             ILogicalTable originalTable,
             IGridTable gridTable,
@@ -2013,7 +2032,6 @@ public final class DecisionTableHelper {
             boolean onlyReturns) {
         int w0 = gridTable.getCell(w, h).getWidth();
         int h0 = gridTable.getCell(w, h).getHeight();
-
         String d = gridTable.getCell(w, h).getStringValue();
         String mergedPartsTitle;
         if (sourceTableColumn + originalTable.getSource()
@@ -2034,12 +2052,11 @@ public final class DecisionTableHelper {
                 int horizontal = 0;
                 for (String hTitle : hTitles) {
                     String tokenizedTitleString = OpenLFuzzyUtils.toTokenString(hTitle);
-                    List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
-                        .fuzzyExtract(tokenizedTitleString, fuzzyContext.getParameterTokens().getTokens(), true);
+                    Token[] tokens = fuzzyContext.getParameterTokens().getTokens();
+                    tokens = addTrueFalseTokens(fuzzyContext.getMaxDistance(), tokens);
+                    List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.fuzzyExtract(tokenizedTitleString, tokens, true);
                     addFuzzyDtHeader(decisionTable,
                         fuzzyContext,
-                        numberOfHConditions,
-                        firstColumnForHCondition,
                         w,
                         h,
                         hTitle,
@@ -2113,34 +2130,23 @@ public final class DecisionTableHelper {
             if (!onlyReturns) {
                 Token[] tokens = fuzzyContext.getParameterTokens().getTokens();
                 if (numberOfColumnsUnderTitleCounter.get(sourceTableColumn) == 1) {
-                    final int maxDistance = Arrays.stream(fuzzyContext.getParameterTokens().getTokens())
-                        .mapToInt(Token::getDistance)
-                        .max()
-                        .orElse(0);
                     if (firstColumnForHCondition < 0 && numberOfHConditions > 0 && Arrays
                         .stream(decisionTable.getSignature().getParameterTypes())
                         .anyMatch(
                             e -> e.getInstanceClass() == Boolean.class || e.getInstanceClass() == boolean.class)) {
                         tokens = ArrayUtils.addAll(tokens,
-                            new Token("is true", maxDistance + 1, 2),
-                            new Token("is false", maxDistance + 1, 2));
+                            new PredicateToken("is true", fuzzyContext.getMaxDistance() + 1, 2, true),
+                            new PredicateToken("is false", fuzzyContext.getMaxDistance() + 1, 2, false));
                     } else {
-                        tokens = ArrayUtils.addAll(tokens,
-                            new Token("is true", maxDistance + 1, 2),
-                            new Token("is false", maxDistance + 1, 2),
-                            new Token("true", maxDistance + 1, 1),
-                            new Token("false", maxDistance + 1, 1));
+                        tokens = addTrueFalseTokens(fuzzyContext.getMaxDistance(), tokens);
                     }
                     if (sourceTableColumn == 0) {
-                        tokens = ArrayUtils.addAll(tokens, new Token("rule", maxDistance + 1, 1));
+                        tokens = ArrayUtils.addAll(tokens, new RuleToken("rule", fuzzyContext.getMaxDistance() + 1, 1));
                     }
                 }
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils.fuzzyExtract(tokenizedTitleString, tokens, true);
-
                 addFuzzyDtHeader(decisionTable,
                     fuzzyContext,
-                    numberOfHConditions,
-                    firstColumnForHCondition,
                     w,
                     h,
                     mergedPartsTitle,
@@ -2155,10 +2161,16 @@ public final class DecisionTableHelper {
         parts.remove(parts.size() - 1);
     }
 
+    private static Token[] addTrueFalseTokens(int maxDistance, Token[] tokens) {
+        return ArrayUtils.addAll(tokens,
+            new PredicateToken("is true", maxDistance + 1, 2, true),
+            new PredicateToken("is false", maxDistance + 1, 2, false),
+            new PredicateToken("true", maxDistance + 1, 1, true),
+            new PredicateToken("false", maxDistance + 1, 1, false));
+    }
+
     private static void addFuzzyDtHeader(DecisionTable decisionTable,
             FuzzyContext fuzzyContext,
-            int numberOfHConditions,
-            int firstColumnForHCondition,
             int w,
             int h,
             String title,
@@ -2195,14 +2207,9 @@ public final class DecisionTableHelper {
                     false,
                     horizontal > 0));
             } else {
-                if (isPredicateToken(decisionTable,
-                    numberOfHConditions > 0 && firstColumnForHCondition < 0,
-                    fuzzyResult.getToken().getValue())) {
-                    dtHeaders.add(new FuzzyDTHeader(
-                        isTruePredicateToken(decisionTable,
-                            fuzzyResult.getToken().getValue(),
-                            numberOfHConditions,
-                            firstColumnForHCondition) ? "true" : "false",
+                if (fuzzyResult.getToken() instanceof PredicateToken) {
+                    PredicateToken predicateToken = (PredicateToken) fuzzyResult.getToken();
+                    dtHeaders.add(new FuzzyDTHeader(predicateToken.isTrue() ? "true" : "false",
                         title,
                         new IOpenField[] {},
                         sourceTableColumn,
@@ -2214,16 +2221,12 @@ public final class DecisionTableHelper {
                         false,
                         horizontal > 0));
                 }
-                if (isRuleToken(sourceTableColumn, fuzzyResult.getToken().getValue())) {
+                if (sourceTableColumn == 0 && fuzzyResult.getToken() instanceof RuleToken) {
                     dtHeaders.add(new FuzzyRulesDTHeader(title, sourceTableColumn, h, w0, fuzzyResult));
                 }
             }
         }
 
-    }
-
-    private static boolean isRuleToken(int sourceTableColumn, String token) {
-        return sourceTableColumn == 0 && "rule".equals(token);
     }
 
     private static List<DTHeader> matchWithFuzzySearch(DecisionTable decisionTable,
@@ -3918,26 +3921,6 @@ public final class DecisionTableHelper {
         }
     }
 
-    private static boolean isPredicateToken(IDecisionTable decisionTable, boolean isVCondition, String token) {
-        if (isVCondition && Arrays.stream(decisionTable.getSignature().getParameterTypes())
-            .anyMatch(e -> e.getInstanceClass() == Boolean.class || e.getInstanceClass() == boolean.class)) {
-            return "is true".equals(token) || "is false".equals(token);
-        }
-        return "is true".equals(token) || "is false".equals(token) || "false".equals(token) || "true".equals(token);
-    }
-
-    private static boolean isTruePredicateToken(IDecisionTable decisionTable,
-            String token,
-            int numberOfHConditions,
-            int firstColumnForHCondition) {
-        if (numberOfHConditions > 0 && firstColumnForHCondition < 0 && Arrays
-            .stream(decisionTable.getSignature().getParameterTypes())
-            .anyMatch(e -> e.getInstanceClass() == Boolean.class || e.getInstanceClass() == boolean.class)) {
-            return "is true".equals(token);
-        }
-        return "is true".equals(token) || "true".equals(token);
-    }
-
     private static IOpenClass getTypeForCondition(DecisionTable decisionTable, DTHeader condition) {
         if (condition instanceof FuzzyDTHeader) {
             FuzzyDTHeader fuzzyCondition = (FuzzyDTHeader) condition;
@@ -3946,9 +3929,7 @@ public final class DecisionTableHelper {
                     return fuzzyCondition.getFieldsChain()[fuzzyCondition.getFieldsChain().length - 1].getType();
                 }
             } else {
-                if (isPredicateToken(decisionTable,
-                    condition.isHCondition(),
-                    fuzzyCondition.getFuzzyResult().getToken().getValue())) {
+                if (fuzzyCondition.getFuzzyResult().getToken() instanceof PredicateToken) {
                     return JavaOpenClass.getOpenClass(Boolean.class);
                 }
             }
@@ -4117,6 +4098,7 @@ public final class DecisionTableHelper {
         Token[] returnTokens = null;
         Map<Token, IOpenField[][]> returnTypeFuzzyTokens = null;
         IOpenClass fuzzyReturnType;
+        int maxDistance;
 
         private FuzzyContext(ParameterTokens parameterTokens) {
             this.parameterTokens = parameterTokens;
@@ -4130,6 +4112,7 @@ public final class DecisionTableHelper {
             this.returnTokens = returnTokens;
             this.returnTypeFuzzyTokens = returnTypeFuzzyTokens;
             this.fuzzyReturnType = returnType;
+            this.maxDistance = Arrays.stream(parameterTokens.getTokens()).mapToInt(Token::getDistance).max().orElse(0);
         }
 
         ParameterTokens getParameterTokens() {
@@ -4150,6 +4133,10 @@ public final class DecisionTableHelper {
 
         IOpenClass getFuzzyReturnType() {
             return fuzzyReturnType;
+        }
+
+        public int getMaxDistance() {
+            return maxDistance;
         }
     }
 }
