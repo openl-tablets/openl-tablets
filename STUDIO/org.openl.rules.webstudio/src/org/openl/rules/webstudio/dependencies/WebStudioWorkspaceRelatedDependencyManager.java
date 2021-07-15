@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -38,7 +40,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    private final List<ProjectDescriptor> projects;
+    private final Set<ProjectDescriptor> projects;
     private final AtomicLong version = new AtomicLong(0);
     private final ThreadLocal<Long> threadVersion = new ThreadLocal<>();
     private final AtomicLong highThreadPriorityFlag = new AtomicLong(0);
@@ -51,7 +53,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
             boolean executionMode,
             Map<String, Object> externalParameters) {
         super(rootClassLoader, executionMode, externalParameters);
-        this.projects = new ArrayList<>(Objects.requireNonNull(projects, "projects cannot be null"));
+        this.projects = new LinkedHashSet<>(Objects.requireNonNull(projects, "projects cannot be null"));
     }
 
     @Override
@@ -155,7 +157,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         return buildDependencyLoaders(projects);
     }
 
-    private Map<String, Collection<IDependencyLoader>> buildDependencyLoaders(List<ProjectDescriptor> projects) {
+    private Map<String, Collection<IDependencyLoader>> buildDependencyLoaders(Set<ProjectDescriptor> projects) {
         Map<String, Collection<IDependencyLoader>> dependencyLoaders = new HashMap<>();
         for (ProjectDescriptor project : projects) {
             try {
@@ -209,7 +211,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         version.incrementAndGet();
     }
 
-    public void expand(List<ProjectDescriptor> projects) {
+    public void expand(Set<ProjectDescriptor> projects) {
         Map<String, Collection<IDependencyLoader>> dependencyLoaders = buildDependencyLoaders(projects);
         addDependencyLoaders(dependencyLoaders.values()
             .stream()

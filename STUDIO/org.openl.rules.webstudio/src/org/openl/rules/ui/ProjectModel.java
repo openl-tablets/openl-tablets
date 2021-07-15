@@ -1183,7 +1183,7 @@ public class ProjectModel {
             webStudioWorkspaceDependencyManager.registerListener(this::addSyntaxNodes);
             webStudioWorkspaceDependencyManager.registerListener(this::addWorkbookSyntaxNodes);
         } else {
-            List<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
+            Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
                 .resolveWorkspace(this.moduleInfo.getProject());
             Set<String> projectNamesInWorkspace = projectsInWorkspace.stream()
                 .map(ProjectDescriptor::getName)

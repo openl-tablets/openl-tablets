@@ -1,8 +1,7 @@
 package org.openl.rules.webstudio.dependencies;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +22,7 @@ public class WebStudioWorkspaceDependencyManagerFactory {
     }
 
     public WebStudioWorkspaceRelatedDependencyManager buildDependencyManager(ProjectDescriptor project) {
-        List<ProjectDescriptor> workspaceProjectsToResolveDependencies = resolveWorkspace(project);
+        Set<ProjectDescriptor> workspaceProjectsToResolveDependencies = resolveWorkspace(project);
         ClassLoader rootClassLoader = WebStudioWorkspaceRelatedDependencyManager.class.getClassLoader();
         return new WebStudioWorkspaceRelatedDependencyManager(workspaceProjectsToResolveDependencies,
             rootClassLoader,
@@ -31,8 +30,8 @@ public class WebStudioWorkspaceDependencyManagerFactory {
             studio.getExternalProperties());
     }
 
-    public List<ProjectDescriptor> resolveWorkspace(ProjectDescriptor project) {
-        List<ProjectDescriptor> projectsInWorkspace = new ArrayList<>();
+    public Set<ProjectDescriptor> resolveWorkspace(ProjectDescriptor project) {
+        Set<ProjectDescriptor> projectsInWorkspace = new LinkedHashSet<>();
         Queue<ProjectDescriptor> queue = new ArrayDeque<>();
         queue.add(project);
         while (!queue.isEmpty()) {
