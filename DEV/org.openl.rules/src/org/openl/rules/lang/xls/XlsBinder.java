@@ -653,8 +653,8 @@ public class XlsBinder implements IOpenBinder {
             SyntaxNodeExceptionHolder syntaxNodeExceptionHolder,
             IMemberBoundNode[] children,
             int index) {
-        SyntaxNodeException[] errors = null;
-        Collection<OpenLMessage> messages = null;
+        SyntaxNodeException[] errors = SyntaxNodeException.EMPTY_ARRAY;
+        Collection<OpenLMessage> messages = Collections.emptyList();
         try {
             AExecutableNodeBinder aExecutableNodeBinder = (AExecutableNodeBinder) getBinderFactories()
                 .get(tableSyntaxNode.getType());
@@ -684,12 +684,8 @@ public class XlsBinder implements IOpenBinder {
         } catch (Exception | LinkageError e) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
             processError(error, tableSyntaxNode, rulesModuleBindingContext);
-            if (messages != null) {
-                rulesModuleBindingContext.addMessages(messages);
-            }
-            if (errors != null) {
-                Arrays.stream(errors).forEach(rulesModuleBindingContext::addError);
-            }
+            rulesModuleBindingContext.addMessages(messages);
+            Arrays.stream(errors).forEach(rulesModuleBindingContext::addError);
         }
         return null;
     }
