@@ -1141,6 +1141,7 @@ public class ProjectModel {
                 projectCompilationCompleted = true;
             }
         } catch (Throwable t) {
+            projectCompilationCompleted = true;
             log.error("Failed to load.", t);
             Collection<OpenLMessage> messages = new LinkedHashSet<>();
             for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
