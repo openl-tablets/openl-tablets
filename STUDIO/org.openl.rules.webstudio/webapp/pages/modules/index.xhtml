@@ -58,7 +58,6 @@
             var lastSavedHash = $location.getHash();
             var fullreload = false;
             var projectPageChanged = false;
-            var modulePageChanged = false;
 
             var urlRewrite = {
                 prefix: "#{pathRoot}/"
@@ -397,9 +396,6 @@
                     isProjectChanged: function () {
                         return projectPageChanged;
                     },
-                    isModuleChanged: function () {
-                        return modulePageChanged;
-                    },
                     setRequestId: function (newRequestId) {
                         api.nav.unloadPage();
                         requestId = newRequestId;
@@ -687,9 +683,6 @@
                             module: ""
                         };
                     }
-                    modulePageChanged = previousPageState.repositoryId === repositoryId
-                        && previousPageState.project === project
-                        && previousPageState.module !== module;
                     projectPageChanged = previousPageState.repositoryId !== repositoryId
                         || previousPageState.project !== project
                         || previousPageState.module !== module;
