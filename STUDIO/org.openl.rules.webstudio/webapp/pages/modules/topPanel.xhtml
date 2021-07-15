@@ -313,12 +313,12 @@
         function onTestOpen() {
             compiled(function(data) {
                 var testModuleOnlyField = $j("#testModuleOnlyField");
-                if (compiled && $j("#tableRunState").val() === 'CAN_RUN') {
-                    testModuleOnlyField.prop('checked', false);
-                    testModuleOnlyField.prop('disabled', false);
-                } else {
+                if (!data || $j("#tableRunState").val() === 'CAN_RUN_MODULE') {
                     testModuleOnlyField.prop('checked', true);
                     testModuleOnlyField.prop('disabled', true);
+                } else {
+                    testModuleOnlyField.prop('checked', false);
+                    testModuleOnlyField.prop('disabled', false);
                 }
             });
         }
