@@ -15,7 +15,7 @@ import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
 @CqlName("openl_log_data")
 public class DefaultCassandraEntity {
     @PartitionKey(0)
-    @WithStoreLogDataConverter(converter = TimeBasedUUID.class)
+    @Value(converter = TimeBasedUUID.class)
     private String id;
 
     @IncomingTime

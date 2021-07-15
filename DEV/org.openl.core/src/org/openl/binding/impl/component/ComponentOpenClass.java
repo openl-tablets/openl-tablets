@@ -37,7 +37,7 @@ public class ComponentOpenClass extends ADynamicClass {
          * yet.
          */
         addField(new ThisField());
-        addMethod(new GetOpenClass());
+        addMethod(new GetOpenClass(this));
     }
 
     /**
@@ -136,6 +136,12 @@ public class ComponentOpenClass extends ADynamicClass {
 
     public class GetOpenClass implements IOpenMethod {
 
+        private IOpenClass openClass;
+
+        public GetOpenClass(IOpenClass openClass) {
+            this.openClass = openClass;
+        }
+
         @Override
         public IOpenClass getDeclaringClass() {
             return ComponentOpenClass.this;
@@ -173,7 +179,7 @@ public class ComponentOpenClass extends ADynamicClass {
 
         @Override
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            return ((DynamicObject) target).getType();
+            return openClass;
         }
 
         @Override

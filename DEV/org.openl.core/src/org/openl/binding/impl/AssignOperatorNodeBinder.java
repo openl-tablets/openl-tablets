@@ -59,6 +59,10 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
             }
         }
 
+        if (target.getDims() > 0) {
+            return makeErrorNode("Multi-reference assignment is not supported.", node, bindingContext);
+        }
+
         IOpenClass rightType = methodCaller == null ? sourceType : methodCaller.getMethod().getType();
         IOpenCast cast = null;
 

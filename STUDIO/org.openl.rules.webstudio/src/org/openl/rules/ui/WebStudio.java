@@ -588,6 +588,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
             data.setName(projectFolder.getName() + "/" + relativePath);
             repository.save(data, stream);
             ProjectHistoryService.save(model.getHistoryStoragePath(), sourceFile);
+        } catch (FileNotFoundException e) {
+            log.debug("Error while updating the module. Please close the module Excel file and try again.", e);
+            throw new IllegalStateException(
+                    "Error while updating the module. Please close the module Excel file and try again.",
+                    e);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
             throw new IllegalStateException("Error while updating the module.", e);

@@ -3,9 +3,11 @@ package org.openl.itest.serviceclass;
 import org.openl.itest.cassandra.HelloEntity1;
 import org.openl.itest.cassandra.HelloEntity2;
 import org.openl.itest.cassandra.HelloEntity3;
+import org.openl.itest.cassandra.HelloEntity8;
 import org.openl.itest.elasticsearch.CustomElasticEntity1;
 import org.openl.itest.elasticsearch.CustomElasticEntity2;
 import org.openl.itest.elasticsearch.CustomElasticEntity3;
+import org.openl.itest.elasticsearch.CustomElasticEntity8;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
@@ -15,10 +17,14 @@ import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLo
 
 public interface Simple4ServiceAnnotationTemplate {
 
-    @StoreLogDataToCassandra(value = { HelloEntity1.class, HelloEntity2.class, HelloEntity3.class }, sync = true)
+    @StoreLogDataToCassandra(value = { HelloEntity1.class,
+            HelloEntity2.class,
+            HelloEntity3.class,
+            HelloEntity8.class }, sync = true)
     @StoreLogDataToElasticsearch(value = { CustomElasticEntity1.class,
             CustomElasticEntity2.class,
-            CustomElasticEntity3.class }, sync = true)
+            CustomElasticEntity3.class,
+            CustomElasticEntity8.class }, sync = true)
     @PrepareStoreLogData(PrepareStoreLogDataValues.class)
     String Hello(IRulesRuntimeContext runtimeContext, Integer hour);
 
