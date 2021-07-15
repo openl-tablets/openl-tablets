@@ -4,5 +4,5 @@ Content-Type: application/json
 {
    "compiled":true,
    "count":2,
-   "openCurrentModuleOnly":false
+   "tableRunState":"CAN_RUN"
 }

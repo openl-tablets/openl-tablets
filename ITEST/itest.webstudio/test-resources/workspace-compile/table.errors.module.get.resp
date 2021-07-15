@@ -7,10 +7,10 @@ Content-Type: application/json
 
    ],
    "errors":[
-
+        {"id":"*","summary":"There can be only one active table.","hasStacktrace":true,"tableId":"*","errorCell":"B3","severity":"ERROR"}
    ],
    "targetTables":[
 
    ],
-   "openCurrentModuleOnly":false
+   "tableRunState":"CAN_RUN_MODULE"
 }

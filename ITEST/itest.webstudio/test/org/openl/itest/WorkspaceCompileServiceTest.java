@@ -34,7 +34,7 @@ public class WorkspaceCompileServiceTest {
             compileProgress = client.getForObject("/web/compile/progress/-1/-1", CompileProgress.class, HttpStatus.OK);
         } while (!compileProgress.compilationCompleted);
         assertEquals(2, compileProgress.modulesCount);
-        assertEquals(3, compileProgress.errorsCount);
+        assertEquals(4, compileProgress.errorsCount);
         assertEquals("new", compileProgress.dataType);
         assertEquals(0, compileProgress.warningsCount);
         assertEquals(2, compileProgress.modulesCompiled);
@@ -43,7 +43,7 @@ public class WorkspaceCompileServiceTest {
         client.send("workspace-compile/tests.get");
         client.send("workspace-compile/table.tests.get");
         client.send("workspace-compile/table.errors.module.get");
-        TableErrorInfo tableErrorInfo = client.getForObject("/web/compile/table/4471a9b6968ca6fa141b5eeef129082e/false",
+        TableErrorInfo tableErrorInfo = client.getForObject("/web/compile/table/4471a9b6968ca6fa141b5eeef129082e",
             TableErrorInfo.class, HttpStatus.OK);
         assertEquals("#local/Sample/Main/table", tableErrorInfo.tableUrl);
         assertEquals(1, tableErrorInfo.errors.length);
