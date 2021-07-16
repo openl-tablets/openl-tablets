@@ -7,7 +7,6 @@ class DeclaredDTHeader extends DTHeader {
     private final IParameterDeclaration[][] columnParameters;
     private final CompositeMethod compositeMethod;
     private final MatchedDefinition matchedDefinition;
-    private final boolean horizontal;
 
     DeclaredDTHeader(int[] methodParameterIndexes,
             CompositeMethod compositeMethod,
@@ -18,11 +17,10 @@ class DeclaredDTHeader extends DTHeader {
             int widthForMerge,
             MatchedDefinition matchedDefinition,
             boolean horizontal) {
-        super(methodParameterIndexes, null, column, row, width, widthForMerge);
+        super(methodParameterIndexes, null, column, row, width, widthForMerge, horizontal);
         this.columnParameters = columnParameters;
         this.compositeMethod = compositeMethod;
         this.matchedDefinition = matchedDefinition;
-        this.horizontal = horizontal;
     }
 
     @Override
@@ -33,11 +31,6 @@ class DeclaredDTHeader extends DTHeader {
     @Override
     boolean isCondition() {
         return matchedDefinition.getDtColumnsDefinition().isCondition();
-    }
-
-    @Override
-    boolean isHCondition() {
-        return horizontal;
     }
 
     @Override

@@ -9,19 +9,29 @@ abstract class DTHeader {
     final String statement;
     final int width;
     final int widthForMerge;
+    final boolean horizontal;
 
-    DTHeader(int[] methodParameterIndexes, String statement, int column, int row, int width, int widthForMerge) {
+    DTHeader(int[] methodParameterIndexes,
+            String statement,
+            int column,
+            int row,
+            int width,
+            int widthForMerge,
+            boolean horizontal) {
         this.methodParameterIndexes = methodParameterIndexes;
         this.statement = statement;
         this.column = column;
         this.row = row;
         this.width = width;
         this.widthForMerge = widthForMerge;
+        this.horizontal = horizontal;
     }
 
     abstract boolean isCondition();
 
-    abstract boolean isHCondition();
+    boolean isHCondition() {
+        return isCondition() && horizontal;
+    }
 
     abstract boolean isAction();
 
