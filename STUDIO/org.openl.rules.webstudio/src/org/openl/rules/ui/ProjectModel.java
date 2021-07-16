@@ -1109,7 +1109,12 @@ public class ProjectModel {
             compiledOpenClass = thisModuleCompiledOpenClass;
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
-            workbookSyntaxNodes.addAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
+
+            for (XlsModuleSyntaxNode xlsSyntaxNode : allXlsModuleSyntaxNodes) {
+                if (!(xlsSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
+                    workbookSyntaxNodes.addAll(Arrays.asList(xlsSyntaxNode.getWorkbookSyntaxNodes()));
+                }
+            }
 
             // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode does not contain Virtual Module with dispatcher
             // table syntax nodes.
