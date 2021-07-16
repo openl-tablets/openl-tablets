@@ -134,6 +134,11 @@
                     info: function(content) {
                         message(content, 8000, true);
                     }
+                },
+                utils: {
+                    escapeHtml: function (string) {
+                        return $j('<div/>').text(string).html();
+                    }
                 }
             };
 

@@ -232,19 +232,7 @@
                 },
                 utils : {
                     escapeHtml: function (string) {
-                        var escapeMap = {
-                            '&': '&amp;',
-                            '<': '&lt;',
-                            '>': '&gt;',
-                            '"': '&quot;',
-                            "'": '&#39;',
-                            '/': '&#x2F;',
-                            '`': '&#x60;',
-                            '=': '&#x3D;'
-                        };
-                        return String(string).replace(/[&<>"'`=\/]/g, function (s) {
-                            return escapeMap[s];
-                        });
+                        return $('<div/>').text(string).html();
                     }
                 },
                 storage: {
