@@ -5,7 +5,7 @@ class SimpleReturnDTHeader extends DTHeader {
     private final String title;
 
     SimpleReturnDTHeader(String statement, String title, int column, int row, int width) {
-        super(new int[] {}, statement, column, row, width, width);
+        super(new int[] {}, statement, column, row, width, width, false);
         this.title = title;
     }
 
@@ -15,11 +15,6 @@ class SimpleReturnDTHeader extends DTHeader {
 
     @Override
     boolean isCondition() {
-        return false;
-    }
-
-    @Override
-    boolean isHCondition() {
         return false;
     }
 

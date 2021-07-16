@@ -864,17 +864,11 @@ public final class DecisionTableHelper {
                         .getFieldsChain(fuzzyResult.getToken());
                     List<Pair<IOpenField[], FuzzyResult>> resultList = bestFuzzyResultsMap.get(fuzzyResult.getToken());
                     if (resultList == null) {
-                        resultList = bestFuzzyResultsMap.entrySet()
-                            .stream()
-                            .filter(e -> {
-                                final int eParamIndex = fuzzyContext.getParameterTokens().getParameterIndex(e.getKey());
-                                return paramIndex == eParamIndex && OpenLFuzzyUtils.isEqualsFieldsChains(
-                                    paramFieldsChain,
-                                    fuzzyContext.getParameterTokens().getFieldsChain(e.getKey()));
-                            })
-                            .map(Entry::getValue)
-                            .findFirst()
-                            .orElse(null);
+                        resultList = bestFuzzyResultsMap.entrySet().stream().filter(e -> {
+                            final int eParamIndex = fuzzyContext.getParameterTokens().getParameterIndex(e.getKey());
+                            return paramIndex == eParamIndex && OpenLFuzzyUtils.isEqualsFieldsChains(paramFieldsChain,
+                                fuzzyContext.getParameterTokens().getFieldsChain(e.getKey()));
+                        }).map(Entry::getValue).findFirst().orElse(null);
                         if (resultList == null) {
                             resultList = new ArrayList<>();
                             bestFuzzyResultsMap.put(fuzzyResult.getToken(), resultList);
@@ -2432,16 +2426,13 @@ public final class DecisionTableHelper {
         if (!lastColumnReached && numberOfReturns == 0) {
             ICell cell = originalTable.getSource().getCell(column, firstColumnHeight - 1);
             if (column + cell.getWidth() <= maxColumnIndex) {
-                if (column + cell.getWidth() < lastColumn) {
-                    used.add(new UnmatchedDtHeader(StringUtils.EMPTY,
-                        column,
-                        firstColumnHeight - 1,
-                        cell.getWidth(),
-                        false));
-                } else {
-                    used.add(
-                        new UnmatchedDtHeader(StringUtils.EMPTY, column, firstColumnHeight - 1, cell.getWidth(), true));
-                }
+                boolean isHorizontal = column + cell.getWidth() >= lastColumn;
+                used.add(new UnmatchedDtHeader(StringUtils.EMPTY,
+                    column,
+                    firstColumnHeight - 1,
+                    cell.getWidth(),
+                    isHorizontal));
+
                 lastColumnReached = bruteForceHeaders(originalTable,
                     column + cell.getWidth(),
                     lastColumn,

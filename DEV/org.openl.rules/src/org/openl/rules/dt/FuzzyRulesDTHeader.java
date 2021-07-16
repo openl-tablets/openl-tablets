@@ -10,7 +10,7 @@ public class FuzzyRulesDTHeader extends DTHeader {
     private final FuzzyResult fuzzyResult;
 
     FuzzyRulesDTHeader(String title, int column, int row, int width, FuzzyResult fuzzyResult) {
-        super(EMPTY_INDEXES, StringUtils.EMPTY, column, row, width, width);
+        super(EMPTY_INDEXES, StringUtils.EMPTY, column, row, width, width, false);
         this.title = title;
         this.fuzzyResult = fuzzyResult;
     }
@@ -25,11 +25,6 @@ public class FuzzyRulesDTHeader extends DTHeader {
 
     @Override
     boolean isCondition() {
-        return false;
-    }
-
-    @Override
-    boolean isHCondition() {
         return false;
     }
 
