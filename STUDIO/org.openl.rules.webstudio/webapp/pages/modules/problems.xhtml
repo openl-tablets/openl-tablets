@@ -74,18 +74,21 @@
         </div>
 
         <script>
-                //<![CDATA[
+            //<![CDATA[
                 var $jq = jQuery.noConflict();
                 var messageId = -1;
                 var messageIndex = -1;
-
+                var projectId = ws.storage.get("WS_PREVIOUS_PAGE_STATE").project;
                 var progressInfoPanel = $jq('#progress-info-panel');
-                var mainLayout = $j(".ui-layout-center").layout();
                 $jq('#progress-info-panel').bind('refresh', function () {
-                    $jq.ajax({
-                        url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
-                        datatype: "json"
-                    })
+                    if (projectId != ws.storage.get("WS_PREVIOUS_PAGE_STATE").project
+                        || ws.storage.get("WS_PREVIOUS_PAGE_STATE").module === "") {
+                        ws.ui.problems.hide();
+                    } else {
+                        $jq.ajax({
+                            url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
+                            datatype: "json"
+                        })
                         .done(function (data) {
                             progressInfoPanel.text("Compiled " + Math.round(data.modulesCompiled / data.modulesCount * 100) + "% (" + data.modulesCompiled + "/" + data.modulesCount + ")");
                             $jq('#errors-info-panel').toggle(data.errorsCount !== 0);
@@ -146,6 +149,7 @@
                                 ws.nav.reloadPanel('left');
                             }
                         });
+                    }
                 });
 
                 $jq('#progress-info-panel').trigger('refresh');
@@ -154,7 +158,7 @@
                 var inProgress = function() {
                     progressInfoPanel.attr("data-compilation-status", "inProgress");
                     progressInfoPanel.show();
-                    mainLayout.show("south");
+                    ws.ui.problems.show();
                 };
 
                 var finished = function() {
@@ -167,13 +171,12 @@
                        if (requiredProgressPanel.length > 0 ) {
                             requiredProgressPanel.hide();
                             if ($jq('#warnings-count').text() == 0 && $jq('#errors-count').text() == 0) {
-                                mainLayout.hide("south");
+                                ws.ui.problems.hide()
                             }
                        }
                     }, 10000);
                 };
-                //]]>
-
+            //]]>
         </script>
     </div>
 
