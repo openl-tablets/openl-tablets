@@ -84,6 +84,7 @@
                     if (projectId != ws.storage.get("WS_PREVIOUS_PAGE_STATE").project
                         || ws.storage.get("WS_PREVIOUS_PAGE_STATE").module === "") {
                         ws.ui.problems.hide();
+                        setTimeout(function () {$jq('#progress-info-panel').trigger('refresh')}, 1000);
                     } else {
                         $jq.ajax({
                             url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
