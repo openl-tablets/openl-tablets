@@ -31,7 +31,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         }
     }
 
-    private final Map<String, Object> internalMap = new HashMap<>();
+    private Map<String, Object> internalMap = new HashMap<>();
 
     @Override
     public Object getValue(String name) {
@@ -130,21 +130,21 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
     }
 
     // <<< INSERT >>>
+    /**
+    * The default implementation Object.clone() method returns a Shallow Copy.
+    * <p>
+    *     In shallow copy, if the field value is a primitive type, it copies its value; otherwise,
+    *     if the field value is a reference to an object, it copies the reference, hence referring to the same object.
+    *     Now, if one of these objects is modified, the change is visible in the other.
+    * </p>
+    * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#clone()">Object#clone()</a>
+    * @see <a href="https://en.wikipedia.org/wiki/Clone_(Java_method)">Clone (Java_method)</a>
+    */
     @Override
     public IRulesRuntimeContext clone() throws CloneNotSupportedException {
         DefaultRulesRuntimeContext defaultRulesRuntimeContext = (DefaultRulesRuntimeContext) super.clone();
-        defaultRulesRuntimeContext.setCurrentDate(this.currentDate);
-        defaultRulesRuntimeContext.setRequestDate(this.requestDate);
-        defaultRulesRuntimeContext.setLob(this.lob);
-        defaultRulesRuntimeContext.setNature(this.nature);
-        defaultRulesRuntimeContext.setUsState(this.usState);
-        defaultRulesRuntimeContext.setCountry(this.country);
-        defaultRulesRuntimeContext.setUsRegion(this.usRegion);
-        defaultRulesRuntimeContext.setCurrency(this.currency);
-        defaultRulesRuntimeContext.setLang(this.lang);
-        defaultRulesRuntimeContext.setRegion(this.region);
-        defaultRulesRuntimeContext.setCaProvince(this.caProvince);
-        defaultRulesRuntimeContext.setCaRegion(this.caRegion);
+        // create a new instance of `Hashmap`. By default clone creates a shallow copy in defaultRulesRuntimeContext.
+        defaultRulesRuntimeContext.internalMap = new HashMap<>(this.internalMap);
         return defaultRulesRuntimeContext;
     }
 
