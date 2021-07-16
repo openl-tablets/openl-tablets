@@ -2974,10 +2974,10 @@ public final class DecisionTableHelper {
                         WithVerticalTitles.EMPTY_COLUMN);
                 }
                 if (i > 0) {
-                    h = firstColumnHeight;
-                    if (originalTable.getSource().getCell(i - 1, h).getWidth() > originalTable.getSource()
-                        .getCell(i - 1, h - 1)
-                        .getWidth()) {
+                    int w1 = originalTable.getSource().getCell(i - 1, firstColumnHeight).getWidth();
+                    int w2 = originalTable.getSource().getCell(i - 1, firstColumnHeight - 1).getWidth();
+                    int w3 = originalTable.getSource().getCell(i, firstColumnHeight - 1).getWidth();
+                    if (w1 == w2 + w3) {
                         return Pair.of(i + originalTable.getSource().getCell(i, 0).getWidth(),
                             WithVerticalTitles.MERGED_COLUMN);
                     }
