@@ -927,7 +927,6 @@ public class ProjectModel {
             case RELOAD:
                 if (webStudioWorkspaceDependencyManager != null) {
                     webStudioWorkspaceDependencyManager.shutdown();
-                    webStudioWorkspaceDependencyManager.resetAll();
                 }
                 webStudioWorkspaceDependencyManager = null;
                 recentlyVisitedTables.clear();
@@ -1002,7 +1001,6 @@ public class ProjectModel {
 
         if (webStudioWorkspaceDependencyManager != null) {
             webStudioWorkspaceDependencyManager.shutdown();
-            webStudioWorkspaceDependencyManager.resetAll();
         }
         webStudioWorkspaceDependencyManager = null;
         xlsModuleSyntaxNode = null;
@@ -1208,7 +1206,6 @@ public class ProjectModel {
             if (!foundOpenedProject) {
                 if (!someProjectsCanBeReused) {
                     webStudioWorkspaceDependencyManager.shutdown();
-                    webStudioWorkspaceDependencyManager.resetAll();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                         .buildDependencyManager(this.moduleInfo.getProject());
                     webStudioWorkspaceDependencyManager.registerListener(this::addSyntaxNodes);

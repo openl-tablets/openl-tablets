@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -46,7 +47,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private final AtomicLong highThreadPriorityFlag = new AtomicLong(0);
     private final ThreadLocal<ThreadPriority> threadPriority = new ThreadLocal<>();
     private volatile boolean active = true;
-    private final List<BiConsumer<IDependencyLoader, CompiledDependency>> compilationListeners = new ArrayList<>();
+    private final List<BiConsumer<IDependencyLoader, CompiledDependency>> compilationListeners = new CopyOnWriteArrayList<>();
 
     public WebStudioWorkspaceRelatedDependencyManager(Collection<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,
@@ -77,7 +78,9 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         throw new OpenLCompilationException("Compilation is interrupted", e);
                     }
                 }
-
+                if (!active) {
+                    throw new OpenLCompilationException("Compilation is interrupted");
+                }
                 Long currentThreadVersion = threadVersion.get();
                 if (currentThreadVersion == null) {
                     threadVersion.set(version.get());
@@ -201,14 +204,17 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
 
     @Override
     public void resetAll() {
-        version.incrementAndGet();
-        super.resetAll();
+        throw new UnsupportedOperationException("Unsupported Operation");
     }
 
     public void shutdown() {
+        synchronized (compilationListenerMutex) {
+            compilationListeners.clear();
+        }
         active = false;
-        executorService.shutdown();
         version.incrementAndGet();
+        executorService.shutdown();
+        super.resetAll();
     }
 
     public void expand(Set<ProjectDescriptor> projects) {
@@ -223,12 +229,16 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         compilationListeners.add(compilationListener);
     }
 
+    private final Object compilationListenerMutex = new Object();
+
     public void fireCompilationListeners(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
-        for (BiConsumer<IDependencyLoader, CompiledDependency> listener : compilationListeners) {
-            try {
-                listener.accept(dependencyLoader, compiledDependency);
-            } catch (Exception e) {
-                log.error("Fail during compilation listener.", e);
+        synchronized (compilationListenerMutex) {
+            for (BiConsumer<IDependencyLoader, CompiledDependency> listener : compilationListeners) {
+                try {
+                    listener.accept(dependencyLoader, compiledDependency);
+                } catch (Exception e) {
+                    log.error("Fail during compilation listener.", e);
+                }
             }
         }
     }
