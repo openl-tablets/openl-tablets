@@ -62,6 +62,13 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
     @Override
     protected void onCompilationComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         super.onCompilationComplete(dependencyLoader, compiledDependency);
-        webStudioWorkspaceRelatedDependencyManager.fireCompilationListeners(dependencyLoader, compiledDependency);
+        webStudioWorkspaceRelatedDependencyManager.fireOnCompilationCompleteListeners(dependencyLoader,
+            compiledDependency);
+    }
+
+    @Override
+    protected void onResetComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
+        super.onResetComplete(dependencyLoader, compiledDependency);
+        webStudioWorkspaceRelatedDependencyManager.fireOnResetCompleteListeners(dependencyLoader, compiledDependency);
     }
 }

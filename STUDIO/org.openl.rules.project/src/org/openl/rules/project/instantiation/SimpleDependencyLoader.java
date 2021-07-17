@@ -166,8 +166,12 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         CompiledDependency compiledDependency1 = compiledDependency;
         if (compiledDependency1 != null) {
             OpenClassUtil.release(compiledDependency1.getCompiledOpenClass());
+            onResetComplete(this, compiledDependency1);
         }
         compiledDependency = null;
+    }
+
+    protected void onResetComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
     }
 
     public interface EmptyInterface {

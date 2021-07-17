@@ -927,9 +927,13 @@ public class ProjectModel {
             case RELOAD:
                 if (webStudioWorkspaceDependencyManager != null) {
                     webStudioWorkspaceDependencyManager.shutdown();
+                    allXlsModuleSyntaxNodes.clear();
+                    currentProjectXlsModuleSyntaxNodes.clear();
+                    workbookSyntaxNodes.clear();
                 }
                 webStudioWorkspaceDependencyManager = null;
                 recentlyVisitedTables.clear();
+
                 break;
             case SINGLE:
                 webStudioWorkspaceDependencyManager.reset(new Dependency(DependencyType.MODULE,
@@ -1001,13 +1005,13 @@ public class ProjectModel {
 
         if (webStudioWorkspaceDependencyManager != null) {
             webStudioWorkspaceDependencyManager.shutdown();
+            allXlsModuleSyntaxNodes.clear();
+            currentProjectXlsModuleSyntaxNodes.clear();
+            workbookSyntaxNodes.clear();
         }
         webStudioWorkspaceDependencyManager = null;
         xlsModuleSyntaxNode = null;
-        allXlsModuleSyntaxNodes.clear();
-        currentProjectXlsModuleSyntaxNodes.clear();
         projectRoot = null;
-        workbookSyntaxNodes.clear();
     }
 
     public void setModuleInfo(Module moduleInfo) throws Exception {
@@ -1043,6 +1047,21 @@ public class ProjectModel {
         }
     }
 
+    private void removeSyntaxNodes(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
+        String projectName = Optional.ofNullable(studio.getCurrentProject()).map(AProjectFolder::getName).orElse(null);
+        IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+        if (metaInfo instanceof XlsMetaInfo) {
+            XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) metaInfo;
+            XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
+            if (xlsModuleSyntaxNode != null) {
+                allXlsModuleSyntaxNodes.remove(xlsModuleSyntaxNode);
+                if (dependencyLoader.getProject().getName().equals(projectName)) {
+                    currentProjectXlsModuleSyntaxNodes.remove(xlsModuleSyntaxNode);
+                }
+            }
+        }
+    }
+
     private void addWorkbookSyntaxNodes(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
         if (metaInfo instanceof XlsMetaInfo) {
@@ -1050,6 +1069,17 @@ public class ProjectModel {
             XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
             if (xlsModuleSyntaxNode != null && !(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
                 workbookSyntaxNodes.addAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
+            }
+        }
+    }
+
+    private void removeWorkbookSyntaxNodes(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
+        IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
+        if (metaInfo instanceof XlsMetaInfo) {
+            XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) metaInfo;
+            XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
+            if (xlsModuleSyntaxNode != null && !(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
+                workbookSyntaxNodes.removeAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
             }
         }
     }
@@ -1080,9 +1110,6 @@ public class ProjectModel {
         compiledOpenClass = null;
         projectRoot = null;
         xlsModuleSyntaxNode = null;
-        allXlsModuleSyntaxNodes.clear();
-        currentProjectXlsModuleSyntaxNodes.clear();
-        workbookSyntaxNodes.clear();
 
         prepareWorkspaceDependencyManager();
 
@@ -1105,21 +1132,6 @@ public class ProjectModel {
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(thisModuleCompiledOpenClass);
             openedModuleCompiledOpenClass = thisModuleCompiledOpenClass;
             compiledOpenClass = thisModuleCompiledOpenClass;
-            allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
-            currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
-
-            for (XlsModuleSyntaxNode xlsSyntaxNode : allXlsModuleSyntaxNodes) {
-                if (!(xlsSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
-                    workbookSyntaxNodes.addAll(Arrays.asList(xlsSyntaxNode.getWorkbookSyntaxNodes()));
-                }
-            }
-
-            // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode does not contain Virtual Module with dispatcher
-            // table syntax nodes.
-            // Such dispatcher syntax nodes are needed to show dispatcher tables in Trace.
-            // That's why we should add virtual module to allXlsModuleSyntaxNodes.
-            XlsMetaInfo xmi = (XlsMetaInfo) thisModuleCompiledOpenClass.getOpenClassWithErrors().getMetaInfo();
-            allXlsModuleSyntaxNodes.add(xmi.getXlsModuleNode());
 
             WorkbookLoaders.resetCurrentFactory();
 
@@ -1185,8 +1197,10 @@ public class ProjectModel {
         if (webStudioWorkspaceDependencyManager == null) {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                 .buildDependencyManager(this.moduleInfo.getProject());
-            webStudioWorkspaceDependencyManager.registerListener(this::addSyntaxNodes);
-            webStudioWorkspaceDependencyManager.registerListener(this::addWorkbookSyntaxNodes);
+            webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addSyntaxNodes);
+            webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addWorkbookSyntaxNodes);
+            webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeSyntaxNodes);
+            webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeWorkbookSyntaxNodes);
         } else {
             Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
                 .resolveWorkspace(this.moduleInfo.getProject());
@@ -1206,10 +1220,17 @@ public class ProjectModel {
             if (!foundOpenedProject) {
                 if (!someProjectsCanBeReused) {
                     webStudioWorkspaceDependencyManager.shutdown();
+                    allXlsModuleSyntaxNodes.clear();
+                    currentProjectXlsModuleSyntaxNodes.clear();
+                    workbookSyntaxNodes.clear();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                         .buildDependencyManager(this.moduleInfo.getProject());
-                    webStudioWorkspaceDependencyManager.registerListener(this::addSyntaxNodes);
-                    webStudioWorkspaceDependencyManager.registerListener(this::addWorkbookSyntaxNodes);
+                    webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addSyntaxNodes);
+                    webStudioWorkspaceDependencyManager
+                        .registerOnCompilationCompleteListener(this::addWorkbookSyntaxNodes);
+                    webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeSyntaxNodes);
+                    webStudioWorkspaceDependencyManager
+                        .registerOnResetCompleteListener(this::removeWorkbookSyntaxNodes);
                 } else {
                     // If loaded projects are a part of the new opened project, then we can reuse dependency manager
                     webStudioWorkspaceDependencyManager.expand(

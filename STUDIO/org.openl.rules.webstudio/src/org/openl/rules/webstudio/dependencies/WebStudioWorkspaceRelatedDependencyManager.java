@@ -47,7 +47,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private final AtomicLong highThreadPriorityFlag = new AtomicLong(0);
     private final ThreadLocal<ThreadPriority> threadPriority = new ThreadLocal<>();
     private volatile boolean active = true;
-    private final List<BiConsumer<IDependencyLoader, CompiledDependency>> compilationListeners = new CopyOnWriteArrayList<>();
+    private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onCompilationCompleteListeners = new CopyOnWriteArrayList<>();
+    private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onResetCompleteListeners = new CopyOnWriteArrayList<>();
 
     public WebStudioWorkspaceRelatedDependencyManager(Collection<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,
@@ -204,12 +205,13 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
 
     @Override
     public void resetAll() {
-        throw new UnsupportedOperationException("Unsupported Operation");
+        throw new UnsupportedOperationException("Unsupported operation");
     }
 
     public void shutdown() {
-        synchronized (compilationListenerMutex) {
-            compilationListeners.clear();
+        synchronized (listenersMutex) {
+            onCompilationCompleteListeners.clear();
+            onResetCompleteListeners.clear();
         }
         active = false;
         version.incrementAndGet();
@@ -225,19 +227,39 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
             .collect(Collectors.toCollection(ArrayList::new)));
     }
 
-    public void registerListener(BiConsumer<IDependencyLoader, CompiledDependency> compilationListener) {
-        compilationListeners.add(compilationListener);
+    public void registerOnCompilationCompleteListener(
+            BiConsumer<IDependencyLoader, CompiledDependency> onCompilationCompleteListener) {
+        onCompilationCompleteListeners.add(onCompilationCompleteListener);
     }
 
-    private final Object compilationListenerMutex = new Object();
+    public void registerOnResetCompleteListener(
+            BiConsumer<IDependencyLoader, CompiledDependency> onResetCompleteListener) {
+        onResetCompleteListeners.add(onResetCompleteListener);
+    }
 
-    public void fireCompilationListeners(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
-        synchronized (compilationListenerMutex) {
-            for (BiConsumer<IDependencyLoader, CompiledDependency> listener : compilationListeners) {
+    private final Object listenersMutex = new Object();
+
+    public void fireOnCompilationCompleteListeners(IDependencyLoader dependencyLoader,
+            CompiledDependency compiledDependency) {
+        synchronized (listenersMutex) {
+            for (BiConsumer<IDependencyLoader, CompiledDependency> listener : onCompilationCompleteListeners) {
                 try {
                     listener.accept(dependencyLoader, compiledDependency);
                 } catch (Exception e) {
-                    log.error("Fail during compilation listener.", e);
+                    log.error("Fail during on compilation complete listener invocation.", e);
+                }
+            }
+        }
+    }
+
+    public void fireOnResetCompleteListeners(IDependencyLoader dependencyLoader,
+            CompiledDependency compiledDependency) {
+        synchronized (listenersMutex) {
+            for (BiConsumer<IDependencyLoader, CompiledDependency> listener : onResetCompleteListeners) {
+                try {
+                    listener.accept(dependencyLoader, compiledDependency);
+                } catch (Exception e) {
+                    log.error("Fail during on reset complete listener invocation.", e);
                 }
             }
         }
