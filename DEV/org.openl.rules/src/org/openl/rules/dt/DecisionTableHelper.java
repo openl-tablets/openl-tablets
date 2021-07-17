@@ -188,6 +188,8 @@ public final class DecisionTableHelper {
         TreeMap.class,
         LinkedHashMap.class);
 
+    private static final String[] EMPTY_STRING_ARRAY = new String[] {};
+
     private DecisionTableHelper() {
     }
 
@@ -445,7 +447,8 @@ public final class DecisionTableHelper {
                             1,
                             1,
                             matchedDefinition,
-                            true);
+                            true,
+                            false);
                     } else {
                         bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
                             "Ambiguous matching of column titles to DT return columns. Use more appropriate titles for return columns.",
@@ -712,7 +715,7 @@ public final class DecisionTableHelper {
 
                         }
                         DecisionTableMetaInfoReader.appendParameters(sb,
-                            parameterNames.toArray(new String[] {}),
+                            parameterNames.toArray(EMPTY_STRING_ARRAY),
                             typeOfColumns.toArray(IOpenClass.EMPTY));
                         writeReturnMetaInfo(tableSyntaxNode,
                             cell,
@@ -985,7 +988,7 @@ public final class DecisionTableHelper {
         while (generatedNames.size() < fuzzyReturns.size()) {
             generatedNames.add(RandomStringUtils.random(8, true, false));
         }
-        String[] compoundColumnParamNames = generatedNames.toArray(new String[] {});
+        String[] compoundColumnParamNames = generatedNames.toArray(EMPTY_STRING_ARRAY);
         Map<String, Map<IOpenField, String>> variables = new HashMap<>();
 
         writeInputParametersToReturn(tableSyntaxNode,
@@ -1258,7 +1261,7 @@ public final class DecisionTableHelper {
                         column1,
                         declaredDtHeader.getRow(),
                         header,
-                        parameterNames.toArray(new String[] {}),
+                        parameterNames.toArray(EMPTY_STRING_ARRAY),
                         declaredDtHeader.getStatement(),
                         typeOfColumns.toArray(IOpenClass.EMPTY),
                         declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
@@ -1268,7 +1271,7 @@ public final class DecisionTableHelper {
                         column1,
                         declaredDtHeader.getRow(),
                         header,
-                        parameterNames.toArray(new String[] {}),
+                        parameterNames.toArray(EMPTY_STRING_ARRAY),
                         declaredDtHeader.getStatement(),
                         typeOfColumns.toArray(IOpenClass.EMPTY),
                         declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
@@ -1701,6 +1704,18 @@ public final class DecisionTableHelper {
         int minColumn;
         if (!WithVerticalTitles.NO.equals(withVerticalTitles) && firstColumnForHCondition > 0) {
             minColumn = firstColumnForHCondition - 1;
+            List<DTHeader> vDtHeaders = conditions.stream()
+                .filter(e -> e.isCondition() && !e.isHCondition())
+                .collect(toList());
+            if (!vDtHeaders.isEmpty()) {
+                DTHeader lastVCondition = vDtHeaders.get(vDtHeaders.size() - 1);
+                if (lastVCondition instanceof DeclaredDTHeader) {
+                    DeclaredDTHeader declaredDTHeader = (DeclaredDTHeader) lastVCondition;
+                    if (!declaredDTHeader.isVerticalConditionWithMergedTitle()) {
+                        minColumn = hDtHeaders.stream().mapToInt(DTHeader::getColumn).min().orElse(0);
+                    }
+                }
+            }
         } else {
             minColumn = hDtHeaders.stream().mapToInt(DTHeader::getColumn).min().orElse(0);
         }
@@ -3290,9 +3305,8 @@ public final class DecisionTableHelper {
             int firstColumnHeight,
             int numberOfHConditions,
             IBindingContext bindingContext) {
-        int numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(column);
         boolean parseAsHorizontalVerticalTitle = WithVerticalTitles.SLASH_IN_TITLE
-            .equals(withVerticalTitles) && numberOfColumnsUnderTitle == 1 && column + originalTable.getSource()
+            .equals(withVerticalTitles) && column + originalTable.getSource()
                 .getCell(column, 0)
                 .getWidth() == firstColumnForHCondition;
         int w0 = column + originalTable.getSource().getCell(column, 0).getWidth();
@@ -3304,29 +3318,49 @@ public final class DecisionTableHelper {
             .getCell(column, 0)
             .getHeight() == firstColumnHeight) {
             for (DTColumnsDefinition definition : definitions.getDtColumnsDefinitions()) {
-                int currentNumberOfColumnsUnderTitle = numberOfColumnsUnderTitle;
                 Set<String> titles = new HashSet<>(definition.getTitles());
-                Pair<String, Integer> extractedTitle = extractTokenizedVerticalTitleString(originalTable,
+                Triple<String, String, Integer> extractedTitle = extractTokenizedVerticalTitleString(originalTable,
                     column,
                     firstColumnHeight,
                     parseAsHorizontalVerticalTitle);
-                Pair<String, Integer> lastExtractedTitle = extractedTitle;
+                Triple<String, String, Integer> lastExtractedTitle = extractedTitle;
                 int i = 0;
                 int x = column;
                 IParameterDeclaration[][] columnParameters = null;
+                int numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(x);
+                boolean f1 = isMatchedByUnderColumns(definition.getParameters(extractedTitle.getLeft()),
+                    numberOfColumnsUnderTitle);
+                boolean f2 = !Objects.equals(extractedTitle.getLeft(),
+                    extractedTitle.getMiddle()) && isMatchedByUnderColumns(
+                        definition.getParameters(extractedTitle.getMiddle()),
+                        numberOfColumnsUnderTitle);
+                boolean g = false;
                 while (!titles
                     .isEmpty() && ((numberOfHConditions > 0 && x < firstColumnForHCondition || x < originalTable
                         .getSource()
-                        .getWidth()) && titles.contains(extractedTitle.getLeft()) && isMatchedByUnderColumns(
-                            definition.getParameters(extractedTitle.getLeft()),
-                            currentNumberOfColumnsUnderTitle))) {
-                    titles.remove(extractedTitle.getLeft());
+                        .getWidth()) && (f1 && titles.contains(
+                            extractedTitle.getLeft()) || f2 && titles.contains(extractedTitle.getMiddle())))) {
+                    g = false;
+                    if (f1) {
+                        titles.remove(extractedTitle.getLeft());
+                    } else {
+                        titles.remove(extractedTitle.getMiddle());
+                    }
                     for (String s : definition.getTitles()) {
-                        if (s.equals(extractedTitle.getLeft())) {
+                        if (f1 && s.equals(extractedTitle.getLeft())) {
+                            g = true;
                             if (columnParameters == null) {
                                 columnParameters = new IParameterDeclaration[definition.getNumberOfTitles()][];
                             }
                             columnParameters[i] = definition.getParameters(extractedTitle.getLeft())
+                                .toArray(IParameterDeclaration.EMPTY);
+                            break;
+                        }
+                        if (f2 && s.equals(extractedTitle.getMiddle())) {
+                            if (columnParameters == null) {
+                                columnParameters = new IParameterDeclaration[definition.getNumberOfTitles()][];
+                            }
+                            columnParameters[i] = definition.getParameters(extractedTitle.getMiddle())
                                 .toArray(IParameterDeclaration.EMPTY);
                             break;
                         }
@@ -3339,7 +3373,17 @@ public final class DecisionTableHelper {
                         x,
                         firstColumnHeight,
                         parseAsHorizontalVerticalTitle);
-                    currentNumberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(x);
+                    parseAsHorizontalVerticalTitle = WithVerticalTitles.SLASH_IN_TITLE
+                        .equals(withVerticalTitles) && column + originalTable.getSource()
+                            .getCell(column, 0)
+                            .getWidth() == firstColumnForHCondition;
+                    numberOfColumnsUnderTitle = numberOfColumnsUnderTitleCounter.get(x);
+                    f1 = isMatchedByUnderColumns(definition.getParameters(extractedTitle.getLeft()),
+                        numberOfColumnsUnderTitle);
+                    f2 = !Objects.equals(extractedTitle.getLeft(),
+                        extractedTitle.getMiddle()) && isMatchedByUnderColumns(
+                            definition.getParameters(extractedTitle.getMiddle()),
+                            numberOfColumnsUnderTitle);
                 }
                 if (titles.isEmpty()) {
                     MatchedDefinition matchedDefinition = matchByDTColumnDefinition(decisionTable,
@@ -3356,7 +3400,8 @@ public final class DecisionTableHelper {
                             x - column + (skipNextColumn ? originalTable.getSource().getCell(x, 0).getWidth() : 0),
                             x - column,
                             matchedDefinition,
-                            false);
+                            false,
+                            g && parseAsHorizontalVerticalTitle);
                         dtHeaders.add(dtHeader);
                     }
                 }
@@ -3377,7 +3422,7 @@ public final class DecisionTableHelper {
                             .equals(withVerticalTitles)) {
                             title = title.substring(title.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) + 1).trim();
                         }
-                        if (x < numberOfHConditions && numberOfColumnsUnderTitle == 1) {
+                        if (x < numberOfHConditions) {
                             title = OpenLFuzzyUtils.toTokenString(title);
                             if (Objects.equals(title, definitionTitle)) {
                                 MatchedDefinition matchedDefinition = matchByDTColumnDefinition(decisionTable,
@@ -3397,7 +3442,8 @@ public final class DecisionTableHelper {
                                         1,
                                         1,
                                         matchedDefinition,
-                                        true);
+                                        true,
+                                        false);
                                     dtHeaders.add(vDtHeader);
                                     break;
                                 }
@@ -3411,19 +3457,22 @@ public final class DecisionTableHelper {
         }
     }
 
-    private static Pair<String, Integer> extractTokenizedVerticalTitleString(ILogicalTable originalTable,
+    private static Triple<String, String, Integer> extractTokenizedVerticalTitleString(ILogicalTable originalTable,
             int column,
             int firstColumnHeight,
             boolean parseAsHorizontalVerticalTitle) {
         if (parseAsHorizontalVerticalTitle) {
             String title = originalTable.getSource().getCell(column, firstColumnHeight - 1).getStringValue();
             if (StringUtils.isNotBlank(title) && title.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)) {
-                title = title.substring(0, title.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)).trim();
-                return Pair.of(OpenLFuzzyUtils.toTokenString(title), firstColumnHeight - 1);
+                String cutTitle = title.substring(0, title.indexOf(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)).trim();
+                return Triple.of(OpenLFuzzyUtils.toTokenString(cutTitle),
+                    OpenLFuzzyUtils.toTokenString(title),
+                    firstColumnHeight - 1);
             }
         }
         String title = originalTable.getSource().getCell(column, 0).getStringValue();
-        return Pair.of(OpenLFuzzyUtils.toTokenString(title), 0);
+        String tokenizedTitle = OpenLFuzzyUtils.toTokenString(title);
+        return Triple.of(tokenizedTitle, tokenizedTitle, 0);
     }
 
     private static boolean isMatchedByUnderColumns(List<IParameterDeclaration> parameters,
