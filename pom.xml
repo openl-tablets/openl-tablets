@@ -123,7 +123,7 @@
         <surefire.argLine>-Xms8m -Xmx128m -Xss256k</surefire.argLine>
         <!-- Fine tuned settings to detects memory and performance issues -->
         <surefire.argLine.perf>-Xms8m -Xmx55m -Xss256k</surefire.argLine.perf>
-        <openl.home>${project.build.directory}/openl-test</openl.home>
+        <openl.home>${project.build.directory}/openl-test-${openl.start.milli}</openl.home>
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
         <openl.info>main</openl.info>
     </properties>
@@ -320,7 +320,7 @@
                         <systemProperties>
                             <systemProperty>
                                 <name>openl.home</name>
-                                <value>${project.build.directory}/openl-jetty</value>
+                                <value>${project.build.directory}/openl-jetty-${openl.start.milli}</value>
                             </systemProperty>
                             <systemProperty>
                                 <name>openl.info</name>
