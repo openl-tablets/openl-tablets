@@ -1242,6 +1242,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
     }
 
+    public boolean isBranchProtected() {
+        return Optional.ofNullable(getCurrentProject())
+                .map(UserWorkspaceProject::isBranchProtected)
+                .orElse(Boolean.FALSE);
+    }
+
     public Map<String, Object> getExternalProperties() {
         return externalProperties;
     }

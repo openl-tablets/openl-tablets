@@ -3,8 +3,8 @@ package org.openl.rules.project.abstraction;
 import java.io.IOException;
 
 import org.openl.rules.common.CommonUser;
-import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -144,5 +144,12 @@ public abstract class UserWorkspaceProject extends AProject {
         }
 
         return null;
+    }
+
+    public boolean isBranchProtected() {
+        if (isSupportsBranches()) {
+            return ((BranchRepository) getDesignRepository()).isBranchProtected(getBranch());
+        }
+        return false;
     }
 }

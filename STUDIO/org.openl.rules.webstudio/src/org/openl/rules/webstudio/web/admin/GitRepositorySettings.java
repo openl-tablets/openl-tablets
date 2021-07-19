@@ -24,6 +24,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private int connectionTimeout;
     private int failedAuthenticationSeconds;
     private Integer maxAuthenticationAttempts;
+    private String protectedBranches;
 
     private final String URI;
     private final String LOGIN;
@@ -41,6 +42,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String CONFIG_PREFIX;
     private final String FAILED_AUTHENTICATION_SECONDS;
     private final String MAX_AUTHENTICATION_ATTEMPTS;
+    private final String PROTECTED_BRANCHES;
 
 
     GitRepositorySettings(PropertiesHolder properties, String configPrefix) {
@@ -61,6 +63,7 @@ public class GitRepositorySettings extends RepositorySettings {
         CONNECTION_TIMEOUT = configPrefix + ".connection-timeout";
         FAILED_AUTHENTICATION_SECONDS = configPrefix + ".failed-authentication-seconds";
         MAX_AUTHENTICATION_ATTEMPTS = configPrefix + ".max-authentication-attempts";
+        PROTECTED_BRANCHES = configPrefix + ".protected-branches";
 
         load(properties);
     }
@@ -92,6 +95,7 @@ public class GitRepositorySettings extends RepositorySettings {
         newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
         newBranchRegex = properties.getProperty(NEW_BRANCH_REGEX);
         newBranchRegexError = properties.getProperty(NEW_BRANCH_REGEX_ERROR);
+        protectedBranches = properties.getProperty(PROTECTED_BRANCHES);
 
         remoteRepository = StringUtils.isNotBlank(uri);
     }
@@ -224,6 +228,14 @@ public class GitRepositorySettings extends RepositorySettings {
         this.newBranchRegexError = newBranchRegexError;
     }
 
+    public String getProtectedBranches() {
+        return protectedBranches;
+    }
+
+    public void setProtectedBranches(String protectedBranches) {
+        this.protectedBranches = protectedBranches;
+    }
+
     @Override
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
@@ -257,6 +269,7 @@ public class GitRepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(CONNECTION_TIMEOUT, connectionTimeout);
         propertiesHolder.setProperty(FAILED_AUTHENTICATION_SECONDS, failedAuthenticationSeconds);
         propertiesHolder.setProperty(MAX_AUTHENTICATION_ATTEMPTS, maxAuthenticationAttempts);
+        propertiesHolder.setProperty(PROTECTED_BRANCHES, protectedBranches);
     }
 
     @Override
@@ -274,7 +287,8 @@ public class GitRepositorySettings extends RepositorySettings {
                 NEW_BRANCH_REGEX,
                 NEW_BRANCH_REGEX_ERROR,
                 TAG_PREFIX,
-                LISTENER_TIMER_PERIOD);
+                LISTENER_TIMER_PERIOD,
+                PROTECTED_BRANCHES);
         load(properties);
     }
 
@@ -301,6 +315,7 @@ public class GitRepositorySettings extends RepositorySettings {
             setMaxAuthenticationAttempts(otherSettings.getMaxAuthenticationAttempts());
             setCommentTemplate(otherSettings.getCommentTemplate());
             setRemoteRepository(otherSettings.isRemoteRepository());
+            setProtectedBranches(otherSettings.getProtectedBranches());
         }
     }
 

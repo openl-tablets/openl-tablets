@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.openl.rules.repository.git.TestGitUtils.assertContains;
@@ -18,6 +19,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -1039,10 +1041,8 @@ public class GitRepositoryTest {
     public void testBranches() throws IOException {
         repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
         repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test2");
-        List<String> branches = repo.getBranches(FOLDER_IN_REPOSITORY);
-        assertTrue(branches.contains("test"));
-        assertTrue(branches.contains("project1/test1"));
-        assertTrue(branches.contains("project1/test2"));
+        assertListEquals(Arrays.asList("test", "project1/test1", "project1/test2"),
+            repo.getBranches(FOLDER_IN_REPOSITORY));
 
         // Don't close "project1/test1" and "project1/test2" repositories explicitly.
         // Secondary repositories should be closed by parent repository automatically.
@@ -1054,10 +1054,7 @@ public class GitRepositoryTest {
         assertEquals("project1/test2", repoTest2.getBranch());
 
         repoTest1.deleteBranch(FOLDER_IN_REPOSITORY, "project1/test1");
-        branches = repo.getBranches(FOLDER_IN_REPOSITORY);
-        assertTrue(branches.contains("test"));
-        assertFalse(branches.contains("project1/test1"));
-        assertTrue(branches.contains("project1/test2"));
+        assertListEquals(Arrays.asList("test", "project1/test2"), repo.getBranches(FOLDER_IN_REPOSITORY));
 
         // Test that forBranch() fetches new branch if it has not been cloned before
         File remote = new File(root, "remote");
@@ -1326,6 +1323,20 @@ public class GitRepositoryTest {
 
         int getChanges() {
             return changes;
+        }
+    }
+
+    private static void assertListEquals(List<String> expected, List<String> actual) {
+        List<String> rest = new ArrayList<>(actual);
+        rest.removeAll(expected);
+        if (!rest.isEmpty()) {
+            fail(String.format("Unexpected items: %s", String.join(", ", rest)));
+        }
+
+        rest = new ArrayList<>(expected);
+        rest.removeAll(actual);
+        if (!rest.isEmpty()) {
+            fail(String.format("Missed expected items: %s", String.join(", ", rest)));
         }
     }
 }

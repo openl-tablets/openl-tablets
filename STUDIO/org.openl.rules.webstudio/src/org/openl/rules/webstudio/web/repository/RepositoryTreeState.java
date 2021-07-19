@@ -792,7 +792,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
             boolean unlocked = !selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser());
             boolean mainBranch = isMainBranch(selectedProject);
-            return unlocked && isGranted(DELETE_PROJECTS) && !mainBranch;
+            boolean branchProtected = isCurrentBranchProtected(selectedProject);
+            return unlocked && isGranted(DELETE_PROJECTS) && !mainBranch && !branchProtected;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -809,6 +810,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
         }
         return mainBranch;
+    }
+
+    private boolean isCurrentBranchProtected(UserWorkspaceProject selectedProject) {
+        Repository designRepository = selectedProject.getDesignRepository();
+        if (designRepository.supports().branches()) {
+            return ((BranchRepository) designRepository).isBranchProtected(selectedProject.getBranch());
+        }
+        return false;
     }
 
     public boolean getCanErase() {

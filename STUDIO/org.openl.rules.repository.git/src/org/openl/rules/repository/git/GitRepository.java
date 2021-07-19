@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
@@ -64,7 +65,6 @@ import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.hooks.CommitMsgHook;
 import org.eclipse.jgit.hooks.PreCommitHook;
-import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -152,6 +152,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private Boolean gcAutoDetach;
     private int failedAuthenticationSeconds;
     private Integer maxAuthenticationAttempts;
+    private WildcardBranchNameFilter protectedBranchFilter = WildcardBranchNameFilter.NO_MATCH;
 
     private ChangesMonitor monitor;
     private Git git;
@@ -647,9 +648,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                             shouldUpdateOrigin = true;
                                         } else {
                                             throw new IOException(String.format(
-                                                    "Folder '%s' already contains local git repository, but is configured to different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
-                                                    local,
-                                                    remoteUrl));
+                                                "Folder '%s' already contains local git repository, but is configured to different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
+                                                local,
+                                                remoteUrl));
                                         }
                                     }
                                 }
@@ -696,9 +697,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 try (Repository repository = Git.open(local).getRepository()) {
                     StoredConfig config = repository.getConfig();
                     config.setString(ConfigConstants.CONFIG_REMOTE_SECTION,
-                                    Constants.DEFAULT_REMOTE_NAME,
-                                    ConfigConstants.CONFIG_KEY_URL,
-                                    uri);
+                        Constants.DEFAULT_REMOTE_NAME,
+                        ConfigConstants.CONFIG_KEY_URL,
+                        uri);
                     config.save();
                 }
             }
@@ -905,6 +906,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     public void setRepositorySettings(RepositorySettings repositorySettings) {
         this.repositorySettings = repositorySettings;
+    }
+
+    public void setProtectedBranches(String... patterns) {
+        this.protectedBranchFilter = WildcardBranchNameFilter.create(patterns);
+    }
+
+    @Override
+    public boolean isBranchProtected(String branch) {
+        return protectedBranchFilter.accept(branch);
     }
 
     /**
@@ -1268,8 +1278,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .setPathFilter(PathFilterGroup.createFromStrings(conflictedFiles))
                     .call();
 
-                Pattern oldPathPattern = Pattern.compile("(diff --git .+\\n.+--- \"a/).+?(\".*\\n@@.+)", Pattern.DOTALL);
-                Pattern newPathPattern = Pattern.compile("(diff --git .+\\n.+\\+\\+\\+ \"b/).+?(\".*\\n@@.+)", Pattern.DOTALL);
+                Pattern oldPathPattern = Pattern.compile("(diff --git .+\\n.+--- \"a/).+?(\".*\\n@@.+)",
+                    Pattern.DOTALL);
+                Pattern newPathPattern = Pattern.compile("(diff --git .+\\n.+\\+\\+\\+ \"b/).+?(\".*\\n@@.+)",
+                    Pattern.DOTALL);
                 for (DiffEntry entry : diff) {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     try (DiffFormatter formatter = new DiffFormatter(outputStream)) {
@@ -2379,6 +2391,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.setUserEmail(userEmail);
         repo.setLocalRepositoryPath(localRepositoryPath);
         repo.setBranch(branch);
+        repo.protectedBranchFilter = protectedBranchFilter;
         repo.baseBranch = baseBranch; // Base branch is only one
         repo.setTagPrefix(tagPrefix);
         repo.setListenerTimerPeriod(listenerTimerPeriod);
@@ -2919,7 +2932,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         };
         if (!Objects.equals(a.getRawSchemeSpecificPart(), b.getRawSchemeSpecificPart())) {
             if (!Objects.equals(remLastSlash.apply(a.getRawSchemeSpecificPart()),
-                    remLastSlash.apply(b.getRawSchemeSpecificPart()))) {
+                remLastSlash.apply(b.getRawSchemeSpecificPart()))) {
                 return false;
             }
         }
