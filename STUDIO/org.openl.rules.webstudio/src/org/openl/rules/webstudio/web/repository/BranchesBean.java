@@ -209,6 +209,14 @@ public class BranchesBean {
         return !isTheirBranchMerged() && isBranchProtected(branchToMerge);
     }
 
+    public boolean isYourBranchProtected() {
+        return !isYourBranchMerged() && isBranchProtected(currentBranch);
+    }
+
+    public boolean isBothBranchesProtected() {
+        return isBranchProtected(branchToMerge) && isBranchProtected(currentBranch);
+    }
+
     private boolean isBranchProtected(String branch) {
         return Optional.ofNullable(getProject(currentProjectName))
             .map(RulesProject::getDesignRepository)
