@@ -141,7 +141,7 @@ public class WorkspaceCompileService {
                     compiledCount = modulesCount;
                 }
                 compileModuleInfo.put("dataType", "new");
-                if (messageIndex != -1 && messageId != -1) {
+                if (messageIndex != -1 && messageId != -1 && messageIndex < newMessages.size()) {
                     MessageDescription messageDescription = newMessages.get(messageIndex);
                     if (messageDescription.getId() == messageId) {
                         newMessages = newMessages.subList(messageIndex + 1, newMessages.size());
