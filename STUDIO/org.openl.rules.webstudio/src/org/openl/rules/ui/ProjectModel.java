@@ -1349,7 +1349,12 @@ public class ProjectModel {
     }
 
     public synchronized XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
-        PathEntry rulesRootPath = studio.getCurrentModule().getRulesRootPath();
+        Module currentModule = studio.getCurrentModule();
+        if (currentModule == null) {
+            return null;
+        }
+
+        PathEntry rulesRootPath = currentModule.getRulesRootPath();
 
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
         if (workbookNodes == null) {
