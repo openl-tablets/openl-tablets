@@ -145,8 +145,6 @@
                                 setTimeout(function () {$jq('#progress-info-panel').trigger('refresh')}, 1000);
                             } else {
                                 finished();
-                            }
-                            if (data.compilationCompleted) {
                                 ws.nav.reloadPanel('left');
                             }
                         });

@@ -805,13 +805,13 @@
                 if (!compiled) {
                     ws.ui.confirm({
                         title: 'Tests',
-                        message: 'Can be run within current module only because the project is not compiled yet.',
+                        message: 'Tests can be run within current module only because the project is not compiled yet.',
                         onOK: proceed
                     });
                 } else if ($j("#tableHasProblems") === 'true') {
                     ws.ui.confirm({
                         title: 'Tests',
-                        message: 'Can be run for the currently opened module only because other modules contain errors.',
+                        message: 'Tests can be run for the currently opened module only because other modules contain errors.',
                         onOK: proceed
                     });
                 } else {
