@@ -38,15 +38,13 @@ import org.openl.types.IParameterDeclaration;
 public class DecisionTableDataType extends ComponentOpenClass {
 
     private final Map<String, List<IOpenField>> nonConflictConditionParamNames = new HashMap<>();
+    private final Map<String, List<IOpenField>> nonConflictConditionParamNamesNonStrictMatch = new HashMap<>();
 
     // This is very simple way to find what fields was used during expression compilation
     private Set<IOpenField> usedFields;
     private final boolean traceUsedFields;
 
-    public DecisionTableDataType(DecisionTable decisionTable,
-            String name,
-            OpenL openl,
-            boolean traceUsedFields) {
+    public DecisionTableDataType(DecisionTable decisionTable, String name, OpenL openl, boolean traceUsedFields) {
         super(name, openl);
 
         this.traceUsedFields = traceUsedFields;
@@ -72,10 +70,12 @@ public class DecisionTableDataType extends ComponentOpenClass {
         if (fname == null) {
             return null;
         }
-        if (!strictMatch) {
-            throw new IllegalStateException("Non-strict match is not supported");
+        List<IOpenField> conditionParameterFields;
+        if (strictMatch) {
+            conditionParameterFields = nonConflictConditionParamNames.get(fname);
+        } else {
+            conditionParameterFields = nonConflictConditionParamNamesNonStrictMatch.get(fname.toLowerCase());
         }
-        List<IOpenField> conditionParameterFields = nonConflictConditionParamNames.get(fname);
         if (conditionParameterFields != null && !conditionParameterFields.isEmpty()) {
             if (conditionParameterFields.size() == 1) {
                 IOpenField f = conditionParameterFields.iterator().next();
@@ -104,6 +104,9 @@ public class DecisionTableDataType extends ComponentOpenClass {
     public void addDecisionTableField(IOpenField f) {
         if (f != null) {
             nonConflictConditionParamNames.computeIfAbsent(f.getName(), e -> new ArrayList<>()).add(f);
+            nonConflictConditionParamNamesNonStrictMatch
+                .computeIfAbsent(f.getName().toLowerCase(), e -> new ArrayList<>())
+                .add(f);
         }
     }
 
