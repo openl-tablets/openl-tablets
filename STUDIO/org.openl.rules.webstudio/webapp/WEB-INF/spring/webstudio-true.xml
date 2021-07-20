@@ -66,6 +66,7 @@
                 <ref bean="workspaceCompileService"/>
                 <ref bean="designTimeRepositoryService"/>
                 <ref bean="tagConfigService"/>
+                <ref bean="openLMessageService"/>
             </list>
         </property>
         <property name="providers">

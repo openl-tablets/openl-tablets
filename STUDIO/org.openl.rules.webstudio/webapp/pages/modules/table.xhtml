@@ -1275,18 +1275,16 @@
             $j(".stacktrace-showed").each(function(i, e) { $j(e).addClass("stacktrace-hidden").removeClass("stacktrace-showed"); });
             $j(".arrow-top a div").removeClass("stacktrace-hidden");
             if (isHidden) {
-                compiled(function (data) {
-                     $j.ajax({
-                        url: "#{contextPath}/web/compile/error/" + messageBox.attr("data-message-id") + "/" + !data,
-                        datatype: "text"
-                    })
-                    .done(function (data) {
-                        messageBox.find(".stacktrace-panels span").text(data);
-                        messageBox.find('[id$="stacktrace_panel"]').show();
-                        messageBox.find('[id$="summary_panel"]').hide();
-                        arrow.addClass("stacktrace-showed").removeClass("stacktrace-hidden");
-                        $j(arrowBlock).parent().parent().find(".arrow-top a div").addClass("stacktrace-showed");
-                    });
+                 $j.ajax({
+                    url: "#{contextPath}/web/message/" + messageBox.attr("data-message-id") + "/stacktrace",
+                    datatype: "text"
+                })
+                .done(function (data) {
+                    messageBox.find(".stacktrace-panels span").text(data);
+                    messageBox.find('[id$="stacktrace_panel"]').show();
+                    messageBox.find('[id$="summary_panel"]').hide();
+                    arrow.addClass("stacktrace-showed").removeClass("stacktrace-hidden");
+                    $j(arrowBlock).parent().parent().find(".arrow-top a div").addClass("stacktrace-showed");
                 });
             }
         }

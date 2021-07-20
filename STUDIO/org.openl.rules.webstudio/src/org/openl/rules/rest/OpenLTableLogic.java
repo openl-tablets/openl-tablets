@@ -75,7 +75,7 @@ public class OpenLTableLogic {
             String errorUri = message.getSourceLocation();
             IOpenSourceCodeModule module = null;
             String code = null;
-            String messageNodeId = model.getMessageNodeId(message);
+            String messageNodeId = model.getMessageNodeId(message.getSourceLocation());
             if (message instanceof OpenLErrorMessage) {
                 OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
                 hasStackTrace = errorMessage.getError() != null;

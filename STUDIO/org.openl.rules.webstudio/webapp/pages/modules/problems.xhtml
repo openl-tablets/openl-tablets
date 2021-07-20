@@ -35,6 +35,7 @@
         .message-block-link{
             color: black;
             text-decoration:none;
+            cursor:pointer;
         }
 
         .ui-layout-resizer-closed .layout-extractable-info{
@@ -51,6 +52,9 @@
             background: #ffffff;
         }
 
+        #problems-panel-container > div:nth-child(1) {
+            display: none;
+        }
     </style>
 
     <div class="panel">
@@ -68,21 +72,27 @@
             </div>
         </div>
 
-        <div class="panel-body container">
+        <div id="problems-panel-container" class="panel-body container">
+            <div>
+                <div class="message-block {messageTypeClass} problem-small">
+                    <a class="message-block-link"
+                       onclick="navigateProblem(this); return false;"
+                       data-message-id="{messageId}">{messageSummary}</a>
+                </div>
+            </div>
             <div id="errors-panel"></div>
             <div id="warnings-panel"></div>
         </div>
 
         <script>
             //<![CDATA[
-                var $jq = jQuery.noConflict();
-                var messageId = -1;
-                var messageIndex = -1;
-                var projectId = ws.storage.get("WS_PREVIOUS_PAGE_STATE").project;
-                var progressInfoPanel = $jq('#progress-info-panel');
+                const $jq = jQuery.noConflict();
+                let messageId = -1;
+                let messageIndex = -1;
+                const projectId = ws.storage.get("WS_PREVIOUS_PAGE_STATE").project;
+                const progressInfoPanel = $jq('#progress-info-panel');
                 $jq('#progress-info-panel').bind('refresh', function () {
-                    if (projectId != ws.storage.get("WS_PREVIOUS_PAGE_STATE").project
-                        || ws.storage.get("WS_PREVIOUS_PAGE_STATE").module === "") {
+                    if (projectId != ws.storage.get("WS_PREVIOUS_PAGE_STATE").project || ws.storage.get("WS_PREVIOUS_PAGE_STATE").module === "") {
                         ws.ui.problems.hide();
                         setTimeout(function () {$jq('#progress-info-panel').trigger('refresh')}, 1000);
                     } else {
@@ -104,40 +114,26 @@
                             }
 
                             if (data.messages.length !== 0) {
-                                var warningsPanel = document.getElementById("warnings-panel");
-                                var errorsPanel = document.getElementById("errors-panel");
-                                var warningsHtml = "";
-                                var errorsHtml = "";
-
-                                data.messages.forEach(function (item) {
-                                    if (item.severity === 'WARN') {
-                                        warningsHtml +=
-                                            "<div class='message-block problem-warning problem-small'>"
-                                                + "<a href = " + item.url + " class='message-block-link'>" + ws.utils.escapeHtml(item.summary) + "</a>"
-                                            + "</div>";
-                                    } else if (item.severity === 'ERROR') {
-                                        errorsHtml +=
-                                            "<div class='message-block problem-error problem-small'>"
-                                                + "<a href = " + item.url + " class='message-block-link'>" + ws.utils.escapeHtml(item.summary) + "</a>"
-                                            + "</div>";
-                                    }
-                                });
-
-                                var warningsDiv = document.createElement("DIV");
-                                var errorsDiv = document.createElement("DIV");
+                                const warningsPanel = $j("#warnings-panel");
+                                const errorsPanel = $j("#errors-panel");
+                                let warningsHtml = "";
+                                let errorsHtml = "";
+                                const htmlTemplate = $j('#problems-panel-container>div:nth-child(1)').clone().html();
 
                                 if (data.dataType === 'new') {
-                                    while(warningsPanel.firstChild) warningsPanel.removeChild(warningsPanel.firstChild);
-                                    while(errorsPanel.firstChild) errorsPanel.removeChild(errorsPanel.firstChild);
-                                    warningsDiv.innerHTML = warningsHtml;
-                                    errorsDiv.innerHTML = errorsHtml;
-                                } else {
-                                    warningsDiv.innerHTML += warningsHtml;
-                                    errorsDiv.innerHTML += errorsHtml;
+                                    warningsPanel.empty();
+                                    errorsPanel.empty();
                                 }
 
-                                warningsPanel.appendChild(warningsDiv);
-                                errorsPanel.appendChild(errorsDiv);
+                                data.messages.forEach(function (item) {
+                                    const newMessageHtml = htmlTemplate.replace(/{messageId}/g, item.id)
+                                        .replace(/{messageSummary}/g, item.summary);
+                                    if (item.severity === 'WARN') {
+                                        warningsPanel.append(newMessageHtml.replace(/{messageTypeClass}/g, 'problem-warning'));
+                                    } else if (item.severity === 'ERROR') {
+                                        errorsPanel.append(newMessageHtml.replace(/{messageTypeClass}/g, 'problem-error'));
+                                    }
+                                });
                             }
 
                             if (!data.compilationCompleted) {
@@ -152,7 +148,6 @@
                 });
 
                 $jq('#progress-info-panel').trigger('refresh');
-
 
                 var inProgress = function() {
                     progressInfoPanel.attr("data-compilation-status", "inProgress");
@@ -175,6 +170,18 @@
                        }
                     }, 10000);
                 };
+
+                function navigateProblem(problemBlock) {
+                    var $j = jQuery.noConflict();
+                    const problem = $j(problemBlock);
+                    $j.ajax({
+                        url: "#{contextPath}/web/message/" + problem.attr("data-message-id") + "/url",
+                        datatype: "text"
+                    })
+                    .done(function (data) {
+                       document.location.href = data;
+                    });
+                }
             //]]>
         </script>
     </div>

@@ -1419,8 +1419,8 @@ public class ProjectModel {
         return getMethodFromDispatcher((OpenMethodDispatcher) method, uri);
     }
 
-    public synchronized String getMessageNodeId(OpenLMessage message) {
-        XlsUrlParser xlsUrlParser = message.getSourceLocation() != null ? new XlsUrlParser(message.getSourceLocation())
+    public synchronized String getMessageNodeId(String sourceLocation) {
+        XlsUrlParser xlsUrlParser = sourceLocation != null ? new XlsUrlParser(sourceLocation)
                                                                         : null;
         for (TableSyntaxNode tsn : getAllTableSyntaxNodes()) { // for all modules
             if (xlsUrlParser != null && xlsUrlParser.intersects(tsn.getUriParser())) {

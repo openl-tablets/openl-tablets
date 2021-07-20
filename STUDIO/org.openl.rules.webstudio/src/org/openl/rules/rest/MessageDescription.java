@@ -7,13 +7,11 @@ public class MessageDescription {
     private final long id;
     private final String summary;
     private final Severity severity;
-    private final String url;
 
-    public MessageDescription(long id, String summary, Severity severity, String url) {
+    public MessageDescription(long id, String summary, Severity severity) {
         this.id = id;
         this.summary = summary;
         this.severity = severity;
-        this.url = url;
     }
 
     public long getId() {
@@ -26,10 +24,6 @@ public class MessageDescription {
 
     public Severity getSeverity() {
         return severity;
-    }
-
-    public String getUrl() {
-        return url;
     }
 
 }

@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.ws.rs.GET;
@@ -19,10 +18,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.dependency.CompiledDependency;
-import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -39,20 +36,16 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
-import org.openl.rules.webstudio.web.MessageHandler;
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
 @Path("/compile/")
 @Produces(MediaType.APPLICATION_JSON)
 public class WorkspaceCompileService {
-
-    private static final MessageHandler messageHandler = new MessageHandler();
 
     private static final int MAX_PROBLEMS = 100;
 
@@ -87,7 +80,7 @@ public class WorkspaceCompileService {
                             if (compiledDependency != null) {
                                 if (!Objects.equals(projectDescriptor.getName(), moduleInfo.getProject().getName())) {
                                     processMessages(compiledDependency.getCompiledOpenClass()
-                                        .getCurrentMessages(), messageCounter, model, newMessages, uniqueNewMessages);
+                                        .getCurrentMessages(), messageCounter, newMessages, uniqueNewMessages);
                                 }
                             }
                         }
@@ -102,11 +95,10 @@ public class WorkspaceCompileService {
                                     if (Objects.equals(module.getName(), moduleInfo.getName()) && Objects
                                         .equals(module.getProject().getName(), moduleInfo.getProject().getName())) {
                                         processMessages(model.getOpenedModuleCompiledOpenClass()
-                                            .getMessages(), messageCounter, model, newMessages, uniqueNewMessages);
+                                            .getMessages(), messageCounter, newMessages, uniqueNewMessages);
                                     } else {
                                         processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
                                             messageCounter,
-                                            model,
                                             newMessages,
                                             uniqueNewMessages);
                                     }
@@ -137,7 +129,7 @@ public class WorkspaceCompileService {
                     newMessages.clear();
                     uniqueNewMessages.clear();
                     Collection<OpenLMessage> messages = model.getCompiledOpenClass().getMessages();
-                    processMessages(messages, messageCounter, model, newMessages, uniqueNewMessages);
+                    processMessages(messages, messageCounter, newMessages, uniqueNewMessages);
                     compiledCount = modulesCount;
                 }
                 compileModuleInfo.put("dataType", "new");
@@ -213,24 +205,6 @@ public class WorkspaceCompileService {
     }
 
     @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("error/{errorId}/{openedModule}")
-    public String error(@PathParam("errorId") final long errorId,
-            @PathParam("openedModule") final boolean openedModule) {
-        ProjectModel model = WebStudioUtils.getWebStudio(WebStudioUtils.getSession()).getModel();
-        Collection<OpenLMessage> errors = openedModule ? model.getOpenedModuleMessages() : model.getModuleMessages();
-        Optional<OpenLMessage> error = errors.stream().filter(m -> m.getId() == errorId).findFirst();
-        if (error.isPresent()) {
-            OpenLMessage message = error.get();
-            if (message instanceof OpenLErrorMessage) {
-                OpenLErrorMessage errorMessage = (OpenLErrorMessage) message;
-                return ExceptionUtils.getStackTrace((Throwable) errorMessage.getError());
-            }
-        }
-        return null;
-    }
-
-    @GET
     @Path("table/{tableId}")
     public Map<String, Object> table(@PathParam("tableId") final String tableId) {
         Map<String, Object> tableInfo = new HashMap<>();
@@ -302,7 +276,6 @@ public class WorkspaceCompileService {
 
     private void processMessages(Collection<OpenLMessage> messages,
             MessageCounter counter,
-            ProjectModel model,
             List<MessageDescription> newMessages, Set<OpenLMessage> uniqueMessages) {
         if (messages != null) {
             for (OpenLMessage message : messages) {
@@ -315,19 +288,10 @@ public class WorkspaceCompileService {
                         break;
                 }
                 if (uniqueMessages.add(message)) {
-                    MessageDescription messageDescription = getMessageDescription(message, model);
-                    newMessages.add(messageDescription);
+                    newMessages.add(new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()));
                 }
             }
         }
-    }
-
-    private MessageDescription getMessageDescription(OpenLMessage message, ProjectModel model) {
-        String url = messageHandler.getSourceUrl(message, model);
-        if (StringUtils.isBlank(url)) {
-            url = messageHandler.getUrlForEmptySource(message);
-        }
-        return new MessageDescription(message.getId(), message.getSummary(), message.getSeverity(), url);
     }
 
     private class MessageCounter {

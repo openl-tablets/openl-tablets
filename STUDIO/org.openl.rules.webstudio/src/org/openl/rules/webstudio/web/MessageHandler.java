@@ -13,18 +13,10 @@ import org.openl.util.StringUtils;
 
 public class MessageHandler {
 
-    /**
-     * Gets the url to the source of message.
-     *
-     * @param message {@link OpenLMessage} instance
-     * @param model project model for current module.
-     * @return url to error source.
-     */
-    public String getSourceUrl(OpenLMessage message, ProjectModel model) {
+    public String getSourceUrl(String sourceLocation, String severity, long id, ProjectModel model) {
         String url = null;
-        String errorUri = getUri(message);
-        if (StringUtils.isNotBlank(errorUri)) {
-            url = getUrl(model, errorUri, message);
+        if (StringUtils.isNotBlank(sourceLocation)) {
+            url = getUrl(model, sourceLocation, severity, id);
         }
         return url;
     }
@@ -37,20 +29,16 @@ public class MessageHandler {
             .url("message?type=" + message.getSeverity().name() + "&summary=" + message.getId());
     }
 
-    protected String getUri(OpenLMessage message) {
-        // Default implementation
-        return message.getSourceLocation();
-    }
-
-    protected String getUrl(ProjectModel model, String errorUri, OpenLMessage message) {
-        TableSyntaxNode node = model.getNode(errorUri);
+    protected String getUrl(ProjectModel model, String sourceLocation, String severity, long id) {
+        TableSyntaxNode node = model.getNode(sourceLocation);
         if (isCurrentModule(model, node)) {
-            return getUrlForCurrentModule(errorUri, node.getId());
+            return getUrlForCurrentModule(sourceLocation, node.getId());
         } else {
             if (node != null) {
-                return getUrlToDependentModule(errorUri, model.getMessageNodeId(message));
+                return getUrlToDependentModule(sourceLocation, model.getMessageNodeId(sourceLocation));
             } else {
-                return getErrorUrlForDependency(message);
+                return WebStudioUtils.getWebStudio(WebStudioUtils.getSession())
+                    .url("message?type=" + severity + "&summary=" + id);
             }
         }
     }
@@ -92,10 +80,4 @@ public class MessageHandler {
         }
         return WebStudioUtils.getWebStudio(WebStudioUtils.getSession()).url(url);
     }
-
-    private String getErrorUrlForDependency(OpenLMessage message) {
-        return WebStudioUtils.getWebStudio(WebStudioUtils.getSession())
-            .url("message?type=" + message.getSeverity().name() + "&summary=" + message.getId());
-    }
-
 }
