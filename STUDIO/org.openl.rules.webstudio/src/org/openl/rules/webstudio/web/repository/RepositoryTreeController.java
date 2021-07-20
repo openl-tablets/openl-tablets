@@ -101,7 +101,7 @@ import org.openl.rules.webstudio.web.util.OpenAPIEditorService;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
-import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -599,6 +599,20 @@ public class RepositoryTreeController {
         this.clearForm();
 
         return null;
+    }
+
+    public List<Repository> getCreateAllowedRepositories() {
+        DesignTimeRepository designRepo = userWorkspace.getDesignTimeRepository();
+        return designRepo.getRepositories()
+                .stream()
+                .filter(repo -> !repo.supports()
+                        .branches() || (repo.supports()
+                        .branches() && !((BranchRepository) repo).isBranchProtected(((BranchRepository) repo).getBranch())))
+                .collect(Collectors.toList());
+    }
+
+    public boolean getCanCreateNewProject() {
+        return !getCreateAllowedRepositories().isEmpty();
     }
 
     public String createNewRulesProject() {

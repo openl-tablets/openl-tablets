@@ -202,19 +202,15 @@ public class BranchesBean {
     }
 
     public boolean isMergedOrLocked() {
-        return isYourBranchMerged() || isProjectLockedInAnotherBranch() || isTheirBranchProtected();
+        return isYourBranchMerged() || isProjectLockedInAnotherBranch();
     }
 
     public boolean isTheirBranchProtected() {
-        return !isTheirBranchMerged() && isBranchProtected(branchToMerge);
+        return isBranchProtected(branchToMerge);
     }
 
     public boolean isYourBranchProtected() {
-        return !isYourBranchMerged() && isBranchProtected(currentBranch);
-    }
-
-    public boolean isBothBranchesProtected() {
-        return isBranchProtected(branchToMerge) && isBranchProtected(currentBranch);
+        return isBranchProtected(currentBranch);
     }
 
     private boolean isBranchProtected(String branch) {

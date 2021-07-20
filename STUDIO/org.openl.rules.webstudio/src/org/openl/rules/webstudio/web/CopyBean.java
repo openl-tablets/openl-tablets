@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -84,8 +85,8 @@ public class CopyBean {
     private Comments designRepoComments;
 
     public CopyBean(PropertyResolver propertyResolver,
-        RepositoryTreeState repositoryTreeState,
-        ProjectTagsBean projectTagsBean) {
+            RepositoryTreeState repositoryTreeState,
+            ProjectTagsBean projectTagsBean) {
         this.propertyResolver = propertyResolver;
         this.repositoryTreeState = repositoryTreeState;
         this.projectTagsBean = projectTagsBean;
@@ -338,22 +339,21 @@ public class CopyBean {
         WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
         RepositorySettingsValidators.validateBranchName(newBranchName);
 
-        String customRegex =
-                propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch.regex");
-        String customRegexError =
-                propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch.regex-error");
+        String customRegex = propertyResolver
+            .getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch.regex");
+        String customRegexError = propertyResolver
+            .getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch.regex-error");
         if (StringUtils.isNotBlank(customRegex)) {
             try {
                 Pattern customRegexPattern = Pattern.compile(customRegex);
-                customRegexError = StringUtils.isNotBlank(customRegexError)
-                        ? customRegexError
-                        : "The branch name does not match the following pattern: " + customRegex;
+                customRegexError = StringUtils.isNotBlank(
+                    customRegexError) ? customRegexError
+                                      : "The branch name does not match the following pattern: " + customRegex;
                 WebStudioUtils.validate(customRegexPattern.matcher(newBranchName).matches(), customRegexError);
             } catch (PatternSyntaxException patternSyntaxException) {
                 LOG.debug(patternSyntaxException.getMessage(), patternSyntaxException);
                 WebStudioUtils.throwValidationError(
-                    String.format("Branch name pattern '%s' is not valid regular expression.", customRegex)
-                );
+                    String.format("Branch name pattern '%s' is not valid regular expression.", customRegex));
             }
         }
 
@@ -363,16 +363,11 @@ public class CopyBean {
 
             BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository(repositoryId);
             WebStudioUtils.validate(designRepository.isValidBranchName(newBranchName),
-                    "Invalid branch name. It should not contain reserved words or symbols.");
+                "Invalid branch name. It should not contain reserved words or symbols.");
             WebStudioUtils.validate(!designRepository.branchExists(newBranchName),
-                    "Branch " + newBranchName + " already exists.");
+                "Branch " + newBranchName + " already exists.");
             for (String branch : designRepository.getBranches(null)) {
-                String message = "Can't create the branch '" +
-                        newBranchName + "' because the branch '" +
-                        branch + "' already exists.\n" + "Explanation: for example a branch 'foo/bar'exists. " +
-                        "That branch can be considered as a file 'bar' located in the folder 'foo'.\n" +
-                        "So you can't create a branch 'foo/bar/baz' because you can't create the folder 'foo/bar': " +
-                        "the file with such name already exists.";
+                String message = "Can't create the branch '" + newBranchName + "' because the branch '" + branch + "' already exists.\n" + "Explanation: for example a branch 'foo/bar'exists. " + "That branch can be considered as a file 'bar' located in the folder 'foo'.\n" + "So you can't create a branch 'foo/bar/baz' because you can't create the folder 'foo/bar': " + "the file with such name already exists.";
                 WebStudioUtils.validate(!newBranchName.startsWith(branch + "/"), message);
             }
         } catch (IOException e) {
@@ -413,7 +408,7 @@ public class CopyBean {
 
     private static Boolean isSeparateProjectSubmitted(FacesContext context) {
         return (Boolean) ((UIInput) context.getViewRoot().findComponent("copyProjectForm:separateProjectCheckbox"))
-                .getValue();
+            .getValue();
     }
 
     public void setRepositoryId(String repositoryId) {
@@ -466,6 +461,20 @@ public class CopyBean {
         return project != null && project.isSupportsBranches();
     }
 
+    public List<Repository> getAllowedRepositories() {
+        DesignTimeRepository designRepo = getUserWorkspace().getDesignTimeRepository();
+        return designRepo.getRepositories()
+            .stream()
+            .filter(repo -> !repo.supports()
+                .branches() || (repo.supports()
+                    .branches() && !((BranchRepository) repo).isBranchProtected(((BranchRepository) repo).getBranch())))
+            .collect(Collectors.toList());
+    }
+
+    public boolean getCanCreateNewProject() {
+        return !getAllowedRepositories().isEmpty();
+    }
+
     public boolean isSupportsMappedFolders() {
         try {
             if (toRepositoryId == null) {
@@ -476,6 +485,9 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             Repository designRepository = designTimeRepository.getRepository(toRepositoryId);
+            if (designRepository == null) {
+                return false;
+            }
             return designRepository.supports().mappedFolders();
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

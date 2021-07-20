@@ -46,7 +46,7 @@
 
         <rich:tabPanel id="projectType" switchType="client" onitemchange="resizePopupPanel('modalNewProject')">
 
-            <rich:tab id="template" header="Template">
+            <rich:tab id="template" header="Template" rendered="#{repositoryTreeController.canCreateNewProject}">
                 <h:form id="createProjectFormTempl" style="padding-top: 4px">
                     <table class="formfields" cellspacing="1">
                         <tr>
@@ -138,7 +138,7 @@
                                                 onevent="checkCreateOnTemplatePanel()"/>
                                         <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
                                                       itemDisabled="true" noSelectionOption="true"/>
-                                        <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                        <f:selectItems value="#{repositoryTreeController.createAllowedRepositories}" var="repository"
                                                        itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                                     </h:selectOneMenu>
                                 </td>
@@ -193,7 +193,7 @@
                 </h:form>
             </rich:tab>
 
-            <rich:tab header="Excel Files">
+            <rich:tab header="Excel Files" rendered="#{repositoryTreeController.canCreateNewProject}">
                 <h:form id="createProjectFormFiles" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
@@ -222,7 +222,7 @@
                             <f:ajax event="change" render="excelPanelRepo" onevent="checkCreateOnExcelPanel()"/>
                             <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
                                           itemDisabled="true" noSelectionOption="true"/>
-                            <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                            <f:selectItems value="#{repositoryTreeController.createAllowedRepositories}" var="repository"
                                            itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                         </h:selectOneMenu>
 
@@ -265,7 +265,7 @@
                 </h:form>
             </rich:tab>
 
-            <rich:tab header="Zip Archive">
+            <rich:tab header="Zip Archive" rendered="#{repositoryTreeController.canCreateNewProject}">
                 <h:form id="uploadProjectForm" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
@@ -294,7 +294,7 @@
                             <f:ajax event="change" render="zipPanelRepo" onevent="checkCreateOnZipPanel()"/>
                             <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
                                           itemDisabled="true" noSelectionOption="true"/>
-                            <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                            <f:selectItems value="#{repositoryTreeController.createAllowedRepositories}" var="repository"
                                            itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                         </h:selectOneMenu>
 
@@ -337,7 +337,7 @@
                 </h:form>
             </rich:tab>
 
-            <rich:tab header="OpenAPI">
+            <rich:tab header="OpenAPI" rendered="#{repositoryTreeController.canCreateNewProject}">
                 <h:form id="openAPIProjectForm" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
@@ -437,7 +437,7 @@
                             <f:ajax event="change" render="openApiPanel" onevent="checkCreateOnOpenApiPanel()"/>
                             <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
                                           itemDisabled="true" noSelectionOption="true"/>
-                            <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                            <f:selectItems value="#{repositoryTreeController.createAllowedRepositories}" var="repository"
                                            itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                         </h:selectOneMenu>
 
@@ -481,7 +481,7 @@
                 </h:form>
             </rich:tab>
 
-            <rich:tab header="Workspace">
+            <rich:tab header="Workspace" rendered="#{repositoryTreeController.canCreateNewProject}">
                 <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px">
                     <div style="max-height: 286px;">
                         <div style="max-height: 250px; overflow:auto">
@@ -528,7 +528,7 @@
                                         onevent="checkCreateWorkspacePanel()"/>
                                 <f:selectItem itemLabel="-- Select a repository --" itemValue="none"
                                               itemDisabled="true" noSelectionOption="true"/>
-                                <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                <f:selectItems value="#{repositoryTreeController.createAllowedRepositories}" var="repository"
                                                itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                             </h:selectOneMenu>
                         </h:panelGrid>

@@ -24,8 +24,8 @@
                 </h:panelGrid>
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                              rendered="#{copyBean.supportsBranches}">
-                    <h:outputLabel value="Don't link to origin project:" for="separateProjectCheckbox"/>
-                    <h:selectBooleanCheckbox id="separateProjectCheckbox" value="#{copyBean.separateProject}"
+                    <h:outputLabel value="Don't link to origin project:" for="separateProjectCheckbox" rendered="#{copyBean.canCreateNewProject}"/>
+                    <h:selectBooleanCheckbox id="separateProjectCheckbox" value="#{copyBean.separateProject}" rendered="#{copyBean.canCreateNewProject}"
                                              onclick="updateSeparateProjectState()">
                     </h:selectBooleanCheckbox>
                     <h:outputLabel for="currentBranchName" value="Current Branch:"/>
@@ -36,7 +36,7 @@
                     <h:outputText value=""/>
                     <h:message id="newBranchNameMessage" for="newBranchName" styleClass="error" style="white-space: pre-wrap;"/>
                 </h:panelGrid>
-                <h:panelGrid id="newProject" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                <h:panelGrid id="newProject" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," rendered="#{copyBean.canCreateNewProject}">
                     <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name:"/>
                     <h:inputText id="newProjectName" maxlength="50" value="#{copyBean.newProjectName}"
                                  validator="#{copyBean.newProjectNameValidator}"/>
@@ -46,7 +46,7 @@
                     <h:outputLabel for="repository" value="Repository:" styleClass="required"/>
                     <h:selectOneMenu id="repository" value="#{copyBean.toRepositoryId}">
                         <f:ajax event="change" execute="@form" render="newProject" onevent="onRepositoryChange"/>
-                        <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                        <f:selectItems value="#{copyBean.allowedRepositories}" var="repository"
                                        itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                     </h:selectOneMenu>
 
