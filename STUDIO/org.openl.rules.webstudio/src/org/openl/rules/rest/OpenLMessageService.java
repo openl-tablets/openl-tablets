@@ -29,7 +29,7 @@ public class OpenLMessageService {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @Path("{messageId}/stacktrace")
-    public String error(@PathParam("messageId") final long messageId) {
+    public String messageStacktrace(@PathParam("messageId") final long messageId) {
         return Optional.ofNullable(WebStudioUtils.getWebStudio(WebStudioUtils.getSession()))
             .map(WebStudio::getModel)
             .flatMap(model -> getMessageById(model, messageId))
