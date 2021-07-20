@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -22,6 +23,9 @@ public class WorkspaceCompileServiceTest {
         client = server.client();
     }
 
+    @Ignore
+    //Ignored because tableId generated based on absolute path to the xlsx file.
+    //Uncomment this test when tableId will use relative path.
     @Test(timeout = 15_000)
     public void compile() {
         // Initialize WebStudio.
