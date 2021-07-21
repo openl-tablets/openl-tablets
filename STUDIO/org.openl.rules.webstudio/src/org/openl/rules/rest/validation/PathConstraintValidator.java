@@ -1,6 +1,7 @@
 package org.openl.rules.rest.validation;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -23,9 +24,16 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
         if (StringUtils.isEmpty(value)) {
             return true;
         }
+        boolean basicCheck = true;
         if (value.startsWith("/")) {
-            context.buildConstraintViolationWithTemplate("{openl.constraints.path.1.message}")
-                .addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("{openl.constraints.path.1.message}").addConstraintViolation();
+            basicCheck = false;
+        }
+        if (value.endsWith("/")) {
+            context.buildConstraintViolationWithTemplate("{openl.constraints.path.2.message}").addConstraintViolation();
+            basicCheck = false;
+        }
+        if (!basicCheck) {
             return false;
         }
         try {
@@ -36,14 +44,18 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
             return false;
         }
         try {
-            if (value.endsWith("/")) {
-                value = value.substring(0, value.length() - 1);
-            }
             // Git specifics and non-cross-platform check if we missed something before
             SystemReader.getInstance().checkPath(value);
         } catch (CorruptObjectException e) {
             context.buildConstraintViolationWithTemplate(StringUtils.capitalize(e.getMessage()))
                 .addConstraintViolation();
+        }
+        try {
+            // OS specific check
+            Paths.get(value);
+        } catch (IllegalArgumentException e) {
+            context.buildConstraintViolationWithTemplate(e.getMessage()).addConstraintViolation();
+            return false;
         }
         return true;
     }

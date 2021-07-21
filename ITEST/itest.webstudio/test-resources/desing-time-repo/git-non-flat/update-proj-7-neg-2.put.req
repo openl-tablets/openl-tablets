@@ -1,4 +1,4 @@
-PUT /rest/repos/design-non-flat/projects/Project4 HTTP/1.1
+PUT /rest/repos/design-non-flat/projects/Project7 HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
 
@@ -7,13 +7,17 @@ Content-Disposition: form-data; name="template"; filename="Sample Project.zip"
 Content-Transfer-Encoding: binary
 Content-Type: application/zip
 
-&Sample Project.zip
+&project.zip
 --WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="comment"
 
-EPBDS-10682 Create project via rest
+EPBDS-10682 Update project via rest
 --WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="path"
 
-foo/bar/Project4
+foo/bar/pam-pam
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="overwrite"
+
+true
 --WebKitFormBoundary7MA4YWxkTrZu0gW--

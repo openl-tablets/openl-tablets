@@ -10,7 +10,7 @@ public class NotFoundException extends RestRuntimeException {
         super(code);
     }
 
-    public NotFoundException(String code, Object[] args) {
+    public NotFoundException(String code, Object... args) {
         super(code, args);
     }
 }

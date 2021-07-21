@@ -39,11 +39,7 @@ public class CreateUpdateProjectModel {
         if (StringUtils.isEmpty(path)) {
             return path;
         }
-        path = path.replace('\\', '/');
-        if (path.charAt(path.length() - 1) != '/') {
-            return path + "/";
-        }
-        return path;
+        return path.replace('\\', '/');
     }
 
     public String getRepoName() {
@@ -60,6 +56,10 @@ public class CreateUpdateProjectModel {
 
     public String getPath() {
         return path;
+    }
+
+    public String getFullPath() {
+        return StringUtils.isEmpty(path) ? projectName : path;
     }
 
     public String getComment() {
