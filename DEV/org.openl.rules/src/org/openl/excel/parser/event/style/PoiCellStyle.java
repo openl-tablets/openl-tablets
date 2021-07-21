@@ -56,7 +56,7 @@ class PoiCellStyle implements CellStyle {
     }
 
     @Override
-    public short getFontIndex() {
+    public int getFontIndex() {
         return format.getFontIndex();
     }
 
@@ -103,11 +103,6 @@ class PoiCellStyle implements CellStyle {
         return HorizontalAlignment.forInt(format.getAlignment());
     }
 
-    @Deprecated
-    public HorizontalAlignment getAlignmentEnum() {
-        return getAlignment();
-    }
-
     @Override
     public void setWrapText(boolean wrapped) {
 
@@ -125,11 +120,6 @@ class PoiCellStyle implements CellStyle {
     @Override
     public VerticalAlignment getVerticalAlignment() {
         return VerticalAlignment.forInt(format.getVerticalAlignment());
-    }
-
-    @Deprecated
-    public VerticalAlignment getVerticalAlignmentEnum() {
-        return getVerticalAlignment();
     }
 
     @Override
@@ -169,11 +159,6 @@ class PoiCellStyle implements CellStyle {
         return BorderStyle.valueOf(format.getBorderLeft());
     }
 
-    @Deprecated
-    public BorderStyle getBorderLeftEnum() {
-        return getBorderLeft();
-    }
-
     @Override
     public void setBorderRight(BorderStyle border) {
 
@@ -182,11 +167,6 @@ class PoiCellStyle implements CellStyle {
     @Override
     public BorderStyle getBorderRight() {
         return BorderStyle.valueOf(format.getBorderRight());
-    }
-
-    @Deprecated
-    public BorderStyle getBorderRightEnum() {
-        return getBorderRight();
     }
 
     @Override
@@ -198,11 +178,6 @@ class PoiCellStyle implements CellStyle {
         return BorderStyle.valueOf(format.getBorderTop());
     }
 
-    @Deprecated
-    public BorderStyle getBorderTopEnum() {
-        return getBorderTop();
-    }
-
     @Override
     public void setBorderBottom(BorderStyle border) {
 
@@ -211,11 +186,6 @@ class PoiCellStyle implements CellStyle {
     @Override
     public BorderStyle getBorderBottom() {
         return BorderStyle.valueOf(format.getBorderBottom());
-    }
-
-    @Deprecated
-    public BorderStyle getBorderBottomEnum() {
-        return getBorderBottom();
     }
 
     @Override
@@ -264,11 +234,6 @@ class PoiCellStyle implements CellStyle {
     @Override
     public FillPatternType getFillPattern() {
         return FillPatternType.forInt(format.getAdtlFillPattern());
-    }
-
-    @Deprecated
-    public FillPatternType getFillPatternEnum() {
-        return getFillPattern();
     }
 
     @Override
