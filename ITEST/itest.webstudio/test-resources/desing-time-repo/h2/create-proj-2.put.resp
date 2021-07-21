@@ -6,7 +6,7 @@ Content-Type: application/json
     "fields": [{
             "code": "openl.error.repo.not-supported.path.message",
             "field": "path",
-            "rejectedValue": "foo/",
+            "rejectedValue": "foo",
             "message": "Design Repository doesn't support folders. Path must be empty."
         }
     ]
