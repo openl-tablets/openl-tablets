@@ -604,11 +604,11 @@ public class RepositoryTreeController {
     public List<Repository> getCreateAllowedRepositories() {
         DesignTimeRepository designRepo = userWorkspace.getDesignTimeRepository();
         return designRepo.getRepositories()
-                .stream()
-                .filter(repo -> !repo.supports()
-                        .branches() || (repo.supports()
-                        .branches() && !((BranchRepository) repo).isBranchProtected(((BranchRepository) repo).getBranch())))
-                .collect(Collectors.toList());
+            .stream()
+            .filter(repo -> !repo.supports()
+                .branches() || (repo.supports()
+                    .branches() && !((BranchRepository) repo).isBranchProtected(((BranchRepository) repo).getBranch())))
+            .collect(Collectors.toList());
     }
 
     public boolean getCanCreateNewProject() {
@@ -709,7 +709,7 @@ public class RepositoryTreeController {
                 msg = "Project name must not be empty.";
             } else if (!NameChecker.checkName(projectName)) {
                 msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
-            }else if (NameChecker.isReservedName(projectName)) {
+            } else if (NameChecker.isReservedName(projectName)) {
                 msg = "Specified project name is a reserved word.";
             } else if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, projectName)) {
                 msg = "Cannot create project because project with such name already exists.";
@@ -1132,8 +1132,7 @@ public class RepositoryTreeController {
                     // Check for reserved folder name
                     if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userId)) {
                         try {
-                            LocalRepository repository = localWorkspaceManager
-                                .getWorkspace(userId)
+                            LocalRepository repository = localWorkspaceManager.getWorkspace(userId)
                                 .getRepository(repoId);
                             repository.initialize();
 
@@ -1539,7 +1538,7 @@ public class RepositoryTreeController {
     private List<TreeNode> getRulesProjects(TreeNode node) {
         List<TreeNode> list = new ArrayList<>();
         for (TreeNode treeNode : node.getChildNodes()) {
-            if (UiConst.TYPE_PROJECT .equals(treeNode.getType())) {
+            if (UiConst.TYPE_PROJECT.equals(treeNode.getType())) {
                 list.add(treeNode);
             } else if (UiConst.TYPE_GROUP.equals(treeNode.getType())) {
                 list.addAll(getRulesProjects(treeNode));
@@ -1704,7 +1703,8 @@ public class RepositoryTreeController {
                 }
             }
         } else if (node instanceof TreeProject || node instanceof TreeDProject) {
-            if (node.getData().getName().equals(projectName) && repositoryId.equals(node.getData().getRepository().getId())) {
+            if (node.getData().getName().equals(projectName) && repositoryId
+                .equals(node.getData().getRepository().getId())) {
                 repositoryTreeState.setSelectedNode(node);
                 return true;
             }

@@ -24,9 +24,9 @@ public interface WildcardBranchNameFilter extends Predicate<String> {
             return WildcardBranchNameFilter.NO_MATCH;
         } else {
             String[] filtered = Stream.of(patterns)
-                    .filter(StringUtils::isNotBlank)
-                    .map(String::trim)
-                    .toArray(String[]::new);
+                .filter(StringUtils::isNotBlank)
+                .map(String::trim)
+                .toArray(String[]::new);
             if (filtered.length == 0) {
                 return WildcardBranchNameFilter.NO_MATCH;
             } else {
