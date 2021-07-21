@@ -49,13 +49,15 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private volatile boolean active = true;
     private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onCompilationCompleteListeners = new CopyOnWriteArrayList<>();
     private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onResetCompleteListeners = new CopyOnWriteArrayList<>();
+    private final boolean canUnload;
 
     public WebStudioWorkspaceRelatedDependencyManager(Collection<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,
             boolean executionMode,
-            Map<String, Object> externalParameters) {
+            Map<String, Object> externalParameters, boolean canUnload) {
         super(rootClassLoader, executionMode, externalParameters);
         this.projects = new LinkedHashSet<>(Objects.requireNonNull(projects, "projects cannot be null"));
+        this.canUnload = canUnload;
     }
 
     @Override
@@ -263,5 +265,9 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 }
             }
         }
+    }
+
+    public boolean isCanUnload() {
+        return canUnload;
     }
 }

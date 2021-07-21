@@ -64,7 +64,7 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
             return new WebStudioWorkspaceRelatedDependencyManager(buildProjectDescriptors(),
                 classLoader,
                 isExecutionMode(),
-                getExternalParameters());
+                getExternalParameters(), true);
 
         }
     }

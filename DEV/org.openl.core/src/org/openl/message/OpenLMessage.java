@@ -1,6 +1,5 @@
 package org.openl.message;
 
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.openl.util.StringUtils;
@@ -78,18 +77,5 @@ public class OpenLMessage {
 
     public long getId() {
         return id;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        OpenLMessage message = (OpenLMessage) o;
-        return id == message.id && summary.equals(message.summary) && severity == message.severity;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, summary, severity);
     }
 }

@@ -1115,11 +1115,8 @@ public class ProjectModel {
         // If autoCompile is false we cannot unload workbook during editing because we must show to a user latest edited
         // data (not parsed and compiled data).
         boolean canUnload = studio.isAutoCompile();
-        LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory(canUnload);
 
         try {
-            WorkbookLoaders.setCurrentFactory(factory);
-
             CompiledOpenClass thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
                 .loadDependency(new Dependency(DependencyType.MODULE,
                     new IdentifierNode(DependencyType.MODULE.name(), null, moduleInfo.getName(), null)))

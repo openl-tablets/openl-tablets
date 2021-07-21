@@ -5,9 +5,12 @@ import java.util.LinkedHashSet;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
+import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
+import org.openl.rules.lang.xls.load.WorkbookLoaders;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.SimpleDependencyLoader;
@@ -70,5 +73,16 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
     protected void onResetComplete(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         super.onResetComplete(dependencyLoader, compiledDependency);
         webStudioWorkspaceRelatedDependencyManager.fireOnResetCompleteListeners(dependencyLoader, compiledDependency);
+    }
+
+    @Override
+    protected CompiledDependency compileDependency(String dependencyName, AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
+        try {
+            LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory(((WebStudioWorkspaceRelatedDependencyManager) dependencyManager).isCanUnload());
+            WorkbookLoaders.setCurrentFactory(factory);
+            return super.compileDependency(dependencyName, dependencyManager);
+        } finally {
+            WorkbookLoaders.resetCurrentFactory();
+        }
     }
 }

@@ -27,7 +27,7 @@ public class WebStudioWorkspaceDependencyManagerFactory {
         return new WebStudioWorkspaceRelatedDependencyManager(workspaceProjectsToResolveDependencies,
             rootClassLoader,
             false,
-            studio.getExternalProperties());
+            studio.getExternalProperties(), studio.isAutoCompile());
     }
 
     public Set<ProjectDescriptor> resolveWorkspace(ProjectDescriptor project) {
