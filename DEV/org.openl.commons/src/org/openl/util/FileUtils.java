@@ -273,6 +273,9 @@ public class FileUtils {
      * @param file file or directory to delete, can be {@code null}
      */
     public static void deleteQuietly(File file) {
+        if (file == null) {
+            return;
+        }
         try {
             delete(file);
         } catch (Exception ignored) {
