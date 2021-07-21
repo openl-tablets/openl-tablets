@@ -7,6 +7,8 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -73,8 +75,14 @@ final class OpenApiProjectValidatorMessagesUtils {
                         context.getField());
                     if (openFieldInSpr != null) {
                         if (context.getIsIncompatibleTypesPredicate() != null) {
-                            Schema actualSchema = SchemaResolver.resolve(context,
-                                openFieldInSpr.getType().getInstanceClass());
+                            Class<?> instanceClass = openFieldInSpr.getType().getInstanceClass();
+                            if (instanceClass == SpreadsheetResult.class) {
+                                instanceClass = ((XlsModuleOpenClass) context.getOpenClass())
+                                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                                    .toCustomSpreadsheetResultOpenClass()
+                                    .getBeanClass();
+                            }
+                            Schema actualSchema = SchemaResolver.resolve(context, instanceClass);
                             if (context.getIsIncompatibleTypesPredicate().test(actualSchema, openFieldInSpr)) {
                                 addMethodError(context, m, summary);
                             }
