@@ -36,14 +36,14 @@ class SAXFormulaParsingWorkbook implements FormulaParsingWorkbook {
         if (sheet == null) {
             throw new UnsupportedOperationException(NOT_SUPPORTED_FORMULA_TYPE);
         }
-        if (sheet._sheetIdentifier == null) {
+        if (sheet.getSheetIdentifier() == null) {
             throw new UnsupportedOperationException(NOT_SUPPORTED_FORMULA_TYPE);
         }
 
         // Use the sheetname and process
-        String sheetName = sheet._sheetIdentifier.getName();
+        String sheetName = sheet.getSheetIdentifier().getName();
 
-        if (sheet._bookName != null) {
+        if (sheet.getBookName() != null) {
             throw new UnsupportedOperationException(NOT_SUPPORTED_FORMULA_TYPE);
         } else {
             return new NameXPxg(sheetName, name);
@@ -52,7 +52,7 @@ class SAXFormulaParsingWorkbook implements FormulaParsingWorkbook {
 
     @Override
     public Ptg get3DReferencePtg(CellReference cell, SheetIdentifier sheet) {
-        if (sheet._bookName != null) {
+        if (sheet.getBookName() != null) {
             throw new UnsupportedOperationException(NOT_SUPPORTED_FORMULA_TYPE);
         } else {
             return new Ref3DPxg(sheet, cell);
@@ -61,7 +61,7 @@ class SAXFormulaParsingWorkbook implements FormulaParsingWorkbook {
 
     @Override
     public Ptg get3DReferencePtg(AreaReference area, SheetIdentifier sheet) {
-        if (sheet._bookName != null) {
+        if (sheet.getBookName() != null) {
             throw new UnsupportedOperationException(NOT_SUPPORTED_FORMULA_TYPE);
         } else {
             return new Area3DPxg(sheet, area);
