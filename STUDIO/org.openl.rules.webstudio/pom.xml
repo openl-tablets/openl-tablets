@@ -40,16 +40,6 @@
                     <checkTestClasspath>false</checkTestClasspath>
                     <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
                     <useResultFile>false</useResultFile>
-                    <ignoredDependencies>
-                        <dependency>
-                            <groupId>org.apache.poi</groupId>
-                            <artifactId>poi-ooxml-schemas</artifactId>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.springframework.security</groupId>
-                            <artifactId>spring-security-crypto</artifactId>
-                        </dependency>
-                    </ignoredDependencies>
                     <exceptions>
                         <exception>
                             <conflictingDependencies>
@@ -65,6 +55,23 @@
                             <resources>
                                 <resource>draftv3/schema</resource>
                                 <resource>draftv4/schema</resource>
+                            </resources>
+                        </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>xml-apis</groupId>
+                                    <artifactId>xml-apis</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>xml-apis</groupId>
+                                    <artifactId>xml-apis-ext</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <resources>
+                                <resource>license/LICENSE.dom-documentation.txt</resource>
+                                <resource>license/README.dom.txt</resource>
+                                <resource>license/LICENSE.dom-software.txt</resource>
                             </resources>
                         </exception>
                     </exceptions>
@@ -255,7 +262,17 @@
         <!-- Other -->
         <dependency>
             <groupId>org.apache.poi</groupId>
-            <artifactId>ooxml-schemas</artifactId>
+            <artifactId>poi-ooxml-full</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.poi</groupId>
+                    <artifactId>poi-ooxml-lite</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>

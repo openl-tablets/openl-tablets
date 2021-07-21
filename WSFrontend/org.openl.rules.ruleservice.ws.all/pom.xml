@@ -55,6 +55,23 @@
                                 <class>org.xmlpull.v1.XmlPullParserException</class>
                             </classes>
                         </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>xml-apis</groupId>
+                                    <artifactId>xml-apis</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>xml-apis</groupId>
+                                    <artifactId>xml-apis-ext</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <resources>
+                                <resource>license/LICENSE.dom-documentation.txt</resource>
+                                <resource>license/README.dom.txt</resource>
+                                <resource>license/LICENSE.dom-software.txt</resource>
+                            </resources>
+                        </exception>
                     </exceptions>
                     <ignoredResourcePatterns>
                         <ignoredResourcePattern>org/apache/cxf/endpoint/dynamic/simple-binding.xjb

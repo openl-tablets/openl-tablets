@@ -74,33 +74,19 @@
                         <exception>
                             <conflictingDependencies>
                                 <dependency>
-                                    <groupId>com.github.java-json-tools</groupId>
-                                    <artifactId>json-schema-core</artifactId>
+                                    <groupId>xml-apis</groupId>
+                                    <artifactId>xml-apis</artifactId>
                                 </dependency>
                                 <dependency>
-                                    <groupId>com.github.java-json-tools</groupId>
-                                    <artifactId>json-schema-validator</artifactId>
+                                    <groupId>xml-apis</groupId>
+                                    <artifactId>xml-apis-ext</artifactId>
                                 </dependency>
                             </conflictingDependencies>
                             <resources>
-                                <resource>draftv3/schema</resource>
-                                <resource>draftv4/schema</resource>
+                                <resource>license/LICENSE.dom-documentation.txt</resource>
+                                <resource>license/README.dom.txt</resource>
+                                <resource>license/LICENSE.dom-software.txt</resource>
                             </resources>
-                        </exception>
-                        <exception>
-                            <conflictingDependencies>
-                                <dependency>
-                                    <groupId>io.github.classgraph</groupId>
-                                    <artifactId>classgraph</artifactId>
-                                </dependency>
-                                <dependency>
-                                    <groupId>org.apache.logging.log4j</groupId>
-                                    <artifactId>log4j-api</artifactId>
-                                </dependency>
-                            </conflictingDependencies>
-                            <classes>
-                                <class>META-INF.versions.9.module-info</class>
-                            </classes>
                         </exception>
                     </exceptions>
                     <ignoredResourcePatterns>
