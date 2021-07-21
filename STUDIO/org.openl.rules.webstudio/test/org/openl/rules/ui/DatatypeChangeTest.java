@@ -80,6 +80,8 @@ public class DatatypeChangeTest extends AbstractWorkbookGeneratingTest {
         pm.reset(ReloadType.SINGLE);
         // Back to the main module
         pm.setModuleInfo(mainModule);
+        pm.setModuleInfo(mainModule, ReloadType.SINGLE);
+
         assertTrue(pm.getCompiledOpenClass().hasErrors());
 
         // Try to fix the error in dependent module and reload only that module.

@@ -467,7 +467,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
     }
 
-    boolean isAutoCompile() {
+    public boolean isAutoCompile() {
         return Props.bool(AdministrationSettings.AUTO_COMPILE);
     }
 
@@ -519,16 +519,20 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 FacesContext.getCurrentInstance().responseComplete();
                 return;
             }
-            boolean moduleChanged = currentProject != project || currentModule != module;
+            boolean anotherModuleOpened = currentModule != module;
+            boolean anotherProjectOpened = currentProject != project;
             currentModule = module;
             currentProject = project;
-            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || moduleChanged)) {
+            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile ||
+                anotherModuleOpened || anotherProjectOpened)) {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
                 } else if (needCompile) {
                     reset(ReloadType.SINGLE);
-                } else if (moduleChanged) {
+                } else if (anotherProjectOpened) {
                     model.setModuleInfo(module, ReloadType.SINGLE);
+                } else if (anotherModuleOpened) {
+                    model.setModuleInfo(module, ReloadType.NO);
                 } else {
                     model.setModuleInfo(module);
                 }

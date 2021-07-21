@@ -1107,7 +1107,6 @@ public class ProjectModel {
 
         isModified();
         clearModuleResources(); // prevent memory leak
-        compiledOpenClass = null;
         projectRoot = null;
         xlsModuleSyntaxNode = null;
 
@@ -1131,12 +1130,14 @@ public class ProjectModel {
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(thisModuleCompiledOpenClass);
             openedModuleCompiledOpenClass = thisModuleCompiledOpenClass;
-            compiledOpenClass = thisModuleCompiledOpenClass;
-
-            WorkbookLoaders.resetCurrentFactory();
+            if (compiledOpenClass == null || !ReloadType.NO.equals(reloadType)) {
+                compiledOpenClass = thisModuleCompiledOpenClass;
+            }
 
             if (!moduleInfo.getOpenCurrentModuleOnly()) {
-                this.projectCompilationCompleted = false;
+                if (!ReloadType.NO.equals(reloadType)) {
+                    this.projectCompilationCompleted = false;
+                }
                 webStudioWorkspaceDependencyManager.loadDependencyAsync(new Dependency(DependencyType.MODULE,
                     new IdentifierNode(DependencyType.MODULE.name(),
                                 null,
@@ -1145,31 +1146,33 @@ public class ProjectModel {
                         (e) -> {
                             try {
                                 this.compiledOpenClass = this.validate();
-                                this.projectCompilationCompleted = true;
                                 XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
                                     .getMetaInfo();
                                 allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
                                 redraw();
-                            } catch (RulesInstantiationException ignored) {
+                            } catch (Throwable t) {
+                                onCompilationFailed(t);
                             }
+                            this.projectCompilationCompleted = true;
                         });
             } else {
                 projectCompilationCompleted = true;
             }
         } catch (Throwable t) {
-            projectCompilationCompleted = true;
-            log.error("Failed to load.", t);
-            Collection<OpenLMessage> messages = new LinkedHashSet<>();
-            for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
-                String message = String.format("Cannot load the module: %s", openLMessage.getSummary());
-                messages.add(new OpenLMessage(message, Severity.ERROR));
-            }
-
-            compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
-            openedModuleCompiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
-
-            WorkbookLoaders.resetCurrentFactory();
+            onCompilationFailed(t);
         }
+    }
+
+    private void onCompilationFailed(Throwable t){
+        projectCompilationCompleted = true;
+        log.error("Failed to load.", t);
+        Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
+            String message = String.format("Cannot load the module: %s", openLMessage.getSummary());
+            messages.add(new OpenLMessage(message, Severity.ERROR));
+        }
+        compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
+        openedModuleCompiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
     }
 
     private boolean isModified() {
