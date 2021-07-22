@@ -3,6 +3,7 @@ package org.openl.rules.project.instantiation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
 import org.openl.OpenClassUtil;
@@ -23,7 +24,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     private final Logger log = LoggerFactory.getLogger(AbstractDependencyManager.class);
 
-    private volatile Map<String, Collection<IDependencyLoader>> dependencyLoaders;
+    private volatile Map<String, CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders;
     private final Object dependencyLoadersFlag = new Object();
     private final LinkedHashSet<DependencyRelation> dependencyRelations = new LinkedHashSet<>();
     private final ThreadLocal<Deque<String>> compilationStackThreadLocal = ThreadLocal.withInitial(ArrayDeque::new);
@@ -121,25 +122,8 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             synchronized (dependencyLoadersFlag) {
                 for (IDependencyLoader dependencyLoader : dependencyLoadersToAdd) {
                     Collection<IDependencyLoader> dependencyLoadersByDependencyName = this.dependencyLoaders
-                        .computeIfAbsent(dependencyLoader.getDependencyName(), e -> new CopyOnWriteArrayList<>());
-                    boolean f = false;
-                    for (IDependencyLoader dl : dependencyLoadersByDependencyName) {
-                        if (dl.isProjectLoader() && dependencyLoader.isProjectLoader() && Objects
-                            .equals(dl.getProject().getName(), dependencyLoader.getProject().getName())) {
-                            f = true;
-                            break;
-                        } else if (!dl.isProjectLoader() && !dependencyLoader.isProjectLoader() && dl
-                            .getModule() != null && dependencyLoader.getModule() != null && Objects
-                                .equals(dl.getModule().getName(), dependencyLoader.getModule().getName()) && Objects
-                                    .equals(dl.getModule().getProject().getName(),
-                                        dependencyLoader.getModule().getProject().getName())) {
-                            f = true;
-                            break;
-                        }
-                    }
-                    if (!f) {
-                        dependencyLoadersByDependencyName.add(dependencyLoader);
-                    }
+                        .computeIfAbsent(dependencyLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
+                    dependencyLoadersByDependencyName.add(dependencyLoader);
                 }
             }
         }
@@ -149,14 +133,14 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         if (dependencyLoaders == null) {
             synchronized (this) {
                 if (dependencyLoaders == null) {
-                    Map<String, Collection<IDependencyLoader>> initDependencyLoaders = initDependencyLoaders();
+                    Map<String, CopyOnWriteArraySet<IDependencyLoader>> initDependencyLoaders = initDependencyLoaders();
                     if (initDependencyLoaders != null) {
                         Map<String, Collection<IDependencyLoader>> modifiableAndConcurrentDependencyLoaders = new ConcurrentHashMap<>();
-                        for (Map.Entry<String, Collection<IDependencyLoader>> entry : initDependencyLoaders
+                        for (Map.Entry<String, CopyOnWriteArraySet<IDependencyLoader>> entry : initDependencyLoaders
                             .entrySet()) {
                             if (entry.getValue() != null && !entry.getValue().isEmpty()) {
                                 Collection<IDependencyLoader> c = modifiableAndConcurrentDependencyLoaders
-                                    .computeIfAbsent(entry.getKey(), e -> new CopyOnWriteArrayList<>());
+                                    .computeIfAbsent(entry.getKey(), e -> new CopyOnWriteArraySet<>());
                                 c.addAll(entry.getValue());
                             }
                         }
@@ -167,10 +151,10 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                 }
             }
         }
-        return dependencyLoaders;
+        return Collections.unmodifiableMap(dependencyLoaders);
     }
 
-    protected abstract Map<String, Collection<IDependencyLoader>> initDependencyLoaders();
+    protected abstract Map<String, CopyOnWriteArraySet<IDependencyLoader>> initDependencyLoaders();
 
     private Deque<String> getCompilationStack() {
         return compilationStackThreadLocal.get();

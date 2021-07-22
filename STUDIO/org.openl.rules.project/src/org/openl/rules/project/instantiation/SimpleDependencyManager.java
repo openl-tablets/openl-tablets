@@ -1,10 +1,10 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -22,8 +22,8 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
     }
 
     @Override
-    protected Map<String, Collection<IDependencyLoader>> initDependencyLoaders() {
-        Map<String, Collection<IDependencyLoader>> dependencyLoaders = new HashMap<>();
+    protected Map<String, CopyOnWriteArraySet<IDependencyLoader>> initDependencyLoaders() {
+        Map<String, CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders = new HashMap<>();
         for (ProjectDescriptor project : projects) {
             try {
                 for (final Module m : project.getModules()) {
@@ -32,7 +32,7 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
                         executionMode,
                         this);
                     Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                        .computeIfAbsent(moduleDependencyLoader.getDependencyName(), e -> new ArrayList<>());
+                        .computeIfAbsent(moduleDependencyLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
                     dependencyLoadersByName.add(moduleDependencyLoader);
                 }
 
@@ -41,7 +41,7 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
                     executionMode,
                     this);
                 Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                    .computeIfAbsent(projectDependencyLoader.getDependencyName(), e -> new ArrayList<>());
+                    .computeIfAbsent(projectDependencyLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
                 dependencyLoadersByName.add(projectDependencyLoader);
 
             } catch (Exception e) {

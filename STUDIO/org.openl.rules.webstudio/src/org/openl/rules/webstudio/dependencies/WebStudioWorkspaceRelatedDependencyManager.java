@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
@@ -159,12 +160,12 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         });
     }
 
-    protected Map<String, Collection<IDependencyLoader>> initDependencyLoaders() {
+    protected Map<String, CopyOnWriteArraySet<IDependencyLoader>> initDependencyLoaders() {
         return buildDependencyLoaders(projects);
     }
 
-    private Map<String, Collection<IDependencyLoader>> buildDependencyLoaders(Set<ProjectDescriptor> projects) {
-        Map<String, Collection<IDependencyLoader>> dependencyLoaders = new HashMap<>();
+    private Map<String, CopyOnWriteArraySet<IDependencyLoader>> buildDependencyLoaders(Set<ProjectDescriptor> projects) {
+        Map<String, CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders = new HashMap<>();
         for (ProjectDescriptor project : projects) {
             try {
                 Collection<Module> modulesOfProject = project.getModules();
@@ -174,14 +175,14 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                             m,
                             this);
                         Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                            .computeIfAbsent(moduleDependencyLoader.getDependencyName(), e -> new ArrayList<>());
+                            .computeIfAbsent(moduleDependencyLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
                         dependencyLoadersByName.add(moduleDependencyLoader);
                     }
                 }
 
                 WebStudioDependencyLoader projectDependencyLoader = new WebStudioDependencyLoader(project, null, this);
                 Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                    .computeIfAbsent(projectDependencyLoader.getDependencyName(), e -> new ArrayList<>());
+                    .computeIfAbsent(projectDependencyLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
                 dependencyLoadersByName.add(projectDependencyLoader);
 
             } catch (Exception e) {
@@ -222,7 +223,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     public void expand(Set<ProjectDescriptor> projects) {
-        Map<String, Collection<IDependencyLoader>> dependencyLoaders = buildDependencyLoaders(projects);
+        Map<String, CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders = buildDependencyLoaders(projects);
         addDependencyLoaders(dependencyLoaders.values()
             .stream()
             .flatMap(Collection::stream)

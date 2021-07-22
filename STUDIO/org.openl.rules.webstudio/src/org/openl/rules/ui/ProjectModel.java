@@ -1208,17 +1208,17 @@ public class ProjectModel {
                 .map(ProjectDescriptor::getName)
                 .collect(Collectors.toSet());
             boolean foundOpenedProject = false;
-            boolean someProjectsCanBeReused = false;
+            boolean allProjectCanBeReused = true;
             for (ProjectDescriptor projectDescriptor : webStudioWorkspaceDependencyManager.getProjectDescriptors()) {
                 if (this.moduleInfo.getProject().getName().equals(projectDescriptor.getName())) {
                     foundOpenedProject = true;
                 }
-                if (projectNamesInWorkspace.contains(projectDescriptor.getName())) {
-                    someProjectsCanBeReused = true;
+                if (!projectNamesInWorkspace.contains(projectDescriptor.getName())) {
+                    allProjectCanBeReused = false;
                 }
             }
             if (!foundOpenedProject) {
-                if (!someProjectsCanBeReused) {
+                if (!allProjectCanBeReused) {
                     webStudioWorkspaceDependencyManager.shutdown();
                     allXlsModuleSyntaxNodes.clear();
                     currentProjectXlsModuleSyntaxNodes.clear();

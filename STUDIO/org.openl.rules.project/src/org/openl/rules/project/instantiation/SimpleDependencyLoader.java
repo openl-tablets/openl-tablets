@@ -177,4 +177,16 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     public interface EmptyInterface {
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SimpleDependencyLoader that = (SimpleDependencyLoader) o;
+        return Objects.equals(project, that.project) && Objects.equals(module, that.module);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(project, module);
+    }
 }
