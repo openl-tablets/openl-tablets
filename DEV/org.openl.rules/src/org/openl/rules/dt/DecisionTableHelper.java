@@ -1703,7 +1703,9 @@ public final class DecisionTableHelper {
         List<DTHeader> hDtHeaders = conditions.stream().filter(DTHeader::isHCondition).collect(toList());
         int minColumn;
         if (!WithVerticalTitles.NO.equals(withVerticalTitles) && firstColumnForHCondition > 0) {
-            minColumn = firstColumnForHCondition - 1;
+            minColumn = firstColumnForHCondition - originalTable.getSource()
+                .getCell(firstColumnForHCondition - 1, 0)
+                .getWidth();
             List<DTHeader> vDtHeaders = conditions.stream()
                 .filter(e -> e.isCondition() && !e.isHCondition())
                 .collect(toList());
@@ -3437,7 +3439,7 @@ public final class DecisionTableHelper {
                                         matchedDefinition.getUsedMethodParameterIndexes(),
                                         definition.getCompositeMethod(),
                                         columnParameters,
-                                        column + 1 + x,
+                                        column + originalTable.getSource().getCell(column, 0).getWidth() + x,
                                         h,
                                         1,
                                         1,

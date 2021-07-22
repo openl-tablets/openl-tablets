@@ -91,7 +91,7 @@ abstract class DTHeader {
     @Override
     public String toString() {
         return "DTHeader [type=" + getTypeString() + " methodParameterIndexes=" + Arrays.toString(
-            methodParameterIndexes) + ", column=" + column + ", width=" + getWidth() + " statement=" + statement + "]";
+            methodParameterIndexes) + ", column=" + column + ", width=" + getWidth() + " statement=" + statement + "] horizontal=" + isHCondition();
     }
 
 }
