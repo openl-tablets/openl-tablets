@@ -21,7 +21,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.streaming.CustomizedSXSSFWorkbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
@@ -59,7 +58,7 @@ public class ExcelTemplateUtils {
         for (int i = 0; i < sheets; i++) {
             template.removeSheetAt(0);
         }
-        return new CustomizedSXSSFWorkbook(template);
+        return new SXSSFWorkbook(template);
     }
 
     public static Map<String, TableStyle> extractTemplateInfo(Workbook targetWorkbook) {
