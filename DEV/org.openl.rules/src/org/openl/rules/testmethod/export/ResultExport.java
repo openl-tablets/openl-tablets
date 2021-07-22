@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.streaming.CustomizedSXSSFWorkbook;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.openl.rules.testmethod.ITestUnit;
@@ -19,7 +18,7 @@ public abstract class ResultExport extends BaseExport {
 
     public void export(OutputStream outputStream, int testsPerPage, TestUnitsResults... results) throws IOException {
         List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
-        SXSSFWorkbook workbook = new CustomizedSXSSFWorkbook();
+        SXSSFWorkbook workbook = new SXSSFWorkbook();
         try {
             styles = new Styles(workbook);
             ParameterExport parameterExport = new ParameterExport(styles);

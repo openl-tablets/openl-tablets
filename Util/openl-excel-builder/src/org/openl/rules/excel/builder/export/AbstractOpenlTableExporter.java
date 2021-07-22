@@ -43,7 +43,9 @@ public abstract class AbstractOpenlTableExporter<T extends Model> implements Ope
             cursor.getRow() + cellRangeSettings.getHeight(),
             cursor.getColumn(),
             cursor.getColumn() + cellRangeSettings.getWidth());
-        sheet.addMergedRegionUnsafe(mergedRegion);
+        if (cellRangeSettings.getHeight() > 0 || cellRangeSettings.getWidth() > 0) {
+            sheet.addMergedRegionUnsafe(mergedRegion);
+        }
         for (int i = mergedRegion.getFirstRow(); i <= mergedRegion.getLastRow(); i++) {
             for (int j = mergedRegion.getFirstColumn(); j <= mergedRegion.getLastColumn(); j++) {
                 Cell sheetCell = PoiExcelHelper.getOrCreateCell(j, i, sheet);
