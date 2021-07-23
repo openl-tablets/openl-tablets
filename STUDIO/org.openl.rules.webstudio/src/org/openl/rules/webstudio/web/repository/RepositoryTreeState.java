@@ -748,7 +748,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return false;
         }
 
-        return isGranted(EDIT_DEPLOYMENT);
+        return isGranted(EDIT_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanDeleteDeployment() {
