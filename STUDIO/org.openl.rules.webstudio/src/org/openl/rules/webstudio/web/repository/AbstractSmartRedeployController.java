@@ -23,6 +23,7 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.WebStudioFormats;
@@ -218,7 +219,8 @@ public abstract class AbstractSmartRedeployController {
                     }
                 }
             } else {
-                if (!isGranted(EDIT_DEPLOYMENT)) {
+                if (!isGranted(EDIT_DEPLOYMENT) || isMainBranchProtected(
+                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
                     // skip it
                     continue;
@@ -300,7 +302,8 @@ public abstract class AbstractSmartRedeployController {
             result.add(item);
         }
 
-        if (!userWorkspace.hasDDProject(projectName) && isGranted(CREATE_DEPLOYMENT)) {
+        if (!userWorkspace.hasDDProject(projectName) && isGranted(CREATE_DEPLOYMENT) && !isMainBranchProtected(
+            userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);
@@ -332,6 +335,14 @@ public abstract class AbstractSmartRedeployController {
         }
 
         return result;
+    }
+
+    private boolean isMainBranchProtected(Repository repo) {
+        if (repo.supports().branches()) {
+            BranchRepository branchRepo = (BranchRepository) repo;
+            return branchRepo.isBranchProtected(branchRepo.getBranch());
+        }
+        return false;
     }
 
     public abstract AProject getSelectedProject();

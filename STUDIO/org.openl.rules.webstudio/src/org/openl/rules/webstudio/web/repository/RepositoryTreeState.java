@@ -763,7 +763,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanSaveDeployment() {
         ADeploymentProject selectedProject = (ADeploymentProject) getSelectedProject();
-        return selectedProject.isOpenedForEditing() && selectedProject.isModified() && isGranted(EDIT_DEPLOYMENT);
+        return selectedProject.isOpenedForEditing() && selectedProject
+            .isModified() && isGranted(EDIT_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanSaveProject() {
