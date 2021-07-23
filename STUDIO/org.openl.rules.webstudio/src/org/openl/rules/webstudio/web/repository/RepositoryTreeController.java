@@ -606,8 +606,7 @@ public class RepositoryTreeController {
         return designRepo.getRepositories()
             .stream()
             .filter(repo -> !repo.supports()
-                .branches() || (repo.supports()
-                    .branches() && !((BranchRepository) repo).isBranchProtected(((BranchRepository) repo).getBranch())))
+                .branches() || !((BranchRepository) repo).isBranchProtected(((BranchRepository) repo).getBranch()))
             .collect(Collectors.toList());
     }
 

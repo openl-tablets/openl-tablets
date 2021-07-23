@@ -824,9 +824,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     private boolean isCurrentBranchProtected(UserWorkspaceProject selectedProject) {
-        Repository designRepository = selectedProject.getDesignRepository();
-        if (designRepository.supports().branches()) {
-            return ((BranchRepository) designRepository).isBranchProtected(selectedProject.getBranch());
+        Repository repo = selectedProject.getDesignRepository();
+        if (repo != null && repo.supports().branches()) {
+            return ((BranchRepository) repo).isBranchProtected(selectedProject.getBranch());
         }
         return false;
     }
