@@ -1141,16 +1141,18 @@ public class ProjectModel {
                                 SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(), null),
                                 null)),
                         (e) -> {
-                            try {
-                                this.compiledOpenClass = this.validate();
-                                XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                                    .getMetaInfo();
-                                allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
-                                redraw();
-                            } catch (Throwable t) {
-                                onCompilationFailed(t);
+                            if (e != null) {
+                                try {
+                                    this.compiledOpenClass = this.validate();
+                                    XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                                        .getMetaInfo();
+                                    allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
+                                    redraw();
+                                } catch (Throwable t) {
+                                    onCompilationFailed(t);
+                                }
+                                this.projectCompilationCompleted = true;
                             }
-                            this.projectCompilationCompleted = true;
                         });
             } else {
                 projectCompilationCompleted = true;

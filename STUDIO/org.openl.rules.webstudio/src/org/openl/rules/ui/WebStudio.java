@@ -520,7 +520,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return;
             }
             boolean anotherModuleOpened = currentModule != module;
-            boolean anotherProjectOpened = currentProject != project;
+            boolean anotherProjectOpened = !(model.getModuleInfo() != null && project != null &&
+                model.getModuleInfo().getProject().getName().equals(project.getName()));
             currentModule = module;
             currentProject = project;
             if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile ||

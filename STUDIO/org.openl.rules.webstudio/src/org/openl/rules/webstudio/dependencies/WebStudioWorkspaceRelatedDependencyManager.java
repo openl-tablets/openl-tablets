@@ -13,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -82,9 +83,6 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         throw new OpenLCompilationException("Compilation is interrupted", e);
                     }
                 }
-                if (!active) {
-                    throw new OpenLCompilationException("Compilation is interrupted");
-                }
                 Long currentThreadVersion = threadVersion.get();
                 if (currentThreadVersion == null) {
                     threadVersion.set(version.get());
@@ -92,13 +90,18 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         log.debug("Dependency '{}' is requested with '{}' priority.",
                             dependency.getNode().getIdentifier(),
                             priority == null ? ThreadPriority.HIGH : priority);
-                        return super.loadDependency(dependency);
+                        if (active) {
+                            return super.loadDependency(dependency);
+                        } else {
+                            return new CompiledDependency(dependency.getNode().getIdentifier(),
+                                new CompiledOpenClass(NullOpenClass.the,
+                                    Collections.singletonList(new CompilationInterruptedOpenLErrorMessage())));
+                        }
                     } finally {
                         threadVersion.remove();
                     }
-
                 } else {
-                    if (Objects.equals(currentThreadVersion, version.get())) {
+                    if (active && Objects.equals(currentThreadVersion, version.get())) {
                         log.debug("Dependency '{}' is requested with '{}' priority.",
                             dependency.getNode().getIdentifier(),
                             priority == null ? ThreadPriority.HIGH : priority);
@@ -219,6 +222,13 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         active = false;
         version.incrementAndGet();
         executorService.shutdown();
+        try {
+            if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException ex) {
+            executorService.shutdownNow();
+        }
         super.resetAll();
     }
 
