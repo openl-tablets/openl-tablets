@@ -730,7 +730,16 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanCreateDeployment() {
-        return isGranted(CREATE_DEPLOYMENT);
+        return isGranted(CREATE_DEPLOYMENT) && !isMainBranchProtected(
+            userWorkspace.getDesignTimeRepository().getDeployConfigRepository());
+    }
+
+    private boolean isMainBranchProtected(Repository repo) {
+        if (repo.supports().branches()) {
+            BranchRepository branchRepo = (BranchRepository) repo;
+            return branchRepo.isBranchProtected(branchRepo.getBranch());
+        }
+        return false;
     }
 
     public boolean getCanEditDeployment() {
@@ -749,7 +758,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return true;
         }
         return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(
-            DELETE_DEPLOYMENT);
+            DELETE_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanSaveDeployment() {

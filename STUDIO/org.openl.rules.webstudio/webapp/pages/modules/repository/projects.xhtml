@@ -33,7 +33,7 @@
                 <rich:column style="min-width: 70px">
                   <h:outputText value="Modified At" />
                 </rich:column>
-                <rich:column style="min-width: 50px">
+                <rich:column  styleClass="action-column-header" style="min-width: 50px">
                   <h:outputText value="Actions" />
                 </rich:column>
               </rich:columnGroup>
@@ -59,7 +59,7 @@
                     <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}" />
                 </h:outputText>
               </rich:column>
-              <rich:column>
+              <rich:column styleClass="action-column">
                 <h:panelGroup rendered="#{!prj.data.deleted}">
                   &#160;
                   <h:commandLink immediate="true"
@@ -75,7 +75,7 @@
                           <h:graphicImage url="/webresource/images/unlock.png" styleClass="actionImage" alt="Unlock"/>
                       </h:commandLink>
                   </h:panelGroup>
-                  <h:panelGroup rendered="#{repositoryTreeController.canDelete and (not prj.data.locked or prj.data.lockedByMe)}">
+                  <h:panelGroup rendered="#{repositoryTreeController.canDelete and not prj.data.branchProtected and (not prj.data.locked or prj.data.lockedByMe)}">
                       &#160;
                       <h:commandLink immediate="true"
                           onclick="#{rich:component('modalDeleteNode')}.show();"

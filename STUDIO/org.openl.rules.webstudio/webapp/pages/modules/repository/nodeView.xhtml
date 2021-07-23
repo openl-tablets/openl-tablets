@@ -417,6 +417,12 @@
             $selectedBranch = $j('#branchSelector option:selected');
 
             initExpandableLinks();
+
+            //hide action column if no child elements there
+            if ($j(".filtered-table > tbody > tr > .action-column > *").length === 0) {
+                $j(".filtered-table > thead > tr > .action-column-header").hide();
+                $j(".filtered-table > tbody > tr > .action-column").hide();
+            }
         });
 
         function canOverwriteRevision() {
