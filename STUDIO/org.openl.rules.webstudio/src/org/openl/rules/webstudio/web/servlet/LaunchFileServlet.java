@@ -85,7 +85,8 @@ public class LaunchFileServlet extends HttpServlet {
             return;
         }
 
-        String uri = table.getUri();
+        //TODO rewrite file prefix adding
+        String uri = "file://" + model.getModuleInfo().getProject().getProjectFolder() + "/" + table.getUri();
 
         String file;
         String decodedUriParameter;

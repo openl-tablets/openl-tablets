@@ -25,6 +25,10 @@ public interface IOpenSourceCodeModule {
 
     String getUri();
 
+    default String getFileUri(){
+        return getUri();
+    }
+
     /**
      * External parameters for current source code module.<br>
      * It can be external properties or dependencies.

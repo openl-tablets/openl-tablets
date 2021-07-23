@@ -416,7 +416,7 @@ public class XlsBinder implements IOpenBinder {
 
         builder.setExtendsCategory(openlName);
 
-        String category = openlName + "::" + moduleNode.getModule().getUri();
+        String category = openlName + "::" + moduleNode.getModule().getFileUri();
         builder.setCategory(category);
 
         addImports(moduleNode, builder, imports, exceptions);

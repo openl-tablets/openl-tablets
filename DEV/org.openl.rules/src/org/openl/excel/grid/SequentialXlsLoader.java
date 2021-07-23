@@ -272,7 +272,7 @@ public class SequentialXlsLoader {
                     }
                 } else {
                     try {
-                        String newURL = getParentAndMergePaths(sheetSource.getWorkbookSource().getUri(),
+                        String newURL = getParentAndMergePaths(sheetSource.getWorkbookSource().getFileUri(),
                             StringTool.encodeURL(include));
                         src = new URLSourceCodeModule(new URL(newURL));
                     } catch (Exception t) {
