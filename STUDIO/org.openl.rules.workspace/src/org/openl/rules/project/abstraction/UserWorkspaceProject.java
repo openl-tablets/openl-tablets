@@ -147,7 +147,7 @@ public abstract class UserWorkspaceProject extends AProject {
     }
 
     public boolean isBranchProtected() {
-        if (isSupportsBranches()) {
+        if (!isLocalOnly() && isSupportsBranches()) {
             return ((BranchRepository) getDesignRepository()).isBranchProtected(getBranch());
         }
         return false;
