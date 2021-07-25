@@ -283,26 +283,31 @@
             return query;
         }
 
-        $j('#testPanel').bind('refresh', function () {
+        $j('#testPanel').off('refresh').on('refresh', function (e, state) {
             return $jq.ajax({
                 url: "#{contextPath}/web/compile/tests",
                 datatype: "text"
             })
-                .done(function (data) {
-                  $j("#tableRunState").val(data.tableRunState);
+            .done(function (data) {
+                //Stop current cycle because module or project was changed and script will be reinitialized with new cycle.
+                if (ws.storage.get("WS_PREVIOUS_PAGE_STATE").module !== state.moduleId || ws.storage.get("WS_PREVIOUS_PAGE_STATE").project !== state.projectId){
+                    return;
+                } else {
+                    $j("#tableRunState").val(data.tableRunState);
                     data.count > 0 ? $j('.test-section').show() : $j('.test-section').hide();
                     if (document.getElementById("testCountSpan") !== null) {
                         document.getElementById("testCountSpan").textContent = data.count;
                         if (!data.compiled) {
                             setTimeout(function () {
-                                $j('#testPanel').trigger('refresh')
+                                $j('#testPanel').trigger('refresh', state)
                             }, 1000);
                         }
                     }
-                });
+                }
+            });
         });
 
-        $j('#testPanel').trigger('refresh');
+        $j('#testPanel').trigger('refresh', {projectId: ws.storage.get("WS_PREVIOUS_PAGE_STATE").project, moduleId: ws.storage.get("WS_PREVIOUS_PAGE_STATE").module});
 
         function test(e, testUrl) {
             e.preventDefault();
