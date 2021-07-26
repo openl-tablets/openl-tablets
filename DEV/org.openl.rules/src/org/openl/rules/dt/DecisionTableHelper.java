@@ -1571,6 +1571,7 @@ public final class DecisionTableHelper {
                         condition,
                         numOfHCondition,
                         firstColumnForHConditionsOrReturns,
+                        firstColumnHeight,
                         numberOfColumnsUnderTitle,
                         bindingContext);
                     grid.setCellValue(column, 1, typeOfValue.getRight());
@@ -3547,6 +3548,39 @@ public final class DecisionTableHelper {
         }
     }
 
+    private static class CellValue {
+        String value;
+        ICell cell;
+
+        public CellValue(ICell cell) {
+            this.value = cell.getStringValue();
+            this.cell = cell;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public ICell getCell() {
+            return cell;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            CellValue cellValue = (CellValue) o;
+            return Objects.equals(value, cellValue.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
+        }
+    }
+
     /**
      * Check type of condition values. If condition values are complex(Range, Array) then types of complex values will
      * be returned
@@ -3557,27 +3591,26 @@ public final class DecisionTableHelper {
             DTHeader condition,
             int indexOfHCondition,
             int firstColumnForHConditionsOrReturns,
+            int firstColumnHeight,
             int numberOfColumnsUnderTitle,
             IBindingContext bindingContext) {
         int column = condition.getColumn();
 
         IOpenClass type = getTypeForCondition(decisionTable, condition);
 
-        ILogicalTable decisionValues;
+        IGridTable decisionValues;
         int width;
         int skip;
         int numberOfColumnsForCondition;
         if (condition.isHCondition()) {
-            decisionValues = LogicalTableHelper.logicalTable(originalTable.getSource().getRow(indexOfHCondition - 1));
+            decisionValues = originalTable.getSource().getRow(indexOfHCondition - 1);
             width = decisionValues.getWidth();
             skip = firstColumnForHConditionsOrReturns;
             numberOfColumnsForCondition = 1;
         } else {
-            decisionValues = LogicalTableHelper
-                .logicalTable(originalTable.getSource().getColumns(column, column + numberOfColumnsUnderTitle - 1));
+            decisionValues = originalTable.getSource().getColumns(column, column + numberOfColumnsUnderTitle - 1);
             width = decisionValues.getHeight();
-            int firstColumnHeight = originalTable.getSource().getCell(0, 0).getHeight();
-            skip = calculateRowsCount(originalTable, column, firstColumnHeight);
+            skip = firstColumnHeight;
             numberOfColumnsForCondition = numberOfColumnsUnderTitle;
         }
 
@@ -3609,17 +3642,29 @@ public final class DecisionTableHelper {
 
         boolean isMoreThanOneColumnIsUsed = numberOfColumnsForCondition > 1;
 
+        Map<Integer, LinkedHashSet<CellValue>> valuesMap = new HashMap<>();
         for (int valueNum = skip; valueNum < width; valueNum++) {
-            ILogicalTable cellValues = condition.isHCondition() ? decisionValues.getColumn(valueNum)
-                                                                : decisionValues.getRow(valueNum);
-
+            IGridTable cellValues = condition.isHCondition() ? decisionValues.getColumn(valueNum)
+                                                             : decisionValues.getRow(valueNum);
+            Set<CellValue> values = valuesMap.computeIfAbsent(valueNum, e -> new LinkedHashSet<>());
             for (int cellNum = 0; cellNum < numberOfColumnsForCondition; cellNum++) {
-                String value = cellValues.getSource().getCell(0, cellNum).getStringValue();
-
+                ICell cell = cellValues.getCell(0, cellNum);
+                String value = cellValues.getCell(0, cellNum).getStringValue();
                 if (value == null || StringUtils.isEmpty(value)) {
+                    values.add(null);
                     h[valueNum][cellNum] = false;
+                } else {
+                    values.add(new CellValue(cell));
+                }
+            }
+            int cellNum = -1;
+            for (CellValue cellValue : values) {
+                cellNum++;
+                if (cellValue == null) {
                     continue;
                 }
+                String value = cellValue.getValue();
+
                 if (RuleRowHelper.isFormula(value) && !isRangeType) {
                     try {
                         bindingContext.pushErrors();
@@ -3729,14 +3774,14 @@ public final class DecisionTableHelper {
         }
 
         for (int valueNum = skip; valueNum < width; valueNum++) {
-            ILogicalTable cellValue = condition.isHCondition() ? decisionValues.getColumn(valueNum)
-                                                               : decisionValues.getRow(valueNum);
-            for (int cellNum = 0; cellNum < numberOfColumnsForCondition; cellNum++) {
+            Set<CellValue> values = valuesMap.get(valueNum);
+            int cellNum = -1;
+            for (CellValue cellValue : values) {
+                cellNum++;
                 if (!h[valueNum][cellNum]) {
                     continue;
                 }
-                String value = cellValue.getSource().getCell(0, cellNum).getStringValue();
-
+                String value = cellValue.getValue();
                 /* try to create range by values **/
                 try {
                     if (isIntType) {
@@ -3804,7 +3849,7 @@ public final class DecisionTableHelper {
                             }
                         }
                     } else if (isDateType) {
-                        Object o = cellValue.getSource().getCell(0, 0).getObjectValue();
+                        Object o = cellValue.getCell().getObjectValue();
                         if (o instanceof Date) {
                             continue;
                         }
