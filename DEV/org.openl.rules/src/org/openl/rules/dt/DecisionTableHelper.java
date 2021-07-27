@@ -254,8 +254,15 @@ public final class DecisionTableHelper {
             ILogicalTable originalTable,
             IBindingContext bindingContext) throws OpenLCompilationException {
         IWritableGrid virtualGrid = createVirtualGrid();
-        writeVirtualHeaders(tableSyntaxNode, decisionTable, originalTable, virtualGrid, bindingContext);
-        if (isLookupAndResultTitleInFirstRow(tableSyntaxNode, originalTable)) {
+        boolean isSmartLookupAndResultTitleInFirstRow = isSmartLookupAndResultTitleInFirstRow(tableSyntaxNode,
+            originalTable);
+        writeVirtualHeaders(tableSyntaxNode,
+            decisionTable,
+            originalTable,
+            virtualGrid,
+            isSmartLookupAndResultTitleInFirstRow,
+            bindingContext);
+        if (isSmartLookupAndResultTitleInFirstRow) {
             originalTable = cutResultTitleInFirstRow(originalTable);
         }
         // If the new table header size bigger than the size of the old table we
@@ -298,9 +305,10 @@ public final class DecisionTableHelper {
         return new FuzzyContext(parameterTokens);
     }
 
-    public static boolean isLookupAndResultTitleInFirstRow(TableSyntaxNode tableSyntaxNode,
+    public static boolean isSmartLookupAndResultTitleInFirstRow(TableSyntaxNode tableSyntaxNode,
             ILogicalTable originalTable) {
-        if (isLookup(tableSyntaxNode) && StringUtils.isNotBlank(originalTable.getCell(0, 0).getStringValue())) {
+        if (isSmartLookupTable(tableSyntaxNode) && StringUtils
+            .isNotBlank(originalTable.getCell(0, 0).getStringValue())) {
             int cellHeight = originalTable.getSource().getCell(0, 0).getHeight();
             int width = originalTable.getSource().getWidth();
             int w = originalTable.getSource().getCell(0, 0).getWidth();
@@ -323,7 +331,7 @@ public final class DecisionTableHelper {
         return false;
     }
 
-    private static ILogicalTable cutResultTitleInFirstRow(ILogicalTable originalTable) {
+    public static ILogicalTable cutResultTitleInFirstRow(ILogicalTable originalTable) {
         return originalTable.getSubtable(0, 1, originalTable.getWidth(), originalTable.getHeight() - 1);
     }
 
@@ -331,10 +339,10 @@ public final class DecisionTableHelper {
             DecisionTable decisionTable,
             ILogicalTable originalTable,
             IWritableGrid grid,
+            boolean isSmartLookupAndResultTitleInFirstRow,
             IBindingContext bindingContext) throws OpenLCompilationException {
-        boolean isLookupAndResultTitleInFirstRow = isLookupAndResultTitleInFirstRow(tableSyntaxNode, originalTable);
         ILogicalTable uncutOriginalTable = null;
-        if (isLookupAndResultTitleInFirstRow) {
+        if (isSmartLookupAndResultTitleInFirstRow) {
             uncutOriginalTable = originalTable;
             originalTable = cutResultTitleInFirstRow(originalTable);
         }
@@ -375,7 +383,7 @@ public final class DecisionTableHelper {
             bindingContext);
 
         DeclaredDTHeader lookupReturnDtHeader = null;
-        if (isLookupAndResultTitleInFirstRow) {
+        if (isSmartLookupAndResultTitleInFirstRow) {
             lookupReturnDtHeader = getLookupReturnDtHeader(tableSyntaxNode,
                 decisionTable,
                 uncutOriginalTable,
@@ -3778,7 +3786,7 @@ public final class DecisionTableHelper {
             int cellNum = -1;
             for (CellValue cellValue : values) {
                 cellNum++;
-                if (!h[valueNum][cellNum]) {
+                if (cellValue == null || !h[valueNum][cellNum]) {
                     continue;
                 }
                 String value = cellValue.getValue();
