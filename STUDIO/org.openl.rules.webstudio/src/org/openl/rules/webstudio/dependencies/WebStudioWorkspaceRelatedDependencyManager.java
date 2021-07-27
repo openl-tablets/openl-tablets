@@ -56,7 +56,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     public WebStudioWorkspaceRelatedDependencyManager(Collection<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,
             boolean executionMode,
-            Map<String, Object> externalParameters, boolean canUnload) {
+            Map<String, Object> externalParameters,
+            boolean canUnload) {
         super(rootClassLoader, executionMode, externalParameters);
         this.projects = new LinkedHashSet<>(Objects.requireNonNull(projects, "projects cannot be null"));
         this.canUnload = canUnload;
@@ -152,7 +153,9 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                     if (active) {
                         loadDependencyAsync(dependency, consumer);
                     } else {
-                        consumer.accept(null);
+                        consumer.accept(new CompiledDependency(dependency.getNode().getIdentifier(),
+                            new CompiledOpenClass(NullOpenClass.the,
+                                Collections.singletonList(new CompilationInterruptedOpenLErrorMessage()))));
                     }
                 } else {
                     consumer.accept(compiledDependency);
@@ -167,7 +170,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         return buildDependencyLoaders(projects);
     }
 
-    private Map<String, CopyOnWriteArraySet<IDependencyLoader>> buildDependencyLoaders(Set<ProjectDescriptor> projects) {
+    private Map<String, CopyOnWriteArraySet<IDependencyLoader>> buildDependencyLoaders(
+            Set<ProjectDescriptor> projects) {
         Map<String, CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders = new HashMap<>();
         for (ProjectDescriptor project : projects) {
             try {
@@ -177,8 +181,9 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         WebStudioDependencyLoader moduleDependencyLoader = new WebStudioDependencyLoader(project,
                             m,
                             this);
-                        Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                            .computeIfAbsent(moduleDependencyLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
+                        Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders.computeIfAbsent(
+                            moduleDependencyLoader.getDependencyName(),
+                            e -> new CopyOnWriteArraySet<>());
                         dependencyLoadersByName.add(moduleDependencyLoader);
                     }
                 }

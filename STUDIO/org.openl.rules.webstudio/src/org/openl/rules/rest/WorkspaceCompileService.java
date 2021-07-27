@@ -279,15 +279,15 @@ public class WorkspaceCompileService {
             List<MessageDescription> newMessages, Set<OpenLMessage> uniqueMessages) {
         if (messages != null) {
             for (OpenLMessage message : messages) {
-                switch (message.getSeverity()) {
-                    case WARN:
-                        counter.warningsCount++;
-                        break;
-                    case ERROR:
-                        counter.errorsCount++;
-                        break;
-                }
                 if (uniqueMessages.add(message)) {
+                    switch (message.getSeverity()) {
+                        case WARN:
+                            counter.warningsCount++;
+                            break;
+                        case ERROR:
+                            counter.errorsCount++;
+                            break;
+                    }
                     newMessages.add(new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()));
                 }
             }

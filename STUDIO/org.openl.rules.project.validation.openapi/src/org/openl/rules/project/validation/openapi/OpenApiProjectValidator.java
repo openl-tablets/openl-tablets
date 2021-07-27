@@ -150,7 +150,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             RulesInstantiationStrategy rulesInstantiationStrategy) throws RulesInstantiationException {
         final CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
         final ValidatedCompiledOpenClass validatedCompiledOpenClass = ValidatedCompiledOpenClass
-
             .instanceOf(compiledOpenClass);
         final Context context = new Context();
         OpenAPI expectedOpenAPI = loadOpenAPI(context, projectDescriptor, validatedCompiledOpenClass);

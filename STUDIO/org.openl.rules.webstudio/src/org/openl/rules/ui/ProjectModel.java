@@ -40,8 +40,6 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
-import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
-import org.openl.rules.lang.xls.load.WorkbookLoaders;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -1140,29 +1138,27 @@ public class ProjectModel {
                                 null,
                                 SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(), null),
                                 null)),
-                        (e) -> {
-                            if (e != null) {
-                                try {
-                                    this.compiledOpenClass = this.validate();
-                                    XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                                        .getMetaInfo();
-                                    allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
-                                    redraw();
-                                } catch (Throwable t) {
-                                    onCompilationFailed(t);
-                                }
-                                this.projectCompilationCompleted = true;
+                        (compiledDependency) -> {
+                            try {
+                                this.compiledOpenClass = this.validate();
+                                XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                                    .getMetaInfo();
+                                allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
+                                redraw();
+                            } catch (Exception | LinkageError e) {
+                                onCompilationFailed(e);
                             }
+                            this.projectCompilationCompleted = true;
                         });
             } else {
                 projectCompilationCompleted = true;
             }
-        } catch (Throwable t) {
-            onCompilationFailed(t);
+        } catch (Exception | LinkageError e) {
+            onCompilationFailed(e);
         }
     }
 
-    private void onCompilationFailed(Throwable t){
+    private void onCompilationFailed(Throwable t) {
         projectCompilationCompleted = true;
         log.error("Failed to load.", t);
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
@@ -1422,8 +1418,7 @@ public class ProjectModel {
     }
 
     public synchronized String getMessageNodeId(String sourceLocation) {
-        XlsUrlParser xlsUrlParser = sourceLocation != null ? new XlsUrlParser(sourceLocation)
-                                                                        : null;
+        XlsUrlParser xlsUrlParser = sourceLocation != null ? new XlsUrlParser(sourceLocation) : null;
         for (TableSyntaxNode tsn : getAllTableSyntaxNodes()) { // for all modules
             if (xlsUrlParser != null && xlsUrlParser.intersects(tsn.getUriParser())) {
                 return tsn.getId();
