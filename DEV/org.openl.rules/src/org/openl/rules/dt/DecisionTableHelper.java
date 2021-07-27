@@ -309,23 +309,18 @@ public final class DecisionTableHelper {
             ILogicalTable originalTable) {
         if (isSmartLookupTable(tableSyntaxNode) && StringUtils
             .isNotBlank(originalTable.getCell(0, 0).getStringValue())) {
-            int cellHeight = originalTable.getSource().getCell(0, 0).getHeight();
+            int firstCellHeight = originalTable.getSource().getCell(0, 0).getHeight();
             int width = originalTable.getSource().getWidth();
             int w = originalTable.getSource().getCell(0, 0).getWidth();
             while (w < width) {
-                int h = 0;
-                while (h < cellHeight) {
-                    ICell cell = originalTable.getSource().getCell(w, h);
-                    String s = cell.getStringValue();
-                    if (StringUtils.isNotBlank(s)) {
-                        return false;
-                    }
-                    h = h + cell.getHeight();
+                ICell cell = originalTable.getSource().getCell(w, 0);
+                if (cell.getHeight() != firstCellHeight || StringUtils.isNotBlank(cell.getStringValue())) {
+                    return false;
                 }
-                w++;
+                w = w + cell.getWidth();
             }
-            if (cellHeight < originalTable.getSource().getHeight()) {
-                return originalTable.getSource().getCell(0, cellHeight).getWidth() != width;
+            if (firstCellHeight < originalTable.getSource().getHeight()) {
+                return originalTable.getSource().getCell(0, firstCellHeight).getWidth() != width;
             }
         }
         return false;
