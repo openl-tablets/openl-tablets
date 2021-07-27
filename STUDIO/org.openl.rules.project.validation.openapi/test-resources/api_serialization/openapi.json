@@ -1,0 +1,90 @@
+{
+  "components": {
+    "schemas": {
+      "Dto": {
+        "properties": {
+          "field1": {
+            "type": "string"
+          },
+          "field2": {
+            "format": "double",
+            "type": "number"
+          },
+          "field3": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "contact": {
+      "email": "jdoe@localhost",
+      "name": "John Doe"
+    },
+    "description": "Some description",
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "title": "Book API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.0.1",
+  "paths": {
+    "/books/{id}": {
+      "get": {
+        "operationId": "findById",
+        "parameters": [
+          {
+            "description": "id of book to be searched",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Dto"
+                }
+              }
+            },
+            "description": "Found the book"
+          },
+          "400": {
+            "content": {
+              "*/*": {}
+            },
+            "description": "Invalid id supplied"
+          },
+          "404": {
+            "content": {
+              "*/*": {}
+            },
+            "description": "Book not found"
+          }
+        },
+        "summary": "Get a book by its id"
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "Operations about book",
+      "name": "book"
+    },
+    {
+      "description": "Some other tag",
+      "name": "foo"
+    }
+  ]
+}
