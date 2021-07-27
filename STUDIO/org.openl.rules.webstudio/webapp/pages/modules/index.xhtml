@@ -657,10 +657,22 @@
                     render(url, { repositoryId: repositoryId, project: project }, toReload, toOpen, openProjectNode);
                 });
                 // Project-specific additional info pages
-                crossroads.addRoute("{repositoryId}/{project}?page={page}&:{query}:", function(reload, repositoryId, project, page, query) {
-                    let url = page + ".xhtml";
-                    if (query) {
-                        url += "?" + query;
+                crossroads.addRoute("{repositoryId}/{project}{?query}", function(reload, repositoryId, project, query) {
+                    let url = query.page + ".xhtml";
+
+                    const serialize = function (query) {
+                        let q = [];
+                        for (const p in query) {
+                            if (query.hasOwnProperty(p) && p !== "page") {
+                                q.push(encodeURIComponent(p) + "=" + encodeURIComponent(query[p]))
+                            }
+                        }
+                        return q.join("&");
+                    };
+
+                    const q = serialize(query)
+                    if (q) {
+                        url += "?" + q;
                     }
                     setModule(repositoryId, project);
                     let leftReload = reload === "true" || !$("#projects-tree").length;
