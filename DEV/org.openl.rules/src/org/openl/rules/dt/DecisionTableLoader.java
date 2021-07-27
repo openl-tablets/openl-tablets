@@ -138,20 +138,30 @@ public class DecisionTableLoader {
         if (isSmart(tableSyntaxNode)) {
             ILogicalTable tableBody = tableSyntaxNode.getTableBody();
             if (tableBody != null && isLookup(tableSyntaxNode)) {
-                if (DecisionTableHelper.isLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody)) {
-                    return Direction.NORMAL;
+                if (DecisionTableHelper.isSmartLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody)) {
+                    if (isLookupByHConditions(DecisionTableHelper.cutResultTitleInFirstRow(tableBody))) {
+                        direction = Direction.NORMAL;
+                    }
+                } else {
+                    if (isLookupByHConditions(tableBody)) {
+                        direction = Direction.NORMAL;
+                    }
                 }
-                if (DecisionTableHelper.isLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody.transpose())) {
-                    return Direction.TRANSPOSED;
-                }
-                if (isLookupByHConditions(tableBody)) {
-                    direction = Direction.NORMAL;
-                }
-                if (isLookupByHConditions(tableBody.transpose())) {
-                    if (Direction.UNKNOWN.equals(direction)) {
-                        direction = Direction.TRANSPOSED;
-                    } else {
-                        direction = Direction.UNKNOWN;
+                if (DecisionTableHelper.isSmartLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody.transpose())) {
+                    if (isLookupByHConditions(DecisionTableHelper.cutResultTitleInFirstRow(tableBody.transpose()))) {
+                        if (Direction.UNKNOWN.equals(direction)) {
+                            direction = Direction.TRANSPOSED;
+                        } else {
+                            direction = Direction.UNKNOWN;
+                        }
+                    }
+                } else {
+                    if (isLookupByHConditions(tableBody.transpose())) {
+                        if (Direction.UNKNOWN.equals(direction)) {
+                            direction = Direction.TRANSPOSED;
+                        } else {
+                            direction = Direction.UNKNOWN;
+                        }
                     }
                 }
             }
