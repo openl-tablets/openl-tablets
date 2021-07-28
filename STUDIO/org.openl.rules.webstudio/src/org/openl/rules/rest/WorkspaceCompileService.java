@@ -79,8 +79,10 @@ public class WorkspaceCompileService {
                             CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
                             if (compiledDependency != null) {
                                 if (!Objects.equals(projectDescriptor.getName(), moduleInfo.getProject().getName())) {
-                                    processMessages(compiledDependency.getCompiledOpenClass()
-                                        .getCurrentMessages(), messageCounter, newMessages, uniqueNewMessages);
+                                    processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
+                                        messageCounter,
+                                        newMessages,
+                                        uniqueNewMessages);
                                 }
                             }
                         }
@@ -94,8 +96,10 @@ public class WorkspaceCompileService {
                                 if (!model.isProjectCompilationCompleted()) {
                                     if (Objects.equals(module.getName(), moduleInfo.getName()) && Objects
                                         .equals(module.getProject().getName(), moduleInfo.getProject().getName())) {
-                                        processMessages(model.getOpenedModuleCompiledOpenClass()
-                                            .getMessages(), messageCounter, newMessages, uniqueNewMessages);
+                                        processMessages(model.getOpenedModuleCompiledOpenClass().getMessages(),
+                                            messageCounter,
+                                            newMessages,
+                                            uniqueNewMessages);
                                     } else {
                                         processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
                                             messageCounter,
@@ -163,20 +167,21 @@ public class WorkspaceCompileService {
         if (webStudio != null) {
             ProjectModel model = webStudio.getModel();
             IOpenLTable table = model.getTableById(tableId);
-            IOpenMethod[] allTests = model.getTestAndRunMethods(table.getUri(), false);
-
-            if (allTests != null) {
-                for (IOpenMethod test : allTests) {
-                    TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
-                    tableDescriptions.add(new TableBean.TableDescription(webStudio.url("table", syntaxNode.getUri()),
-                        syntaxNode.getId(),
-                        getTestName(test)));
+            if (table != null) {
+                IOpenMethod[] allTests = model.getTestAndRunMethods(table.getUri(), false);
+                if (allTests != null) {
+                    for (IOpenMethod test : allTests) {
+                        TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
+                        tableDescriptions
+                            .add(new TableBean.TableDescription(webStudio.url("table", syntaxNode.getUri()),
+                                syntaxNode.getId(),
+                                getTestName(test)));
+                    }
+                    tableDescriptions.sort(Comparator.comparing(TableBean.TableDescription::getName));
                 }
-                tableDescriptions.sort(Comparator.comparing(TableBean.TableDescription::getName));
+                tableTestsInfo.put("allTests", tableDescriptions);
+                tableTestsInfo.put("compiled", model.isProjectCompilationCompleted());
             }
-
-            tableTestsInfo.put("allTests", tableDescriptions);
-            tableTestsInfo.put("compiled", model.isProjectCompilationCompleted());
         }
         return tableTestsInfo;
     }
@@ -276,7 +281,8 @@ public class WorkspaceCompileService {
 
     private void processMessages(Collection<OpenLMessage> messages,
             MessageCounter counter,
-            List<MessageDescription> newMessages, Set<OpenLMessage> uniqueMessages) {
+            List<MessageDescription> newMessages,
+            Set<OpenLMessage> uniqueMessages) {
         if (messages != null) {
             for (OpenLMessage message : messages) {
                 if (uniqueMessages.add(message)) {
@@ -288,7 +294,8 @@ public class WorkspaceCompileService {
                             counter.errorsCount++;
                             break;
                     }
-                    newMessages.add(new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()));
+                    newMessages
+                        .add(new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()));
                 }
             }
         }
