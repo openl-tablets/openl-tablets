@@ -179,10 +179,15 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         SimpleDependencyLoader that = (SimpleDependencyLoader) o;
-        return Objects.equals(project, that.project) && Objects.equals(module, that.module);
+        return this.isProjectLoader() && that.isProjectLoader() && Objects.equals(this.getProject().getName(),
+            that.getProject().getName()) || !this.isProjectLoader() && !that.isProjectLoader() && Objects
+                .equals(this.getModule().getName(), that.getModule().getName()) && Objects
+                    .equals(this.getModule().getProject().getName(), that.getModule().getProject().getName());
     }
 
     @Override

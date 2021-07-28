@@ -1,8 +1,18 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 
@@ -120,11 +130,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     protected void addDependencyLoaders(Collection<IDependencyLoader> dependencyLoadersToAdd) {
         if (dependencyLoadersToAdd != null) {
             synchronized (dependencyLoadersFlag) {
-                for (IDependencyLoader dependencyLoader : dependencyLoadersToAdd) {
+                dependencyLoadersToAdd.forEach(dependencyLoader -> {
                     Collection<IDependencyLoader> dependencyLoadersByDependencyName = this.dependencyLoaders
                         .computeIfAbsent(dependencyLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
                     dependencyLoadersByDependencyName.add(dependencyLoader);
-                }
+                });
             }
         }
     }
