@@ -21,7 +21,6 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.test.RulesInFolderTestRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,9 +28,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class OpenAPIGenerationTestRunner {
+public class OpenAPIGenerationTest {
 
-    private final Logger log = LoggerFactory.getLogger(RulesInFolderTestRunner.class);
+    private final Logger log = LoggerFactory.getLogger(OpenAPIGenerationTest.class);
 
     public static final String DIR = "test-resources/functionality/";
 
