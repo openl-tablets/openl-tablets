@@ -104,14 +104,14 @@ public class DecisionTableLoader {
     private enum Direction {
         UNKNOWN,
         TRANSPOSED,
-        NORMAL;
+        NORMAL
     }
 
-    private boolean isLookupByHConditions(ILogicalTable tableBody) {
+    private boolean isLookupByHConditions(ILogicalTable tableBody, boolean isSmart) {
         int numberOfHCondition = DecisionTableHelper.getNumberOfHConditions(tableBody);
         int firstColumnHeight = tableBody.getSource().getCell(0, 0).getHeight();
         int firstColumnForHCondition = DecisionTableHelper
-            .getFirstColumnForHCondition(tableBody, numberOfHCondition, firstColumnHeight)
+            .getFirstColumnForHCondition(tableBody, numberOfHCondition, firstColumnHeight, isSmart)
             .getLeft();
         if (firstColumnForHCondition > 0 && firstColumnHeight != tableBody.getSource()
             .getCell(firstColumnForHCondition, 0)
@@ -133,20 +133,23 @@ public class DecisionTableLoader {
 
     private Direction detectTableDirection(TableSyntaxNode tableSyntaxNode) {
         Direction direction = Direction.UNKNOWN;
-        if (isSmart(tableSyntaxNode)) {
+        if (isLookup(tableSyntaxNode)) {
+            boolean isSmart = isSmart(tableSyntaxNode);
             ILogicalTable tableBody = tableSyntaxNode.getTableBody();
-            if (tableBody != null && isLookup(tableSyntaxNode)) {
-                if (DecisionTableHelper.isSmartLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody)) {
-                    if (isLookupByHConditions(DecisionTableHelper.cutResultTitleInFirstRow(tableBody))) {
+            if (tableBody != null) {
+                if (isSmart && DecisionTableHelper.isSmartLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody)) {
+                    if (isLookupByHConditions(DecisionTableHelper.cutResultTitleInFirstRow(tableBody), true)) {
                         direction = Direction.NORMAL;
                     }
                 } else {
-                    if (isLookupByHConditions(tableBody)) {
+                    if (isLookupByHConditions(tableBody, isSmart)) {
                         direction = Direction.NORMAL;
                     }
                 }
-                if (DecisionTableHelper.isSmartLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody.transpose())) {
-                    if (isLookupByHConditions(DecisionTableHelper.cutResultTitleInFirstRow(tableBody.transpose()))) {
+                if (isSmart && DecisionTableHelper.isSmartLookupAndResultTitleInFirstRow(tableSyntaxNode,
+                    tableBody.transpose())) {
+                    if (isLookupByHConditions(DecisionTableHelper.cutResultTitleInFirstRow(tableBody.transpose()),
+                        true)) {
                         if (Direction.UNKNOWN.equals(direction)) {
                             direction = Direction.TRANSPOSED;
                         } else {
@@ -154,7 +157,7 @@ public class DecisionTableLoader {
                         }
                     }
                 } else {
-                    if (isLookupByHConditions(tableBody.transpose())) {
+                    if (isLookupByHConditions(tableBody.transpose(), isSmart)) {
                         if (Direction.UNKNOWN.equals(direction)) {
                             direction = Direction.TRANSPOSED;
                         } else {
