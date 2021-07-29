@@ -1,4 +1,4 @@
-package org.openl.rules.project.validation.openapi;
+package org.openl.rules.project.openapi;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,7 +26,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-public class OpenApiSerializerTest {
+public class OpenApiSerializationUtilsTest {
 
     private Reader reader;
 
@@ -37,13 +37,13 @@ public class OpenApiSerializerTest {
 
     @Test
     public void testToJson() throws IOException {
-        final String actualJsonApi = OpenApiSerializer.toJson(reader.read(Service.class));
+        final String actualJsonApi = OpenApiSerializationUtils.toJson(reader.read(Service.class));
         final String expectedJson = readText("api_serialization/openapi.json");
         assertEquals(expectedJson, actualJsonApi);
     }
 
     private static String readText(String file) throws IOException {
-        return IOUtils.toStringAndClose(OpenApiSerializerTest.class.getResourceAsStream("/" + file));
+        return IOUtils.toStringAndClose(OpenApiSerializationUtilsTest.class.getResourceAsStream("/" + file));
     }
 
     @Path("books")

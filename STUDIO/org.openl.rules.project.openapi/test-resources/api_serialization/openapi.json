@@ -1,24 +1,5 @@
 {
-  "components": {
-    "schemas": {
-      "Dto": {
-        "properties": {
-          "field1": {
-            "type": "string"
-          },
-          "field2": {
-            "format": "double",
-            "type": "number"
-          },
-          "field3": {
-            "format": "date-time",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      }
-    }
-  },
+  "openapi": "3.0.1",
   "info": {
     "contact": {
       "email": "jdoe@localhost",
@@ -32,7 +13,16 @@
     "title": "Book API",
     "version": "1.0.0"
   },
-  "openapi": "3.0.1",
+  "tags": [
+    {
+      "description": "Operations about book",
+      "name": "book"
+    },
+    {
+      "description": "Some other tag",
+      "name": "foo"
+    }
+  ],
   "paths": {
     "/books/{id}": {
       "get": {
@@ -77,14 +67,24 @@
       }
     }
   },
-  "tags": [
-    {
-      "description": "Operations about book",
-      "name": "book"
-    },
-    {
-      "description": "Some other tag",
-      "name": "foo"
+  "components": {
+    "schemas": {
+      "Dto": {
+        "properties": {
+          "field1": {
+            "type": "string"
+          },
+          "field2": {
+            "format": "double",
+            "type": "number"
+          },
+          "field3": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
     }
-  ]
+  }
 }
