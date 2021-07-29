@@ -119,7 +119,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         if (dependencyLoaders != null) {
             return Collections.unmodifiableCollection(dependencyLoaders);
         }
-        return null;
+        return Collections.emptyList();
     }
 
     public Collection<IDependencyLoader> getAllDependencyLoaders() {

@@ -1,16 +1,11 @@
 package org.openl.rules.rest;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -19,23 +14,18 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.openl.dependency.CompiledDependency;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
-import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.ProjectDependencyDescriptor;
-import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.ui.ProjectCompilationStatus;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
@@ -57,103 +47,27 @@ public class WorkspaceCompileService {
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         if (webStudio != null) {
             ProjectModel model = webStudio.getModel();
-            Module moduleInfo = model.getModuleInfo();
-            WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager = model
-                .getWebStudioWorkspaceDependencyManager();
-            if (webStudioWorkspaceDependencyManager != null) {
-                MessageCounter messageCounter = new MessageCounter();
-                int compiledCount = 0;
-                int modulesCount = 0;
-                List<MessageDescription> newMessages = new ArrayList<>();
-                Set<OpenLMessage> uniqueNewMessages = new HashSet<>();
-                Deque<ProjectDescriptor> queue = new ArrayDeque<>();
-                queue.add(moduleInfo.getProject());
-                while (!queue.isEmpty()) {
-                    ProjectDescriptor projectDescriptor = queue.poll();
-                    if (!model.isProjectCompilationCompleted()) {
-                        String dependencyName = ProjectExternalDependenciesHelper
-                            .buildDependencyNameForProject(projectDescriptor.getName());
-                        Collection<IDependencyLoader> loadersForProject = webStudioWorkspaceDependencyManager
-                            .findDependencyLoadersByName(dependencyName);
-                        for (IDependencyLoader dependencyLoader : loadersForProject) {
-                            CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
-                            if (compiledDependency != null) {
-                                if (!Objects.equals(projectDescriptor.getName(), moduleInfo.getProject().getName())) {
-                                    processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
-                                        messageCounter,
-                                        newMessages,
-                                        uniqueNewMessages);
-                                }
-                            }
-                        }
-                    }
-                    for (Module module : projectDescriptor.getModules()) {
-                        Collection<IDependencyLoader> dependencyLoadersForModule = webStudioWorkspaceDependencyManager
-                            .findDependencyLoadersByName(module.getName());
-                        for (IDependencyLoader dependencyLoader : dependencyLoadersForModule) {
-                            CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
-                            if (compiledDependency != null) {
-                                if (!model.isProjectCompilationCompleted()) {
-                                    if (Objects.equals(module.getName(), moduleInfo.getName()) && Objects
-                                        .equals(module.getProject().getName(), moduleInfo.getProject().getName())) {
-                                        processMessages(model.getOpenedModuleCompiledOpenClass().getMessages(),
-                                            messageCounter,
-                                            newMessages,
-                                            uniqueNewMessages);
-                                    } else {
-                                        processMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages(),
-                                            messageCounter,
-                                            newMessages,
-                                            uniqueNewMessages);
-                                    }
-                                }
-                                compiledCount++;
-                            }
-                            modulesCount++;
-                        }
-                    }
-                    if (projectDescriptor.getDependencies() != null) {
-                        for (ProjectDependencyDescriptor pd : projectDescriptor.getDependencies()) {
-                            String projectDependencyName = ProjectExternalDependenciesHelper
-                                .buildDependencyNameForProject(pd.getName());
-                            Collection<IDependencyLoader> dependencyLoadersForProject = webStudioWorkspaceDependencyManager
-                                .findDependencyLoadersByName(projectDependencyName);
-                            if (dependencyLoadersForProject != null) {
-                                for (IDependencyLoader dependencyLoader : dependencyLoadersForProject) {
-                                    if (dependencyLoader != null && dependencyLoader.isProjectLoader()) {
-                                        queue.add(dependencyLoader.getProject());
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
+            ProjectCompilationStatus status = model.getCompilationStatus();
+            List<MessageDescription> messages = status.getMessages()
+                    .stream()
+                    .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
+                    .collect(Collectors.toList());
+            compileModuleInfo.put("dataType", "new");
+            if (messageIndex != -1 && messageId != -1 && messageIndex < messages.size()) {
+                MessageDescription messageDescription = messages.get(messageIndex);
+                if (messageDescription.getId() == messageId) {
+                    messages = messages.subList(messageIndex + 1, messages.size());
+                    compileModuleInfo.put("dataType", "add");
                 }
-                if (model.isProjectCompilationCompleted()) {
-                    newMessages.clear();
-                    uniqueNewMessages.clear();
-                    Collection<OpenLMessage> messages = model.getCompiledOpenClass().getMessages();
-                    processMessages(messages, messageCounter, newMessages, uniqueNewMessages);
-                    compiledCount = modulesCount;
-                }
-                compileModuleInfo.put("dataType", "new");
-                if (messageIndex != -1 && messageId != -1 && messageIndex < newMessages.size()) {
-                    MessageDescription messageDescription = newMessages.get(messageIndex);
-                    if (messageDescription.getId() == messageId) {
-                        newMessages = newMessages.subList(messageIndex + 1, newMessages.size());
-                        compileModuleInfo.put("dataType", "add");
-                    }
-                }
-                compileModuleInfo.put("modulesCount", modulesCount);
-                compileModuleInfo.put("modulesCompiled", compiledCount);
-                compileModuleInfo.put("messages", newMessages);
-                compileModuleInfo.put("messageId",
-                    newMessages.isEmpty() ? -1 : newMessages.get(newMessages.size() - 1).getId());
-                compileModuleInfo.put("messageIndex", newMessages.size() - 1);
-                compileModuleInfo.put("errorsCount", messageCounter.errorsCount);
-                compileModuleInfo.put("warningsCount", messageCounter.warningsCount);
-                compileModuleInfo.put("compilationCompleted", model.isProjectCompilationCompleted());
             }
+            compileModuleInfo.put("modulesCount", status.getModulesCount());
+            compileModuleInfo.put("modulesCompiled", status.getModulesCompiled());
+            compileModuleInfo.put("messages", messages);
+            compileModuleInfo.put("messageId", messages.isEmpty() ? -1 : messages.get(messages.size() - 1).getId());
+            compileModuleInfo.put("messageIndex", messages.size() - 1);
+            compileModuleInfo.put("errorsCount", status.getErrorsCount());
+            compileModuleInfo.put("warningsCount", status.getWarningsCount());
+            compileModuleInfo.put("compilationCompleted", model.isProjectCompilationCompleted());
         }
         return compileModuleInfo;
     }
@@ -277,33 +191,6 @@ public class WorkspaceCompileService {
         String name = TableSyntaxNodeUtils.getTestName(method);
         String info = ProjectHelper.getTestInfo(method);
         return String.format("%s (%s)", name, info);
-    }
-
-    private void processMessages(Collection<OpenLMessage> messages,
-            MessageCounter counter,
-            List<MessageDescription> newMessages,
-            Set<OpenLMessage> uniqueMessages) {
-        if (messages != null) {
-            for (OpenLMessage message : messages) {
-                if (uniqueMessages.add(message)) {
-                    switch (message.getSeverity()) {
-                        case WARN:
-                            counter.warningsCount++;
-                            break;
-                        case ERROR:
-                            counter.errorsCount++;
-                            break;
-                    }
-                    newMessages
-                        .add(new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()));
-                }
-            }
-        }
-    }
-
-    private class MessageCounter {
-        int warningsCount = 0;
-        int errorsCount = 0;
     }
 
     private enum TableRunState {

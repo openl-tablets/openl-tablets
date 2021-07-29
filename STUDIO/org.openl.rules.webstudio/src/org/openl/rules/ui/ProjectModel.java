@@ -7,11 +7,13 @@ import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -56,6 +58,7 @@ import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
@@ -527,6 +530,74 @@ public class ProjectModel {
 
     public CompiledOpenClass getOpenedModuleCompiledOpenClass() {
         return openedModuleCompiledOpenClass;
+    }
+
+    public ProjectCompilationStatus getCompilationStatus() {
+        ProjectCompilationStatus.Builder compilationStatus = ProjectCompilationStatus.newBuilder();
+        if (webStudioWorkspaceDependencyManager != null) {
+            Deque<ProjectDescriptor> queue = new ArrayDeque<>();
+            queue.add(moduleInfo.getProject());
+            while (!queue.isEmpty()) {
+                ProjectDescriptor projectDescriptor = queue.poll();
+
+                projectDescriptor.getModules()
+                    .stream()
+                    .map(Module::getName)
+                    .map(webStudioWorkspaceDependencyManager::findDependencyLoadersByName)
+                    .map(Collection::size)
+                    .forEach(compilationStatus::addModulesCount);
+
+                if (projectCompilationCompleted) {
+                    compilationStatus.clearMessages()
+                        .addMessages(compiledOpenClass.getMessages())
+                        .setModulesCompiled(compilationStatus.build().getModulesCount());
+                } else {
+                    if (!Objects.equals(projectDescriptor.getName(), moduleInfo.getProject().getName())) {
+                        String dependencyName = ProjectExternalDependenciesHelper
+                            .buildDependencyNameForProject(projectDescriptor.getName());
+                        webStudioWorkspaceDependencyManager.findDependencyLoadersByName(dependencyName)
+                            .stream()
+                            .map(IDependencyLoader::getRefToCompiledDependency)
+                            .filter(Objects::nonNull)
+                            .map(CompiledDependency::getCompiledOpenClass)
+                            .map(CompiledOpenClass::getCurrentMessages)
+                            .forEach(compilationStatus::addMessages);
+                    }
+
+                    projectDescriptor.getModules().forEach(module -> {
+                        if (Objects.equals(module.getName(), moduleInfo.getName()) && Objects
+                            .equals(module.getProject().getName(), moduleInfo.getProject().getName())) {
+                            compilationStatus.addMessages(openedModuleCompiledOpenClass.getMessages())
+                                .addModulesCompiled(1);
+                        } else {
+                            webStudioWorkspaceDependencyManager.findDependencyLoadersByName(module.getName())
+                                .stream()
+                                .map(IDependencyLoader::getRefToCompiledDependency)
+                                .filter(Objects::nonNull)
+                                .forEach(compiledDependency -> compilationStatus
+                                    .addMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages())
+                                    .addModulesCompiled(1));
+                        }
+                    });
+                }
+
+                if (projectDescriptor.getDependencies() != null) {
+                    projectDescriptor.getDependencies()
+                        .stream()
+                        .map(ProjectDependencyDescriptor::getName)
+                        .map(ProjectExternalDependenciesHelper::buildDependencyNameForProject)
+                        .map(webStudioWorkspaceDependencyManager::findDependencyLoadersByName)
+                        .filter(Objects::nonNull)
+                        .forEach(dependencyLoaders -> dependencyLoaders.stream()
+                            .filter(Objects::nonNull)
+                            .filter(IDependencyLoader::isProjectLoader)
+                            .findFirst()
+                            .map(IDependencyLoader::getProject)
+                            .ifPresent(queue::add));
+                }
+            }
+        }
+        return compilationStatus.build();
     }
 
     public Collection<OpenLMessage> getModuleMessages() {
@@ -1133,8 +1204,10 @@ public class ProjectModel {
                 if (!ReloadType.NO.equals(reloadType)) {
                     this.projectCompilationCompleted = false;
                 }
-                webStudioWorkspaceDependencyManager.loadDependencyAsync(new Dependency(DependencyType.MODULE,
-                    new IdentifierNode(DependencyType.MODULE.name(),
+                webStudioWorkspaceDependencyManager
+                    .loadDependencyAsync(
+                        new Dependency(DependencyType.MODULE,
+                            new IdentifierNode(DependencyType.MODULE.name(),
                                 null,
                                 SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(), null),
                                 null)),
