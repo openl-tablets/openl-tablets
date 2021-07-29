@@ -2983,8 +2983,9 @@ public final class DecisionTableHelper {
                     }
                 }
                 int h = firstColumnHeight;
-                boolean allEmpty = firstColumnHeight < originalTable.getSource().getHeight();
-                while (h < originalTable.getSource().getHeight()) {
+                boolean allEmpty = i > 0 && firstColumnHeight < originalTable.getSource()
+                    .getHeight() && calculateRowsCount(originalTable, i, firstColumnHeight) == numberOfHConditions;
+                while (allEmpty && h < originalTable.getSource().getHeight()) {
                     String v = originalTable.getSource().getCell(i, h).getStringValue();
                     if (StringUtils.isNotBlank(v)) {
                         allEmpty = false;
