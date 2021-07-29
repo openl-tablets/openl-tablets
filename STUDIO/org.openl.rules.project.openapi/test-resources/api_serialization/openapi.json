@@ -1,89 +1,89 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "contact": {
-      "email": "jdoe@localhost",
-      "name": "John Doe"
-    },
+    "title": "Book API",
     "description": "Some description",
+    "contact": {
+      "name": "John Doe",
+      "email": "jdoe@localhost"
+    },
     "license": {
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "title": "Book API",
     "version": "1.0.0"
   },
   "tags": [
     {
-      "description": "Operations about book",
-      "name": "book"
+      "name": "book",
+      "description": "Operations about book"
     },
     {
-      "description": "Some other tag",
-      "name": "foo"
+      "name": "foo",
+      "description": "Some other tag"
     }
   ],
   "paths": {
     "/books/{id}": {
       "get": {
+        "summary": "Get a book by its id",
         "operationId": "findById",
         "parameters": [
           {
-            "description": "id of book to be searched",
-            "in": "path",
             "name": "id",
+            "in": "path",
+            "description": "id of book to be searched",
             "required": true,
             "schema": {
-              "format": "int64",
-              "type": "integer"
+              "type": "integer",
+              "format": "int64"
             }
           }
         ],
         "responses": {
           "200": {
+            "description": "Found the book",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Dto"
                 }
               }
-            },
-            "description": "Found the book"
+            }
           },
           "400": {
+            "description": "Invalid id supplied",
             "content": {
               "*/*": {}
-            },
-            "description": "Invalid id supplied"
+            }
           },
           "404": {
+            "description": "Book not found",
             "content": {
               "*/*": {}
-            },
-            "description": "Book not found"
+            }
           }
-        },
-        "summary": "Get a book by its id"
+        }
       }
     }
   },
   "components": {
     "schemas": {
       "Dto": {
+        "type": "object",
         "properties": {
           "field1": {
             "type": "string"
           },
           "field2": {
-            "format": "double",
-            "type": "number"
+            "type": "number",
+            "format": "double"
           },
           "field3": {
-            "format": "date-time",
-            "type": "string"
+            "type": "string",
+            "format": "date-time"
           }
-        },
-        "type": "object"
+        }
       }
     }
   }

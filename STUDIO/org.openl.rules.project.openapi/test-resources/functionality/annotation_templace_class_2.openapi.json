@@ -2799,11 +2799,7 @@
             "$ref": "#/components/schemas/QualityIndicators"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "Bank",
-          "namespace": "http://beans.generated.openl.org"
-        }
+        "type": "object"
       },
       "FinancialData": {
         "properties": {
@@ -2892,11 +2888,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "FinancialData",
-          "namespace": "http://beans.generated.openl.org"
-        }
+        "type": "object"
       },
       "QualityIndicators": {
         "properties": {
@@ -2937,11 +2929,7 @@
             "type": "boolean"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "QualityIndicators",
-          "namespace": "http://beans.generated.openl.org"
-        }
+        "type": "object"
       },
       "Rating": {
         "properties": {
@@ -2952,11 +2940,7 @@
             "type": "string"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "Rating",
-          "namespace": "http://beans.generated.openl.org"
-        }
+        "type": "object"
       },
       "DefaultRulesRuntimeContext": {
         "properties": {
@@ -3314,11 +3298,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "EquityScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "BankRatingGroupRequest": {
         "properties": {
@@ -3330,11 +3310,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "BankRatingGroupRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "BankLimitIndexRequest": {
         "properties": {
@@ -3348,11 +3324,7 @@
             "type": "string"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "BankLimitIndexRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "QuickRatioScoreRequest": {
         "properties": {
@@ -3364,11 +3336,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "QuickRatioScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "ProfitDynamicScoreRequest": {
         "properties": {
@@ -3384,11 +3352,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "ProfitDynamicScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "SetNonZeroValuesRequest": {
         "properties": {
@@ -3399,11 +3363,7 @@
             "$ref": "#/components/schemas/FinancialData"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "SetNonZeroValuesRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "TotalBalanceScoreRequest": {
         "properties": {
@@ -3418,11 +3378,7 @@
             "type": "string"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "TotalBalanceScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "LiabilitiesToCustomersOnDemandRatioScoreRequest": {
         "properties": {
@@ -3434,11 +3390,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "LiabilitiesToCustomersOnDemandRatioScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "IsAdequateNormativeIndexCalculationRequest": {
         "properties": {
@@ -3449,11 +3401,7 @@
             "$ref": "#/components/schemas/Bank"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "IsAdequateNormativeIndexCalculationRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "NegativeInfoShareHoldersOrManagementScoreRequest": {
         "properties": {
@@ -3464,11 +3412,7 @@
             "type": "boolean"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "NegativeInfoShareHoldersOrManagementScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "SecuredByPropertyChargesClaimsRatioScoreRequest": {
         "properties": {
@@ -3480,11 +3424,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "SecuredByPropertyChargesClaimsRatioScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "BalanceQualityIndexCalculation": {
         "properties": {
@@ -3636,11 +3576,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "BalanceQualityIndexCalculation",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
-        }
+        "type": "object"
       },
       "BalanceQualityIndexCalculationRequest": {
         "properties": {
@@ -3651,11 +3587,7 @@
             "$ref": "#/components/schemas/FinancialData"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "BalanceQualityIndexCalculationRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "NetMoneyMarketLiabilitiesScoreRequest": {
         "properties": {
@@ -3667,11 +3599,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "NetMoneyMarketLiabilitiesScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "BankRatingCalculation": {
         "properties": {
@@ -3727,11 +3655,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "BankRatingCalculation",
-          "namespace": "http://spreadsheetresults.generated.openl.org"
-        }
+        "type": "object"
       },
       "BankRatingCalculationRequest": {
         "properties": {
@@ -3742,11 +3666,7 @@
             "$ref": "#/components/schemas/Bank"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "BankRatingCalculationRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "DowngradesOfBankRatingScoreRequest": {
         "properties": {
@@ -3757,11 +3677,7 @@
             "type": "boolean"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "DowngradesOfBankRatingScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "ClaimsOnCustomerRatioScoreRequest": {
         "properties": {
@@ -3773,11 +3689,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "ClaimsOnCustomerRatioScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "NegativeHistoryRelationsScoreRequest": {
         "properties": {
@@ -3788,11 +3700,7 @@
             "type": "boolean"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "NegativeHistoryRelationsScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "CreditPortfolioQualityScoreRequest": {
         "properties": {
@@ -3804,11 +3712,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "CreditPortfolioQualityScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "LiabilitiesToCustomersDynamicScoreRequest": {
         "properties": {
@@ -3820,11 +3724,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "LiabilitiesToCustomersDynamicScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "OtherAssetsRatioScoreRequest": {
         "properties": {
@@ -3836,11 +3736,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "OtherAssetsRatioScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "IsAdequateLiquidityRatioScoreRequest": {
         "properties": {
@@ -3851,11 +3747,7 @@
             "type": "boolean"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "IsAdequateLiquidityRatioScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "LiquidityDynamicScoreRequest": {
         "properties": {
@@ -3867,11 +3759,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "LiquidityDynamicScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "LiquidityRatioScoreRequest": {
         "properties": {
@@ -3883,11 +3771,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "LiquidityRatioScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "BankQualitativeIndexCalculationRequest": {
         "properties": {
@@ -3898,11 +3782,7 @@
             "$ref": "#/components/schemas/Bank"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "BankQualitativeIndexCalculationRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "NegativeMassMediaScoreRequest": {
         "properties": {
@@ -3913,11 +3793,7 @@
             "type": "boolean"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "NegativeMassMediaScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "CapitalDynamicScoreRequest": {
         "properties": {
@@ -3929,11 +3805,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "CapitalDynamicScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "LossesInThisYearScoreRequest": {
         "properties": {
@@ -3944,11 +3816,7 @@
             "type": "boolean"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "LossesInThisYearScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "BalanceDynamicIndexCalculationRequest": {
         "properties": {
@@ -3962,11 +3830,7 @@
             "$ref": "#/components/schemas/FinancialData"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "BalanceDynamicIndexCalculationRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "CapitalAdequacyScoreRequest": {
         "properties": {
@@ -3978,11 +3842,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "CapitalAdequacyScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "HighLiquidityRatioScoreRequest": {
         "properties": {
@@ -3994,11 +3854,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "HighLiquidityRatioScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "IsAdequateCoreCapitalRatioScoreRequest": {
         "properties": {
@@ -4009,11 +3865,7 @@
             "type": "boolean"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "IsAdequateCoreCapitalRatioScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       },
       "IsAdequateMaxCreditRiskScoreRequest": {
         "properties": {
@@ -4027,11 +3879,7 @@
             "type": "boolean"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "IsAdequateMaxCreditRiskScoreRequest",
-          "namespace": "http://jaxrs.openl.org"
-        }
+        "type": "object"
       }
     }
   }

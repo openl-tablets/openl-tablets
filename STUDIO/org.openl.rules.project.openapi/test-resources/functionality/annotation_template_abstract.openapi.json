@@ -1263,11 +1263,7 @@
             "type": "number"
           }
         },
-        "type": "object",
-        "xml": {
-          "name": "MyDatatype",
-          "namespace": "http://beans.generated.openl.org"
-        }
+        "type": "object"
       }
     }
   }

@@ -29,8 +29,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.swagger.v3.oas.models.OpenAPI;
-
 public class OpenAPIGenerationTestRunner {
 
     private final Logger log = LoggerFactory.getLogger(RulesInFolderTestRunner.class);
@@ -120,10 +118,10 @@ public class OpenAPIGenerationTestRunner {
 
             JsonNode actualNode;
             try {
-                OpenAPI actualOpenAPI = OpenApiGenerator.builder(projectDescriptor, instantiationStrategy)
+                String actualOpenAPI = OpenApiGenerator.builder(projectDescriptor, instantiationStrategy)
                     .generator()
                     .generate();
-                actualNode = OBJECT_MAPPER.readTree(OpenApiSerializationUtils.toJson(actualOpenAPI));
+                actualNode = OBJECT_MAPPER.readTree(actualOpenAPI);
             } catch (RulesInstantiationException | JsonProcessingException e) {
                 error(messagesCount.incrementAndGet(), startTime, sourceFile, "Open API Generation fails.", e);
                 testsFailed = true;
