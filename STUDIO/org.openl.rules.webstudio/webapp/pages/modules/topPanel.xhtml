@@ -162,9 +162,11 @@
             </a4j:ajax>
 
             <h:panelGroup rendered="#{treeBean.canRun and !empty rProject and !empty studio.currentProjectDescriptor.modules}">
+                <c:set var="testUrl" value=""/>
                 <h:panelGroup rendered="#{!empty module and treeBean.projectTestsCount > 0}">
-                    <h:outputLink value="#{studio.url('test/test')}" title="Run Tests"
-                                  styleClass="navbar-dropdown" onclick="test(event, '#{studio.url('test/test')}')">Test <span style="color:#888;padding: 1px 4px; border: 1px solid #ddd">#{treeBean.projectTestsCount}</span></h:outputLink>
+                    <c:set var="testUrl" value="#{studio.url('test/test')}"/>
+                    <h:outputLink value="#{testUrl}" title="Run Tests"
+                                  styleClass="navbar-dropdown" onclick="test(event, '#{testUrl}')">Test <span style="color:#888;padding: 1px 4px; border: 1px solid #ddd">#{treeBean.projectTestsCount}</span></h:outputLink>
                 </h:panelGroup>
                 <h:panelGroup rendered="#{empty module}">
                     <c:set var="testUrl" value="#{utils.toUrl(rProject.repository.id, rProject.name, studio.currentProjectDescriptor.modules[0].name)}/test/test" />
@@ -218,7 +220,7 @@
                             <li class="divider"></li>
                             <li>
                                 <span style="padding:6px 18px 7px">
-                                    <a href="#{studio.url('test/test')}" class="button" onclick="test(event, '#{studio.url('test/test')}')">Test</a>
+                                    <a href="#{testUrl}" class="button" onclick="test(event, '#{testUrl}')">Test</a>
                                     <a href="#" id="downloadTest" class="button" onclick="downloadTest(event)">Test into File</a>
                                 </span>
                             </li>

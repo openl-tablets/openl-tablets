@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web.test;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.GET;
@@ -47,12 +44,7 @@ public class TestDownloadService {
         final TestUnitsResults[] results = Utils.runTests(id, testRanges, session);
 
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
-        StreamingOutput streamingOutput = new StreamingOutput() {
-            @Override
-            public void write(OutputStream output) throws IOException {
-                new TestResultExport().export(output, testsPerPage, results);
-            }
-        };
+        StreamingOutput streamingOutput = output -> new TestResultExport().export(output, testsPerPage, results);
 
         return prepareResponse(request, cookieName, streamingOutput);
     }
@@ -89,12 +81,7 @@ public class TestDownloadService {
         TestSuite testSuite = Utils.pollTestFromSession(session);
         if (testSuite != null) {
             final TestUnitsResults results = model.runTest(testSuite);
-            StreamingOutput streamingOutput = new StreamingOutput() {
-                @Override
-                public void write(OutputStream output) throws IOException {
-                    new RulesResultExport().export(output, -1, results);
-                }
-            };
+            StreamingOutput streamingOutput = output -> new RulesResultExport().export(output, -1, results);
             return prepareResponse(request, cookieName, streamingOutput);
         }
 
