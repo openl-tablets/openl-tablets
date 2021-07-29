@@ -350,7 +350,8 @@ public final class DecisionTableHelper {
         if (numberOfHConditions > 0) {
             Pair<Integer, WithVerticalTitles> p = getFirstColumnForHCondition(originalTable,
                 numberOfHConditions,
-                firstColumnHeight);
+                firstColumnHeight,
+                isSmartLookupTable(tableSyntaxNode));
             firstColumnForHCondition = p.getLeft();
             if (firstColumnForHCondition > 0) {
                 withVerticalTitles = p.getRight();
@@ -2946,12 +2947,13 @@ public final class DecisionTableHelper {
         NO,
         SLASH_IN_TITLE,
         EMPTY_COLUMN,
-        MERGED_COLUMN;
+        MERGED_COLUMN
     }
 
     public static Pair<Integer, WithVerticalTitles> getFirstColumnForHCondition(ILogicalTable originalTable,
             int numberOfHConditions,
-            int firstColumnHeight) {
+            int firstColumnHeight,
+            boolean isSmartLookup) {
         int w = originalTable.getSource().getWidth();
         int column = 0;
         int ret = -1;
@@ -2966,7 +2968,7 @@ public final class DecisionTableHelper {
             column = column + originalTable.getSource().getCell(column, 0).getWidth();
         }
 
-        if (ret < w - 1) {
+        if (isSmartLookup && ret < w - 1) {
             int begin = Math.max(ret, 0);
             int end = begin > 0 ? begin + 1 : originalTable.getSource().getWidth();
             int i = begin;
