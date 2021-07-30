@@ -32,6 +32,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode miscAssets;
     private TableSyntaxNode constructors;
     private TableSyntaxNode arrayNodeHints;
+    private TableSyntaxNode ternaryOpHints;
     private MetaInfoReader dataBMetaReader;
     private MetaInfoReader dataCMetaReader;
     private MetaInfoReader typeCMetaReader;
@@ -66,6 +67,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
             "Spreadsheet SpreadsheetResult MiscAssets (SpreadsheetResultTotalAssets totalAssets1, SpreadsheetResult totalAssets2)");
         constructors = findTable("Spreadsheet SpreadsheetResult constructorHints()");
         arrayNodeHints = findTable("Spreadsheet SpreadsheetResult arrayNodeHints()");
+        ternaryOpHints = findTable("Spreadsheet SpreadsheetResult ternaryOp (String spreadsheetResult)");
 
         dataBMetaReader = dataB.getMetaInfoReader();
         dataCMetaReader = dataC.getMetaInfoReader();
@@ -632,6 +634,27 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals("Datatype TypeC extends TypeB", usedNodes.get(1).getDescription());
         assertEquals(3, usedNodes.get(1).getStart());
         assertEquals(7, usedNodes.get(1).getEnd());
+    }
+
+    @Test
+    public void testTernaryOp() {
+        MetaInfoReader metaInfoReader = ternaryOpHints.getMetaInfoReader();
+
+        CellMetaInfo cellMetaInfo = getMetaInfo(metaInfoReader, ternaryOpHints.getGridTable().getCell(1, 2));
+        List<? extends NodeUsage> usedNodes = cellMetaInfo.getUsedNodes();
+        assertEquals(4, usedNodes.size());
+        assertNull(usedNodes.get(1).getUri());
+        assertEquals("org.openl.rules.calc\nclass SpreadsheetResult", usedNodes.get(1).getDescription());
+        assertEquals(16, usedNodes.get(1).getStart());
+        assertEquals(32, usedNodes.get(1).getEnd());
+
+        cellMetaInfo = getMetaInfo(metaInfoReader, ternaryOpHints.getGridTable().getCell(1, 3));
+        usedNodes = cellMetaInfo.getUsedNodes();
+        assertEquals(4, usedNodes.size());
+        assertNull(usedNodes.get(1).getUri());
+        assertEquals("org.openl.rules.calc\nclass SpreadsheetResult", usedNodes.get(1).getDescription());
+        assertEquals(9, usedNodes.get(1).getStart());
+        assertEquals(25, usedNodes.get(1).getEnd());
     }
 
     private CellMetaInfo getMetaInfo(MetaInfoReader metaInfoReader, ICell cell) {
