@@ -152,10 +152,6 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                     .anyMatch(e -> e instanceof CompilationInterruptedOpenLErrorMessage)) {
                     if (active) {
                         loadDependencyAsync(dependency, consumer);
-                    } else {
-                        consumer.accept(new CompiledDependency(dependency.getNode().getIdentifier(),
-                            new CompiledOpenClass(NullOpenClass.the,
-                                Collections.singletonList(new CompilationInterruptedOpenLErrorMessage()))));
                     }
                 } else {
                     consumer.accept(compiledDependency);
