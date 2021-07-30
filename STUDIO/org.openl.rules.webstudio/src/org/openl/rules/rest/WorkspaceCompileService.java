@@ -48,7 +48,7 @@ public class WorkspaceCompileService {
         if (webStudio != null) {
             ProjectModel model = webStudio.getModel();
             ProjectCompilationStatus status = model.getCompilationStatus();
-            List<MessageDescription> messages = status.getMessages()
+            List<MessageDescription> messages = status.getAllMessage()
                     .stream()
                     .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
                     .collect(Collectors.toList());
