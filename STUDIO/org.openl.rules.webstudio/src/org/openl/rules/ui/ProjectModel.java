@@ -967,6 +967,7 @@ public class ProjectModel {
 
     public synchronized void clearModuleInfo() {
         this.moduleInfo = null;
+        historyStoragePath = null;
 
         clearModuleResources(); // prevent memory leak
 
@@ -1050,6 +1051,7 @@ public class ProjectModel {
             this.moduleInfo = moduleInfo;
         }
 
+        initHistoryStoragePath();
         isModified();
         clearModuleResources(); // prevent memory leak
         if (openedInSingleModuleMode) {
@@ -1261,15 +1263,20 @@ public class ProjectModel {
         return null;
     }
 
-    public synchronized String getHistoryStoragePath() {
-        if (historyStoragePath == null) {
-            File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-                .getLocalWorkspace()
-                .getLocation();
-            return Paths.get(location.getPath(), getProject().getName(), ".history", getModuleInfo().getName())
-                .toString();
-        }
+    public String getHistoryStoragePath() {
         return historyStoragePath;
+    }
+
+    private void initHistoryStoragePath() {
+        if (WebStudioUtils.getSession() != null) {
+            File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
+                    .getLocalWorkspace()
+                    .getLocation();
+            String historyFileName = moduleInfo.getRulesRootPath().getPath();
+            this.historyStoragePath = Paths
+                    .get(location.getPath(), getProject().getName(), ".history", historyFileName)
+                    .toString();
+        }
     }
 
     public synchronized RecentlyVisitedTables getRecentlyVisitedTables() {

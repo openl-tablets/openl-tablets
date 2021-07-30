@@ -2009,7 +2009,7 @@ public class RepositoryTreeController {
                         modulePath = modulePath.substring(1);
                     }
                     Module module = new Module();
-                    module.setName(fileName.substring(0, fileName.lastIndexOf('.')));
+                    module.setName(FileUtils.getBaseName(fileName));
                     module.setRulesRootPath(new PathEntry(modulePath));
                     ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
                     if (!descriptorManager.isCoveredByWildcardModule(projectDescriptor, module)) {
