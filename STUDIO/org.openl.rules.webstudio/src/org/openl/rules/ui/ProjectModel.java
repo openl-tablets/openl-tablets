@@ -1101,7 +1101,7 @@ public class ProjectModel {
         }
     }
 
-    private void addSyntaxNodes(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
+    private void addCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         String projectName = Optional.ofNullable(studio.getCurrentProject()).map(AProjectFolder::getName).orElse(null);
         IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
         if (metaInfo instanceof XlsMetaInfo) {
@@ -1112,11 +1112,14 @@ public class ProjectModel {
                 if (dependencyLoader.getProject().getName().equals(projectName)) {
                     currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
                 }
+                if (!(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
+                    workbookSyntaxNodes.addAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
+                }
             }
         }
     }
 
-    private void removeSyntaxNodes(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
+    private void removeCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
         String projectName = Optional.ofNullable(studio.getCurrentProject()).map(AProjectFolder::getName).orElse(null);
         IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
         if (metaInfo instanceof XlsMetaInfo) {
@@ -1127,28 +1130,9 @@ public class ProjectModel {
                 if (dependencyLoader.getProject().getName().equals(projectName)) {
                     currentProjectXlsModuleSyntaxNodes.remove(xlsModuleSyntaxNode);
                 }
-            }
-        }
-    }
-
-    private void addWorkbookSyntaxNodes(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
-        IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-        if (metaInfo instanceof XlsMetaInfo) {
-            XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) metaInfo;
-            XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
-            if (xlsModuleSyntaxNode != null && !(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
-                workbookSyntaxNodes.addAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
-            }
-        }
-    }
-
-    private void removeWorkbookSyntaxNodes(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
-        IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
-        if (metaInfo instanceof XlsMetaInfo) {
-            XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) metaInfo;
-            XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
-            if (xlsModuleSyntaxNode != null && !(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
-                workbookSyntaxNodes.removeAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
+                if (!(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
+                    workbookSyntaxNodes.removeAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
+                }
             }
         }
     }
@@ -1181,7 +1165,8 @@ public class ProjectModel {
 
         prepareWorkspaceDependencyManager();
 
-        // If autoCompile is false we cannot unload workbook during editing because we must show to a user latest edited
+        // If autoCompile is false we cannot unload workbook during editing because we must show to a user the latest
+        // edited
         // data (not parsed and compiled data).
         boolean canUnload = studio.isAutoCompile();
 
@@ -1268,10 +1253,8 @@ public class ProjectModel {
         if (webStudioWorkspaceDependencyManager == null) {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                 .buildDependencyManager(this.moduleInfo.getProject());
-            webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addSyntaxNodes);
-            webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addWorkbookSyntaxNodes);
-            webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeSyntaxNodes);
-            webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeWorkbookSyntaxNodes);
+            webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addCompiledDependency);
+            webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
         } else {
             Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
                 .resolveWorkspace(this.moduleInfo.getProject());
@@ -1296,12 +1279,9 @@ public class ProjectModel {
                     workbookSyntaxNodes.clear();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                         .buildDependencyManager(this.moduleInfo.getProject());
-                    webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addSyntaxNodes);
                     webStudioWorkspaceDependencyManager
-                        .registerOnCompilationCompleteListener(this::addWorkbookSyntaxNodes);
-                    webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeSyntaxNodes);
-                    webStudioWorkspaceDependencyManager
-                        .registerOnResetCompleteListener(this::removeWorkbookSyntaxNodes);
+                        .registerOnCompilationCompleteListener(this::addCompiledDependency);
+                    webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
                 } else {
                     // If loaded projects are a part of the new opened project, then we can reuse dependency manager
                     webStudioWorkspaceDependencyManager.expand(
