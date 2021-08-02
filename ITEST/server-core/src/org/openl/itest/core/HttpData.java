@@ -8,26 +8,34 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.util.StreamUtils;
+import org.springframework.util.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.util.StringUtils;
 
 class HttpData {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Pattern NO_CONTENT_STATUS_PATTERN = Pattern.compile("HTTP/\\S+\\s+204(\\s.*)?");
+    private static final Set<String> BLOB_TYPES = Stream.of("application/zip").collect(Collectors.toSet());
 
     private final String firstLine;
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -154,6 +162,9 @@ class HttpData {
                     JsonNode expectedNode = OBJECT_MAPPER.readTree(expected.body);
                     Comparators.compareJsonObjects(expectedNode, actualNode, "");
                     break;
+                case "application/zip":
+                    Comparators.zip(expected.body, this.body);
+                    break;
                 default:
                     assertArrayEquals("Body: ", expected.body, this.body);
             }
@@ -231,15 +242,74 @@ class HttpData {
         byte[] body;
         String cl = headers.get("Content-Length");
         String te = headers.get("Transfer-Encoding");
-        if (cl != null) {
+        String ct = headers.get("Content-Type");
+
+        if (ct != null && ct.startsWith("multipart/form-data") && ct.contains("boundary=")) {
+            String boundary = ct.substring(ct.indexOf("boundary=") + "boundary=".length());
+            String boundaryEnd = "--" + boundary + "--";
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            try (PrintWriter writer = new PrintWriter(os)) {
+                while (true) {
+                    String line = readLine(input);
+                    if (isFileRef(line)) {
+                        writer.flush();
+                        String fileRes = resolveFileRef(Paths.get(resource).getParent(), line);
+                        try (InputStream fileStream = HttpData.class.getResourceAsStream(fileRes)) {
+                            if (fileStream == null) {
+                                throw new FileNotFoundException(fileRes);
+                            }
+                            StreamUtils.copy(fileStream, os);
+                        }
+                        os.flush();
+                    } else {
+                        writer.append(line);
+                    }
+                    writer.print("\r\n");
+                    if (boundaryEnd.equals(line)) {
+                        writer.flush();
+                        break;
+                    }
+                }
+                writer.print("\r\n");
+            }
+            body = os.toByteArray();
+        } else if (BLOB_TYPES.contains(ct)) {
+            String line = readLine(input);
+            if (isFileRef(line)) {
+                String fileRes = resolveFileRef(Paths.get(resource).getParent(), line);
+                try (InputStream fileStream = HttpData.class.getResourceAsStream(fileRes)) {
+                    if (fileStream == null) {
+                        throw new FileNotFoundException(fileRes);
+                    }
+                    body = StreamUtils.copyToByteArray(fileStream);
+                }
+            } else {
+                body = line.getBytes(StandardCharsets.UTF_8);
+            }
+            if (input.available() != 0) {
+                throw new IllegalStateException("Unexpected content");
+            }
+        } else if (cl != null) {
             body = readBody(input, cl);
         } else if (te != null && te.equalsIgnoreCase("chunked")) {
             body = readChunckedBody(input);
+        } else if (NO_CONTENT_STATUS_PATTERN.matcher(firstLine).matches()) {
+            // Depending on the implementation of InputStream, reading it can hang if no data is available.
+            // So for 204 status we just don't read body because it doesn't needed for this status.
+            body = new byte[0];
         } else {
             body = StreamUtils.copyToByteArray(input);
         }
 
         return new HttpData(firstLine, headers, body, resource);
+    }
+
+    private static boolean isFileRef(String s) {
+        return !s.isEmpty() && s.charAt(0) == '&';
+    }
+
+    private static String resolveFileRef(Path parent, String fileRef) {
+        return parent.resolve(fileRef.substring(1)).toString().replace('\\', '/');
     }
 
     private static Map<String, String> readHeaders(InputStream input) throws IOException {
