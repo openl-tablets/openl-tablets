@@ -30,11 +30,11 @@ public class ParsedCode implements IParsedCode {
 
     private Set<CompiledDependency> compiledDependencies = new HashSet<>();
 
-    public ParsedCode(ISyntaxNode topnode,
+    public ParsedCode(ISyntaxNode topNode,
             IOpenSourceCodeModule source,
             SyntaxNodeException[] syntaxErrors,
             Collection<OpenLMessage> messages) {
-        this(topnode, source, syntaxErrors, messages, new IDependency[0]);
+        this(topNode, source, syntaxErrors, messages, new IDependency[0]);
     }
 
     public ParsedCode(ISyntaxNode topNode,
@@ -48,7 +48,7 @@ public class ParsedCode implements IParsedCode {
         if (messages == null) {
             this.messages = Collections.emptyList();
         } else {
-            this.messages = new LinkedHashSet<>(messages);
+            this.messages = Collections.unmodifiableCollection(new LinkedHashSet<>(messages));
         }
         this.dependencies = dependencies;
     }
@@ -59,7 +59,7 @@ public class ParsedCode implements IParsedCode {
     }
 
     public Collection<OpenLMessage> getMessages() {
-        return Collections.unmodifiableCollection(messages);
+        return messages;
     }
 
     @Override
@@ -84,12 +84,12 @@ public class ParsedCode implements IParsedCode {
 
     @Override
     public Set<CompiledDependency> getCompiledDependencies() {
-        return Collections.unmodifiableSet(compiledDependencies);
+        return compiledDependencies;
     }
 
     @Override
     public void setCompiledDependencies(Set<CompiledDependency> compiledDependencies) {
-        this.compiledDependencies = new LinkedHashSet<>(compiledDependencies);
+        this.compiledDependencies = Collections.unmodifiableSet(new LinkedHashSet<>(compiledDependencies));
     }
 
     @Override

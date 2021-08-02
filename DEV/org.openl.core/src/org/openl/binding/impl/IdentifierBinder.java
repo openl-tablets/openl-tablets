@@ -15,8 +15,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class IdentifierBinder extends ANodeBinder {
 
-    @Override
-    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+    protected IBoundNode bindAsOpenField(ISyntaxNode node, IBindingContext bindingContext) {
 
         boolean strictMatch = isStrictMatch(node);
         String fieldName = node.getText();
@@ -29,18 +28,34 @@ public class IdentifierBinder extends ANodeBinder {
         // Implementation below tries to follow that specification.
 
         IOpenField field = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
-
         if (field != null) {
             return new FieldBoundNode(node, field);
         }
+        return null;
+    }
 
-        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
-        if (type == null) {
-            throw new OpenlNotCheckedException(String.format("Identifier '%s' is not found.", fieldName));
+    protected IBoundNode bindAsType(ISyntaxNode node, IBindingContext bindingContext) {
+        String typeName = node.getText();
+        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+        if (type != null) {
+            BindHelper.checkOnDeprecation(node, bindingContext, type);
+            return new TypeBoundNode(node, type.toStaticClass());
+        }
+        return null;
+    }
+
+    @Override
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+        IBoundNode fieldBoundNode = bindAsOpenField(node, bindingContext);
+        if (fieldBoundNode != null) {
+            return fieldBoundNode;
         }
 
-        BindHelper.checkOnDeprecation(node, bindingContext, type);
-        return new TypeBoundNode(node, type.toStaticClass());
+        IBoundNode typeBoundNode = bindAsType(node, bindingContext);
+        if (typeBoundNode != null) {
+            return typeBoundNode;
+        }
+        throw new OpenlNotCheckedException(String.format("Identifier '%s' is not found.", node.getText()));
     }
 
     @Override

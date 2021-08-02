@@ -14,6 +14,7 @@ import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.*;
 import org.openl.binding.impl.BindingContext;
+import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.ErrorBoundNode;
 import org.openl.binding.impl.module.ModuleNode;
@@ -192,8 +193,12 @@ public class XlsBinder implements IOpenBinder {
             IOpenBinder openlBinder = openl.getBinder();
             bindingContext = openlBinder.makeBindingContext();
         } else {
-            if (bindingContext instanceof BindingContext) {
-                BindingContext bc = (BindingContext) bindingContext;
+            IBindingContext bc1 = bindingContext;
+            while (bc1 instanceof BindingContextDelegator) {
+                bc1 = ((BindingContextDelegator) bc1).getDelegate();
+            }
+            if (bc1 instanceof BindingContext) {
+                BindingContext bc = (BindingContext) bc1;
                 if (bc.getOpenL() == null || bc.getBinder() == null) { // Workaround
                     bc.setOpenl(openl);
                     bc.setBinder(openl.getBinder());

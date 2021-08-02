@@ -21,7 +21,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.util.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -31,6 +30,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayTool;
+import org.openl.util.TableNameChecker;
 
 /**
  * @author snshor
@@ -61,8 +61,15 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             String message = "Datatype table " + typeName + TableNameChecker.NAME_ERROR_MESSAGE;
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TYPE_INDEX]));
         }
-
-        IOpenClass openClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+        IOpenClass openClass;
+        try {
+            bindingContext.pushErrors();
+            bindingContext.pushMessages();
+            openClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+        } finally {
+            bindingContext.popErrors();
+            bindingContext.popMessages();
+        }
         String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
         // Additional condition that it is not loaded class from classloader
         if (openClass != null && !(openClass instanceof JavaOpenClass) && openClass.getPackageName()
@@ -95,10 +102,8 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             //
             Object[] res = {};
             if (dataPart != null) {
-                IOpenClass arrayOpenClass = OpenLManager.makeType(((IBindingContext) bindingContext).getOpenL(),
-                        type + "[]",
-                        tableSource,
-                        bindingContext);
+                IOpenClass arrayOpenClass = OpenLManager
+                    .makeType(((IBindingContext) bindingContext).getOpenL(), type + "[]", tableSource, bindingContext);
 
                 OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tsn);
 
@@ -115,10 +120,8 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             // more type for it - array with appropriate type of elements.
             // Create appropriate OpenL class for type definition.
             //
-            IOpenClass baseOpenClass = OpenLManager.makeType(((IBindingContext) bindingContext).getOpenL(),
-                    type,
-                    tableSource,
-                    bindingContext);
+            IOpenClass baseOpenClass = OpenLManager
+                .makeType(((IBindingContext) bindingContext).getOpenL(), type, tableSource, bindingContext);
 
             // Create domain class definition which will be used by OpenL engine at runtime.
             //
