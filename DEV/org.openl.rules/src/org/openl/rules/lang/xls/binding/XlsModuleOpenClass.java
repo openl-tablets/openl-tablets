@@ -6,7 +6,15 @@
 
 package org.openl.rules.lang.xls.binding;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -457,10 +465,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
             return;
         }
-        IOpenMethod m = WrapperLogic.wrapOpenMethod(method, this);
+        IOpenMethod m = WrapperLogic.wrapOpenMethod(method, this, false);
 
         // Checks that method already exists in the class. If it already
-        // exists then "overload" it using decorator; otherwise - just add to
+        // exists then "overload" it's using decorator; otherwise - just add to
         // the class.
         //
         IOpenMethod existedMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
@@ -493,7 +501,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     //
                     OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existedMethod);
 
-                    IOpenMethod openMethod = WrapperLogic.wrapOpenMethod(dispatcher, this);
+                    IOpenMethod openMethod = WrapperLogic.wrapOpenMethod(dispatcher, this, false);
 
                     overrideMethod(openMethod);
 
@@ -509,7 +517,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 //
                 OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(m);
 
-                IOpenMethod openMethod = WrapperLogic.wrapOpenMethod(dispatcher, this);
+                IOpenMethod openMethod = WrapperLogic.wrapOpenMethod(dispatcher, this, false);
 
                 super.addMethod(openMethod);
 

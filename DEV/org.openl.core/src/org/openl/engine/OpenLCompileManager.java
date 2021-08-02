@@ -20,6 +20,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.DependencyBindingContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -75,14 +76,12 @@ public class OpenLCompileManager {
     private ProcessedCode getProcessedCode(IOpenSourceCodeModule source,
             boolean executionMode,
             IDependencyManager dependencyManager) {
-        ProcessedCode processedCode;
         IBindingContext bindingContext = null;
         if (executionMode) {
             bindingContext = openl.getBinder().makeBindingContext();
             bindingContext.setExecutionMode(true);
         }
-        processedCode = processSource(source, bindingContext, dependencyManager);
-        return processedCode;
+        return processSource(source, bindingContext, dependencyManager);
     }
 
     private Collection<IDependency> getDependencies(IOpenSourceCodeModule source,
@@ -214,12 +213,18 @@ public class OpenLCompileManager {
             }
         }
 
+        IOpenBinder binder = openl.getBinder();
+        if (bindingContext == null) {
+            bindingContext = binder.makeBindingContext();
+        }
+        if (dependencyManager != null) {
+            bindingContext = new DependencyBindingContext(bindingContext, dependencyManager);
+        }
+
         // Requires to support java packages. BEX grammar does not support to use binding context to define java
         // packages.
         FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 
-        // TODO check
-        IOpenBinder binder = openl.getBinder();
         IBoundCode boundCode = binder.bind(parsedCode, bindingContext);
         allMessages
             .addAll(bindingContext != null && bindingContext.isExecutionMode()

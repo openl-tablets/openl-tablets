@@ -4,9 +4,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,7 +64,7 @@ public class SequentialXlsLoader {
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
     private final Set<String> preprocessedWorkBooks = new HashSet<>();
     private final List<WorkbookSyntaxNode> workbookNodes = new ArrayList<>();
-    private final List<IDependency> dependencies = new ArrayList<>();
+    private final Map<String, IDependency> dependencies = new HashMap<>();
 
     public SequentialXlsLoader(IncludeSearcher includeSeeker) {
         this.includeSeeker = includeSeeker;
@@ -73,10 +75,10 @@ public class SequentialXlsLoader {
         IOpenSourceCodeModule source = workbookSourceModule.getSource();
 
         if (VirtualSourceCodeModule.SOURCE_URI.equals(source.getUri())) {
-            int nsheets = workbookSourceModule.getWorkbookLoader().getNumberOfSheets();
-            WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nsheets];
+            int nSheets = workbookSourceModule.getWorkbookLoader().getNumberOfSheets();
+            WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nSheets];
 
-            for (int i = 0; i < nsheets; i++) {
+            for (int i = 0; i < nSheets; i++) {
                 XlsSheetSourceCodeModule sheetSource = new XlsSheetSourceCodeModule(i, workbookSourceModule);
                 IGridTable[] tables = new XlsSheetGridModel(sheetSource).getTables();
                 sheetNodes[i] = createWorksheetSyntaxNode(tablePartProcessor, sheetSource, tables);
@@ -102,10 +104,10 @@ public class SequentialXlsLoader {
             List<? extends SheetDescriptor> sheets = excelReader.getSheets();
             boolean use1904Windowing = excelReader.isUse1904Windowing();
 
-            int nsheets = sheets.size();
-            WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nsheets];
+            int nSheets = sheets.size();
+            WorksheetSyntaxNode[] sheetNodes = new WorksheetSyntaxNode[nSheets];
 
-            for (int i = 0; i < nsheets; i++) {
+            for (int i = 0; i < nSheets; i++) {
                 final SheetDescriptor sheet = sheets.get(i);
                 XlsSheetSourceCodeModule sheetSource = new SequentialXlsSheetSourceCodeModule(workbookSourceModule,
                     sheet);
@@ -134,7 +136,11 @@ public class SequentialXlsLoader {
 
         SyntaxNodeException[] parsingErrors = errors.toArray(SyntaxNodeException.EMPTY_ARRAY);
 
-        return new ParsedCode(syntaxNode, source, parsingErrors, messages, dependencies.toArray(new IDependency[0]));
+        return new ParsedCode(syntaxNode,
+            source,
+            parsingErrors,
+            messages,
+            dependencies.values().toArray(new IDependency[0]));
     }
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
@@ -186,7 +192,7 @@ public class SequentialXlsLoader {
                     new GridCellSourceCodeModule(gridTable, 1, i, null));
                 node.setParent(tableSyntaxNode);
                 Dependency moduleDependency = new Dependency(DependencyType.MODULE, node);
-                dependencies.add(moduleDependency);
+                dependencies.put(dependency, moduleDependency);
             }
         }
     }

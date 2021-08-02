@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
 import org.openl.binding.impl.module.ModuleSpecificType;
+import org.openl.dependency.DependencyOpenClass;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
@@ -31,10 +32,16 @@ import org.openl.vm.IRuntimeEnv;
 
 public final class WrapperLogic {
 
+    static {
+        DependencyOpenClass.dependencyWrapperLogic = openMethod -> wrapOpenMethod(openMethod,
+            (XlsModuleOpenClass) openMethod.getDeclaringClass(),
+            true);
+    }
+
     private WrapperLogic() {
     }
 
-    private static SimpleRulesRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
+    public static SimpleRulesRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
         IRuntimeEnv env1 = env;
         if (env instanceof TBasicContextHolderEnv) {
             TBasicContextHolderEnv tBasicContextHolderEnv = (TBasicContextHolderEnv) env;
@@ -107,10 +114,11 @@ public final class WrapperLogic {
         return new MethodSignature(parameterDeclarations);
     }
 
-    public static IOpenMethod wrapOpenMethod(IOpenMethod openMethod, final XlsModuleOpenClass xlsModuleOpenClass) {
-        if (openMethod instanceof IRulesMethodWrapper) {
-            openMethod = ((IRulesMethodWrapper) openMethod).getDelegate();
-        }
+    public static IOpenMethod wrapOpenMethod(IOpenMethod openMethod,
+            final XlsModuleOpenClass xlsModuleOpenClass,
+            boolean inlinedMethodCall) {
+        openMethod = unwrapOpenMethod(openMethod);
+
         if (openMethod instanceof TestSuiteMethod) {
             return openMethod;
         }
@@ -124,35 +132,70 @@ public final class WrapperLogic {
         if (openMethod instanceof OverloadedMethodsDispatcherTable) {
             return new OverloadedMethodsDispatcherTableWrapper(xlsModuleOpenClass,
                 (OverloadedMethodsDispatcherTable) openMethod,
-                contextPropertiesInjector);
+                contextPropertiesInjector,
+                inlinedMethodCall);
         }
         if (openMethod instanceof MatchingOpenMethodDispatcher) {
             return new MatchingOpenMethodDispatcherWrapper(xlsModuleOpenClass,
                 (MatchingOpenMethodDispatcher) openMethod,
-                contextPropertiesInjector);
+                contextPropertiesInjector,
+                inlinedMethodCall);
         }
         if (openMethod instanceof Algorithm) {
-            return new AlgorithmWrapper(xlsModuleOpenClass, (Algorithm) openMethod, contextPropertiesInjector);
+            return new AlgorithmWrapper(xlsModuleOpenClass,
+                (Algorithm) openMethod,
+                contextPropertiesInjector,
+                inlinedMethodCall);
         }
         if (openMethod instanceof AlgorithmSubroutineMethod) {
             return new AlgorithmSubroutineMethodWrapper(xlsModuleOpenClass,
                 (AlgorithmSubroutineMethod) openMethod,
-                contextPropertiesInjector);
+                contextPropertiesInjector,
+                inlinedMethodCall);
         }
         if (openMethod instanceof DecisionTable) {
-            return new DecisionTableWrapper(xlsModuleOpenClass, (DecisionTable) openMethod, contextPropertiesInjector);
+            return new DecisionTableWrapper(xlsModuleOpenClass,
+                (DecisionTable) openMethod,
+                contextPropertiesInjector,
+                inlinedMethodCall);
         }
         if (openMethod instanceof ColumnMatch) {
-            return new ColumnMatchWrapper(xlsModuleOpenClass, (ColumnMatch) openMethod, contextPropertiesInjector);
+            return new ColumnMatchWrapper(xlsModuleOpenClass,
+                (ColumnMatch) openMethod,
+                contextPropertiesInjector,
+                inlinedMethodCall);
         }
         if (openMethod instanceof Spreadsheet) {
-            return new SpreadsheetWrapper(xlsModuleOpenClass, (Spreadsheet) openMethod, contextPropertiesInjector);
+            return new SpreadsheetWrapper(xlsModuleOpenClass,
+                (Spreadsheet) openMethod,
+                contextPropertiesInjector,
+                inlinedMethodCall);
         }
         if (openMethod instanceof TableMethod) {
-            return new TableMethodWrapper(xlsModuleOpenClass, (TableMethod) openMethod, contextPropertiesInjector);
+            return new TableMethodWrapper(xlsModuleOpenClass,
+                (TableMethod) openMethod,
+                contextPropertiesInjector,
+                inlinedMethodCall);
         }
 
         return openMethod;
+    }
+
+    public static Object invokeInlinedMethod(IRulesMethodWrapper wrapper,
+            Object target,
+            Object[] params,
+            IRuntimeEnv env) {
+        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = WrapperLogic.extractSimpleRulesRuntimeEnv(env);
+        IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
+        if (topClass != null) {
+            try {
+                simpleRulesRuntimeEnv.setTopClass(wrapper.getXlsModuleOpenClass());
+                return WrapperLogic.invoke(wrapper, target, params, env);
+            } finally {
+                simpleRulesRuntimeEnv.setTopClass(topClass);
+            }
+        }
+        return WrapperLogic.invoke(wrapper, target, params, env);
     }
 
     public static Object invoke(IRulesMethodWrapper wrapper, Object target, Object[] params, IRuntimeEnv env) {
