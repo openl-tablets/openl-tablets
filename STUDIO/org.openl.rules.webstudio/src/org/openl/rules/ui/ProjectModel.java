@@ -439,7 +439,7 @@ public class ProjectModel {
     public IOpenMethod[] getTestMethods(String forTable, boolean currentOpenedModule) {
         IOpenMethod method = currentOpenedModule ? getOpenedModuleMethod(forTable) : getMethod(forTable);
         if (method != null) {
-            return ProjectHelper.testers(method);
+            return ProjectHelper.testers(method, compiledOpenClass);
         }
         return null;
     }
@@ -687,7 +687,7 @@ public class ProjectModel {
             return false;
         }
 
-        return ProjectHelper.testers(m).length > 0;
+        return ProjectHelper.testers(m, compiledOpenClass).length > 0;
     }
 
     public synchronized void buildProjectTree() {
@@ -1066,6 +1066,7 @@ public class ProjectModel {
 
     public synchronized void clearModuleInfo() {
         this.moduleInfo = null;
+        historyStoragePath = null;
 
         clearModuleResources(); // prevent memory leak
 
@@ -1158,6 +1159,7 @@ public class ProjectModel {
             this.moduleInfo = moduleInfo;
         }
 
+        initHistoryStoragePath();
         isModified();
         clearModuleResources(); // prevent memory leak
         projectRoot = null;
@@ -1384,15 +1386,20 @@ public class ProjectModel {
         return null;
     }
 
-    public synchronized String getHistoryStoragePath() {
-        if (historyStoragePath == null) {
-            File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-                .getLocalWorkspace()
-                .getLocation();
-            return Paths.get(location.getPath(), getProject().getName(), ".history", getModuleInfo().getName())
-                .toString();
-        }
+    public String getHistoryStoragePath() {
         return historyStoragePath;
+    }
+
+    private void initHistoryStoragePath() {
+        if (WebStudioUtils.getSession() != null) {
+            File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
+                    .getLocalWorkspace()
+                    .getLocation();
+            String historyFileName = moduleInfo.getRulesRootPath().getPath();
+            this.historyStoragePath = Paths
+                    .get(location.getPath(), getProject().getName(), ".history", historyFileName)
+                    .toString();
+        }
     }
 
     public synchronized RecentlyVisitedTables getRecentlyVisitedTables() {

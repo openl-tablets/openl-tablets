@@ -1,5 +1,6 @@
 package org.openl.binding.impl.cast;
 
+import java.lang.reflect.Array;
 import java.util.Objects;
 
 import org.openl.binding.ICastFactory;
@@ -16,25 +17,43 @@ final class JavaDownCast implements IOpenCast {
         this.castFactory = Objects.requireNonNull(castFactory, "castFactory cannot be null");
     }
 
+    private int calcArrayDim(Object from) {
+        if (from != null && from.getClass().isArray()) {
+            int arrayLength = Array.getLength(from);
+            if (arrayLength > 0) {
+                int dim = Integer.MAX_VALUE;
+                for (int i = 0; i < arrayLength; i++) {
+                    int p = calcArrayDim(Array.get(from, i));
+                    if (dim > p) {
+                        dim = p;
+                    }
+                }
+                return dim + 1;
+            }
+        }
+        return 0;
+    }
+
     @Override
     public Object convert(Object from) {
         if (from == null) {
             return null;
         }
-        if (from.getClass().isAssignableFrom(to.getInstanceClass())) {
+        if (to.getInstanceClass().isAssignableFrom(from.getClass())) {
             return from;
         } else {
-            // Allow upcast if posible
-            if (to.getInstanceClass().isAssignableFrom(from.getClass())) {
-                return from;
-            } else {
-                IOpenCast openCast = castFactory.getCast(JavaOpenClass.getOpenClass(from.getClass()), to);
-                if (openCast != null && !(openCast instanceof JavaDownCast)) {
-                    return openCast.convert(from);
-                }
-                throw new ClassCastException(String
-                    .format("Cannot cast from '%s' to '%s'.", from.getClass().getTypeName(), to.getDisplayName(0)));
+            Class<?> fromClass = from.getClass();
+            IOpenClass fromOpenClass = JavaOpenClass.getOpenClass(fromClass);
+            if (fromClass.isArray() && fromClass.getComponentType() == Object.class) {
+                int dim = calcArrayDim(from);
+                fromOpenClass = JavaOpenClass.OBJECT.getArrayType(dim);
             }
+            IOpenCast openCast = castFactory.getCast(fromOpenClass, to);
+            if (openCast != null && !(openCast instanceof JavaDownCast)) {
+                return openCast.convert(from);
+            }
+            throw new ClassCastException(
+                String.format("Cannot cast from '%s' to '%s'.", from.getClass().getTypeName(), to.getDisplayName(0)));
         }
     }
 

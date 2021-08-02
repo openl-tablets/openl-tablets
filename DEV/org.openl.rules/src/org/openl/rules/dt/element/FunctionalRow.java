@@ -67,6 +67,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     private ILogicalTable decisionTable;
     private ILogicalTable paramsTable;
     private ILogicalTable codeTable;
+    private ILogicalTable infoTable;
     private ILogicalTable presentationTable;
 
     private final DTScale.RowScale scale;
@@ -83,12 +84,18 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         this.paramsTable = decisionTable.getSubtable(IDecisionTableConstants.PARAM_COLUMN_INDEX, row, 1, 1);
         this.codeTable = decisionTable.getSubtable(IDecisionTableConstants.CODE_COLUMN_INDEX, row, 1, 1);
+        this.infoTable = decisionTable.getSubtable(IDecisionTableConstants.INFO_COLUMN_INDEX, row, 1, 1);
         this.presentationTable = decisionTable
             .getSubtable(IDecisionTableConstants.PRESENTATION_COLUMN_INDEX, row, 1, 1);
         this.scale = scale;
         this.params = new IParameterDeclaration[paramsTable.getHeight()];
         this.paramInitialized = new BitSet(paramsTable.getHeight());
         this.paramsUniqueNames = new HashSet<>();
+    }
+
+    @Override
+    public ILogicalTable getInfoTable() {
+        return infoTable;
     }
 
     @Override

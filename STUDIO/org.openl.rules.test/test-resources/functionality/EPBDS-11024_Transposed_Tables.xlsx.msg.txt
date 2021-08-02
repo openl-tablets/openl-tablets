@@ -1,4 +1,7 @@
-ERROR: Smart table has unmatched title 'param4'.
+ERROR: No input parameter found for horizontal condition.
+ERROR: Failed to parse int range.
+ERROR: Failed to parse int range.
+ERROR: Failed to parse int range.
 ERROR: The value 'test' is outside of valid domain 'CarValue'. Valid values: [num, param, pam]
 ERROR: The value 'test' is outside of valid domain 'CarValue'. Valid values: [num, param, pam]
 ERROR: The value 'test' is outside of valid domain 'CarValue'. Valid values: [num, param, pam]

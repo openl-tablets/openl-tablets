@@ -1,19 +1,30 @@
 package org.openl.rules.rest;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.inject.Inject;
 
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -58,8 +69,7 @@ public class ZipProjectSaveStrategy {
         projectData.setAuthor(model.getAuthor());
         if (repository.supports().mappedFolders()) {
             AdditionalData<FileMappingData> additionalData = new FileMappingData(projectData.getName(),
-                StringUtils.isEmpty(model.getPath()) ? model.getProjectName()
-                                                     : model.getPath() + model.getProjectName());
+                model.getFullPath());
             projectData.addAdditionalData(additionalData);
         }
         ProjectDescriptorNameAdaptor adaptor = new ProjectDescriptorNameAdaptor(model.getProjectName());
@@ -74,7 +84,13 @@ public class ZipProjectSaveStrategy {
                     projectData.getName(),
                     filter,
                     adaptor)) {
-                    return ((FolderRepository) repository).save(projectData, changes, ChangesetType.FULL);
+                    if (checkIfRequiredProjectDescriptorCreation(model, root)) {
+                        FileItem descriptor = createVirtualProjectDescriptor(model, projectData.getName());
+                        Iterable<FileItem> files = () -> concat(changes, Stream.of(descriptor)).iterator();
+                        return ((FolderRepository) repository).save(projectData, files, ChangesetType.FULL);
+                    } else {
+                        return ((FolderRepository) repository).save(projectData, changes, ChangesetType.FULL);
+                    }
                 }
             } else {
                 Path tmp = Files.createTempFile(FileUtils.getBaseName(projectData.getName()), ".zip");
@@ -105,5 +121,50 @@ public class ZipProjectSaveStrategy {
                 }
             }
         }
+    }
+
+    private FileItem createVirtualProjectDescriptor(CreateUpdateProjectModel model, String folderTo) {
+        ProjectDescriptor descriptor = new ProjectDescriptor();
+        descriptor.setName(model.getProjectName());
+        XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
+        final byte[] bytes = serializer.serialize(descriptor).getBytes(StandardCharsets.UTF_8);
+
+        String name = folderTo + "/" + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME;
+        return new FileItem(name, new ByteArrayInputStream(bytes));
+    }
+
+    private boolean checkIfRequiredProjectDescriptorCreation(CreateUpdateProjectModel model, Path projectRoot) {
+        Path p = Paths.get(model.getFullPath());
+        String folderName = p.getName(p.getNameCount() - 1).toString();
+        return !folderName.equals(model.getProjectName()) && !Files
+            .exists(projectRoot.resolve(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+    }
+
+    private static <T> Stream<T> concat(Iterable<T> a, Stream<T> b) {
+        Spliterator<? extends T> spA = a.spliterator();
+        Spliterator<? extends T> spB = b.spliterator();
+
+        long s = spA.estimateSize() + spB.estimateSize();
+        if (s < 0) {
+            s = Long.MAX_VALUE;
+        }
+        int ch = spA.characteristics() & spB.characteristics() & (Spliterator.NONNULL | Spliterator.SIZED);
+        ch |= Spliterator.ORDERED;
+
+        return StreamSupport.stream(new Spliterators.AbstractSpliterator<T>(s, ch) {
+            private Spliterator<? extends T> sp1 = spA;
+            private Spliterator<? extends T> sp2 = spB;
+
+            @Override
+            public boolean tryAdvance(Consumer<? super T> action) {
+                Spliterator<? extends T> sp = sp1;
+                if (sp.tryAdvance(action)) {
+                    sp1 = sp2;
+                    sp2 = sp;
+                    return true;
+                }
+                return sp2.tryAdvance(action);
+            }
+        }, false);
     }
 }

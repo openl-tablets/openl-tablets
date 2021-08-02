@@ -7,12 +7,14 @@ Content-Type: application/json
         "modifiedBy": "admin",
         "modifiedAt": "*",
         "branch":"master",
+        "path": "Project",
         "rev": "*"
     }, {
         "name": "Project2",
         "modifiedBy": "admin",
         "modifiedAt": "*",
         "branch":"master",
+        "path":"Project2",
         "rev": "*"
     }, {
        "name": "Project4",
@@ -20,7 +22,14 @@ Content-Type: application/json
        "modifiedAt": "*",
        "rev": "*",
        "branch": "master",
-       "path": "foo/bar"
+       "path": "foo/bar/Project4"
+   }, {
+       "name": "Project7",
+       "modifiedBy": "admin",
+       "modifiedAt": "*",
+       "rev": "*",
+       "branch": "master",
+       "path": "foo/bar/project-custom-name"
    }
 ]
 

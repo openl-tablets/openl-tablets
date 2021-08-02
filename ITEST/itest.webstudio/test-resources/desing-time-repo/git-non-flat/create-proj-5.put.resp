@@ -6,7 +6,7 @@ Content-Type: application/json
     "fields": [{
             "code": "openl.error.PathConstraint",
             "field": "path",
-            "rejectedValue": "foo?s/",
+            "rejectedValue": "foo?s/Project2",
             "message": "Name cannot contain forbidden characters (\\, /, :, ;, <, >, ?, *, %, ', [, ], |, \"), start with space, end with space or dot."
         }
     ]
