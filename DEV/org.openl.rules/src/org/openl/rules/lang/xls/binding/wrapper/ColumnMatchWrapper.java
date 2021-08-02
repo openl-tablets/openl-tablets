@@ -18,15 +18,18 @@ public final class ColumnMatchWrapper extends AbstractColumnMatchWrapper impleme
     private final IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
         this);
+    private final boolean inlinedMethodCall;
 
     public ColumnMatchWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             ColumnMatch delegate,
-            ContextPropertiesInjector contextPropertiesInjector) {
+            ContextPropertiesInjector contextPropertiesInjector,
+            boolean inlinedMethodCall) {
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;
         this.type = WrapperLogic.buildMethodReturnType(delegate, xlsModuleOpenClass);
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
+        this.inlinedMethodCall = inlinedMethodCall;
     }
 
     @Override
@@ -36,6 +39,9 @@ public final class ColumnMatchWrapper extends AbstractColumnMatchWrapper impleme
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+        if (inlinedMethodCall) {
+            return WrapperLogic.invokeInlinedMethod(this, target, params, env);
+        }
         return WrapperLogic.invoke(this, target, params, env);
     }
 

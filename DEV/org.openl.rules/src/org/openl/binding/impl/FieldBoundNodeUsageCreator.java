@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
+import org.openl.dependency.ModuleVar;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.calc.IOriginalDeclaredClassesOpenField;
 import org.openl.rules.calc.Spreadsheet;
@@ -102,6 +103,10 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
             description = MethodUtil.printType(boundField.getType()) + " " + boundField
                 .getName() + " = " + constantOpenField.getValueAsString();
             uri = constantOpenField.getMemberMetaInfo().getSourceUrl();
+        } else if (type instanceof XlsModuleOpenClass && boundField instanceof ModuleVar) {
+            ModuleVar moduleVar = (ModuleVar) boundField;
+            description = "Module " + moduleVar.getName();
+            uri = moduleVar.getType().getMetaInfo().getSourceUrl();
         } else if (boundField instanceof ConditionOrActionParameterField) {
             ConditionOrActionParameterField conditionOrActionParameterField = (ConditionOrActionParameterField) boundField;
             description = "Parameter of " + conditionOrActionParameterField.getConditionOrAction()
