@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
@@ -38,6 +37,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -348,10 +348,16 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     private void setMetaInfoForColumn(CellKey cellKey, String description) {
         IGrid grid = getTableSyntaxNode().getGridTable().getGrid();
         String cellValue = grid.getCell(cellKey.getColumn(), cellKey.getRow()).getStringValue();
-        SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0, cellValue.length() - 1, description, null, NodeType.OTHER);
-        setPreparedMetaInfo(cellKey.getRow(),
-            cellKey.getColumn(),
-            new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage)));
+        if (StringUtils.isNotEmpty(cellValue)) {
+            SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0,
+                cellValue.length() - 1,
+                description,
+                null,
+                NodeType.OTHER);
+            setPreparedMetaInfo(cellKey.getRow(),
+                cellKey.getColumn(),
+                new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage)));
+        }
     }
 
     private void saveCompoundReturnColumn(IGridRegion region) {
