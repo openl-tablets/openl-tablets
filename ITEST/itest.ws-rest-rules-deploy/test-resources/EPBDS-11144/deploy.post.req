@@ -1,0 +1,4 @@
+POST /admin/deploy/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20# HTTP/1.1
+Content-Type: application/zip
+
+&EPBDS-10916%20+Whitespaces in Name #.zip
