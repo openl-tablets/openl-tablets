@@ -75,14 +75,12 @@ public class OpenLCompileManager {
     private ProcessedCode getProcessedCode(IOpenSourceCodeModule source,
             boolean executionMode,
             IDependencyManager dependencyManager) {
-        ProcessedCode processedCode;
         IBindingContext bindingContext = null;
         if (executionMode) {
             bindingContext = openl.getBinder().makeBindingContext();
             bindingContext.setExecutionMode(true);
         }
-        processedCode = processSource(source, bindingContext, dependencyManager);
-        return processedCode;
+        return processSource(source, bindingContext, dependencyManager);
     }
 
     private Collection<IDependency> getDependencies(IOpenSourceCodeModule source,
