@@ -9,7 +9,7 @@
     cellspacing="0px" styleClass="table">
     <f:facet name="header">
       <rich:columnGroup>
-        <rich:column>
+        <rich:column styleClass="action-col">
           <h:outputText value="Selected" />
         </rich:column>
         <rich:column>
@@ -18,19 +18,19 @@
         <rich:column>
           <h:outputText value="Path" />
         </rich:column>
-        <rich:column>
+        <rich:column styleClass="revision-col">
           <h:outputText value="Revision ID" />
         </rich:column>
         <rich:column>
           <h:outputText value="Message" />
         </rich:column>
-        <rich:column>
+        <rich:column styleClass="action-col">
           <h:outputText value="Actions" />
         </rich:column>
       </rich:columnGroup>
     </f:facet>
 
-    <rich:column style="text-align: center">
+    <rich:column styleClass="action-col center-align">
       <h:selectBooleanCheckbox styleClass="selected-project" value="#{item.selected}" onclick="updateButtonState()" />
     </rich:column>
     <rich:column>
@@ -39,7 +39,7 @@
     <rich:column>
       <h:outputText value="#{item.path}" />
     </rich:column>
-    <rich:column>
+    <rich:column styleClass="revision-col center-align">
       <ui:param name="revisionNo" value="#{item.version.versionName}" />
       <ui:param name="shortRevisionNo" value="#{item.version.shortVersion}" />
 
@@ -54,7 +54,7 @@
     <rich:column>
       <h:outputText value="#{item.messages}" escape="false" styleClass="#{item.styleForMessages}" />
     </rich:column>
-    <rich:column>
+    <rich:column styleClass="action-col center-align">
       <h:commandLink action="#{deploymentController.deleteItem}" immediate="true"
         onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the deployed project?')) {return false;}" rendered="#{artefact.openedForEditing}" title="Delete"
         styleClass="delete-icon">
