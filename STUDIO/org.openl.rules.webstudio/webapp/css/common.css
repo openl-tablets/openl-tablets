@@ -1649,3 +1649,27 @@ option[value=""]:disabled + option[value=""]:disabled {
 .actionImage {
     vertical-align: top;
 }
+
+.table th.modified-by-col, .table td.modified-by-col {
+    min-width: 70px;
+}
+
+.table th.modified-at-col, .table td.modified-at-col {
+    min-width: 130px;
+}
+
+.table th.revision-col, .table td.revision-col {
+    min-width: 60px;
+}
+
+.table th.status-col, .table td.status-col {
+    min-width: 90px;
+}
+
+.table th.action-col, .table td.action-col {
+    min-width: 50px;
+}
+
+.center-align {
+    text-align: center;
+}
