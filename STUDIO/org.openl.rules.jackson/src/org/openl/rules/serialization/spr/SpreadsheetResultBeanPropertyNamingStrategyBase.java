@@ -44,10 +44,10 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
     }
 
     protected String transform(SpreadsheetCell spreadsheetCell) {
-        if (spreadsheetCell.simpleRefByColumn()) {
-            return transform(spreadsheetCell.column());
-        } else if (spreadsheetCell.simpleRefByRow()) {
+        if (spreadsheetCell.simpleRefByRow()) {
             return transform(spreadsheetCell.row());
+        } else if (spreadsheetCell.simpleRefByColumn()) {
+            return transform(spreadsheetCell.column());
         } else {
             return transform(spreadsheetCell.column(), spreadsheetCell.row());
         }
