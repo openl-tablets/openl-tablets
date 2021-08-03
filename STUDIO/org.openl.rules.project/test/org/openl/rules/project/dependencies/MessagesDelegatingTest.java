@@ -78,7 +78,7 @@ public class MessagesDelegatingTest {
     }
 
     @Test
-    public void testMessagesGatheringInMultimodule() throws Exception {
+    public void testMessagesGatheringInMultiModule() throws Exception {
         List<Module> forGrouping = new ArrayList<>();
         forGrouping.add(findModuleByName("Rules3"));
         forGrouping.add(findModuleByName("Rules4"));
@@ -101,7 +101,7 @@ public class MessagesDelegatingTest {
     }
 
     @Test
-    public void testDublicateTableDefenitionInMultimodule() throws Exception {
+    public void testDuplicateTableDefinitionInMultiModule() throws Exception {
         List<Module> forGrouping = new ArrayList<>();
         forGrouping.add(findModuleByName("Rules"));
         forGrouping.add(findModuleByName("Rules2"));

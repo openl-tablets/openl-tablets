@@ -20,6 +20,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.DependencyBindingContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -210,6 +211,14 @@ public class OpenLCompileManager {
                     messages.add(OpenLMessagesUtils.newErrorMessage(message));
                 }
             }
+        }
+
+        IOpenBinder binder = openl.getBinder();
+        if (bindingContext == null) {
+            bindingContext = binder.makeBindingContext();
+        }
+        if (dependencyManager != null) {
+            bindingContext = new DependencyBindingContext(bindingContext, dependencyManager);
         }
 
         // Requires to support java packages. BEX grammar does not support to use binding context to define java
