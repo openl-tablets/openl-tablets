@@ -151,6 +151,7 @@
         <constructor-arg>
             <bean class="org.springframework.security.saml.metadata.MetadataGenerator">
                 <property name="entityBaseURL" value="#{environment.getProperty('security.saml.app-url')}"/>
+                <property name="entityId" value="#{T(org.openl.util.StringUtils).trimToNull(environment.getProperty('security.saml.entity-id'))}" />
             </bean>
         </constructor-arg>
     </bean>
