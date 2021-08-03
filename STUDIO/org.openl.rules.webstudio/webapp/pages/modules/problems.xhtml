@@ -172,7 +172,7 @@
 
                         data.messages.forEach(function (item) {
                             const newMessageHtml = htmlTemplate.replace(/{messageId}/g, item.id)
-                                .replace(/{messageSummary}/g, item.summary);
+                                .replace(/{messageSummary}/g, ws.utils.escapeHtml(item.summary));
                             if (item.severity === 'WARN') {
                                 warningsPanel.append(newMessageHtml.replace(/{messageTypeClass}/g, 'problem-warning'));
                             } else if (item.severity === 'ERROR') {
