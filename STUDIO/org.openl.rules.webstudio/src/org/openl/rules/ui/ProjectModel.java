@@ -87,6 +87,7 @@ import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
@@ -1267,12 +1268,11 @@ public class ProjectModel {
     private void initHistoryStoragePath() {
         if (WebStudioUtils.getSession() != null) {
             File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-                    .getLocalWorkspace()
-                    .getLocation();
-            String historyFileName = moduleInfo.getRulesRootPath().getPath();
+                .getLocalWorkspace()
+                .getLocation();
             this.historyStoragePath = Paths
-                    .get(location.getPath(), getProject().getName(), ".history", historyFileName)
-                    .toString();
+                .get(location.getPath(), FolderHelper.resolveHistoryFolder(getProject(), moduleInfo))
+                .toString();
         }
     }
 
