@@ -532,7 +532,7 @@ public class ProjectModel {
         return openedModuleCompiledOpenClass;
     }
 
-    public ProjectCompilationStatus getCompilationStatus() {
+    public synchronized ProjectCompilationStatus getCompilationStatus() {
         ProjectCompilationStatus.Builder compilationStatus = ProjectCompilationStatus.newBuilder();
         if (webStudioWorkspaceDependencyManager != null) {
             Deque<ProjectDescriptor> queue = new ArrayDeque<>();
