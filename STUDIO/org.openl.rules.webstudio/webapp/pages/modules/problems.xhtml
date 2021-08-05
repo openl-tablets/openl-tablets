@@ -105,7 +105,9 @@
                             datatype: "json"
                         })
                         .done(function (data) {
-                            updateProgressPanel(data);
+                            if (data.modulesCount > 0) {
+                                updateProgressPanel(data);
+                            }
                             if (!data.compilationCompleted) {
                                 inProgress();
                                 setTimeout(function () {$jq('#progress-info-panel').trigger('refresh', state)}, 1000);
