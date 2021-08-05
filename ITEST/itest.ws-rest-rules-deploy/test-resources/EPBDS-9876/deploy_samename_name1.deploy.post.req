@@ -1,0 +1,4 @@
+POST /admin/deploy HTTP/1.1
+Content-Type: application/zip
+
+&deploy_samename_name1.zip

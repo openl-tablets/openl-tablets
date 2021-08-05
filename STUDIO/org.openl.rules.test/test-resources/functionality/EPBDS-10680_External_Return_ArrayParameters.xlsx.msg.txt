@@ -16,7 +16,6 @@ ERROR: Cannot convert from 'MyObject2' to 'java.lang.Integer'.
 ERROR: Cannot convert from 'java.lang.Double' to 'java.lang.Integer'.
 ERROR: No input parameter found for horizontal condition.
 ERROR: Smart table has unmatched title 'Result'.
-ERROR: Cannot parse cell value '2'. Expected value of type 'MyObject2'.
 ERROR: Cannot parse cell value '0'. Expected value of type 'MyObject2'.
 ERROR: Cannot parse cell value '2'. Expected value of type 'MyObject2'.
 ERROR: Cannot parse cell value '123'. Expected value of type 'MyObject2'.

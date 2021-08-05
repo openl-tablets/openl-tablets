@@ -656,4 +656,9 @@ public class RunWebservicesITest {
         client.send("EPBDS-11682/GetOptionalResponse.json.post");
         client.send("EPBDS-11682/GetOptionalResponse2.json.post");
     }
+
+    @Test
+    public void EPBDS_11725() {
+        client.send("EPBDS-11725/RateCardPremiumAggregated.json.post");
+    }
 }

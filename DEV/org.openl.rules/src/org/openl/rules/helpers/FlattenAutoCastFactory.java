@@ -10,13 +10,14 @@ public class FlattenAutoCastFactory extends DefaultAutoCastFactory {
         if (types == null || types.length == 0) {
             throw new IllegalArgumentException("types cannot be empty or null");
         }
-        IOpenClass type = types[0];
-        if (type.isArray()) {
-            type = type.getComponentClass();
-        }
+        IOpenClass type = findBaseComponent(types[0]);
         for (int i = 1; i < types.length; i++) {
-            type = bindingContext.findParentClass(type, types[i].isArray() ? types[i].getComponentClass() : types[i]);
+            type = bindingContext.findParentClass(type, findBaseComponent(types[i]));
         }
         return type;
+    }
+
+    private IOpenClass findBaseComponent(IOpenClass type) {
+        return type.isArray() ? findBaseComponent(type.getComponentClass()) : type;
     }
 }

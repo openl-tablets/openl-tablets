@@ -1,0 +1,13 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <configuration>
+        <entry>
+            <string>jackson.propertyNamingStrategy</string>
+            <string>org.openl.rules.serialization.spr.LowerCamelCaseStrategy</string>
+        </entry>
+    </configuration>
+</rules-deploy>

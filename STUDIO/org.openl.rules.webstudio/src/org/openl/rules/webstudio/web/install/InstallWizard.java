@@ -242,6 +242,7 @@ public class InstallWizard implements Serializable {
 
     private void readSamlProperties() {
         samlSettings = new SAMLSettings(propertyResolver.getProperty("security.saml.app-url"),
+            propertyResolver.getProperty("security.saml.entity-id"),
             propertyResolver.getProperty("security.saml.saml-server-metadata-url"),
             propertyResolver.getRequiredProperty("security.saml.request-timeout", Integer.class),
             propertyResolver.getProperty("security.saml.keystore-file-path"),
@@ -284,6 +285,9 @@ public class InstallWizard implements Serializable {
                     properties.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
                 } else if (SAML_USER_MODE.equals(userMode)) {
                     properties.setProperty("security.saml.app-url", samlSettings.getWebStudioUrl());
+                    if (!StringUtils.isBlank(samlSettings.getEntityId())) {
+                        properties.setProperty("security.saml.entity-id", samlSettings.getEntityId());
+                    }
                     properties.setProperty("security.saml.saml-server-metadata-url",
                         samlSettings.getSamlServerMetadataUrl());
                     properties.setProperty("security.saml.request-timeout", samlSettings.getRequestTimeout());

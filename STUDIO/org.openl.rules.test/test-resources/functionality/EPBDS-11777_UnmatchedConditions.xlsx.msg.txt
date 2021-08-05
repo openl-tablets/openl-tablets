@@ -1,0 +1,4 @@
+WARN: Ambiguous matching of column titles to DT conditions. Use more appropriate titles for condition columns.
+ERROR: Smart table has unmatched title '135'.
+ERROR: Smart table has unmatched title 'Max'.
+ERROR: The height of the horizontal keys must be equal to the number of the horizontal headers.

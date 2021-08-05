@@ -5,19 +5,33 @@ import java.util.Arrays;
 abstract class DTHeader {
     final int[] methodParameterIndexes;
     final int column;
+    final int row;
     final String statement;
     final int width;
+    final int widthForMerge;
+    final boolean horizontal;
 
-    DTHeader(int[] methodParameterIndexes, String statement, int column, int width) {
+    DTHeader(int[] methodParameterIndexes,
+            String statement,
+            int column,
+            int row,
+            int width,
+            int widthForMerge,
+            boolean horizontal) {
         this.methodParameterIndexes = methodParameterIndexes;
         this.statement = statement;
         this.column = column;
+        this.row = row;
         this.width = width;
+        this.widthForMerge = widthForMerge;
+        this.horizontal = horizontal;
     }
 
     abstract boolean isCondition();
 
-    abstract boolean isHCondition();
+    boolean isHCondition() {
+        return isCondition() && horizontal;
+    }
 
     abstract boolean isAction();
 
@@ -52,6 +66,14 @@ abstract class DTHeader {
         return column;
     }
 
+    public int getRow() {
+        return row;
+    }
+
+    public int getWidthForMerge() {
+        return widthForMerge;
+    }
+
     private String getTypeString() {
         if (isCondition()) {
             return "CONDITION";
@@ -69,7 +91,7 @@ abstract class DTHeader {
     @Override
     public String toString() {
         return "DTHeader [type=" + getTypeString() + " methodParameterIndexes=" + Arrays.toString(
-            methodParameterIndexes) + ", column=" + column + ", width=" + getWidth() + " statement=" + statement + "]";
+            methodParameterIndexes) + ", column=" + column + ", width=" + getWidth() + " statement=" + statement + "] horizontal=" + isHCondition();
     }
 
 }

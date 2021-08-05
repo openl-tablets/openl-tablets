@@ -7,7 +7,7 @@ Content-Type: application/json
         {
             "code": "openl.error.PathConstraint",
             "field": "path",
-            "rejectedValue": "/foo?s/",
+            "rejectedValue": "/foo?s/Project2&*",
             "message": "Path in repository cannot start with '/'."
         }, {
             "code": "openl.error.ProjectNameConstraint",

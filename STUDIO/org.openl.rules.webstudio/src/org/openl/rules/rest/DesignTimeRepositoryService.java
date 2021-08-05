@@ -120,9 +120,6 @@ public class DesignTimeRepositoryService {
         }
         if (features.mappedFolders()) {
             Optional.ofNullable(src.getRealPath())
-                .map(Paths::get)
-                .map(Path::getParent)
-                .map(Path::toString)
                 .ifPresent(p -> dest.put("path", p.replace('\\', '/')));
         }
         return dest;
@@ -203,7 +200,7 @@ public class DesignTimeRepositoryService {
         if (repository != null) {
             return repository;
         }
-        throw new NotFoundException("design.repo.message", new String[] { repoName });
+        throw new NotFoundException("design.repo.message", repoName);
     }
 
     private void allowedToPush(Repository repo) {

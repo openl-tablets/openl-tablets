@@ -106,14 +106,15 @@ public class DecisionTableLoader {
     private enum Direction {
         UNKNOWN,
         TRANSPOSED,
-        NORMAL;
+        NORMAL
     }
 
-    private boolean isLookupByHConditions(ILogicalTable tableBody) {
+    private boolean isLookupByHConditions(ILogicalTable tableBody, boolean isSmart) {
         int numberOfHCondition = DecisionTableHelper.getNumberOfHConditions(tableBody);
         int firstColumnHeight = tableBody.getSource().getCell(0, 0).getHeight();
         int firstColumnForHCondition = DecisionTableHelper
-            .getFirstColumnForHCondition(tableBody, numberOfHCondition, firstColumnHeight);
+            .getFirstColumnForHCondition(tableBody, numberOfHCondition, firstColumnHeight, isSmart)
+            .getLeft();
         if (firstColumnForHCondition > 0 && firstColumnHeight != tableBody.getSource()
             .getCell(firstColumnForHCondition, 0)
             .getHeight()) {
@@ -134,17 +135,36 @@ public class DecisionTableLoader {
 
     private Direction detectTableDirection(TableSyntaxNode tableSyntaxNode) {
         Direction direction = Direction.UNKNOWN;
-        if (isSmart(tableSyntaxNode)) {
+        if (isLookup(tableSyntaxNode)) {
+            boolean isSmart = isSmart(tableSyntaxNode);
             ILogicalTable tableBody = tableSyntaxNode.getTableBody();
-            if (tableBody != null && isLookup(tableSyntaxNode)) {
-                if (isLookupByHConditions(tableBody)) {
-                    direction = Direction.NORMAL;
+            if (tableBody != null) {
+                if (isSmart && DecisionTableHelper.isSmartLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody)) {
+                    if (isLookupByHConditions(DecisionTableHelper.cutResultTitleInFirstRow(tableBody), true)) {
+                        direction = Direction.NORMAL;
+                    }
+                } else {
+                    if (isLookupByHConditions(tableBody, isSmart)) {
+                        direction = Direction.NORMAL;
+                    }
                 }
-                if (isLookupByHConditions(tableBody.transpose())) {
-                    if (Direction.UNKNOWN.equals(direction)) {
-                        direction = Direction.TRANSPOSED;
-                    } else {
-                        direction = Direction.UNKNOWN;
+                if (isSmart && DecisionTableHelper.isSmartLookupAndResultTitleInFirstRow(tableSyntaxNode,
+                    tableBody.transpose())) {
+                    if (isLookupByHConditions(DecisionTableHelper.cutResultTitleInFirstRow(tableBody.transpose()),
+                        true)) {
+                        if (Direction.UNKNOWN.equals(direction)) {
+                            direction = Direction.TRANSPOSED;
+                        } else {
+                            direction = Direction.UNKNOWN;
+                        }
+                    }
+                } else {
+                    if (isLookupByHConditions(tableBody.transpose(), isSmart)) {
+                        if (Direction.UNKNOWN.equals(direction)) {
+                            direction = Direction.TRANSPOSED;
+                        } else {
+                            direction = Direction.UNKNOWN;
+                        }
                     }
                 }
             }
@@ -193,7 +213,8 @@ public class DecisionTableLoader {
                         // Select compilation with less errors count for smart tables
                         if (isNotUnmatchedTableError(
                             altLoadAndBindErrors) && loadAndBindErrors.getBindingSyntaxNodeException()
-                                .size() > altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
+                                .size() > altLoadAndBindErrors.getBindingSyntaxNodeException()
+                                    .size() && isExceptionIsNotWorse(loadAndBindErrors, altLoadAndBindErrors)) {
                             putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
                             altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
                             if (altLoadAndBindErrors.getEx() != null) {
@@ -222,6 +243,14 @@ public class DecisionTableLoader {
                 throw loadAndBindErrors.getEx();
             }
         }
+    }
+
+    private boolean isExceptionIsNotWorse(CompilationErrors loadAndBindErrors, CompilationErrors altLoadAndBindErrors) {
+        boolean alt = altLoadAndBindErrors
+            .getEx() != null && !(altLoadAndBindErrors.getEx() instanceof OpenLCompilationException);
+        boolean orig = loadAndBindErrors
+            .getEx() != null && !(loadAndBindErrors.getEx() instanceof OpenLCompilationException);
+        return orig || !alt;
     }
 
     private boolean isNotUnmatchedTableError(CompilationErrors altLoadAndBindErrors) {
