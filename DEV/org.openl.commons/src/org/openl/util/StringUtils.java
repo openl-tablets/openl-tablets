@@ -17,6 +17,7 @@ public class StringUtils {
 
     public static final String[] EMPTY_STRING_ARRAY = new String[0];
     public static final String EMPTY = "";
+    public static final String SPACE = " ";
 
     /**
      * <p>

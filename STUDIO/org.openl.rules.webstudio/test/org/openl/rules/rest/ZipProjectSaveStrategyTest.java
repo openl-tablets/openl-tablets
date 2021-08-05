@@ -2,6 +2,7 @@ package org.openl.rules.rest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -32,6 +33,8 @@ import java.util.zip.ZipInputStream;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -54,9 +57,11 @@ public class ZipProjectSaveStrategyTest {
     private ZipProjectSaveStrategy saveStrategy;
     private DesignTimeRepository designTimeRepositoryMock;
     private ArgumentCaptor<FileData> fileDataCaptor;
+    private XmlProjectDescriptorSerializer projectDescriptorSerializer;
 
     @Before
     public void setUp() {
+        this.projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
         this.fileDataCaptor = ArgumentCaptor.forClass(FileData.class);
 
         this.designTimeRepositoryMock = mock(DesignTimeRepository.class);
@@ -77,7 +82,7 @@ public class ZipProjectSaveStrategyTest {
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
             "John Smith",
             "Project 1",
-            "foo",
+            "foo/Project 1",
             "Bar",
             false);
         FolderRepository repo = (FolderRepository) designTimeRepositoryMock.getRepository(model.getRepoName());
@@ -147,6 +152,76 @@ public class ZipProjectSaveStrategyTest {
         assertEquals("", actualData.getComment());
         assertEquals("John Smith", actualData.getAuthor());
         assertEquals(0, actualData.getAdditionalData().size());
+    }
+
+    @Test
+    public void testSaveMappedRepoCustomPath() throws IOException {
+        mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
+        CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
+                "John Smith",
+                "Project 1",
+                "custom-name",
+                "Bar",
+                false);
+        FolderRepository repo = (FolderRepository) designTimeRepositoryMock.getRepository(model.getRepoName());
+        Map<String, FileItem> actualFileItems = captureFileItems(repo);
+
+        Path expected = Paths.get("test-resources/upload/zip/project.zip");
+        saveStrategy.save(model, expected);
+        verify(repo, times(1)).save(fileDataCaptor.capture(), any(), eq(ChangesetType.FULL));
+        final String expectedRootFolder = BASE_RULES_LOCATION + "Project 1/";
+        assertSame(expected, expectedRootFolder, actualFileItems);
+
+        FileData actualData = fileDataCaptor.getValue();
+        assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
+        assertEquals("Bar", actualData.getComment());
+        assertEquals("John Smith", actualData.getAuthor());
+        assertEquals(1, actualData.getAdditionalData().size());
+        FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
+        assertEquals(BASE_RULES_LOCATION + "Project 1", actualAddData.getExternalPath());
+        assertEquals("custom-name", actualAddData.getInternalPath());
+
+        FileItem descriptor = actualFileItems.get(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        ((ByteArrayInputStream) descriptor.getStream()).reset();
+        assertProjectDescriptor(expectedRootFolder, "Project 1", descriptor);
+    }
+
+    @Test
+    public void testSaveMappedRepoCustomPathExtraProjectDescriptor() throws IOException {
+        mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
+        CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
+                "John Smith",
+                "Project 2",
+                "custom-name",
+                "Bar",
+                false);
+        FolderRepository repo = (FolderRepository) designTimeRepositoryMock.getRepository(model.getRepoName());
+        Map<String, FileItem> actualFileItems = captureFileItems(repo);
+
+        Path expected = Paths.get("test-resources/upload/zip/excel-only-project.zip");
+        saveStrategy.save(model, expected);
+        verify(repo, times(1)).save(fileDataCaptor.capture(), any(), eq(ChangesetType.FULL));
+
+        final String expectedRootFolder = BASE_RULES_LOCATION + "Project 2/";
+        FileItem descriptor = actualFileItems.remove(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        assertProjectDescriptor(expectedRootFolder, "Project 2", descriptor);
+
+        assertSame(expected, expectedRootFolder, actualFileItems);
+
+        FileData actualData = fileDataCaptor.getValue();
+        assertEquals(BASE_RULES_LOCATION + "Project 2", actualData.getName());
+        assertEquals("Bar", actualData.getComment());
+        assertEquals("John Smith", actualData.getAuthor());
+        assertEquals(1, actualData.getAdditionalData().size());
+        FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
+        assertEquals(BASE_RULES_LOCATION + "Project 2", actualAddData.getExternalPath());
+        assertEquals("custom-name", actualAddData.getInternalPath());
+    }
+
+    private void assertProjectDescriptor(String expectedRootFolder, String expectedName, FileItem descriptor) {
+        assertNotNull(descriptor);
+        assertEquals(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, descriptor.getData().getName());
+        assertEquals(expectedName, projectDescriptorSerializer.deserialize(descriptor.getStream()).getName());
     }
 
     private static void assertSame(Path expectedArchive, InputStream actualStream) throws IOException {

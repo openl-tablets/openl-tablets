@@ -1,0 +1,2 @@
+GET /admin/deploy/yaml_project.zip HTTP/1.1
+

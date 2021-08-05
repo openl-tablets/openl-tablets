@@ -2,6 +2,7 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
@@ -14,7 +15,7 @@ import org.openl.util.ClassUtils;
  * @author Yury Molchan
  */
 public class IfNodeBinder extends ANodeBinder {
-    
+
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         IBoundNode conditionNode = bindChildNode(node.getChild(0), bindingContext);
@@ -59,11 +60,11 @@ public class IfNodeBinder extends ANodeBinder {
 
         type = castToWiderType.getWiderType();
         IOpenCast cast1 = castToWiderType.getCast1();
-        if (cast1 != null) {
+        if (cast1 != null && cast1.getDistance() != CastFactory.NO_CAST_DISTANCE) {
             thenNode = new CastNode(null, thenNode, cast1, type);
         }
         IOpenCast cast2 = castToWiderType.getCast2();
-        if (cast2 != null) {
+        if (cast2 != null && cast2.getDistance() != CastFactory.NO_CAST_DISTANCE) {
             elseNode = new CastNode(null, elseNode, cast2, type);
         }
         return new IfNode(node, conditionNode, thenNode, elseNode, type);

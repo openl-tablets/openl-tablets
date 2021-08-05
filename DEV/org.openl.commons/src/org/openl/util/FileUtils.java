@@ -307,6 +307,9 @@ public class FileUtils {
      * @param file file or directory to delete, can be {@code null}
      */
     public static void deleteQuietly(File file) {
+        if (file == null) {
+            return;
+        }
         try {
             delete(file);
         } catch (Exception ignored) {
@@ -315,6 +318,9 @@ public class FileUtils {
     }
 
     public static void deleteQuietly(Path path) {
+        if (path == null) {
+            return;
+        }
         try {
             delete(path);
         } catch (Exception ignored) {

@@ -1,0 +1,4 @@
+POST /admin/deploy/deployment2 HTTP/1.1
+Content-Type: application/zip
+
+&deployment2.zip

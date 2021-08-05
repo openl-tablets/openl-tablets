@@ -52,6 +52,7 @@ public class RulesDeployerRestController {
      */
     @POST
     @Consumes("application/zip")
+    @Produces("text/plain")
     public Response deploy(@Context HttpServletRequest request) throws Exception {
         try {
             rulesDeployerService.deploy(request.getInputStream(), true);
@@ -67,6 +68,7 @@ public class RulesDeployerRestController {
     @POST
     @Path("/{deployPath:.+}")
     @Consumes("application/zip")
+    @Produces("text/plain")
     public Response deploy(@PathParam("deployPath") final String deployPath,
             @Context HttpServletRequest request) throws Exception {
         try {
@@ -91,7 +93,8 @@ public class RulesDeployerRestController {
         if (services.isEmpty()) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        final String encodedFileName = URLEncoder.encode(deploymentName + ".zip", StandardCharsets.UTF_8.name());
+        final String encodedFileName = URLEncoder.encode(deploymentName + ".zip", StandardCharsets.UTF_8.name())
+            .replace("+", "%20");
         return Response
             .ok((StreamingOutput) outputStream -> rulesDeployerService.read(deploymentName,
                 services.stream().map(OpenLService::getDeployPath).collect(Collectors.toSet()),

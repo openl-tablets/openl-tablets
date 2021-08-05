@@ -1,0 +1,4 @@
+POST /admin/deploy/EPBDS-10157_2 HTTP/1.1
+Content-Type: application/zip
+
+&EPBDS-10157_2.zip

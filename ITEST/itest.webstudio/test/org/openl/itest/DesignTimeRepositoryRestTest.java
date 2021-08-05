@@ -54,10 +54,14 @@ public class DesignTimeRepositoryRestTest {
         client.send("desing-time-repo/git-non-flat/create-proj-4.put");
         client.send("desing-time-repo/git-non-flat/create-proj-5.put");
         client.send("desing-time-repo/git-non-flat/create-proj-6.put");
+        client.send("desing-time-repo/git-non-flat/create-proj-7.put");
         client.send("desing-time-repo/git-non-flat/update-proj-1.put");
         client.send("desing-time-repo/git-non-flat/update-proj-2.put");
         client.send("desing-time-repo/git-non-flat/update-proj-4.put");
         client.send("desing-time-repo/git-non-flat/update-proj-5.put");
+        client.send("desing-time-repo/git-non-flat/update-proj-7.put");
+        client.send("desing-time-repo/git-non-flat/update-proj-7-neg-1.put");
+        client.send("desing-time-repo/git-non-flat/update-proj-7-neg-2.put");
         client.send("desing-time-repo/git-non-flat/repos-projects-2.get");
     }
 
