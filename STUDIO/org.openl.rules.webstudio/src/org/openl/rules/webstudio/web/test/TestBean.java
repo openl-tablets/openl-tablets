@@ -145,7 +145,7 @@ public class TestBean {
         currentOpenedModule = Boolean
             .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
 
-        waitForProjectCompilation = !currentOpenedModule && !studio.getModel().isProjectCompilationCompleted();
+        waitForProjectCompilation = !currentOpenedModule && !studio.getModel().isCompilationCompleted();
     }
 
     public int getPage() {

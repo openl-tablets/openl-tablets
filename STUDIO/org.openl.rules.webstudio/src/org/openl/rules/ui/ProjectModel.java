@@ -113,7 +113,8 @@ public class ProjectModel {
      */
     private volatile CompiledOpenClass compiledOpenClass;
     private volatile CompiledOpenClass openedModuleCompiledOpenClass;
-    private volatile boolean projectCompilationCompleted;
+    private volatile boolean compilationCompleted;
+    private volatile String projectCompilationCompleted;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
@@ -547,7 +548,7 @@ public class ProjectModel {
                     .map(Collection::size)
                     .forEach(compilationStatus::addModulesCount);
 
-                if (projectCompilationCompleted) {
+                if (compilationCompleted) {
                     compilationStatus.clearMessages()
                         .addMessages(compiledOpenClass.getMessages())
                         .setModulesCompiled(compilationStatus.build().getModulesCount());
@@ -928,7 +929,7 @@ public class ProjectModel {
     }
 
     private synchronized List<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {
-        if (isProjectCompilationCompleted() && isCompiledSuccessfully()) {
+        if (isCompilationCompleted() && isCompiledSuccessfully()) {
             return currentProjectXlsModuleSyntaxNodes.stream()
                 .filter(Objects::nonNull)
                 .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
@@ -1188,30 +1189,31 @@ public class ProjectModel {
             }
 
             if (!moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {
-                if (!ReloadType.NO.equals(reloadType)) {
-                    this.projectCompilationCompleted = false;
+                String projectDependencyName = SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(),
+                    null);
+                if (!ReloadType.NO.equals(reloadType) || !Objects.equals(projectDependencyName,
+                    projectCompilationCompleted)) {
+                    this.compilationCompleted = false;
                 }
-                webStudioWorkspaceDependencyManager
-                    .loadDependencyAsync(
-                        new Dependency(DependencyType.MODULE,
-                            new IdentifierNode(DependencyType.MODULE.name(),
-                                null,
-                                SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(), null),
-                                null)),
-                        (compiledDependency) -> {
-                            try {
-                                this.compiledOpenClass = this.validate();
-                                XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                                    .getMetaInfo();
-                                allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
-                                redraw();
-                            } catch (Exception | LinkageError e) {
-                                onCompilationFailed(e);
-                            }
-                            this.projectCompilationCompleted = true;
-                        });
+                projectCompilationCompleted = null;
+                webStudioWorkspaceDependencyManager.loadDependencyAsync(
+                    new Dependency(DependencyType.MODULE,
+                        new IdentifierNode(DependencyType.MODULE.name(), null, projectDependencyName, null)),
+                    (compiledDependency) -> {
+                        try {
+                            this.compiledOpenClass = this.validate();
+                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                                .getMetaInfo();
+                            allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
+                            redraw();
+                        } catch (Exception | LinkageError e) {
+                            onCompilationFailed(e);
+                        }
+                        this.projectCompilationCompleted = compiledDependency.getDependencyName();
+                        this.compilationCompleted = true;
+                    });
             } else {
-                projectCompilationCompleted = true;
+                compilationCompleted = true;
             }
         } catch (Exception | LinkageError e) {
             onCompilationFailed(e);
@@ -1219,7 +1221,7 @@ public class ProjectModel {
     }
 
     private void onCompilationFailed(Throwable t) {
-        projectCompilationCompleted = true;
+        compilationCompleted = true;
         log.error("Failed to load.", t);
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
@@ -1257,6 +1259,7 @@ public class ProjectModel {
                 .buildDependencyManager(this.moduleInfo.getProject());
             webStudioWorkspaceDependencyManager.registerOnCompilationCompleteListener(this::addCompiledDependency);
             webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
+            projectCompilationCompleted = null;
         } else {
             Set<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
                 .resolveWorkspace(this.moduleInfo.getProject());
@@ -1284,6 +1287,7 @@ public class ProjectModel {
                     webStudioWorkspaceDependencyManager
                         .registerOnCompilationCompleteListener(this::addCompiledDependency);
                     webStudioWorkspaceDependencyManager.registerOnResetCompleteListener(this::removeCompiledDependency);
+                    projectCompilationCompleted = null;
                 } else {
                     // If loaded projects are a part of the new opened project, then we can reuse dependency manager
                     webStudioWorkspaceDependencyManager.expand(
@@ -1468,8 +1472,8 @@ public class ProjectModel {
         }
     }
 
-    public boolean isProjectCompilationCompleted() {
-        return projectCompilationCompleted;
+    public boolean isCompilationCompleted() {
+        return compilationCompleted;
     }
 
     public synchronized IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
