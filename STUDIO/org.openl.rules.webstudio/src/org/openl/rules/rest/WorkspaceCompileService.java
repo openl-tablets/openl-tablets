@@ -67,7 +67,7 @@ public class WorkspaceCompileService {
             compileModuleInfo.put("messageIndex", messages.size() - 1);
             compileModuleInfo.put("errorsCount", status.getErrorsCount());
             compileModuleInfo.put("warningsCount", status.getWarningsCount());
-            compileModuleInfo.put("compilationCompleted", model.isProjectCompilationCompleted());
+            compileModuleInfo.put("compilationCompleted", model.isCompilationCompleted());
         }
         return compileModuleInfo;
     }
@@ -94,7 +94,7 @@ public class WorkspaceCompileService {
                     tableDescriptions.sort(Comparator.comparing(TableBean.TableDescription::getName));
                 }
                 tableTestsInfo.put("allTests", tableDescriptions);
-                tableTestsInfo.put("compiled", model.isProjectCompilationCompleted());
+                tableTestsInfo.put("compiled", model.isCompilationCompleted());
             }
         }
         return tableTestsInfo;
@@ -109,7 +109,7 @@ public class WorkspaceCompileService {
         Module moduleInfo = model.getModuleInfo();
         TestSuiteMethod[] allTestMethods = model.getAllTestMethods();
         moduleTestsInfo.put("count", CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0);
-        moduleTestsInfo.put("compiled", model.isProjectCompilationCompleted());
+        moduleTestsInfo.put("compiled", model.isCompilationCompleted());
         moduleTestsInfo.put("tableRunState",
             (moduleInfo != null && moduleInfo.getOpenCurrentModuleOnly()) ? TableRunState.CAN_RUN_MODULE
                                                                           : TableRunState.CAN_RUN);
@@ -120,7 +120,7 @@ public class WorkspaceCompileService {
     @Path("project")
     public boolean project() {
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
-        return webStudio.getModel().isProjectCompilationCompleted();
+        return webStudio.getModel().isCompilationCompleted();
     }
 
     @GET
@@ -131,7 +131,7 @@ public class WorkspaceCompileService {
         ProjectModel model = webStudio.getModel();
         IOpenLTable table = model.getTableById(tableId);
         Module moduleInfo = model.getModuleInfo();
-        boolean projectCompiled = model.isProjectCompilationCompleted();
+        boolean projectCompiled = model.isCompilationCompleted();
         TableRunState state = (model.getModuleInfo() != null && moduleInfo
             .getOpenCurrentModuleOnly()) || !projectCompiled ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN;
         if (table != null) {
