@@ -140,7 +140,7 @@ public class TestBean {
             showComplexResult = Boolean.parseBoolean(isShowComplexResultParameter);
         }
     }
-    
+
     private void initOnlyCurrentModule() {
         currentOpenedModule = Boolean
             .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
@@ -321,8 +321,8 @@ public class TestBean {
         return column;
     }
 
-    public boolean getOpenCurrentModuleOnly() {
-        return studio.getModel().getModuleInfo().getOpenCurrentModuleOnly();
+    public boolean getCompileThisModuleOnly() {
+        return studio.getModel().getModuleInfo().getWebstudioConfiguration().isCompileThisModuleOnly();
     }
 
     /**

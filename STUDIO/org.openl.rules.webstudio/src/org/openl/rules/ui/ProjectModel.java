@@ -1187,7 +1187,7 @@ public class ProjectModel {
                 compiledOpenClass = thisModuleCompiledOpenClass;
             }
 
-            if (!moduleInfo.getOpenCurrentModuleOnly()) {
+            if (!moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {
                 if (!ReloadType.NO.equals(reloadType)) {
                     this.projectCompilationCompleted = false;
                 }
@@ -1393,12 +1393,11 @@ public class ProjectModel {
     private void initHistoryStoragePath() {
         if (WebStudioUtils.getSession() != null) {
             File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
-                    .getLocalWorkspace()
-                    .getLocation();
+                .getLocalWorkspace()
+                .getLocation();
             String historyFileName = moduleInfo.getRulesRootPath().getPath();
-            this.historyStoragePath = Paths
-                    .get(location.getPath(), getProject().getName(), ".history", historyFileName)
-                    .toString();
+            this.historyStoragePath = Paths.get(location.getPath(), getProject().getName(), ".history", historyFileName)
+                .toString();
         }
     }
 

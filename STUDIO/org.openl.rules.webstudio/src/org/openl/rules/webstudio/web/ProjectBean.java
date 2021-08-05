@@ -47,6 +47,7 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
@@ -518,7 +519,7 @@ public class ProjectBean {
         String path = WebStudioUtils.getRequestParameter("modulePath");
         String includes = WebStudioUtils.getRequestParameter("moduleIncludes");
         String excludes = WebStudioUtils.getRequestParameter("moduleExcludes");
-        String openCurrentModuleOnly = WebStudioUtils.getRequestParameter("moduleOpenCurrentModuleOnly");
+        String compileThisModuleOnly = WebStudioUtils.getRequestParameter("compileThisModuleOnly");
 
         Module module;
 
@@ -582,8 +583,11 @@ public class ProjectBean {
                     }
                 }
             }
-
-            module.setOpenCurrentModuleOnly("on".equals(openCurrentModuleOnly));
+            WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
+            if ("on".equals(compileThisModuleOnly)) {
+                webstudioConfiguration.setCompileThisModuleOnly(true);
+            }
+            module.setWebstudioConfiguration(webstudioConfiguration);
 
             clean(newProjectDescriptor);
             save(newProjectDescriptor);

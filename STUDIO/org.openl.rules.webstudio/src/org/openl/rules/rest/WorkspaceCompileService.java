@@ -49,9 +49,9 @@ public class WorkspaceCompileService {
             ProjectModel model = webStudio.getModel();
             ProjectCompilationStatus status = model.getCompilationStatus();
             List<MessageDescription> messages = status.getAllMessage()
-                    .stream()
-                    .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
-                    .collect(Collectors.toList());
+                .stream()
+                .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
+                .collect(Collectors.toList());
             compileModuleInfo.put("dataType", "new");
             if (messageIndex != -1 && messageId != -1 && messageIndex < messages.size()) {
                 MessageDescription messageDescription = messages.get(messageIndex);
@@ -111,8 +111,8 @@ public class WorkspaceCompileService {
         moduleTestsInfo.put("count", CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0);
         moduleTestsInfo.put("compiled", model.isProjectCompilationCompleted());
         moduleTestsInfo.put("tableRunState",
-            (moduleInfo != null && moduleInfo.getOpenCurrentModuleOnly()) ? TableRunState.CAN_RUN_MODULE
-                                                                          : TableRunState.CAN_RUN);
+            (moduleInfo != null && moduleInfo.getWebstudioConfiguration()
+                .isCompileThisModuleOnly()) ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN);
         return moduleTestsInfo;
     }
 
@@ -132,8 +132,8 @@ public class WorkspaceCompileService {
         IOpenLTable table = model.getTableById(tableId);
         Module moduleInfo = model.getModuleInfo();
         boolean projectCompiled = model.isProjectCompilationCompleted();
-        TableRunState state = (model.getModuleInfo() != null && moduleInfo
-            .getOpenCurrentModuleOnly()) || !projectCompiled ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN;
+        TableRunState state = (model.getModuleInfo() != null && moduleInfo.getWebstudioConfiguration()
+            .isCompileThisModuleOnly()) || !projectCompiled ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN;
         if (table != null) {
             String tableUri = table.getUri();
             List<OpenLMessage> errors = model.getOpenedModuleMessagesByTsn(tableUri, Severity.ERROR);

@@ -71,8 +71,8 @@
                     <td class="delimeter"></td>
                 </tr>
                 <tr>
-                    <td>Open Current Module Only:</td>
-                    <td><h:selectBooleanCheckbox id="moduleOpenCurrentModuleOnly" styleClass="editable-item"/></td>
+                    <td>Compile This Module Only on Open:</td>
+                    <td><h:selectBooleanCheckbox id="compileThisModuleOnly" styleClass="editable-item"/></td>
                 </tr>
             </table>
 
@@ -127,7 +127,7 @@
             $j("#modulePath").val(module.path);
             $j("#moduleIncludes").val(module.includes);
             $j("#moduleExcludes").val(module.excludes);
-            $j("#moduleOpenCurrentModuleOnly").prop('checked', module.openCurrentModuleOnly);
+            $j("#compileThisModuleOnly").prop('checked', module.compileThisModuleOnly);
 
             $j("#editModuleForm span.error").remove();
 
@@ -137,7 +137,7 @@
                     || module.path != $j("#modulePath").val()
                     || module.includes != $j("#moduleIncludes").val()
                     || module.excludes != $j("#moduleExcludes").val()
-                    || module.openCurrentModuleOnly != $j("#moduleOpenCurrentModuleOnly").prop('checked');
+                    || module.compileThisModuleOnly != $j("#compileThisModuleOnly").prop('checked');
                 btn.prop("disabled", !changed);
             });
 

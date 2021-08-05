@@ -15,7 +15,7 @@
 
     <script src="#{contextPath}/webresource/js/tooltip.js"></script>
     <script>
-        if (#{testBean.openCurrentModuleOnly}) {
+        if (#{testBean.compileThisModuleOnly}) {
             let currentModuleOnlyCheckbox = $j("#currentModuleOnly");
             currentModuleOnlyCheckbox.prop('checked', true);
             currentModuleOnlyCheckbox.prop('disabled', true);

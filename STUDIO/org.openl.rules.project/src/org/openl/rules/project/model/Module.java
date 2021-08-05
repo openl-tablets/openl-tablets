@@ -8,7 +8,7 @@ public class Module {
     private PathEntry rulesRootPath;
     private ProjectDescriptor project;
     private Map<String, Object> properties;
-    private Boolean openCurrentModuleOnly = Boolean.FALSE;
+    private WebstudioConfiguration webstudioConfiguration;
     private String wildcardName;
     private String wildcardRulesRootPath;
     private MethodFilter methodFilter;
@@ -29,12 +29,12 @@ public class Module {
         this.wildcardRulesRootPath = wildcardRulesRootPath;
     }
 
-    public Boolean getOpenCurrentModuleOnly() {
-        return openCurrentModuleOnly;
+    public WebstudioConfiguration getWebstudioConfiguration() {
+        return webstudioConfiguration;
     }
 
-    public void setOpenCurrentModuleOnly(Boolean openCurrentModuleOnly) {
-        this.openCurrentModuleOnly = openCurrentModuleOnly;
+    public void setWebstudioConfiguration(WebstudioConfiguration webstudioConfiguration) {
+        this.webstudioConfiguration = webstudioConfiguration;
     }
 
     public String getWildcardName() {

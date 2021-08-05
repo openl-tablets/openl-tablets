@@ -11,6 +11,7 @@ import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.util.CollectionUtils;
 
 import com.thoughtworks.xstream.XStream;
@@ -29,6 +30,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     private static final String PROJECT_DESCRIPTOR_TAG = "project";
     private static final String MODULE_TAG = "module";
     private static final String PATH_TAG = "entry";
+    private static final String WEBSTUDIO_CONFIGURATION = "webstudio-configuration";
     private static final String METHOD_FILTER_TAG = "method-filter";
     private static final String DEPENDENCY_TAG = "dependency";
     private static final String PROPERTIES_FILE_NAME_PATTERN = "properties-file-name-pattern";
@@ -65,6 +67,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.aliasType(PROJECT_DESCRIPTOR_TAG, ProjectDescriptor.class);
         xstream.aliasType(MODULE_TAG, Module.class);
         xstream.aliasType(DEPENDENCY_TAG, ProjectDependencyDescriptor.class);
+        xstream.aliasType(WEBSTUDIO_CONFIGURATION, WebstudioConfiguration.class);
         xstream.aliasType(PATH_TAG, PathEntry.class);
         xstream.addImplicitArray(ProjectDescriptor.class, "propertiesFileNamePatterns", PROPERTIES_FILE_NAME_PATTERN);
         xstream.aliasField(PROPERTIES_FILE_NAME_PROCESSOR, ProjectDescriptor.class, "propertiesFileNameProcessor");
@@ -111,8 +114,8 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         }
 
         for (Module module : descriptor.getModules()) {
-            if (module.getOpenCurrentModuleOnly() == null) {
-                module.setOpenCurrentModuleOnly(Boolean.FALSE);
+            if (module.getWebstudioConfiguration() == null) {
+                module.setWebstudioConfiguration(new WebstudioConfiguration());
             }
         }
     }
@@ -127,8 +130,9 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         }
 
         for (Module module : descriptor.getModules()) {
-            if (Boolean.FALSE.equals(module.getOpenCurrentModuleOnly())) {
-                module.setOpenCurrentModuleOnly(null);
+            if (module.getWebstudioConfiguration() != null && Boolean.FALSE
+                .equals(module.getWebstudioConfiguration().isCompileThisModuleOnly())) {
+                module.setWebstudioConfiguration(null);
             }
         }
     }
