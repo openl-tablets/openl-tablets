@@ -69,16 +69,14 @@ public class CreateUpdateProjectModelValidator implements Validator {
         if (repository.supports().mappedFolders()) {
             try {
                 AProject project = designTimeRepository.getProject(model.getRepoName(), model.getProjectName());
-                if (!Objects.equals(project.getRealPath(),
-                    StringUtils.isEmpty(model.getPath()) ? model.getProjectName()
-                                                         : model.getPath() + model.getProjectName())) {
-                    throw new NotFoundException("project.message", new String[] { model.getProjectName() });
+                if (!Objects.equals(project.getRealPath(), model.getFullPath())) {
+                    throw new NotFoundException("project.message", model.getProjectName());
                 }
                 if (project.isDeleted()) {
-                    throw new ConflictException("project.archived.message", new String[] { model.getProjectName() });
+                    throw new ConflictException("project.archived.message", model.getProjectName());
                 }
             } catch (ProjectException e) {
-                throw new NotFoundException("project.message", new String[] { model.getProjectName() });
+                throw new NotFoundException("project.message", model.getProjectName());
             }
         }
     }
@@ -89,13 +87,11 @@ public class CreateUpdateProjectModelValidator implements Validator {
         } else {
             Repository repository = designTimeRepository.getRepository(model.getRepoName());
             if (repository.supports().mappedFolders()) {
-                String projectPath = StringUtils.isEmpty(model.getPath()) ? model.getProjectName()
-                                                                          : model.getPath() + model.getProjectName();
                 try {
-                    if (((FolderMapper) repository).getDelegate().check(projectPath) != null) {
+                    if (((FolderMapper) repository).getDelegate().check(model.getFullPath()) != null) {
                         throw new ConflictException("duplicated.project.1.message");
                     } else {
-                        final Path currentPath = Paths.get(projectPath);
+                        final Path currentPath = Paths.get(model.getFullPath());
                         if (designTimeRepository.getProjects(model.getRepoName())
                             .stream()
                             .map(AProjectFolder::getRealPath)

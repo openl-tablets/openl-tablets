@@ -18,27 +18,27 @@
 
             <f:facet name="header">
                 <rich:columnGroup>
-                    <rich:column>
+                    <rich:column styleClass="modified-by-col">
                         <h:outputText value="Modified By"/>
                     </rich:column>
-                    <rich:column>
+                    <rich:column styleClass="modified-at-col">
                         <h:outputText value="Modified At"/>
                     </rich:column>
                     <rich:column>
                         <h:outputText value="Comment"/>
                     </rich:column>
-                    <rich:column>
+                    <rich:column styleClass="revision-col">
                         <h:outputText value="Revision ID"/>
                     </rich:column>
-                    <rich:column rendered="#{renderAction}">
+                    <rich:column rendered="#{renderAction}" styleClass="action-col">
                         <h:outputText value="Action"/>
                     </rich:column>
                 </rich:columnGroup>
             </f:facet>
-            <rich:column>
+            <rich:column styleClass="modified-by-col">
                 <h:outputText value="#{version.versionInfo.createdBy}"/>
             </rich:column>
-            <rich:column>
+            <rich:column styleClass="modified-at-col">
                 <h:outputText value="#{version.versionInfo.createdAt}">
                     <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
                 </h:outputText>
@@ -46,7 +46,7 @@
             <rich:column>
                 <h:outputText value="#{version.versionComment}"/>
             </rich:column>
-            <rich:column style="text-align: center;">
+            <rich:column styleClass="revision-col center-align">
                 <ui:param name="revisionNo" value="#{version.versionName}"/>
                 <ui:param name="shortRevisionNo" value="#{version.shortVersion}"/>
 
@@ -58,7 +58,7 @@
                     <h:outputText value="#{revisionNo}" styleClass="hidden"/>
                 </h:panelGroup>
             </rich:column>
-            <rich:column rendered="#{renderAction}" style="text-align: center;">
+            <rich:column rendered="#{renderAction}" styleClass="action-col center-align">
                 <a href="javascript:void(0)"
                    title="Open Revision '#{utils.getDescriptiveVersion(version)}'"
                    onclick="if (confirmOpen()) openProjectVersion('#{version.versionName}')">

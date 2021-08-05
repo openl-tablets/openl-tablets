@@ -18,10 +18,13 @@ class FuzzyDTHeader extends DTHeader {
             IOpenField[] fieldsChain,
             int topColumn,
             int column,
+            int row,
             int width,
+            int widthForMerge,
             FuzzyResult fuzzyResult,
-            boolean returnDTHeader) {
-        super(new int[] { methodParameterIndex }, statement, column, width);
+            boolean returnDTHeader,
+            boolean horizontal) {
+        super(new int[] { methodParameterIndex }, statement, column, row, width, widthForMerge, horizontal);
         this.topColumn = topColumn;
         this.fieldsChain = fieldsChain;
         this.returnDTHeader = returnDTHeader;
@@ -34,10 +37,13 @@ class FuzzyDTHeader extends DTHeader {
             IOpenField[] fieldsChain,
             int topColumn,
             int column,
+            int row,
             int width,
+            int widthForMerge,
             FuzzyResult fuzzyResult,
-            boolean returnDTHeader) {
-        super(EMPTY_INDEXES, statement, column, width);
+            boolean returnDTHeader,
+            boolean horizontal) {
+        super(EMPTY_INDEXES, statement, column, row, width, widthForMerge, horizontal);
         this.topColumn = topColumn;
         this.fieldsChain = fieldsChain;
         this.returnDTHeader = returnDTHeader;
@@ -56,11 +62,6 @@ class FuzzyDTHeader extends DTHeader {
     @Override
     boolean isCondition() {
         return !returnDTHeader;
-    }
-
-    @Override
-    boolean isHCondition() {
-        return false;
     }
 
     @Override

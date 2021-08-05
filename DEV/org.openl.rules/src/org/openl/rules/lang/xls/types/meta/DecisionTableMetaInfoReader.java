@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
@@ -38,6 +37,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,61 +64,61 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         /**
          * Map for condition cells in header to parameter index
          */
-        private final Map<CellKey, HeaderMetaInfo> simpleRulesConditionMap = new HashMap<>();
+        private final Map<CellKey, List<HeaderMetaInfo>> conditions = new HashMap<>();
 
         /**
          * Map for action cells in header to parameter index
          */
-        private final Map<CellKey, HeaderMetaInfo> simpleRulesActionMap = new HashMap<>();
+        private final Map<CellKey, HeaderMetaInfo> actions = new HashMap<>();
 
         /**
          * Map for compound return column descriptions in SimpleRules header
          */
-        private final Map<CellKey, ReturnMetaInfo> simpleRulesReturnMap = new HashMap<>();
+        private final Map<CellKey, ReturnMetaInfo> returns = new HashMap<>();
 
         /**
          * List for inputParameter mapping details for smart dt
          */
-        private final List<Pair<String, String>> inputParametersToReturn = new ArrayList<>();
+        private final List<Pair<String, String>> parametersToReturn = new ArrayList<>();
 
-        private final List<CellKey> unmatchedColumns = new ArrayList<>();
+        private final List<CellKey> unmatched = new ArrayList<>();
 
-        private final List<CellKey> ruleColumns = new ArrayList<>();
+        private final List<CellKey> rules = new ArrayList<>();
 
-        public Map<CellKey, HeaderMetaInfo> getSimpleRulesConditionMap() {
-            return simpleRulesConditionMap;
+        public Map<CellKey, List<HeaderMetaInfo>> getConditions() {
+            return conditions;
         }
 
-        public Map<CellKey, HeaderMetaInfo> getSimpleRulesActionMap() {
-            return simpleRulesActionMap;
+        public Map<CellKey, HeaderMetaInfo> getActions() {
+            return actions;
         }
 
-        public Map<CellKey, ReturnMetaInfo> getSimpleRulesReturnMap() {
-            return simpleRulesReturnMap;
+        public Map<CellKey, ReturnMetaInfo> getReturns() {
+            return returns;
         }
 
-        public List<Pair<String, String>> getInputParametersToReturn() {
-            return inputParametersToReturn;
+        public List<Pair<String, String>> getParametersToReturn() {
+            return parametersToReturn;
         }
 
-        public List<CellKey> getUnmatchedColumns() {
-            return unmatchedColumns;
+        public List<CellKey> getUnmatched() {
+            return unmatched;
         }
 
-        public List<CellKey> getRuleColumns() {
-            return ruleColumns;
+        public List<CellKey> getRules() {
+            return rules;
         }
 
         public void merge(MetaInfoHolder metaInfoHolder) {
             if (metaInfoHolder == null) {
                 return;
             }
-            simpleRulesConditionMap.putAll(metaInfoHolder.simpleRulesConditionMap);
-            simpleRulesActionMap.putAll(metaInfoHolder.simpleRulesActionMap);
-            simpleRulesReturnMap.putAll(metaInfoHolder.simpleRulesReturnMap);
-            inputParametersToReturn.addAll(metaInfoHolder.inputParametersToReturn);
-            unmatchedColumns.addAll(metaInfoHolder.unmatchedColumns);
-            ruleColumns.addAll(metaInfoHolder.ruleColumns);
+            conditions.putAll(metaInfoHolder.conditions);
+            actions.putAll(metaInfoHolder.actions);
+            returns.putAll(metaInfoHolder.returns);
+            parametersToReturn.addAll(metaInfoHolder.parametersToReturn);
+            unmatched.addAll(metaInfoHolder.unmatched);
+            rules.addAll(metaInfoHolder.rules);
         }
     }
 
@@ -136,7 +136,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
     @Override
     protected String getAdditionalMetaInfoForTableReturnType() {
-        final List<Pair<String, String>> inputParametersToReturn = getMetaInfos().getInputParametersToReturn();
+        final List<Pair<String, String>> inputParametersToReturn = getMetaInfos().getParametersToReturn();
         if (inputParametersToReturn.isEmpty()) {
             return null;
         } else {
@@ -217,10 +217,12 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private void setMetaInfo(CellKey key,
-            HeaderMetaInfo headerMetaInfo,
+            List<HeaderMetaInfo> headerMetaInfos,
             IGridRegion region,
             Function<HeaderMetaInfo, String> headerToString) {
-
+        if (headerMetaInfos.size() > 2) {
+            return;
+        }
         int row = key.getRow();
         int col = key.getColumn();
         if (!IGridRegion.Tool.contains(region, col, row)) {
@@ -233,19 +235,27 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         if (StringUtils.isBlank(cellValue)) {
             return;
         }
-
-        String text = headerToString.apply(headerMetaInfo);
-        SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
-            cellValue.length() - 1,
-            text,
-            headerMetaInfo.getUrl(),
-            headerMetaInfo.getUrl() != null ? NodeType.OTHERUNDERLINED : NodeType.OTHER);
-        setPreparedMetaInfo(row,
-            col,
-            new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(simpleNodeUsage)));
+        int start = 0;
+        int end = headerMetaInfos.size() > 1
+                                             ? cellValue.indexOf(
+                                                 DecisionTableHelper.HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) - 1
+                                             : cellValue.length() - 1;
+        List<SimpleNodeUsage> simpleNodeUsages = new ArrayList<>();
+        for (HeaderMetaInfo headerMetaInfo : headerMetaInfos) {
+            String text = headerToString.apply(headerMetaInfo);
+            SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(start,
+                end,
+                text,
+                headerMetaInfo.getUrl(),
+                headerMetaInfo.getUrl() != null ? NodeType.OTHERUNDERLINED : NodeType.OTHER);
+            simpleNodeUsages.add(simpleNodeUsage);
+            start = end + 2;
+            end = cellValue.length() - 1;
+        }
+        setPreparedMetaInfo(row, col, new CellMetaInfo(JavaOpenClass.STRING, false, simpleNodeUsages));
     }
 
-    private String buildStringForCondition(HeaderMetaInfo headerMetaInfo) {
+    private String buildConditionHint(HeaderMetaInfo headerMetaInfo) {
         String[] parameterNames = headerMetaInfo.getParameterNames();
         String header = headerMetaInfo.getHeader();
         String statement = headerMetaInfo.getConditionStatement();
@@ -303,7 +313,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
     }
 
-    private String buildStringForAction(HeaderMetaInfo headerMetaInfo) {
+    private String buildActionHint(HeaderMetaInfo headerMetaInfo) {
         String[] parameterNames = headerMetaInfo.getParameterNames();
         String header = headerMetaInfo.getHeader();
         String statement = headerMetaInfo.getConditionStatement();
@@ -311,51 +321,51 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         StringBuilder sb = new StringBuilder();
         sb.append("Action: ").append(header);
         if (!StringUtils.isEmpty(statement)) {
-            if (sb.length() > 0) {
-                sb.append("\n");
-            }
-            sb.append("Expression: ").append(statement.replaceAll("\n", StringUtils.SPACE));
+            sb.append("\n").append("Expression: ").append(statement.replaceAll("\n", StringUtils.SPACE));
         }
         if (!StringUtils.isEmpty(headerMetaInfo.getAdditionalDetails())) {
-            if (sb.length() > 0) {
-                sb.append("\n");
-            }
-            sb.append(headerMetaInfo.getAdditionalDetails());
+            sb.append("\n").append(headerMetaInfo.getAdditionalDetails());
         }
         appendParameters(sb, parameterNames, columnTypes);
         return sb.toString();
     }
 
     private void saveSimpleRulesMetaInfo(IGridRegion region) {
-        final Map<CellKey, HeaderMetaInfo> simpleRulesConditionMap = getMetaInfos().getSimpleRulesConditionMap();
-        for (Map.Entry<CellKey, HeaderMetaInfo> entry : simpleRulesConditionMap.entrySet()) {
-            setMetaInfo(entry.getKey(), entry.getValue(), region, this::buildStringForCondition);
+        final Map<CellKey, List<HeaderMetaInfo>> simpleRulesConditionMap = getMetaInfos().getConditions();
+        for (Map.Entry<CellKey, List<HeaderMetaInfo>> entry : simpleRulesConditionMap.entrySet()) {
+            setMetaInfo(entry.getKey(), entry.getValue(), region, this::buildConditionHint);
         }
-        final Map<CellKey, HeaderMetaInfo> simpleRulesActionMap = getMetaInfos().getSimpleRulesActionMap();
+        final Map<CellKey, HeaderMetaInfo> simpleRulesActionMap = getMetaInfos().getActions();
         for (Map.Entry<CellKey, HeaderMetaInfo> entry : simpleRulesActionMap.entrySet()) {
-            setMetaInfo(entry.getKey(), entry.getValue(), region, this::buildStringForAction);
+            setMetaInfo(entry.getKey(), Collections.singletonList(entry.getValue()), region, this::buildActionHint);
         }
-        final List<CellKey> unmatchedColumns = getMetaInfos().getUnmatchedColumns();
-        for (CellKey cellKey : unmatchedColumns) {
-            setMetaInfoForColumn(cellKey, "Unmatched column");
+        final List<CellKey> unmatched = getMetaInfos().getUnmatched();
+        for (CellKey cellKey : unmatched) {
+            setMetaInfo(cellKey, "Unmatched column");
         }
-        final List<CellKey> ruleColumns = getMetaInfos().getRuleColumns();
-        for (CellKey cellKey : ruleColumns) {
-            setMetaInfoForColumn(cellKey, "Rule column");
+        final List<CellKey> rules = getMetaInfos().getRules();
+        for (CellKey cellKey : rules) {
+            setMetaInfo(cellKey, "Rule column");
         }
     }
 
-    private void setMetaInfoForColumn(CellKey cellKey, String description) {
+    private void setMetaInfo(CellKey cellKey, String description) {
         IGrid grid = getTableSyntaxNode().getGridTable().getGrid();
         String cellValue = grid.getCell(cellKey.getColumn(), cellKey.getRow()).getStringValue();
-        SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0, cellValue.length() - 1, description, null, NodeType.OTHER);
-        setPreparedMetaInfo(cellKey.getRow(),
-            cellKey.getColumn(),
-            new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage)));
+        if (StringUtils.isNotEmpty(cellValue)) {
+            SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0,
+                cellValue.length() - 1,
+                description,
+                null,
+                NodeType.OTHER);
+            setPreparedMetaInfo(cellKey.getRow(),
+                cellKey.getColumn(),
+                new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage)));
+        }
     }
 
     private void saveCompoundReturnColumn(IGridRegion region) {
-        final Map<CellKey, ReturnMetaInfo> simpleRulesReturnDescriptions = getMetaInfos().getSimpleRulesReturnMap();
+        final Map<CellKey, ReturnMetaInfo> simpleRulesReturnDescriptions = getMetaInfos().getReturns();
         for (Map.Entry<CellKey, ReturnMetaInfo> entry : simpleRulesReturnDescriptions.entrySet()) {
             CellKey key = entry.getKey();
             int row = key.getRow();
@@ -383,28 +393,30 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
     }
 
-    public void addSimpleRulesCondition(int row,
+    public void addCondition(int row,
             int col,
             String header,
             String[] parameterNames,
             String statement,
             IOpenClass[] columnTypes,
             String url,
-            String additionalDetails) {
-        getMetaInfos().getSimpleRulesConditionMap()
-            .put(CellKey.CellKeyFactory.getCellKey(col, row),
-                new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalDetails));
+            String additionalDetails,
+            boolean vertical) {
+        List<HeaderMetaInfo> headerMetaInfos = getMetaInfos().getConditions()
+            .computeIfAbsent(CellKey.CellKeyFactory.getCellKey(col, row), e -> new ArrayList<>());
+        headerMetaInfos
+            .add(new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalDetails, vertical));
     }
 
-    public void addUnmatchedDescription(int row, int col) {
-        getMetaInfos().getUnmatchedColumns().add(CellKey.CellKeyFactory.getCellKey(col, row));
+    public void addUnmatched(int row, int col) {
+        getMetaInfos().getUnmatched().add(CellKey.CellKeyFactory.getCellKey(col, row));
     }
 
-    public void addRuleDescription(int row, int col) {
-        getMetaInfos().getRuleColumns().add(CellKey.CellKeyFactory.getCellKey(col, row));
+    public void addRule(int row, int col) {
+        getMetaInfos().getRules().add(CellKey.CellKeyFactory.getCellKey(col, row));
     }
 
-    public void addSimpleRulesAction(int row,
+    public void addAction(int row,
             int col,
             String header,
             String[] parameterNames,
@@ -412,18 +424,17 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             IOpenClass[] columnTypes,
             String url,
             String additionalInfo) {
-        getMetaInfos().getSimpleRulesActionMap()
+        getMetaInfos().getActions()
             .put(CellKey.CellKeyFactory.getCellKey(col, row),
-                new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalInfo));
+                new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalInfo, false));
     }
 
-    public void addSimpleRulesReturn(int row, int col, String details, String uri) {
-        getMetaInfos().getSimpleRulesReturnMap()
-            .put(CellKey.CellKeyFactory.getCellKey(col, row), new ReturnMetaInfo(details, uri));
+    public void addReturn(int row, int col, String details, String uri) {
+        getMetaInfos().getReturns().put(CellKey.CellKeyFactory.getCellKey(col, row), new ReturnMetaInfo(details, uri));
     }
 
-    public void addInputParametersToReturn(String statementInInputParameters, String statementInReturn) {
-        getMetaInfos().getInputParametersToReturn().add(Pair.of(statementInInputParameters, statementInReturn));
+    public void addParameterToReturn(String parameterStatement, String returnStatement) {
+        getMetaInfos().getParametersToReturn().add(Pair.of(parameterStatement, returnStatement));
     }
 
     private void saveValueMetaInfo(FunctionalRow funcRow, IGridRegion region) {
@@ -590,13 +601,15 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         IOpenClass[] columnTypes;
         String additionalDetails;
         String url;
+        boolean vertical;
 
         public HeaderMetaInfo(String headerName,
                 String[] parameterNames,
                 String conditionStatement,
                 IOpenClass[] columnTypes,
                 String url,
-                String additionalDetails) {
+                String additionalDetails,
+                boolean vertical) {
             if (parameterNames != null && columnTypes != null && parameterNames.length != columnTypes.length) {
                 throw new IllegalArgumentException();
             }
@@ -606,6 +619,11 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             this.columnTypes = columnTypes;
             this.additionalDetails = additionalDetails;
             this.url = url;
+            this.vertical = vertical;
+        }
+
+        public boolean isVertical() {
+            return vertical;
         }
 
         public String getUrl() {
