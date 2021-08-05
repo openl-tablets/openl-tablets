@@ -8,7 +8,7 @@ public class Module {
     private PathEntry rulesRootPath;
     private ProjectDescriptor project;
     private Map<String, Object> properties;
-    private WebstudioConfiguration webstudioConfiguration;
+    private WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
     private String wildcardName;
     private String wildcardRulesRootPath;
     private MethodFilter methodFilter;
