@@ -1337,8 +1337,9 @@ public final class DecisionTableHelper {
                 // write vertical condition
                 //
                 numOfVCondition++;
-                if (numOfVCondition == 1 && numberOfHCondition == 0 && conditions
-                    .size() < 2 && !(isCollect && decisionTable.getType()
+                if (numOfVCondition == 1 && (conditions.stream()
+                    .filter(e -> !e.isHCondition())
+                    .count() < 2) && !(isCollect && decisionTable.getType()
                         .isArray() && !decisionTable.getType().getComponentClass().isArray())) {
                     header = (DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey() + numOfVCondition);
                 } else {
