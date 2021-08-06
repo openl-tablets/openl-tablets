@@ -1742,11 +1742,7 @@ public final class DecisionTableHelper {
             mayHaveCompilationErrors = true;
         }
 
-        final String code = definition.getCompositeMethod()
-            .getMethodBodyBoundNode()
-            .getSyntaxNode()
-            .getModule()
-            .getCode();
+        final String code = definition.getExpression();
 
         Set<Integer> usedParamIndexes = new HashSet<>(usedMethodParameterIndexes);
         usedParamIndexes.addAll(usedParamIndexesByField);
