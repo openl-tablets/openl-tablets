@@ -49,9 +49,9 @@ public class WorkspaceCompileService {
             ProjectModel model = webStudio.getModel();
             ProjectCompilationStatus status = model.getCompilationStatus();
             List<MessageDescription> messages = status.getAllMessage()
-                    .stream()
-                    .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
-                    .collect(Collectors.toList());
+                .stream()
+                .map(message -> new MessageDescription(message.getId(), message.getSummary(), message.getSeverity()))
+                .collect(Collectors.toList());
             compileModuleInfo.put("dataType", "new");
             if (messageIndex != -1 && messageId != -1 && messageIndex < messages.size()) {
                 MessageDescription messageDescription = messages.get(messageIndex);
@@ -130,10 +130,8 @@ public class WorkspaceCompileService {
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         ProjectModel model = webStudio.getModel();
         IOpenLTable table = model.getTableById(tableId);
-        Module moduleInfo = model.getModuleInfo();
-        boolean projectCompiled = model.isCompilationCompleted();
-        TableRunState state = (model.getModuleInfo() != null && moduleInfo.getWebstudioConfiguration()
-                .isCompileThisModuleOnly()) || !projectCompiled ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN;
+        final boolean projectCompilationCompleted = model.isProjectCompilationCompleted();
+        TableRunState state = !projectCompilationCompleted ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN;
         if (table != null) {
             String tableUri = table.getUri();
             List<OpenLMessage> errors = model.getOpenedModuleMessagesByTsn(tableUri, Severity.ERROR);
@@ -141,7 +139,7 @@ public class WorkspaceCompileService {
             if (!errors.isEmpty()) {
                 state = TableRunState.CANNOT_RUN;
             }
-            if (projectCompiled) {
+            if (projectCompilationCompleted) {
                 errors = model.getMessagesByTsn(tableUri, Severity.ERROR);
                 warnings = model.getMessagesByTsn(tableUri, Severity.WARN);
                 if (TableRunState.CAN_RUN.equals(state) && !errors.isEmpty()) {

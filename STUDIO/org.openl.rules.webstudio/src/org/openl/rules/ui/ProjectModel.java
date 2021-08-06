@@ -1476,6 +1476,14 @@ public class ProjectModel {
         return compilationCompleted;
     }
 
+    public boolean isProjectCompilationCompleted() {
+        if (moduleInfo != null) {
+            String projectDependencyName = SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(), null);
+            return Objects.equals(projectCompilationCompleted, projectDependencyName);
+        }
+        return false;
+    }
+
     public synchronized IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
         return getMethodFromDispatcher((OpenMethodDispatcher) method, uri);
     }
