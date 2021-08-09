@@ -1181,6 +1181,9 @@ public class ProjectModel {
                     (compiledDependency) -> {
                         try {
                             this.compiledOpenClass = this.validate();
+                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                                    .getMetaInfo();
+                            getModuleSyntaxNodesByProject(moduleInfo.getProject().getName()).add(metaInfo1.getXlsModuleNode());
                             redraw();
                         } catch (Exception | LinkageError e) {
                             onCompilationFailed(e);
