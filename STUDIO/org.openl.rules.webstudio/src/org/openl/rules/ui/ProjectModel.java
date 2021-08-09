@@ -21,9 +21,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -117,8 +116,7 @@ public class ProjectModel {
     private volatile String projectCompilationCompleted;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
-    private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
-    private final Collection<XlsModuleSyntaxNode> currentProjectXlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
+    private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
     private final Collection<WorkbookSyntaxNode> workbookSyntaxNodes = ConcurrentHashMap.newKeySet();
 
     private Module moduleInfo;
@@ -535,52 +533,62 @@ public class ProjectModel {
 
     public synchronized ProjectCompilationStatus getCompilationStatus() {
         ProjectCompilationStatus.Builder compilationStatus = ProjectCompilationStatus.newBuilder();
+        Consumer<ProjectDescriptor> projectDescriptorConsumer = (projectDescriptor) -> {
+            projectDescriptor.getModules()
+                .stream()
+                .map(Module::getName)
+                .map(webStudioWorkspaceDependencyManager::findDependencyLoadersByName)
+                .map(Collection::size)
+                .forEach(compilationStatus::addModulesCount);
+
+            if (compilationCompleted) {
+                compilationStatus.clearMessages()
+                    .addMessages(compiledOpenClass.getMessages())
+                    .setModulesCompiled(compilationStatus.build().getModulesCount());
+            } else {
+                if (!Objects.equals(projectDescriptor.getName(), moduleInfo.getProject().getName())) {
+                    String dependencyName = ProjectExternalDependenciesHelper
+                        .buildDependencyNameForProject(projectDescriptor.getName());
+                    webStudioWorkspaceDependencyManager.findDependencyLoadersByName(dependencyName)
+                        .stream()
+                        .map(IDependencyLoader::getRefToCompiledDependency)
+                        .filter(Objects::nonNull)
+                        .map(CompiledDependency::getCompiledOpenClass)
+                        .map(CompiledOpenClass::getCurrentMessages)
+                        .forEach(compilationStatus::addMessages);
+                }
+
+                projectDescriptor.getModules().forEach(module -> {
+                    if (Objects.equals(module.getName(), moduleInfo.getName()) && Objects
+                        .equals(module.getProject().getName(), moduleInfo.getProject().getName())) {
+                        compilationStatus.addMessages(openedModuleCompiledOpenClass.getMessages())
+                            .addModulesCompiled(1);
+                    } else {
+                        webStudioWorkspaceDependencyManager.findDependencyLoadersByName(module.getName())
+                            .stream()
+                            .map(IDependencyLoader::getRefToCompiledDependency)
+                            .filter(Objects::nonNull)
+                            .forEach(compiledDependency -> compilationStatus
+                                .addMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages())
+                                .addModulesCompiled(1));
+                    }
+                });
+            }
+        };
+
+        forEachProjectDependency(projectDescriptorConsumer);
+
+        return compilationStatus.build();
+    }
+
+    private void forEachProjectDependency(Consumer<ProjectDescriptor> projectDescriptorConsumer) {
         if (webStudioWorkspaceDependencyManager != null) {
             Deque<ProjectDescriptor> queue = new ArrayDeque<>();
             queue.add(moduleInfo.getProject());
             while (!queue.isEmpty()) {
                 ProjectDescriptor projectDescriptor = queue.poll();
 
-                projectDescriptor.getModules()
-                    .stream()
-                    .map(Module::getName)
-                    .map(webStudioWorkspaceDependencyManager::findDependencyLoadersByName)
-                    .map(Collection::size)
-                    .forEach(compilationStatus::addModulesCount);
-
-                if (compilationCompleted) {
-                    compilationStatus.clearMessages()
-                        .addMessages(compiledOpenClass.getMessages())
-                        .setModulesCompiled(compilationStatus.build().getModulesCount());
-                } else {
-                    if (!Objects.equals(projectDescriptor.getName(), moduleInfo.getProject().getName())) {
-                        String dependencyName = ProjectExternalDependenciesHelper
-                            .buildDependencyNameForProject(projectDescriptor.getName());
-                        webStudioWorkspaceDependencyManager.findDependencyLoadersByName(dependencyName)
-                            .stream()
-                            .map(IDependencyLoader::getRefToCompiledDependency)
-                            .filter(Objects::nonNull)
-                            .map(CompiledDependency::getCompiledOpenClass)
-                            .map(CompiledOpenClass::getCurrentMessages)
-                            .forEach(compilationStatus::addMessages);
-                    }
-
-                    projectDescriptor.getModules().forEach(module -> {
-                        if (Objects.equals(module.getName(), moduleInfo.getName()) && Objects
-                            .equals(module.getProject().getName(), moduleInfo.getProject().getName())) {
-                            compilationStatus.addMessages(openedModuleCompiledOpenClass.getMessages())
-                                .addModulesCompiled(1);
-                        } else {
-                            webStudioWorkspaceDependencyManager.findDependencyLoadersByName(module.getName())
-                                .stream()
-                                .map(IDependencyLoader::getRefToCompiledDependency)
-                                .filter(Objects::nonNull)
-                                .forEach(compiledDependency -> compilationStatus
-                                    .addMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages())
-                                    .addModulesCompiled(1));
-                        }
-                    });
-                }
+                projectDescriptorConsumer.accept(projectDescriptor);
 
                 if (projectDescriptor.getDependencies() != null) {
                     projectDescriptor.getDependencies()
@@ -598,7 +606,6 @@ public class ProjectModel {
                 }
             }
         }
-        return compilationStatus.build();
     }
 
     public Collection<OpenLMessage> getModuleMessages() {
@@ -916,28 +923,28 @@ public class ProjectModel {
         return TableSyntaxNode.EMPTY_ARRAY;
     }
 
-    public synchronized List<TableSyntaxNode> getAllTableSyntaxNodes() {
-        List<TableSyntaxNode> tableSyntaxNodes = new ArrayList<>();
-        if (isCompiledSuccessfully()) {
-            for (XlsModuleSyntaxNode node : allXlsModuleSyntaxNodes) {
-                if (node != null) {
-                    tableSyntaxNodes.addAll(Arrays.asList(node.getXlsTableSyntaxNodes()));
-                }
-            }
-        }
-        return tableSyntaxNodes;
+    public synchronized Set<TableSyntaxNode> getAllTableSyntaxNodes() {
+        Set<TableSyntaxNode> result = ConcurrentHashMap.newKeySet();
+        forEachProjectDependency(
+            (projectDescriptor) -> getModuleSyntaxNodesByProject(projectDescriptor.getName()).stream()
+                .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
+                .filter(Objects::nonNull)
+                .map(Arrays::asList)
+                .forEach(result::addAll));
+        return result;
     }
 
-    private synchronized List<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {
-        if (isCompilationCompleted() && isCompiledSuccessfully()) {
-            return currentProjectXlsModuleSyntaxNodes.stream()
+    private synchronized Set<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {
+        return Optional.ofNullable(studio.getCurrentProject())
+            .map(AProjectFolder::getName)
+            .map(this::getModuleSyntaxNodesByProject)
+            .map(nodes -> nodes.stream()
                 .filter(Objects::nonNull)
                 .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
                 .map(Arrays::asList)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-        }
-        return Collections.emptyList();
+                .collect(Collectors.toSet()))
+            .orElse(Collections.emptySet());
     }
 
     public synchronized int getNumberOfTables() {
@@ -997,8 +1004,7 @@ public class ProjectModel {
             case RELOAD:
                 if (webStudioWorkspaceDependencyManager != null) {
                     webStudioWorkspaceDependencyManager.shutdown();
-                    allXlsModuleSyntaxNodes.clear();
-                    currentProjectXlsModuleSyntaxNodes.clear();
+                    xlsModuleSyntaxNodesPerProject.clear();
                     workbookSyntaxNodes.clear();
                 }
                 webStudioWorkspaceDependencyManager = null;
@@ -1047,19 +1053,19 @@ public class ProjectModel {
 
     // Logic in this block of code implemented with a recursion to achieve sorting of each dataset by comparator
     // and place this sets in the proper order.
-    private SortedSet<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
+    private Set<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
         if (searchScope == SearchScope.ALL) {
-            SortedSet<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
+            Set<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
             getAllTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
         } else if (searchScope == SearchScope.CURRENT_PROJECT) {
-            SortedSet<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_MODULE);
+            Set<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_MODULE);
             getCurrentProjectTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
             return nodes;
         } else if (searchScope == SearchScope.CURRENT_MODULE) {
-            SortedSet<TableSyntaxNode> nodes = new TreeSet<>(DEFAULT_NODE_CMP);
-            nodes.addAll(Arrays.asList(getXlsModuleNode().getXlsTableSyntaxNodes()));
-            return nodes;
+            return Arrays.stream(getXlsModuleNode().getXlsTableSyntaxNodes())
+                .sorted(DEFAULT_NODE_CMP)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
         } else {
             throw new IllegalStateException();
         }
@@ -1076,8 +1082,7 @@ public class ProjectModel {
 
         if (webStudioWorkspaceDependencyManager != null) {
             webStudioWorkspaceDependencyManager.shutdown();
-            allXlsModuleSyntaxNodes.clear();
-            currentProjectXlsModuleSyntaxNodes.clear();
+            xlsModuleSyntaxNodesPerProject.clear();
             workbookSyntaxNodes.clear();
         }
         webStudioWorkspaceDependencyManager = null;
@@ -1089,31 +1094,13 @@ public class ProjectModel {
         setModuleInfo(moduleInfo, ReloadType.NO);
     }
 
-    private void addAllSyntaxNodes() {
-        for (IDependencyLoader dl : webStudioWorkspaceDependencyManager.getAllDependencyLoaders()) {
-            CompiledDependency compiledDependency = dl.getRefToCompiledDependency();
-            if (compiledDependency != null) {
-                XlsMetaInfo metaInfo = (XlsMetaInfo) compiledDependency.getCompiledOpenClass()
-                    .getOpenClassWithErrors()
-                    .getMetaInfo();
-                if (metaInfo != null) {
-                    allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
-                }
-            }
-        }
-    }
-
     private void addCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
-        String projectName = Optional.ofNullable(studio.getCurrentProject()).map(AProjectFolder::getName).orElse(null);
         IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
         if (metaInfo instanceof XlsMetaInfo) {
             XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) metaInfo;
             XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
             if (xlsModuleSyntaxNode != null) {
-                allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
-                if (dependencyLoader.getProject().getName().equals(projectName)) {
-                    currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
-                }
+                getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).add(xlsModuleSyntaxNode);
                 if (!(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
                     workbookSyntaxNodes.addAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
                 }
@@ -1122,21 +1109,21 @@ public class ProjectModel {
     }
 
     private void removeCompiledDependency(IDependencyLoader dependencyLoader, CompiledDependency compiledDependency) {
-        String projectName = Optional.ofNullable(studio.getCurrentProject()).map(AProjectFolder::getName).orElse(null);
         IMetaInfo metaInfo = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().getMetaInfo();
         if (metaInfo instanceof XlsMetaInfo) {
             XlsMetaInfo xlsMetaInfo = (XlsMetaInfo) metaInfo;
             XlsModuleSyntaxNode xlsModuleSyntaxNode = xlsMetaInfo.getXlsModuleNode();
             if (xlsModuleSyntaxNode != null) {
-                allXlsModuleSyntaxNodes.remove(xlsModuleSyntaxNode);
-                if (dependencyLoader.getProject().getName().equals(projectName)) {
-                    currentProjectXlsModuleSyntaxNodes.remove(xlsModuleSyntaxNode);
-                }
+                getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).remove(xlsModuleSyntaxNode);
                 if (!(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
                     workbookSyntaxNodes.removeAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
                 }
             }
         }
+    }
+
+    private Set<XlsModuleSyntaxNode> getModuleSyntaxNodesByProject(String projectName) {
+        return xlsModuleSyntaxNodesPerProject.computeIfAbsent(projectName, e -> ConcurrentHashMap.newKeySet());
     }
 
     public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
@@ -1168,19 +1155,11 @@ public class ProjectModel {
 
         prepareWorkspaceDependencyManager();
 
-        // If autoCompile is false we cannot unload workbook during editing because we must show to a user the latest
-        // edited
-        // data (not parsed and compiled data).
-        boolean canUnload = studio.isAutoCompile();
-
         try {
             CompiledOpenClass thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
                 .loadDependency(new Dependency(DependencyType.MODULE,
                     new IdentifierNode(DependencyType.MODULE.name(), null, moduleInfo.getName(), null)))
                 .getCompiledOpenClass();
-
-            // Find all dependent XlsModuleSyntaxNode-s
-            addAllSyntaxNodes();
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(thisModuleCompiledOpenClass);
             openedModuleCompiledOpenClass = thisModuleCompiledOpenClass;
@@ -1202,9 +1181,6 @@ public class ProjectModel {
                     (compiledDependency) -> {
                         try {
                             this.compiledOpenClass = this.validate();
-                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                                .getMetaInfo();
-                            allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
                             redraw();
                         } catch (Exception | LinkageError e) {
                             onCompilationFailed(e);
@@ -1279,8 +1255,7 @@ public class ProjectModel {
             if (!foundOpenedProject) {
                 if (!allProjectCanBeReused) {
                     webStudioWorkspaceDependencyManager.shutdown();
-                    allXlsModuleSyntaxNodes.clear();
-                    currentProjectXlsModuleSyntaxNodes.clear();
+                    xlsModuleSyntaxNodesPerProject.clear();
                     workbookSyntaxNodes.clear();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                         .buildDependencyManager(this.moduleInfo.getProject());
