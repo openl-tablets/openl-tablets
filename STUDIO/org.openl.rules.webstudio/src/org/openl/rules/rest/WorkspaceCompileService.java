@@ -19,7 +19,6 @@ import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuiteMethod;
@@ -106,13 +105,11 @@ public class WorkspaceCompileService {
         Map<String, Object> moduleTestsInfo = new HashMap<>();
         WebStudio studio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         ProjectModel model = studio.getModel();
-        Module moduleInfo = model.getModuleInfo();
         TestSuiteMethod[] allTestMethods = model.getAllTestMethods();
         moduleTestsInfo.put("count", CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0);
         moduleTestsInfo.put("compiled", model.isCompilationCompleted());
         moduleTestsInfo.put("tableRunState",
-            (moduleInfo != null && moduleInfo.getWebstudioConfiguration()
-                .isCompileThisModuleOnly()) ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN);
+            !model.isProjectCompilationCompleted() ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN);
         return moduleTestsInfo;
     }
 
