@@ -31,12 +31,12 @@ import org.openl.util.text.TextInfo;
 public class OpenLTableLogic {
 
     public static List<TableBean.TableDescription> getTargetTables(IOpenLTable table,
-            ProjectModel model) {
+            ProjectModel model, boolean openedModule) {
         List<TableBean.TableDescription> targetTables = new ArrayList<>();
         String tableType = table.getType();
         if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || tableType
             .equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
-            IOpenMethod method = model.getMethod(table.getUri());
+            IOpenMethod method = openedModule ? model.getOpenedModuleMethod(table.getUri()) : model.getMethod(table.getUri());
             if (method instanceof TestSuiteMethod) {
                 List<IOpenMethod> targetMethods = new ArrayList<>();
                 IOpenMethod testedMethod = ((TestSuiteMethod) method).getTestedMethod();
@@ -65,8 +65,7 @@ public class OpenLTableLogic {
     }
 
     public static List<OpenlProblemMessage> processTableProblems(List<OpenLMessage> messages,
-            ProjectModel model,
-            WebStudio webStudio) {
+            ProjectModel model) {
         List<OpenlProblemMessage> problems = new ArrayList<>();
         for (OpenLMessage message : messages) {
             ILocation location = null;

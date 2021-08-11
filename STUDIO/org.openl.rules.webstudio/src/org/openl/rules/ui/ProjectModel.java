@@ -1163,7 +1163,7 @@ public class ProjectModel {
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(thisModuleCompiledOpenClass);
             openedModuleCompiledOpenClass = thisModuleCompiledOpenClass;
-            if (compiledOpenClass == null || !ReloadType.NO.equals(reloadType)) {
+            if (compiledOpenClass == null || !isProjectCompilationCompleted() || !ReloadType.NO.equals(reloadType)) {
                 compiledOpenClass = thisModuleCompiledOpenClass;
             }
             if (!moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {

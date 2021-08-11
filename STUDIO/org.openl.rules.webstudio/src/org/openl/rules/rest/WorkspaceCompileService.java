@@ -159,7 +159,7 @@ public class WorkspaceCompileService {
 
             // if the current table is a test then check tested target tables on errors.
             List<Pair<String, TableBean.TableDescription>> targetTableUrlPairs = new ArrayList<>();
-            for (TableBean.TableDescription targetTable : OpenLTableLogic.getTargetTables(table, model)) {
+            for (TableBean.TableDescription targetTable : OpenLTableLogic.getTargetTables(table, model, !projectCompilationCompleted)) {
                 targetTableUrlPairs.add(Pair.of(webStudio.url("table", targetTable.getUri()), targetTable));
                 if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
                     warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
@@ -173,8 +173,8 @@ public class WorkspaceCompileService {
                     }
                 }
             }
-            tableInfo.put("errors", OpenLTableLogic.processTableProblems(errors, model, webStudio));
-            tableInfo.put("warnings", OpenLTableLogic.processTableProblems(warnings, model, webStudio));
+            tableInfo.put("errors", OpenLTableLogic.processTableProblems(errors, model));
+            tableInfo.put("warnings", OpenLTableLogic.processTableProblems(warnings, model));
             tableInfo.put("targetTables", targetTableUrlPairs);
             tableInfo.put("tableUrl", webStudio.url("table"));
             tableInfo.put("tableRunState", state);

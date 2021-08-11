@@ -76,7 +76,8 @@ public class RunTestHelper {
             return null;
         }
         String uri = table.getUri();
-        IOpenMethod method = currentOpenedModule ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
+        IOpenMethod method = currentOpenedModule || !model.isProjectCompilationCompleted()
+            ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
 
         if (method instanceof OpenMethodDispatcher) {
             method = model.getCurrentDispatcherMethod(method, uri);

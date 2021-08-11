@@ -11,6 +11,7 @@ import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
@@ -41,12 +42,14 @@ public class BenchmarkBean {
         TestSuite testSuite = runTestHelper.getTestSuite();
         String testSuiteUri = testSuite.getUri();
         WebStudio studio = WebStudioUtils.getWebStudio();
-        IOpenMethod table = studio.getModel().getMethod(testSuiteUri);
+        ProjectModel model = studio.getModel();
+        IOpenMethod table = model.isProjectCompilationCompleted() ?
+            model.getMethod(testSuiteUri) : model.getOpenedModuleMethod(testSuiteUri);
         String tableId = TableUtils.makeTableId(testSuiteUri);
         String testName = TableSyntaxNodeUtils.getTestName(table);
         String testInfo = ProjectHelper.getTestInfo(testSuite);
         if (isTestForOverallTestSuiteMethod(testSuite)) {
-            IOpenClass openClass = studio.getModel().getCompiledOpenClass().getOpenClassWithErrors();
+            IOpenClass openClass = model.getCompiledOpenClass().getOpenClassWithErrors();
             ToLongFunction<Integer> bu = times -> testSuite.invokeSequentially(openClass, times).getExecutionTime();
             BenchmarkInfoView biv = runBenchmark(tableId,
                 testName,
@@ -56,7 +59,7 @@ public class BenchmarkBean {
             benchmarks.add(0, biv);
         } else {
             for (int i = 0; i < testSuite.getNumberOfTests(); i++) {
-                IOpenClass openClass = studio.getModel().getCompiledOpenClass().getOpenClassWithErrors();
+                IOpenClass openClass = model.getCompiledOpenClass().getOpenClassWithErrors();
                 int numTest = i;
                 ToLongFunction<Integer> bu = times -> testSuite.executeTest(openClass, numTest, times)
                     .getExecutionTime();
