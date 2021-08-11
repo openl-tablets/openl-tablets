@@ -372,7 +372,8 @@ public class TestBean {
     }
 
     public boolean isExpired() {
-        return StringUtils.isNotBlank(uri) && (ranResults == null || ranResults.length == 0) && !isWaitForProjectCompilation();
+        return StringUtils.isNotBlank(
+            uri) && (ranResults == null || ranResults.length == 0) && !isWaitForProjectCompilation() && !currentOpenedModule;
     }
 
     public int getTestsPerPage() {
