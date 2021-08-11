@@ -59,14 +59,18 @@ public class WorkspaceCompileService {
                     compileModuleInfo.put("dataType", "add");
                 }
             }
-            compileModuleInfo.put("modulesCount", status.getModulesCount());
-            compileModuleInfo.put("modulesCompiled", status.getModulesCompiled());
             compileModuleInfo.put("messages", messages);
             compileModuleInfo.put("messageId", messages.isEmpty() ? -1 : messages.get(messages.size() - 1).getId());
             compileModuleInfo.put("messageIndex", messages.size() - 1);
             compileModuleInfo.put("errorsCount", status.getErrorsCount());
             compileModuleInfo.put("warningsCount", status.getWarningsCount());
-            compileModuleInfo.put("compilationCompleted", model.isProjectCompilationCompleted());
+            compileModuleInfo.put("modulesCount", status.getModulesCount());
+            compileModuleInfo.put("modulesCompiled", status.getModulesCompiled());
+            compileModuleInfo.put("compilationCompleted",
+                model.isProjectCompilationCompleted() || model.getModuleInfo() != null && model.getModuleInfo()
+                    .getWebstudioConfiguration() != null && model.getModuleInfo()
+                        .getWebstudioConfiguration()
+                        .isCompileThisModuleOnly());
         }
         return compileModuleInfo;
     }
@@ -159,7 +163,8 @@ public class WorkspaceCompileService {
 
             // if the current table is a test then check tested target tables on errors.
             List<Pair<String, TableBean.TableDescription>> targetTableUrlPairs = new ArrayList<>();
-            for (TableBean.TableDescription targetTable : OpenLTableLogic.getTargetTables(table, model, !projectCompilationCompleted)) {
+            for (TableBean.TableDescription targetTable : OpenLTableLogic
+                .getTargetTables(table, model, !projectCompilationCompleted)) {
                 targetTableUrlPairs.add(Pair.of(webStudio.url("table", targetTable.getUri()), targetTable));
                 if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
                     warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
