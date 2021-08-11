@@ -438,7 +438,7 @@ public class ProjectModel {
     public IOpenMethod[] getTestMethods(String forTable, boolean currentOpenedModule) {
         IOpenMethod method = currentOpenedModule ? getOpenedModuleMethod(forTable) : getMethod(forTable);
         if (method != null) {
-            return ProjectHelper.testers(method, compiledOpenClass);
+            return ProjectHelper.testers(method, currentOpenedModule ? openedModuleCompiledOpenClass : compiledOpenClass);
         }
         return null;
     }
