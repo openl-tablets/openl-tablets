@@ -66,7 +66,7 @@ public class WorkspaceCompileService {
             compileModuleInfo.put("messageIndex", messages.size() - 1);
             compileModuleInfo.put("errorsCount", status.getErrorsCount());
             compileModuleInfo.put("warningsCount", status.getWarningsCount());
-            compileModuleInfo.put("compilationCompleted", model.isCompilationCompleted());
+            compileModuleInfo.put("compilationCompleted", model.isProjectCompilationCompleted());
         }
         return compileModuleInfo;
     }
