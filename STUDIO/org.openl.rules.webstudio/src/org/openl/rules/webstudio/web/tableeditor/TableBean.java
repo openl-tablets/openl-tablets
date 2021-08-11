@@ -100,8 +100,7 @@ public class TableBean {
             uri = table.getUri();
             // Save URI because some actions don't provide table ID
             studio.setTableUri(uri);
-            boolean currentOpenedModule = Boolean
-                .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
+            boolean currentOpenedModule = model.getModuleInfo().getWebstudioConfiguration().isCompileThisModuleOnly();
             method = currentOpenedModule ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
             editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
             canBeOpenInExcel = model.isEditable() && !isDispatcherValidationNode();
