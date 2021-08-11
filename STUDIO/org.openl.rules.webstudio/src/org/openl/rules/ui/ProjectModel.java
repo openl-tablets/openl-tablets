@@ -541,7 +541,7 @@ public class ProjectModel {
                 .map(Collection::size)
                 .forEach(compilationStatus::addModulesCount);
 
-            if (compilationCompleted) {
+            if (isProjectCompilationCompleted()) {
                 compilationStatus.clearMessages()
                     .addMessages(compiledOpenClass.getMessages())
                     .setModulesCompiled(compilationStatus.build().getModulesCount());
@@ -1166,7 +1166,6 @@ public class ProjectModel {
             if (compiledOpenClass == null || !ReloadType.NO.equals(reloadType)) {
                 compiledOpenClass = thisModuleCompiledOpenClass;
             }
-
             if (!moduleInfo.getWebstudioConfiguration().isCompileThisModuleOnly()) {
                 String projectDependencyName = SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(),
                     null);
