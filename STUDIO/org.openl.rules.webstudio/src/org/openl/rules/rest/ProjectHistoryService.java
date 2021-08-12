@@ -59,9 +59,7 @@ public class ProjectHistoryService {
         ProjectModel model = webStudio.getModel();
         String projectHistoryPath = Paths
             .get(webStudio.getWorkspacePath(),
-                model.getProject().getFolderPath(),
-                FolderHelper.HISTORY_FOLDER,
-                model.getModuleInfo().getName())
+                FolderHelper.resolveHistoryFolder(model.getProject(), model.getModuleInfo()))
             .toString();
         File dir = new File(projectHistoryPath);
         String[] historyListFiles = dir.list();

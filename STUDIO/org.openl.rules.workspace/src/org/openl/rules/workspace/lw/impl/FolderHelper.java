@@ -1,7 +1,11 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.model.Module;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,5 +102,17 @@ public final class FolderHelper {
         }
 
         return !failures;
+    }
+
+    public static String resolveHistoryFolder(RulesProject project, Module module) {
+        return normalizePath(Paths.get(project.getFolderPath(), resolveHistoryFolder(module)));
+    }
+
+    public static String resolveHistoryFolder(Module module) {
+        return normalizePath(Paths.get(HISTORY_FOLDER, module.getRulesRootPath().getPath()));
+    }
+
+    private static String normalizePath(Path p) {
+        return p.toString().replace('\\', '/');
     }
 }

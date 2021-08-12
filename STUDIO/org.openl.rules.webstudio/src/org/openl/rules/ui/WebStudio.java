@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
@@ -705,25 +706,21 @@ public class WebStudio implements DesignTimeRepositoryListener {
         if (currentProject == null) {
             log.warn("The project has not been resolved after update.");
         } else {
-            for (Module module : currentProject.getModules()) {
-                File moduleFile = module.getRulesPath().toFile();
-                String moduleHistoryPath = currentProject.getProjectFolder()
-                        .resolve(FolderHelper.HISTORY_FOLDER)
-                        .resolve(module.getName())
-                        .toString();
-                ProjectHistoryService.save(moduleHistoryPath, moduleFile);
-            }
+            processProjectHistory(currentProject, ProjectHistoryService::save);
         }
     }
 
     public void initProjectHistory(){
-        for (Module module : currentProject.getModules()) {
+        processProjectHistory(currentProject, ProjectHistoryService::init);
+    }
+
+    private static void processProjectHistory(ProjectDescriptor project, BiConsumer<String, File> func) {
+        for (Module module : project.getModules()) {
             File moduleFile = module.getRulesPath().toFile();
-            String moduleHistoryPath = currentProject.getProjectFolder()
-                    .resolve(FolderHelper.HISTORY_FOLDER)
-                    .resolve(module.getName())
+            String moduleHistoryPath = project.getProjectFolder()
+                    .resolve(FolderHelper.resolveHistoryFolder(module))
                     .toString();
-            ProjectHistoryService.init(moduleHistoryPath, moduleFile);
+            func.accept(moduleHistoryPath, moduleFile);
         }
     }
 

@@ -1,5 +1,6 @@
 package org.openl.rules.dt.element;
 
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
 import org.openl.source.IOpenSourceCodeModule;
@@ -10,17 +11,11 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
 
     DecisionValue calculateCondition(int col, Object target, Object[] dtParams, IRuntimeEnv env);
 
-    @Override
-    IConditionEvaluator getConditionEvaluator();
-
     void setConditionEvaluator(IConditionEvaluator iConditionEvaluator);
-
-    @Override
-    IMethodCaller getEvaluator();
 
     void setEvaluator(IMethodCaller iMethodCaller);
 
-    boolean isDependentOnAnyParams();
+    boolean isDependentOnInputParams();
 
     int getNumberOfEmptyRules(int paramIndex);
 
@@ -36,4 +31,10 @@ public interface ICondition extends IBaseCondition, IDecisionRow {
     boolean isRuleIdOrRuleNameUsed();
 
     void setRuleIdOrRuleNameUsed(boolean ruleIdOrRuleNameUsed);
+
+    boolean isDependentOnOtherColumnsParams();
+
+    void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams);
+
+    void setComparisonCast(IOpenCast comparisonCast);
 }

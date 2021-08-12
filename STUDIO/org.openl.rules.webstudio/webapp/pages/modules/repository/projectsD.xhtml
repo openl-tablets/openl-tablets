@@ -22,16 +22,16 @@
                 <rich:column>
                   <h:outputText value="Name" />
                 </rich:column>
-                <rich:column style="min-width: 90px">
+                <rich:column styleClass="status-col">
                   <h:outputText value="Status" />
                 </rich:column>
-                <rich:column style="min-width: 70px">
+                <rich:column styleClass="modified-by-col">
                   <h:outputText value="Modified By" />
                 </rich:column>
-                <rich:column style="min-width: 70px">
+                <rich:column styleClass="modified-at-col">
                   <h:outputText value="Modified At" />
                 </rich:column>
-                <rich:column style="min-width: 50px">
+                <rich:column styleClass="action-col">
                   <h:outputText value="Actions" />
                 </rich:column>
               </rich:columnGroup>
@@ -43,13 +43,13 @@
                   <f:param name="projectName" value="#{prj.name}" />
                 </h:commandLink>
               </rich:column>
-              <rich:column>
+              <rich:column styleClass="status-col">
                 <h:outputText value="#{prj.status}" />
               </rich:column>
-              <rich:column>
+              <rich:column styleClass="modified-by-col">
                 <h:outputText value="#{prj.modifiedBy}" />
               </rich:column>
-              <rich:column>
+              <rich:column styleClass="modified-at-col">
                 <h:outputText value="#{prj.modifiedAt}">
                     <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}" />
                 </h:outputText>

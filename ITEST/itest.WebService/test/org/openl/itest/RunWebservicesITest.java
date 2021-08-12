@@ -600,7 +600,7 @@ public class RunWebservicesITest {
 
     @Test
     public void EPBDS_10699() {
-        client.get("/admin/services/EPBDS-10699/EPBDS-10699/errors","/EPBDS-10699/EPBDS-10699_error.resp.json");
+        client.get("/admin/services/EPBDS-10699/EPBDS-10699/errors", "/EPBDS-10699/EPBDS-10699_error.resp.json");
     }
 
     @Test
@@ -655,5 +655,15 @@ public class RunWebservicesITest {
         client.send("EPBDS-11682/IntResponse.json.post");
         client.send("EPBDS-11682/GetOptionalResponse.json.post");
         client.send("EPBDS-11682/GetOptionalResponse2.json.post");
+    }
+
+    @Test
+    public void EPBDS_11725() {
+        client.send("EPBDS-11725/RateCardPremiumAggregated.json.post");
+    }
+
+    @Test
+    public void EPBDS_11883() {
+        client.send("EPBDS-11883/Table1.json.post");
     }
 }

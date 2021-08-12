@@ -1,0 +1,2 @@
+ERROR: Lexical error at line 1, column 12.  Encountered: "M" (77), after : "\'E"
+ERROR: Lexical error at line 1, column 12.  Encountered: "M" (77), after : "\'E"
