@@ -1,0 +1,18 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+   "compiled":true,
+   "allTests":[
+      {
+         "uri":"#local/Sample/Main/table",
+         "id":"02dad54296dbc34cb91772216b27ca8e",
+         "name":"HelloTest (1 test case)"
+      },
+      {
+         "uri":"#local/Sample/Main/table",
+         "id":"40da0feaf93e639c615086b2c9845cc7",
+         "name":"HelloTest3 (1 test case)"
+      }
+   ]
+}

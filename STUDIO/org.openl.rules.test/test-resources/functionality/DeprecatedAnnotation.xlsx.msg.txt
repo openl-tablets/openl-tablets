@@ -7,5 +7,4 @@ WARN: DEPRECATED 'global' field will be removed in the next version.
 WARN: DEPRECATED 'java.security.Certificate' class will be removed in the next version.
 WARN: DEPRECATED 'java.security.Identity' class will be removed in the next version.
 WARN: DEPRECATED 'java.security.Signer' class will be removed in the next version.
-WARN: DEPRECATED 'java.security.Signer' class will be removed in the next version.
 WARN: DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead.

@@ -27,8 +27,10 @@ public class VariationsTest {
     public void init() throws Exception {
         File tut4Folder = new File(TEST_PROJECT_FOLDER);
         ProjectDescriptor project = projectResolver.resolve(tut4Folder);
-        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
-            .singletonList(project), null, true, true, null);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
+            null,
+            true,
+            null);
         instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules().get(0), dependencyManager, true);
     }
 
@@ -57,8 +59,10 @@ public class VariationsTest {
         // modified
         File folder = new File(new File(TEST_PROJECT_FOLDER, "rules"), "main");
         ProjectDescriptor project = projectResolver.resolve(folder);
-        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
-            .singletonList(project), null, true, true, null);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
+            null,
+            true,
+            null);
         ApiBasedInstantiationStrategy instantiationStrategy = new ApiBasedInstantiationStrategy(project.getModules()
             .get(0), dependencyManager, true);
         VariationInstantiationStrategyEnhancer variationsEnhancerWithWrongInterface = new VariationInstantiationStrategyEnhancer(

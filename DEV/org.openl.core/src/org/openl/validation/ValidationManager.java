@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.ICompileContext;
 import org.openl.binding.IBindingContext;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.types.IOpenClass;
 
 public class ValidationManager {
@@ -49,7 +51,17 @@ public class ValidationManager {
         if (context != null) {
             Set<IOpenLValidator> validators = context.getValidators();
             for (IOpenLValidator validator : validators) {
-                ValidationResult result = validator.validate(openClass);
+                ValidationResult result;
+                try {
+                    result = validator.validate(openClass);
+                    results.add(result);
+                } catch (Exception e) {
+                    result = new ValidationResult(ValidationStatus.FAIL,
+                        Collections.singletonList(
+                            OpenLMessagesUtils.newErrorMessage(String.format("Failed to execute validator: %s. %s",
+                                validator.getClass().getTypeName(),
+                                ExceptionUtils.getRootCauseMessage(e)))));
+                }
                 results.add(result);
             }
         }

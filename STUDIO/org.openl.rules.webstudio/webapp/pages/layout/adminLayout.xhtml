@@ -20,7 +20,7 @@
         <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
         <script src="#{contextPath}/javascript/vendor/jquery.are-you-sure.js"></script>
         <script src="#{contextPath}/javascript/vendor/bootstrap.min.js"></script>
-        <script src="#{contextPath}/javascript/common.js?7"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
+        <script src="#{contextPath}/javascript/common.js?8"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
         <h:outputScript name="jsf.js" library="javax.faces" />
 
         <script src="#{contextPath}/javascript/vendor/jquery.easytabs.js"></script>
@@ -133,6 +133,11 @@
                     },
                     info: function(content) {
                         message(content, 8000, true);
+                    }
+                },
+                utils: {
+                    escapeHtml: function (string) {
+                        return $j('<div/>').text(string).html();
                     }
                 }
             };

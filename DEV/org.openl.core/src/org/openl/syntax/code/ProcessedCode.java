@@ -23,6 +23,8 @@ public class ProcessedCode {
 
     private Collection<OpenLMessage> messages;
 
+    private Collection<OpenLMessage> currentMessages;
+
     /**
      * Gets parsed code.
      *
@@ -68,6 +70,17 @@ public class ProcessedCode {
 
     public void setMessages(Collection<OpenLMessage> messages) {
         this.messages = messages;
+    }
+
+    public Collection<OpenLMessage> getCurrentMessages() {
+        if (currentMessages != null) {
+            return Collections.unmodifiableCollection(currentMessages);
+        }
+        return Collections.emptyList();
+    }
+
+    public void setCurrentMessages(Collection<OpenLMessage> currentMessages) {
+        this.currentMessages = currentMessages;
     }
 
 }

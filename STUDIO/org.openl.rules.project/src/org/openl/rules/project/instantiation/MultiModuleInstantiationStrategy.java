@@ -26,17 +26,17 @@ import org.openl.util.IOUtils;
  *
  * @author PUdalau
  */
-public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstantiationStrategy {
+public abstract class MultiModuleInstantiationStrategy extends CommonRulesInstantiationStrategy {
 
     private final Collection<Module> modules;
 
-    public MultiModuleInstantiationStartegy(Collection<Module> modules,
+    public MultiModuleInstantiationStrategy(Collection<Module> modules,
             IDependencyManager dependencyManager,
             boolean executionMode) {
         this(modules, dependencyManager, null, executionMode);
     }
 
-    public MultiModuleInstantiationStartegy(Collection<Module> modules,
+    public MultiModuleInstantiationStrategy(Collection<Module> modules,
             IDependencyManager dependencyManager,
             ClassLoader classLoader,
             boolean executionMode) {

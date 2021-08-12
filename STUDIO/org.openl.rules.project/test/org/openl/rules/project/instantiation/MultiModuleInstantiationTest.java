@@ -30,7 +30,7 @@ public class MultiModuleInstantiationTest {
             modules.addAll(project.getModules());
         }
 
-        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, false, true, null);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules,
             dependencyManager,
@@ -68,7 +68,7 @@ public class MultiModuleInstantiationTest {
 
         File root = new File("test-resources/multi-module-support/test2");
         List<ProjectDescriptor> projects = listProjectsInFolder(root);
-        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, false, true, null);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
             listModules(projects),
@@ -105,7 +105,7 @@ public class MultiModuleInstantiationTest {
     public void testServiceClass() throws Exception {
         File root = new File("test-resources/multi-module-support/test2");
         List<ProjectDescriptor> projects = listProjectsInFolder(root);
-        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, false, true, null);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
             listModules(projects),
             dependencyManager,
@@ -127,7 +127,7 @@ public class MultiModuleInstantiationTest {
         for (ProjectDescriptor project : projects) {
             modules.addAll(project.getModules());
         }
-        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, false, true, null);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
 
         SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules,
             dependencyManager,
