@@ -876,8 +876,9 @@ public class ProjectModel {
                 state = 2; // has tests
             }
 
-            String uri = tsn.getUri();
-            numErrors = getErrorsByUri(uri).size();
+            if (leaf) {
+                numErrors = getErrorsByUri(tsn.getUri()).size();
+            }
             ITableProperties tableProperties = tsn.getTableProperties();
             if (tableProperties != null) {
                 Boolean act = tableProperties.getActive();
