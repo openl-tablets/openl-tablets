@@ -3,6 +3,7 @@ package org.openl.rules.binding;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -131,8 +132,14 @@ public final class RuleRowHelper {
             arrayValues = aggregateInfo.makeIndexedAggregate(paramType, valuesArraySize);
             IOpenIndex index = aggregateInfo.getIndex(aggregateType);
 
-            for (int i = 0; i < valuesArraySize; i++) {
-                index.setValue(arrayValues, i, values.get(i));
+            if (index != null) {
+                for (int i = 0; i < valuesArraySize; i++) {
+                    index.setValue(arrayValues, i, values.get(i));
+                }
+            } else {
+                if (arrayValues instanceof Collection) {
+                    ((Collection) arrayValues).addAll(values);
+                }
             }
         } else {
             arrayValues = aggregateType.getAggregateInfo().makeIndexedAggregate(paramType, 0);
