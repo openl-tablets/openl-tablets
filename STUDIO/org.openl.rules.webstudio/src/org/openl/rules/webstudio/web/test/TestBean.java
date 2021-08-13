@@ -322,7 +322,7 @@ public class TestBean {
     }
 
     public boolean getCompileThisModuleOnly() {
-        return studio.getModel().getModuleInfo().getWebstudioConfiguration().isCompileThisModuleOnly();
+        return !studio.getModel().isProjectCompilationCompleted();
     }
 
     /**
