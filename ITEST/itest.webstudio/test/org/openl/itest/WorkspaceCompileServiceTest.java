@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -23,9 +22,6 @@ public class WorkspaceCompileServiceTest {
         client = server.client();
     }
 
-    @Ignore
-    //Ignored because tableId generated based on absolute path to the xlsx file.
-    //Uncomment this test when tableId will use relative path.
     @Test(timeout = 15_000)
     public void compile() {
         // Initialize WebStudio.
@@ -47,7 +43,7 @@ public class WorkspaceCompileServiceTest {
         client.send("workspace-compile/tests.get");
         client.send("workspace-compile/table.tests.get");
         client.send("workspace-compile/table.errors.module.get");
-        TableErrorInfo tableErrorInfo = client.getForObject("/web/compile/table/4471a9b6968ca6fa141b5eeef129082e",
+        TableErrorInfo tableErrorInfo = client.getForObject("/web/compile/table/8e514ef161e2f50d730dde1fdc4fb4ac",
             TableErrorInfo.class, HttpStatus.OK);
         assertEquals("#local/Sample/Main/table", tableErrorInfo.tableUrl);
         assertEquals(1, tableErrorInfo.errors.length);
@@ -55,12 +51,9 @@ public class WorkspaceCompileServiceTest {
         assertEquals("B3", tableErrorInfo.errors[0].errorCell);
         assertEquals("There can be only one active table.", tableErrorInfo.errors[0].summary);
         assertEquals("ERROR", tableErrorInfo.errors[0].severity);
-        String projectError = client.getForObject("/web/compile/error/" + tableErrorInfo.errors[0].id + "/false",
+        String projectError = client.getForObject("/web/message/" + tableErrorInfo.errors[0].id + "/stacktrace",
             String.class, HttpStatus.OK);
         assertTrue(projectError.startsWith("Error: There can be only one active table."));
-        String moduleError = client.getForObject("/web/compile/error/" + tableErrorInfo.errors[0].id + "/true",
-            String.class, HttpStatus.NO_CONTENT);
-        assertNull(moduleError);
     }
 
     @AfterClass
