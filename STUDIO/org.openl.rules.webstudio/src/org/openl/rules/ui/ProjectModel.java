@@ -509,7 +509,10 @@ public class ProjectModel {
 
     public boolean isSourceModified() {
         RulesProject project = getProject();
-        if (project != null && studio.isProjectFrozen(project.getName())) {
+        if (project == null || !project.isOpened()) {
+            return false;
+        }
+        if (studio.isProjectFrozen(project.getName())) {
             log.debug("Project is saving currently. Ignore it's intermediate state.");
             return false;
         }
