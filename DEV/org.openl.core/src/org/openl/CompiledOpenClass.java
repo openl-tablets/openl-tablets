@@ -18,9 +18,9 @@ import org.openl.types.IOpenClass;
  */
 public class CompiledOpenClass {
 
-    private final Collection<OpenLMessage> messages;
+    private final Collection<OpenLMessage> allMessages;
 
-    private final Collection<OpenLMessage> currentMessages;
+    private final Collection<OpenLMessage> messages;
 
     private final IOpenClass openClass;
 
@@ -32,14 +32,16 @@ public class CompiledOpenClass {
         this(openClass, messages, null);
     }
 
-    public CompiledOpenClass(IOpenClass openClass, Collection<OpenLMessage> messages, Collection<OpenLMessage> currentMessages) {
-        this.currentMessages = currentMessages;
+    public CompiledOpenClass(IOpenClass openClass,
+            Collection<OpenLMessage> allMessages,
+            Collection<OpenLMessage> messages) {
+        this.messages = messages != null ? Collections.unmodifiableCollection(messages) : Collections.emptyList();
         this.openClass = Objects.requireNonNull(openClass, "openClass cannot be null");
-        if (messages == null) {
-            this.messages = Collections.emptyList();
+        if (allMessages == null) {
+            this.allMessages = Collections.emptyList();
         } else {
-            this.messages = Collections.unmodifiableCollection(messages);
-            this.hasErrors = !OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR).isEmpty();
+            this.allMessages = Collections.unmodifiableCollection(allMessages);
+            this.hasErrors = !OpenLMessagesUtils.filterMessagesBySeverity(allMessages, Severity.ERROR).isEmpty();
         }
         this.classLoader = Thread.currentThread().getContextClassLoader();
     }
@@ -59,18 +61,18 @@ public class CompiledOpenClass {
 
     public void throwErrorExceptionsIfAny() {
         if (hasErrors()) {
-            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages,
+            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(allMessages,
                 Severity.ERROR);
             throw new CompositeOpenlException("Module contains critical errors", null, errorMessages);
         }
     }
 
-    public Collection<OpenLMessage> getMessages() {
-        return messages;
+    public Collection<OpenLMessage> getAllMessages() {
+        return allMessages;
     }
 
-    public Collection<OpenLMessage> getCurrentMessages() {
-        return currentMessages;
+    public Collection<OpenLMessage> getMessages() {
+        return messages;
     }
 
     public Collection<IOpenClass> getTypes() {

@@ -34,6 +34,6 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
     public void checkKeywordsInSignature() {
         assertNotNull(findDispatcherForMethod("arraysTest"));
         assertNotNull(findDispatcherForMethod("keywordsTest"));
-        assertEquals(0, getCompiledOpenClass().getMessages().size());
+        assertEquals(0, getCompiledOpenClass().getAllMessages().size());
     }
 }

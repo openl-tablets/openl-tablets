@@ -286,7 +286,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         }
         CompiledOpenClass openClass = service.getCompiledOpenClass();
         if (openClass != null) {
-            Collection<OpenLMessage> messages = openClass.getMessages();
+            Collection<OpenLMessage> messages = openClass.getAllMessages();
             Collection<OpenLMessage> openLMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages,
                 Severity.ERROR);
             List<String> errors = openLMessages.stream().map(OpenLMessage::getSummary).collect(Collectors.toList());

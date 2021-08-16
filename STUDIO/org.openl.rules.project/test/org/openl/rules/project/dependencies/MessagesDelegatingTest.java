@@ -68,13 +68,13 @@ public class MessagesDelegatingTest {
     public void testMessagesDelegatingFromDependencies() throws Exception {
         CompiledOpenClass compiledRules = getCompiledOpenClassForModule("Rules");
         CompiledOpenClass compiledRules2 = getCompiledOpenClassForModule("Rules2");
-        assertTrue(compiledRules2.getMessages().size() >= compiledRules.getMessages().size());
-        assertTrue(compiledRules2.getMessages().containsAll(compiledRules.getMessages()));
+        assertTrue(compiledRules2.getAllMessages().size() >= compiledRules.getAllMessages().size());
+        assertTrue(compiledRules2.getAllMessages().containsAll(compiledRules.getAllMessages()));
         CompiledOpenClass compiledRules3 = getCompiledOpenClassForModule("Rules3");
-        assertTrue(compiledRules3.getMessages().size() >= compiledRules.getMessages().size());
-        assertTrue(compiledRules3.getMessages().containsAll(compiledRules.getMessages()));
-        assertTrue(compiledRules3.getMessages().size() >= compiledRules2.getMessages().size());
-        assertTrue(compiledRules3.getMessages().containsAll(compiledRules2.getMessages()));
+        assertTrue(compiledRules3.getAllMessages().size() >= compiledRules.getAllMessages().size());
+        assertTrue(compiledRules3.getAllMessages().containsAll(compiledRules.getAllMessages()));
+        assertTrue(compiledRules3.getAllMessages().size() >= compiledRules2.getAllMessages().size());
+        assertTrue(compiledRules3.getAllMessages().containsAll(compiledRules2.getAllMessages()));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class MessagesDelegatingTest {
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : project.getModules()) {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
-            compiledMultiModule.getMessages().containsAll(compiledModule.getMessages());
+            compiledMultiModule.getAllMessages().containsAll(compiledModule.getAllMessages());
         }
 
         assertFalse("During compilation DuplicatedMethodException must not be thrown",
@@ -117,7 +117,7 @@ public class MessagesDelegatingTest {
         CompiledOpenClass compiledMultiModule = strategy.compile();
         for (Module module : project.getModules()) {
             CompiledOpenClass compiledModule = getCompiledOpenClassForModule(module.getName());
-            compiledMultiModule.getMessages().containsAll(compiledModule.getMessages());
+            compiledMultiModule.getAllMessages().containsAll(compiledModule.getAllMessages());
         }
 
         assertTrue("During compilation DuplicatedMethodException must be thrown",
@@ -128,7 +128,7 @@ public class MessagesDelegatingTest {
         boolean hasDuplicatedMethodException = false;
 
         Collection<OpenLMessage> errorMessages = OpenLMessagesUtils
-            .filterMessagesBySeverity(compiledOpenClass.getMessages(), Severity.ERROR);
+            .filterMessagesBySeverity(compiledOpenClass.getAllMessages(), Severity.ERROR);
         for (OpenLMessage error : errorMessages) {
             if (error instanceof OpenLErrorMessage) {
                 Throwable cause = ((OpenLErrorMessage) error).getError().getCause();

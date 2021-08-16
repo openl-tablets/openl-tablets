@@ -64,8 +64,8 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     }
 
     @Override
-    public Collection<OpenLMessage> getMessages() {
-        return getCompiledOpenClass().getMessages();
+    public Collection<OpenLMessage> getAllMessages() {
+        return getCompiledOpenClass().getAllMessages();
     }
 
     @Override
