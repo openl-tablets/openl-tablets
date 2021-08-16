@@ -133,8 +133,12 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
                 for (IOpenMethod candidate : candidates) {
                     IMethodSignature signature = candidate.getSignature();
                     for (int j = 0; j < parameterCount; j++) {
-                        parameterKeysByName[j].add(new ParameterNameKey(signature.getParameterName(j), candidate));
-                        parameterKeysByType[j].add(new ParameterTypeKey(signature.getParameterType(j), candidate));
+                        if (signature.getParameterName(j) != null) {
+                            parameterKeysByName[j].add(new ParameterNameKey(signature.getParameterName(j), candidate));
+                        }
+                        if (signature.getParameterType(j) != null) {
+                            parameterKeysByType[j].add(new ParameterTypeKey(signature.getParameterType(j), candidate));
+                        }
                     }
                 }
                 for (MethodPairKey methodPair : buildMethodPairs(parameterKeysByName, parameterCount)) {

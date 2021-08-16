@@ -1490,8 +1490,9 @@ public final class DecisionTableHelper {
                 // write vertical condition
                 //
                 numOfVCondition++;
-                if (numOfVCondition == 1 && numberOfHConditions == 0 && conditions
-                    .size() < 2 && !(isCollect && decisionTable.getType()
+                if (numOfVCondition == 1 && (conditions.stream()
+                    .filter(e -> !e.isHCondition())
+                    .count() < 2) && !(isCollect && decisionTable.getType()
                         .isArray() && !decisionTable.getType().getComponentClass().isArray())) {
                     header = (DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey() + numOfVCondition);
                 } else {
@@ -1926,11 +1927,7 @@ public final class DecisionTableHelper {
             mayHaveCompilationErrors = true;
         }
 
-        final String code = definition.getCompositeMethod()
-            .getMethodBodyBoundNode()
-            .getSyntaxNode()
-            .getModule()
-            .getCode();
+        final String code = definition.getExpression();
 
         Set<Integer> usedParamIndexes = new HashSet<>(usedMethodParameterIndexes);
         usedParamIndexes.addAll(usedParamIndexesByField);

@@ -97,12 +97,13 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
                     if (serviceClass.isInterface()) {
                         return serviceClass;
                     } else {
-                        throw new RulesInstantiationException(String.format(
-                                "Interface is expected for service class '%s', but class is found.",
+                        throw new RulesInstantiationException(
+                            String.format("Interface is expected for service class '%s', but class is found.",
                                 serviceClassName));
                     }
                 } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                    throw new RulesInstantiationException(String.format("An error is occurred during loading a service class '%s'.%s",
+                    throw new RulesInstantiationException(String.format(
+                        "An error is occurred during loading a service class '%s'.%s",
                             serviceClassName,
                             StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
                 }
@@ -131,20 +132,22 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
         if (!StringUtils.isEmpty(annotationTemplateClassName)) {
             try {
                 Class<?> annotationTemplateClass = resolveServiceClassLoader.loadClass(annotationTemplateClassName);
-                if (annotationTemplateClass.isInterface() || Modifier.isAbstract(annotationTemplateClass.getModifiers())) {
+                if (annotationTemplateClass.isInterface() || Modifier
+                    .isAbstract(annotationTemplateClass.getModifiers())) {
                     serviceClass = DynamicInterfaceAnnotationEnhancerHelper.decorate(serviceClass,
                         annotationTemplateClass,
                         rulesInstantiationStrategy.compile().getOpenClassWithErrors(),
                         resolveServiceClassLoader);
                 } else {
                     throw new RulesInstantiationException(String.format(
-                            "Interface or abstract class is expected for annotation template class '%s', but class is found.",
-                            annotationTemplateClassName));
+                        "Interface or abstract class is expected for annotation template class '%s', but class is found.",
+                        annotationTemplateClassName));
                 }
             } catch (RulesInstantiationException e) {
                 throw e;
             } catch (Exception | NoClassDefFoundError e) {
-                throw new RulesInstantiationException(String.format("An error is occurred during loading or applying annotation template class '%s'.%s",
+                throw new RulesInstantiationException(String.format(
+                    "An error is occurred during loading or applying annotation template class '%s'.%s",
                         annotationTemplateClassName,
                         StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
             }

@@ -37,12 +37,6 @@ public class TreeBean {
         return isGranted(RUN);
     }
 
-    public int getProjectTestsCount() {
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        TestSuiteMethod[] allTestMethods = studio.getModel().getAllTestMethods();
-        return CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0;
-    }
-
     public TreeNode getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
 

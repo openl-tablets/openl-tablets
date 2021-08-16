@@ -7,6 +7,7 @@ import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DTScale;
@@ -44,6 +45,8 @@ public class Condition extends FunctionalRow implements ICondition {
     private IOpenSourceCodeModule userDefinedOpenSourceCodeModule;
     private boolean conditionParametersUsed;
     private boolean ruleIdOrRuleNameUsed;
+    private boolean dependentOnOtherColumnsParams;
+    private IOpenCast comparisonCast;
 
     public Condition(String name, int row, ILogicalTable table, DTScale.RowScale scale) {
         super(name, row, table, scale);
@@ -95,7 +98,7 @@ public class Condition extends FunctionalRow implements ICondition {
             return DecisionValue.NxA_VALUE;
         }
 
-        if (conditionParametersUsed || ruleIdOrRuleNameUsed) {
+        if (conditionParametersUsed || ruleIdOrRuleNameUsed || dependentOnOtherColumnsParams) {
             return makeDecision(ruleN, target, dtParams, env);
         } else {
             /*
@@ -112,14 +115,23 @@ public class Condition extends FunctionalRow implements ICondition {
         }
     }
 
+    @Override
+    public void setComparisonCast(IOpenCast comparisonCast) {
+        this.comparisonCast = comparisonCast;
+    }
+
     private DecisionValue makeDecision(int ruleN, Object target, Object[] dtParams, IRuntimeEnv env) {
         Object[] params = mergeParams(target, dtParams, env, ruleN);
         Object result = getMethod().invoke(target, params, env);
-
+        if (comparisonCast != null) {
+            result = comparisonCast.convert(result);
+            return Objects.equals(result, params[params.length - 1]) ? DecisionValue.TRUE_VALUE
+                                                                     : DecisionValue.FALSE_VALUE;
+        }
         return Boolean.TRUE.equals(result) ? DecisionValue.TRUE_VALUE : DecisionValue.FALSE_VALUE;
     }
 
-    private static IOpenField getLocalField(IOpenField f) {
+    public static IOpenField getLocalField(IOpenField f) {
         if (f instanceof ILocalVar) {
             return f;
         }
@@ -132,7 +144,7 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     @Override
-    public boolean isDependentOnAnyParams() {
+    public boolean isDependentOnInputParams() {
         IParameterDeclaration[] params = getParams();
 
         BindingDependencies dependencies = new RulesBindingDependencies();
@@ -185,20 +197,15 @@ public class Condition extends FunctionalRow implements ICondition {
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             if (signature.getParameterName(i).equals(source.getCode())) {
                 userDefinedOpenSourceCodeModule = source;
-                prepareParams(declaringClass,
-                    signature,
-                    methodParamType,
-                    source,
-                    openl,
-                    bindingContext);
+                prepareParams(declaringClass, signature, methodParamType, source, openl, bindingContext);
                 if (params.length == 1) {
                     if (params[0].getType()
                         .isArray() && params[0].getType().getComponentClass().getInstanceClass() != null) {
                         IOpenClass inputType = signature.getParameterType(i);
                         ConditionCasts conditionCasts = ConditionHelper
                             .findConditionCasts(params[0].getType().getComponentClass(), inputType, bindingContext);
-                        if (conditionCasts.isCastToConditionTypeExists()
-                            || (conditionCasts.isCastToInputTypeExists() && !inputType.isArray())) {
+                        if (conditionCasts.isCastToConditionTypeExists() || (conditionCasts
+                            .isCastToInputTypeExists() && !inputType.isArray())) {
                             return !hasFormulas() ? source
                                                   : new StringSourceCodeModule(
                                                       getContainsInArrayExpression(tableSyntaxNode,
@@ -251,8 +258,7 @@ public class Condition extends FunctionalRow implements ICondition {
         }
         if (conditionCasts.isCastToConditionTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "PERFORMANCE: Condition '%s' uses additional type casting " +
-                        "from '%s' to '%s' in calculation time for each table row.",
+                "PERFORMANCE: Condition '%s' uses additional type casting " + "from '%s' to '%s' in calculation time for each table row.",
                 getName(),
                 methodType.getName(),
                 param.getType().getComponentClass().getName()), tableSyntaxNode));
@@ -262,8 +268,7 @@ public class Condition extends FunctionalRow implements ICondition {
                 source.getCode());
         } else if (conditionCasts.isCastToInputTypeExists()) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "PERFORMANCE: Condition '%s' uses additional type casting " +
-                        "from '%s' to '%s' in calculation time for each table row.",
+                "PERFORMANCE: Condition '%s' uses additional type casting " + "from '%s' to '%s' in calculation time for each table row.",
                 getName(),
                 param.getType().getComponentClass().getInstanceClass().getTypeName(),
                 methodType.getName()), tableSyntaxNode));
@@ -284,8 +289,7 @@ public class Condition extends FunctionalRow implements ICondition {
             IBindingContext bindingContext) {
         if (isIntRangeType(param.getType()) && NumberUtils.isFloatPointType(methodType.getInstanceClass())) {
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
-                "PERFORMANCE: Condition '%s' uses additional type casting " +
-                        "from '%s' to '%s' in calculation time for each table row.",
+                "PERFORMANCE: Condition '%s' uses additional type casting " + "from '%s' to '%s' in calculation time for each table row.",
                 getName(),
                 param.getType().getName(),
                 DoubleRange.class.getTypeName()), tableSyntaxNode));
@@ -307,8 +311,8 @@ public class Condition extends FunctionalRow implements ICondition {
             return true;
         }
         if (ClassUtils.isAssignable(paramType.getInstanceClass(),
-            CharRange.class) && (ClassUtils.isAssignable(methodType.getInstanceClass(), Character.class) || char.class
-                == methodType.getInstanceClass())) {
+            CharRange.class) && (ClassUtils.isAssignable(methodType.getInstanceClass(),
+                Character.class) || char.class == methodType.getInstanceClass())) {
             return true;
         }
         return ClassUtils.isAssignable(paramType.getInstanceClass(), StringRange.class) && ClassUtils
@@ -336,5 +340,14 @@ public class Condition extends FunctionalRow implements ICondition {
     @Override
     public void setRuleIdOrRuleNameUsed(boolean ruleIdOrRuleNameUsed) {
         this.ruleIdOrRuleNameUsed = ruleIdOrRuleNameUsed;
+    }
+
+    @Override
+    public boolean isDependentOnOtherColumnsParams() {
+        return dependentOnOtherColumnsParams;
+    }
+
+    public void setDependentOnOtherColumnsParams(boolean dependentOnOtherColumnsParams) {
+        this.dependentOnOtherColumnsParams = dependentOnOtherColumnsParams;
     }
 }

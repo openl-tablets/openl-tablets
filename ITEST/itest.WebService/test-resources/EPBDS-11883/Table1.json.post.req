@@ -1,0 +1,7 @@
+POST /EPBDS-11883/EPBDS-11883/Table1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "rangeCode": "RangeKey",
+  "amount": 5650
+}

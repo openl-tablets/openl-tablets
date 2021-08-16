@@ -30,6 +30,15 @@ public interface IDependencyManager {
     void reset(IDependency dependency);
 
     /**
+     * Remove all dependencies from cache except the given dependencies and dependencies that are required for the given
+     * dependencies.
+     *
+     * @param dependencies to be saved in cache, removes others
+     */
+
+    void resetOthers(IDependency... dependencies);
+
+    /**
      * Remove all dependencies from cache.
      */
     void resetAll();
@@ -48,8 +57,8 @@ public interface IDependencyManager {
      */
     Map<String, Object> getExternalParameters();
 
-
     Collection<String> getAllDependencies();
+
     /**
      * A list of available dependencies.
      */

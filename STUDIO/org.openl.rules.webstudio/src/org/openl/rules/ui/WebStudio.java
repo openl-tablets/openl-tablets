@@ -138,7 +138,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private boolean testsFailuresOnly;
     private int testsFailuresPerTest;
     private boolean showComplexResult;
-    private ModuleMode defaultModuleMode = ModuleMode.MULTI;
 
     private String currentRepositoryId;
     private ProjectDescriptor currentProject;
@@ -206,15 +205,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         testsFailuresPerTest = userSettingsManager.getIntegerProperty(userName, "test.failures.pertest");
         showComplexResult = userSettingsManager.getBooleanProperty(userName, "test.result.complex.show");
         showRealNumbers = userSettingsManager.getBooleanProperty(userName, "trace.realNumbers.show");
-
-        String defaultModuleMode = userSettingsManager.getStringProperty(userName, "project.module.default.mode");
-        if (StringUtils.isNotEmpty(defaultModuleMode)) {
-            try {
-                this.defaultModuleMode = ModuleMode.valueOf(defaultModuleMode.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                log.warn(e.getMessage(), e);
-            }
-        }
     }
 
     public RulesTreeView[] getTreeViews() {
@@ -478,7 +468,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
     }
 
-    boolean isAutoCompile() {
+    public boolean isAutoCompile() {
         return Props.bool(AdministrationSettings.AUTO_COMPILE);
     }
 
@@ -530,16 +520,21 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 FacesContext.getCurrentInstance().responseComplete();
                 return;
             }
-            boolean moduleChanged = currentProject != project || currentModule != module;
+            boolean anotherModuleOpened = currentModule != module;
+            boolean anotherProjectOpened = !(model.getModuleInfo() != null && project != null &&
+                model.getModuleInfo().getProject().getName().equals(project.getName()));
             currentModule = module;
             currentProject = project;
-            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || moduleChanged)) {
+            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile ||
+                anotherModuleOpened || anotherProjectOpened)) {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
-                } else if (needCompile || moduleChanged) {
-                    //if moduleChanged is true - we need to reset the project because we change tableSyntaxNode directly
-                    //must be rewritten - tableSyntaxNode must be changed only on project saving
+                } else if (needCompile) {
                     reset(ReloadType.SINGLE);
+                } else if (anotherProjectOpened) {
+                    model.setModuleInfo(module, ReloadType.SINGLE);
+                } else if (anotherModuleOpened) {
+                    model.setModuleInfo(module, ReloadType.NO);
                 } else {
                     model.setModuleInfo(module);
                 }
@@ -1083,20 +1078,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public void setShowComplexResult(boolean showComplexResult) {
         this.showComplexResult = showComplexResult;
         userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.result.complex.show", showComplexResult);
-    }
-
-    public boolean isSingleModuleModeByDefault() {
-        return defaultModuleMode == ModuleMode.SINGLE || defaultModuleMode == ModuleMode.SINGLE_ONLY;
-    }
-
-    public boolean isChangeableModuleMode() {
-        return defaultModuleMode == ModuleMode.MULTI || defaultModuleMode == ModuleMode.SINGLE;
-    }
-
-    public void setSingleModuleModeByDefault(boolean singleMode) {
-        this.defaultModuleMode = singleMode ? ModuleMode.SINGLE : ModuleMode.MULTI;
-        userSettingsManager
-            .setProperty(rulesUserSession.getUserName(), "project.module.default.mode", defaultModuleMode.name());
     }
 
     public void setNeedRestart(boolean needRestart) {

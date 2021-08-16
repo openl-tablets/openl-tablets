@@ -106,7 +106,7 @@ public class ProblemsBean {
     }
 
     private String getNodeUrl(OpenLMessage message, ProjectModel model) {
-        String url = messageHandler.getSourceUrl(message, model);
+        String url = messageHandler.getSourceUrl(message.getSourceLocation(), message.getSeverity().name(), message.getId(), model);
 
         if (StringUtils.isBlank(url)) {
             url = messageHandler.getUrlForEmptySource(message);

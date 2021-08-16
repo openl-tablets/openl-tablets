@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
+import org.openl.CompiledOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.table.IOpenLTable;
@@ -67,6 +68,7 @@ public class RunTestHelper {
 
     public TestSuite getTestSuite() {
         String id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        boolean currentOpenedModule = Boolean.parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
 
         ProjectModel model = WebStudioUtils.getProjectModel();
         IOpenLTable table = model.getTableById(id);
@@ -74,12 +76,13 @@ public class RunTestHelper {
             return null;
         }
         String uri = table.getUri();
-        IOpenMethod method = model.getMethod(uri);
+        IOpenMethod method = currentOpenedModule || !model.isProjectCompilationCompleted()
+            ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
+
         if (method instanceof OpenMethodDispatcher) {
             method = model.getCurrentDispatcherMethod(method, uri);
         }
-
-        IDataBase db = Utils.getDb(model);
+        IDataBase db = Utils.getDb(model, currentOpenedModule);
 
         TestSuite testSuite;
         if (method instanceof TestSuiteMethod) {
@@ -101,8 +104,10 @@ public class RunTestHelper {
             }
             if (runtimeContext != null) {
                 // if context is provided, project method must be retrieved
-                method = model.getCompiledOpenClass().getOpenClassWithErrors().getMethod(method.getName(),
-                        method.getSignature().getParameterTypes());
+                CompiledOpenClass compiledOpenClass = currentOpenedModule ? model.getOpenedModuleCompiledOpenClass()
+                                                                     : model.getCompiledOpenClass();
+                method = compiledOpenClass.getOpenClassWithErrors()
+                    .getMethod(method.getName(), method.getSignature().getParameterTypes());
             }
             testSuite = new TestSuite(new TestDescription(method, runtimeContext, params, db));
         }

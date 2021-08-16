@@ -56,14 +56,23 @@
                         <h:message for="modulePath" styleClass="error" />
                     </a4j:outputPanel></td>
                 </tr>
-                <tr><td class="delimeter"></td></tr>
+                <tr>
+                    <td class="delimeter"></td>
+                </tr>
                 <tr>
                     <td>Included Methods (RegExp):</td>
-                    <td><h:inputTextarea id="moduleIncludes" styleClass="editable-item" /></td>
+                    <td><h:inputTextarea id="moduleIncludes" styleClass="editable-item"/></td>
                 </tr>
                 <tr>
                     <td>Excluded Methods (RegExp):</td>
-                    <td><h:inputTextarea id="moduleExcludes" styleClass="editable-item" /></td>
+                    <td><h:inputTextarea id="moduleExcludes" styleClass="editable-item"/></td>
+                </tr>
+                <tr>
+                    <td class="delimeter"></td>
+                </tr>
+                <tr>
+                    <td>Compile This Module Only:</td>
+                    <td><h:selectBooleanCheckbox id="compileThisModuleOnly" styleClass="editable-item"/></td>
                 </tr>
             </table>
 
@@ -118,16 +127,17 @@
             $j("#modulePath").val(module.path);
             $j("#moduleIncludes").val(module.includes);
             $j("#moduleExcludes").val(module.excludes);
+            $j("#compileThisModuleOnly").prop('checked', module.compileThisModuleOnly);
 
             $j("#editModuleForm span.error").remove();
 
-            $j("#editModuleForm .properties :input").on("keyup change", function() {
+            $j("#editModuleForm .properties :input").on("keyup click change", function () {
                 var changed =
-                        module.name != $j("#moduleName").val()
-                     || module.path != $j("#modulePath").val()
-                     || module.includes != $j("#moduleIncludes").val()
-                     || module.excludes != $j("#moduleExcludes").val();
-
+                    module.name != $j("#moduleName").val()
+                    || module.path != $j("#modulePath").val()
+                    || module.includes != $j("#moduleIncludes").val()
+                    || module.excludes != $j("#moduleExcludes").val()
+                    || module.compileThisModuleOnly != $j("#compileThisModuleOnly").prop('checked');
                 btn.prop("disabled", !changed);
             });
 
