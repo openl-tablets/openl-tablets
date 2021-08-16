@@ -32,7 +32,7 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
     @Override
     protected CompiledDependency onCompilationFailure(Exception ex, AbstractDependencyManager dependencyManager) {
         ClassLoader classLoader = dependencyManager.getExternalJarsClassLoader(getProject());
-        return createFailedCompiledDependency(getDependencyName(), classLoader, ex);
+        return createFailedCompiledDependency(classLoader, ex);
     }
 
     @Override
@@ -42,13 +42,11 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
         return currentThreadVersion >= version;
     }
 
-    private CompiledDependency createFailedCompiledDependency(String dependencyName,
-            ClassLoader classLoader,
-            Exception ex) {
+    private CompiledDependency createFailedCompiledDependency(ClassLoader classLoader, Exception ex) {
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(ex)) {
             String message = String
-                .format("Failed to load dependent module '%s': %s", dependencyName, openLMessage.getSummary());
+                .format("Failed to load dependent module '%s': %s", getDependency(), openLMessage.getSummary());
             messages.add(new OpenLMessage(message, Severity.ERROR));
         }
 
@@ -56,7 +54,7 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
         Thread.currentThread().setContextClassLoader(classLoader);
 
         try {
-            return new CompiledDependency(dependencyName, new CompiledOpenClass(NullOpenClass.the, messages));
+            return new CompiledDependency(getDependency(), new CompiledOpenClass(NullOpenClass.the, messages));
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -76,11 +74,12 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
     }
 
     @Override
-    protected CompiledDependency compileDependency(String dependencyName, AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
+    protected CompiledDependency compileDependency() throws OpenLCompilationException {
         try {
-            LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory(((WebStudioWorkspaceRelatedDependencyManager) dependencyManager).isCanUnload());
+            LazyWorkbookLoaderFactory factory = new LazyWorkbookLoaderFactory(
+                ((WebStudioWorkspaceRelatedDependencyManager) getDependencyManager()).isCanUnload());
             WorkbookLoaders.setCurrentFactory(factory);
-            return super.compileDependency(dependencyName, dependencyManager);
+            return super.compileDependency();
         } finally {
             WorkbookLoaders.resetCurrentFactory();
         }

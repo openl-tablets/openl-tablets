@@ -1,5 +1,6 @@
 package org.openl.dependency;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -9,7 +10,6 @@ import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenField;
 
@@ -34,21 +34,27 @@ public class DependencyBindingContext extends BindingContextDelegator {
         if (var != null) {
             return var;
         }
-        if (dependencyManager.getAvailableDependencies().contains(name)) {
-            try {
-                CompiledDependency compiledDependency = dependencyManager
-                    .loadDependency(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, name, null)));
-                if (!loadedDependencies.contains(name)) {
-                    loadedDependencies.add(name);
-                    addMessages(compiledDependency.getCompiledOpenClass().getMessages());
-                }
-                return new ModuleVar(name,
-                    new DependencyOpenClass(compiledDependency.getCompiledOpenClass().getOpenClassWithErrors()));
-            } catch (Exception e) {
-                if (!loadedDependencies.contains(name)) {
-                    addMessages(OpenLMessagesUtils.newErrorMessages(e));
-                    loadedDependencies.add(name);
-                }
+        Collection<ResolvedDependency> dependencies;
+        try {
+            dependencies = dependencyManager
+                .resolveDependency(new Dependency(new IdentifierNode(null, null, name, null)));
+        } catch (AmbiguousDependencyException e) {
+            throw new AmbiguousFieldException(name, null);
+        } catch (DependencyNotFoundException e) {
+            return null;
+        }
+        try {
+            CompiledDependency compiledDependency = dependencyManager.loadDependency(dependencies.iterator().next());
+            if (!loadedDependencies.contains(name)) {
+                loadedDependencies.add(name);
+                addMessages(compiledDependency.getCompiledOpenClass().getMessages());
+            }
+            return new ModuleVar(name,
+                new DependencyOpenClass(compiledDependency.getCompiledOpenClass().getOpenClassWithErrors()));
+        } catch (Exception e) {
+            if (!loadedDependencies.contains(name)) {
+                addMessages(OpenLMessagesUtils.newErrorMessages(e));
+                loadedDependencies.add(name);
             }
         }
         return null;

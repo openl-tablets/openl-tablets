@@ -39,10 +39,7 @@ public final class AlgorithmSubroutineMethodWrapper extends AbstractAlgorithmSub
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (inlinedMethodCall) {
-            return WrapperLogic.invokeInlinedMethod(this, target, params, env);
-        }
-        return WrapperLogic.invoke(this, target, params, env);
+        return WrapperLogic.invoke(this, target, params, env, type, inlinedMethodCall);
     }
 
     @Override

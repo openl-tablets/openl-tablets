@@ -1,11 +1,10 @@
 package org.openl.rules.project.instantiation;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArraySet;
-
+import java.util.Set;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 
@@ -22,8 +21,8 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
     }
 
     @Override
-    protected Map<String, CopyOnWriteArraySet<IDependencyLoader>> initDependencyLoaders() {
-        Map<String, CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders = new HashMap<>();
+    protected Set<IDependencyLoader> initDependencyLoaders() {
+        Set<IDependencyLoader> dependencyLoaders = new HashSet<>();
         for (ProjectDescriptor project : projects) {
             try {
                 for (final Module m : project.getModules()) {
@@ -31,19 +30,14 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
                         m,
                         executionMode,
                         this);
-                    Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                        .computeIfAbsent(moduleDependencyLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
-                    dependencyLoadersByName.add(moduleDependencyLoader);
+                    dependencyLoaders.add(moduleDependencyLoader);
                 }
 
                 final SimpleDependencyLoader projectDependencyLoader = new SimpleDependencyLoader(project,
                     null,
                     executionMode,
                     this);
-                Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                    .computeIfAbsent(projectDependencyLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
-                dependencyLoadersByName.add(projectDependencyLoader);
-
+                dependencyLoaders.add(projectDependencyLoader);
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
                     String.format("Failed to initialize dependency loaders for project '%s'.", project.getName()),

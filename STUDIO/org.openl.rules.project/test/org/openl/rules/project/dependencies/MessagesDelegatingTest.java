@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.dependency.IDependencyManager;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -25,7 +26,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 
@@ -53,15 +53,15 @@ public class MessagesDelegatingTest {
     }
 
     private static IDependency getDependencyForModule(String moduleName) {
-        return new Dependency(DependencyType.MODULE,
-            new IdentifierNode(IXlsTableNames.DEPENDENCY, null, moduleName, null));
+        return new Dependency(new IdentifierNode(IXlsTableNames.DEPENDENCY, null, moduleName, null));
     }
 
     private CompiledOpenClass getCompiledOpenClassForModule(String moduleName) throws Exception {
         // it is passed through the dependency manager to receive the same
         // instances of OpenLMessages
         IDependency dependency = getDependencyForModule(moduleName);
-        return dependencyManager.loadDependency(dependency).getCompiledOpenClass();
+        Collection<ResolvedDependency> resolvedDependencies = dependencyManager.resolveDependency(dependency);
+        return dependencyManager.loadDependency(resolvedDependencies.iterator().next()).getCompiledOpenClass();
     }
 
     @Test

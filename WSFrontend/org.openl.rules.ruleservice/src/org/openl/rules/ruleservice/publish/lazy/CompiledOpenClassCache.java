@@ -19,12 +19,13 @@ import javax.cache.expiry.TouchedExpiryPolicy;
 import javax.cache.spi.CachingProvider;
 
 import org.openl.CompiledOpenClass;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
+import org.openl.rules.project.instantiation.ApiBasedInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
@@ -67,44 +68,46 @@ public final class CompiledOpenClassCache {
         return CompiledOpenClassHolder.INSTANCE;
     }
 
-    public CompiledOpenClass get(DeploymentDescription deploymentDescription, String dependencyName) {
+    public CompiledOpenClass get(DeploymentDescription deploymentDescription, ResolvedDependency dependency) {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
-        Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
-        Key key = new Key(deploymentDescription, dependencyName);
+        Objects.requireNonNull(dependency, "dependencyName cannot be null");
+        Key key = new Key(deploymentDescription, dependency);
         Cache<Key, CompiledOpenClass> cache = getModulesCache();
         return cache.get(key);
     }
 
     static CompiledOpenClass compileToCache(RuleServiceDependencyManager dependencyManager,
-                                            String dependencyName,
-                                            DeploymentDescription deployment,
-                                            Module module,
-                                            ClassLoader classLoader) throws OpenLCompilationException {
+            ResolvedDependency dependency,
+            DeploymentDescription deployment,
+            Module module,
+            ClassLoader classLoader) throws OpenLCompilationException {
         Objects.requireNonNull(deployment, "deploymentDescription cannot be null");
-        Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
+        Objects.requireNonNull(dependency, "dependency cannot be null");
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         CompiledOpenClass compiledOpenClass = null;
         try {
             LazyBinderMethodHandler.removePrebindHandler();
-            RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
-                .getStrategy(module, true, dependencyManager, classLoader);
+            RulesInstantiationStrategy rulesInstantiationStrategy = new ApiBasedInstantiationStrategy(module,
+                dependencyManager,
+                classLoader,
+                true);
             rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);
-            Map<String, Object> parameters = ProjectExternalDependenciesHelper.buildExternalParamsWithProjectDependencies(
-                dependencyManager.getExternalParameters(),
-                Collections.singleton(module));
+            Map<String, Object> parameters = ProjectExternalDependenciesHelper
+                .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(),
+                    Collections.singleton(module));
             rulesInstantiationStrategy.setExternalParameters(parameters);
             compiledOpenClass = rulesInstantiationStrategy.compile();
 
-            Key key = new Key(deployment, dependencyName);
+            Key key = new Key(deployment, dependency);
             Cache<Key, CompiledOpenClass> cache = getInstance().getModulesCache();
             cache.put(key, compiledOpenClass);
             LOG.debug("Compiled lazy dependency (deployment='{}', version='{}', name='{}') is saved in cache.",
                 deployment.getName(),
                 deployment.getVersion().getVersionName(),
-                dependencyName);
+                dependency);
             return compiledOpenClass;
         } catch (Exception ex) {
-            throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName), ex);
+            throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependency), ex);
         } finally {
             if (compiledOpenClass != null) {
                 IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
@@ -116,10 +119,10 @@ public final class CompiledOpenClassCache {
         }
     }
 
-    void registerEvent(DeploymentDescription deploymentDescription, String dependencyName, LazyMember event) {
+    void registerEvent(DeploymentDescription deploymentDescription, ResolvedDependency dependency, LazyMember event) {
         Objects.requireNonNull(deploymentDescription, "deploymentDescription cannot be null");
-        Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
-        Key key = new Key(deploymentDescription, dependencyName);
+        Objects.requireNonNull(dependency, "dependency cannot be null");
+        Key key = new Key(deploymentDescription, dependency);
         synchronized (eventsMap) {
             Collection<LazyMember> events = eventsMap.computeIfAbsent(key, k -> new ArrayList<>());
             events.add(event);
