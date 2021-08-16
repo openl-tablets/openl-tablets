@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.resolving.ProjectResolver;
 
 @RunWith(Parameterized.class)
@@ -38,31 +37,17 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
 
         WebStudio ws = mock(WebStudio.class);
         when(ws.getProjectResolver()).thenReturn(ProjectResolver.getInstance());
-        when(ws.isChangeableModuleMode()).thenReturn(true);
 
         pm = new ProjectModel(ws);
         pm.setModuleInfo(getModules().get(0));
-        if (singleModuleMode) {
-            pm.useSingleModuleMode();
-        } else {
-            pm.useMultiModuleMode();
-        }
     }
 
     @Test
     public void testTypesAndTestMethodsCount() {
-        assertEquals(singleModuleMode, pm.isSingleModuleMode());
         assertTrue(pm.getCompiledOpenClass().hasErrors());
 
         assertEquals(1, pm.getAllTestMethods().length);
         assertEquals(1, pm.getCompiledOpenClass().getOpenClassWithErrors().getTypes().size());
-    }
-
-    @Test
-    public void testSingleModuleModeNotChangedAfterReset() throws Exception {
-        assertEquals(singleModuleMode, pm.isSingleModuleMode());
-        pm.reset(ReloadType.FORCED);
-        assertEquals(singleModuleMode, pm.isSingleModuleMode());
     }
 
     private void createMainModule() throws IOException {

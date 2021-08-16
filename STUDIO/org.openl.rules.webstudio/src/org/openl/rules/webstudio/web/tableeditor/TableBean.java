@@ -17,20 +17,14 @@ import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
-import org.openl.message.Severity;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
-import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
@@ -40,7 +34,6 @@ import org.openl.rules.testmethod.TestMethodBoundNode;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUtils;
-import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
@@ -49,7 +42,6 @@ import org.openl.rules.webstudio.util.XSSFOptimizer;
 import org.openl.rules.webstudio.web.test.Utils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -78,8 +70,6 @@ public class TableBean {
     private IOpenMethod[] allTests = {};
     private IOpenMethod[] tests = {};
 
-    private List<TableDescription> targetTables;
-
     private String uri;
     private String id;
     private IOpenLTable table;
@@ -87,12 +77,7 @@ public class TableBean {
     private boolean canBeOpenInExcel;
     private boolean copyable;
 
-    // Errors + Warnings
-    private List<OpenLMessage> problems;
-
     private final PropertyResolver propertyResolver;
-
-    private boolean hasErrors;
 
     public TableBean(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
@@ -115,18 +100,14 @@ public class TableBean {
             uri = table.getUri();
             // Save URI because some actions don't provide table ID
             studio.setTableUri(uri);
-
-            method = model.getMethod(uri);
-
+            boolean currentOpenedModule = !model.isProjectCompilationCompleted();
+            method = currentOpenedModule ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
             editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
             canBeOpenInExcel = model.isEditable() && !isDispatcherValidationNode();
             copyable = editable && table.isCanContainProperties() && !XlsNodeTypes.XLS_DATATYPE.toString()
                 .equals(table.getType()) && isGranted(CREATE_TABLES);
 
-            initTargetTables();
-
-            initProblems();
-            initTests(model);
+            initTests(model, currentOpenedModule);
 
             // Save last visited table
             model.getRecentlyVisitedTables().setLastVisitedTable(table);
@@ -145,45 +126,10 @@ public class TableBean {
         recentlyVisitedTables.add(table);
     }
 
-    private void initTargetTables() {
-        List<TableDescription> targetTables = new ArrayList<>();
-        String tableType = table.getType();
-        if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || tableType
-            .equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
-
-            if (method instanceof TestSuiteMethod) {
-                List<IOpenMethod> targetMethods = new ArrayList<>();
-                IOpenMethod testedMethod = ((TestSuiteMethod) method).getTestedMethod();
-
-                // Overloaded methods
-                if (testedMethod instanceof OpenMethodDispatcher) {
-                    List<IOpenMethod> overloadedMethods = ((OpenMethodDispatcher) testedMethod).getCandidates();
-                    targetMethods.addAll(overloadedMethods);
-                } else {
-                    targetMethods.add(testedMethod);
-                }
-
-                for (IOpenMethod targetMethod : targetMethods) {
-                    IMemberMetaInfo methodInfo = targetMethod.getInfo();
-                    if (methodInfo != null) {
-                        TableSyntaxNode tsn = (TableSyntaxNode) methodInfo.getSyntaxNode();
-                        IOpenLTable targetTable = new TableSyntaxNodeAdapter(tsn);
-                        targetTables.add((new TableDescription(targetTable.getUri(),
-                            targetTable.getId(),
-                            getTableName(targetTable))));
-                    }
-                }
-            }
-
-        }
-        this.targetTables = targetTables;
-    }
-
-    private void initTests(final ProjectModel model) {
+    private void initTests(final ProjectModel model, boolean currentOpenedModule) {
         initRunnableTestMethods();
-
-        allTests = model.getTestAndRunMethods(uri);
-        tests = model.getTestMethods(uri);
+        allTests = model.getTestAndRunMethods(uri, currentOpenedModule);
+        tests = model.getTestMethods(uri, currentOpenedModule);
     }
 
     private void initRunnableTestMethods() {
@@ -197,63 +143,6 @@ public class TableBean {
         }
     }
 
-    private void initProblems() {
-
-        ProjectModel model = WebStudioUtils.getProjectModel();
-        String tableUri = table.getUri();
-        List<OpenLMessage> errors = new ArrayList<>(model.getErrorsByUri(tableUri));
-        List<OpenLMessage> warnings = new ArrayList<>(model.getWarnsByUri(tableUri));
-
-        if (warnings.size() >= MAX_PROBLEMS) {
-            warnings = warnings.subList(0, MAX_PROBLEMS);
-            warnings.add(OpenLMessagesUtils.newErrorMessage(
-                    "Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
-        }
-        if (errors.size() >= MAX_PROBLEMS) {
-            errors = errors.subList(0, MAX_PROBLEMS);
-            errors.add(OpenLMessagesUtils.newErrorMessage(
-                    "Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
-        }
-
-        hasErrors = !errors.isEmpty();
-        // if the current table is a test then check tested target tables on errors.
-        for (TableDescription targetTable : targetTables) {
-            if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
-                warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
-                hasErrors = true;
-                break;
-            }
-        }
-
-        problems = new ArrayList<>();
-        problems.addAll(errors);
-        problems.addAll(warnings);
-    }
-
-    public String getTableName(IOpenLTable table) {
-        String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
-        ITableProperties tableProps = table.getProperties();
-        StringBuilder dimensionBuilder = new StringBuilder();
-        String tableName = table.getDisplayName();
-        if (tableProps != null) {
-            for (String dimensionProp : dimensionProps) {
-                String propValue = tableProps.getPropertyValueAsString(dimensionProp);
-
-                if (propValue != null && !propValue.isEmpty()) {
-                    dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
-                        .append(dimensionProp)
-                        .append(" = ")
-                        .append(propValue);
-                }
-            }
-        }
-        if (dimensionBuilder.length() > 0) {
-            return tableName + " [" + dimensionBuilder.toString() + "]";
-        } else {
-            return tableName;
-        }
-    }
-
     public boolean isDispatcherValidationNode() {
         return table != null && table.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
@@ -264,10 +153,6 @@ public class TableBean {
 
     public IOpenLTable getTable() {
         return table;
-    }
-
-    public List<OpenLMessage> getProblems() {
-        return problems;
     }
 
     /**
@@ -284,7 +169,7 @@ public class TableBean {
         if (testCase != null) {
             ParameterWithValueDeclaration[] contextParams = TestUtils
                 .getContextParams(new TestSuite((TestSuiteMethod) method), testCase);
-            Utils.getDb(WebStudioUtils.getProjectModel());
+            Utils.getDb(WebStudioUtils.getProjectModel(), false);
             ParameterWithValueDeclaration[] inputParams = testCase.getExecutionParams();
 
             params = new ParameterWithValueDeclaration[contextParams.length + inputParams.length];
@@ -309,10 +194,6 @@ public class TableBean {
         return id;
     }
 
-    public List<TableDescription> getTargetTables() {
-        return targetTables;
-    }
-
     /**
      * @return true if it is possible to create tests for current table.
      */
@@ -330,14 +211,6 @@ public class TableBean {
 
     public boolean isTablePart() {
         return WebStudioUtils.getProjectModel().isTablePart(uri);
-    }
-
-    public boolean isHasErrors() {
-        return hasErrors;
-    }
-
-    public boolean isHasProblems() {
-        return CollectionUtils.isNotEmpty(problems);
     }
 
     /**
@@ -495,15 +368,15 @@ public class TableBean {
     }
 
     public boolean getCanRun() {
-        return isGranted(RUN) && !isHasErrors();
+        return isGranted(RUN);
     }
 
     public boolean getCanTrace() {
-        return isGranted(TRACE) && !isHasErrors();
+        return isGranted(TRACE);
     }
 
     public boolean getCanBenchmark() {
-        return isGranted(BENCHMARK) && !isHasErrors();
+        return isGranted(BENCHMARK);
     }
 
     public Integer getRowIndex() {

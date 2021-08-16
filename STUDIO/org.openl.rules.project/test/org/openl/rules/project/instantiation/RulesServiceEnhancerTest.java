@@ -32,7 +32,7 @@ public class RulesServiceEnhancerTest {
         project.setModules(Collections.singletonList(module));
 
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
-            .singletonList(project), null, true, false, null);
+            .singletonList(project), null, false, null);
 
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
 

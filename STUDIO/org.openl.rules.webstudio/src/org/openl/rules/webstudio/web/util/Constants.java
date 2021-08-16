@@ -11,6 +11,7 @@ public final class Constants {
     public static final String REQUEST_PARAM_FAILURES_ONLY = "failuresOnly";
     public static final String REQUEST_PARAM_FAILURES_NUMBER = "failures";
     public static final String REQUEST_PARAM_COMPLEX_RESULT = "complexResult";
+    public static final String REQUEST_PARAM_CURRENT_OPENED_MODULE = "currentOpenedModule";
 
     public static final String REQUEST_PARAM_TEST_RANGES = "testRanges";
 

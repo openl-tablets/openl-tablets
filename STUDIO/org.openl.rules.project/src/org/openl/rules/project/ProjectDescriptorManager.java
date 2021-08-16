@@ -25,6 +25,7 @@ import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.rules.project.model.validation.ProjectDescriptorValidator;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
@@ -142,6 +143,12 @@ public class ProjectDescriptorManager {
                     m.setRulesRootPath(new PathEntry(relativePath));
                     m.setName(FileUtils.getBaseName(modulePath.toString()));
                     m.setMethodFilter(module.getMethodFilter());
+                    if (module.getWebstudioConfiguration() != null) {
+                        WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
+                        webstudioConfiguration
+                            .setCompileThisModuleOnly(module.getWebstudioConfiguration().isCompileThisModuleOnly());
+                        m.setWebstudioConfiguration(webstudioConfiguration);
+                    }
                     m.setWildcardRulesRootPath(pathPattern);
                     m.setWildcardName(module.getName());
                     modules.add(m);

@@ -1,6 +1,5 @@
 package org.openl.rules.dt;
 
-import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IMethodCaller;
 
 public interface IBaseCondition extends IBaseDecisionRow {
@@ -10,8 +9,4 @@ public interface IBaseCondition extends IBaseDecisionRow {
     IBaseConditionEvaluator getConditionEvaluator();
 
     IMethodCaller getEvaluator();
-
-    @Override
-    ILogicalTable getValueCell(int ruleIndex);
-
 }

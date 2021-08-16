@@ -8,6 +8,7 @@ public class Module {
     private PathEntry rulesRootPath;
     private ProjectDescriptor project;
     private Map<String, Object> properties;
+    private WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
     private String wildcardName;
     private String wildcardRulesRootPath;
     private MethodFilter methodFilter;
@@ -26,6 +27,14 @@ public class Module {
 
     public void setWildcardRulesRootPath(String wildcardRulesRootPath) {
         this.wildcardRulesRootPath = wildcardRulesRootPath;
+    }
+
+    public WebstudioConfiguration getWebstudioConfiguration() {
+        return webstudioConfiguration;
+    }
+
+    public void setWebstudioConfiguration(WebstudioConfiguration webstudioConfiguration) {
+        this.webstudioConfiguration = webstudioConfiguration;
     }
 
     public String getWildcardName() {

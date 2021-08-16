@@ -30,8 +30,8 @@ public class OpenLErrorMessageTest {
         // If error message contains location, it should be considered in equality comparison.
         // Otherwise only message should be considered.
 
-        assertEquals(e1, e2);
-        assertEquals(e1.hashCode(), e2.hashCode());
+        assertNotEquals(e1, e2);
+        assertNotEquals(e1.hashCode(), e2.hashCode());
 
         if (e1.hashCode() != e3.hashCode()) {
             assertNotEquals(e1, e3);
@@ -41,7 +41,7 @@ public class OpenLErrorMessageTest {
             assertNotEquals(e1, e4);
         }
 
-        assertEquals(e4, e5);
-        assertEquals(e4.hashCode(), e5.hashCode());
+        assertNotEquals(e4, e5);
+        assertNotEquals(e4.hashCode(), e5.hashCode());
     }
 }

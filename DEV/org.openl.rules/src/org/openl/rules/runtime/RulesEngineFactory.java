@@ -208,8 +208,8 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
                 IBindingContext bindingContext = getOpenL().getBinder().makeBindingContext();
                 bindingContext.setExecutionMode(isExecutionMode());
                 ValidationManager.validate(new RulesCompileContext(), compiledOpenClass.getOpenClassWithErrors(), bindingContext);
-                ValidatedCompiledOpenClass validatedCompiledOpenClass = new ValidatedCompiledOpenClass(
-                    compiledOpenClass);
+                ValidatedCompiledOpenClass validatedCompiledOpenClass = ValidatedCompiledOpenClass
+                    .instanceOf(compiledOpenClass);
                 if (bindingContext.getMessages() != null) {
                     bindingContext.getMessages().forEach(validatedCompiledOpenClass::addMessage);
                 }

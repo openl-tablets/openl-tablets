@@ -98,7 +98,7 @@ public class ProjectHistoryService {
                 }
                 throw new IOException(msg);
             }
-            model.reset(ReloadType.RELOAD);
+            model.reset(ReloadType.SINGLE);
             fileToRestore.renameTo(new File(fileToRestore.getPath() + CURRENT_VERSION));
             if (currentVersion != null) {
                 currentVersion.renameTo(new File(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")));

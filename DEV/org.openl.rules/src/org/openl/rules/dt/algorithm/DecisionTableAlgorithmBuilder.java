@@ -8,19 +8,25 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import org.openl.OpenL;
+import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.TypeBoundNode;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
+import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableUtils;
 import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt.data.ConditionOrActionDirectParameterField;
+import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.data.DecisionTableDataType;
+import org.openl.rules.dt.element.Condition;
 import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.IDecisionRow;
@@ -249,6 +255,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         }
         condition.setConditionParametersUsed(checkConditionParameterUsedInExpression(condition));
         condition.setRuleIdOrRuleNameUsed(checkRuleIdOrRuleNameInExpression(condition));
+        condition.setDependentOnOtherColumnsParams(checkOtherColumnParametersInExpression((Condition) condition));
 
         IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
         if (StringUtils.isEmpty(source.getCode())) {
@@ -266,10 +273,28 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             BindHelper.processError(message, source, bindingContext);
             return DefaultConditionEvaluator.INSTANCE;
         }
-
         IOpenClass methodType = ((CompositeMethod) condition.getMethod()).getBodyType();
+        if (condition.isDependentOnOtherColumnsParams()) {
+            condition.setConditionEvaluator(DefaultConditionEvaluator.INSTANCE);
+            if (!JavaOpenClass.BOOLEAN.equals(methodType) && !JavaOpenClass.getOpenClass(Boolean.class)
+                .equals(methodType)) {
+                if (condition.getParams().length != 1) {
+                    BindHelper.processError(
+                        "Condition expression must return a boolean type if it uses condition parameters.",
+                        source,
+                        bindingContext);
+                    return DefaultConditionEvaluator.INSTANCE;
+                } else {
+                    IOpenCast openCast = bindingContext.getCast(methodType, condition.getParams()[0].getType());
+                    if (openCast.isImplicit()) {
+                        condition.setComparisonCast(openCast);
+                    }
+                }
+            }
+            return DefaultConditionEvaluator.INSTANCE;
+        }
 
-        if (condition.isDependentOnAnyParams() || condition.isRuleIdOrRuleNameUsed()) {
+        if (condition.isDependentOnInputParams() || condition.isRuleIdOrRuleNameUsed()) {
             if (!JavaOpenClass.BOOLEAN.equals(methodType) && !JavaOpenClass.getOpenClass(Boolean.class)
                 .equals(methodType)) {
                 BindHelper.processError(
@@ -305,6 +330,18 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             condition.setConditionEvaluator(dtcev);
             return dtcev;
         }
+    }
+
+    private boolean checkOtherColumnParametersInExpression(Condition condition) {
+        BindingDependencies dependencies = new RulesBindingDependencies();
+        condition.getMethod().updateDependency(dependencies);
+        for (IOpenField field : dependencies.getFieldsMap().values()) {
+            field = Condition.getLocalField(field);
+            if (field instanceof ConditionOrActionParameterField || field instanceof ConditionOrActionDirectParameterField) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean checkConditionParameterUsedInExpression(ICondition condition) {
