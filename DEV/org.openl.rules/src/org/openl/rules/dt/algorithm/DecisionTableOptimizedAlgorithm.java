@@ -22,6 +22,7 @@ import org.openl.rules.dt.algorithm.evaluator.DefaultConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.EqualsIndexedEvaluatorV2;
 import org.openl.rules.dt.algorithm.evaluator.IConditionEvaluator;
+import org.openl.rules.dt.data.ConditionOrActionDirectParameterField;
 import org.openl.rules.dt.data.ConditionOrActionParameterField;
 import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ConditionHelper;
@@ -457,6 +458,10 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     private boolean isDependencyOnConditionExists(ICondition condition) {
         for (IOpenField field : dependencies.getFieldsMap().values()) {
             if (field instanceof ConditionOrActionParameterField && ((ConditionOrActionParameterField) field)
+                .getConditionOrAction() == condition) {
+                return true;
+            }
+            if (field instanceof ConditionOrActionDirectParameterField && ((ConditionOrActionDirectParameterField) field)
                 .getConditionOrAction() == condition) {
                 return true;
             }

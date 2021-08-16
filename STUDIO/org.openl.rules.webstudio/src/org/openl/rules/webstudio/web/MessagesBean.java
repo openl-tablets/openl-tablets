@@ -111,7 +111,7 @@ public class MessagesBean {
         }
 
         ProjectModel model = WebStudioUtils.getProjectModel();
-        return model.getMessageNodeId(message);
+        return model.getMessageNodeId(message.getSourceLocation());
     }
 
     public String getErrorCell() {

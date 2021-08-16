@@ -26,7 +26,7 @@
 
     <link href="#{contextPath}/webresource/css/tableeditor.min.css" rel="stylesheet" />
 
-    <script src="#{contextPath}/javascript/common.js?7"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
+    <script src="#{contextPath}/javascript/common.js?8"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
     <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
     <script src="#{contextPath}/javascript/vendor/jquery.are-you-sure.js"></script>
     <script src="#{contextPath}/javascript/vendor/bootstrap.min.js"></script>
@@ -226,10 +226,15 @@
                                 }
                             }
                             done && done();
+                            fixRichFaces();
                         });
                     }
                 },
-
+                utils : {
+                    escapeHtml: function (string) {
+                        return $('<div/>').text(string).html();
+                    }
+                },
                 storage: {
                     get: function(name) {
                         var strValue = localStorage.getItem(name);
@@ -260,7 +265,23 @@
                     },
                     reloadPanel: function(panel, callback) {
                         if (panel == "left") {
-                            api.ajax.load([DEFAULT_CONTENT.left], callback);
+                            let isHistoryPanel = $('#recentVisitedTablesPanel').is(":visible");
+                            let expandedNodes = getExpandedNodes();
+                            let expandAndCallback = () => {
+                                expandNodes(expandedNodes);
+
+                                if (callback) {
+                                    callback();
+                                } else {
+                                    if (isHistoryPanel) {
+                                        $("#rulesTreePanel").hide();
+                                        $("#recentVisitedTablesPanel").show();
+                                    } else {
+                                        openTreeNode();
+                                    }
+                                }
+                            }
+                            api.ajax.load([DEFAULT_CONTENT.left], expandAndCallback);
                         }
                     },
                     openHistoryPanel: function() {
@@ -414,6 +435,30 @@
                         }
 
                         $("#" + popupId).popup(popupParams);
+                    },
+                    confirm: function (options) {
+                        let confirmPopup = RichFaces.$('confirmPopup');
+
+                        const defaults = {
+                            title: 'Confirm',
+                            message: 'Are you sure?',
+                            onOK: () => {},
+                            onCancel: () => {},
+                        };
+                        options = $.extend({}, defaults, options);
+
+                        $('#confirmPopupTitle').text(options.title);
+                        $('#confirmPopupMessage').text(options.message);
+                        $('#confirmPopupOkButton').off().click(() => {
+                            options.onOK();
+                            confirmPopup.hide();
+                        });
+                        $('#confirmPopupCancelButton').off().click(() => {
+                            options.onCancel();
+                            confirmPopup.hide();
+                        });
+
+                        confirmPopup.show();
                     },
                     showLoader: function () {
                         if (reqs++ == 0) {
@@ -845,6 +890,26 @@
                     initPopupPanels();
                 })
 
+                callbacks.push(function(){
+                    $j('.layout-extractable-info').bind('DOMSubtreeModified', function(){
+                        var layoutPane = $j($j(this).parents(".ui-layout-pane")[0]);
+                        if (layoutPane) {
+                            var layoutDirection =
+                                layoutPane.attr("class")
+                                    .split(/\s+/)
+                                    .find(function(e){return e.startsWith("ui-layout-pane-");})
+                                    .split(/-/)[3];
+
+                            var layoutToggler = $j(layoutPane.siblings(".ui-layout-resizer-" + layoutDirection)[0]);
+                            var extractedLayoutInfo = layoutToggler.find(".layout-extractable-info");
+                            if (extractedLayoutInfo) {
+                                layoutToggler.find(".layout-extractable-info").remove();
+                            }
+                            $j(this).clone().appendTo(layoutToggler);
+                        }
+                    });
+                })
+
                 var initUrl = urlRewrite.prefix + "init.xhtml";
                 if (init && init.project) {
                     initUrl += ("?project=" + init.project);
@@ -898,6 +963,31 @@
                         }
                     }
                 );
+            };
+
+            let getExpandedNodes = function () {
+                let $expanded = $("#rulesTree .rf-tr-nd-exp");
+                let expandedNodes = [];
+                $expanded.each(function () {
+                    let hrefChildren = $(this).find("a").filter(function() {
+                        return $(this).parents('.rf-tr-nd-colps').length === 0;
+                    });
+                    if (hrefChildren.length > 0) {
+                        expandedNodes.push(hrefChildren.first().attr("href"));
+                    }
+                });
+
+                return expandedNodes;
+            }
+
+            let expandNodes = function (expandedNodes) {
+                for (const node of expandedNodes) {
+                    let $node = $("#rulesTree a[href *= '" + node + "']");
+                    $node.parents(".rf-tr-nd-colps").each(function () {
+                        $(this).toggleClass("rf-tr-nd-colps rf-tr-nd-exp");
+                        $(this).find(".rf-trn-hnd-colps:first").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp")
+                    });
+                }
             };
 
             var openTreeNode = function(pageToOpen) {
@@ -982,7 +1072,7 @@
             })
                 .done(function (data) {
                     if (data === "true" && confirm('Project source file was modified.\nClick \'OK\' to reload WebStudio with changes, and \'Cancel\' to ignore changes.')) {
-                        forceReload(); // from the topPanel.xhtml
+                        reloadModule(); // from the topPanel.xhtml
                     }
                 })
                 .always(function () {
@@ -1051,9 +1141,11 @@
             <a4j:jsFunction name="onPageUnload" action="#{mainBean.onPageUnload}" onbegin="ws.ui.showLoader()" oncomplete="ws.ui.hideLoader()">
                 <a4j:param name="requestId" assignTo="#{mainBean.requestId}" />
             </a4j:jsFunction>
+            <a4j:jsFunction name="reloadModule" action="#{studio.compile}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
         </h:form>
     </div>
 
     <ui:include src="/pages/modules/tooLongDownload.xhtml"/>
+    <ui:include src="/pages/modules/confirmPopup.xhtml" />
 </h:body>
 </html>

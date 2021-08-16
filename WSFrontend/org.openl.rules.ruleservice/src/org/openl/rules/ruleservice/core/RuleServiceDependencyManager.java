@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.core;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
@@ -11,6 +10,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -83,7 +83,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
             CompilationInfo compilationInfo = compilationInfoStack.pop();
             long t = System.currentTimeMillis() - compilationInfo.time;
 
-            if (log.isInfoEnabled() && !dependencyLoader.isProject() && writeToLog) {
+            if (log.isInfoEnabled() && !dependencyLoader.isProjectLoader() && writeToLog) {
                 log.info("SUCCESS COMPILATION - {} - Module '{}',  project '{}', deployment '{}' in [{}] ms.",
                     compilationType,
                     dependencyLoader.getDependencyName(),
@@ -147,8 +147,8 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     }
 
     @Override
-    protected Map<String, Collection<IDependencyLoader>> initDependencyLoaders() {
-        Map<String, Collection<IDependencyLoader>> dependencyLoaders = new HashMap<>();
+    protected Map<String, CopyOnWriteArraySet<IDependencyLoader>> initDependencyLoaders() {
+        Map<String, CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders = new HashMap<>();
         IDeployment rslDeployment = ruleServiceLoader.getDeployment(deployment.getName(), deployment.getVersion());
         String deploymentName = rslDeployment.getDeploymentName();
         CommonVersion deploymentVersion = rslDeployment.getCommonVersion();
@@ -200,7 +200,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                             moduleLoader = new RuleServiceDependencyLoader(project, m, this);
                         }
                         Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                            .computeIfAbsent(moduleLoader.getDependencyName(), e -> new ArrayList<>());
+                            .computeIfAbsent(moduleLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
                         dependencyLoadersByName.add(moduleLoader);
                     }
                 }
@@ -212,7 +212,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                         projectLoader = new RuleServiceDependencyLoader(project, null, this);
                     }
                     Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                        .computeIfAbsent(projectLoader.getDependencyName(), e -> new ArrayList<>());
+                        .computeIfAbsent(projectLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
                     dependencyLoadersByName.add(projectLoader);
                 }
             } catch (Exception e) {

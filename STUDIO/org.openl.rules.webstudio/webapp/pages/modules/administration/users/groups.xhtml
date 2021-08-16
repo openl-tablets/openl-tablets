@@ -194,21 +194,6 @@
 
             var onlyAdmin = "";
 
-            var escaped = {
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': '&quot;',
-                "'": '&#39;',
-                "/": '&#x2F;'
-            };
-
-            function text(value) {
-                return value ? value.replace(/[&<>"'\/]/g, function (s) {
-                    return escaped[s];
-                }) : "";
-            }
-
             function renderGroupsTable(data) {
                 var admins = 0;
                 var rowTemplate = $j('#groupsTable>div:nth-child(2)');
@@ -220,7 +205,7 @@
                     var privs = "";
 
                     item.roles && item.roles.forEach(function (role) {
-                        privs += "<span class='role'>" + text(role) + "</span>";
+                        privs += "<span class='role'>" + ws.utils.escapeHtml(role) + "</span>";
                     });
 
                     item.privileges && item.privileges.forEach(function (priv) {
@@ -235,8 +220,8 @@
 
                     list += htmlTemplate
                         .replace(/{type}/g, onlyAdmin === name ? "onlyAdmin" : "")
-                        .replace(/{name}/g, text(name))
-                        .replace(/{description}/g, text(item.description))
+                        .replace(/{name}/g, ws.utils.escapeHtml(name))
+                        .replace(/{description}/g, ws.utils.escapeHtml(item.description))
                         .replace(/{privileges}/g, privs);
                 });
                 $j('#groupsTable').append(list);
@@ -420,7 +405,7 @@
             function render(groups, privileges) {
                 var html = "<div><div style='min-width: 150px;'>Privilege:</div>";
                 $j.each(groups, function (name, gr) {
-                    html += "<label><input type='checkbox' value='" + text(name) + "' name='group'><div>" + text(name) + "</div></label>";
+                    html += "<label><input type='checkbox' value='" + ws.utils.escapeHtml(name) + "' name='group'><div>" + ws.utils.escapeHtml(name) + "</div></label>";
                 });
                 html += "</div>";
                 $j.each(privileges, function (code, value) {

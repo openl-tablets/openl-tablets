@@ -104,7 +104,7 @@ function initPopupPanels() {
     if (!$j) {
         return;
     }
-    const popupPanels = $j('.rf-pp-cntr').parent();
+    const popupPanels = $j('.rf-pp-cntr').parent("div");
     popupPanels.addClass('popup-panel');
 
     // EPBDS-10407. By default Popup Panels are rendered with style="visibility:hidden; display: inline-block;" and

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Objects;
 
 import org.openl.classloader.OpenLClassLoader;
-import org.openl.rules.project.instantiation.MultiModuleInstantiationStartegy;
+import org.openl.rules.project.instantiation.MultiModuleInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
@@ -18,7 +18,7 @@ import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
  *
  * @author pudalau, Marat Kamalov
  */
-public class LazyInstantiationStrategy extends MultiModuleInstantiationStartegy {
+public class LazyInstantiationStrategy extends MultiModuleInstantiationStrategy {
 
     private LazyEngineFactory<?> engineFactory;
     private final DeploymentDescription deployment;

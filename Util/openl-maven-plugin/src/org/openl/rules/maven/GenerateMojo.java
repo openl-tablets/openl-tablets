@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -21,11 +22,20 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
+import org.openl.dependency.CompiledDependency;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
+import org.openl.syntax.code.Dependency;
+import org.openl.syntax.code.DependencyType;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
@@ -46,8 +56,7 @@ import net.sf.cglib.core.Predicate;
 /**
  * Generates OpenL Tablets interface, domain classes, project descriptor, and unit tests.
  */
-@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES,
-        requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE)
 public final class GenerateMojo extends BaseOpenLMojo {
 
     @Parameter(defaultValue = "${project.compileClasspathElements}", readonly = true, required = true)
@@ -82,7 +91,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private String interfaceClass;
 
     /**
-     * Rules module from which Java Beans and the interface are generated. Usually it corresponds to the Excel file name
+     * Rules module from which Java Beans and the interface is generated. Usually it corresponds to the Excel file name
      * without an extension. If this parameter is not defined, the whole project is used for generating Java classes.
      *
      * @since 5.23.2
@@ -131,14 +140,11 @@ public final class GenerateMojo extends BaseOpenLMojo {
         try {
             classLoader = composeClassLoader();
 
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder =
-                    new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
             }
-            if (StringUtils.isNotEmpty(moduleName)) {
-                builder.setModule(moduleName);
-            }
+
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                 .setClassLoader(classLoader)
                 .setProvideRuntimeContext(isProvideRuntimeContext)
@@ -147,16 +153,40 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 .setExternalParameters(externalParameters)
                 .build();
 
-            CompiledOpenClass openLRules = factory.getCompiledOpenClass();
+            CompiledOpenClass compiledOpenClass;
+            if (StringUtils.isNotEmpty(moduleName) && interfaceClass == null) {
+                try {
+                    CompiledDependency compiledDependency = factory.getDependencyManager()
+                        .loadDependency(new Dependency(DependencyType.MODULE,
+                            new IdentifierNode(DependencyType.MODULE.name(), null, moduleName, null)));
+                    compiledOpenClass = compiledDependency.getCompiledOpenClass();
+                } catch (OpenLCompilationException e) {
+                    Collection<OpenLMessage> messages = new LinkedHashSet<>();
+                    for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(e)) {
+                        String message = String
+                            .format("Failed to load module '%s': %s", moduleName, openLMessage.getSummary());
+                        messages.add(new OpenLMessage(message, Severity.ERROR));
+                    }
+                    ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+                    Thread.currentThread().setContextClassLoader(classLoader);
+                    try {
+                        compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
+                    } finally {
+                        Thread.currentThread().setContextClassLoader(oldClassLoader);
+                    }
+                }
+            } else {
+                compiledOpenClass = factory.getCompiledOpenClass();
+            }
 
             // Generate Java beans from OpenL dataTypes
-            writeJavaBeans(openLRules.getTypes());
+            writeJavaBeans(compiledOpenClass.getTypes());
 
             if (generateSpreadsheetResultBeans) {
-                writeCustomSpreadsheetResultBeans(openLRules.getTypes());
-                if (openLRules.getOpenClass() instanceof XlsModuleOpenClass) {
-                    XlsModuleOpenClass module = (XlsModuleOpenClass) openLRules.getOpenClass();
-                    //Check: custom spreadsheet is enabled
+                writeCustomSpreadsheetResultBeans(compiledOpenClass.getTypes());
+                if (compiledOpenClass.getOpenClass() instanceof XlsModuleOpenClass) {
+                    XlsModuleOpenClass module = (XlsModuleOpenClass) compiledOpenClass.getOpenClass();
+                    // Check: custom spreadsheet is enabled
                     if (module.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
                         CustomSpreadsheetResultOpenClass spreadsheetResultOpenClass = (module)
                             .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
@@ -169,7 +199,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
             // Generate interface is optional.
             if (interfaceClass != null) {
                 Class<?> interfaceClass = factory.getInterfaceClass();
-                IOpenClass openClass = openLRules.getOpenClass();
+                IOpenClass openClass = compiledOpenClass.getOpenClass();
                 writeInterface(interfaceClass, openClass);
                 project.addCompileSourceRoot(outputDirectory.getPath());
             }
@@ -240,8 +270,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
             for (IOpenClass openClass : types) {
                 // Skip java code generation for other types
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass =
-                            (CustomSpreadsheetResultOpenClass) openClass;
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                     Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
                     info("Java Bean for Spreadsheet Result: " + cls.getName());
                     Path filePath = Paths.get(classesDirectory, cls.getName().replace('.', '/') + ".class");

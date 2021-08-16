@@ -9,8 +9,6 @@ public interface ProjectEngineFactory<T> {
 
     T newInstance() throws RulesInstantiationException, ProjectResolvingException, ClassNotFoundException;
 
-    boolean isSingleModuleMode();
-
     boolean isProvideRuntimeContext();
 
     Class<?> getInterfaceClass() throws RulesInstantiationException, ProjectResolvingException, ClassNotFoundException;
