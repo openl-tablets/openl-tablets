@@ -162,69 +162,77 @@
                                rendered="#{!empty module}" />
             </a4j:ajax>
 
-            <h:panelGroup rendered="#{!empty module and treeBean.canRun}">
-            <h:outputLink value="#{studio.url('test/test')}" title="Run Tests"
-                styleClass="navbar-dropdown test-section" onclick="return runAllTests(event);">Test <span id="testCountSpan" style="color:#888;padding: 1px 4px; border: 1px solid #ddd"></span></h:outputLink>
-            <span class="dropdown dropdown-form test-section">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#" onclick="onTestOpen()"><b class="caret" /></a>
-                <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-65px">
-                    <li onclick="event.stopPropagation()">
-                        <span style="margin-bottom: -3px" tabindex="-1" title="Within Current Module Only">
-                            <span style="margin-right: 10px">Within Current Module Only</span>
-                            <input id="testModuleOnlyField" name="currentOpenedModule" type="checkbox"
-                                   value="true" style="vertical-align:-2px;margin:-4px"/>
-                        </span>
-                    </li>
-                    <li onclick="event.stopPropagation()">
-                        <span tabindex="-1">
-                            <span>Tests per page</span>
-                            <h:selectOneMenu id="pp" value="#{studio.testsPerPage}">
-                                <f:selectItem itemLabel="1" itemValue="1" />
-                                <f:selectItem itemLabel="5" itemValue="5" />
-                                <f:selectItem itemLabel="20" itemValue="20" />
-                                <f:selectItem itemLabel="All" itemValue="-1" />
-                            </h:selectOneMenu>
-                        </span>
-                    </li>
-                    <li onclick="event.stopPropagation()">
-                        <span tabindex="-1" title="Show only failed test cases">
-                            <span>Failures Only</span>
-                            <input name="failuresOnly" type="checkbox"
-                                onclick="$j('#failuresSetting').toggle(this.checked)"
-                                value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
-                                style="vertical-align:-2px;margin:-4px" />
-                        </span>
-                    </li>
-                    <li id="failuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}"
-                        onclick="event.stopPropagation()">
-                        <span tabindex="-1">
-                            <span>Failures per test</span>
-                            <h:selectOneMenu id="failures" value="#{studio.testsFailuresPerTest}">
-                                <f:selectItem itemLabel="1" itemValue="1" />
-                                <f:selectItem itemLabel="5" itemValue="5" />
-                                <f:selectItem itemLabel="20" itemValue="20" />
-                                <f:selectItem itemLabel="All" itemValue="-1" />
-                            </h:selectOneMenu>
-                        </span>
-                    </li>
-                    <li onclick="event.stopPropagation()">
-                        <span tabindex="-1" title="Display the full result of running test cases, not only values which are being tested">
-                            <span>Compound Result</span>
-                            <input name="complexResult" type="checkbox"
-                                value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
-                                style="vertical-align:-2px;margin:-4px" />
-                        </span>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                        <span style="padding:6px 18px 7px">
-                            <a href="#{studio.url('test/test')}" class="button" onclick="test(event, '#{studio.url('test/test')}')">Test</a>
-                            <a href="#" id="downloadTest" class="button" onclick="downloadTest(event)">Test into File</a>
-                        </span>
-                    </li>
-                </ul>
-            </span>
-            <span class="delimeter test-section"></span>
+            <h:panelGroup rendered="#{treeBean.canRun and !empty rProject and !empty studio.currentProjectDescriptor.modules}">
+                <c:set var="testUrl" value=""/>
+                <h:panelGroup rendered="#{!empty module}">
+                    <h:outputLink value="#{studio.url('test/test')}" title="Run Tests"
+                                  styleClass="navbar-dropdown test-section" onclick="return runAllTests(event);">Test <span id="testCountSpan" style="color:#888;padding: 1px 4px; border: 1px solid #ddd"></span></h:outputLink>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{empty module}">
+                    <c:set var="testUrl" value="#{utils.toUrl(rProject.repository.id, rProject.name, studio.currentProjectDescriptor.modules[0].name)}/test/test" />
+                    <h:outputLink value="#{testUrl}" title="Run Tests"
+                                  styleClass="navbar-dropdown" onclick="test(event, '#{testUrl}')">Test</h:outputLink>
+                </h:panelGroup>
+                <span class="dropdown dropdown-form test-section">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" onclick="onTestOpen()"><b class="caret" /></a>
+                    <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-65px">
+                        <li onclick="event.stopPropagation()">
+                            <span style="margin-bottom: -3px" tabindex="-1" title="Within Current Module Only">
+                                <span style="margin-right: 10px">Within Current Module Only</span>
+                                <input id="testModuleOnlyField" name="currentOpenedModule" type="checkbox"
+                                       value="true" style="vertical-align:-2px;margin:-4px"/>
+                            </span>
+                        </li>
+                        <li onclick="event.stopPropagation()">
+                            <span tabindex="-1">
+                                <span>Tests per page</span>
+                                <h:selectOneMenu id="pp" value="#{studio.testsPerPage}">
+                                    <f:selectItem itemLabel="1" itemValue="1" />
+                                    <f:selectItem itemLabel="5" itemValue="5" />
+                                    <f:selectItem itemLabel="20" itemValue="20" />
+                                    <f:selectItem itemLabel="All" itemValue="-1" />
+                                </h:selectOneMenu>
+                            </span>
+                        </li>
+                        <li onclick="event.stopPropagation()">
+                            <span tabindex="-1" title="Show only failed test cases">
+                                <span>Failures Only</span>
+                                <input name="failuresOnly" type="checkbox"
+                                    onclick="$j('#failuresSetting').toggle(this.checked)"
+                                    value="true" checked="#{studio.testsFailuresOnly ? 'checked' : ''}"
+                                    style="vertical-align:-2px;margin:-4px" />
+                            </span>
+                        </li>
+                        <li id="failuresSetting" class="#{!studio.testsFailuresOnly ? 'hidden' : ''}"
+                            onclick="event.stopPropagation()">
+                            <span tabindex="-1">
+                                <span>Failures per test</span>
+                                <h:selectOneMenu id="failures" value="#{studio.testsFailuresPerTest}">
+                                    <f:selectItem itemLabel="1" itemValue="1" />
+                                    <f:selectItem itemLabel="5" itemValue="5" />
+                                    <f:selectItem itemLabel="20" itemValue="20" />
+                                    <f:selectItem itemLabel="All" itemValue="-1" />
+                                </h:selectOneMenu>
+                            </span>
+                        </li>
+                        <li onclick="event.stopPropagation()">
+                            <span tabindex="-1" title="Display the full result of running test cases, not only values which are being tested">
+                                <span>Compound Result</span>
+                                <input name="complexResult" type="checkbox"
+                                    value="true" checked="#{studio.showComplexResult ? 'checked' : ''}"
+                                    style="vertical-align:-2px;margin:-4px" />
+                            </span>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <span style="padding:6px 18px 7px">
+                                <a href="#{testUrl}" class="button" onclick="test(event, '#{testUrl}')">Test</a>
+                                <a href="#" id="downloadTest" class="button" onclick="downloadTest(event)">Test into File</a>
+                            </span>
+                        </li>
+                    </ul>
+                </span>
+                <span class="delimeter test-section"></span>
             </h:panelGroup>
 
             <h:panelGroup rendered="#{!empty module and studio.model.canCreateTable}">
