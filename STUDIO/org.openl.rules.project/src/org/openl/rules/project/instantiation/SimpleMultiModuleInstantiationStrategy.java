@@ -15,7 +15,7 @@ import org.openl.rules.runtime.RulesEngineFactory;
  *
  * @author PUdalau
  */
-public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantiationStartegy {
+public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantiationStrategy {
 
     private RulesEngineFactory<?> engineFactory;
 

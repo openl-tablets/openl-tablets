@@ -22,7 +22,7 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 #### Requirements:
 
 * JDK 8
-* Maven 3.6.3
+* Maven 3.8.1
 * 512 MiB RAM free
 * 2 GiB Disk space free
 

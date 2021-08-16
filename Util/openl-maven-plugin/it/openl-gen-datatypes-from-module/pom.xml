@@ -18,7 +18,6 @@
                 <version>${org.openl.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <interfaceClass>com.example.Service</interfaceClass>
                     <moduleName>Rules</moduleName>
                 </configuration>
                 <executions>

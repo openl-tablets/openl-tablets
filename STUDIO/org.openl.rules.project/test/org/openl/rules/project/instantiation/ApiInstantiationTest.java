@@ -30,8 +30,10 @@ public class ApiInstantiationTest {
         module.setRulesRootPath(new PathEntry("Rules2.xls"));
         project.setModules(Collections.singletonList(module));
 
-        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
-            .singletonList(project), null, true, false, null);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
+            null,
+            false,
+            null);
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
 
         assertNull(strategy.getServiceClass());
@@ -54,8 +56,10 @@ public class ApiInstantiationTest {
         module.setRulesRootPath(new PathEntry("Rules.xls"));
         project.setModules(Collections.singletonList(module));
 
-        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
-            .singletonList(project), null, true, false, null);
+        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections.singletonList(project),
+            null,
+            false,
+            null);
         ApiBasedInstantiationStrategy strategy = new ApiBasedInstantiationStrategy(module, dependencyManager, false);
         strategy.setServiceClass(ServiceClass.class);
         Object instance = strategy.instantiate();

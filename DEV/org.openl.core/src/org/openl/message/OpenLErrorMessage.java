@@ -55,48 +55,6 @@ public class OpenLErrorMessage extends OpenLMessage {
         return error.getSourceLocation();
     }
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        result = prime * result + (error == null ? 0 : error.getMessage() == null ? 0 : error.getMessage().hashCode());
-        if (error instanceof OpenLCompilationException) {
-            String location = error.getSourceLocation();
-            result = prime * result + Objects.hashCode(location);
-        }
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        OpenLErrorMessage other = (OpenLErrorMessage) obj;
-        if (error == null) {
-            return other.error == null;
-        } else if (other.error == null) {
-            return false;
-        }
-
-        if (!Objects.equals(error.getMessage(), other.error.getMessage())) {
-            return false;
-        }
-
-        if (error instanceof OpenLCompilationException && other.error instanceof OpenLCompilationException) {
-            String location = error.getSourceLocation();
-            String otherLocation = other.error.getSourceLocation();
-            return Objects.equals(location, otherLocation);
-        }
-
-        return !(error instanceof OpenLCompilationException || other.error instanceof OpenLCompilationException);
-    }
 
     private static String getOpenLExceptionMessage(OpenLException ex) {
 

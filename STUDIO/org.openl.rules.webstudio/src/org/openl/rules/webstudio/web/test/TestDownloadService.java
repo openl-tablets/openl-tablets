@@ -36,12 +36,13 @@ public class TestDownloadService {
             @QueryParam(Constants.REQUEST_PARAM_TEST_RANGES) String testRanges,
             @QueryParam(Constants.REQUEST_PARAM_PERPAGE) Integer pp,
             @QueryParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
+            @QueryParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
             @Context HttpServletRequest request) {
 
         HttpSession session = request.getSession();
 
         final int testsPerPage = pp != null ? pp : WebStudioUtils.getWebStudio(session).getTestsPerPage();
-        final TestUnitsResults[] results = Utils.runTests(id, testRanges, session);
+        final TestUnitsResults[] results = Utils.runTests(id, testRanges, currentOpenedModule, session);
 
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
         StreamingOutput streamingOutput = output -> new TestResultExport().export(output, testsPerPage, results);
@@ -73,6 +74,7 @@ public class TestDownloadService {
     @Produces("application/zip")
     public Response manual(@QueryParam(Constants.REQUEST_PARAM_ID) String id,
             @QueryParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
+            @QueryParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
             @Context HttpServletRequest request) {
         HttpSession session = request.getSession();
         String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
@@ -80,7 +82,7 @@ public class TestDownloadService {
         ProjectModel model = WebStudioUtils.getWebStudio(session).getModel();
         TestSuite testSuite = Utils.pollTestFromSession(session);
         if (testSuite != null) {
-            final TestUnitsResults results = model.runTest(testSuite);
+            final TestUnitsResults results = model.runTest(testSuite, currentOpenedModule);
             StreamingOutput streamingOutput = output -> new RulesResultExport().export(output, -1, results);
             return prepareResponse(request, cookieName, streamingOutput);
         }

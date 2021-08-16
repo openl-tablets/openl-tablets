@@ -16,7 +16,6 @@ public class TestTable {
         SimpleProjectEngineFactory<Object> simpleProjectEngineFactory = simpleProjectEngineFactoryBuilder
             .setExecutionMode(false)
             .setProject("test-resources/org/openl/rules/table")
-            .setModule("EPBDS-7145")
             .build();
         CompiledOpenClass compiledOpenClass = simpleProjectEngineFactory.getCompiledOpenClass();
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();

@@ -467,13 +467,57 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         if (branch != null && !branch.equals(repoBranch)) {
                             if (branchRepository.branchExists(branch)) {
                                 // We are inside alternative branch. Must change design repo info.
-                                desRepo = branchRepository.forBranch(branch);
+                                final BranchRepository repo = branchRepository.forBranch(branch);
                                 // Other branch — other version of file data
                                 if (designFileData != null) {
-                                    designFileData = desRepo.check(designFileData.getName());
+                                    final FileData fileData = repo.check(designFileData.getName());
+                                    if (fileData != null) {
+                                        // Switch branch
+                                        desRepo = repo;
+                                        designFileData = fileData;
+                                    } else {
+                                        log.info("Project '{}' does not exist in the branch '{}' anymore",
+                                            name,
+                                            branch);
+                                        if (local != null) {
+                                            // We should either close the project or make it local if we don't want to lose the changes.
+                                            final RulesProject tmp = new RulesProject(getUser(),
+                                                localRepository,
+                                                local,
+                                                repo,
+                                                designFileData,
+                                                projectsLockEngine);
+                                            if (tmp.isModified()) {
+                                                log.info(
+                                                    "Project '{}' is modified. Convert it to local project instead of closing to prevent losing user changes. ",
+                                                    tmp.getName());
+                                                if (tmp.isLockedByMe()) {
+                                                    tmp.unlock();
+                                                }
+                                                // We will have 2 projects: local project with changes in the branch
+                                                // with deleted project and closed project in the main branch.
+                                                // 1) Local project with changes in the branch with deleted project
+                                                ProjectState state = localRepository.getProjectState(lp.getFolderPath());
+                                                if (state != null && !LocalWorkspaceImpl.LOCAL_ID
+                                                    .equals(state.getRepositoryId())) {
+                                                    state.saveFileData(LocalWorkspaceImpl.LOCAL_ID, local);
+                                                }
+                                                // 2) Closed project in design repository in main branch
+                                                local = null;
+                                                localRepository = null;
+                                            } else {
+                                                // Close the project and stay in the main branch.
+                                                log.info(
+                                                    "Close the project '{}' because it does not exist in the branch '{}'",
+                                                    name,
+                                                    branch);
+                                                closeProject = true;
+                                            }
+                                        }
+                                    }
                                 }
                             } else if (local != null) {
-                                log.debug("Close the project {} because the branch {} was removed", name, branch);
+                                log.info("Close the project {} because the branch {} was removed", name, branch);
                                 closeProject = true;
                             }
                         }

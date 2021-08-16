@@ -12,3 +12,4 @@ ERROR: Cannot parse cell value '10.1'. Expected value of type 'Integer'.
 ERROR: Cannot parse cell value '100.33'. Expected value of type 'Integer'.
 ERROR: Cannot convert from 'double' to 'java.lang.Integer'.
 ERROR: Parameter cell format: <type> <name>
+ERROR: Encountered " "return" "return "" at line 1, column 8.
