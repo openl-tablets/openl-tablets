@@ -4,11 +4,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,7 +39,6 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.impl.ParsedCode;
@@ -64,7 +61,7 @@ public class SequentialXlsLoader {
     private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
     private final Set<String> preprocessedWorkBooks = new HashSet<>();
     private final List<WorkbookSyntaxNode> workbookNodes = new ArrayList<>();
-    private final Map<String, IDependency> dependencies = new HashMap<>();
+    private final Set<IDependency> dependencies = new LinkedHashSet<>();
 
     public SequentialXlsLoader(IncludeSearcher includeSeeker) {
         this.includeSeeker = includeSeeker;
@@ -136,11 +133,7 @@ public class SequentialXlsLoader {
 
         SyntaxNodeException[] parsingErrors = errors.toArray(SyntaxNodeException.EMPTY_ARRAY);
 
-        return new ParsedCode(syntaxNode,
-            source,
-            parsingErrors,
-            messages,
-            dependencies.values().toArray(new IDependency[0]));
+        return new ParsedCode(syntaxNode, source, parsingErrors, messages, dependencies.toArray(new IDependency[0]));
     }
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
@@ -191,8 +184,8 @@ public class SequentialXlsLoader {
                     dependency,
                     new GridCellSourceCodeModule(gridTable, 1, i, null));
                 node.setParent(tableSyntaxNode);
-                Dependency moduleDependency = new Dependency(DependencyType.MODULE, node);
-                dependencies.put(dependency, moduleDependency);
+                Dependency moduleDependency = new Dependency(node);
+                dependencies.add(moduleDependency);
             }
         }
     }

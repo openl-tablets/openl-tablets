@@ -1,6 +1,8 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.lang.reflect.Method;
@@ -123,13 +125,10 @@ public class MultiModuleInstantiationTest {
         ProjectResolver projectResolver = ProjectResolver.getInstance();
         List<ProjectDescriptor> projects = projectResolver.resolve(root.listFiles());
 
-        List<Module> modules = new ArrayList<>();
-        for (ProjectDescriptor project : projects) {
-            modules.addAll(project.getModules());
-        }
         IDependencyManager dependencyManager = new SimpleDependencyManager(projects, null, true, null);
 
-        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(modules,
+        SimpleMultiModuleInstantiationStrategy strategy = new SimpleMultiModuleInstantiationStrategy(
+            listModules(projects),
             dependencyManager,
             true);
 

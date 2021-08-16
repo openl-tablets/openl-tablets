@@ -176,19 +176,13 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     protected RulesInstantiationStrategy getStrategy(Collection<Module> modules, IDependencyManager dependencyManager) {
         if (rulesInstantiationStrategy == null) {
-            switch (modules.size()) {
-                case 0:
-                    throw new IllegalStateException("There are no modules to instantiate");
-                case 1:
-                    rulesInstantiationStrategy = RulesInstantiationStrategyFactory
-                        .getStrategy(modules.iterator().next(), isExecutionMode(), dependencyManager, classLoader);
-                    break;
-                default:
-                    rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
-                        dependencyManager,
-                        classLoader,
-                        isExecutionMode());
+            if (modules.isEmpty()) {
+                throw new IllegalStateException("There are no modules to instantiate");
             }
+            rulesInstantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
+                dependencyManager,
+                classLoader,
+                isExecutionMode());
         }
         return rulesInstantiationStrategy;
     }

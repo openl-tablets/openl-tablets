@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.dependencies;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -11,12 +12,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openl.dependency.IDependencyManager;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.project.instantiation.SimpleDependencyLoader;
+import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
 
 public class WebStudioWorkspaceRelatedDependencyManagerTest {
@@ -64,7 +65,8 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
             return new WebStudioWorkspaceRelatedDependencyManager(buildProjectDescriptors(),
                 classLoader,
                 isExecutionMode(),
-                getExternalParameters(), true);
+                getExternalParameters(),
+                true);
 
         }
     }
@@ -99,12 +101,17 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
                 try {
                     if (i0 % 4 != 0) {
                         int p = (rnd.nextInt(3) + 1);
-                        webStudioWorkspaceRelatedDependencyManager.reset(new Dependency(DependencyType.MODULE,
-                            new IdentifierNode(DependencyType.MODULE.name(), null, "Module" + p, null)));
+                        Collection<ResolvedDependency> resolvedDependencies;
+                        try {
+                            resolvedDependencies = webStudioWorkspaceRelatedDependencyManager
+                                .resolveDependency(new Dependency(new IdentifierNode(null, null, "Module" + p, null)));
+                        } catch (OpenLCompilationException e) {
+                            throw new RuntimeException(e);
+                        }
+                        webStudioWorkspaceRelatedDependencyManager.reset(resolvedDependencies.iterator().next());
                         try {
                             webStudioWorkspaceRelatedDependencyManager
-                                .loadDependency(new Dependency(DependencyType.MODULE,
-                                    new IdentifierNode(DependencyType.MODULE.name(), null, "Module" + p, null)));
+                                .loadDependency(resolvedDependencies.iterator().next());
                         } catch (OpenLCompilationException e) {
                             e.printStackTrace();
                         }
@@ -115,23 +122,17 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
                         } catch (InterruptedException ignored) {
                         }
                         try {
-                            webStudioWorkspaceRelatedDependencyManager
-                                .loadDependencyAsync(
-                                    new Dependency(DependencyType.MODULE,
-                                        new IdentifierNode(DependencyType.MODULE.name(),
-                                            null,
-                                            SimpleDependencyLoader.buildDependencyName(factory.getProjectDescriptor(),
-                                                null),
-                                            null)),
-                                    (e) -> {
-                                        try {
-                                            if (!e.getCompiledOpenClass().hasErrors()) {
-                                                count.incrementAndGet();
-                                            }
-                                        } finally {
-                                            countDownLatchLambda.countDown();
+                            webStudioWorkspaceRelatedDependencyManager.loadDependencyAsync(
+                                AbstractDependencyManager.buildResolvedDependency(factory.getProjectDescriptor()),
+                                (e) -> {
+                                    try {
+                                        if (!e.getCompiledOpenClass().hasErrors()) {
+                                            count.incrementAndGet();
                                         }
-                                    });
+                                    } finally {
+                                        countDownLatchLambda.countDown();
+                                    }
+                                });
                         } catch (ProjectResolvingException e) {
                             e.printStackTrace();
                         }

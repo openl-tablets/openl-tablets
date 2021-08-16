@@ -9,22 +9,25 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.openl.OpenClassUtil;
 import org.openl.classloader.OpenLClassLoader;
+import org.openl.dependency.AmbiguousDependencyException;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.DependencyNotFoundException;
 import org.openl.dependency.IDependencyManager;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.slf4j.Logger;
@@ -32,31 +35,54 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDependencyManager implements IDependencyManager {
 
+    private static final Pattern ASTERISK_SIGN = Pattern.compile("\\*");
+    private static final Pattern QUESTION_SIGN = Pattern.compile("\\?");
+
     private final Logger log = LoggerFactory.getLogger(AbstractDependencyManager.class);
 
-    private volatile Map<String, CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders;
+    private volatile CopyOnWriteArraySet<IDependencyLoader> dependencyLoaders;
     private final Object dependencyLoadersFlag = new Object();
     private final LinkedHashSet<DependencyRelation> dependencyRelations = new LinkedHashSet<>();
-    private final ThreadLocal<Deque<String>> compilationStackThreadLocal = ThreadLocal.withInitial(ArrayDeque::new);
-    private final Map<String, ClassLoader> externalJarsClassloaders = new HashMap<>();
+    private final ThreadLocal<Deque<IDependencyLoader>> compilationStackThreadLocal = ThreadLocal
+        .withInitial(ArrayDeque::new);
+    private final Map<ProjectDescriptor, ClassLoader> externalJarsClassloaders = new HashMap<>();
     private final ClassLoader rootClassLoader;
     protected boolean executionMode;
     private Map<String, Object> externalParameters;
 
-    public static class DependencyRelation {
-        String dependOnThisDependency;
-        String dependency;
+    public static ResolvedDependency buildResolvedDependency(String projectName) {
+        return buildResolvedDependency(projectName, null);
+    }
 
-        public DependencyRelation(String dependency, String dependOnThisDependency) {
+    public static ResolvedDependency buildResolvedDependency(String projectName, String moduleName) {
+        if (moduleName == null) {
+            return new ResolvedDependency(new IdentifierNode(null, null, projectName, null));
+        }
+        return new ResolvedDependency(new IdentifierNode(null, null, projectName + "/" + moduleName, null));
+    }
+
+    public static ResolvedDependency buildResolvedDependency(ProjectDescriptor project) {
+        return new ResolvedDependency(new IdentifierNode(null, null, project.getName(), null));
+    }
+
+    public static ResolvedDependency buildResolvedDependency(Module module) {
+        return buildResolvedDependency(module.getProject().getName(), module.getName());
+    }
+
+    public static class DependencyRelation {
+        IDependencyLoader dependOnThisDependency;
+        IDependencyLoader dependency;
+
+        public DependencyRelation(IDependencyLoader dependency, IDependencyLoader dependOnThisDependency) {
             this.dependency = dependency;
             this.dependOnThisDependency = dependOnThisDependency;
         }
 
-        public String getDependency() {
+        public IDependencyLoader getDependency() {
             return dependency;
         }
 
-        public String getDependOnThisDependency() {
+        public IDependencyLoader getDependOnThisDependency() {
             return dependOnThisDependency;
         }
 
@@ -97,8 +123,8 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         @Override
         public String toString() {
             return String.format("DependencyReference [dependOnThisDependency=%s, dependency=%s]",
-                dependOnThisDependency,
-                dependency);
+                dependOnThisDependency.getDependency(),
+                dependency.getDependency());
         }
     }
 
@@ -114,120 +140,73 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         this.externalParameters = Collections.unmodifiableMap(this.externalParameters);
     }
 
-    public Collection<IDependencyLoader> findDependencyLoadersByName(String dependencyName) {
-        Collection<IDependencyLoader> dependencyLoaders = getDependencyLoaders().get(dependencyName);
-        if (dependencyLoaders != null) {
-            return Collections.unmodifiableCollection(dependencyLoaders);
-        }
-        return Collections.emptyList();
-    }
-
-    public Collection<IDependencyLoader> getAllDependencyLoaders() {
-        return Collections.unmodifiableCollection(
-            getDependencyLoaders().values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
-    }
-
     protected void addDependencyLoaders(Collection<IDependencyLoader> dependencyLoadersToAdd) {
         if (dependencyLoadersToAdd != null) {
             synchronized (dependencyLoadersFlag) {
-                dependencyLoadersToAdd.forEach(dependencyLoader -> {
-                    Collection<IDependencyLoader> dependencyLoadersByDependencyName = this.dependencyLoaders
-                        .computeIfAbsent(dependencyLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
-                    dependencyLoadersByDependencyName.add(dependencyLoader);
-                });
+                dependencyLoaders.addAll(dependencyLoadersToAdd);
             }
         }
     }
 
-    public Map<String, Collection<IDependencyLoader>> getDependencyLoaders() {
+    public Collection<IDependencyLoader> getDependencyLoaders() {
         if (dependencyLoaders == null) {
             synchronized (this) {
                 if (dependencyLoaders == null) {
-                    Map<String, CopyOnWriteArraySet<IDependencyLoader>> initDependencyLoaders = initDependencyLoaders();
-                    if (initDependencyLoaders != null) {
-                        Map<String, Collection<IDependencyLoader>> modifiableAndConcurrentDependencyLoaders = new ConcurrentHashMap<>();
-                        for (Map.Entry<String, CopyOnWriteArraySet<IDependencyLoader>> entry : initDependencyLoaders
-                            .entrySet()) {
-                            if (entry.getValue() != null && !entry.getValue().isEmpty()) {
-                                Collection<IDependencyLoader> c = modifiableAndConcurrentDependencyLoaders
-                                    .computeIfAbsent(entry.getKey(), e -> new CopyOnWriteArraySet<>());
-                                c.addAll(entry.getValue());
-                            }
-                        }
-                        dependencyLoaders = initDependencyLoaders;
-                    } else {
-                        dependencyLoaders = new HashMap<>();
-                    }
+                    dependencyLoaders = new CopyOnWriteArraySet<>(initDependencyLoaders());
                 }
             }
         }
-        return Collections.unmodifiableMap(dependencyLoaders);
+        return Collections.unmodifiableSet(dependencyLoaders);
     }
 
-    protected abstract Map<String, CopyOnWriteArraySet<IDependencyLoader>> initDependencyLoaders();
+    protected abstract Set<IDependencyLoader> initDependencyLoaders();
 
-    private Deque<String> getCompilationStack() {
+    private Deque<IDependencyLoader> getCompilationStack() {
         return compilationStackThreadLocal.get();
-    }
-
-    @Override
-    public Collection<String> getAllDependencies() {
-        return Collections.unmodifiableSet(getDependencyLoaders().keySet());
-    }
-
-    @Override
-    public final Collection<String> getAvailableDependencies() {
-        Set<String> availableDependencies = new HashSet<>();
-        for (Map.Entry<String, Collection<IDependencyLoader>> entry : getDependencyLoaders().entrySet()) {
-            if (entry.getValue().stream().noneMatch(IDependencyLoader::isProjectLoader)) {
-                availableDependencies.add(entry.getKey());
-            }
-        }
-        return availableDependencies;
     }
 
     // Disable cache. if cache required it should be used in loaders.
     @Override
-    public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
-        final IDependencyLoader dependencyLoader = findDependencyLoadersByName(dependency);
-        final String dependencyName = dependency.getNode().getIdentifier();
-        Deque<String> compilationStack = getCompilationStack();
+    public synchronized CompiledDependency loadDependency(
+            ResolvedDependency dependency) throws OpenLCompilationException {
+        final IDependencyLoader dependencyLoader = findDependencyLoaderByDependency(dependency);
+        Deque<IDependencyLoader> compilationStack = getCompilationStack();
         try {
             if (log.isDebugEnabled()) {
                 log.debug(
                     compilationStack
-                        .contains(dependencyName) ? "Dependency '{}' in the compilation stack."
-                                                  : "Dependency '{}' is not found in the compilation stack.",
-                    dependencyName);
+                        .contains(dependencyLoader) ? "Dependency '{}' in the compilation stack."
+                                                    : "Dependency '{}' is not found in the compilation stack.",
+                    dependency);
             }
             boolean isCircularDependency = !dependencyLoader.isProjectLoader() && compilationStack
-                .contains(dependencyName);
+                .contains(dependencyLoader);
             if (!isCircularDependency && !compilationStack.isEmpty()) {
-                DependencyRelation dr = new DependencyRelation(getCompilationStack().getFirst(), dependencyName);
+                DependencyRelation dr = new DependencyRelation(getCompilationStack().getFirst(), dependencyLoader);
                 this.addDependencyRelation(dr);
             }
 
             if (isCircularDependency) {
-                throw new OpenLCompilationException(String.format("Circular dependency is detected: %s.",
-                    buildCircularDependencyDetails(dependencyName, compilationStack)));
+                throw new OpenLCompilationException(
+                    String.format("Circular dependency is detected: %s.",
+                        buildCircularDependencyDetails(dependencyLoader, compilationStack)),
+                    null,
+                    dependency.getNode().getSourceLocation(),
+                    dependency.getNode().getModule());
             }
 
             CompiledDependency compiledDependency;
             try {
-                compilationStack.push(dependencyName);
-                log.debug("Dependency '{}' is added to the compilation stack.", dependencyName);
+                compilationStack.push(dependencyLoader);
+                log.debug("Dependency '{}' is added to the compilation stack.", dependencyLoader.getDependency());
                 compiledDependency = dependencyLoader.getCompiledDependency();
             } finally {
                 compilationStack.poll();
-                log.debug("Dependency '{}' is removed from the compilation stack.", dependencyName);
+                log.debug("Dependency '{}' is removed from the compilation stack.", dependencyLoader.getDependency());
             }
 
             if (compiledDependency == null) {
-                if (dependencyLoader.isProjectLoader()) {
-                    return throwCompilationError(dependency, dependencyLoader.getProject().getName());
-                } else {
-                    return throwCompilationError(dependency, dependencyName);
-                }
+                return throwDependencyNotFoundError(dependency);
             }
             return compiledDependency;
         } finally {
@@ -237,42 +216,143 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
     }
 
-    protected IDependencyLoader findDependencyLoadersByName(IDependency dependency) throws OpenLCompilationException {
-        final String dependencyName = dependency.getNode().getIdentifier();
-        Collection<IDependencyLoader> loaders = getDependencyLoaders().get(dependencyName);
-        if (loaders == null || loaders.isEmpty()) {
-            throw new OpenLCompilationException(String.format("Dependency '%s' is not found.", dependencyName),
+    public IDependencyLoader findDependencyLoader(ResolvedDependency dependency) {
+        return getDependencyLoaders().stream()
+            .filter(e -> Objects.equals(dependency, e.getDependency()))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public Collection<IDependencyLoader> findAllProjectDependencyLoaders(ProjectDescriptor project) {
+        Collection<IDependencyLoader> dependencyLoadersForProject = new HashSet<>();
+        Deque<ProjectDescriptor> queue = new ArrayDeque<>();
+        queue.add(project);
+        while (!queue.isEmpty()) {
+            ProjectDescriptor projectDescriptor = queue.poll();
+            getDependencyLoaders().stream()
+                .filter(e -> Objects.equals(e.getProject(), projectDescriptor))
+                .forEach(dependencyLoadersForProject::add);
+            if (projectDescriptor.getDependencies() != null) {
+                projectDescriptor.getDependencies()
+                    .stream()
+                    .map(ProjectDependencyDescriptor::getName)
+                    .map(AbstractDependencyManager::buildResolvedDependency)
+                    .map(this::findDependencyLoader)
+                    .filter(IDependencyLoader::isProjectLoader)
+                    .map(IDependencyLoader::getProject)
+                    .forEach(queue::add);
+            }
+        }
+        return dependencyLoadersForProject;
+    }
+
+    @Override
+    public Collection<ResolvedDependency> resolveDependency(IDependency dependency) throws AmbiguousDependencyException,
+                                                                                    DependencyNotFoundException {
+        String value = dependency.getNode().getIdentifier();
+        final boolean withWildcard = ASTERISK_SIGN.matcher(value).find() || QUESTION_SIGN.matcher(value).find();
+        value = ASTERISK_SIGN.matcher(value).replaceAll("\\\\E.*\\\\Q");
+        value = QUESTION_SIGN.matcher(value).replaceAll("\\\\E.\\\\Q");
+        value = "\\Q" + value + "\\E";
+        IDependencyLoader currentDependencyLoader = !getCompilationStack().isEmpty() ? getCompilationStack().getFirst()
+                                                                                     : null;
+        Collection<IDependencyLoader> visibleDependencyLoaders = currentDependencyLoader != null ? findAllProjectDependencyLoaders(
+            currentDependencyLoader.getProject()) : getDependencyLoaders();
+        Set<IDependencyLoader> dependencyLoaders = new HashSet<>();
+        for (IDependencyLoader dl : visibleDependencyLoaders) {
+            if (!Objects.equals(currentDependencyLoader,
+                dl) && !(dl.isProjectLoader() && currentDependencyLoader != null && Objects.equals(dl.getProject(),
+                    currentDependencyLoader.getProject()))) {
+                if (Pattern.matches(value, dl.getDependency().getNode().getIdentifier())) {
+                    dependencyLoaders.add(dl);
+                }
+            }
+        }
+
+        for (IDependencyLoader dl : visibleDependencyLoaders) {
+            if (!dl.isProjectLoader()) {
+                if (!dl.isProjectLoader() && !Objects.equals(currentDependencyLoader, dl) && Pattern.matches(value,
+                    dl.getModule().getName())) {
+                    dependencyLoaders.add(dl);
+                }
+            }
+        }
+
+        if (dependencyLoaders.stream().anyMatch(e -> !e.isProjectLoader())) {
+            dependencyLoaders = dependencyLoaders.stream()
+                .filter(e -> !e.isProjectLoader())
+                .collect(Collectors.toSet());
+        }
+
+        Collection<ResolvedDependency> ret = dependencyLoaders.stream()
+            .map(e -> new ResolvedDependency(new IdentifierNode(dependency.getNode().getType(),
+                dependency.getNode().getLocation(),
+                e.getDependency().getNode().getIdentifier(),
+                null)))
+            .collect(Collectors.toSet());
+
+        if (!withWildcard && ret.size() != 1) {
+            if (ret.isEmpty()) {
+                throw new DependencyNotFoundException(String.format("Dependency '%s' is not found.",
+                    dependency.getNode().getIdentifier()), null, dependency.getNode().getSourceLocation(), null);
+            } else {
+                throw new AmbiguousDependencyException(
+                    String.format("Multiple dependencies '%s' are found.", dependency.getNode().getIdentifier()),
+                    null,
+                    dependency.getNode().getSourceLocation(),
+                    dependency.getNode().getModule());
+            }
+        }
+        return ret;
+    }
+
+    protected IDependencyLoader findDependencyLoaderByDependency(
+            ResolvedDependency dependency) throws OpenLCompilationException {
+        IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
+        if (dependencyLoader == null) {
+            throw new OpenLCompilationException(
+                String.format("Dependency '%s' is not found.", dependency.getNode().getIdentifier()),
                 null,
                 dependency.getNode().getSourceLocation(),
                 dependency.getNode().getModule());
         }
-        if (loaders.size() > 1) {
-            throw new OpenLCompilationException(
-                String.format("Multiple modules with the same name '%s' are found.", dependencyName));
-        }
-        return loaders.iterator().next();
+        return dependencyLoader;
     }
 
-    private static String buildCircularDependencyDetails(String dependencyName, Deque<String> compilationStack) {
+    private static String buildCircularDependencyDetails(IDependencyLoader dependencyLoader,
+            Deque<IDependencyLoader> compilationStack) {
         StringBuilder sb = new StringBuilder();
-        Iterator<String> itr = compilationStack.iterator();
-        sb.append("'").append(dependencyName).append("'");
+
+        Map<String, List<Module>> p = compilationStack.stream()
+            .filter(e -> !e.isProjectLoader())
+            .map(IDependencyLoader::getModule)
+            .collect(Collectors.groupingBy(Module::getName));
+
+        Iterator<IDependencyLoader> itr = compilationStack.iterator();
+        sb.append("'");
+        sb.insert(0,
+            !dependencyLoader.isProjectLoader() && p.get(dependencyLoader.getModule().getName())
+                .size() == 1 ? dependencyLoader.getModule().getName() : dependencyLoader.getDependency());
         while (itr.hasNext()) {
-            String s = itr.next();
-            sb.insert(0, "' -> ");
-            sb.insert(0, s);
-            sb.insert(0, "'");
-            if (Objects.equals(dependencyName, s)) {
+            IDependencyLoader s = itr.next();
+            sb.insert(0, "' -> '");
+            sb.insert(0,
+                !dependencyLoader.isProjectLoader() && p.get(s.getModule().getName()).size() == 1
+                                                                                                  ? s.getModule()
+                                                                                                      .getName()
+                                                                                                  : s.getDependency());
+            if (Objects.equals(dependencyLoader, s)) {
                 break;
             }
         }
+        sb.insert(0, "'");
         return sb.toString();
+
     }
 
-    private CompiledDependency throwCompilationError(IDependency dependency,
-            String dependencyName) throws OpenLCompilationException {
+    private CompiledDependency throwDependencyNotFoundError(IDependency dependency) throws OpenLCompilationException {
         IdentifierNode node = dependency.getNode();
-        throw new OpenLCompilationException(String.format("Dependency '%s' is not found.", dependencyName),
+        throw new OpenLCompilationException(String.format("Dependency '%s' is not found.", node.getIdentifier()),
             null,
             node.getSourceLocation(),
             node.getModule());
@@ -280,101 +360,89 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     public synchronized ClassLoader getExternalJarsClassLoader(ProjectDescriptor project) {
         getDependencyLoaders(); // Init dependency loaders
-        if (externalJarsClassloaders.get(project.getName()) != null) {
-            return externalJarsClassloaders.get(project.getName());
+        if (externalJarsClassloaders.get(project) != null) {
+            return externalJarsClassloaders.get(project);
         }
         ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;
         OpenLClassLoader externalJarsClassloader = new OpenLClassLoader(project.getClassPathUrls(), parentClassLoader);
         // To load classes from dependency jars first
         if (project.getDependencies() != null) {
+            Collection<IDependencyLoader> projectDependencyLoaders = getDependencyLoaders().stream()
+                .filter(IDependencyLoader::isProjectLoader)
+                .collect(Collectors.toCollection(ArrayList::new));
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
-                for (ProjectDescriptor projectDescriptor : getProjectDescriptors()) {
-                    if (projectDependencyDescriptor.getName().equals(projectDescriptor.getName())) {
-                        externalJarsClassloader.addClassLoader(getExternalJarsClassLoader(projectDescriptor));
+                for (IDependencyLoader dl : projectDependencyLoaders) {
+                    if (Objects.equals(projectDependencyDescriptor.getName(), dl.getProject().getName())) {
+                        externalJarsClassloader.addClassLoader(getExternalJarsClassLoader(dl.getProject()));
                         break;
                     }
                 }
             }
         }
-        externalJarsClassloaders.put(project.getName(), externalJarsClassloader);
+        externalJarsClassloaders.put(project, externalJarsClassloader);
         return externalJarsClassloader;
     }
 
-    public Collection<ProjectDescriptor> getProjectDescriptors() {
-        return getDependencyLoaders().values()
-            .stream()
-            .flatMap(Collection::stream)
-            .filter(IDependencyLoader::isProjectLoader)
-            .map(IDependencyLoader::getProject)
-            .collect(Collectors.toCollection(ArrayList::new));
-    }
-
     @Override
-    public synchronized void resetOthers(IDependency... dependencies) {
+    public synchronized void resetOthers(ResolvedDependency... dependencies) {
         if (dependencies == null || dependencies.length == 0) {
             return;
         }
-        Set<String> dependenciesToKeep = new HashSet<>();
-        Deque<String> queue = new ArrayDeque<>();
-        for (IDependency dependency : dependencies) {
+        Set<IDependencyLoader> dependenciesToKeep = new HashSet<>();
+        Deque<IDependencyLoader> queue = new ArrayDeque<>();
+        for (ResolvedDependency dependency : dependencies) {
             if (dependency != null) {
-                queue.add(dependency.getNode().getIdentifier());
-                dependenciesToKeep.add(dependency.getNode().getIdentifier());
+                IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
+                queue.add(dependencyLoader);
+                dependenciesToKeep.add(dependencyLoader);
             }
         }
         while (!queue.isEmpty()) {
-            String depName = queue.poll();
+            IDependencyLoader depLoader = queue.poll();
             for (DependencyRelation dependencyReference : dependencyRelations) {
-                if (dependencyReference.getDependency().equals(depName)) {
+                if (dependencyReference.getDependency().equals(depLoader)) {
                     if (dependenciesToKeep.add(dependencyReference.getDependOnThisDependency())) {
                         queue.add(dependencyReference.getDependOnThisDependency());
                     }
                 }
             }
         }
-        for (String depName : getAllDependencies()) {
-            if (!dependenciesToKeep.contains(depName)) {
-                reset(new Dependency(DependencyType.MODULE,
-                    new IdentifierNode(DependencyType.MODULE.name(), null, depName, null)));
+        for (IDependencyLoader depLoader : getDependencyLoaders()) {
+            if (!dependenciesToKeep.contains(depLoader)) {
+                reset(depLoader.getDependency());
             }
         }
     }
 
     @Override
-    public synchronized void reset(IDependency dependency) {
+    public synchronized void reset(ResolvedDependency dependency) {
         if (dependency == null) {
             return;
         }
-        final String dependencyName = dependency.getNode().getIdentifier();
-        Set<String> dependenciesToReset = new HashSet<>();
+        IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
         Set<DependencyRelation> dependenciesReferencesToRemove = new HashSet<>();
-        Deque<String> queue = new ArrayDeque<>();
-        queue.add(dependencyName);
-        dependenciesToReset.add(dependencyName);
+        Deque<IDependencyLoader> queue = new ArrayDeque<>();
+        queue.add(dependencyLoader);
+        Set<IDependencyLoader> dependenciesToReset = new HashSet<>();
+        dependenciesToReset.add(dependencyLoader);
         while (!queue.isEmpty()) {
-            String depName = queue.poll();
+            IDependencyLoader depLoader = queue.poll();
             for (DependencyRelation dependencyReference : dependencyRelations) {
-                if (dependencyReference.getDependOnThisDependency().equals(depName)) {
+                if (dependencyReference.getDependOnThisDependency().equals(depLoader)) {
                     if (dependenciesToReset.add(dependencyReference.getDependency())) {
                         queue.add(dependencyReference.getDependency());
                     }
                 }
-                if (dependencyReference.getDependency().equals(depName)) {
+                if (dependencyReference.getDependency().equals(depLoader)) {
                     dependenciesReferencesToRemove.add(dependencyReference);
                 }
             }
         }
-        for (String dependencyNameToReset : dependenciesToReset) {
-            Collection<IDependencyLoader> loaders = getDependencyLoaders().get(dependencyNameToReset);
-            if (loaders != null) {
-                for (IDependencyLoader loader : loaders) {
-                    if (loader.getRefToCompiledDependency() != null) {
-                        log.debug("Dependency '{}' is reset.", dependencyNameToReset);
-                    }
-                    loader.reset();
-                }
-                loaders.forEach(IDependencyLoader::reset);
+        for (IDependencyLoader dependencyToReset : dependenciesToReset) {
+            if (dependencyToReset.getRefToCompiledDependency() != null) {
+                log.debug("Dependency '{}' is reset.", dependencyToReset.getDependency());
             }
+            dependencyToReset.reset();
         }
         for (DependencyRelation dependencyReference : dependenciesReferencesToRemove) {
             dependencyRelations.remove(dependencyReference);
@@ -387,9 +455,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
         externalJarsClassloaders.clear();
-        for (Collection<IDependencyLoader> loaders : getDependencyLoaders().values()) {
-            loaders.forEach(IDependencyLoader::reset);
-        }
+        getDependencyLoaders().forEach(IDependencyLoader::reset);
         dependencyRelations.clear();
     }
 

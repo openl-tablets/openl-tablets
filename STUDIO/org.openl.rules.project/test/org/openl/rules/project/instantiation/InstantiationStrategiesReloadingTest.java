@@ -1,6 +1,9 @@
 package org.openl.rules.project.instantiation;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,7 +15,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
@@ -56,7 +58,7 @@ public class InstantiationStrategiesReloadingTest {
                 classpath = new ArrayList<>();
                 project.setClasspath(classpath);
             }
-            return RulesInstantiationStrategyFactory.getStrategy(project.getModules().get(0), false);
+            return new ApiBasedInstantiationStrategy(project.getModules().get(0), null, null, false);
         } else {
             throw new RuntimeException("Wrong folder.");
         }
@@ -67,19 +69,16 @@ public class InstantiationStrategiesReloadingTest {
         apiStrategy = (ApiBasedInstantiationStrategy) resolve(
             new File("./test-resources/reloading-test/SimpleProject"));
         dynamicStrategy = resolve(new File("./test-resources/reloading-test/EngineProject"));
-        List<Module> modules = new ArrayList<>(3);
-        modules.add(apiStrategy.getModule());
-        modules.add(dynamicStrategy.getModule());
     }
 
     public void checkOriginal(Object instance) throws Exception {
         Method invokeMethod = instance.getClass().getMethod("invoke");
-        assertEquals(invokeMethod.invoke(instance, new Object[0]), "original");
+        assertEquals(invokeMethod.invoke(instance), "original");
     }
 
     public void checkModified(Object instance) throws Exception {
         Method invokeMethod = instance.getClass().getMethod("invoke");
-        assertEquals(invokeMethod.invoke(instance, new Object[0]), "modified");
+        assertEquals(invokeMethod.invoke(instance), "modified");
     }
 
     public void checkClass(Class<?> classToCheck,

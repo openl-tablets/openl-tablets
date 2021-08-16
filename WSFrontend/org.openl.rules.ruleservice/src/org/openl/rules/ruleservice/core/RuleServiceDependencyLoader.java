@@ -17,14 +17,14 @@ final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
     }
 
     @Override
-    protected CompiledDependency compileDependency(String dependencyName,
-            AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
+    protected CompiledDependency compileDependency() throws OpenLCompilationException {
+        AbstractDependencyManager dependencyManager = getDependencyManager();
         if (dependencyManager instanceof RuleServiceDependencyManager) {
             RuleServiceDependencyManager ruleServiceDeploymentRelatedDependencyManager = (RuleServiceDependencyManager) dependencyManager;
             ruleServiceDeploymentRelatedDependencyManager.compilationBegin();
             CompiledDependency compiledDependency = null;
             try {
-                compiledDependency = super.compileDependency(dependencyName, dependencyManager);
+                compiledDependency = super.compileDependency();
                 ruleServiceDeploymentRelatedDependencyManager.compilationCompleted(this,
                     DependencyCompilationType.NONLAZY,
                     !compiledDependency.getCompiledOpenClass().hasErrors());
@@ -36,7 +36,7 @@ final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
                 }
             }
         } else {
-            return super.compileDependency(dependencyName, dependencyManager);
+            return super.compileDependency();
         }
     }
 }

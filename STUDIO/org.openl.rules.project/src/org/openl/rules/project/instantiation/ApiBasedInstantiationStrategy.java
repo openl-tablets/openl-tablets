@@ -9,7 +9,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.CollectionUtils;
 
 /**
- * The simplest {@link RulesInstantiationStrategyFactory} for module that contains only Excel file.
+ * The simplest {@link RulesInstantiationStrategy} for module that contains only Excel file.
  *
  * @author PUdalau
  */

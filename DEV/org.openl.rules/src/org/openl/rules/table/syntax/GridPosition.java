@@ -18,12 +18,12 @@ public class GridPosition implements IPosition {
 
     private final int x, y;
 
-    private final IGrid grid;
+    private final String uri;
 
     GridPosition(int x, int y, IGrid grid) {
         this.x = x;
         this.y = y;
-        this.grid = grid;
+        this.uri = grid.getCell(x, y).getUri();
     }
 
     /*
@@ -58,7 +58,7 @@ public class GridPosition implements IPosition {
 
     @Override
     public String toString() {
-        return grid.getCell(x, y).getUri();
+        return uri;
     }
 
 }

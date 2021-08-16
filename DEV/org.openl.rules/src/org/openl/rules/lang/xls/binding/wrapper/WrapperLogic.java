@@ -2,7 +2,9 @@ package org.openl.rules.lang.xls.binding.wrapper;
 
 import org.openl.dependency.DependencyOpenClass;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.dt.DecisionTable;
@@ -181,7 +183,7 @@ public final class WrapperLogic {
         return openMethod;
     }
 
-    public static Object invokeInlinedMethod(IRulesMethodWrapper wrapper,
+    private static Object invokeInlinedMethod(IRulesMethodWrapper wrapper,
             Object target,
             Object[] params,
             IRuntimeEnv env) {
@@ -198,7 +200,7 @@ public final class WrapperLogic {
         return WrapperLogic.invoke(wrapper, target, params, env);
     }
 
-    public static Object invoke(IRulesMethodWrapper wrapper, Object target, Object[] params, IRuntimeEnv env) {
+    private static Object invoke(IRulesMethodWrapper wrapper, Object target, Object[] params, IRuntimeEnv env) {
         if (wrapper.getDelegate() instanceof ILazyMethod) {
             return wrapper.getDelegate().invoke(target, params, env);
         }
@@ -247,5 +249,24 @@ public final class WrapperLogic {
             }
         }
         return wrapper.invokeDelegateWithContextPropertiesInjector(target, params, env, simpleRulesRuntimeEnv);
+    }
+
+    public static Object invoke(IRulesMethodWrapper wrapper,
+            Object target,
+            Object[] params,
+            IRuntimeEnv env,
+            IOpenClass type,
+            boolean inlinedMethodCall) {
+        Object ret;
+        if (inlinedMethodCall) {
+            ret = WrapperLogic.invokeInlinedMethod(wrapper, target, params, env);
+        } else {
+            ret = WrapperLogic.invoke(wrapper, target, params, env);
+        }
+        // Fix custom spreadsheet type to work in the correct classloader with spreadsheet result been types
+        if (type instanceof CustomSpreadsheetResultOpenClass) {
+            ((SpreadsheetResult) ret).setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) type);
+        }
+        return ret;
     }
 }

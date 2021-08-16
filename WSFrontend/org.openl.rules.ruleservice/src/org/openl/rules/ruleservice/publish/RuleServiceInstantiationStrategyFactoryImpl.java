@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
@@ -59,12 +58,6 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
                 log.error("Failed to use lazy loading strategy with dependency manager '{}'.",
                     dependencyManager.getClass());
             }
-        }
-        if (moduleSize == 1) {
-            log.debug("Single module loading strategy has been used for service '{}'.",
-                serviceDescription.getDeployPath());
-            Module module = modules.iterator().next();
-            return RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager);
         }
         log.debug("Multi module loading strategy has been used for service '{}'.", serviceDescription.getDeployPath());
         return new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);

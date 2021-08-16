@@ -7,22 +7,20 @@ import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
+import org.openl.rules.project.instantiation.ApiBasedInstantiationStrategy;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager.DependencyCompilationType;
-import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
-import org.openl.syntax.impl.IdentifierNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +29,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     private final Logger log = LoggerFactory.getLogger(LazyRuleServiceDependencyLoader.class);
 
     private final RuleServiceDependencyManager dependencyManager;
-    private final String dependencyName;
+    private final ResolvedDependency dependency;
     private final boolean realCompileRequired;
     private CompiledOpenClass lazyCompiledOpenClass;
     private final DeploymentDescription deployment;
@@ -48,7 +46,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         this.module = module;
         this.realCompileRequired = realCompileRequired;
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
-        this.dependencyName = SimpleDependencyLoader.buildDependencyName(project, module);
+        this.dependency = SimpleDependencyLoader.buildDependency(project, module);
     }
 
     @Override
@@ -75,15 +73,16 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         return module;
     }
 
-    public String getDependencyName() {
-        return dependencyName;
+    @Override
+    public ResolvedDependency getDependency() {
+        return dependency;
     }
 
     private ClassLoader buildClassLoader(AbstractDependencyManager dependencyManager) {
         return dependencyManager.getExternalJarsClassLoader(getProject());
     }
 
-    public CompiledOpenClass compile(final String dependencyName,
+    public CompiledOpenClass compile(final ResolvedDependency dependency,
             final RuleServiceDependencyManager dependencyManager) throws OpenLCompilationException {
         if (lazyCompiledOpenClass != null) {
             return lazyCompiledOpenClass;
@@ -92,7 +91,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         log.debug("Compiling lazy dependency: deployment='{}', version='{}', name='{}'.",
             deployment.getName(),
             deployment.getVersion().getVersionName(),
-            dependencyName);
+            dependency);
 
         final ClassLoader classLoader = buildClassLoader(dependencyManager);
         RulesInstantiationStrategy rulesInstantiationStrategy;
@@ -106,8 +105,10 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 dependencyManager,
                 classLoader);
         } else {
-            rulesInstantiationStrategy = RulesInstantiationStrategyFactory
-                .getStrategy(module, true, dependencyManager, classLoader);
+            rulesInstantiationStrategy = new ApiBasedInstantiationStrategy(module,
+                dependencyManager,
+                classLoader,
+                true);
         }
         rulesInstantiationStrategy.setServiceClass(LazyRuleServiceDependencyLoaderInterface.class);// Prevent
         // generation interface and Virtual module duplicate (instantiate method). Improve performance.
@@ -124,10 +125,10 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
                 if (!isProjectLoader() && realCompileRequired) {
                     synchronized (lazyCompiledOpenClass) {
                         CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance()
-                            .get(deployment, dependencyName);
+                            .get(deployment, dependency);
                         if (compiledOpenClass == null) {
                             CompiledOpenClassCache.compileToCache(dependencyManager,
-                                dependencyName,
+                                dependency,
                                 deployment,
                                 modules.iterator().next(),
                                 classLoader);
@@ -146,7 +147,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             }
             return lazyCompiledOpenClass;
         } catch (Exception ex) {
-            throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName), ex);
+            throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependency), ex);
         } finally {
             LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
         }
@@ -158,14 +159,12 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     @Override
     public final CompiledDependency getCompiledDependency() throws OpenLCompilationException {
         if (!isCompiledBefore) {
-            compile(dependencyName, dependencyManager);
+            compile(dependency, dependencyManager);
             isCompiledBefore = true;
         }
         if (lazyCompiledDependency == null) {
-            CompiledOpenClass compiledOpenClass = new LazyCompiledOpenClass(dependencyManager,
-                this,
-                new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, dependencyName, null)));
-            lazyCompiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
+            CompiledOpenClass compiledOpenClass = new LazyCompiledOpenClass(dependencyManager, this, dependency);
+            lazyCompiledDependency = new CompiledDependency(dependency, compiledOpenClass);
         }
         return lazyCompiledDependency;
     }
@@ -178,4 +177,18 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     interface LazyRuleServiceDependencyLoaderInterface {
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        LazyRuleServiceDependencyLoader that = (LazyRuleServiceDependencyLoader) o;
+        return dependency.equals(that.dependency);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dependency);
+    }
 }

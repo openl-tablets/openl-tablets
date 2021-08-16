@@ -5,14 +5,13 @@ import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -31,7 +30,6 @@ import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
 import org.openl.rules.ruleservice.publish.lazy.LazyRuleServiceDependencyLoader;
-import org.openl.syntax.code.IDependency;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
@@ -86,7 +84,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
             if (log.isInfoEnabled() && !dependencyLoader.isProjectLoader() && writeToLog) {
                 log.info("SUCCESS COMPILATION - {} - Module '{}',  project '{}', deployment '{}' in [{}] ms.",
                     compilationType,
-                    dependencyLoader.getDependencyName(),
+                    dependencyLoader.getModule().getName(),
                     dependencyLoader.getProject().getName(),
                     deployment.getName(),
                     t - compilationInfo.embeddedTime);
@@ -106,7 +104,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     }
 
     @Override
-    public CompiledDependency loadDependency(final IDependency dependency) throws OpenLCompilationException {
+    public CompiledDependency loadDependency(final ResolvedDependency dependency) throws OpenLCompilationException {
         try {
             return MaxThreadsForCompileSemaphore.getInstance()
                 .run(() -> RuleServiceDependencyManager.super.loadDependency(dependency));
@@ -129,7 +127,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     }
 
     @Override
-    public synchronized void reset(IDependency dependency) {
+    public synchronized void reset(ResolvedDependency dependency) {
         throw new UnsupportedOperationException();
     }
 
@@ -147,8 +145,8 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     }
 
     @Override
-    protected Map<String, CopyOnWriteArraySet<IDependencyLoader>> initDependencyLoaders() {
-        Map<String, CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders = new HashMap<>();
+    protected Set<IDependencyLoader> initDependencyLoaders() {
+        Set<IDependencyLoader> dependencyLoaders = new HashSet<>();
         IDeployment rslDeployment = ruleServiceLoader.getDeployment(deployment.getName(), deployment.getVersion());
         String deploymentName = rslDeployment.getDeploymentName();
         CommonVersion deploymentVersion = rslDeployment.getCommonVersion();
@@ -199,9 +197,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                         } else {
                             moduleLoader = new RuleServiceDependencyLoader(project, m, this);
                         }
-                        Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                            .computeIfAbsent(moduleLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
-                        dependencyLoadersByName.add(moduleLoader);
+                        dependencyLoaders.add(moduleLoader);
                     }
                 }
                 if (project != null) {
@@ -211,9 +207,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                     } else {
                         projectLoader = new RuleServiceDependencyLoader(project, null, this);
                     }
-                    Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                        .computeIfAbsent(projectLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
-                    dependencyLoadersByName.add(projectLoader);
+                    dependencyLoaders.add(projectLoader);
                 }
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(

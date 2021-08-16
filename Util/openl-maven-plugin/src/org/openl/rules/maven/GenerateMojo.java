@@ -23,6 +23,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -32,7 +33,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -154,11 +154,13 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 .build();
 
             CompiledOpenClass compiledOpenClass;
+            // TODO Support project name
             if (StringUtils.isNotEmpty(moduleName) && interfaceClass == null) {
                 try {
+                    Collection<ResolvedDependency> resolvedDependencies = factory.getDependencyManager()
+                        .resolveDependency(new Dependency(new IdentifierNode(null, null, moduleName, null)));
                     CompiledDependency compiledDependency = factory.getDependencyManager()
-                        .loadDependency(new Dependency(DependencyType.MODULE,
-                            new IdentifierNode(DependencyType.MODULE.name(), null, moduleName, null)));
+                        .loadDependency(resolvedDependencies.iterator().next());
                     compiledOpenClass = compiledDependency.getCompiledOpenClass();
                 } catch (OpenLCompilationException e) {
                     Collection<OpenLMessage> messages = new LinkedHashSet<>();
@@ -204,7 +206,9 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 project.addCompileSourceRoot(outputDirectory.getPath());
             }
 
-        } finally {
+        } finally
+
+        {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
     }

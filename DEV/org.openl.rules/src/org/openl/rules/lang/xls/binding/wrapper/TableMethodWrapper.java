@@ -39,10 +39,7 @@ public final class TableMethodWrapper extends AbstractTableMethodWrapper impleme
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        if (inlinedMethodCall) {
-            return WrapperLogic.invokeInlinedMethod(this, target, params, env);
-        }
-        return WrapperLogic.invoke(this, target, params, env);
+        return WrapperLogic.invoke(this, target, params, env, type, inlinedMethodCall);
     }
 
     @Override

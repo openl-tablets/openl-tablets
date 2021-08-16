@@ -10,6 +10,7 @@ import org.openl.OpenClassUtil;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
@@ -23,7 +24,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     private final Logger log = LoggerFactory.getLogger(SimpleDependencyLoader.class);
 
     private final AbstractDependencyManager dependencyManager;
-    private final String dependencyName;
+    private final ResolvedDependency dependency;
     private volatile CompiledDependency compiledDependency;
     private final boolean executionMode;
     private final ProjectDescriptor project;
@@ -66,31 +67,35 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         this.module = module;
         this.executionMode = executionMode;
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
-        this.dependencyName = buildDependencyName(project, module);
+        this.dependency = buildDependency(project, module);
     }
 
-    public static String buildDependencyName(ProjectDescriptor project, Module module) {
+    public static ResolvedDependency buildDependency(ProjectDescriptor project, Module module) {
         if (module != null) {
-            return module.getName();
+            return AbstractDependencyManager.buildResolvedDependency(module);
         }
-        return ProjectExternalDependenciesHelper.buildDependencyNameForProject(project.getName());
+        return AbstractDependencyManager.buildResolvedDependency(project);
+    }
+
+    public AbstractDependencyManager getDependencyManager() {
+        return dependencyManager;
     }
 
     @Override
     public final CompiledDependency getCompiledDependency() throws OpenLCompilationException {
         CompiledDependency cachedDependency = compiledDependency;
         if (cachedDependency != null) {
-            log.debug("Compiled dependency '{}' is used from cache.", dependencyName);
+            log.debug("Compiled dependency '{}' is used from cache.", dependency);
             return cachedDependency;
         }
-        log.debug("Dependency '{}' is not found in cache.", dependencyName);
+        log.debug("Dependency '{}' is not found in cache.", dependency);
         synchronized (dependencyManager) {
             cachedDependency = compiledDependency;
             if (cachedDependency != null) {
-                log.debug("Compiled dependency '{}' is used from cache.", dependencyName);
+                log.debug("Compiled dependency '{}' is used from cache.", dependency);
                 return cachedDependency;
             }
-            return compileDependency(dependencyName, dependencyManager);
+            return compileDependency();
         }
     }
 
@@ -105,13 +110,14 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         return true;
     }
 
-    protected CompiledDependency compileDependency(String dependencyName,
-            AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
+    protected CompiledDependency compileDependency() throws OpenLCompilationException {
         RulesInstantiationStrategy rulesInstantiationStrategy;
         ClassLoader classLoader = buildClassLoader(dependencyManager);
         if (!isProjectLoader()) {
-            rulesInstantiationStrategy = RulesInstantiationStrategyFactory
-                .getStrategy(module, executionMode, dependencyManager, classLoader);
+            rulesInstantiationStrategy = new ApiBasedInstantiationStrategy(module,
+                dependencyManager,
+                classLoader,
+                executionMode);
         } else {
             Collection<Module> modules = getModules();
             if (modules.isEmpty()) {
@@ -131,11 +137,11 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         try {
             ValidationManager.turnOffValidation();
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
-            CompiledDependency compiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
+            CompiledDependency compiledDependency = new CompiledDependency(dependency, compiledOpenClass);
             if (isActualDependency()) {
                 onCompilationComplete(this, compiledDependency);
                 this.compiledDependency = compiledDependency;
-                log.debug("Dependency '{}' is saved in cache.", dependencyName);
+                log.debug("Dependency '{}' is saved in cache.", dependency);
             }
             return compiledDependency;
         } catch (Exception ex) {
@@ -153,12 +159,11 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     protected CompiledDependency onCompilationFailure(Exception ex,
             AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
-        throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName), ex);
+        throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependency), ex);
     }
 
-    @Override
-    public String getDependencyName() {
-        return dependencyName;
+    public ResolvedDependency getDependency() {
+        return dependency;
     }
 
     @Override
@@ -184,14 +189,11 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         if (o == null || getClass() != o.getClass())
             return false;
         SimpleDependencyLoader that = (SimpleDependencyLoader) o;
-        return this.isProjectLoader() && that.isProjectLoader() && Objects.equals(this.getProject().getName(),
-            that.getProject().getName()) || !this.isProjectLoader() && !that.isProjectLoader() && Objects
-                .equals(this.getModule().getName(), that.getModule().getName()) && Objects
-                    .equals(this.getModule().getProject().getName(), that.getModule().getProject().getName());
+        return dependency.equals(that.dependency);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(project, module);
+        return Objects.hash(dependency);
     }
 }

@@ -5,9 +5,11 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.openl.CompiledOpenClass;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
+import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.MaxThreadsForCompileSemaphore;
@@ -68,7 +70,8 @@ class LazyPrebindHandler implements IPrebindHandler {
                 } catch (Exception e) {
                     throw new RuleServiceOpenLCompilationException("Failed to load lazy method.", e);
                 }
-                CompiledOpenClassCache.getInstance().registerEvent(deployment, module.getName(), this);
+                CompiledOpenClassCache.getInstance()
+                    .registerEvent(deployment, AbstractDependencyManager.buildResolvedDependency(module), this);
                 return openMethod;
             }
 
@@ -99,7 +102,8 @@ class LazyPrebindHandler implements IPrebindHandler {
                 try {
                     CompiledOpenClass compiledOpenClass = getCompiledOpenClassWithThrowErrorExceptionsIfAny(field,
                         module);
-                    CompiledOpenClassCache.getInstance().registerEvent(deployment, module.getName(), this);
+                    CompiledOpenClassCache.getInstance()
+                        .registerEvent(deployment, AbstractDependencyManager.buildResolvedDependency(module), this);
                     return compiledOpenClass.getOpenClass().getField(field.getName());
                 } catch (Exception e) {
                     throw new RuleServiceOpenLCompilationException("Failed to load a lazy field.", e);
@@ -124,20 +128,21 @@ class LazyPrebindHandler implements IPrebindHandler {
         RuleServiceDependencyManager dependencyManager = this.dependencyManager;
         ClassLoader classLoader = getClassLoader();
         String dependencyName = module.getName();
-        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
+        ResolvedDependency dependency = AbstractDependencyManager.buildResolvedDependency(module);
+        CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependency);
         if (compiledOpenClass != null) {
             return compiledOpenClass;
         }
 
         synchronized (sync.getDeclaringClass()) {
-            compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependencyName);
+            compiledOpenClass = CompiledOpenClassCache.getInstance().get(deployment, dependency);
             if (compiledOpenClass != null) {
                 return compiledOpenClass;
             }
             try {
                 return MaxThreadsForCompileSemaphore.getInstance()
                     .run(() -> CompiledOpenClassCache
-                        .compileToCache(dependencyManager, dependencyName, deployment, module, classLoader));
+                        .compileToCache(dependencyManager, dependency, deployment, module, classLoader));
             } catch (OpenLCompilationException e) {
                 throw e;
             } catch (InterruptedException e) {
@@ -172,7 +177,7 @@ class LazyPrebindHandler implements IPrebindHandler {
         if (modules.size() == 1) {
             return modules.iterator().next();
         }
-        //FIXME is it unreachable code?
+        // FIXME is it unreachable code?
         for (Module module : modules) {
             Path modulePath = module.getRulesPath();
             try {

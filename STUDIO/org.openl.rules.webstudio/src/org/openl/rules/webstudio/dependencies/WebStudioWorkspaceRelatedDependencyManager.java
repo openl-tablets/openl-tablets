@@ -1,26 +1,24 @@
 package org.openl.rules.webstudio.dependencies;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
@@ -28,7 +26,6 @@ import org.openl.rules.project.instantiation.DependencyLoaderInitializationExcep
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.syntax.code.IDependency;
 import org.openl.types.NullOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +61,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     @Override
-    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+    public CompiledDependency loadDependency(ResolvedDependency dependency) throws OpenLCompilationException {
         ThreadPriority priority = threadPriority.get();
         if (priority == null) {
             threadPriority.set(ThreadPriority.HIGH);
@@ -94,7 +91,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         if (active) {
                             return super.loadDependency(dependency);
                         } else {
-                            return new CompiledDependency(dependency.getNode().getIdentifier(),
+                            return new CompiledDependency(dependency,
                                 new CompiledOpenClass(NullOpenClass.the,
                                     Collections.singletonList(new CompilationInterruptedOpenLErrorMessage())));
                         }
@@ -108,7 +105,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                             priority == null ? ThreadPriority.HIGH : priority);
                         return super.loadDependency(dependency);
                     } else {
-                        return new CompiledDependency(dependency.getNode().getIdentifier(),
+                        return new CompiledDependency(dependency,
                             new CompiledOpenClass(NullOpenClass.the,
                                 Collections.singletonList(new CompilationInterruptedOpenLErrorMessage())));
                     }
@@ -135,7 +132,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         return version;
     }
 
-    public void loadDependencyAsync(IDependency dependency, Consumer<CompiledDependency> consumer) {
+    public void loadDependencyAsync(ResolvedDependency dependency, Consumer<CompiledDependency> consumer) {
         executorService.submit(() -> {
             try {
                 threadPriority.set(ThreadPriority.LOW);
@@ -143,7 +140,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 try {
                     compiledDependency = this.loadDependency(dependency);
                 } catch (OpenLCompilationException e) {
-                    compiledDependency = new CompiledDependency(dependency.getNode().getIdentifier(),
+                    compiledDependency = new CompiledDependency(dependency,
                         new CompiledOpenClass(NullOpenClass.the, Collections.singletonList(new OpenLErrorMessage(e))));
                 }
                 if (compiledDependency.getCompiledOpenClass()
@@ -162,13 +159,12 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         });
     }
 
-    protected Map<String, CopyOnWriteArraySet<IDependencyLoader>> initDependencyLoaders() {
+    protected Set<IDependencyLoader> initDependencyLoaders() {
         return buildDependencyLoaders(projects);
     }
 
-    private Map<String, CopyOnWriteArraySet<IDependencyLoader>> buildDependencyLoaders(
-            Set<ProjectDescriptor> projects) {
-        Map<String, CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders = new HashMap<>();
+    private Set<IDependencyLoader> buildDependencyLoaders(Set<ProjectDescriptor> projects) {
+        Set<IDependencyLoader> dependencyLoaders = new HashSet<>();
         for (ProjectDescriptor project : projects) {
             try {
                 Collection<Module> modulesOfProject = project.getModules();
@@ -177,18 +173,12 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         WebStudioDependencyLoader moduleDependencyLoader = new WebStudioDependencyLoader(project,
                             m,
                             this);
-                        Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders.computeIfAbsent(
-                            moduleDependencyLoader.getDependencyName(),
-                            e -> new CopyOnWriteArraySet<>());
-                        dependencyLoadersByName.add(moduleDependencyLoader);
+                        dependencyLoaders.add(moduleDependencyLoader);
                     }
                 }
 
                 WebStudioDependencyLoader projectDependencyLoader = new WebStudioDependencyLoader(project, null, this);
-                Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
-                    .computeIfAbsent(projectDependencyLoader.getDependencyName(), e -> new CopyOnWriteArraySet<>());
-                dependencyLoadersByName.add(projectDependencyLoader);
-
+                dependencyLoaders.add(projectDependencyLoader);
             } catch (Exception e) {
                 throw new DependencyLoaderInitializationException(
                     String.format("Failed to initialize dependency loaders for project '%s'.", project.getName()),
@@ -199,13 +189,13 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     @Override
-    public void resetOthers(IDependency... dependencies) {
+    public void resetOthers(ResolvedDependency... dependencies) {
         version.incrementAndGet();
         super.resetOthers(dependencies);
     }
 
     @Override
-    public void reset(IDependency dependency) {
+    public void reset(ResolvedDependency dependency) {
         version.incrementAndGet();
         super.reset(dependency);
     }
@@ -234,11 +224,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     public void expand(Set<ProjectDescriptor> projects) {
-        Map<String, CopyOnWriteArraySet<IDependencyLoader>> dependencyLoaders = buildDependencyLoaders(projects);
-        addDependencyLoaders(dependencyLoaders.values()
-            .stream()
-            .flatMap(Collection::stream)
-            .collect(Collectors.toCollection(ArrayList::new)));
+        Set<IDependencyLoader> dependencyLoaders = buildDependencyLoaders(projects);
+        addDependencyLoaders(dependencyLoaders);
     }
 
     public void registerOnCompilationCompleteListener(
