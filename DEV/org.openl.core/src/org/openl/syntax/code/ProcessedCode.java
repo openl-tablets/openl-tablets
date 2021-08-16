@@ -11,6 +11,17 @@ import org.openl.message.OpenLMessage;
  */
 public class ProcessedCode {
 
+    public ProcessedCode(IParsedCode parsedCode,
+            IBoundCode boundCode,
+            Collection<OpenLMessage> allMessages,
+            Collection<OpenLMessage> messages) {
+        this.parsedCode = parsedCode;
+        this.boundCode = boundCode;
+        this.allMessages = allMessages != null ? Collections.unmodifiableCollection(allMessages)
+                                               : Collections.emptyList();
+        this.messages = messages != null ? Collections.unmodifiableCollection(messages) : Collections.emptyList();
+    }
+
     /**
      * {@link IParsedCode} instance.
      */
@@ -21,9 +32,9 @@ public class ProcessedCode {
      */
     private IBoundCode boundCode;
 
-    private Collection<OpenLMessage> messages;
+    private final Collection<OpenLMessage> allMessages;
 
-    private Collection<OpenLMessage> currentMessages;
+    private final Collection<OpenLMessage> messages;
 
     /**
      * Gets parsed code.
@@ -61,26 +72,11 @@ public class ProcessedCode {
         this.boundCode = boundCode;
     }
 
+    public Collection<OpenLMessage> getAllMessages() {
+        return allMessages;
+    }
+
     public Collection<OpenLMessage> getMessages() {
-        if (messages != null) {
-            return Collections.unmodifiableCollection(messages);
-        }
-        return Collections.emptyList();
+        return messages;
     }
-
-    public void setMessages(Collection<OpenLMessage> messages) {
-        this.messages = messages;
-    }
-
-    public Collection<OpenLMessage> getCurrentMessages() {
-        if (currentMessages != null) {
-            return Collections.unmodifiableCollection(currentMessages);
-        }
-        return Collections.emptyList();
-    }
-
-    public void setCurrentMessages(Collection<OpenLMessage> currentMessages) {
-        this.currentMessages = currentMessages;
-    }
-
 }

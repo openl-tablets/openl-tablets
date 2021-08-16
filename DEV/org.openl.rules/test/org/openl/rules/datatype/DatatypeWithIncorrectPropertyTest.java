@@ -17,9 +17,9 @@ public class DatatypeWithIncorrectPropertyTest extends BaseOpenlBuilderHelper {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
 
         assertTrue("Expected an error in the project", compiledOpenClass.hasErrors());
-        assertEquals("Datatype must have only one error", 1, compiledOpenClass.getMessages().size());
+        assertEquals("Datatype must have only one error", 1, compiledOpenClass.getAllMessages().size());
         assertEquals("Incorrect error message",
             "Property 'precision' cannot be defined in 'Datatype' table.",
-            compiledOpenClass.getMessages().iterator().next().getSummary());
+            compiledOpenClass.getAllMessages().iterator().next().getSummary());
     }
 }

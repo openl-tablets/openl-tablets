@@ -66,7 +66,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         Collection<IOpenMethod> methods = findMethods(openClass, "Hello");
         Assert.assertEquals(2, methods.size());
         for (IOpenMethod method : methods) {
-            List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getMessages(),
+            List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
                 (TableSyntaxNode) method.getInfo().getSyntaxNode());
             Assert.assertEquals(1, messages.size());
             Assert.assertEquals(
@@ -82,7 +82,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         Collection<IOpenMethod> methods = findMethods(openClass, "Hello2");
         Assert.assertEquals(2, methods.size());
         for (IOpenMethod method : methods) {
-            List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getMessages(),
+            List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
                 (TableSyntaxNode) method.getInfo().getSyntaxNode());
             Assert.assertEquals(1, messages.size());
             Assert.assertEquals(
@@ -99,7 +99,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
         Assert.assertEquals(3, methods.size());
         for (IOpenMethod method : methods) {
             ITableProperties props = PropertiesHelper.getTableProperties(method);
-            List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getMessages(),
+            List<OpenLMessage> messages = getWarningsForTable(compiledOpenClass.getAllMessages(),
                 (TableSyntaxNode) method.getInfo().getSyntaxNode());
             if (props.getState().length == 1 && props.getCountry().length == 1) {
                 Assert.assertEquals(0, messages.size());

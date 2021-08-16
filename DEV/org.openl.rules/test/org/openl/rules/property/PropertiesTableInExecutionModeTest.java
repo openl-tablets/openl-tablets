@@ -35,7 +35,12 @@ public class PropertiesTableInExecutionModeTest {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
-        assertEquals(1, compiledOpenClass.getMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());//FIXME validation issue for Ranges.
+        assertEquals(1,
+            compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());// FIXME
+                                                                                                                    // validation
+                                                                                                                    // issue
+                                                                                                                    // for
+                                                                                                                    // Ranges.
         IOpenMethod method = compiledOpenClass.getOpenClassWithErrors()
             .getMethod("hello1", new IOpenClass[] { JavaOpenClass.INT });
         if (method != null) {
@@ -71,7 +76,12 @@ public class PropertiesTableInExecutionModeTest {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
-        assertEquals(1, compiledOpenClass.getMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());//FIXME validation issue for Ranges.
+        assertEquals(1,
+            compiledOpenClass.getAllMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());// FIXME
+                                                                                                                    // validation
+                                                                                                                    // issue
+                                                                                                                    // for
+                                                                                                                    // Ranges.
         Collection<IOpenField> fields = compiledOpenClass.getOpenClassWithErrors().getFields();
         // properties table with name will be represented as field
         assertTrue(fields.stream().anyMatch(e -> "categoryProp".equals(e.getName())));
