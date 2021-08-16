@@ -1,12 +1,10 @@
 <project>
-	<id>project2</id>
     <name>project2</name>
 
+    <!-- OpenL project includes one or more modules.  -->
     <modules>
         <module>
-            <name>Module2_1</name>
-            <type>api</type>
-            <rules-root path="Module2_1.xlsx"/>
+            <rules-root path="*.xls"/>
         </module>
     </modules>
 
@@ -15,10 +13,14 @@
             <name>domain</name>
             <autoIncluded>false</autoIncluded>
         </dependency>
+        <dependency>
+            <name>project1</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
     </dependencies>
 
+    <!-- Project's classpath. -->
     <classpath>
-        <entry path="bin"/>
+        <entry path="."/>
     </classpath>
-
 </project>

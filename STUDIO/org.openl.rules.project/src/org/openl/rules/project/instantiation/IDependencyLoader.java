@@ -1,6 +1,7 @@
 package org.openl.rules.project.instantiation;
 
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -20,7 +21,7 @@ public interface IDependencyLoader {
 
     CompiledDependency getRefToCompiledDependency();
 
-    String getDependencyName();
+    ResolvedDependency getDependency();
 
     ProjectDescriptor getProject();
 

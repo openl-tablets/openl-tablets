@@ -40,22 +40,24 @@ public class AmbiguousFieldException extends OpenlNotCheckedException {
     public String getMessage() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Field '").append(fieldName);
-        sb.append("' is ambiguous:\n").append("Matching fields:\n");
-        boolean first = true;
-        Set<IOpenClass> openClasses = new HashSet<>();
-        for (IOpenField f : matchingFields) {
-            openClasses.add(f.getDeclaringClass());
-        }
-        for (IOpenField f : matchingFields) {
-            if (!first) {
-                sb.append(", ");
+        sb.append("Field '").append(fieldName).append("' is ambiguous");
+        if (matchingFields != null) {
+            sb.append(":\nMatching fields:\n");
+            boolean first = true;
+            Set<IOpenClass> openClasses = new HashSet<>();
+            for (IOpenField f : matchingFields) {
+                openClasses.add(f.getDeclaringClass());
             }
-            sb.append(openClasses.size() == 1 ? "" : f.getDeclaringClass().getDisplayName(INamedThing.SHORT) + ".")
-                .append(f.getDisplayName(INamedThing.SHORT));
-            first = false;
+            for (IOpenField f : matchingFields) {
+                if (!first) {
+                    sb.append(", ");
+                }
+                sb.append(openClasses.size() == 1 ? "" : f.getDeclaringClass().getDisplayName(INamedThing.SHORT) + ".").append(f.getDisplayName(INamedThing.SHORT));
+                first = false;
+            }
+        } else {
+            sb.append(".");
         }
-
         return sb.toString();
     }
 

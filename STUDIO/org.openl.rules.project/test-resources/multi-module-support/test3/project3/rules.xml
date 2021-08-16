@@ -1,28 +1,26 @@
 <project>
-    <id>multimodule</id>
-    <name>multimodule</name>
+    <name>project3</name>
 
+    <!-- OpenL project includes one or more modules.  -->
     <modules>
         <module>
-            <name>multimodule</name>
-            <type>api</type>
-            <rules-root path="MultiModule.xlsx"/>
+            <rules-root path="*.xlsx"/>
         </module>
     </modules>
 
     <dependencies>
         <dependency>
-            <name>project1</name>
+            <name>domain</name>
             <autoIncluded>false</autoIncluded>
         </dependency>
         <dependency>
-            <name>project2</name>
+            <name>project1</name>
             <autoIncluded>false</autoIncluded>
         </dependency>
     </dependencies>
 
+    <!-- Project's classpath. -->
     <classpath>
-        <entry path="bin"/>
+        <entry path="."/>
     </classpath>
-
 </project>

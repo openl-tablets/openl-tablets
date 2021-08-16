@@ -17,17 +17,18 @@ public interface IDependencyManager {
      *
      * @param dependency to be loaded.
      * @return {@link CompiledDependency}
-     *
-     * @throws OpenLCompilationException
      */
-    CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException;
+    CompiledDependency loadDependency(ResolvedDependency dependency) throws OpenLCompilationException;
+
+    Collection<ResolvedDependency> resolveDependency(IDependency dependency) throws AmbiguousDependencyException,
+                                                                             DependencyNotFoundException;
 
     /**
      * Remove given dependency from cache.
      *
      * @param dependency to be cleaned from cache.
      */
-    void reset(IDependency dependency);
+    void reset(ResolvedDependency dependency);
 
     /**
      * Remove all dependencies from cache except the given dependencies and dependencies that are required for the given
@@ -36,7 +37,7 @@ public interface IDependencyManager {
      * @param dependencies to be saved in cache, removes others
      */
 
-    void resetOthers(IDependency... dependencies);
+    void resetOthers(ResolvedDependency... dependencies);
 
     /**
      * Remove all dependencies from cache.
@@ -56,12 +57,4 @@ public interface IDependencyManager {
      * properties)
      */
     Map<String, Object> getExternalParameters();
-
-    Collection<String> getAllDependencies();
-
-    /**
-     * A list of available dependencies.
-     */
-    Collection<String> getAvailableDependencies();
-
 }

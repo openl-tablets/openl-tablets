@@ -11,14 +11,12 @@ import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.dependency.IDependencyManager;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IntValue;
 import org.openl.rules.common.CommonVersion;
@@ -28,8 +26,6 @@ import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.IProject;
-import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
-import org.openl.rules.project.instantiation.SimpleDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -273,12 +269,9 @@ public class ServiceInterfaceMethodInterceptingTest {
         ServiceDescription serviceDescription = serviceDescriptionBuilder().build();
         RuleServiceOpenLServiceInstantiationFactoryImpl instantiationFactory = new RuleServiceOpenLServiceInstantiationFactoryImpl();
         instantiationFactory.setRuleServiceLoader(ruleServiceLoader);
-        IDependencyManager dependencyManager = new SimpleDependencyManager(Collections.emptyList(), null, true, null);
-        RulesInstantiationStrategy rulesInstantiationStrategy = instantiationFactory.getInstantiationStrategyFactory()
-            .getStrategy(serviceDescription, dependencyManager);
         Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
             .buildInterfaceForInstantiationStrategy(OverloadInterface.class,
-                rulesInstantiationStrategy.getClassLoader(),
+                Thread.currentThread().getContextClassLoader(),
                 serviceDescription.isProvideRuntimeContext(),
                 serviceDescription.isProvideVariations());
         for (Method method : OverloadInterface.class.getMethods()) {

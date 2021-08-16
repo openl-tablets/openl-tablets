@@ -27,7 +27,6 @@ import org.openl.runtime.AOpenLEngineFactory;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
@@ -182,7 +181,7 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     }
 
     private IDependency createDependency(Module module) {
-        return new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null));
+        return new Dependency(new IdentifierNode(null, null, module.getName(), null));
     }
 
     public IDependencyManager getDependencyManager() {

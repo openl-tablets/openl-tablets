@@ -2,58 +2,35 @@ package org.openl.rules.ruleservice.publish.lazy;
 
 import java.util.Objects;
 
+import org.openl.dependency.ResolvedDependency;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 
 public class Key {
-    private final String dependencyName;
+    private final ResolvedDependency dependency;
     private final DeploymentDescription deploymentDescription;
 
     DeploymentDescription getDeploymentDescription() {
         return deploymentDescription;
     }
 
-    Key(DeploymentDescription deploymentDescription, String dependencyName) {
+    Key(DeploymentDescription deploymentDescription, ResolvedDependency dependency) {
         this.deploymentDescription = Objects.requireNonNull(deploymentDescription,
             "deploymentDescription cannot be null");
-        this.dependencyName = Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
+        this.dependency = Objects.requireNonNull(dependency, "dependency cannot be null");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        Key key = (Key) o;
+        return dependency.equals(key.dependency) && deploymentDescription.equals(key.deploymentDescription);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 31;
-        result = prime * result + (deploymentDescription == null ? 0 : deploymentDescription.hashCode());
-        result = prime * result + (dependencyName == null ? 0 : dependencyName.hashCode());
-        return result;
+        return Objects.hash(dependency, deploymentDescription);
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Key other = (Key) obj;
-        if (deploymentDescription == null) {
-            if (other.deploymentDescription != null) {
-                return false;
-            }
-        } else if (!deploymentDescription.equals(other.deploymentDescription)) {
-            return false;
-        }
-        if (dependencyName == null) {
-            if (other.dependencyName != null) {
-                return false;
-            }
-        } else if (!dependencyName.equals(other.dependencyName)) {
-            return false;
-        }
-        return true;
-    }
-
 }

@@ -1,5 +1,7 @@
 package org.openl.dependency;
 
+import java.util.Objects;
+
 import org.openl.CompiledOpenClass;
 
 /**
@@ -8,16 +10,16 @@ import org.openl.CompiledOpenClass;
  */
 public class CompiledDependency {
 
-    private final String dependencyName;
+    private final ResolvedDependency dependency;
     private final CompiledOpenClass compiledOpenClass;
 
-    public CompiledDependency(String dependencyName, CompiledOpenClass compiledOpenClass) {
-        this.dependencyName = dependencyName;
-        this.compiledOpenClass = compiledOpenClass;
+    public CompiledDependency(ResolvedDependency dependency, CompiledOpenClass compiledOpenClass) {
+        this.dependency = Objects.requireNonNull(dependency, "dependency cannot be null");
+        this.compiledOpenClass = Objects.requireNonNull(compiledOpenClass, "compiledOpenClass cannot be null");
     }
 
-    public String getDependencyName() {
-        return dependencyName;
+    public ResolvedDependency getDependency() {
+        return dependency;
     }
 
     public CompiledOpenClass getCompiledOpenClass() {

@@ -10,7 +10,16 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Deque;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoFailureException;
@@ -21,22 +30,29 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
+import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.testmethod.*;
+import org.openl.rules.testmethod.BaseTestUnit;
+import org.openl.rules.testmethod.ITestUnit;
+import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestRunner;
+import org.openl.rules.testmethod.TestStatus;
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestSuiteExecutor;
+import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.testmethod.TestUnit;
+import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
-import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
-import org.openl.syntax.code.IDependency;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ThisField;
@@ -237,10 +253,9 @@ public final class TestMojo extends BaseOpenLMojo {
             .setExternalParameters(externalParameters)
             .build();
 
-        Deque<IDependency> queueToReset = new ArrayDeque<>();
+        Deque<ResolvedDependency> queueToReset = new ArrayDeque<>();
         for (Module module : modules) {
-            IDependency dependency = new Dependency(DependencyType.MODULE,
-                new IdentifierNode(DependencyType.MODULE.name(), null, module.getName(), null));
+            ResolvedDependency dependency = AbstractDependencyManager.buildResolvedDependency(module);
             try {
                 info("");
                 info("Searching tests in module '", module.getName(), "'...");
@@ -251,9 +266,8 @@ public final class TestMojo extends BaseOpenLMojo {
                 } catch (OpenLCompilationException e) {
                     Collection<OpenLMessage> messages = new LinkedHashSet<>();
                     for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(e)) {
-                        String message = String.format("Failed to load module '%s': %s",
-                            module.getName(),
-                            openLMessage.getSummary());
+                        String message = String
+                            .format("Failed to load module '%s': %s", module.getName(), openLMessage.getSummary());
                         messages.add(new OpenLMessage(message, Severity.ERROR));
                     }
                     ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -276,7 +290,7 @@ public final class TestMojo extends BaseOpenLMojo {
                 while (queueToReset.size() > maxModulesInMemory) {
                     queueToReset.poll();
                 }
-                factory.getDependencyManager().resetOthers(queueToReset.toArray(new IDependency[0]));
+                factory.getDependencyManager().resetOthers(queueToReset.toArray(new ResolvedDependency[0]));
             }
         }
 

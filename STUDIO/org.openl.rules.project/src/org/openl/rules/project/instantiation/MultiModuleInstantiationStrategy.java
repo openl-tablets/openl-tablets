@@ -1,6 +1,10 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.CompiledOpenClass;
@@ -13,10 +17,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.code.Dependency;
-import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.util.IOUtils;
 
 /**
@@ -59,9 +60,8 @@ public abstract class MultiModuleInstantiationStrategy extends CommonRulesInstan
                 .collect(Collectors.toSet());
             for (ProjectDescriptor pd : projectDescriptors) {
                 try {
-                    CompiledDependency compiledDependency = getDependencyManager().loadDependency(new Dependency(
-                        DependencyType.MODULE,
-                        new IdentifierNode(null, null, SimpleDependencyLoader.buildDependencyName(pd, null), null)));
+                    CompiledDependency compiledDependency = getDependencyManager()
+                        .loadDependency(AbstractDependencyManager.buildResolvedDependency(pd));
                     CompiledOpenClass compiledOpenClass = compiledDependency.getCompiledOpenClass();
                     classLoader.addClassLoader(compiledOpenClass.getClassLoader());
                 } catch (OpenLCompilationException e) {
@@ -81,13 +81,10 @@ public abstract class MultiModuleInstantiationStrategy extends CommonRulesInstan
      * @return Special empty virtual {@link IOpenSourceCodeModule} with dependencies on all modules.
      */
     protected IOpenSourceCodeModule createVirtualSourceCodeModule() {
-        List<IDependency> dependencies = new ArrayList<>();
-
-        for (Module module : getModules()) {
-            IDependency dependency = createDependency(module);
-            dependencies.add(dependency);
-        }
-
+        List<IDependency> dependencies = getModules().stream()
+            .map(AbstractDependencyManager::buildResolvedDependency)
+            .distinct()
+            .collect(Collectors.toList());
         Map<String, Object> params = new HashMap<>();
         if (getExternalParameters() != null) {
             params.putAll(getExternalParameters());
@@ -105,7 +102,4 @@ public abstract class MultiModuleInstantiationStrategy extends CommonRulesInstan
         return source;
     }
 
-    private IDependency createDependency(Module module) {
-        return new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null));
-    }
 }

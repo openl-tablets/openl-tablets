@@ -1,23 +1,30 @@
 <project>
-	<!--  Project identifier. String value which defines project uniquely. -->
-	<id>third-hello</id>
-	<!-- Project name. -->
-	<name>third-hello</name>
+    <!--  Project identifier. String value which defines project uniquely. -->
+    <id>third-hello</id>
+    <!-- Project name. -->
+    <name>third-hello</name>
 
-	<!-- OpenL project includes one or more modules.  -->
-	<modules>
-		<module>
-			<name>third_say_hello</name>
-			<type>API</type>
-			<!-- 
-				Rules root document. Usually excel file on file system. 
-			-->
-			<rules-root path="third_rules/Third_Hello.xlsx"/>
-		</module>	
-	</modules>
-	
-	<!-- Project's classpath. -->
-	<classpath>
-		<entry path="."/>
-	</classpath>	
+    <!-- OpenL project includes one or more modules.  -->
+    <modules>
+        <module>
+            <name>third_say_hello</name>
+            <type>API</type>
+            <!--
+                Rules root document. Usually excel file on file system.
+            -->
+            <rules-root path="third_rules/Third_Hello.xlsx"/>
+        </module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <name>first-hello</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
+
+    <!-- Project's classpath. -->
+    <classpath>
+        <entry path="."/>
+    </classpath>
 </project>

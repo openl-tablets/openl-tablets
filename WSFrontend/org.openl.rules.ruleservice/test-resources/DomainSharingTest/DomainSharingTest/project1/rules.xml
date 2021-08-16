@@ -1,17 +1,24 @@
 <project>
 	<id>project1</id>
-	<name>project1</name>
+    <name>project1</name>
 
-	<modules>
-		<module>
-			<name>Module1_1</name>
-			<type>api</type>
-			<rules-root path="Module1_1.xlsx"/>
-		</module>	
-	</modules>
+    <modules>
+        <module>
+            <name>Module1_1</name>
+            <type>api</type>
+            <rules-root path="Module1_1.xlsx"/>
+        </module>
+    </modules>
 
-	<classpath>
-		<entry path="bin"/>
-	</classpath>
-	
+    <dependencies>
+        <dependency>
+            <name>domain</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
+
+    <classpath>
+        <entry path="bin"/>
+    </classpath>
+
 </project>
