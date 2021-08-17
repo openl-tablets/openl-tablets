@@ -509,7 +509,10 @@ public class ProjectModel {
 
     public boolean isSourceModified() {
         RulesProject project = getProject();
-        if (project != null && studio.isProjectFrozen(project.getName())) {
+        if (project == null || !project.isOpened()) {
+            return false;
+        }
+        if (studio.isProjectFrozen(project.getName())) {
             log.debug("Project is saving currently. Ignore it's intermediate state.");
             return false;
         }
@@ -538,7 +541,7 @@ public class ProjectModel {
         if (moduleInfo != null && moduleInfo.getWebstudioConfiguration() != null && moduleInfo
             .getWebstudioConfiguration()
             .isCompileThisModuleOnly()) {
-            compilationStatus.addMessages(compiledOpenClass.getMessages());
+            compilationStatus.addMessages(compiledOpenClass.getAllMessages());
             compilationStatus.setModulesCompiled(1);
             compilationStatus.addModulesCount(1);
         } else {
@@ -552,7 +555,7 @@ public class ProjectModel {
 
                 if (isProjectCompilationCompleted()) {
                     compilationStatus.clearMessages()
-                        .addMessages(compiledOpenClass.getMessages())
+                        .addMessages(compiledOpenClass.getAllMessages())
                         .setModulesCompiled(compilationStatus.build().getModulesCount());
                 } else {
                     if (!Objects.equals(projectDescriptor.getName(), moduleInfo.getProject().getName())) {
@@ -563,14 +566,14 @@ public class ProjectModel {
                             .map(IDependencyLoader::getRefToCompiledDependency)
                             .filter(Objects::nonNull)
                             .map(CompiledDependency::getCompiledOpenClass)
-                            .map(CompiledOpenClass::getCurrentMessages)
+                            .map(CompiledOpenClass::getMessages)
                             .forEach(compilationStatus::addMessages);
                     }
 
                     projectDescriptor.getModules().forEach(module -> {
                         if (Objects.equals(module.getName(), moduleInfo.getName()) && Objects
                             .equals(module.getProject().getName(), moduleInfo.getProject().getName())) {
-                            compilationStatus.addMessages(openedModuleCompiledOpenClass.getMessages())
+                            compilationStatus.addMessages(openedModuleCompiledOpenClass.getAllMessages())
                                 .addModulesCompiled(1);
                         } else {
                             webStudioWorkspaceDependencyManager.findDependencyLoadersByName(module.getName())
@@ -578,7 +581,7 @@ public class ProjectModel {
                                 .map(IDependencyLoader::getRefToCompiledDependency)
                                 .filter(Objects::nonNull)
                                 .forEach(compiledDependency -> compilationStatus
-                                    .addMessages(compiledDependency.getCompiledOpenClass().getCurrentMessages())
+                                    .addMessages(compiledDependency.getCompiledOpenClass().getMessages())
                                     .addModulesCompiled(1));
                         }
                     });
@@ -620,7 +623,7 @@ public class ProjectModel {
     public Collection<OpenLMessage> getModuleMessages() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         if (compiledOpenClass != null) {
-            return compiledOpenClass.getMessages();
+            return compiledOpenClass.getAllMessages();
         }
         return Collections.emptyList();
     }
@@ -628,7 +631,7 @@ public class ProjectModel {
     public Collection<OpenLMessage> getOpenedModuleMessages() {
         CompiledOpenClass openedCompiledOpenClass = getOpenedModuleCompiledOpenClass();
         if (openedCompiledOpenClass != null) {
-            return openedCompiledOpenClass.getMessages();
+            return openedCompiledOpenClass.getAllMessages();
         }
         return Collections.emptyList();
     }

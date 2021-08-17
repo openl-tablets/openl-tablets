@@ -23,8 +23,9 @@ public class TestTable {
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
         assertNotNull(tests);
         assertEquals(1, tests.length);
-        assertEquals(1, compiledOpenClass.getMessages().size());
-        assertEquals("Field '$Value$no_such_field' is not found.", compiledOpenClass.getMessages().iterator().next().getSummary());
+        assertEquals(1, compiledOpenClass.getAllMessages().size());
+        assertEquals("Field '$Value$no_such_field' is not found.",
+            compiledOpenClass.getAllMessages().iterator().next().getSummary());
 
         TestSuiteMethod hiTest = (TestSuiteMethod) openClass.getMethod("hiTest", IOpenClass.EMPTY);
         assertNotNull(hiTest);
