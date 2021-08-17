@@ -15,19 +15,15 @@
 
     <script src="#{contextPath}/webresource/js/tooltip.js"></script>
     <script>
-        if (#{testBean.compileThisModuleOnly}) {
-            setCurrentModuleOnlyCheckbox(true, true);
+        if (#{!testBean.projectCompilationCompleted}) {
+            let currentModuleOnlyCheckbox = $j("#currentModuleOnly");
+            currentModuleOnlyCheckbox.prop('checked', true);
+            currentModuleOnlyCheckbox.prop('disabled', true);
         }
         function explain(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
                + '&amp;requestId=#{mainBean.requestId}'
                + '&amp;title=Explanation&amp;treePage=faces/pages/modules/explain/explain.xhtml&amp;mainPage=faces/pages/modules/explain/showExplainTable.xhtml',"_blank","toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1240, height=700")
-        }
-
-        function setCurrentModuleOnlyCheckbox(checked, disabled) {
-            let currentModuleOnlyCheckbox = $j("#currentModuleOnly");
-            currentModuleOnlyCheckbox.prop('checked', checked);
-            currentModuleOnlyCheckbox.prop('disabled', disabled);
         }
 
         $j(function () {
@@ -348,14 +344,13 @@
                 <div id="wait-for-compilation-end-panel">
                     Waiting for the end of compilation...
                 </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{!testBean.projectCompilationCompleted}">
                 <script>
                     //<![CDATA[
-                    $j(function () {
                         let messageId = -1;
                         let messageIndex = -1;
-
-                        let $messagePanel = $j('#wait-for-compilation-end-panel');
-                        $messagePanel.bind('refresh', function () {
+                        function waitProjectCompilationCompleted() {
                             $jq.ajax({
                                 url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
                                 datatype: "json"
@@ -366,15 +361,12 @@
                                 }
                                 if (data.compilationCompleted) {
                                     ws.nav.reload();
-                                    setCurrentModuleOnlyCheckbox(true, true);
                                 } else {
-                                    setTimeout(function () {$messagePanel.trigger('refresh')}, 1000);
+                                    setTimeout(waitProjectCompilationCompleted, 1000);
                                 }
                             });
-                        });
-
-                        $messagePanel.trigger('refresh');
-                    });
+                        };
+                        waitProjectCompilationCompleted();
                     //]]>
                 </script>
             </h:panelGroup>
