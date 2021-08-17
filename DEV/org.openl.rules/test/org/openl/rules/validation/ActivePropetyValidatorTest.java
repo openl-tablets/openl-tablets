@@ -19,14 +19,14 @@ public class ActivePropetyValidatorTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testOddActiveTable() {
-        assertTrue(isMessageOccured(getCompiledOpenClass().getMessages(),
+        assertTrue(isMessageOccured(getCompiledOpenClass().getAllMessages(),
             ActivePropertyValidator.ODD_ACTIVE_TABLE_MESSAGE,
             Severity.ERROR));
     }
 
     @Test
     public void testNoActiveTable() {
-        assertTrue(isMessageOccured(getCompiledOpenClass().getMessages(),
+        assertTrue(isMessageOccured(getCompiledOpenClass().getAllMessages(),
             ActivePropertyValidator.NO_ACTIVE_TABLE_MESSAGE,
             Severity.WARN));
     }

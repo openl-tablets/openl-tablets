@@ -3996,6 +3996,9 @@ public final class DecisionTableHelper {
             IOpenClass type,
             boolean isArray,
             boolean isMoreThanOneColumnIsUsed) {
+        if (type.isArray() && type.getComponentClass().isArray()) {
+            return Triple.of(new String[] { type.getName() }, type, condition.getStatement());
+        }
         int v;
         if (isArray) {
             v = isMoreThanOneColumnIsUsed ? 2 : 1;

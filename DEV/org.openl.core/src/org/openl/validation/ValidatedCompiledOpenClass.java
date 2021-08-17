@@ -26,7 +26,7 @@ public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
     }
 
     private ValidatedCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
-        super(compiledOpenClass.getOpenClassWithErrors(), compiledOpenClass.getMessages());
+        super(compiledOpenClass.getOpenClassWithErrors(), compiledOpenClass.getAllMessages());
         this.delegate = Objects.requireNonNull(compiledOpenClass, "compiledOpenClass cannot be null");
         this.hasErrors = compiledOpenClass.hasErrors();
     }
@@ -49,15 +49,15 @@ public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
     @Override
     public void throwErrorExceptionsIfAny() {
         if (hasErrors()) {
-            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(getMessages(),
+            Collection<OpenLMessage> errorMessages = OpenLMessagesUtils.filterMessagesBySeverity(getAllMessages(),
                 Severity.ERROR);
             throw new CompositeOpenlException("Module contains critical errors", null, errorMessages);
         }
     }
 
     @Override
-    public Collection<OpenLMessage> getMessages() {
-        Collection<OpenLMessage> messages = new LinkedHashSet<>(delegate.getMessages());
+    public Collection<OpenLMessage> getAllMessages() {
+        Collection<OpenLMessage> messages = new LinkedHashSet<>(delegate.getAllMessages());
         messages.addAll(validationMessages);
         return messages;
     }
