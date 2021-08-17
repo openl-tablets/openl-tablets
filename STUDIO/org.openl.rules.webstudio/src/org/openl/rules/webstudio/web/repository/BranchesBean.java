@@ -15,6 +15,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.Message;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -110,6 +111,8 @@ public class BranchesBean {
     }
 
     private void merge(String branchToMergeFrom, String branchToMergeTo) {
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        String nameBeforeMerge = null;
         try {
             if (branchToMergeFrom == null || branchToMergeTo == null) {
                 showErrorMessage("Choose the branches to merge.");
@@ -132,9 +135,10 @@ public class BranchesBean {
                 String repoId = designRepository.getId();
                 String realPath = project.getRealPath();
                 boolean opened = project.isOpened();
-                String nameBeforeMerge = project.getName();
+                nameBeforeMerge = project.getName();
                 String nameAfterMerge = nameBeforeMerge;
 
+                studio.freezeProject(nameBeforeMerge);
                 String author = getUserWorkspace().getUser().getUserName();
                 ((BranchRepository) designRepository).forBranch(branchToMergeTo).merge(branchToMergeFrom, author, null);
 
@@ -178,6 +182,8 @@ public class BranchesBean {
             }
             LOG.error(msg, e);
             showErrorMessage(msg);
+        } finally {
+            Optional.ofNullable(nameBeforeMerge).ifPresent(studio::releaseProject);
         }
     }
 
