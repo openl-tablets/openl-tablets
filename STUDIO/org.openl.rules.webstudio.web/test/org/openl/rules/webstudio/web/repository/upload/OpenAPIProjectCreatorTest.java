@@ -210,7 +210,7 @@ public class OpenAPIProjectCreatorTest {
 
                 Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
                 List<String> restMessages = new ArrayList<>(expectedMessages);
-                for (OpenLMessage msg : compiledOpenClass.getMessages()) {
+                for (OpenLMessage msg : compiledOpenClass.getAllMessages()) {
                     String actual = msg.getSeverity() + ": " + msg.getSummary();
                     if (msg.getSeverity().equals(Severity.ERROR)) {
                         success = false;
@@ -252,7 +252,7 @@ public class OpenAPIProjectCreatorTest {
 
             // Check compilation
             if (success && compiledOpenClass.hasErrors()) {
-                for (OpenLMessage msg : compiledOpenClass.getMessages()) {
+                for (OpenLMessage msg : compiledOpenClass.getAllMessages()) {
                     error(messagesCount++,
                         startTime,
                         sourceFile,

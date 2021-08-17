@@ -64,7 +64,7 @@ public final class CompileMojo extends BaseOpenLMojo {
             long memEnd = memUsed();
 
             Collection<OpenLMessage> warnMessages = OpenLMessagesUtils
-                .filterMessagesBySeverity(openLRules.getMessages(), Severity.WARN);
+                .filterMessagesBySeverity(openLRules.getAllMessages(), Severity.WARN);
             info("Compilation has finished.");
             info("DataTypes    : ", openClass.getTypes().size());
             info("Methods      : ", openClass.getMethods().size());

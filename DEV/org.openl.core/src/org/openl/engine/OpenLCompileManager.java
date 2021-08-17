@@ -69,7 +69,7 @@ public class OpenLCompileManager {
             IDependencyManager dependencyManager) {
         ProcessedCode processedCode = getProcessedCode(source, executionMode, dependencyManager);
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
-        return new CompiledOpenClass(openClass, processedCode.getMessages(), processedCode.getCurrentMessages());
+        return new CompiledOpenClass(openClass, processedCode.getAllMessages(), processedCode.getMessages());
     }
 
     private ProcessedCode getProcessedCode(IOpenSourceCodeModule source,
@@ -141,8 +141,8 @@ public class OpenLCompileManager {
 
         IParsedCode parsedCode = openl.getParser().parseAsModule(source);
 
+        Collection<OpenLMessage> allMessages = new LinkedHashSet<>();
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
-        Collection<OpenLMessage> currentMessages = new LinkedHashSet<>();
 
         // compile source dependencies
 
@@ -180,14 +180,14 @@ public class OpenLCompileManager {
                         // messages
                         // from
                         // dependencies
-                        messages.addAll(compiledOpenClass.getMessages());
+                        allMessages.addAll(compiledOpenClass.getAllMessages());
 
                     } catch (Exception e) {
-                        messages.addAll(OpenLMessagesUtils.newErrorMessages(e));
+                        allMessages.addAll(OpenLMessagesUtils.newErrorMessages(e));
                     }
                 }
             } else {
-                messages.add(
+                allMessages.add(
                     OpenLMessagesUtils.newErrorMessage("Cannot load dependencies. Dependency manager is not defined."));
             }
         }
@@ -202,14 +202,14 @@ public class OpenLCompileManager {
                 @SuppressWarnings("unchecked")
                 Set<String> warnMessages = (Set<String>) externalParams.get(ADDITIONAL_WARN_MESSAGES_KEY);
                 for (String message : warnMessages) {
-                    currentMessages.add(OpenLMessagesUtils.newWarnMessage(message));
+                    messages.add(OpenLMessagesUtils.newWarnMessage(message));
                 }
             }
             if (externalParams.containsKey(ADDITIONAL_ERROR_MESSAGES_KEY)) {
                 @SuppressWarnings("unchecked")
                 Set<String> errorMessage = (Set<String>) externalParams.get(ADDITIONAL_ERROR_MESSAGES_KEY);
                 for (String message : errorMessage) {
-                    currentMessages.add(OpenLMessagesUtils.newErrorMessage(message));
+                    messages.add(OpenLMessagesUtils.newErrorMessage(message));
                 }
             }
         }
@@ -218,26 +218,21 @@ public class OpenLCompileManager {
         // packages.
         FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 
-        //TODO check
+        // TODO check
         IOpenBinder binder = openl.getBinder();
         IBoundCode boundCode = binder.bind(parsedCode, bindingContext);
-        messages.addAll(bindingContext != null && bindingContext.isExecutionMode()
-                                                                                   ? clearOpenLMessagesForExecutionMode(
-                                                                                       boundCode.getMessages())
-                                                                                   : boundCode.getMessages());
+        allMessages
+            .addAll(bindingContext != null && bindingContext.isExecutionMode()
+                                                                               ? clearOpenLMessagesForExecutionMode(
+                                                                                   boundCode.getMessages())
+                                                                               : boundCode.getMessages());
 
         SyntaxNodeException[] bindingErrors = boundCode.getErrors();
 
-        currentMessages.addAll(OpenLMessagesUtils.newErrorMessages(bindingErrors));
-        messages.addAll(currentMessages);
+        messages.addAll(OpenLMessagesUtils.newErrorMessages(bindingErrors));
+        allMessages.addAll(messages);
 
-        ProcessedCode processedCode = new ProcessedCode();
-        processedCode.setParsedCode(parsedCode);
-        processedCode.setBoundCode(boundCode);
-        processedCode.setMessages(messages);
-        processedCode.setCurrentMessages(currentMessages);
-
-        return processedCode;
+        return new ProcessedCode(parsedCode, boundCode, allMessages, messages);
     }
 
     private Collection<OpenLMessage> clearOpenLMessagesForExecutionMode(Collection<OpenLMessage> messages) {

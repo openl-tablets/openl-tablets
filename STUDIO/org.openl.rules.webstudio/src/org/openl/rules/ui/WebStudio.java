@@ -161,7 +161,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * Projects that are currently processed, for example saved. Projects's state can be in intermediate state, and it
      * can affect their modified status.
      */
-    private final Set<String> frozenProjects = new HashSet<>();
+    private final Set<String> frozenProjects = Collections.synchronizedSet(new HashSet<>());
     private boolean needRedirect;
 
     public WebStudio(HttpSession session) {

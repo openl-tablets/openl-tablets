@@ -294,7 +294,7 @@ public final class TestMojo extends BaseOpenLMojo {
             error("");
             error("There are compilation errors. It can affect test execution.");
             Collection<OpenLMessage> errorMessages = OpenLMessagesUtils
-                .filterMessagesBySeverity(openLRules.getMessages(), Severity.ERROR);
+                .filterMessagesBySeverity(openLRules.getAllMessages(), Severity.ERROR);
             int i = 0;
             for (OpenLMessage message : errorMessages) {
                 String location = message.getSourceLocation() == null ? "" : (" at " + message.getSourceLocation());
