@@ -423,6 +423,8 @@ public class TableBean {
     }
 
     public boolean beforeSaveAction() {
+        final WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.freezeProject(studio.getCurrentProject().getName());
         String editorId = WebStudioUtils
             .getRequestParameter(org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
@@ -437,7 +439,7 @@ public class TableBean {
             XSSFOptimizer.removeUnusedStyles((XSSFWorkbook) workbook);
         }
 
-        if (WebStudioUtils.getWebStudio().isUpdateSystemProperties()) {
+        if (studio.isUpdateSystemProperties()) {
             return EditHelper.updateSystemProperties(table, editorModel, propertyResolver.getProperty("user.mode"));
         }
         return true;
@@ -445,6 +447,7 @@ public class TableBean {
 
     public void afterSaveAction(String newId) {
         final WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.releaseProject(studio.getCurrentProject().getName());
         studio.compile();
     }
 
