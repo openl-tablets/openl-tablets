@@ -17,7 +17,9 @@
     <script>
         if (#{testBean.compileThisModuleOnly}) {
             let currentModuleOnlyCheckbox = $j("#currentModuleOnly");
-            currentModuleOnlyCheckbox.prop('checked', true);
+            if (#{!testBean.projectCompilationCompleted}) {
+                currentModuleOnlyCheckbox.prop('checked', true);
+            }
             currentModuleOnlyCheckbox.prop('disabled', true);
         }
         function explain(url) {
