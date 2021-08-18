@@ -16,11 +16,11 @@
     <script src="#{contextPath}/webresource/js/tooltip.js"></script>
     <script>
         if (#{testBean.compileThisModuleOnly}) {
-            let currentModuleOnlyCheckbox = $j("#currentModuleOnly");
             if (#{!testBean.projectCompilationCompleted}) {
+                let currentModuleOnlyCheckbox = $j("#currentModuleOnly");
                 currentModuleOnlyCheckbox.prop('checked', true);
+                currentModuleOnlyCheckbox.prop('disabled', true);
             }
-            currentModuleOnlyCheckbox.prop('disabled', true);
         }
         function explain(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
