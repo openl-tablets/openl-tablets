@@ -112,6 +112,7 @@ public class BranchesBean {
 
     private void merge(String branchToMergeFrom, String branchToMergeTo) {
         WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.getModel().clearModuleInfo();
         String nameBeforeMerge = null;
         try {
             if (branchToMergeFrom == null || branchToMergeTo == null) {
