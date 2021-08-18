@@ -47,6 +47,11 @@ public abstract class AGridTable implements IGridTable {
     }
 
     @Override
+    public void resetUri() {
+        uri = null;
+    }
+
+    @Override
     public XlsUrlParser getUriParser() {
         if (urlParser == null) {
             synchronized (this) {
