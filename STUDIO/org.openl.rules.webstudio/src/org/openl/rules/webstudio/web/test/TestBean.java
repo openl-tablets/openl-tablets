@@ -321,8 +321,12 @@ public class TestBean {
         return column;
     }
 
-    public boolean getProjectCompilationCompleted() {
-        return studio.getModel().isProjectCompilationCompleted();
+    public boolean getCompilationCompleted() {
+        return studio.getModel().isCompilationCompleted();
+    }
+
+    public boolean getCompileThisModuleOnly() {
+        return studio.getModel().getModuleInfo().getWebstudioConfiguration().isCompileThisModuleOnly();
     }
 
     /**
