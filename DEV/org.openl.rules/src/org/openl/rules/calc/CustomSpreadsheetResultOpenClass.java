@@ -445,7 +445,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 if (beanClass == null) {
                     try {
                         generateBeanClass();
-                        beanClass = getModule().getClassGenerationClassLoader().loadClass(getBeanClassName());
+                        Class<?> beanClass = getModule().getClassGenerationClassLoader().loadClass(getBeanClassName());
                         List<SpreadsheetResultSetter> sprSetters = new ArrayList<>();
                         for (Field field : beanClass.getDeclaredFields()) {
                             if (!field.isSynthetic()) {// SONAR adds synthetic fields
@@ -472,6 +472,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             }
                         }
                         spreadsheetResultSetters = sprSetters.toArray(SpreadsheetResultSetter.EMPTY_ARRAY);
+                        this.beanClass = beanClass;
                     } catch (Exception | LinkageError e) {
                         throw new IllegalStateException(
                             String.format("Failed to create bean class for '%s' spreadsheet result.", getName()),
