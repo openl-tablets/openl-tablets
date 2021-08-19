@@ -70,7 +70,7 @@
                 <tr>
                     <td class="delimeter"></td>
                 </tr>
-                <tr class="compileThisModuleOnlyClass">
+                <tr class="compile-this-module-only-class">
                     <td>Compile This Module Only:</td>
                     <td><h:selectBooleanCheckbox id="compileThisModuleOnly" disabled="true"/></td>
                 </tr>
@@ -128,7 +128,7 @@
             $j("#moduleIncludes").val(module.includes);
             $j("#moduleExcludes").val(module.excludes);
             $j("#compileThisModuleOnly").prop('checked', module.compileThisModuleOnly);
-            $j(".compileThisModuleOnlyClass").toggle(module.compileThisModuleOnly);
+            $j(".compile-this-module-only-class").toggle(module.compileThisModuleOnly);
 
             $j("#editModuleForm span.error").remove();
 
