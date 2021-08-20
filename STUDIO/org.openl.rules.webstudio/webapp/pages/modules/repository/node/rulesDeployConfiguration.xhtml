@@ -6,7 +6,7 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:oh="http://openl-tablets.sf.net/jsf/html">
 
-  <ui:param name="openedForEditing" value="#{artefact.project.openedForEditing}" />
+  <ui:param name="openedForEditing" value="#{artefact.project.openedForEditing and repositoryTreeState.canModify}" />
   <ui:param name="hasRulesDeploy" value="#{repositoryProjectRulesDeployConfig.rulesDeploy != null}" />
     <h:outputStylesheet>
         #publishers {

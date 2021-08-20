@@ -324,7 +324,7 @@
          As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.
     --></ui:remove>
         <rich:tab id="rulesDeployConfiguration" name="RulesDeployConfiguration" header="Rules Deploy Configuration"
-                  onenter="#{artefact.project.openedForEditing ? '' : 'refreshRulesDeployConfiguration()'}"
+                  onenter="#{repositoryTreeState.canModify and artefact.project.openedForEditing ? '' : 'refreshRulesDeployConfiguration()'}"
                   disabled="#{node.type != 'project'}"
                   headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
             <h:panelGroup id="rulesDeployConfigurationContent">
