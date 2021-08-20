@@ -1173,7 +1173,7 @@
 
         function adjustJSFElements() {
             const editorWrapper = $j("#t_te_editorWrapper");
-            if (editorWrapper.attr("data-jsf-adjusted") !=='true') {
+            if (editorWrapper.length && editorWrapper.attr("data-jsf-adjusted") !=='true') {
                 editorWrapper.css({"top": editorWrapper.position().top + $j(".table-problems").outerHeight(true) + "px"});
                 editorWrapper.attr("data-jsf-adjusted", "true");
             }
