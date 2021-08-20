@@ -150,16 +150,22 @@
         
         function addCopyListener() {
             var copyListener = function () {
-                var shouldSeparateProject = true;
-                var branchName = '';
-                var $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
+                let shouldSeparateProject = false;
+                let branchName = '';
+                let projectName = '';
+                let $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
                 if ($separateProjectCheckbox.length) {
                     shouldSeparateProject = $separateProjectCheckbox.is(':checked');
+                }
+                let $branchName = $j('#copyProjectForm\\:newBranchName');
+                if ($branchName.length) {
                     branchName = $j('#copyProjectForm\\:newBranchName').val().trim();
                 }
-                var $projectName = $j('#copyProjectForm\\:newProjectName');
-                var projectName = $projectName.val().trim();
-                var disableCopy = !shouldSeparateProject && branchName.length === 0 || shouldSeparateProject && projectName.length === 0;
+                let $projectName = $j('#copyProjectForm\\:newProjectName');
+                if ($projectName.length) {
+                    projectName = $projectName.val().trim();
+                }
+                let disableCopy = !shouldSeparateProject && branchName.length === 0 || shouldSeparateProject && projectName.length === 0;
                 $j('#copyProjectForm\\:copy').prop('disabled', disableCopy);
             };
             var selector = '#copyProjectForm\\:newProjectName, #copyProjectForm\\:newBranchName, #copyProjectForm\\:separateProjectCheckbox';
