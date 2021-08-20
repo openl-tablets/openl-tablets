@@ -369,7 +369,10 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     @Override
     public void refresh() {
-        data.refresh();
+        // For TreeRepository and TreeProjectGrouping data is null.
+        if (data != null) {
+            data.refresh();
+        }
     }
 
     @Override
