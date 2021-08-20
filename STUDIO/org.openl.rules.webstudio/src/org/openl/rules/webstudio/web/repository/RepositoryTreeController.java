@@ -2447,7 +2447,12 @@ public class RepositoryTreeController {
 
     public TreeNode getSelectedNode() {
         TreeNode selectedNode = repositoryTreeState.getSelectedNode();
-        return activeProjectNode != null && selectedNode instanceof TreeRepository ? activeProjectNode : selectedNode;
+        return activeProjectNode != null && (selectedNode instanceof TreeRepository || selectedNode instanceof TreeProjectGrouping) ? activeProjectNode
+                                                                                                                                    : selectedNode;
+    }
+
+    public void resetActiveProjectNode() {
+        activeProjectNode = null;
     }
 
     public boolean isRenamed(RulesProject project) {

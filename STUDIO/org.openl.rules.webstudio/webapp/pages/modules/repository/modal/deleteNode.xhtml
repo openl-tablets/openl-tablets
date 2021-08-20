@@ -13,7 +13,7 @@
 
     <f:facet name="controls">
       <h:graphicImage value="/images/close.gif" class="close"
-        onclick="RichFaces.$('modalDeleteNode').hide();" alt="Close" />
+        onclick="closeDeleteNodeDialog();" alt="Close" />
     </f:facet>
 
         <h:form id="deleteNodeForm">
@@ -73,12 +73,22 @@
                     action="#{repositoryTreeController.deleteNode}"
                     styleClass="button-primary"
                     render="projectTree nodeView @form"
-                    oncomplete="if(#{!facesContext.validationFailed}) #{rich:component('modalDeleteNode')}.hide();"/>
-                <input type="button" value="Cancel"
-                    onclick="#{rich:component('modalDeleteNode')}.hide();" />
+                    oncomplete="if(#{!facesContext.validationFailed}) closeDeleteNodeDialog();"/>
+                <input type="button" value="Cancel" onclick="closeDeleteNodeDialog();" />
             </footer>
+
+            <a4j:jsFunction name="resetActiveProjectNode" action="#{repositoryTreeController.resetActiveProjectNode}"/>
         </h:form>
 
     </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        function closeDeleteNodeDialog() {
+            resetActiveProjectNode();
+            RichFaces.$('modalDeleteNode').hide();
+        }
+        //]]>
+    </script>
 
 </ui:composition>
