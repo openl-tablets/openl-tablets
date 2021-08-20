@@ -16,9 +16,11 @@
     <script src="#{contextPath}/webresource/js/tooltip.js"></script>
     <script>
         if (#{testBean.compileThisModuleOnly}) {
-            let currentModuleOnlyCheckbox = $j("#currentModuleOnly");
-            currentModuleOnlyCheckbox.prop('checked', true);
-            currentModuleOnlyCheckbox.prop('disabled', true);
+            if (#{!testBean.projectCompilationCompleted}) {
+                let currentModuleOnlyCheckbox = $j("#currentModuleOnly");
+                currentModuleOnlyCheckbox.prop('checked', true);
+                currentModuleOnlyCheckbox.prop('disabled', true);
+            }
         }
         function explain(url) {
            window.open('#{contextPath}/faces/pages/layout/frameView.xhtml' + url
@@ -344,32 +346,31 @@
                 <div id="wait-for-compilation-end-panel">
                     Waiting for the end of compilation...
                 </div>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{!testBean.compilationCompleted}">
                 <script>
                     //<![CDATA[
-                    $j(function () {
-                        let messageId = -1;
-                        let messageIndex = -1;
-
-                        let $messagePanel = $j('#wait-for-compilation-end-panel');
-                        $messagePanel.bind('refresh', function () {
-                            $jq.ajax({
-                                url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
-                                datatype: "json"
-                            }).done(function (data) {
-                                if (data.messageIndex !== -1 || data.messageId !== -1) {
-                                    messageIndex = data.messageIndex;
-                                    messageId = data.messageId;
-                                }
-                                if (data.compilationCompleted) {
-                                    ws.nav.reload();
-                                } else {
-                                    setTimeout(function () {$messagePanel.trigger('refresh')}, 1000);
-                                }
-                            });
+                        $j(function () {
+                            let messageId = -1;
+                            let messageIndex = -1;
+                            function waitCompilationCompleted() {
+                                $jq.ajax({
+                                    url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
+                                    datatype: "json"
+                                }).done(function (data) {
+                                    if (data.messageIndex !== -1 || data.messageId !== -1) {
+                                        messageIndex = data.messageIndex;
+                                        messageId = data.messageId;
+                                    }
+                                    if (data.compilationCompleted) {
+                                        ws.nav.reload();
+                                    } else {
+                                        setTimeout(waitCompilationCompleted, 1000);
+                                    }
+                                });
+                            };
+                            waitCompilationCompleted();
                         });
-
-                        $messagePanel.trigger('refresh');
-                    });
                     //]]>
                 </script>
             </h:panelGroup>

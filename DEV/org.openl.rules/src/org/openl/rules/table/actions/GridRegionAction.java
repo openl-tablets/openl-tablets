@@ -36,6 +36,7 @@ public class GridRegionAction implements IUndoableGridTableAction {
         } else if (ActionType.MOVE.equals(actionType)) {
             moveRegion(isInsert, isColumns, nRowsOrColumns, region);
         }
+        table.resetUri();
     }
 
     @Override
@@ -45,6 +46,7 @@ public class GridRegionAction implements IUndoableGridTableAction {
         } else if (ActionType.MOVE.equals(actionType)) {
             moveRegion(!isInsert, isColumns, nRowsOrColumns, region);
         }
+        table.resetUri();
     }
 
     public void resizeRegion(boolean isInsert, boolean isColumns, int rowsOrColumns, IGridRegion r) {
