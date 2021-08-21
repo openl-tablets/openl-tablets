@@ -110,9 +110,10 @@
         <elasticsearch.version>6.8.18</elasticsearch.version>
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
         <org.apache.avro.version>1.10.0</org.apache.avro.version>
-        <org.apache.zookeeper.version>3.6.2</org.apache.zookeeper.version>
+        <org.apache.zookeeper.version>3.7.0</org.apache.zookeeper.version>
         <org.apache.thrift.version>0.13.0</org.apache.thrift.version>
-        <org.apache.ant.varsion>1.10.9</org.apache.ant.varsion>
+        <org.apache.ant.version>1.10.11</org.apache.ant.version>
+        <io.netty.version>4.1.67.Final</io.netty.version>
         <owasp.version>6.2.2</owasp.version>
         <groovy.version>3.0.8</groovy.version>
 
@@ -1547,6 +1548,18 @@
                 <artifactId>maven-core</artifactId>
                 <version>${maven.api.version}</version>
             </dependency>
+            <!-- hive -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>${io.netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-transport-native-epoll</artifactId>
+                <version>${io.netty.version}</version>
+            </dependency>
+            <!-- //hive -->
             <!-- OpenL modules -->
             <!-- DEV -->
             <dependency>
