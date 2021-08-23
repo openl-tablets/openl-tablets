@@ -535,9 +535,8 @@ var TableEditor = Class.create({
     rollback: function() {
         this.editor && this.editor.cancelEdit();
 
-        this.doOperation(TableEditor.Operations.ROLLBACK, params, function() {
-            window.onbeforeunload = Prototype.emptyFunction;
-        });
+        this.doOperation(TableEditor.Operations.ROLLBACK, { editorId: this.editorId });
+        this.setHasChanges(false);
     },
 
     /**
@@ -4887,7 +4886,8 @@ var DropdownEditor = Class.create(BaseEditor, {
 
 if (BaseEditor.isTableEditorExists()) {
 	TableEditor.Editors["combo"] = DropdownEditor;
-}/**
+}
+/**
  * Formula editor.
  * 
  * @requires Prototype v1.6.1+ library

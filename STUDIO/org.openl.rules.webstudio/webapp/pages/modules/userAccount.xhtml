@@ -180,7 +180,7 @@
                     oncomplete="if(!event.data) hideAndReload()" styleClass="button-primary save-button" />
                 <a4j:commandButton rendered="#{environment.getProperty('user.mode') == 'single' or not userProfileBean.internalUser}" value="Save"
                     oncomplete="hideAndReload()" styleClass="button-primary save-button" />
-                <input class="restore-changed-state" type="button" value="Cancel" onclick="hideUserProfile();" />
+                <input type="button" value="Cancel" onclick="hideUserProfile();" />
             </footer>
 
             <a4j:jsFunction name="renderUserProfile" render="@form" oncomplete="showUserProfile()"/>

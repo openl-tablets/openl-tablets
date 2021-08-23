@@ -303,9 +303,8 @@ var TableEditor = Class.create({
     rollback: function() {
         this.editor && this.editor.cancelEdit();
 
-        this.doOperation(TableEditor.Operations.ROLLBACK, params, function() {
-            window.onbeforeunload = Prototype.emptyFunction;
-        });
+        this.doOperation(TableEditor.Operations.ROLLBACK, { editorId: this.editorId });
+        this.setHasChanges(false);
     },
 
     /**
