@@ -584,4 +584,5 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
         return componentOpenClass instanceof CustomSpreadsheetResultOpenClass || componentOpenClass instanceof SpreadsheetResultOpenClass;
     }
+
 }

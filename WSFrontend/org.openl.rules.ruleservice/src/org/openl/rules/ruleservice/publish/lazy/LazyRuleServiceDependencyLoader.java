@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.DependencyType;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
@@ -164,7 +165,9 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         }
         if (lazyCompiledDependency == null) {
             CompiledOpenClass compiledOpenClass = new LazyCompiledOpenClass(dependencyManager, this, dependency);
-            lazyCompiledDependency = new CompiledDependency(dependency, compiledOpenClass);
+            lazyCompiledDependency = new CompiledDependency(dependency,
+                compiledOpenClass,
+                isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
         }
         return lazyCompiledDependency;
     }

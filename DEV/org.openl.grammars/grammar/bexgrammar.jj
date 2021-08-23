@@ -443,11 +443,14 @@ TOKEN :
 TOKEN :
 {
   < IDENTIFIER :
-    < LETTER >
+    ("`" < ANY >
+    (< ANY >)*) "`"
+    |
+    (< LETTER >
     (
       < LETTER >
     | < DIGIT >
-    )* >
+    )* ) >
   : DEFAULT
 | 
   < #LETTER : 
@@ -487,6 +490,8 @@ TOKEN :
     "\u1040"-"\u1049" 
     ] 
   >
+|
+  < #ANY : ~[ "`" ] >
 }
 
 TOKEN :

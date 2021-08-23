@@ -18,6 +18,7 @@ import java.util.function.Consumer;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.DependencyType;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLErrorMessage;
@@ -60,6 +61,12 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
         this.canUnload = canUnload;
     }
 
+    private DependencyType resolveDependencyType(ResolvedDependency dependency) {
+        IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
+        return dependencyLoader != null && dependencyLoader.isProjectLoader() ? DependencyType.PROJECT
+                                                                              : DependencyType.MODULE;
+    }
+
     @Override
     public CompiledDependency loadDependency(ResolvedDependency dependency) throws OpenLCompilationException {
         ThreadPriority priority = threadPriority.get();
@@ -93,7 +100,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         } else {
                             return new CompiledDependency(dependency,
                                 new CompiledOpenClass(NullOpenClass.the,
-                                    Collections.singletonList(new CompilationInterruptedOpenLErrorMessage())));
+                                    Collections.singletonList(new CompilationInterruptedOpenLErrorMessage())),
+                                resolveDependencyType(dependency));
                         }
                     } finally {
                         threadVersion.remove();
@@ -107,7 +115,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                     } else {
                         return new CompiledDependency(dependency,
                             new CompiledOpenClass(NullOpenClass.the,
-                                Collections.singletonList(new CompilationInterruptedOpenLErrorMessage())));
+                                Collections.singletonList(new CompilationInterruptedOpenLErrorMessage())),
+                            resolveDependencyType(dependency));
                     }
                 }
             }
@@ -141,7 +150,8 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                     compiledDependency = this.loadDependency(dependency);
                 } catch (OpenLCompilationException e) {
                     compiledDependency = new CompiledDependency(dependency,
-                        new CompiledOpenClass(NullOpenClass.the, Collections.singletonList(new OpenLErrorMessage(e))));
+                        new CompiledOpenClass(NullOpenClass.the, Collections.singletonList(new OpenLErrorMessage(e))),
+                        resolveDependencyType(dependency));
                 }
                 if (compiledDependency.getCompiledOpenClass()
                     .getAllMessages()
