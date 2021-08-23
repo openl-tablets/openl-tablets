@@ -6,8 +6,8 @@
 
 package org.openl.types.java;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import org.openl.types.IAggregateInfo;
@@ -54,7 +54,7 @@ public class JavaCollectionAggregateInfo implements IAggregateInfo {
     public Object makeIndexedAggregate(IOpenClass componentType, int size) {
         // HashSet is one of Collection implementations, so it's legal here.
         // If more specific collection type is needed (for example Deque) implement more specific IAggregateInfo for it.
-        return new HashSet<>(size);
+        return new ArrayList<>();
     }
 
 }
