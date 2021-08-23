@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.method.MethodSearch;
@@ -118,5 +118,29 @@ public class ComponentBindingContext extends BindingContextDelegator {
         }
 
         return res != null ? res : super.findVar(namespace, name, strictMatch);
+    }
+
+    protected IOpenClass findOpenClass(IOpenClass openClass) {
+        if (openClass == null) {
+            return null;
+        }
+        IOpenClass componentOpenClass = openClass;
+        int dim = 0;
+        while (componentOpenClass.isArray()) {
+            componentOpenClass = componentOpenClass.getComponentClass();
+            dim++;
+        }
+        if (isComponentSpecificOpenClass(componentOpenClass)) {
+            IOpenClass thisContextOpenClass = this.findType(ISyntaxConstants.THIS_NAMESPACE,
+                componentOpenClass.getName());
+            if (thisContextOpenClass != null) {
+                return dim > 0 ? thisContextOpenClass.getArrayType(dim) : thisContextOpenClass;
+            }
+        }
+        return openClass;
+    }
+
+    protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
+        return false;
     }
 }

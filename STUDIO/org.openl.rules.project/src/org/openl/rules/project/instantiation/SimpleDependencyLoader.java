@@ -9,6 +9,7 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.DependencyType;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -137,7 +138,9 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         try {
             ValidationManager.turnOffValidation();
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
-            CompiledDependency compiledDependency = new CompiledDependency(dependency, compiledOpenClass);
+            CompiledDependency compiledDependency = new CompiledDependency(dependency,
+                compiledOpenClass,
+                isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
             if (isActualDependency()) {
                 onCompilationComplete(this, compiledDependency);
                 this.compiledDependency = compiledDependency;

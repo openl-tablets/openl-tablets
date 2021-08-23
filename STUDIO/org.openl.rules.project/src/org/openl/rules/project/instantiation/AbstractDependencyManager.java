@@ -233,14 +233,12 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                 .filter(e -> Objects.equals(e.getProject(), projectDescriptor))
                 .forEach(dependencyLoadersForProject::add);
             if (projectDescriptor.getDependencies() != null) {
-                projectDescriptor.getDependencies()
-                    .stream()
-                    .map(ProjectDependencyDescriptor::getName)
-                    .map(AbstractDependencyManager::buildResolvedDependency)
-                    .map(this::findDependencyLoader)
-                    .filter(IDependencyLoader::isProjectLoader)
-                    .map(IDependencyLoader::getProject)
-                    .forEach(queue::add);
+                for (ProjectDependencyDescriptor pdd : projectDescriptor.getDependencies()) {
+                    IDependencyLoader dl = this.findDependencyLoader(buildResolvedDependency(pdd.getName()));
+                    if (dl != null && dl.isProjectLoader()) {
+                        queue.add(dl.getProject());
+                    }
+                }
             }
         }
         return dependencyLoadersForProject;

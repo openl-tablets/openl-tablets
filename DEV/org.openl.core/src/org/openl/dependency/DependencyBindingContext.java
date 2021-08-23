@@ -49,8 +49,9 @@ public class DependencyBindingContext extends BindingContextDelegator {
                 loadedDependencies.add(name);
                 addMessages(compiledDependency.getCompiledOpenClass().getMessages());
             }
-            return new ModuleVar(name,
-                new DependencyOpenClass(compiledDependency.getCompiledOpenClass().getOpenClassWithErrors()));
+            return new DependencyVar(compiledDependency.getDependency().getNode().getIdentifier(),
+                new DependencyOpenClass(compiledDependency.getCompiledOpenClass().getOpenClassWithErrors()),
+                compiledDependency.getDependencyType());
         } catch (Exception e) {
             if (!loadedDependencies.contains(name)) {
                 addMessages(OpenLMessagesUtils.newErrorMessages(e));

@@ -580,4 +580,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public void setIgnoreCustomSpreadsheetResultCompilation(boolean ignoreCustomSpreadsheetResultCompilation) {
         this.ignoreCustomSpreadsheetResultCompilation = ignoreCustomSpreadsheetResultCompilation;
     }
+
+    protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
+        return componentOpenClass instanceof CustomSpreadsheetResultOpenClass || componentOpenClass instanceof SpreadsheetResultOpenClass;
+    }
+
 }
