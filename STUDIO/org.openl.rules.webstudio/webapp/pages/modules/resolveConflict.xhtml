@@ -177,7 +177,7 @@
                                disabled="#{mergeConflictBean.saveDisabled}"
                                data="#{mergeConflictBean.mergeError}"
                                oncomplete="if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {successfulConflictResolution();}"/>
-            <input class="restore-changed-state" type="button" value="Cancel" onclick="closeResolveConflictDialog();"/>
+            <input type="button" value="Cancel" onclick="closeResolveConflictDialog();"/>
           </footer>
         </h:panelGroup>
 

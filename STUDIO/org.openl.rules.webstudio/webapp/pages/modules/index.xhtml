@@ -93,23 +93,12 @@
                 var hasChanges = function() {return false};
                 var showConfirmDialog = function() {};
 
-                var setHasChanges = function () {};
-                var hadChanges = false;
-
-                var afterUnloadActions = [];
+                var rollbackChanges = function () {};
 
                 // Public members
                 this.revertChanges = function() {
                     if (hasChanges()) {
-                        hadChanges = true;
-                        setHasChanges(false);
-                    }
-                };
-
-                this.restoreChangedState = function() {
-                    if (hadChanges) {
-                        setHasChanges(true);
-                        hadChanges = false;
+                        rollbackChanges();
                     }
                 };
 
@@ -118,22 +107,17 @@
                 this.configure = function (project) {
                     var empty = function () {};
 
-                    hasChanges = project.hasChanges || empty;
+                    hasChanges = project.isHasChanges || empty;
                     showConfirmDialog = project.showConfirmDialog || empty;
-                    setHasChanges = project.setHasChanges || empty;
+                    rollbackChanges = project.rollbackChanges || empty;
                     this.applyCurrentChanges = project.applyCurrentChanges || empty;
 
                     window.onbeforeunload = function (e) {
                         var changed = hasChanges();
-                        for (var i = 0; i < afterUnloadActions.length; i++) {
-                            afterUnloadActions[i](e);
-                        }
-                        afterUnloadActions = [];
                         if (changed) {
                             return 'Table is not saved. If you leave this page, all changes will be lost.';
                         }
                     };
-                    hadChanges = hasChanges();
                 };
 
                 this.checkForChanges = function(proceed, revertUrlChange, retryUrlChange) {
@@ -141,7 +125,11 @@
                         revertUrlChange = function() {};
                     }
                     if (typeof retryUrlChange == "undefined") {
-                        retryUrlChange = proceed;
+                        retryUrlChange = function () {
+                            // We are here after changes were reverted on server side. Need to refresh table and proceed.
+                            api.nav.reload();
+                            proceed();
+                        };
                     }
                     if (hasChanges()) {
                         revertUrlChange();
@@ -181,11 +169,6 @@
                         });
                     });
                 };
-
-                this.addAfterUnloadAction = function(func) {
-                    afterUnloadActions.push(func);
-                };
-
             };
 
             // Public API
@@ -880,10 +863,6 @@
                 callbacks.push(function() {
                     api.changes.addChangesListener(".changes-listener");
                     $(".changes-listener").toggleClass("changes-listener changes-listener-added");
-
-                    $('.restore-changed-state').click(function () {
-                        api.changes.restoreChangedState();
-                    }).toggleClass("restore-changed-state restore-changed-state-added");
                 });
 
                 callbacks.push(function () {

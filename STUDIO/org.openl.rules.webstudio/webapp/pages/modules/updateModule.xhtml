@@ -32,7 +32,7 @@
             <footer>
                 <a4j:commandButton id="uploadModule" value="Update" action="#{studio.updateModule}" styleClass="button-primary"
                     oncomplete="RichFaces.$('updateModule').hide();ws.nav.reload(true);ws.ui.success('Module was updated successfully!');" />
-                <input class="restore-changed-state" type="button" value="Cancel" onclick="closeUpdateModuleDialog();" />
+                <input type="button" value="Cancel" onclick="closeUpdateModuleDialog();" />
             </footer>
             <a4j:jsFunction name="initUpdateModuleDialog" action="#{studio.clearUploadedFiles}" render="updateModuleFormData" oncomplete="RichFaces.$('updateModule').show();" />
             <a4j:jsFunction name="closeUpdateModuleDialog" action="#{studio.clearUploadedFiles}" oncomplete="RichFaces.$('updateModule').hide();" />
