@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.method.MethodSearch;

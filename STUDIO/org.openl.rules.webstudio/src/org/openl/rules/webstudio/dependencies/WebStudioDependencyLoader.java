@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.DependencyType;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -54,7 +55,9 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
         Thread.currentThread().setContextClassLoader(classLoader);
 
         try {
-            return new CompiledDependency(getDependency(), new CompiledOpenClass(NullOpenClass.the, messages));
+            return new CompiledDependency(getDependency(),
+                new CompiledOpenClass(NullOpenClass.the, messages),
+                isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

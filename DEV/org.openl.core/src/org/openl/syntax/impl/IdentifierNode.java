@@ -18,8 +18,11 @@ public class IdentifierNode extends TerminalNode {
 
     public IdentifierNode(String type, ILocation location, String identifier, IOpenSourceCodeModule module) {
         super(type, location, module);
-
-        this.identifier = StringPool.intern(identifier);
+        String x = identifier;
+        if (identifier != null && identifier.length() > 1 && identifier.startsWith("`") && identifier.endsWith("`")) {
+            x = identifier.substring(1, identifier.length() - 1);
+        }
+        this.identifier = StringPool.intern(x);
     }
 
     public String getIdentifier() {

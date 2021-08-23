@@ -162,4 +162,8 @@ public class SpreadsheetContext extends ComponentBindingContext {
             return rangeType;
         }
     }
+
+    protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
+        return componentOpenClass instanceof CustomSpreadsheetResultOpenClass || componentOpenClass instanceof SpreadsheetResultOpenClass;
+    }
 }
