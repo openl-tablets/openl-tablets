@@ -121,7 +121,7 @@ public class Lock {
     private void unlock(boolean force) {
         try {
             if (force) {
-                FileUtils.delete(lockPath.toFile());
+                FileUtils.delete(lockPath);
             } else {
                 Files.deleteIfExists(lockPath.resolve(READY_LOCK));
             }
