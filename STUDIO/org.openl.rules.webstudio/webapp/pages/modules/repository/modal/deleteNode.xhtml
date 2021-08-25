@@ -73,7 +73,7 @@
                     action="#{repositoryTreeController.deleteNode}"
                     styleClass="button-primary"
                     render="projectTree nodeView @form"
-                    oncomplete="if(#{!facesContext.validationFailed}) closeDeleteNodeDialog();"/>
+                    oncomplete="if(#{!facesContext.validationFailed}) RichFaces.$('modalDeleteNode').hide()"/>
                 <input type="button" value="Cancel" onclick="closeDeleteNodeDialog();" />
             </footer>
 
