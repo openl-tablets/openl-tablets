@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
 import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.dependency.DependencyType;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.message.OpenLErrorMessage;
@@ -53,7 +54,8 @@ public class MessagesDelegatingTest {
     }
 
     private static IDependency getDependencyForModule(String moduleName) {
-        return new Dependency(new IdentifierNode(IXlsTableNames.DEPENDENCY, null, moduleName, null));
+        return new Dependency(DependencyType.MODULE,
+            new IdentifierNode(IXlsTableNames.DEPENDENCY, null, moduleName, null));
     }
 
     private CompiledOpenClass getCompiledOpenClassForModule(String moduleName) throws Exception {

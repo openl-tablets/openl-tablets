@@ -23,6 +23,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.dependency.CompiledDependency;
+import org.openl.dependency.DependencyType;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -158,7 +159,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
             if (StringUtils.isNotEmpty(moduleName) && interfaceClass == null) {
                 try {
                     Collection<ResolvedDependency> resolvedDependencies = factory.getDependencyManager()
-                        .resolveDependency(new Dependency(new IdentifierNode(null, null, moduleName, null)));
+                        .resolveDependency(
+                            new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleName, null)));
                     CompiledDependency compiledDependency = factory.getDependencyManager()
                         .loadDependency(resolvedDependencies.iterator().next());
                     compiledOpenClass = compiledDependency.getCompiledOpenClass();

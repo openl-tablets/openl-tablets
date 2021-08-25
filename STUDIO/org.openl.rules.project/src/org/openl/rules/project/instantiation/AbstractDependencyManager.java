@@ -22,6 +22,7 @@ import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.AmbiguousDependencyException;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyNotFoundException;
+import org.openl.dependency.DependencyType;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -56,13 +57,14 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     public static ResolvedDependency buildResolvedDependency(String projectName, String moduleName) {
         if (moduleName == null) {
-            return new ResolvedDependency(new IdentifierNode(null, null, projectName, null));
+            return new ResolvedDependency(DependencyType.PROJECT, new IdentifierNode(null, null, projectName, null));
         }
-        return new ResolvedDependency(new IdentifierNode(null, null, projectName + "/" + moduleName, null));
+        return new ResolvedDependency(DependencyType.MODULE,
+            new IdentifierNode(null, null, projectName + "/" + moduleName, null));
     }
 
     public static ResolvedDependency buildResolvedDependency(ProjectDescriptor project) {
-        return new ResolvedDependency(new IdentifierNode(null, null, project.getName(), null));
+        return new ResolvedDependency(DependencyType.PROJECT, new IdentifierNode(null, null, project.getName(), null));
     }
 
     public static ResolvedDependency buildResolvedDependency(Module module) {
@@ -218,7 +220,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     public IDependencyLoader findDependencyLoader(ResolvedDependency dependency) {
         return getDependencyLoaders().stream()
-            .filter(e -> Objects.equals(dependency, e.getDependency()))
+            .filter(
+                e -> DependencyType.ANY.equals(dependency.getType())
+                                                                     ? Objects.equals(dependency.getNode(),
+                                                                         e.getDependency().getNode())
+                                                                     : Objects.equals(dependency, e.getDependency()))
             .findFirst()
             .orElse(null);
     }
@@ -256,6 +262,18 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                                                                                      : null;
         Collection<IDependencyLoader> visibleDependencyLoaders = currentDependencyLoader != null ? findAllProjectDependencyLoaders(
             currentDependencyLoader.getProject()) : getDependencyLoaders();
+
+        // Filter by dependency type
+        if (DependencyType.PROJECT.equals(dependency.getType())) {
+            visibleDependencyLoaders = visibleDependencyLoaders.stream()
+                .filter(IDependencyLoader::isProjectLoader)
+                .collect(Collectors.toSet());
+        } else if (DependencyType.MODULE.equals(dependency.getType())) {
+            visibleDependencyLoaders = visibleDependencyLoaders.stream()
+                .filter(e -> !e.isProjectLoader())
+                .collect(Collectors.toSet());
+        }
+
         Set<IDependencyLoader> dependencyLoaders = new HashSet<>();
         for (IDependencyLoader dl : visibleDependencyLoaders) {
             if (!Objects.equals(currentDependencyLoader,
@@ -283,10 +301,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
 
         Collection<ResolvedDependency> ret = dependencyLoaders.stream()
-            .map(e -> new ResolvedDependency(new IdentifierNode(dependency.getNode().getType(),
-                dependency.getNode().getLocation(),
-                e.getDependency().getNode().getIdentifier(),
-                null)))
+            .map(e -> new ResolvedDependency(e.isProjectLoader() ? DependencyType.PROJECT : DependencyType.MODULE,
+                new IdentifierNode(dependency.getNode().getType(),
+                    dependency.getNode().getLocation(),
+                    e.getDependency().getNode().getIdentifier(),
+                    null)))
             .collect(Collectors.toSet());
 
         if (!withWildcard && ret.size() != 1) {
