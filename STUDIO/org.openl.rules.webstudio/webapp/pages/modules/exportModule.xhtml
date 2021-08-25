@@ -29,7 +29,7 @@
             </h:panelGroup>
 
             <footer>
-                <h:commandButton value="Export" action="#{exportBean.exportFileVersion}" immediate="true" styleClass="button-primary" />
+                <h:commandButton value="Export" action="#{exportBean.exportFileVersion}" immediate="true" styleClass="button-primary own-loader-handler" />
                 <input type="button" value="Cancel" onclick="RichFaces.$('exportModule').hide();" />
             </footer>
             <a4j:jsFunction name="renderExportFileForm" render="exportFileData" oncomplete="showExportFileDialog()">
