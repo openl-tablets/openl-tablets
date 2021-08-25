@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.dependency.DependencyType;
 import org.openl.engine.OpenLCompileManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
@@ -35,8 +36,8 @@ public final class ProjectExternalDependenciesHelper {
             if (projectDescriptor.getDependencies() != null) {
                 for (ProjectDependencyDescriptor dependency : projectDescriptor.getDependencies()) {
                     if (dependency.isAutoIncluded()) {
-                        externalDependencies
-                            .add(new Dependency(new IdentifierNode(null, null, dependency.getName(), null)));
+                        externalDependencies.add(new Dependency(DependencyType.PROJECT,
+                            new IdentifierNode(null, null, dependency.getName(), null)));
                     }
                 }
             }
