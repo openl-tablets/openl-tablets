@@ -10,6 +10,7 @@ import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.dependency.DependencyType;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLCompileManager;
 import org.openl.exception.OpenlNotCheckedException;
@@ -140,7 +141,8 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         // put prebinder to openl
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {
-            LazyBinderMethodHandler.setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, null, deployment));
+            LazyBinderMethodHandler
+                .setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, null, deployment));
 
             IOpenSourceCodeModule mainModule = createMainModule();
             RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(mainModule,
@@ -181,7 +183,7 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     }
 
     private IDependency createDependency(Module module) {
-        return new Dependency(new IdentifierNode(null, null, module.getName(), null));
+        return new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null));
     }
 
     public IDependencyManager getDependencyManager() {

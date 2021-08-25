@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openl.dependency.DependencyType;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
@@ -104,7 +105,8 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
                         Collection<ResolvedDependency> resolvedDependencies;
                         try {
                             resolvedDependencies = webStudioWorkspaceRelatedDependencyManager
-                                .resolveDependency(new Dependency(new IdentifierNode(null, null, "Module" + p, null)));
+                                .resolveDependency(new Dependency(DependencyType.MODULE,
+                                    new IdentifierNode(null, null, "Module" + p, null)));
                         } catch (OpenLCompilationException e) {
                             throw new RuntimeException(e);
                         }

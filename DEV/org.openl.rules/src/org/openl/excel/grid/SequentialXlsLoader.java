@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.openl.dependency.DependencyType;
 import org.openl.excel.parser.ExcelReader;
 import org.openl.excel.parser.ExcelReaderFactory;
 import org.openl.excel.parser.SheetDescriptor;
@@ -184,7 +185,7 @@ public class SequentialXlsLoader {
                     dependency,
                     new GridCellSourceCodeModule(gridTable, 1, i, null));
                 node.setParent(tableSyntaxNode);
-                Dependency moduleDependency = new Dependency(node);
+                Dependency moduleDependency = new Dependency(DependencyType.ANY, node);
                 dependencies.add(moduleDependency);
             }
         }

@@ -37,7 +37,7 @@ public class DependencyBindingContext extends BindingContextDelegator {
         Collection<ResolvedDependency> dependencies;
         try {
             dependencies = dependencyManager
-                .resolveDependency(new Dependency(new IdentifierNode(null, null, name, null)));
+                .resolveDependency(new Dependency(DependencyType.ANY, new IdentifierNode(null, null, name, null)));
         } catch (AmbiguousDependencyException e) {
             throw new AmbiguousFieldException(name, null);
         } catch (DependencyNotFoundException e) {
