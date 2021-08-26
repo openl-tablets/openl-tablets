@@ -38,6 +38,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     private static final Pattern ASTERISK_SIGN = Pattern.compile("\\*");
     private static final Pattern QUESTION_SIGN = Pattern.compile("\\?");
+    private static final Pattern SLASH_SIGN = Pattern.compile("\\s*/\\s*");
 
     private final Logger log = LoggerFactory.getLogger(AbstractDependencyManager.class);
 
@@ -253,10 +254,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     @Override
     public Collection<ResolvedDependency> resolveDependency(IDependency dependency) throws AmbiguousDependencyException,
                                                                                     DependencyNotFoundException {
-        String value = dependency.getNode().getIdentifier();
+        String value = dependency.getNode().getIdentifier().trim();
         final boolean withWildcard = ASTERISK_SIGN.matcher(value).find() || QUESTION_SIGN.matcher(value).find();
         value = ASTERISK_SIGN.matcher(value).replaceAll("\\\\E.*\\\\Q");
         value = QUESTION_SIGN.matcher(value).replaceAll("\\\\E.\\\\Q");
+        value = SLASH_SIGN.matcher(value).replaceAll("\\\\E\\\\s*/\\\\s*\\\\Q");
         value = "\\Q" + value + "\\E";
         IDependencyLoader currentDependencyLoader = !getCompilationStack().isEmpty() ? getCompilationStack().getFirst()
                                                                                      : null;
