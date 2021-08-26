@@ -4,10 +4,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.message.OpenLMessage;
@@ -84,10 +86,23 @@ public class RulesInFolderTestRunner {
                 engineFactory.setExecutionMode(executionMode);
                 compiledOpenClass = engineFactory.getCompiledOpenClass();
             } else if (file.isDirectory()) {
+                File[] filesInFolder = file.listFiles();
+                boolean multiProject = filesInFolder != null && Arrays.stream(filesInFolder)
+                    .allMatch(File::isDirectory);
                 try {
                     SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
                     engineFactoryBuilder.setExecutionMode(executionMode);
-                    engineFactoryBuilder.setProject(file.getPath());
+                    if (multiProject) {
+                        engineFactoryBuilder.setWorkspace(file.getPath());
+                        for (File f : filesInFolder) {
+                            if (Objects.equals(file.getName(), f.getName())) {
+                                engineFactoryBuilder.setProject(f.getPath());
+                                break;
+                            }
+                        }
+                    } else {
+                        engineFactoryBuilder.setProject(file.getPath());
+                    }
                     SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
                     compiledOpenClass = engineFactory.getCompiledOpenClass();
                     compiledOpenClass = validate(compiledOpenClass,
