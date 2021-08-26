@@ -104,7 +104,7 @@ public class OpenLCompileManager {
             allDeps.addAll(getExternalDependencies(source));
             for (IDependency dependency : allDeps) {
                 try {
-                    dependencies.addAll(dependencyManager.resolveDependency(dependency));
+                    dependencies.addAll(dependencyManager.resolveDependency(dependency, true));
                 } catch (OpenLCompilationException e) {
                     allMessages.add(OpenLMessagesUtils.newErrorMessage(e));
                 }

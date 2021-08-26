@@ -105,8 +105,10 @@ public class WebStudioWorkspaceRelatedDependencyManagerTest {
                         Collection<ResolvedDependency> resolvedDependencies;
                         try {
                             resolvedDependencies = webStudioWorkspaceRelatedDependencyManager
-                                .resolveDependency(new Dependency(DependencyType.MODULE,
-                                    new IdentifierNode(null, null, "Module" + p, null)));
+                                .resolveDependency(
+                                    new Dependency(DependencyType.MODULE,
+                                        new IdentifierNode(null, null, "Module" + p, null)),
+                                    false);
                         } catch (OpenLCompilationException e) {
                             throw new RuntimeException(e);
                         }
