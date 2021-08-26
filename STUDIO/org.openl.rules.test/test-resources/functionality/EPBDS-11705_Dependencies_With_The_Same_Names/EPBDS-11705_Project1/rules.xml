@@ -1,0 +1,9 @@
+<project>
+    <name>EPBDS-11705_Project1</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="Main.xlsx"/>
+        </module>
+    </modules>
+</project>

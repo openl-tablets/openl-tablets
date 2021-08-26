@@ -1,0 +1,13 @@
+<project>
+    <name>EPBDS-11705_Project1</name>
+    <modules>
+        <module>
+            <name>EPBDS-11705_Project1</name>
+            <rules-root path="EPBDS-11705_Project1.xlsx"/>
+        </module>
+        <module>
+            <name>Datatypes</name>
+            <rules-root path="Datatypes.xlsx"/>
+        </module>
+    </modules>
+</project>
