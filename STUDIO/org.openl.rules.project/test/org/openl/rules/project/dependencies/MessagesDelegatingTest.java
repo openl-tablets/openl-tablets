@@ -62,7 +62,7 @@ public class MessagesDelegatingTest {
         // it is passed through the dependency manager to receive the same
         // instances of OpenLMessages
         IDependency dependency = getDependencyForModule(moduleName);
-        Collection<ResolvedDependency> resolvedDependencies = dependencyManager.resolveDependency(dependency);
+        Collection<ResolvedDependency> resolvedDependencies = dependencyManager.resolveDependency(dependency, false);
         return dependencyManager.loadDependency(resolvedDependencies.iterator().next()).getCompiledOpenClass();
     }
 

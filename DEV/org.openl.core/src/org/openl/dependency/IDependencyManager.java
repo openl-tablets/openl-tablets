@@ -20,8 +20,8 @@ public interface IDependencyManager {
      */
     CompiledDependency loadDependency(ResolvedDependency dependency) throws OpenLCompilationException;
 
-    Collection<ResolvedDependency> resolveDependency(IDependency dependency) throws AmbiguousDependencyException,
-                                                                             DependencyNotFoundException;
+    Collection<ResolvedDependency> resolveDependency(IDependency dependency,
+            boolean withWildcardSupport) throws AmbiguousDependencyException, DependencyNotFoundException;
 
     /**
      * Remove given dependency from cache.

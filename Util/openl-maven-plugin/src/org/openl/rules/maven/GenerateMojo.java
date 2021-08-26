@@ -160,7 +160,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 try {
                     Collection<ResolvedDependency> resolvedDependencies = factory.getDependencyManager()
                         .resolveDependency(
-                            new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleName, null)));
+                            new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, moduleName, null)),
+                            false);
                     CompiledDependency compiledDependency = factory.getDependencyManager()
                         .loadDependency(resolvedDependencies.iterator().next());
                     compiledOpenClass = compiledDependency.getCompiledOpenClass();

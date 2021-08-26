@@ -36,12 +36,21 @@ public class DependencyBindingContext extends BindingContextDelegator {
         }
         Collection<ResolvedDependency> dependencies;
         try {
-            dependencies = dependencyManager
-                .resolveDependency(new Dependency(DependencyType.ANY, new IdentifierNode(null, null, name, null)));
+            dependencies = dependencyManager.resolveDependency(
+                new Dependency(DependencyType.PROJECT, new IdentifierNode(null, null, name, null)),
+                false);
         } catch (AmbiguousDependencyException e) {
             throw new AmbiguousFieldException(name, null);
         } catch (DependencyNotFoundException e) {
-            return null;
+            try {
+                dependencies = dependencyManager.resolveDependency(
+                    new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, name, null)),
+                    false);
+            } catch (AmbiguousDependencyException e1) {
+                throw new AmbiguousFieldException(name, null);
+            } catch (DependencyNotFoundException e1) {
+                return null;
+            }
         }
         try {
             CompiledDependency compiledDependency = dependencyManager.loadDependency(dependencies.iterator().next());
