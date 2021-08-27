@@ -114,7 +114,7 @@ public class ProjectModel {
      */
     private volatile CompiledOpenClass compiledOpenClass;
     private volatile CompiledOpenClass openedModuleCompiledOpenClass;
-    private volatile boolean compilationCompleted;
+    private volatile boolean compilationInProgress;
     private volatile String projectCompilationCompleted;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
@@ -1199,28 +1199,28 @@ public class ProjectModel {
                     null);
                 if (!ReloadType.NO.equals(reloadType) || !Objects.equals(projectDependencyName,
                     projectCompilationCompleted)) {
-                    this.compilationCompleted = false;
+                    this.compilationInProgress = true;
+                    projectCompilationCompleted = null;
+                    webStudioWorkspaceDependencyManager.loadDependencyAsync(
+                        new Dependency(DependencyType.MODULE,
+                            new IdentifierNode(DependencyType.MODULE.name(), null, projectDependencyName, null)),
+                        (compiledDependency) -> {
+                            try {
+                                this.compiledOpenClass = this.validate();
+                                XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                                    .getMetaInfo();
+                                getModuleSyntaxNodesByProject(moduleInfo.getProject().getName())
+                                    .add(metaInfo1.getXlsModuleNode());
+                                redraw();
+                            } catch (Exception | LinkageError e) {
+                                onCompilationFailed(e);
+                            }
+                            this.projectCompilationCompleted = compiledDependency.getDependencyName();
+                            this.compilationInProgress = false;
+                        });
                 }
-                projectCompilationCompleted = null;
-                webStudioWorkspaceDependencyManager.loadDependencyAsync(
-                    new Dependency(DependencyType.MODULE,
-                        new IdentifierNode(DependencyType.MODULE.name(), null, projectDependencyName, null)),
-                    (compiledDependency) -> {
-                        try {
-                            this.compiledOpenClass = this.validate();
-                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                                .getMetaInfo();
-                            getModuleSyntaxNodesByProject(moduleInfo.getProject().getName())
-                                .add(metaInfo1.getXlsModuleNode());
-                            redraw();
-                        } catch (Exception | LinkageError e) {
-                            onCompilationFailed(e);
-                        }
-                        this.projectCompilationCompleted = compiledDependency.getDependencyName();
-                        this.compilationCompleted = true;
-                    });
             } else {
-                compilationCompleted = true;
+                this.compilationInProgress = false;
             }
         } catch (Exception | LinkageError e) {
             onCompilationFailed(e);
@@ -1228,7 +1228,7 @@ public class ProjectModel {
     }
 
     private void onCompilationFailed(Throwable t) {
-        compilationCompleted = true;
+        compilationInProgress = false;
         log.error("Failed to load.", t);
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
@@ -1478,8 +1478,8 @@ public class ProjectModel {
         }
     }
 
-    public boolean isCompilationCompleted() {
-        return compilationCompleted;
+    public boolean isCompilationInProgress() {
+        return compilationInProgress;
     }
 
     public boolean isProjectCompilationCompleted() {
