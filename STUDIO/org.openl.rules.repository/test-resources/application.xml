@@ -10,4 +10,8 @@
         <constructor-arg name="prefix" value="${repoID}"/>
         <constructor-arg name="props" value="#{new org.openl.spring.env.PropertyResolverFunction(environment)}"/>
     </bean>
+
+    <bean name="ds" class="org.h2.jdbcx.JdbcDataSource">
+        <property name="url" value="jdbc:h2:mem:repo2;DB_CLOSE_DELAY=-1"/>
+    </bean>
 </beans>
