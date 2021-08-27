@@ -79,6 +79,7 @@ import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.Props;
@@ -840,11 +841,25 @@ public class ProjectModel {
         return element;
     }
 
+    private boolean isGapOverlap(ProjectTreeNode tableNode) {
+        if (tableNode.getTableSyntaxNode() != null) {
+            String tableType = tableNode.getTableSyntaxNode().getType();
+            if (XlsNodeTypes.XLS_DT.toString().equals(tableType)) {
+                return DispatcherTablesBuilder.isDispatcherTable(tableNode.getTableSyntaxNode());
+            }
+        }
+        return false;
+    }
+
     private TreeNode build(ProjectTreeNode root) {
         TreeNode node = createNode(root);
         Iterable<ProjectTreeNode> children = root.getChildren();
         int errors = 0;
         for (ProjectTreeNode child : children) {
+            // Always hide dispatcher tables
+            if (isGapOverlap(child)) {
+                continue;
+            }
             TreeNode rfChild = build(child);
             if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType()) || IProjectTypes.PT_WORKBOOK
                 .equals(rfChild.getType())) {
