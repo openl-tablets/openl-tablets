@@ -89,6 +89,8 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
             ConfigLog.LOG.info("Loading ServletContext init parameters...");
             propertySources.addFirst(new ServletContextPropertySource("ServletContext init parameters", servletContext));
         }
+        ConfigLog.LOG.info("Loading ApplicationContext beans...");
+        propertySources.addFirst(new ApplicationContextPropertySource(appContext));
 
         ConfigLog.LOG.info("Loading application properties...");
         String[] profiles = env.getActiveProfiles();

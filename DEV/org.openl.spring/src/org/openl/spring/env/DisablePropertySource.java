@@ -5,7 +5,7 @@ import java.util.prefs.Preferences;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySources;
 
-public class DisablePropertySource extends PropertySource<Preferences> {
+public class DisablePropertySource extends PropertySource<Object> {
 
     public static final String PROPS_NAME = "Disable properties";
     public static final String PROPS_PREFIX = "_sys_disable_";
