@@ -167,7 +167,7 @@ abstract class DBRepository implements Repository, Closeable {
     @Override
     public boolean delete(FileData path) throws IOException {
         FileData data = getLatestVersionFileData(path.getName());
-        if (data != null) {
+        if (data != null && !data.isDeleted()) {
             insertFile(data, null);
             invokeListener();
             return true;

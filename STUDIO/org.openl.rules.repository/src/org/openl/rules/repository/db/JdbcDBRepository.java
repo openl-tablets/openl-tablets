@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import org.openl.util.StringUtils;
 
 public class JdbcDBRepository extends DBRepository {
-    private static final String ID = "repo-jdbc";
     private String uri;
     private String login;
     private String password;
