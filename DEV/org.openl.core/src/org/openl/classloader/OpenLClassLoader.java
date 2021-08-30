@@ -4,7 +4,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.util.ClassUtils;
@@ -158,12 +167,19 @@ public class OpenLClassLoader extends GroovyClassLoader {
         return null;
     }
 
-    private URL findResourceInBundleClassLoader(String name) {
+    private URL findResourceInBundles(String name, Set<ClassLoader> c) {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
+            if (c.contains(bundleClassLoader)) {
+                continue;
+            }
+            c.add(bundleClassLoader);
             URL url;
             if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
                 OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
-                url = sbcl.findResourceInBundleClassLoader(name);
+                url = sbcl.findResourceInBundles(name, c);
+            } else if (bundleClassLoader instanceof OpenLClassLoader) {
+                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+                url = sbcl.getResource(name, c);
             } else {
                 url = bundleClassLoader.getResource(name);
             }
@@ -174,12 +190,19 @@ public class OpenLClassLoader extends GroovyClassLoader {
         return null;
     }
 
-    private InputStream findResourceAsStreamInBundleClassLoader(String name) {
+    private InputStream findResourceAsStreamInBundles(String name, Set<ClassLoader> c) {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
+            if (c.contains(bundleClassLoader)) {
+                continue;
+            }
+            c.add(bundleClassLoader);
             InputStream inputStream;
             if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
                 OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
-                inputStream = sbcl.findResourceAsStreamInBundleClassLoader(name);
+                inputStream = sbcl.findResourceAsStreamInBundles(name, c);
+            } else if (bundleClassLoader instanceof OpenLClassLoader) {
+                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+                inputStream = sbcl.getResourceAsStream(name, c);
             } else {
                 inputStream = bundleClassLoader.getResourceAsStream(name);
             }
@@ -190,12 +213,19 @@ public class OpenLClassLoader extends GroovyClassLoader {
         return null;
     }
 
-    private Enumeration<URL> findResourcesInBundleClassLoader(String name) throws IOException {
+    private Enumeration<URL> findResourcesInBundles(String name, Set<ClassLoader> c) throws IOException {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
+            if (c.contains(bundleClassLoader)) {
+                continue;
+            }
+            c.add(bundleClassLoader);
             Enumeration<URL> resources;
             if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
                 OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
-                resources = sbcl.findResourcesInBundleClassLoader(name);
+                resources = sbcl.findResourcesInBundles(name, c);
+            } else if (bundleClassLoader instanceof OpenLClassLoader) {
+                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+                resources = sbcl.getResources(name, c);
             } else {
                 resources = bundleClassLoader.getResources(name);
             }
@@ -206,9 +236,8 @@ public class OpenLClassLoader extends GroovyClassLoader {
         return null;
     }
 
-    @Override
-    public Enumeration<URL> getResources(String name) throws IOException {
-        Enumeration<URL> resources = findResourcesInBundleClassLoader(name);
+    private Enumeration<URL> getResources(String name, Set<ClassLoader> c) throws IOException {
+        Enumeration<URL> resources = findResourcesInBundles(name, c);
         if (resources != null) {
             return resources;
         }
@@ -216,8 +245,14 @@ public class OpenLClassLoader extends GroovyClassLoader {
     }
 
     @Override
-    public URL getResource(String name) {
-        URL url = findResourceInBundleClassLoader(name);
+    public Enumeration<URL> getResources(String name) throws IOException {
+        Set<ClassLoader> c = Collections.newSetFromMap(new IdentityHashMap<>());
+        c.add(this);
+        return getResources(name, c);
+    }
+
+    private URL getResource(String name, Set<ClassLoader> c) {
+        URL url = findResourceInBundles(name, c);
         if (url != null) {
             return url;
         }
@@ -225,12 +260,25 @@ public class OpenLClassLoader extends GroovyClassLoader {
     }
 
     @Override
-    public InputStream getResourceAsStream(String name) {
-        InputStream inputStream = findResourceAsStreamInBundleClassLoader(name);
+    public URL getResource(String name) {
+        Set<ClassLoader> c = Collections.newSetFromMap(new IdentityHashMap<>());
+        c.add(this);
+        return getResource(name, c);
+    }
+
+    private InputStream getResourceAsStream(String name, Set<ClassLoader> c) {
+        InputStream inputStream = findResourceAsStreamInBundles(name, c);
         if (inputStream != null) {
             return inputStream;
         }
         return super.getResourceAsStream(name);
+    }
+
+    @Override
+    public InputStream getResourceAsStream(String name) {
+        Set<ClassLoader> c = Collections.newSetFromMap(new IdentityHashMap<>());
+        c.add(this);
+        return getResourceAsStream(name, c);
     }
 
     private void addURLToList(List<URL> urls, URL url) {
@@ -242,20 +290,42 @@ public class OpenLClassLoader extends GroovyClassLoader {
         urls.add(url);
     }
 
-    @Override
-    public URL[] getURLs() {
-        List<URL> urls = new ArrayList<>();
-        for (URL url : super.getURLs()) {
-            addURLToList(urls, url);
-        }
+    private void addURLsFromBundles(Set<ClassLoader> c, List<URL> urls) {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
-            if (bundleClassLoader instanceof URLClassLoader) {
+            if (c.contains(bundleClassLoader)) {
+                continue;
+            }
+            c.add(bundleClassLoader);
+            if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
+                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+                sbcl.addURLsFromBundles(c, urls);
+            } else if (bundleClassLoader instanceof OpenLClassLoader) {
+                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
+                for (URL url : sbcl.getURLs(c)) {
+                    addURLToList(urls, url);
+                }
+            } else if (bundleClassLoader instanceof URLClassLoader) {
                 for (URL url : ((URLClassLoader) bundleClassLoader).getURLs()) {
                     addURLToList(urls, url);
                 }
             }
         }
+    }
+
+    private URL[] getURLs(Set<ClassLoader> c) {
+        List<URL> urls = new ArrayList<>();
+        for (URL url : super.getURLs()) {
+            addURLToList(urls, url);
+        }
+        addURLsFromBundles(c, urls);
         return urls.toArray(new URL[0]);
+    }
+
+    @Override
+    public URL[] getURLs() {
+        Set<ClassLoader> c = Collections.newSetFromMap(new IdentityHashMap<>());
+        c.add(this);
+        return getURLs(c);
     }
 
     @Override
