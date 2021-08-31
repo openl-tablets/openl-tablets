@@ -39,10 +39,10 @@ public class ArrayOpenField implements IOpenField {
             Object arrayElement = Array.get(target, i);
             if (type.getComponentClass().isArray()) {
                 arrayElement = processArray(arrayElement, env, type.getComponentClass());
-                Array.set(arrayResult, i, arrayElement);
             } else {
-                Array.set(arrayResult, i, field.get(arrayElement, env));
+                arrayElement = field.get(arrayElement, env);
             }
+            Array.set(arrayResult, i, arrayElement);
         }
         return arrayResult;
     }
