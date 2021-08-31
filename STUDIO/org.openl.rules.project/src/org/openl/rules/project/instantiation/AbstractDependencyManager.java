@@ -252,14 +252,19 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     }
 
     @Override
-    public Collection<ResolvedDependency> resolveDependency(IDependency dependency) throws AmbiguousDependencyException,
-                                                                                    DependencyNotFoundException {
+    public Collection<ResolvedDependency> resolveDependency(IDependency dependency,
+            boolean withWildcardSupport) throws AmbiguousDependencyException, DependencyNotFoundException {
         String value = dependency.getNode().getIdentifier().trim();
-        final boolean withWildcard = ASTERISK_SIGN.matcher(value).find() || QUESTION_SIGN.matcher(value).find();
-        value = ASTERISK_SIGN.matcher(value).replaceAll("\\\\E.*\\\\Q");
-        value = QUESTION_SIGN.matcher(value).replaceAll("\\\\E.\\\\Q");
-        value = SLASH_SIGN.matcher(value).replaceAll("\\\\E\\\\s*/\\\\s*\\\\Q");
-        value = "\\Q" + value + "\\E";
+        boolean withWildcard;
+        if (withWildcardSupport) {
+            withWildcard = ASTERISK_SIGN.matcher(value).find() || QUESTION_SIGN.matcher(value).find();
+            value = ASTERISK_SIGN.matcher(value).replaceAll("\\\\E.*\\\\Q");
+            value = QUESTION_SIGN.matcher(value).replaceAll("\\\\E.\\\\Q");
+            value = SLASH_SIGN.matcher(value).replaceAll("\\\\E\\\\s*/\\\\s*\\\\Q");
+            value = "\\Q" + value + "\\E";
+        } else {
+            withWildcard = false;
+        }
         IDependencyLoader currentDependencyLoader = !getCompilationStack().isEmpty() ? getCompilationStack().getFirst()
                                                                                      : null;
         Collection<IDependencyLoader> visibleDependencyLoaders = currentDependencyLoader != null ? findAllProjectDependencyLoaders(

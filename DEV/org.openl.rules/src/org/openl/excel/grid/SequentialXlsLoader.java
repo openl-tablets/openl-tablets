@@ -185,7 +185,7 @@ public class SequentialXlsLoader {
                     dependency,
                     new GridCellSourceCodeModule(gridTable, 1, i, null));
                 node.setParent(tableSyntaxNode);
-                Dependency moduleDependency = new Dependency(DependencyType.ANY, node);
+                Dependency moduleDependency = new Dependency(DependencyType.MODULE, node);
                 dependencies.add(moduleDependency);
             }
         }

@@ -107,8 +107,10 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
         } else if (boundField instanceof DependencyVar) {
             DependencyVar dependencyVar = (DependencyVar) boundField;
             description = (DependencyType.PROJECT
-                .equals(dependencyVar.getDependencyType()) ? "Project " : "Module '") + dependencyVar.getName() + "'";
-            uri = dependencyVar.getType().getMetaInfo().getSourceUrl();
+                .equals(dependencyVar.getDependencyType()) ? "Project '" : "Module '") + dependencyVar.getName() + "'";
+            if (DependencyType.MODULE.equals(dependencyVar.getDependencyType())) {
+                uri = dependencyVar.getType().getMetaInfo().getSourceUrl();
+            }
         } else if (boundField instanceof ConditionOrActionParameterField) {
             ConditionOrActionParameterField conditionOrActionParameterField = (ConditionOrActionParameterField) boundField;
             description = "Parameter of " + conditionOrActionParameterField.getConditionOrAction()
