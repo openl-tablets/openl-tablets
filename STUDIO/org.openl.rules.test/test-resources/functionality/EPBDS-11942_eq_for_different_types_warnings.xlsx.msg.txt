@@ -1,0 +1,3 @@
+WARN: DEPRECATED 'length' field for arrays will be removed in the next version. Use length() function instead.
+WARN: Warning: Compared elements have different types ('int', 'java.lang.String'). Comparing these types always returns false.
+WARN: Warning: Compared elements have different types ('Bank2', 'Bank3'). Comparing these types always returns false.
