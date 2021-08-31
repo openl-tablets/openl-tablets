@@ -33,12 +33,13 @@ public class ArrayOpenField implements IOpenField {
     }
 
     private Object processArray(Object target, IRuntimeEnv env, IOpenClass type) {
+        IOpenClass componentClass = type.getComponentClass();
         int length = Array.getLength(target);
-        Object arrayResult = Array.newInstance(type.getComponentClass().getInstanceClass(), length);
+        Object arrayResult = Array.newInstance(componentClass.getInstanceClass(), length);
         for (int i = 0; i < length; i++) {
             Object arrayElement = Array.get(target, i);
-            if (type.getComponentClass().isArray()) {
-                arrayElement = processArray(arrayElement, env, type.getComponentClass());
+            if (componentClass.isArray()) {
+                arrayElement = processArray(arrayElement, env, componentClass);
             } else {
                 arrayElement = field.get(arrayElement, env);
             }
