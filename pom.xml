@@ -4,7 +4,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.24.3-SNAPSHOT</version>
+    <version>5.24.3</version>
     <name>OpenL Tablets</name>
     <url>https://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -69,7 +69,7 @@
         <connection>scm:git:https://github.com/openl-tablets/openl-tablets.git</connection>
         <developerConnection>scm:git:git@github.com:openl-tablets/openl-tablets.git</developerConnection>
         <url>https://github.com/openl-tablets/openl-tablets</url>
-        <tag>HEAD</tag>
+        <tag>5.24.3</tag>
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -246,7 +246,7 @@
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
                             <openl.info>${openl.info}</openl.info>
-                            <openl.config.location/>
+                            <openl.config.location />
                             <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
                         </systemPropertyVariables>
                     </configuration>
@@ -419,7 +419,7 @@
             </activation>
             <properties>
                 <!-- Empty for building without JaCoCo agent -->
-                <jacoco.argLine/>
+                <jacoco.argLine />
                 <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
             </properties>
         </profile>
@@ -431,7 +431,7 @@
                 </property>
             </activation>
             <properties>
-                <sonar/>
+                <sonar />
                 <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
             </properties>
             <build>
