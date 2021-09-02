@@ -41,6 +41,8 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -346,9 +348,8 @@ public class ProjectModel {
 
         for (IOpenMethod candidate : candidates) {
             IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
-
             if (resolvedMethod != null) {
-                return resolvedMethod;
+                return WrapperLogic.wrapOpenMethod(resolvedMethod, (XlsModuleOpenClass) method.getDeclaringClass());
             }
         }
 
