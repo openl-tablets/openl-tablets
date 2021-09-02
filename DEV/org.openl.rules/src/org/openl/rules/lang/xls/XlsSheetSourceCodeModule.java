@@ -64,22 +64,18 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
 
     @Override
     public String getFileUri() {
-        return toSheetUri(workbookSource.getFileUri());
+        return workbookSource.getFileUri();
     }
 
     @Override
     public String getUri() {
-        return toSheetUri(workbookSource.getUri());
-    }
-
-    private String toSheetUri(String workbookUri){
+        String workbookUri = workbookSource.getUri();
         if (workbookUri == null) {
             // assume that URI is null for virtual grid module, let's try to make it unique
             workbookUri = "VIRTUAL_WORKBOOK@" + System.identityHashCode(this);
         }
         return workbookUri + "?sheet=" + StringTool.encodeURL(getSheetName());
     }
-
 
     public XlsWorkbookSourceCodeModule getWorkbookSource() {
         return workbookSource;
