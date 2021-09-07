@@ -364,7 +364,7 @@
                                  action="#{deploymentController.close}"
                                  title="Close Deploy Configuration and make it unavailable for editing"
                                  onclick="if (#{deploymentController.modified}) {#{rich:component('modalCloseDeployConfiguration')}.show();return false;}"/>
-                <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canEditDeployment}" value="Open"
+                <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canOpen}" value="Open"
                                  action="#{deploymentController.open}"
                                  title="Make project available for editing and lock it from editing by other users"/>
                 <h:commandButton id="saveDeployId" rendered="#{repositoryTreeState.canSaveDeployment}" value="Save"
