@@ -132,6 +132,11 @@ public abstract class AbstractSmartRedeployController {
         return (AProject) deployment.getProject(wsProject.getName());
     }
 
+    public boolean isProtectedDeployRepository() {
+        Repository repo = deploymentManager.repositoryFactoryProxy.getRepositoryInstance(getRepositoryConfigName());
+        return isMainBranchProtected(repo);
+    }
+
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {
         String projectName = project.getBusinessName();
         String repoId = project.getRepository().getId();
@@ -337,7 +342,7 @@ public abstract class AbstractSmartRedeployController {
         return result;
     }
 
-    private boolean isMainBranchProtected(Repository repo) {
+    protected boolean isMainBranchProtected(Repository repo) {
         if (repo.supports().branches()) {
             BranchRepository branchRepo = (BranchRepository) repo;
             return branchRepo.isBranchProtected(branchRepo.getBranch());

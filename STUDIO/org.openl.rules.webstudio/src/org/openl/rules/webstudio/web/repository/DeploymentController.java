@@ -240,6 +240,19 @@ public class DeploymentController {
         return null;
     }
 
+    public boolean isProtectedDeployRepository() {
+        Repository repo = deploymentManager.repositoryFactoryProxy.getRepositoryInstance(getRepositoryConfigName());
+        return isMainBranchProtected(repo);
+    }
+
+    protected boolean isMainBranchProtected(Repository repo) {
+        if (repo.supports().branches()) {
+            BranchRepository branchRepo = (BranchRepository) repo;
+            return branchRepo.isBranchProtected(branchRepo.getBranch());
+        }
+        return false;
+    }
+
     public List<DeploymentDescriptorItem> getItems() {
         ADeploymentProject project = getSelectedProject();
         if (project == null) {

@@ -24,12 +24,17 @@
                         <f:ajax event="change" render="@form" execute="@this"/>
                     </h:selectOneMenu>
                 </h:panelGroup>
-
-                <h:outputText
-                        value="There are no deploy configurations containing project '#{smartRedeployEditorController.selectedProject.businessName}'"
-                        rendered="#{empty smartRedeployEditorController.items}"
-                        style="margin: 25px 0"/>
-                <rich:dataTable id="smartRedeployTable" value="#{smartRedeployEditorController.items}" var="item"
+                <h:panelGroup rendered="#{smartRedeployEditorController.protectedDeployRepository}">
+                    <h:outputText
+                            value="Selected repository is protected. It's not allowed to deploy."
+                            style="margin: 25px 0"/>
+                </h:panelGroup>
+                <h:panelGroup rendered="#{not smartRedeployEditorController.protectedDeployRepository}">
+                    <h:outputText
+                            value="There are no deploy configurations containing project '#{smartRedeployEditorController.selectedProject.businessName}'"
+                            rendered="#{empty smartRedeployEditorController.items}"
+                            style="margin: 25px 0"/>
+                    <rich:dataTable id="smartRedeployTable" value="#{smartRedeployEditorController.items}" var="item"
                                 styleClass="table" rendered="#{not empty smartRedeployEditorController.items}"
                                 style="margin: 25px 0">
                     <f:facet name="header">
@@ -62,6 +67,7 @@
                         <h:outputText value="#{item.messages}" escape="false" styleClass="#{item.styleForMessages}"/>
                     </rich:column>
                 </rich:dataTable>
+                </h:panelGroup>
             </h:panelGroup>
 
             <h:panelGrid id="processing" columns="2" cellpadding="4" cellspacing="0"
@@ -73,7 +79,7 @@
 
             <footer>
                 <a4j:commandButton id="smartRedeployBtn" value="Deploy"
-                                   disabled="#{!smartRedeployEditorController.projectHasSelectedItems}"
+                                   disabled="#{!smartRedeployEditorController.projectHasSelectedItems or smartRedeployEditorController.protectedDeployRepository}"
                                    onclick="return startSmartRedeploy();"
                                    action="#{smartRedeployEditorController.redeploy}"
                                    render="@form"
