@@ -318,7 +318,7 @@
                                    styleClass="hidden on-errors-hide b-trace changes-listener"
                                    action="#{runTestHelper.initTrace}"
                                    oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
-                                   onclick="if (isAnyTestSelected()) {return true;} else {ws.changes.restoreChangedState();} return false;"/>
+                                   onclick="return isAnyTestSelected(); "/>
                 <!-- Don't use a4j:commandButton for file download -->
                 <h:commandButton id="traceIntoFileButton" action="#{traceIntoFileBean.traceIntoFile}"
                                  rendered="#{tableBean.canTrace}"
@@ -1041,7 +1041,7 @@
                 isHasChanges: function () {
                     return false;
                 },
-                setHasChanges: function () {
+                rollbackChanges: function () {
                 },
                 setCellValue: function () {
                 }
@@ -1051,11 +1051,11 @@
             ws.nav.setRequestId('#{tableBean.requestId}');
 
             var projectAdapter = {
-                hasChanges: function () {
+                isHasChanges: function () {
                     return getCurrentTable().isHasChanges();
                 },
-                setHasChanges: function (hasChanges) {
-                    getCurrentTable().setHasChanges(hasChanges);
+                rollbackChanges: function () {
+                    getCurrentTable().rollback();
                 },
                 applyCurrentChanges: function () {
                     return getCurrentTable().setCellValue();
@@ -1173,7 +1173,7 @@
 
         function adjustJSFElements() {
             const editorWrapper = $j("#t_te_editorWrapper");
-            if (editorWrapper.attr("data-jsf-adjusted") !=='true') {
+            if (editorWrapper.length && editorWrapper.attr("data-jsf-adjusted") !=='true') {
                 editorWrapper.css({"top": editorWrapper.position().top + $j(".table-problems").outerHeight(true) + "px"});
                 editorWrapper.attr("data-jsf-adjusted", "true");
             }

@@ -366,8 +366,9 @@ public class DeploymentController {
                     if (!project.isModified()) {
                         project.openVersion(item.getVersion().getVersionName());
                     }
-                    repositoryTreeState.refreshNode(
-                        repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(project)));
+                    repositoryTreeState
+                        .refreshNode(repositoryTreeState.findNodeById(repositoryTreeState.getRulesRepository(),
+                            RepositoryUtils.getTreeNodeId(project)));
                 } catch (Exception e) {
                     LOG.error("Failed to open project '{}'.", projectName, e);
                     WebStudioUtils.addErrorMessage("Failed to open project '" + projectName + "': " + e.getMessage());

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>5.24.3-SNAPSHOT</version>
+        <version>5.25.1-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws.tracing.jaeger</artifactId>
     <packaging>jar</packaging>
@@ -62,23 +62,14 @@
         <dependency>
             <groupId>io.opentracing.contrib</groupId>
             <artifactId>opentracing-web-servlet-filter</artifactId>
-            <version>${opentracing.web.servlet.filter}</version>
         </dependency>
         <dependency>
             <groupId>io.jaegertracing</groupId>
             <artifactId>jaeger-client</artifactId>
-            <version>${jaeger.client.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.tomcat.embed</groupId>
-                    <artifactId>tomcat-embed-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.opentracing.contrib</groupId>
             <artifactId>opentracing-kafka-client</artifactId>
-            <version>${opentracing.kafka.client}</version>
         </dependency>
     </dependencies>
 

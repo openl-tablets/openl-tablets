@@ -499,7 +499,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         return nodes;
     }
 
-    private TreeNode findNodeById(TreeNode currentNode, String id) {
+    TreeNode findNodeById(TreeNode currentNode, String id) {
         final TreeNode child = (TreeNode) currentNode.getChild(id);
         if (child != null) {
             return child;

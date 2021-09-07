@@ -233,4 +233,7 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
 
         //ZipFileSystem for JDK 8 issue
         permission java.io.FilePermission "${catalina.base}/lib/Example3-datasource.jar", "read,write";
+
+        // "/groovy/script" is used in GroovyClassLoader parseClass method
+        permission groovy.security.GroovyCodeSourcePermission "/groovy/script";
 };

@@ -29,9 +29,8 @@
             </h:panelGroup>
 
             <footer>
-                <h:commandButton value="Export" action="#{exportBean.exportFileVersion}"
-                    onclick="ws.changes.addAfterUnloadAction(ws.changes.restoreChangedState);" immediate="true" styleClass="button-primary" />
-                <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('exportModule').hide();" />
+                <h:commandButton value="Export" action="#{exportBean.exportFileVersion}" immediate="true" styleClass="button-primary own-loader-handler" />
+                <input type="button" value="Cancel" onclick="RichFaces.$('exportModule').hide();" />
             </footer>
             <a4j:jsFunction name="renderExportFileForm" render="exportFileData" oncomplete="showExportFileDialog()">
                 <a4j:param name="repositoryId" assignTo="#{exportBean.repositoryId}"/>

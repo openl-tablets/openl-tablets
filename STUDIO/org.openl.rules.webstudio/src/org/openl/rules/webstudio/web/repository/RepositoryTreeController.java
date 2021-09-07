@@ -2312,8 +2312,8 @@ public class RepositoryTreeController {
         final String projectName = WebStudioUtils.getRequestParameter("projectName");
 
         try {
-            activeProjectNode = repositoryTreeState.getRulesRepository()
-                .getChild(RepositoryUtils.getTreeNodeId(repositoryId, projectName));
+            activeProjectNode = repositoryTreeState.findNodeById(repositoryTreeState.getRulesRepository(),
+                RepositoryUtils.getTreeNodeId(repositoryId, projectName));
         } catch (Exception e) {
             log.error("Cannot delete rules project '{}'.", projectName, e);
             WebStudioUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
@@ -2460,7 +2460,12 @@ public class RepositoryTreeController {
 
     public TreeNode getSelectedNode() {
         TreeNode selectedNode = repositoryTreeState.getSelectedNode();
-        return activeProjectNode != null && selectedNode instanceof TreeRepository ? activeProjectNode : selectedNode;
+        return activeProjectNode != null && (selectedNode instanceof TreeRepository || selectedNode instanceof TreeProjectGrouping) ? activeProjectNode
+                                                                                                                                    : selectedNode;
+    }
+
+    public void resetActiveProjectNode() {
+        activeProjectNode = null;
     }
 
     public boolean isRenamed(RulesProject project) {

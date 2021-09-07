@@ -1,0 +1,12 @@
+<project>
+  <name>Npe</name>
+  <modules>
+    <module>
+      <name>Npe</name>
+      <rules-root path="Npe.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="lib/*.jar"/>
+  </classpath>
+</project>

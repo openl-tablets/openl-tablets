@@ -861,12 +861,16 @@ public class CastFactory implements ICastFactory {
     private static boolean isFromValuesIncludedToValues(DomainOpenClass from, DomainOpenClass to, IOpenCast openCast) {
         IDomain<Object> fromDomain = (IDomain<Object>) from.getDomain();
         IDomain<Object> toDomain = (IDomain<Object>) to.getDomain();
-        for (Object value : fromDomain) {
-            if (!toDomain.selectObject(openCast.convert(value))) {
-                return false;
+        try {
+            for (Object value : fromDomain) {
+                if (!toDomain.selectObject(openCast.convert(value))) {
+                    return false;
+                }
             }
+            return true;
+        } catch (Exception e) {
+            return false;
         }
-        return true;
     }
 
     @SuppressWarnings("unchecked")
@@ -875,12 +879,16 @@ public class CastFactory implements ICastFactory {
             IOpenCast openCast) {
         IDomain<Object> fromDomain = (IDomain<Object>) from.getDomain();
         IDomain<Object> toDomain = (IDomain<Object>) to.getDomain();
-        for (Object value : fromDomain) {
-            if (toDomain.selectObject(openCast.convert(value))) {
-                return true;
+        try {
+            for (Object value : fromDomain) {
+                if (toDomain.selectObject(openCast.convert(value))) {
+                    return true;
+                }
             }
+            return false;
+        } catch (Exception e) {
+            return false;
         }
-        return false;
     }
 
     /**
