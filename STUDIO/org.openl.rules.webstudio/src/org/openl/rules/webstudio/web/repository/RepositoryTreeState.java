@@ -910,8 +910,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     // for any project artefact
     public boolean getCanModify() {
         UserWorkspaceProject project = getSelectedProject();
-        boolean branchProtected = isCurrentBranchProtected(project);
-        return project.isOpenedForEditing() && isGranted(EDIT_PROJECTS) && !branchProtected;
+        if (project != null) {
+            boolean branchProtected = isCurrentBranchProtected(project);
+            return project.isOpenedForEditing() && isGranted(EDIT_PROJECTS) && !branchProtected;
+        } else {
+            return false;
+        }
     }
 
     public boolean getCanModifyTags() {
