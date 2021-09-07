@@ -563,7 +563,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         assertNull(usedNodes.get(1).getUri());
         assertEquals("java.text\nSimpleDateFormat <init>(String p0)", usedNodes.get(1).getDescription());
-        assertEquals(16, usedNodes.get(1).getStart());
+        assertEquals(6, usedNodes.get(1).getStart());
         assertEquals(31, usedNodes.get(1).getEnd());
     }
 
