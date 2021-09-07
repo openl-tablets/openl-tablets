@@ -85,7 +85,7 @@ public class LaunchFileServlet extends HttpServlet {
             return;
         }
 
-        String uri = table.getUri();
+        String uri = "file://" + ws.getWorkspacePath() + "/" + table.getUri();
 
         String file;
         String decodedUriParameter;

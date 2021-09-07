@@ -1141,33 +1141,25 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } else {
             // Get a project
             List<ProjectDescriptor> allProjects = getAllProjects();
-            ProjectDescriptor project = CollectionUtils.findFirst(allProjects, projectDescriptor -> {
-                String projectURI = projectDescriptor.getProjectFolder().toUri().toString();
-                return tableURI.startsWith(projectURI);
-            });
+            ProjectDescriptor project = CollectionUtils.findFirst(allProjects, projectDescriptor -> tableURI.startsWith(projectDescriptor.getName() + "/"));
             if (project == null) {
                 return null;
             }
 
+            // Get a module
+            Module module = CollectionUtils.findFirst(project.getModules(), module1 -> {
+                if (module1.getRulesRootPath() == null) {
+                    // Eclipse project
+                    return false;
+                }
+                return tableURI.startsWith(project.getName() + "/" + module1.getRulesRootPath().getPath());
+            });
             repositoryId = projects.entrySet()
                 .stream()
                 .filter(entry -> entry.getValue().stream().anyMatch(projectDescriptor -> projectDescriptor.equals(project)))
                 .findFirst()
                 .map(Map.Entry::getKey)
                 .orElse(currentRepositoryId);
-
-            // Get a module
-            Module module = CollectionUtils.findFirst(project.getModules(), new CollectionUtils.Predicate<Module>() {
-                @Override
-                public boolean evaluate(Module module) {
-                    if (module.getRulesRootPath() == null) {
-                        // Eclipse project
-                        return false;
-                    }
-                    String moduleURI = module.getRulesPath().toUri().toString();
-                    return tableURI.startsWith(moduleURI);
-                }
-            });
 
             if (module != null) {
                 projectName = project.getName();
