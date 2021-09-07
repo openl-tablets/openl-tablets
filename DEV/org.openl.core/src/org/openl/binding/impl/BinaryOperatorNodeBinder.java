@@ -11,8 +11,6 @@ import java.util.Objects;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.cast.CastFactory;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.operator.Comparison;
 import org.openl.syntax.ISyntaxNode;
@@ -22,7 +20,6 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CastingMethodCaller;
-import org.openl.types.java.JavaOpenMethod;
 
 /**
  * @author snshor
@@ -57,12 +54,12 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         if (methodCaller instanceof CastingMethodCaller) {
             CastingMethodCaller castingMethodCaller = (CastingMethodCaller) methodCaller;
             IOpenMethod method = castingMethodCaller.getMethod();
-            if ("eq".equals(method.getName()) && method.getDeclaringClass().getInstanceClass() == Comparison.class) {
+            if (("eq".equals(method.getName()) || "ne".equals(method.getName())) && method.getDeclaringClass().getInstanceClass() == Comparison.class) {
                 IOpenClass[] parameterTypes = method.getSignature().getParameterTypes();
                 if (parameterTypes.length == 2 && parameterTypes[0].getInstanceClass() == Object.class && parameterTypes[1].getInstanceClass() == Object.class) {
                     if (!Objects.equals(b1.getType(), b2.getType())) {
-                        BindHelper.processWarn(String.format("Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns false.",
-                            b1.getType().getName(), b2.getType().getName()), node, bindingContext);
+                        BindHelper.processWarn(String.format("Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns %s.",
+                            b1.getType().getName(), b2.getType().getName(), "eq".equals(method.getName())), node, bindingContext);
                     }
                 }
             }
