@@ -1,0 +1,14 @@
+<project>
+    <name>EPBDS-11702_RefToDependency</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>EPBDS-11702_Project1</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>
