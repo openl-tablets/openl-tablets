@@ -8,6 +8,8 @@ public interface BranchRepository extends Repository {
 
     String getBranch();
 
+    boolean isBranchProtected(String branch);
+
     void createBranch(String projectPath, String branch) throws IOException;
 
     void deleteBranch(String projectPath, String branch) throws IOException;

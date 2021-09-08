@@ -63,6 +63,8 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
@@ -665,7 +667,7 @@ public class ProjectModel {
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
-        if (isGranted(EDIT_PROJECTS)) {
+        if (isGranted(EDIT_PROJECTS) && !isCurrentBranchProtected()) {
             RulesProject project = getProject();
 
             if (project != null) {
@@ -692,11 +694,20 @@ public class ProjectModel {
     }
 
     public boolean isCanEditTable(String uri) {
-        return isEditableTable(uri) && isGranted(EDIT_TABLES);
+        return isEditableTable(uri) && isGranted(EDIT_TABLES) && !isCurrentBranchProtected();
     }
 
     public boolean isCanEditProject() {
         return isEditable() && isGranted(EDIT_TABLES);
+    }
+
+    private boolean isCurrentBranchProtected() {
+        RulesProject project = getProject();
+        if (project != null && !project.isLocalOnly()) {
+            Repository repo = project.getDesignRepository();
+            return repo.supports().branches() && ((BranchRepository) repo).isBranchProtected(project.getBranch());
+        }
+        return false;
     }
 
     public boolean isReady() {

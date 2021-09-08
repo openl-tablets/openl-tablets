@@ -14,12 +14,22 @@
     </f:facet>
 
     <h:form id="selectRepositoryForm">
-      <h:selectOneMenu value="#{deploymentController.repositoryConfigName}">
-        <f:selectItems value="#{deploymentController.repositories}" var="repository" itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
-      </h:selectOneMenu>
-
+      <h:panelGroup layout="block" style="margin: 0 7px">
+        <h:selectOneMenu value="#{deploymentController.repositoryConfigName}">
+          <f:selectItems value="#{deploymentController.repositories}" var="repository" itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
+          <f:ajax event="change" render="@form" execute="@this"/>
+        </h:selectOneMenu>
+      </h:panelGroup>
+      <h:panelGroup rendered="#{deploymentController.protectedDeployRepository}">
+        <h:outputText
+                value="Selected repository is protected. It's not allowed to deploy."
+                style="margin: 25px 0"/>
+      </h:panelGroup>
       <footer>
-        <h:commandButton id="deployBtn" value="Deploy" action="#{deploymentController.deploy}" styleClass="button-primary" />
+        <h:commandButton id="deployBtn" value="Deploy"
+                         disabled="#{deploymentController.protectedDeployRepository}"
+                         action="#{deploymentController.deploy}"
+                         styleClass="button-primary" />
         <input id="cancelBtn" type="button" value="Cancel" onclick="closeSelectRepository();" />
       </footer>
     </h:form>

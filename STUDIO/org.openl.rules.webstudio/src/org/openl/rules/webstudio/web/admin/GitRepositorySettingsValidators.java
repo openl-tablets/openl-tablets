@@ -3,11 +3,15 @@ package org.openl.rules.webstudio.web.admin;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+import org.openl.rules.repository.git.WildcardBranchNameFilter;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.ObjectUtils;
 import org.openl.util.StringUtils;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Stream;
 
 public class GitRepositorySettingsValidators extends RepositorySettingsValidators {
     public void localRepositoryPath(FacesContext context, UIComponent toValidate, Object value) {
@@ -63,6 +67,15 @@ public class GitRepositorySettingsValidators extends RepositorySettingsValidator
             if ("on".equals(remoteRepository)) {
                 super.url(context, toValidate, value);
             }
+        }
+    }
+
+    public void protectedBranches(FacesContext context, UIComponent toValidate, Object value) {
+        final String[] protectedBranches = (String[]) ObjectUtils.convert((String) value, String[].class);
+        try {
+            WildcardBranchNameFilter.create(protectedBranches);
+        } catch (Exception e) {
+            WebStudioUtils.throwValidationError(e.getMessage());
         }
     }
 }

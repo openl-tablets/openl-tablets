@@ -33,7 +33,7 @@
                 <rich:column styleClass="modified-at-col">
                   <h:outputText value="Modified At" />
                 </rich:column>
-                <rich:column styleClass="action-col">
+                <rich:column  styleClass="action-col">
                   <h:outputText value="Actions" />
                 </rich:column>
               </rich:columnGroup>
@@ -75,7 +75,7 @@
                           <h:graphicImage url="/webresource/images/unlock.png" styleClass="actionImage" alt="Unlock"/>
                       </h:commandLink>
                   </h:panelGroup>
-                  <h:panelGroup rendered="#{repositoryTreeController.canDelete and (not prj.data.locked or prj.data.lockedByMe)}">
+                  <h:panelGroup rendered="#{repositoryTreeController.canDelete and not prj.data.branchProtected and (not prj.data.locked or prj.data.lockedByMe)}">
                       &#160;
                       <h:commandLink immediate="true"
                           onclick="#{rich:component('modalDeleteNode')}.show();"

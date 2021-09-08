@@ -1,8 +1,5 @@
 package org.openl.itest;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -63,6 +60,9 @@ public class DesignTimeRepositoryRestTest {
         client.send("desing-time-repo/git-non-flat/update-proj-7-neg-1.put");
         client.send("desing-time-repo/git-non-flat/update-proj-7-neg-2.put");
         client.send("desing-time-repo/git-non-flat/repos-projects-2.get");
+
+        client.send("desing-time-repo/git-protected-flat/repos-projects.get");
+        client.send("desing-time-repo/git-protected-flat/create-proj-403.put");
     }
 
 }

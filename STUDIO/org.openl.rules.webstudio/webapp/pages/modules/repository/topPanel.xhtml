@@ -28,7 +28,7 @@
 
         <div class="navbar-inner">
             <h:outputLink onclick="openNewProjectDialog();return false;" styleClass="primary"
-                title="Create a new project" rendered="#{repositoryTreeState.canCreate}">
+                title="Create a new project" rendered="#{repositoryTreeState.canCreate and (repositoryTreeController.canCreateNewProject or not empty repositoryTreeController.nonFlatRepositories)}">
                 <h:outputText value="Create Project" />
             </h:outputLink>
 

@@ -31,6 +31,17 @@
     <div id="#{prependId}branchShowInfo" class="hidden">
         The main branch to commit changes. Usually, 'master' branch. 
     </div>
+    <div id="#{prependId}ProtectedBranchesShowInfo" class="hidden">
+        The list of protected branches must be comma separated.<br/>
+        <ul>
+            <li><b>?</b> - maches any single characters</li>
+            <li><b>*</b> - matches simple branch names like <b>master</b>. If a branch name has a path separator, it will be skipped</li>
+            <li><b>**</b> - matches all branches</li>
+            <li><b>*.*</b> - matches simple branches containing a dot</li>
+            <li><b>*.{10,11}</b> - matches branch ending with <b>.10</b> or <b>.11</b></li>
+        </ul><br/>
+        <b>Example: </b>release-*
+    </div>
     <div id="#{prependId}newBranchTemplateShowInfo" class="hidden">
         This is a pattern for new branches in Git repository.<br/><br/>
         <ul>
@@ -102,6 +113,17 @@
         <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;"
                 class="imageButton" onclick="showShowInfo('#{prependId}branchShowInfo');return false;" title="Details"
                 rendered="#{settings.remoteRepository}"/>
+
+        <h:outputText value="Protected branches:"/>
+        <h:inputText value="#{settings.protectedBranches}" title="The list of protected branches."
+                     id="#{prependId}gitProtectedBranches"
+                     validator="#{validators.protectedBranches}"/>
+        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;"
+                class="imageButton" onclick="showShowInfo('#{prependId}ProtectedBranchesShowInfo');return false;" title="Details"/>
+
+        <h:outputText value=""/>
+        <h:message for="#{prependId}gitProtectedBranches" styleClass="error"/>
+        <h:outputText value=""/>
 
         <h:outputText value="" rendered="#{settings.remoteRepository}"/>
         <h:message for="#{prependId}gitBranch" styleClass="error" rendered="#{settings.remoteRepository}"/>
