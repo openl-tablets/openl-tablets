@@ -1460,6 +1460,17 @@
                 <artifactId>jackson-datatype-jsr310</artifactId>
                 <version>${com.fasterxml.jackson.version}</version>
             </dependency>
+            <!-- Overrides old vulnerable releases from Elasticsearch and Amazon S3 SDK libs  -->
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-cbor</artifactId>
+                <version>${com.fasterxml.jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-smile</artifactId>
+                <version>${com.fasterxml.jackson.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
