@@ -24,6 +24,8 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     private final Map<String, IOpenField> strictMatchCache = new HashMap<>();
     private final Map<String, IOpenField> noStrictMatchCache = new HashMap<>();
     private volatile CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
+    private final Map<String, IOpenField> strictBlankCache = new HashMap<>();
+    private final Map<String, IOpenField> noStrictBlankCache = new HashMap<>();
 
     public SpreadsheetResultOpenClass(Class<?> type) {
         super(type);
@@ -50,12 +52,19 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             return null;
         }
         if (openField == RESOLVING_IN_PROGRESS) {
-            openField = new SpreadsheetResultField(this, fieldName, JavaOpenClass.OBJECT);
-            if (strictMatch) {
-                strictMatchCache.put(fieldName, openField);
-            } else {
-                noStrictMatchCache.put(fieldName.toLowerCase(), openField);
+            IOpenField f = strictMatch ? strictBlankCache.get(fieldName)
+                                       : noStrictBlankCache.get(fieldName.toLowerCase());
+            if (f == null) {
+                f = new SpreadsheetResultField(this,
+                    strictMatch ? fieldName : fieldName.toLowerCase(),
+                    JavaOpenClass.OBJECT);
+                if (strictMatch) {
+                    strictBlankCache.put(fieldName, f);
+                } else {
+                    noStrictBlankCache.put(fieldName.toLowerCase(), f);
+                }
             }
+            return f;
         } else {
             if (strictMatch) {
                 strictMatchCache.put(fieldName, RESOLVING_IN_PROGRESS);
@@ -116,19 +125,18 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                     }
                 }
             }
-            if (strictMatch) {
-                if (strictMatchCache.putIfAbsent(fieldName, openField) == RESOLVING_IN_PROGRESS) {
+            IOpenField f = strictMatch ? strictMatchCache.get(fieldName)
+                                       : noStrictMatchCache.get(fieldName.toLowerCase());
+            if (f == null || f == RESOLVING_IN_PROGRESS) {
+                if (strictMatch) {
                     strictMatchCache.put(fieldName, openField);
-                }
-                return strictMatchCache.get(fieldName);
-            } else {
-                if (noStrictMatchCache.putIfAbsent(fieldName.toLowerCase(), openField) == RESOLVING_IN_PROGRESS) {
+                } else {
                     noStrictMatchCache.put(fieldName.toLowerCase(), openField);
                 }
-                return noStrictMatchCache.get(fieldName.toLowerCase());
+                return openField;
             }
+            return f;
         }
-        return openField;
     }
 
     public CustomSpreadsheetResultOpenClass toCustomSpreadsheetResultOpenClass() {
@@ -138,14 +146,20 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                     // HERE
                     String anySpreadsheetResultName = "AnySpreadsheetResult";
                     int i = 0;
-                    boolean nameExists = this.module.getTypes().stream().anyMatch(t -> t.getName().equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + "AnySpreadsheetResult"));
+                    boolean nameExists = this.module.getTypes()
+                        .stream()
+                        .anyMatch(t -> t.getName()
+                            .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + "AnySpreadsheetResult"));
                     while (nameExists) {
                         anySpreadsheetResultName = "AnySpreadsheetResult" + i++;
                         String anySpreadsheetResultName0 = anySpreadsheetResultName;
-                        nameExists = this.module.getTypes().stream().anyMatch(t -> t.getName().equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + anySpreadsheetResultName0));
+                        nameExists = this.module.getTypes()
+                            .stream()
+                            .anyMatch(t -> t.getName()
+                                .equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + anySpreadsheetResultName0));
                     }
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-                            anySpreadsheetResultName,
+                        anySpreadsheetResultName,
                         this.module,
                         null);
                     for (IOpenClass openClass : module.getTypes()) {
