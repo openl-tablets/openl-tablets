@@ -150,7 +150,7 @@
         
         function addCopyListener() {
             var copyListener = function () {
-                let shouldSeparateProject = false;
+                let shouldSeparateProject = true;
                 let branchName = '';
                 let projectName = '';
                 let $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
@@ -160,6 +160,9 @@
                 let $branchName = $j('#copyProjectForm\\:newBranchName');
                 if ($branchName.length) {
                     branchName = $j('#copyProjectForm\\:newBranchName').val().trim();
+                    if (!$separateProjectCheckbox.length) {
+                        shouldSeparateProject = false;
+                    }
                 }
                 let $projectName = $j('#copyProjectForm\\:newProjectName');
                 if ($projectName.length) {
