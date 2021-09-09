@@ -179,7 +179,7 @@ public class SpreadsheetStructureBuilder {
                 List<SpreadsheetCell> cellInChain = map.computeIfAbsent(this, (k) -> new ArrayList<>());
                 if (cellInChain.contains(cell)) {
                     cell.setTypeUnknown(true);
-                    throw new SpreadsheetCellsLoopException("Spreadsheet Expression Loop: " + cellInChain.toString());
+                    throw new SpreadsheetCellsLoopException("Spreadsheet Expression Loop: " + cellInChain);
                 }
                 try {
                     cellInChain.add(cell);
