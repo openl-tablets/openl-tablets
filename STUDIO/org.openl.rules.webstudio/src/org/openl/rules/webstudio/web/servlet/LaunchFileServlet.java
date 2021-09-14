@@ -18,12 +18,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.ExcelLauncher;
+import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
@@ -86,47 +86,20 @@ public class LaunchFileServlet extends HttpServlet {
         }
 
         String uri = "file://" + ws.getWorkspacePath() + "/" + table.getUri();
+        uri = uri.replaceAll("\\+", "%2B"); // Support '+' sign in file names;
 
-        String file;
-        String decodedUriParameter;
-        try {
-            log.debug("uri: {}", uri);
-            decodedUriParameter = StringTool.decodeURL(uri);
-            URL url = new URL(decodedUriParameter);
-            file = url.getFile();
-
-            int indexQuestionMark = file.indexOf('?');
-            file = indexQuestionMark < 0 ? file : file.substring(0, indexQuestionMark);
-        } catch (MalformedURLException e) {
-            log.error(e.getMessage(), e);
-            return;
-        }
-
-        if (!FileTypeHelper.isExcelFile(file)) { // Excel
-            log.error("Unsupported file format [{}]", file);
-            return;
-        }
-
-        decodedUriParameter = decodedUriParameter.replaceAll("\\+", "%2B"); // Support '+' sign in file names;
-
-        String wbPath;
-        String wbName;
-        String wsName;
-        String range;
-
+        final XlsUrlParser parser;
         // Parse url
         try {
-            log.debug("decodedUriParameter: {}", decodedUriParameter);
-
-            XlsUrlParser parser = new XlsUrlParser(decodedUriParameter);
-            wbPath = parser.getWbPath();
-            wbName = parser.getWbName();
-            wsName = parser.getWsName();
-            range = parser.getRange();
-
-            log.debug("wbPath: {}, wbName: {}, wsName: {}, range: {}", wbPath, wbName, wsName, range);
+            log.debug("uri: {}", uri);
+            parser = new XlsUrlParser(uri);
         } catch (Exception e) {
             log.error("Cannot parse file uri", e);
+            return;
+        }
+
+        if (!FileTypeHelper.isExcelFile(parser.getWbName())) { // Excel
+            log.error("Unsupported file format [{}]", parser.getWbName());
             return;
         }
 
@@ -136,7 +109,11 @@ public class LaunchFileServlet extends HttpServlet {
         if (isLoopbackAddress(remote)) { // local mode
             try {
                 String excelScriptPath = getServletContext().getRealPath("/scripts/LaunchExcel.vbs");
-                ExcelLauncher.launch(excelScriptPath, wbPath, wbName, wsName, range);
+                ExcelLauncher.launch(excelScriptPath,
+                    parser.getWbPath(),
+                    parser.getWbName(),
+                    parser.getWsName(),
+                    parser.getRange());
 
                 return;
             } catch (Exception e) {
@@ -144,8 +121,7 @@ public class LaunchFileServlet extends HttpServlet {
             }
         }
 
-        File file1 = new File(wbPath, wbName);
-
+        File file1 = new File(parser.getWbPath(), parser.getWbName());
         if (file1.isFile()) {
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", WebTool.getContentDispositionValue(file1.getName()));
