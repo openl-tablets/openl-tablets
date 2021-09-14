@@ -135,6 +135,13 @@
             //<![CDATA[
             $j(function () {
                 initSettingsPage();
+
+                $j("#systemSettingsForm").on("keydown", ":input:not(textarea):not(:submit)", function(event) {
+                    if(event.keyCode === 13) {
+                        event.preventDefault();
+                        return false;
+                    }
+                });
             });
 
             function switchToRepositoryTab() {
