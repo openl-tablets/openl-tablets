@@ -667,25 +667,19 @@ public class ProjectBean {
                         continue;
                     }
                     if (module.getWildcardRulesRootPath().equals(removed.getRulesRootPath().getPath())) {
-                        File file = module.getRulesPath().toFile();
-                        if (!file.delete() && file.exists()) {
-                            throw new Message("Cannot delete the file " + file.getName());
-                        }
+                        tryToDeleteFile(module.getRulesPath());
                     }
                 }
             } else {
-                File file;
+                Path file;
                 if (removed.getProject() != null) {
-                    file = removed.getRulesPath().toFile();
+                    file = removed.getRulesPath();
                 } else {
                     file = currentProjectDescriptor.getProjectFolder()
                         .resolve(removed.getRulesRootPath().getPath())
-                        .toAbsolutePath()
-                        .toFile();
+                        .toAbsolutePath();
                 }
-                if (!file.delete() && file.exists()) {
-                    throw new Message("Cannot delete the file " + file.getName());
-                }
+                tryToDeleteFile(file);
             }
             File rulesXmlFile = new File(projectFolder,
                 ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
@@ -712,6 +706,14 @@ public class ProjectBean {
             save(newProjectDescriptor);
         }
         studio.resetProjects();
+    }
+
+    private static void tryToDeleteFile(Path file) {
+        try {
+            Files.deleteIfExists(file);
+        } catch (IOException e) {
+            throw new Message("Cannot delete the file " + file.getFileName(), e);
+        }
     }
 
     public void removeDependency(String name) {
