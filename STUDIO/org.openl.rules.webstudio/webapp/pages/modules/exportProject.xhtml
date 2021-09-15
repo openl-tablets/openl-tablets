@@ -11,7 +11,7 @@
         </f:facet>
 
         <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('exportProject').hide();" alt="Close" />
+            <h:graphicImage value="/images/close.gif" class="close" onclick="closeExportProjectDialog()" alt="Close" />
         </f:facet>
 
         <h:form id="exportProjectForm">
@@ -30,12 +30,13 @@
 
             <footer>
                 <h:commandButton value="Export" action="#{exportBean.exportProject}" immediate="true" styleClass="button-primary own-loader-handler" />
-                <input type="button" value="Cancel" onclick="RichFaces.$('exportProject').hide();" />
+                <input type="button" value="Cancel" onclick="closeExportProjectDialog()" />
             </footer>
             <a4j:jsFunction name="renderExportProjectForm" render="exportProjectData" oncomplete="showExportProjectDialog()">
                 <a4j:param name="repositoryId" assignTo="#{exportBean.repositoryId}"/>
                 <a4j:param name="projectName" assignTo="#{exportBean.initProject}"/>
             </a4j:jsFunction><script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
+            <a4j:jsFunction name="resetExportForm" action="#{exportBean.reset}"/>
         </h:form>
 
     </rich:popupPanel>
@@ -52,6 +53,11 @@
             focusElement('exportProjectForm:projectVersionToExport');
         }
 
+        function closeExportProjectDialog() {
+            RichFaces.$('exportProject').hide();
+            resetExportForm();
+        }
+
         $j(function () {
             var options = {
                 timeout: 1200,
@@ -62,14 +68,14 @@
                 onResponse: function(status){
                     ws.ui.hideLoader();
                     if (status === "success") {
-                        RichFaces.$('exportProject').hide();
+                        closeExportProjectDialog();
                     } else {
                         ws.ui.info(status);
                     }
                 },
                 onTimeout: function(){
                     ws.ui.hideLoader();
-                    RichFaces.$('exportProject').hide();
+                    closeExportProjectDialog();
                     ws.ui.info('File generation is too long');
                 }
             };

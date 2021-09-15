@@ -251,4 +251,9 @@ public class ExportBean {
     public String getFileName() {
         return FileUtils.getName(getArtifactName());
     }
+
+    public void reset() {
+        repositoryId = null;
+        currentProjectName = null;
+    }
 }
