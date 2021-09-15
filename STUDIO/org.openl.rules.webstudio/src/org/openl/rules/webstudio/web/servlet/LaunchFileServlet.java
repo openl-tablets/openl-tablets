@@ -3,16 +3,13 @@ package org.openl.rules.webstudio.web.servlet;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +24,6 @@ import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
-import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,14 +55,12 @@ public class LaunchFileServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-                                                                                   IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         doPost(request, response);
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-                                                                                    IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (!isGranted(EDIT_TABLES)) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
@@ -121,14 +115,13 @@ public class LaunchFileServlet extends HttpServlet {
             }
         }
 
-        File file1 = new File(parser.getWbPath(), parser.getWbName());
-        if (file1.isFile()) {
+        Path pathToFile = Paths.get(parser.getWbPath(), parser.getWbName());
+        if (Files.isRegularFile(pathToFile)) {
             response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", WebTool.getContentDispositionValue(file1.getName()));
+            response.setHeader("Content-Disposition",
+                WebTool.getContentDispositionValue(pathToFile.getFileName().toString()));
 
-            OutputStream outputStream = response.getOutputStream();
-            FileInputStream fis = new FileInputStream(file1);
-            IOUtils.copyAndClose(fis, outputStream);
+            IOUtils.copyAndClose(Files.newInputStream(pathToFile), response.getOutputStream());
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
