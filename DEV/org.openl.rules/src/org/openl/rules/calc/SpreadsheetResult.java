@@ -13,7 +13,7 @@ import java.util.Objects;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.openl.binding.impl.AllowStrictFieldMatchType;
+import org.openl.binding.impl.AllowOnlyStrictFieldMatchType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 @XmlRootElement
 @CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class, variableInContextFinder = SpreadsheetResultRootDictionaryContext.class)
-@AllowStrictFieldMatchType
+@AllowOnlyStrictFieldMatchType
 public class SpreadsheetResult implements Serializable {
 
     private static final int MAX_WIDTH = 4;

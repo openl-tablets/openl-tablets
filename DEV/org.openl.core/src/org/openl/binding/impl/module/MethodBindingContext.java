@@ -77,7 +77,7 @@ public class MethodBindingContext extends BindingContextDelegator {
 
     @Override
     public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
-        IOpenField var = localFrame.findLocalVar(namespace, name);
+        IOpenField var = localFrame.findLocalVar(namespace, name, strictMatch);
         if (var != null) {
             return var;
         }
@@ -87,7 +87,7 @@ public class MethodBindingContext extends BindingContextDelegator {
         }
         if (searchInParameterContext) {
             VariableInContextFinder cxt = getRootContext(parameterContextDepthLevel);
-            return cxt.findVariable(name);
+            return cxt.findVariable(name, strictMatch);
         }
         return null;
     }
