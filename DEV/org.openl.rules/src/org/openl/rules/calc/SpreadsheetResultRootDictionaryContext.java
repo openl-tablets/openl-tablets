@@ -12,15 +12,15 @@ public class SpreadsheetResultRootDictionaryContext extends RootDictionaryContex
     }
 
     @Override
-    public IOpenField findField(String name) {
-        String lowerCaseName = name.toLowerCase();
-        List<IOpenField> ff = fields.get(lowerCaseName);
+    public IOpenField findField(String fieldName, boolean strictMatch) {
+        String name = strictMatch ? fieldName : fieldName.toLowerCase();
+        List<IOpenField> ff = strictMatch ? fields.get(name) : lowerCaseFields.get(name);
 
         if (ff == null) {
-            IOpenField field = getRootField().getType().getField(name);
+            IOpenField field = getRootField().getType().getField(fieldName, strictMatch);
             if (field != null) {
                 initializeField(getRootField(), field, 1);
-                ff = fields.get(lowerCaseName);
+                ff = strictMatch ? fields.get(name) : lowerCaseFields.get(name);
             }
         }
 
@@ -28,7 +28,7 @@ public class SpreadsheetResultRootDictionaryContext extends RootDictionaryContex
             return null;
         }
         if (ff.size() > 1) {
-            throw new AmbiguousFieldException(lowerCaseName, ff);
+            throw new AmbiguousFieldException(fieldName, ff);
         }
 
         return ff.get(0);

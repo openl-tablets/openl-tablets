@@ -4,5 +4,5 @@ import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.types.IOpenField;
 
 public interface VariableInContextFinder {
-    IOpenField findVariable(String name) throws AmbiguousFieldException;
+    IOpenField findVariable(String fieldName, boolean strictMatch) throws AmbiguousFieldException;
 }

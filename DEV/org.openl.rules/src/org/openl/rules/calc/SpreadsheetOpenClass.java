@@ -9,4 +9,8 @@ public class SpreadsheetOpenClass extends ComponentOpenClass {
         super(name, openl);
     }
 
+    @Override
+    public Class<?> getInstanceClass() {
+        return SpreadsheetResult.class;
+    }
 }

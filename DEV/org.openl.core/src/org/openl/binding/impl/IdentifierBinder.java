@@ -22,10 +22,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class IdentifierBinder extends ANodeBinder {
 
-    @Override
-    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-
-        boolean strictMatch = isStrictMatch(node);
+    protected IBoundNode bindAsOpenField(ISyntaxNode node, boolean strictMatch, IBindingContext bindingContext) {
         String fieldName = node.getText();
 
         // According to "6.4.2. Obscuring" of Java Language Specification:
@@ -44,14 +41,35 @@ public class IdentifierBinder extends ANodeBinder {
         if (field != null) {
             return new FieldBoundNode(node, field);
         }
+        return null;
+    }
 
-        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName);
-        if (type == null) {
-            throw new OpenlNotCheckedException(String.format("Identifier '%s' is not found.", fieldName));
+    protected IBoundNode bindAsType(ISyntaxNode node, IBindingContext bindingContext) {
+        String typeName = node.getText();
+        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+        if (type != null) {
+            BindHelper.checkOnDeprecation(node, bindingContext, type);
+            return new TypeBoundNode(node, type.toStaticClass());
+        }
+        return null;
+    }
+
+    @Override
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+        IBoundNode fieldBoundNode = bindAsOpenField(node, true, bindingContext);
+        if (fieldBoundNode != null) {
+            return fieldBoundNode;
         }
 
-        BindHelper.checkOnDeprecation(node, bindingContext, type);
-        return new TypeBoundNode(node, type.toStaticClass());
+        IBoundNode typeBoundNode = bindAsType(node, bindingContext);
+        if (typeBoundNode != null) {
+            return typeBoundNode;
+        }
+        fieldBoundNode = bindAsOpenField(node, false, bindingContext);
+        if (fieldBoundNode != null) {
+            return fieldBoundNode;
+        }
+        throw new OpenlNotCheckedException(String.format("Identifier '%s' is not found.", node.getText()));
     }
 
     @Override
@@ -70,7 +88,7 @@ public class IdentifierBinder extends ANodeBinder {
         } else {
             if (!isAllowStrictFieldMatch(type)) {
                 // disable strict match for all types to save backward compatibility with old client projects, except
-                // new types annotated with @AllowStrictFieldMatchType
+                // new types annotated with @AllowOnlyStrictFieldMatchType
                 strictMatch = false;
             }
             field = type.getField(fieldName, strictMatch);
@@ -122,7 +140,7 @@ public class IdentifierBinder extends ANodeBinder {
 
     private static boolean isAllowStrictFieldMatch(IOpenClass type) {
         return type != null && type.getInstanceClass() != null && type.getInstanceClass()
-            .isAnnotationPresent(AllowStrictFieldMatchType.class);
+            .isAnnotationPresent(AllowOnlyStrictFieldMatchType.class);
     }
 
     private boolean isStrictMatch(ISyntaxNode node) {

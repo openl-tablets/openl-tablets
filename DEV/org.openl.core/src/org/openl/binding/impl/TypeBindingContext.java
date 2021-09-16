@@ -83,7 +83,7 @@ public class TypeBindingContext extends BindingContextDelegator {
     public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField res = null;
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {
-            res = context.findVariable(name);
+            res = context.findVariable(name, strictMatch);
         }
 
         return res != null ? res : super.findVar(namespace, name, strictMatch);

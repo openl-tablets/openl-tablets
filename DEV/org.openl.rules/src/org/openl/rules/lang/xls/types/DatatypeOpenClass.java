@@ -134,7 +134,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         return Collections.unmodifiableCollection(this.fields.values());
     }
 
-    private void ensureFieldsInitialized(){
+    private void ensureFieldsInitialized() {
         if (this.fields == null || this.staticFields == null) {
             synchronized (this) {
                 if (this.fields == null || this.staticFields == null) {
@@ -154,7 +154,7 @@ public class DatatypeOpenClass extends ADynamicClass {
             }
         }
         fieldMap().forEach(fields::putIfAbsent);
-        staticFields.put("class", new JavaOpenClass.JavaClassClassField(instanceClass));
+        staticFields.put("class", new JavaOpenClass.JavaClassClassField(instanceClass, this));
         this.fields = fields;
         this.staticFields = staticFields;
         Optional.ofNullable(superClass)

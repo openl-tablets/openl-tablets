@@ -69,8 +69,8 @@ public class SpreadsheetStructureBuilder {
     }
 
     private final Map<Integer, IBindingContext> rowContexts = new HashMap<>();
-    private final Map<Integer, ComponentOpenClass> colComponentOpenClasses = new HashMap<>();
-    private final Map<Integer, Map<Integer, IBindingContext>> spreadsheetResultContexts = new HashMap<>();
+    private final Map<Integer, SpreadsheetOpenClass> colComponentOpenClasses = new HashMap<>();
+    private final Map<Integer, Map<Integer, SpreadsheetContext>> spreadsheetResultContexts = new HashMap<>();
 
     private SpreadsheetCell[][] cells;
 
@@ -477,26 +477,26 @@ public class SpreadsheetStructureBuilder {
         return rowContext;
     }
 
-    private IBindingContext getColumnContext(int columnIndex, int rowIndex, IBindingContext rowBindingContext) {
-        Map<Integer, IBindingContext> contexts = spreadsheetResultContexts.computeIfAbsent(columnIndex,
+    private SpreadsheetContext getColumnContext(int columnIndex, int rowIndex, IBindingContext rowBindingContext) {
+        Map<Integer, SpreadsheetContext> contexts = spreadsheetResultContexts.computeIfAbsent(columnIndex,
             e -> new HashMap<>());
         return contexts.computeIfAbsent(rowIndex, e -> makeSpreadsheetResultContext(columnIndex, rowBindingContext));
     }
 
-    private IBindingContext makeSpreadsheetResultContext(int columnIndex, IBindingContext rowBindingContext) {
-        ComponentOpenClass columnOpenClass = colComponentOpenClasses.computeIfAbsent(columnIndex,
+    private SpreadsheetContext makeSpreadsheetResultContext(int columnIndex, IBindingContext rowBindingContext) {
+        SpreadsheetOpenClass columnOpenClass = colComponentOpenClasses.computeIfAbsent(columnIndex,
             e -> makeColumnComponentOpenClass(columnIndex));
         return new SpreadsheetContext(rowBindingContext, columnOpenClass);
     }
 
-    private ComponentOpenClass makeColumnComponentOpenClass(int columnIndex) {
+    private SpreadsheetOpenClass makeColumnComponentOpenClass(int columnIndex) {
         // create name for the column open class
         String columnOpenClassName = String.format("%sColType%d", spreadsheetHeader.getName(), columnIndex);
 
         IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
         Map<Integer, SpreadsheetHeaderDefinition> headers = componentsBuilder.getRowHeaders();
 
-        ComponentOpenClass columnOpenClass = new ComponentOpenClass(columnOpenClassName,
+        SpreadsheetOpenClass columnOpenClass = new SpreadsheetOpenClass(columnOpenClassName,
             generalBindingContext.getOpenL());
 
         int height = cells.length;
@@ -520,7 +520,8 @@ public class SpreadsheetStructureBuilder {
         Map<Integer, SpreadsheetHeaderDefinition> headers = componentsBuilder.getColumnHeaders();
 
         // create row open class for current row
-        ComponentOpenClass rowOpenClass = new ComponentOpenClass(rowOpenClassName, generalBindingContext.getOpenL());
+        SpreadsheetOpenClass rowOpenClass = new SpreadsheetOpenClass(rowOpenClassName,
+            generalBindingContext.getOpenL());
 
         // get the width of the whole spreadsheet
         int width = cells[0].length;

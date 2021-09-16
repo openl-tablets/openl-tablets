@@ -34,7 +34,6 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
-import org.openl.util.OpenClassUtils;
 
 // TODO: refactor
 // Extract all the binding and build code to the SpreadsheetBinder
