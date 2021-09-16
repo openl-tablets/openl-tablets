@@ -72,6 +72,15 @@ public class ProjectDescriptor {
         this.projectFolder = projectRoot;
     }
 
+    public String getRelativeUri() {
+        Path parent = projectFolder.getParent();
+        if (parent == null) {
+            return projectFolder.toUri().toString();
+        } else {
+            return parent.toUri().relativize(projectFolder.toUri()).toString();
+        }
+    }
+
     /**
      * @deprecated Id is not used anymore. Use {@link #getName()} instead.
      */
@@ -276,8 +285,10 @@ public class ProjectDescriptor {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         ProjectDescriptor that = (ProjectDescriptor) o;
         return name.equals(that.name);
     }
