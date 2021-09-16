@@ -54,7 +54,7 @@ public final class OpenLManager {
             IOpenMethodHeader methodHeader,
             IBindingContext bindingContext) {
 
-        CompositeMethod compositeMethod = new CompositeMethod(methodHeader, null);
+        CompositeMethod compositeMethod = new CompositeMethod(methodHeader, null, null);
 
         compileMethod(openl, source, compositeMethod, bindingContext);
 
@@ -126,7 +126,7 @@ public final class OpenLManager {
             IBindingContext bindingContext) {
 
         OpenMethodHeader header = new OpenMethodHeader(methodName, NullOpenClass.the, signature, declaringClass);
-        CompositeMethod compositeMethod = new CompositeMethod(header, null);
+        CompositeMethod compositeMethod = new CompositeMethod(header, null, null);
 
         MethodBindingContext methodBindingContext = new MethodBindingContext(header, bindingContext);
         IParsedCode parsedCode = openl.getParser().parseAsMethodBody(source);
@@ -136,10 +136,9 @@ public final class OpenLManager {
         if (retType == NullOpenClass.the && topNode != null) {
             retType = topNode.getType();
         }
-
         header.setTypeClass(retType);
-
         if (topNode instanceof IBoundMethodNode) {
+            compositeMethod.setBodyType(topNode.getType());
             IBoundMethodNode boundMethodNode = bindMethod((IBoundMethodNode) topNode, header, bindingContext);
             compositeMethod.setMethodBodyBoundNode(boundMethodNode);
         }
@@ -166,6 +165,7 @@ public final class OpenLManager {
         IBoundNode topNode = getBoundNode(openl, methodBindingContext, parsedCode, true);
 
         if (topNode instanceof IBoundMethodNode) {
+            compositeMethod.setBodyType(topNode.getType());
             IBoundMethodNode boundMethodNode = bindMethod((IBoundMethodNode) topNode, header, bindingContext);
             compositeMethod.setMethodBodyBoundNode(boundMethodNode);
         }
@@ -239,7 +239,7 @@ public final class OpenLManager {
         return boundMethodNode;
     }
 
-    private static IBoundNode getBoundNode(OpenL openl,
+    public static IBoundNode getBoundNode(OpenL openl,
             IBindingContext bindingContext,
             IParsedCode parsedCode,
             boolean allowParsingErrors) {

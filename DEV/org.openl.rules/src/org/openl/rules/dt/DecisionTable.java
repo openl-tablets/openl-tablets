@@ -1,5 +1,6 @@
 package org.openl.rules.dt;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -7,9 +8,10 @@ import java.util.stream.Stream;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.dt.algorithm.DecisionTableAlgorithmBuilder;
 import org.openl.rules.dt.algorithm.IAlgorithmBuilder;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
@@ -22,6 +24,7 @@ import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
@@ -53,13 +56,57 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     private DTInfo dtInfo;
 
+    private ModuleOpenClass module;
+
+    /**
+     * Custom return type of the spreadsheet method. Is a public type of the spreadsheet
+     */
+    private CustomSpreadsheetResultOpenClass customSpreadsheetResultType;
+
+    private int dim = 0;
+
+    private boolean typeCustomSpreadsheetResult;
+
     public DecisionTable() {
         super(null, null);
     }
 
-    public DecisionTable(IOpenMethodHeader header, AMethodBasedNode boundNode) {
+    public DecisionTable(IOpenMethodHeader header, AMethodBasedNode boundNode, boolean typeCustomSpreadsheetResult) {
         super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());
+        this.typeCustomSpreadsheetResult = typeCustomSpreadsheetResult;
+    }
+
+    public boolean isTypeCustomSpreadsheetResult() {
+        return typeCustomSpreadsheetResult;
+    }
+
+    public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
+        return customSpreadsheetResultType;
+    }
+
+    public void setCustomSpreadsheetResultType(CustomSpreadsheetResultOpenClass customSpreadsheetResultType) {
+        this.customSpreadsheetResultType = customSpreadsheetResultType;
+    }
+
+    public void setDim(int dim) {
+        this.dim = dim;
+    }
+
+    @Override
+    public IOpenClass getType() {
+        if (isTypeCustomSpreadsheetResult()) {
+            if (dim > 0) {
+                return customSpreadsheetResultType.getArrayType(dim);
+            }
+            return customSpreadsheetResultType;
+        } else {
+            return super.getType();
+        }
+    }
+
+    public ModuleOpenClass getModule() {
+        return module;
     }
 
     @Override
@@ -153,7 +200,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
             IBaseAction[] actionRows,
             RuleRow ruleRow,
             OpenL openl,
-            ComponentOpenClass componentOpenClass,
+            ModuleOpenClass module,
             IBindingContext bindingContext,
             int columns) throws Exception {
 
@@ -161,6 +208,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         this.actionRows = actionRows;
         this.ruleRow = ruleRow;
         this.columns = columns;
+        this.module = Objects.requireNonNull(module, "module cannot be null");
 
         prepare(getHeader(), openl, bindingContext);
     }

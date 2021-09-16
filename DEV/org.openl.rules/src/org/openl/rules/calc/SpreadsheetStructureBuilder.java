@@ -238,14 +238,6 @@ public class SpreadsheetStructureBuilder {
 
             IOpenSourceCodeModule srcCode = new SubTextSourceCodeModule(source, 1, end);
             IMethodSignature signature = spreadsheetHeader.getSignature();
-            // Compile signature parameter types
-            for (IOpenClass paramType : signature.getParameterTypes()) {
-                IOpenClass pType = paramType;
-                while (pType.isArray()) {
-                    pType = pType.getComponentClass();
-                }
-                rowBindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, pType.getName());
-            }
             IOpenClass declaringClass = spreadsheetHeader.getDeclaringClass();
             IOpenMethodHeader header = new OpenMethodHeader(name, type, signature, declaringClass);
             IBindingContext columnBindingContext = getColumnContext(columnIndex, rowIndex, rowBindingContext);

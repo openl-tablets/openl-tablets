@@ -1,6 +1,12 @@
 package org.openl.rules.lang.xls.binding;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -18,15 +24,20 @@ public class DTColumnsDefinition {
     private final DTColumnsDefinitionType type;
     private final String uri;
     private Set<String> externalParameters;
+    private Runnable compositeMethodInitializer;
+    private final List<ExpressionIdentifier> identifiers;
 
     public DTColumnsDefinition(DTColumnsDefinitionType type,
             String tableName,
             IOpenMethodHeader header,
             String expression,
+            List<ExpressionIdentifier> identifiers,
             Map<String, List<IParameterDeclaration>> parameters,
             TableSyntaxNode tableSyntaxNode) {
         this.tableName = tableName;
         this.header = Objects.requireNonNull(header, "header cannot be null");
+        this.identifiers = Collections
+            .unmodifiableList(Objects.requireNonNull(identifiers, "identifiers cannot be null"));
         this.expression = Objects.requireNonNull(expression, "expression cannot be null");
         this.parameters = Objects.requireNonNull(parameters, "parameters cannot be null");
         this.type = Objects.requireNonNull(type, "type cannot be null");
@@ -46,6 +57,9 @@ public class DTColumnsDefinition {
     }
 
     public CompositeMethod getCompositeMethod() {
+        if (compositeMethod == null) {
+            compositeMethodInitializer.run();
+        }
         return compositeMethod;
     }
 
@@ -106,5 +120,13 @@ public class DTColumnsDefinition {
 
     public boolean isReturn() {
         return DTColumnsDefinitionType.RETURN == type;
+    }
+
+    public void setCompositeMethodInitializer(Runnable compositeMethodInitializer) {
+        this.compositeMethodInitializer = compositeMethodInitializer;
+    }
+
+    public List<ExpressionIdentifier> getIdentifiers() {
+        return identifiers;
     }
 }

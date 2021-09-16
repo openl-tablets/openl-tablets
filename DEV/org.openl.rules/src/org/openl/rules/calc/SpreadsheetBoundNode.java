@@ -11,11 +11,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.meta.TableMetaInfo;
+import org.openl.rules.binding.RulesModuleBindingContextHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
@@ -37,14 +37,14 @@ import org.openl.util.ClassUtils;
 
 // TODO: refactor
 // Extract all the binding and build code to the SpreadsheetBinder
-public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
+public class SpreadsheetBoundNode extends AMethodBasedNode {
 
     private SpreadsheetStructureBuilder structureBuilder;
     private SpreadsheetComponentsBuilder componentsBuilder;
     private SpreadsheetOpenClass spreadsheetOpenClass;
     private SpreadsheetCell[][] cells;
 
-    IBindingContext bindingContext;
+    private IBindingContext bindingContext;
 
     public SpreadsheetBoundNode(TableSyntaxNode tableSyntaxNode,
             OpenL openl,
@@ -60,7 +60,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
     }
 
     private CustomSpreadsheetResultOpenClass buildCustomSpreadsheetResultType(Spreadsheet spreadsheet) {
-        if (!spreadsheet.isCustomSpreadsheet()) {
+        if (!spreadsheet.isTypeCustomSpreadsheetResult()) {
             throw new IllegalArgumentException("Only custom spreadsheets are supported.");
         }
         Collection<IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType()
@@ -105,11 +105,11 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
              * We need to generate a customSpreadsheet class only if return type of the spreadsheet is SpreadsheetResult
              * and the customspreadsheet property is true
              */
-            boolean isCustomSpreadsheet = SpreadsheetResult.class == getType()
+            boolean isTypeCustomSpreadsheetResult = SpreadsheetResult.class == getType()
                 .getInstanceClass() && !(getType() instanceof CustomSpreadsheetResultOpenClass) && OpenLSystemProperties
                     .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams());
 
-            spreadsheet = new Spreadsheet(getHeader(), this, isCustomSpreadsheet);
+            spreadsheet = new Spreadsheet(getHeader(), this, isTypeCustomSpreadsheetResult);
         }
         spreadsheet.setSpreadsheetType(spreadsheetOpenClass);
         // As custom spreadsheet result is being generated at runtime,
@@ -129,7 +129,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.getTableStructureDetails(
             Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getTableStructureDetails()));
 
-        if (spreadsheet.isCustomSpreadsheet()) {
+        if (spreadsheet.isTypeCustomSpreadsheetResult()) {
             CustomSpreadsheetResultOpenClass type;
             try {
                 type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException
@@ -218,11 +218,11 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         if (!bindingContext.isExecutionMode()) {
             getTableSyntaxNode().setMetaInfoReader(new SpreadsheetMetaInfoReader(this));
         }
-
+        this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
         TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
         validateTableBody(tableSyntaxNode, bindingContext);
         IOpenMethodHeader header = getHeader();
-        this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
+        RulesModuleBindingContextHelper.compileAllTypesInSignature(header.getSignature(), bindingContext);
         componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
         componentsBuilder.buildHeaders(header.getType());
         structureBuilder = new SpreadsheetStructureBuilder(componentsBuilder, header, getModule());

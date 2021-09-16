@@ -242,7 +242,7 @@ public class DecisionTableLoader {
                     return;
                 } else {
                     if (tableBody == null || isSmart(tableSyntaxNode) || isSimple(tableSyntaxNode)) {
-                        // Select compilation with less errors count for smart tables
+                        // Select compilation with fewer errors count for smart tables
                         if (isNotUnmatchedTableError(
                             altLoadAndBindErrors) && loadAndBindErrors.getBindingSyntaxNodeException()
                                 .size() > altLoadAndBindErrors.getBindingSyntaxNodeException()
@@ -629,7 +629,6 @@ public class DecisionTableLoader {
     }
 
     private ILogicalTable unmergeFirstRow(ILogicalTable toParse) {
-
         return LogicalTableHelper
             .unmergeColumns(toParse, IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, toParse.getWidth());
     }

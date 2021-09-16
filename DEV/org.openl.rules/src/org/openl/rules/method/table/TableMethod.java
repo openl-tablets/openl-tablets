@@ -41,7 +41,7 @@ public class TableMethod extends ExecutableRulesMethod {
             IBoundMethodNode methodBodyBoundNode,
             MethodTableBoundNode methodTableBoundNode) {
         super(header, methodTableBoundNode);
-        method = new CompositeMethod(header, methodBodyBoundNode);
+        method = new CompositeMethod(header, methodBodyBoundNode, null);
 
         initProperties(getSyntaxNode().getTableProperties());
     }

@@ -2,6 +2,7 @@ package org.openl.rules.dt;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,11 +22,14 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.binding.RulesModuleBindingContextHelper;
 import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
+import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DtColumnsDefinitionMetaInfoReader;
@@ -36,7 +40,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.impl.IdentifierNode;
+import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -49,16 +53,14 @@ import org.openl.vm.IRuntimeEnv;
 public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
     private String tableName;
     private final OpenL openl;
-    private final IBindingContext bindingContext;
+    private IBindingContext bindingContext;
     private XlsModuleOpenClass xlsModuleOpenClass;
     private final Map<DTColumnsDefinition, PreBindDetails> definitions = new HashMap<>();
+    private boolean initialized = false;
 
-    public ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode,
-            OpenL openl,
-            IBindingContext bindingContext) {
+    public ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
         super(tableSyntaxNode);
         this.openl = Objects.requireNonNull(openl, "openl cannot be null");
-        this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
     }
 
     public String getTableName() {
@@ -69,9 +71,9 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         this.tableName = tableName;
     }
 
-    @Override
-    public void addTo(ModuleOpenClass openClass) {
-        this.xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+    public void preBind(XlsModuleOpenClass module, IBindingContext bindingContext) {
+        this.xlsModuleOpenClass = module;
+        this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
         TableSyntaxNode tsn = getTableSyntaxNode();
         ILogicalTable tableBody = tsn.getTableBody();
         if (tableBody == null) {
@@ -255,7 +257,18 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         }
     }
 
-    private ComponentBindingContext buildDtHeaderBindingContext() {
+    @Override
+    public void addTo(ModuleOpenClass openClass) {
+        if (!initialized) {
+            ComponentBindingContext dtHeaderBindingContext = buildDtHeaderBindingContext(bindingContext);
+            for (Map.Entry<DTColumnsDefinition, PreBindDetails> entry : definitions.entrySet()) {
+                compileAndAddDefinition(entry.getKey(), entry.getValue(), dtHeaderBindingContext, bindingContext);
+            }
+            initialized = true;
+        }
+    }
+
+    private ComponentBindingContext buildDtHeaderBindingContext(IBindingContext bindingContext) {
         DecisionTableDataType decisionTableDataType = new DecisionTableDataType(null,
             "DecisionTableDataType",
             openl,
@@ -277,12 +290,17 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     private static class PreBindDetails {
-        private final IGridTable expressionTable;
+        private final IParsedCode parsedCode;
+        private final GridCellSourceCodeModule expressionCellSourceCodeModule;
         private final ICell expressionCell;
         private final IOpenMethodHeader header;
 
-        public PreBindDetails(IGridTable expressionTable, ICell expressionCell, IOpenMethodHeader header) {
-            this.expressionTable = expressionTable;
+        public PreBindDetails(IParsedCode parsedCode,
+                GridCellSourceCodeModule expressionCellSourceCodeModule,
+                ICell expressionCell,
+                IOpenMethodHeader header) {
+            this.parsedCode = parsedCode;
+            this.expressionCellSourceCodeModule = expressionCellSourceCodeModule;
             this.expressionCell = expressionCell;
             this.header = header;
         }
@@ -313,16 +331,24 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
     protected abstract DTColumnsDefinition createDefinition(IOpenMethodHeader header,
             String expression,
+            List<ExpressionIdentifier> identifiers,
             Map<String, List<IParameterDeclaration>> dtDTColumnsDefinitionParameters);
 
     protected final void createAndAddDefinition(IOpenMethodHeader header,
             Map<String, List<IParameterDeclaration>> parameters,
             IGridTable expressionTable,
             ICell expressionCell) {
+        GridCellSourceCodeModule expressionCellSourceCodeModule = new GridCellSourceCodeModule(expressionTable,
+            bindingContext);
+        IParsedCode parsedCode = openl.getParser().parseAsMethodBody(expressionCellSourceCodeModule);
         DTColumnsDefinition dtColumnsDefinition = createDefinition(header,
             expressionCell.getStringValue() != null ? expressionCell.getStringValue() : StringUtils.EMPTY,
+            parsedCode.getErrors().length == 0 ? DecisionTableUtils.extractIdentifiers(parsedCode.getTopNode())
+                                               : Collections.emptyList(),
             parameters);
-        definitions.put(dtColumnsDefinition, new PreBindDetails(expressionTable, expressionCell, header));
+        dtColumnsDefinition.setCompositeMethodInitializer(() -> this.addTo(getXlsModuleOpenClass()));
+        definitions.put(dtColumnsDefinition,
+            new PreBindDetails(parsedCode, expressionCellSourceCodeModule, expressionCell, header));
         getXlsModuleOpenClass().getXlsDefinitions().addDtColumnsDefinition(dtColumnsDefinition);
     }
 
@@ -372,9 +398,11 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         return ArrayUtils.toPrimitive(t.toArray(new Integer[] {}));
     }
 
-    private boolean isParameterIsUsed(CompositeMethod compositeMethod, Collection<IParameterDeclaration> parameters) {
-        List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(compositeMethod);
-        for (IdentifierNode identifierNode : identifierNodes) {
+    private boolean isParameterUsed(CompositeMethod compositeMethod, Collection<IParameterDeclaration> parameters) {
+        List<ExpressionIdentifier> identifierNodes = DecisionTableUtils.extractIdentifiers(
+            compositeMethod.getMethodBodyBoundNode() != null ? compositeMethod.getMethodBodyBoundNode().getSyntaxNode()
+                                                             : null);
+        for (ExpressionIdentifier identifierNode : identifierNodes) {
             for (IParameterDeclaration parameterDeclaration : parameters) {
                 if (parameterDeclaration != null && Objects.equals(identifierNode.getIdentifier(),
                     parameterDeclaration.getName())) {
@@ -386,16 +414,13 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     @Override
-    public void finalizeBind(IBindingContext cxt) {
-        ComponentBindingContext dtHeaderBindingContext = buildDtHeaderBindingContext();
-        for (Map.Entry<DTColumnsDefinition, PreBindDetails> entry : definitions.entrySet()) {
-            compileValidateExpressionAndAddDefinition(entry.getKey(), entry.getValue(), dtHeaderBindingContext);
-        }
+    public void finalizeBind(IBindingContext bindingContext) {
     }
 
-    private void compileValidateExpressionAndAddDefinition(DTColumnsDefinition dtColumnsDefinition,
+    private void compileAndAddDefinition(DTColumnsDefinition dtColumnsDefinition,
             PreBindDetails preBindDetail,
-            ComponentBindingContext dtHeaderBindingContext) {
+            ComponentBindingContext dtHeaderBindingContext,
+            IBindingContext bindingContext) {
         IParameterDeclaration[] allParameterDeclarations = dtColumnsDefinition.getParameters()
             .stream()
             .filter(e -> e != null && e.getName() != null)
@@ -403,17 +428,15 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             .toArray(IParameterDeclaration.EMPTY);
         IMethodSignature newSignature = ((MethodSignature) preBindDetail.header.getSignature())
             .merge(allParameterDeclarations);
+        RulesModuleBindingContextHelper.compileAllTypesInSignature(newSignature, bindingContext);
 
-        GridCellSourceCodeModule expressionCellSourceCodeModule = new GridCellSourceCodeModule(
-            preBindDetail.expressionTable,
-            bindingContext);
         DecisionTableDataType decisionTableDataType = (DecisionTableDataType) dtHeaderBindingContext
             .getComponentOpenClass();
         CompositeMethod compositeMethod;
         Set<String> externalParameters;
         try {
             compositeMethod = OpenLManager.makeMethodWithUnknownType(getOpenl(),
-                expressionCellSourceCodeModule,
+                preBindDetail.expressionCellSourceCodeModule,
                 preBindDetail.header.getName(),
                 newSignature,
                 getXlsModuleOpenClass(),
@@ -430,8 +453,9 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
         validate(preBindDetail.header,
             dtColumnsDefinition.getParameters(),
-            expressionCellSourceCodeModule,
-            compositeMethod);
+            preBindDetail.expressionCellSourceCodeModule,
+            compositeMethod,
+            bindingContext);
 
         if (!bindingContext.isExecutionMode()) {
             addMetaInfoForExpression(compositeMethod, preBindDetail.expressionCell);
@@ -441,7 +465,8 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     private void validate(IOpenMethodHeader header,
             Collection<IParameterDeclaration> parameters,
             GridCellSourceCodeModule expressionCellSourceCodeModule,
-            CompositeMethod compositeMethod) {
+            CompositeMethod compositeMethod,
+            IBindingContext bindingContext) {
         if (StringUtils.isBlank(expressionCellSourceCodeModule.getCode())) {
             if (isConditions()) {
                 BindHelper.processError("Expression is required for a condition.",
@@ -458,10 +483,10 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         if (isConditions() && compositeMethod.getType().getInstanceClass() != boolean.class && compositeMethod.getType()
             .getInstanceClass() != Boolean.class) {
 
-            if (isSimplifiedSyntaxIsUsed(expressionCellSourceCodeModule.getCode(), header.getSignature())) {
+            if (isSimplifiedSyntaxUsed(expressionCellSourceCodeModule.getCode(), header.getSignature())) {
                 validateConditionType(compositeMethod, expressionCellSourceCodeModule, parameters, bindingContext);
             } else {
-                if (isParameterIsUsed(compositeMethod, parameters)) {
+                if (isParameterUsed(compositeMethod, parameters)) {
                     BindHelper.processError("Condition expression must return a boolean type.",
                         expressionCellSourceCodeModule,
                         bindingContext);
@@ -513,7 +538,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         }
     }
 
-    private boolean isSimplifiedSyntaxIsUsed(String code, IMethodSignature signature) {
+    private boolean isSimplifiedSyntaxUsed(String code, IMethodSignature signature) {
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             if (Objects.equals(code, signature.getParameterName(i))) {
                 return true;

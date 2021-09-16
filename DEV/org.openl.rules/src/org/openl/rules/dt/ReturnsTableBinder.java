@@ -1,7 +1,6 @@
 package org.openl.rules.dt;
 
 import org.openl.OpenL;
-import org.openl.binding.IBindingContext;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
@@ -20,11 +19,8 @@ public class ReturnsTableBinder extends ADtColumnsDefinitionTableBinder {
     }
 
     @Override
-    protected ADtColumnsDefinitionTableBoundNode makeNode(TableSyntaxNode tsn,
-            XlsModuleOpenClass module,
-            OpenL openl,
-            IBindingContext bindingContext) {
-        return new ReturnsTableBoundNode(tsn, openl, bindingContext);
+    protected ADtColumnsDefinitionTableBoundNode makeNode(TableSyntaxNode tsn, XlsModuleOpenClass module, OpenL openl) {
+        return new ReturnsTableBoundNode(tsn, openl);
     }
 
 }

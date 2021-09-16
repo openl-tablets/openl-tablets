@@ -6,7 +6,8 @@ import java.util.Objects;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.dt.DTInfo;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IBaseAction;
@@ -118,10 +119,10 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
             IBaseAction[] actionRows,
             RuleRow ruleRow,
             OpenL openl,
-            ComponentOpenClass componentOpenClass,
+            ModuleOpenClass module,
             IBindingContext bindingContext,
             int columns) throws Exception {
-        delegate.bindTable(conditionRows, actionRows, ruleRow, openl, componentOpenClass, bindingContext, columns);
+        delegate.bindTable(conditionRows, actionRows, ruleRow, openl, module, bindingContext, columns);
     }
 
     @Override
@@ -262,6 +263,31 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
     @Override
     public boolean isStatic() {
         return delegate.isStatic();
+    }
+
+    @Override
+    public boolean isTypeCustomSpreadsheetResult() {
+        return delegate.isTypeCustomSpreadsheetResult();
+    }
+
+    @Override
+    public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
+        return delegate.getCustomSpreadsheetResultType();
+    }
+
+    @Override
+    public void setDim(int dim) {
+        super.setDim(dim);
+    }
+
+    @Override
+    public void setCustomSpreadsheetResultType(CustomSpreadsheetResultOpenClass customSpreadsheetResultType) {
+        delegate.setCustomSpreadsheetResultType(customSpreadsheetResultType);
+    }
+
+    @Override
+    public ModuleOpenClass getModule() {
+        return super.getModule();
     }
 
     @Override

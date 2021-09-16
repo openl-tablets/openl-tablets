@@ -1,7 +1,6 @@
 package org.openl.rules.dt;
 
 import org.openl.OpenL;
-import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
@@ -10,10 +9,10 @@ import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DtColumnsDefinitionMetaInfoReader;
-import org.openl.util.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
+import org.openl.util.TableNameChecker;
 
 public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
 
@@ -29,10 +28,10 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
     @Override
     public IMemberBoundNode preBind(TableSyntaxNode tsn,
             OpenL openl,
-            RulesModuleBindingContext cxt,
+            RulesModuleBindingContext bindingContext,
             XlsModuleOpenClass module) throws Exception {
 
-        ADtColumnsDefinitionTableBoundNode aDtColumnsDefinitionTableBoundNode = makeNode(tsn, module, openl, cxt);
+        ADtColumnsDefinitionTableBoundNode aDtColumnsDefinitionTableBoundNode = makeNode(tsn, module, openl);
 
         IdentifierNode in = parseHeader(tsn);
         String tableName;
@@ -41,12 +40,14 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
             if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
                 String formattedPrefix = tableNamePrefix.substring(0, tableNamePrefix.length() - 2);
                 String message = formattedPrefix + " table " + tableName + TableNameChecker.NAME_ERROR_MESSAGE;
-                cxt.addMessage(OpenLMessagesUtils.newWarnMessage(message, in));
+                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, in));
             }
             aDtColumnsDefinitionTableBoundNode.setTableName(tableName);
         }
 
         tsn.setMetaInfoReader(new DtColumnsDefinitionMetaInfoReader(aDtColumnsDefinitionTableBoundNode));
+
+        aDtColumnsDefinitionTableBoundNode.preBind(module, bindingContext);
 
         return aDtColumnsDefinitionTableBoundNode;
     }
@@ -72,7 +73,6 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
 
     protected abstract ADtColumnsDefinitionTableBoundNode makeNode(TableSyntaxNode tsn,
             XlsModuleOpenClass module,
-            OpenL openl,
-            IBindingContext bindingContext);
+            OpenL openl);
 
 }

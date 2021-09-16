@@ -13,6 +13,7 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
+import org.openl.rules.binding.RulesModuleBindingContextHelper;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
@@ -318,6 +319,7 @@ public class AlgorithmCompiler {
         OpenMethodHeader header = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
 
         IBindingContext cxt = getAlgorithmBindingContext();
+        RulesModuleBindingContextHelper.compileAllTypesInSignature(header.getSignature(), context);
         return OpenLManager.makeMethod(openl, src, header, cxt);
 
     }

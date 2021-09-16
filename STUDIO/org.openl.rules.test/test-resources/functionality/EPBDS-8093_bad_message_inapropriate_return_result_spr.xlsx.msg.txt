@@ -1,2 +1,0 @@
-ERROR: Cannot convert from 'SpreadsheetResulttest2' to 'SpreadsheetResulttest1'.
-ERROR: Cannot convert from 'SpreadsheetResulttest2' to 'SpreadsheetResulttest1'.
