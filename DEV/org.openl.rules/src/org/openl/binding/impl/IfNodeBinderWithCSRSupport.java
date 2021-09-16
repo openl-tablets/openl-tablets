@@ -1,5 +1,7 @@
 package org.openl.binding.impl;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
@@ -8,6 +10,8 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 
 public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
+
+    private static final AtomicLong SPR_NAME_COUNTER = new AtomicLong();
 
     private static CustomSpreadsheetResultOpenClass mergeTwoCustomSpreadsheetResultTypes(
             CustomSpreadsheetResultOpenClass type1,
@@ -21,7 +25,7 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
         final String typeName = "IfNode" + namePart1 + "And" + namePart2;
 
         final CustomSpreadsheetResultOpenClass mergedCustomSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-            typeName,
+            Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + "$If$" + SPR_NAME_COUNTER.incrementAndGet(),
             type1.getModule(),
             type1.getLogicalTable(),
             false);

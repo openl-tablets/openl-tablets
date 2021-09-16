@@ -2,11 +2,12 @@ package org.openl.rules.dt;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
+import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.impl.CompositeMethod;
@@ -16,24 +17,18 @@ public class DecisionTableUtils {
     private DecisionTableUtils() {
     }
 
-    public static List<IdentifierNode> retrieveIdentifierNodes(ICondition dtCondition) {
-        return retrieveIdentifierNodes(((CompositeMethod) dtCondition.getMethod()));
+    public static List<ExpressionIdentifier> extractIdentifiers(ICondition dtCondition) {
+        return extractIdentifiers(((CompositeMethod) dtCondition.getMethod()).getMethodBodyBoundNode().getSyntaxNode());
     }
 
-    static List<IdentifierNode> retrieveIdentifierNodes(DTColumnsDefinition definition) {
-        return retrieveIdentifierNodes(definition.getCompositeMethod());
-    }
-
-    public static List<IdentifierNode> retrieveIdentifierNodes(CompositeMethod dtCompositeMethod) {
+    public static List<ExpressionIdentifier> extractIdentifiers(ISyntaxNode syntaxNode) {
         List<IdentifierNode> identifierNodes = new ArrayList<>();
-        IBoundMethodNode methodNode = dtCompositeMethod.getMethodBodyBoundNode();
-        if (methodNode != null) {
-            parseAndCollectIdentifierNodes(methodNode.getSyntaxNode(),
-                new MutableBoolean(false),
-                false,
-                identifierNodes);
+        if (syntaxNode != null) {
+            parseAndCollectIdentifierNodes(syntaxNode, new MutableBoolean(false), false, identifierNodes);
         }
-        return identifierNodes;
+        return identifierNodes.stream()
+            .map(e -> new ExpressionIdentifier(e.getIdentifier(), e.getLocation()))
+            .collect(Collectors.toList());
     }
 
     private static void parseAndCollectIdentifierNodes(ISyntaxNode node,

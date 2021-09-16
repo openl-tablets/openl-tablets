@@ -1,2 +1,2 @@
-ERROR: Field '$Value$Step2' is not found in type 'IfNodeminiSpr1AndminiSpr2'.
-ERROR: Field '$Value$RETURN1' is not found in type 'IfNodeminiSpr1AndminiSpr2'.
+ERROR: Field '$Value$Step2' is not found in type 'SpreadsheetResult$If$
+ERROR: Field '$Value$RETURN1' is not found in type 'SpreadsheetResult$If$

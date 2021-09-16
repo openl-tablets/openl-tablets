@@ -5,7 +5,6 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
@@ -19,7 +18,7 @@ import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
-public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBoundNode {
+public class AlgorithmBoundNode extends AMethodBasedNode {
 
     public AlgorithmBoundNode(TableSyntaxNode tsn, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
         super(tsn, openl, header, module);

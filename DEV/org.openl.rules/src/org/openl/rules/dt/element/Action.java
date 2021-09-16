@@ -162,7 +162,8 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     @Override
-    public void prepareAction(IOpenMethodHeader header,
+    public void prepareAction(DecisionTable decisionTable,
+            IOpenMethodHeader header,
             IMethodSignature signature,
             OpenL openl,
             IBindingContext bindingContext,
@@ -185,7 +186,14 @@ public class Action extends FunctionalRow implements IAction {
             }
         }
 
-        prepare(methodType, signature, openl, bindingContext, ruleRow, ruleExecutionType, tableSyntaxNode);
+        prepare(decisionTable,
+            methodType,
+            signature,
+            openl,
+            bindingContext,
+            ruleRow,
+            ruleExecutionType,
+            tableSyntaxNode);
 
         IParameterDeclaration[] params = getParams();
         CompositeMethod method = getMethod();
@@ -195,8 +203,9 @@ public class Action extends FunctionalRow implements IAction {
             .map(IOpenSourceCodeModule::getCode)
             .orElse(null);
 
-        isSingleReturnParam = params.length == 1 && !NullParameterDeclaration.isAnyNull(params[0])
-                && params[0].getName().equals(code);
+        isSingleReturnParam = params.length == 1 && !NullParameterDeclaration.isAnyNull(params[0]) && params[0]
+            .getName()
+            .equals(code);
     }
 
     @Override
@@ -246,7 +255,8 @@ public class Action extends FunctionalRow implements IAction {
                 // trigger parameter compilation & initialization
                 super.prepareParams(declaringClass, signature, methodType, null, openl, bindingContext);
                 // generate return statement to return parameter
-                return new StringSourceCodeModule(params[0].getName() != null ? params[0].getName() : EXTRA_RET, source.getUri());
+                return new StringSourceCodeModule(params[0].getName() != null ? params[0].getName() : EXTRA_RET,
+                    source.getUri());
             }
             return new StringSourceCodeModule(EXTRA_RET, source.getUri());
         }

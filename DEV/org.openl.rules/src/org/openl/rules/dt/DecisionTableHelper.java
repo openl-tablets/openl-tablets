@@ -65,6 +65,7 @@ import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
+import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
 import org.openl.rules.lang.xls.binding.XlsDefinitions;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.load.SimpleSheetLoader;
@@ -87,7 +88,6 @@ import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
@@ -427,7 +427,7 @@ public final class DecisionTableHelper {
                     columnParameters[0] = definition.getParameters(title).toArray(IParameterDeclaration.EMPTY);
                     if (lookupReturnDtHeader == null) {
                         lookupReturnDtHeader = new DeclaredDTHeader(matchedDefinition.getUsedMethodParameterIndexes(),
-                            definition.getCompositeMethod(),
+                            definition,
                             columnParameters,
                             retColumn,
                             0,
@@ -699,7 +699,7 @@ public final class DecisionTableHelper {
                             grid.setCellValue(c, 2, value);
                             paramType = param.getType();
                         } else {
-                            paramType = declaredReturn.getCompositeMethod().getType();
+                            paramType = declaredReturn.getDtColumnsDefinition().getCompositeMethod().getType();
                         }
                         typeOfColumns.add(paramType);
                         if (!lookupReturnHeader) {
@@ -1280,7 +1280,7 @@ public final class DecisionTableHelper {
                     typeOfColumns.add(param.getType());
                 } else {
                     parameterNames.add(null);
-                    typeOfColumns.add(declaredDtHeader.getCompositeMethod().getType());
+                    typeOfColumns.add(declaredDtHeader.getDtColumnsDefinition().getCompositeMethod().getType());
                 }
                 int w1;
                 if (declaredDtHeader.isHCondition()) {
@@ -1833,7 +1833,7 @@ public final class DecisionTableHelper {
             }
         }
 
-        List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(definition);
+        List<ExpressionIdentifier> identifiers = definition.getIdentifiers();
 
         Map<String, IParameterDeclaration> completeParameters = new HashMap<>();
         for (IParameterDeclaration parameter : definition.getParameters()) {
@@ -1844,11 +1844,11 @@ public final class DecisionTableHelper {
 
         Set<String> methodParametersUsedInExpression = new HashSet<>();
         Map<String, String> originalMethodParametersUsedInExpression = new HashMap<>();
-        for (IdentifierNode identifierNode : identifierNodes) {
-            if (!completeParameters.containsKey(toLowerCase(identifierNode.getIdentifier()))) {
-                methodParametersUsedInExpression.add(toLowerCase(identifierNode.getIdentifier()));
-                originalMethodParametersUsedInExpression.put(toLowerCase(identifierNode.getIdentifier()),
-                    identifierNode.getIdentifier());
+        for (ExpressionIdentifier identifier : identifiers) {
+            if (!completeParameters.containsKey(toLowerCase(identifier.getIdentifier()))) {
+                methodParametersUsedInExpression.add(toLowerCase(identifier.getIdentifier()));
+                originalMethodParametersUsedInExpression.put(toLowerCase(identifier.getIdentifier()),
+                    identifier.getIdentifier());
             }
         }
 
@@ -1996,7 +1996,7 @@ public final class DecisionTableHelper {
                     code,
                     usedMethodParameterIndexesArray,
                     methodParametersToRename,
-                    identifierNodes,
+                    identifiers,
                     MatchType.STRICT,
                     mayHaveCompilationErrors);
             case STRICT_CASTED:
@@ -2004,7 +2004,7 @@ public final class DecisionTableHelper {
                     code,
                     usedMethodParameterIndexesArray,
                     methodParametersToRename,
-                    identifierNodes,
+                    identifiers,
                     MatchType.STRICT_CASTED,
                     mayHaveCompilationErrors);
             case METHOD_ARGS_RENAMED:
@@ -2012,7 +2012,7 @@ public final class DecisionTableHelper {
                     code,
                     usedMethodParameterIndexesArray,
                     methodParametersToRename,
-                    identifierNodes,
+                    identifiers,
                     MatchType.METHOD_ARGS_RENAMED,
                     mayHaveCompilationErrors);
             case METHOD_ARGS_RENAMED_CASTED:
@@ -2020,7 +2020,7 @@ public final class DecisionTableHelper {
                     code,
                     usedMethodParameterIndexesArray,
                     methodParametersToRename,
-                    identifierNodes,
+                    identifiers,
                     MatchType.METHOD_ARGS_RENAMED_CASTED,
                     mayHaveCompilationErrors);
             default:
@@ -3440,7 +3440,7 @@ public final class DecisionTableHelper {
                     if (matchedDefinition != null) {
                         DeclaredDTHeader dtHeader = new DeclaredDTHeader(
                             matchedDefinition.getUsedMethodParameterIndexes(),
-                            definition.getCompositeMethod(),
+                            definition,
                             columnParameters,
                             column,
                             lastExtractedTitle.getRight(),
@@ -3482,7 +3482,7 @@ public final class DecisionTableHelper {
                                         .toArray(IParameterDeclaration.EMPTY);
                                     DeclaredDTHeader vDtHeader = new DeclaredDTHeader(
                                         matchedDefinition.getUsedMethodParameterIndexes(),
-                                        definition.getCompositeMethod(),
+                                        definition,
                                         columnParameters,
                                         column + originalTable.getSource().getCell(column, 0).getWidth() + x,
                                         h,
@@ -4108,7 +4108,7 @@ public final class DecisionTableHelper {
             }
         } else if (condition instanceof DeclaredDTHeader) {
             DeclaredDTHeader declaredDTHeader = (DeclaredDTHeader) condition;
-            return declaredDTHeader.getCompositeMethod().getType();
+            return declaredDTHeader.getDtColumnsDefinition().getCompositeMethod().getType();
         }
         if (condition.isMethodParameterUsed()) {
             return decisionTable.getSignature().getParameterTypes()[condition.getMethodParameterIndex()];

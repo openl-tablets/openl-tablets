@@ -1,5 +1,6 @@
 package org.openl.rules.dt;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -7,11 +8,11 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
-import org.openl.syntax.impl.IdentifierNode;
+import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
 import org.openl.util.text.TextInfo;
 
 class MatchedDefinition {
-    final List<IdentifierNode> identifierNodes;
+    final List<ExpressionIdentifier> identifiers;
     final String statement;
     final int[] usedMethodParameterIndexes;
     final MatchType matchType;
@@ -26,7 +27,7 @@ class MatchedDefinition {
             String statement,
             int[] usedMethodParameterIndexes,
             Map<String, String> methodParametersToRename,
-            List<IdentifierNode> identifierNodes,
+            List<ExpressionIdentifier> identifiers,
             MatchType matchType,
             boolean mayHaveCompilationErrors) {
         super();
@@ -35,7 +36,7 @@ class MatchedDefinition {
         this.usedMethodParameterIndexes = usedMethodParameterIndexes;
         this.matchType = matchType;
         this.methodParametersToRename = methodParametersToRename;
-        this.identifierNodes = identifierNodes;
+        this.identifiers = identifiers;
         this.mayHaveCompilationErrors = mayHaveCompilationErrors;
     }
 
@@ -83,7 +84,7 @@ class MatchedDefinition {
 
     public String getStatementWithReplacedIdentifiers() {
         return replaceIdentifierNodeNamesInCode(statement,
-            identifierNodes,
+            identifiers,
             Pair.of(methodParametersToRename, true),
             Pair.of(externalParametersToRename, false),
             Pair.of(parametersToRename, true));
@@ -114,30 +115,33 @@ class MatchedDefinition {
 
     @SafeVarargs
     static String replaceIdentifierNodeNamesInCode(String code,
-            List<IdentifierNode> identifierNodes,
+            List<ExpressionIdentifier> identifiers,
             Pair<Map<String, String>, Boolean>... namesMaps) {
+        identifiers = new ArrayList<>(identifiers); // identifiers is unmodifiable
         final TextInfo textInfo = new TextInfo(code);
-        identifierNodes.sort(
-            Comparator.<IdentifierNode> comparingInt(e -> e.getLocation().getStart().getAbsolutePosition(textInfo))
-                .reversed());
+        identifiers.sort(Comparator
+            .<ExpressionIdentifier> comparingInt(e -> e.getLocation().getStart().getAbsolutePosition(textInfo))
+            .reversed());
         StringBuilder sb = new StringBuilder(code);
-        for (IdentifierNode identifierNode : identifierNodes) {
-            int start = identifierNode.getLocation().getStart().getAbsolutePosition(textInfo);
-            int end = identifierNode.getLocation().getEnd().getAbsolutePosition(textInfo);
+        for (ExpressionIdentifier identifier : identifiers) {
+            int start = identifier.getLocation().getStart().getAbsolutePosition(textInfo);
+            int end = identifier.getLocation().getEnd().getAbsolutePosition(textInfo);
             for (Pair<Map<String, String>, Boolean> m : namesMaps) {
                 if (m != null && m.getKey() != null && m.getKey()
                     .containsKey(
-                        identifierNode.getIdentifier() != null
-                                                               ? (Boolean.TRUE.equals(m.getValue()) ? identifierNode
-                                                                   .getIdentifier()
-                                                                   .toLowerCase() : identifierNode.getIdentifier())
-                                                               : null)) {
+                        identifier.getIdentifier() != null
+                                                           ? (Boolean.TRUE.equals(
+                                                               m.getValue()) ? identifier.getIdentifier().toLowerCase()
+                                                                             : identifier.getIdentifier())
+                                                           : null)) {
                     sb.replace(start,
                         end + 1,
                         m.getKey()
-                            .get(identifierNode.getIdentifier() != null ? (Boolean.TRUE
-                                .equals(m.getValue()) ? identifierNode.getIdentifier().toLowerCase()
-                                                      : identifierNode.getIdentifier()) : null));
+                            .get(identifier.getIdentifier() != null
+                                                                    ? (Boolean.TRUE.equals(m.getValue()) ? identifier
+                                                                        .getIdentifier()
+                                                                        .toLowerCase() : identifier.getIdentifier())
+                                                                    : null));
                 }
             }
         }

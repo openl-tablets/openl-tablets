@@ -50,8 +50,8 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     }
 
     @Override
-    public boolean isCustomSpreadsheet() {
-        return delegate.isCustomSpreadsheet();
+    public boolean isTypeCustomSpreadsheetResult() {
+        return delegate.isTypeCustomSpreadsheetResult();
     }
 
     @Override

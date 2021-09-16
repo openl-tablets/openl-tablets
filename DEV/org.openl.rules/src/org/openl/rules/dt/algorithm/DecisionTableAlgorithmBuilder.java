@@ -16,6 +16,7 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DecisionTable;
@@ -32,9 +33,9 @@ import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.rules.dt.element.RuleRow;
+import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -184,13 +185,19 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         for (int i = 0; i < nActions; i++) {
             IAction action = table.getAction(i);
             prepareAction(action, actionBindingContext, ruleExecutionType);
+            if (action.isReturnAction() && table.isTypeCustomSpreadsheetResult() && OpenLSystemProperties
+                .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
+                CompositeMethod compositeMethod = (CompositeMethod) action.getMethod();
+                table.getCustomSpreadsheetResultType().updateWithType(compositeMethod.getBodyType());
+            }
         }
     }
 
     private void prepareAction(IAction action,
             IBindingContext actionBindingContext,
             DecisionTableDataType ruleExecutionType) throws Exception {
-        action.prepareAction(header,
+        action.prepareAction(table,
+            header,
             signature,
             openl,
             actionBindingContext,
@@ -238,7 +245,8 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         ICondition condition = table.getCondition(index);
 
         try {
-            condition.prepare(NullOpenClass.the,
+            condition.prepare(table,
+                NullOpenClass.the,
                 signature,
                 openl,
                 bindingContext,
@@ -274,7 +282,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             BindHelper.processError(message, source, bindingContext);
             return DefaultConditionEvaluator.INSTANCE;
         }
-        IOpenClass methodType = ((CompositeMethod) condition.getMethod()).getBodyType();
+        IOpenClass methodType = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode().getType();
         if (condition.isDependentOnOtherColumnsParams()) {
             condition.setConditionEvaluator(DefaultConditionEvaluator.INSTANCE);
             if (!JavaOpenClass.BOOLEAN.equals(methodType) && !JavaOpenClass.getOpenClass(Boolean.class)
@@ -346,15 +354,15 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private static boolean checkConditionParameterUsedInExpression(ICondition condition) {
-        List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(condition);
+        List<ExpressionIdentifier> identifiers = DecisionTableUtils.extractIdentifiers(condition);
         for (IParameterDeclaration condParam : condition.getParams()) {
-            if (identifierNodes.stream()
+            if (identifiers.stream()
                 .anyMatch(identifierNode -> condParam.getName() != null && condParam.getName()
                     .equalsIgnoreCase(identifierNode.getIdentifier()))) {
                 return true;
             }
         }
-        if (identifierNodes.stream()
+        if (identifiers.stream()
             .anyMatch(identifierNode -> Objects.equals(SpreadsheetStructureBuilder.DOLLAR_SIGN + condition.getName(),
                 identifierNode.getIdentifier()))) {
             return true;
@@ -363,8 +371,8 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
     }
 
     private static boolean checkRuleIdOrRuleNameInExpression(ICondition condition) {
-        List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(condition);
-        return identifierNodes.stream()
+        List<ExpressionIdentifier> identifiers = DecisionTableUtils.extractIdentifiers(condition);
+        return identifiers.stream()
             .anyMatch(e -> "$Rule".equals(e.getIdentifier()) || "$RuleId".equals(e.getIdentifier()));
     }
 
