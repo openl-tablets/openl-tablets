@@ -36,6 +36,8 @@ public class DesignTimeRepositoryRestTest {
         client.send("desing-time-repo/h2/update-proj-2.put");
         client.send("desing-time-repo/h2/repos-projects-2.get");
 
+        client.send("users-service/users-info-update.put");
+
         client.send("desing-time-repo/git-flat/repos-projects.get");
         client.send("desing-time-repo/git-flat/create-proj-1.put");
         client.send("desing-time-repo/git-flat/create-proj-2.put");

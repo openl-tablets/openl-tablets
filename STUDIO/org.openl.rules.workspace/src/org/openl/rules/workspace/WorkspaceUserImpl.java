@@ -1,5 +1,10 @@
 package org.openl.rules.workspace;
 
+import java.util.Optional;
+import java.util.function.Function;
+
+import org.openl.rules.repository.api.UserInfo;
+
 /**
  *
  * @author Aleh Bykhavets
@@ -9,11 +14,12 @@ public class WorkspaceUserImpl implements WorkspaceUser {
 
     private final String userId;
     private final String userName;
+    private final Function<String, UserInfo> userInfoCollector;
 
-    public WorkspaceUserImpl(String userName) {
+    public WorkspaceUserImpl(String userName, Function<String, UserInfo> userInfoCollector) {
         userId = generateUserId(userName);
-
         this.userName = userName;
+        this.userInfoCollector = userInfoCollector;
     }
 
     /**
@@ -69,6 +75,10 @@ public class WorkspaceUserImpl implements WorkspaceUser {
     @Override
     public String getUserName() {
         return userName;
+    }
+
+    public UserInfo getUserInfo() {
+        return Optional.ofNullable(userInfoCollector.apply(userName)).orElse(new UserInfo(userName));
     }
 
     // --- protected

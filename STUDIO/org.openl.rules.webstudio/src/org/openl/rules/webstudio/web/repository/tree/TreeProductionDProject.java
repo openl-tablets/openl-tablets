@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
@@ -77,24 +78,19 @@ public class TreeProductionDProject extends TreeProductFolder {
     }
 
     public Date getModifiedAt() {
-        ProjectVersion projectVersion = getProject().getVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedAt() : null;
+        return getVersionInfo().map(VersionInfo::getCreatedAt).orElse(null);
     }
 
     public String getModifiedBy() {
-        ProjectVersion projectVersion = getProject().getVersion();
-        /* zero */
-        if (projectVersion == null) {
-            return null;
-        }
+        return getVersionInfo().map(VersionInfo::getCreatedBy).orElse(null);
+    }
 
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedBy() : null;
+    public String getEmailModifiedBy() {
+        return getVersionInfo().map(VersionInfo::getEmailCreatedBy).orElse(null);
+    }
+
+    private Optional<VersionInfo> getVersionInfo() {
+        return Optional.ofNullable(getProject().getVersion()).map(ProjectVersion::getVersionInfo);
     }
 
     private AProjectFolder getProject() {

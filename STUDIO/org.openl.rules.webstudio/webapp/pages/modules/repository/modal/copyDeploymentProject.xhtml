@@ -30,7 +30,10 @@
       </h:panelGroup>
 
       <footer>
-        <h:commandButton id="copyDProject" value="Copy" action="#{repositoryTreeController.copyDeploymentProject}" styleClass="button-primary" />
+        <h:commandButton
+                onclick="withCommitInfoRequired('#{studio.currentUsername}', () => copyDeploymentRepositoryType === 'repo-git', () => $j('#copyDeploymentProjectForm\\:copyDProject').click()); return false;"
+                value="Copy" styleClass="button-primary"/>
+        <h:commandButton id="copyDProject" action="#{repositoryTreeController.copyDeploymentProject}" styleClass="hidden"/>
         <input type="button" value="Cancel" onclick="clearCopyDeploymentProjectForm(); RichFaces.$('modalCopyDeploymentProject').hide();" />
       </footer>
     </h:form>
@@ -39,12 +42,15 @@
   <script>
     $j("#copyDeploymentProjectForm\\:copyDProject").prop("disabled", true);
 
-    function openCopyDeploymentProjectDialog(projectName) {
+    let copyDeploymentRepositoryType = undefined;
+
+    function openCopyDeploymentProjectDialog(projectName, repositoryType) {
       if (projectName) {
         var el = document.getElementById('deploymentProjectName1');
         el.value = projectName;
         el.title = projectName;
       }
+      copyDeploymentRepositoryType = repositoryType;
       RichFaces.$('modalCopyDeploymentProject').show();
       focusElement('copyDeploymentProjectForm:newDeploymentConfiguration');
       document.getElementById('copyDeploymentProjectForm:hiddenProjectName').value = document.getElementById('deploymentProjectName1').value;

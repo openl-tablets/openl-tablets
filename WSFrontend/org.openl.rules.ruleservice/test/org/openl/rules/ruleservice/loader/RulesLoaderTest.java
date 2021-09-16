@@ -1,9 +1,5 @@
 package org.openl.rules.ruleservice.loader;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,9 +19,14 @@ import org.openl.rules.project.abstraction.IProjectFolder;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = { "production-repository.base.path=",
@@ -113,7 +114,7 @@ public class RulesLoaderTest {
         FileData fileData = new FileData();
         String resource = deploymentName + "/" + projectName;
         fileData.setName(resource);
-        fileData.setAuthor("user");
+        fileData.setAuthor(new UserInfo("user", "user@email", "User"));
 
         if (delete) {
             repository.delete(fileData);

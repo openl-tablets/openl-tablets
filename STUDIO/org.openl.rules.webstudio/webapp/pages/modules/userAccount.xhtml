@@ -1,241 +1,405 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:rich="http://richfaces.org/rich">
+
+    <style>
+        .font-weight-bold {
+            font-weight: bold;
+        }
+        .font-size-80pct {
+            font-size: 80%;
+        }
+        .display-block {
+            display: block;
+        }
+        #account-user-firstname-span {
+            display: none;
+        }
+        #account-user-lastname-span {
+            display: none;
+        }
+        #account-user-display-name-span {
+            display: none;
+        }
+        #account-user-email-span {
+            display: none;
+        }
+        .account-user-change-password-error-box {
+            text-align: center;
+            margin: 2px;
+        }
+
+    </style>
 
     <f:view transient="#{module=='rules'}">
-    <rich:popupPanel id="modalUserProfile" minWidth="500" maxWidth="550" autosized="true">
-        <f:facet name="header">User Profile</f:facet>
+        <rich:popupPanel id="modalUserProfile" maxHeight="700" width="530" minWidth="530" maxWidth="710" autosized="true">
+            <f:facet name="header">User Profile</f:facet>
 
-        <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close"
-                onclick="hideUserProfile()" alt="Close" />
-        </f:facet>
+            <f:facet name="controls">
+                <h:graphicImage value="/images/close.gif" class="close" onclick="hideAccountUserForm()" alt="Close"/>
+            </f:facet>
 
-        <h:form id="userProfileForm">
-            <!-- Sometimes browser ignores autocomplete="off" option. See https://stackoverflow.com/a/15917221 -->
-            <input style="display:none" type="text" name="fake-username-field" class="fake-autofill-field"/>
-            <input style="display:none" type="password" name="fake-password-field" class="fake-autofill-field"/>
+            <h:form id="account-user-form">
+                <!-- Sometimes browser ignores autocomplete="off" option. See https://stackoverflow.com/a/15917221 -->
+                <input style="display:none" type="text" name="fake-username-field" class="fake-autofill-field"
+                       autocomplete="name"/>
+                <input style="display:none" type="password" name="fake-password-field" class="fake-autofill-field"
+                       autocomplete="new-password"/>
 
-            <rich:tabPanel switchType="client" id="userProfileTab" onitemchange="resizePopupPanel('modalUserProfile')">
-                <rich:tab header="Details" name="userProfileDetails">
-                    <div class="fields">
-                        <section>
-                            <h3>Account</h3>
-                            <div>
-                                <h:panelGrid columns="3" columnClasses="titleColumn">
-                                    <label>Username:</label>
-                                    <h:panelGroup rendered="#{environment.getProperty('user.mode') == 'multi'}">
-                                    <h:outputText id="username" style="font-weight: bold" value="#{userProfileBean.user.username}"/>
-                                    <h:inputHidden id="usernameHidden" value="#{userProfileBean.user.username}" />
-                                    </h:panelGroup>
-                                    <h:panelGroup rendered="#{environment.getProperty('user.mode') != 'multi'}">
-                                    <span style="font-weight: bold" class="username">#{userProfileBean.user.username}</span>
-                                    </h:panelGroup>
-                                </h:panelGrid>
-                            </div>
-                        </section>
-                        <h:panelGroup rendered="#{environment.getProperty('user.mode') != 'single' and userProfileBean.internalUser}">
-                        <section>
-                            <h3>Name</h3>
-                            <div>
-                                <h:panelGrid columns="3" columnClasses="titleColumn">
-                                    <label>First Name:</label>
-                                    <h:inputText id="firstName" value="#{userProfileBean.firstName}" valueChangeListener="#{userProfileBean.firstNameListener}" />
-                                    <a4j:outputPanel ajaxRendered="false" id="firstNameError">
-                                        <h:message for="firstName" styleClass="error" />
-                                    </a4j:outputPanel>
-
-                                    <label>Last Name:</label>
-                                    <h:inputText id="lastName" value="#{userProfileBean.lastName}" valueChangeListener="#{userProfileBean.lastNameListener}" />
-                                    <a4j:outputPanel ajaxRendered="true" id="lastNameError">
-                                        <h:message for="lastName" styleClass="error" />
-                                    </a4j:outputPanel>
-                                </h:panelGrid>
-                            </div>
-                        </section>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{environment.getProperty('user.mode') != 'single' and not userProfileBean.internalUser}">
-                        <section>
-                            <h3>Name</h3>
-                            <div>
-                                <table>
-                                    <tbody>
+                <rich:tabPanel switchType="client" id="userProfileTab"
+                               onitemchange="resizePopupPanel('modalUserProfile')">
+                    <rich:tab header="Details" name="userProfileDetails">
+                        <div class="fields">
+                            <section>
+                                <h3>Account</h3>
+                                <div>
+                                    <table>
+                                        <tbody>
                                         <tr>
-                                            <td class="titleColumn"><label>First Name:</label></td>
-                                            <td><span style="font-weight: bold" class="firstname">#{userProfileBean.firstName}</span></td>
+                                            <td class="titleColumn"><label>Username:</label></td>
+                                            <td><span id="account-user-username" class="username font-weight-bold"/>
+                                            </td>
+                                        </tr>
+                                        <tr id="account-user-email-row">
+                                            <td class="titleColumn"><label>Email:</label></td>
+                                            <td>
+                                                <input id="account-user-email" name="account-user-email"
+                                                       class="display-block" type="text"/>
+                                                <span id="account-user-email-span"
+                                                      class="font-weight-bold"/>
+                                            </td>
+                                            <td><span id="account-user-email-error" class="error"/></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                            <section id="account-user-name-row">
+                                <h3>Name</h3>
+                                <div>
+                                    <table>
+                                        <tbody>
+                                        <tr>
+                                            <td class="titleColumn"><label>First Name <span class="font-size-80pct">(Given Name)</span>:</label>
+                                            </td>
+                                            <td>
+                                                <input id="account-user-firstname" name="account-user-firstname"
+                                                       class="display-block" type="text"/>
+                                                <span id="account-user-firstname-span"
+                                                      class="font-weight-bold firstname"/>
+                                            </td>
+                                            <td><span id="account-user-firstname-error" class="error"/></td>
                                         </tr>
                                         <tr>
-                                            <td class="titleColumn"><label>Last Name:</label></td>
-                                            <td><span style="font-weight: bold" class="lastname">#{userProfileBean.lastName}</span></td>
+                                            <td class="titleColumn"><label>Last Name <span class="font-size-80pct">(Family Name)</span>
+                                                :</label></td>
+                                            <td>
+                                                <input id="account-user-lastname" name="account-user-lastname"
+                                                       class="display-block" type="text"/>
+                                                <span id="account-user-lastname-span"
+                                                      class="font-weight-bold lastname"/>
+                                            </td>
+                                            <td><span id="account-user-lastname-error" class="error"/></td>
                                         </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{environment.getProperty('user.mode') == 'multi'}">
-                        <section>
-                            <h3>Change Password</h3>
-                            <div>
+                                        <tr>
+                                            <td class="titleColumn"><label>Display Name:</label></td>
+                                            <td>
+                                                <div id="account-user-display-name-select-box"
+                                                     name="account-user-display-name-select-box"></div>
+                                                <span id="account-user-display-name-span"
+                                                      class="font-weight-bold"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td/>
+                                            <td><input id="account-user-display-name" name="account-user-display-name"
+                                                       class="display-block" type="text"/>
+                                            </td>
+                                            <td><span id="account-user-display-name-error" class="error"/></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                            <section id="account-user-password-row">
+                                <h3>Change Password</h3>
+                                <div>
+                                    <div class="account-user-change-password-error-box"><span
+                                            id="account-user-change-password-error" class="error"/></div>
+                                    <table>
+                                        <tbody>
+                                        <tr>
+                                            <td class="titleColumn"><label>Current password:</label></td>
+                                            <td><input id="account-user-current-password"
+                                                       name="account-user-current-password" type="password"
+                                                       autocomplete="off"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="titleColumn"><label>New password:</label></td>
+                                            <td><input id="account-user-new-password" name="account-user-new-password"
+                                                       type="password" autocomplete="off"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="titleColumn"><label>Confirm password:</label></td>
+                                            <td><input id="account-user-confirm-password"
+                                                       name="account-user-confirm-password" type="password"
+                                                       autocomplete="off"/></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        </div>
+                    </rich:tab>
+                    <rich:tab header="Settings" name="userProfileSettings">
+                        <div class="fields">
+                            <section>
+                                <h3>Table Settings</h3>
+                                <div>
+                                    <table>
+                                        <tbody>
+                                        <tr>
+                                            <td class="titleColumn"><label>Show Header:</label></td>
+                                            <td><input id="account-user-show-header" name="account-user-show-header"
+                                                       type="checkbox"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="titleColumn"><label>Show Formulas:</label></td>
+                                            <td><input id="account-user-show-formulas" name="account-user-show-formulas"
+                                                       type="checkbox"/></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                            <section>
+                                <h3>Testing Settings</h3>
+                                <div>
+                                    <table>
+                                        <tbody>
+                                        <tr>
+                                            <td class="titleColumn"><label>Tests per page:</label></td>
+                                            <td>
+                                                <select name="account-user-tests-per-page"
+                                                        id="account-user-tests-per-page" size="1">
+                                                    <option value="1">1</option>
+                                                    <option value="5">5</option>
+                                                    <option value="20">20</option>
+                                                    <option value="-1" selected="">All</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="titleColumn"><label>Failures Only:</label></td>
+                                            <td><input id="account-user-failures-only" name="account-user-failures-only"
+                                                       type="checkbox"
+                                                       onclick="$j('#account-user-failures-per-test-row').toggle(this.checked);"/>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <table id="account-user-failures-per-test-row">
+                                        <tbody>
+                                        <tr>
+                                            <td class="titleColumn"><label>Failures per test:</label></td>
+                                            <td>
+                                                <select id="account-user-failures-per-test"
+                                                        name="account-user-failures-per-test" size="1">
+                                                    <option value="1">1</option>
+                                                    <option value="5">5</option>
+                                                    <option value="20">20</option>
+                                                    <option value="-1" selected="">All</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <table>
+                                        <tbody>
+                                        <tr>
+                                            <td class="titleColumn"><label>Compound Result:</label></td>
+                                            <td><input id="account-user-complex-result"
+                                                       name="account-user-complex-result" type="checkbox"/></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                            <section>
+                                <h3>Trace Settings</h3>
+                                <div>
+                                    <table>
+                                        <tbody>
+                                        <tr>
+                                            <td class="titleColumn"><label>Show numbers without formatting:</label></td>
+                                            <td><input id="account-user-show-real-numbers"
+                                                       name="account-user-show-real-numbers" type="checkbox"/></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </section>
+                        </div>
+                    </rich:tab>
+                </rich:tabPanel>
 
-                            <div style="text-align: center; margin: 2px;">
-                              <a4j:outputPanel ajaxRendered="true" id="newPasswordError">
-                                <h:message for="newPassword" styleClass="error" ajaxRendered="true" />
-                               </a4j:outputPanel>
-                            </div>
+                <footer>
+                    <input id="user-account" type="button" value="Save" title="Save"
+                           class="button-primary save-button"/>
+                    <input class="restore-changed-state" type="button" value="Cancel" onclick="hideAccountUserForm();"/>
+                    <input type="hidden" id="account-user-mode-hidden"/>
+                </footer>
 
-                                <h:panelGrid columns="3" columnClasses="titleColumn">
-                                    <label>Current password:</label>
-                                    <h:inputSecret  id="currentPassword" value="#{userProfileBean.currentPassword}" binding="#{currentPassword}" autocomplete="off" />
-                                    <a4j:outputPanel ajaxRendered="true" id="currentPasswordError">
-                                        <h:message for="currentPassword" styleClass="error" />
-                                    </a4j:outputPanel>
-
-                                    <label>New password:</label>
-                                    <h:inputSecret  id="newPassword" value="#{userProfileBean.newPassword}" validator="#{userProfileBean.passwordsValidator}" >
-                                        <f:attribute name="confirmPassword" value="#{confirmPassword}" />
-                                        <f:attribute name="currentPassword" value="#{currentPassword}" />
-                                    </h:inputSecret>
-                                   <h:outputText value="" />
-
-                                    <label>Confirm password:</label>
-                                    <h:inputSecret  id="confirmPassword" value="#{userProfileBean.confirmPassword}" binding="#{confirmPassword}" />
-                                    <a4j:outputPanel ajaxRendered="true" id="confirmPasswordError">
-                                        <h:message for="confirmPassword" styleClass="error" />
-                                    </a4j:outputPanel>
-                                </h:panelGrid>
-                            </div>
-                        </section>
-                        </h:panelGroup>
-                    </div>
-                </rich:tab>
-                <rich:tab header="Settings" name="userProfileSettings">
-                    <div class="fields">
-                        <section>
-                            <h3>Table Settings</h3>
-                            <div>
-                                <h:panelGrid columns="2" columnClasses="titleColumn">
-                                    <label>Show Header:</label>
-                                    <h:selectBooleanCheckbox id="showHeader" value="#{studio.showHeader}" />
-                                    <label>Show Formulas:</label>
-                                    <h:selectBooleanCheckbox id="showFormulas" value="#{studio.showFormulas}" />
-                                </h:panelGrid>
-                            </div>
-                        </section>
-                        <section>
-                            <h3>Testing Settings</h3>
-                            <div>
-                                <h:panelGrid columns="2" columnClasses="titleColumn">
-                                    <label>Tests per page:</label>
-                                    <h:selectOneMenu id="pp" value="#{studio.testsPerPage}">
-                                        <f:selectItem itemLabel="1" itemValue="1" />
-                                        <f:selectItem itemLabel="5" itemValue="5" />
-                                        <f:selectItem itemLabel="20" itemValue="20" />
-                                        <f:selectItem itemLabel="All" itemValue="-1" />
-                                    </h:selectOneMenu>
-
-                                    <label>Failures Only:</label>
-                                    <h:selectBooleanCheckbox id="testsFailuresOnly" value="#{studio.testsFailuresOnly}"
-                                                             onclick="$j('#userProfileForm\\:caseFailures').toggle(this.checked);"/>
-                                </h:panelGrid>
-
-                                <h:panelGrid columns="2" columnClasses="titleColumn" id="caseFailures" styleClass="#{!studio.testsFailuresOnly ? 'hidden' : ''}">
-                                    <h:panelGroup id="caseFailuresSetting">
-                                        <label id="caseFailuresSettingLabel">Failures per test:</label>
-                                    </h:panelGroup>
-                                    <h:selectOneMenu id="caseFailuresSettingValue" value="#{studio.testsFailuresPerTest}">
-                                        <f:selectItem itemLabel="1" itemValue="1" />
-                                        <f:selectItem itemLabel="5" itemValue="5" />
-                                        <f:selectItem itemLabel="20" itemValue="20" />
-                                        <f:selectItem itemLabel="All" itemValue="-1" />
-                                    </h:selectOneMenu>
-                                </h:panelGrid>
-
-                                <h:panelGrid columns="2" columnClasses="titleColumn">
-                                    <label>Compound Result:</label>
-                                    <h:selectBooleanCheckbox id="showComplexResult" value="#{studio.showComplexResult}" />
-                                </h:panelGrid>
-                            </div>
-                        </section>
-                        <section>
-                            <h3>Trace Settings</h3>
-                            <div>
-                                <h:panelGrid columns="2" columnClasses="titleColumn">
-                                    <label>Show numbers without formatting:</label>
-                                    <h:selectBooleanCheckbox id="showRealNumbers" value="#{studio.showRealNumbers}" />
-                                </h:panelGrid>
-                            </div>
-                        </section>
-                    </div>
-                </rich:tab>
-            </rich:tabPanel>
-
-            <footer>
-                <a4j:commandButton rendered="#{environment.getProperty('user.mode') != 'single' and userProfileBean.internalUser}" value="Save"
-                    action="#{userProfileBean.editUser}" data="#{facesContext.maximumSeverity}"
-                    oncomplete="if(!event.data) hideAndReload()" styleClass="button-primary save-button" />
-                <a4j:commandButton rendered="#{environment.getProperty('user.mode') == 'single' or not userProfileBean.internalUser}" value="Save"
-                    oncomplete="hideAndReload()" styleClass="button-primary save-button" />
-                <input type="button" value="Cancel" onclick="hideUserProfile();" />
-            </footer>
-
-            <a4j:jsFunction name="renderUserProfile" render="@form" oncomplete="showUserProfile()"/>
-
-        </h:form>
-
-    </rich:popupPanel>
+            </h:form>
+        </rich:popupPanel>
     </f:view>
 
-<script>
-    //<![CDATA[
-    let userProfileTab;
+    <script src="#{contextPath}/javascript/userDisplayNameSelectInitializer.js"></script>
+    <script>//<![CDATA[
 
-    function editUserProfile(tab) {
-        userProfileTab = tab;
-        renderUserProfile();
-    }
+        $j("#user-account").click(function (e) {
+            e.preventDefault();
 
-    function showUserProfile() {
-        $j("#userProfileForm").find('.save-button').prop("disabled", true);
-
-        // Ignore hidden input for selected tab from the dirtiness check
-        $j("#userProfileForm\\:userProfileTab-value").addClass('ays-ignore');
-        $j(".fake-autofill-field").addClass('ays-ignore');
-
-        $j("#userProfileForm").bind('dirty.areYouSure', function () {
-            $j(this).find('.save-button').prop("disabled", false);
+            if ($j("#account-user-mode-hidden").val() !== 'single') {
+                let changePassword = {username: $j("#account-user-username").text()};
+                if ($j("#account-user-mode-hidden").val() === 'multi') {
+                    changePassword.newPassword = $j("#account-user-new-password").val();
+                    changePassword.currentPassword = $j("#account-user-current-password").val();
+                    changePassword.confirmPassword = $j("#account-user-confirm-password").val();
+                }
+                $j.ajax({
+                    type: "PUT",
+                    url: "#{contextPath}/web/users/profile/",
+                    data: JSON.stringify({
+                        changePassword: changePassword,
+                        firstName : $j("#account-user-firstname").val().trim(),
+                        displayName : $j("#account-user-display-name").val().trim(),
+                        email : $j("#account-user-email").val().trim(),
+                        lastName : $j("#account-user-lastname").val().trim(),
+                        showHeader : $j("#account-user-show-header").prop("checked"),
+                        showFormulas : $j("#account-user-show-formulas").prop("checked"),
+                        testsPerPage : $j("#account-user-tests-per-page").val(),
+                        testsFailuresOnly : $j("#account-user-failures-only").prop("checked"),
+                        showComplexResult : $j("#account-user-complex-result").prop("checked"),
+                        showRealNumbers : $j("#account-user-show-real-numbers").prop("checked"),
+                        testsFailuresPerTest : $j("#account-user-failures-per-test").val()
+                    }),
+                    contentType: 'application/json',
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        $j("#account-user-change-password-error, #account-user-lastname-error, #account-user-firstname-error, #account-user-display-name-error, #account-user-email-error").text("");
+                        const errorsMap = new Map(JSON.parse(jqXHR.responseText).fields.map(item => [item.field, item.message]));
+                        $j("#account-user-change-password-error").text(errorsMap.get("changePassword"));
+                        $j("#account-user-lastname-error").text(errorsMap.get("lastName"));
+                        $j("#account-user-display-name-error").text(errorsMap.get("displayName"));
+                        $j("#account-user-email-error").text(errorsMap.get("email"));
+                        $j("#account-user-firstname-error").text(errorsMap.get("firstName"));},
+                    dataType: 'json'
+                })
+                .done(function () {
+                    hideAndReloadAccountUserForm();
+                })
+            } else {
+                hideAndReloadAccountUserForm();
+            }
         });
-        $j("#userProfileForm").bind('clean.areYouSure', function () {
-            $j(this).find('.save-button').prop("disabled", true);
-        });
-        // Enable save button only if the form is dirty - using events.
-        $j("#userProfileForm").areYouSure();
 
-        RichFaces.$("userProfileForm:userProfileTab").switchToItem(
-                userProfileTab === "settings" ? "userProfileSettings" : "@first");
-        RichFaces.$("modalUserProfile").show();
-    }
+        function showAccountUserFrom(tab) {
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/users/profile",
+                datatype: "json"
+            })
+            .done(function (data) {
+                $j("#account-user-firstname").toggle(!(data.externalFlags.firstNameExternal === true));
+                $j("#account-user-firstname-span").toggle(data.externalFlags.firstNameExternal === true);
+                $j("#account-user-lastname").toggle(!(data.externalFlags.lastNameExternal === true));
+                $j("#account-user-lastname-span").toggle(data.externalFlags.lastNameExternal === true);
+                $j("#account-user-email").toggle(!(data.externalFlags.emailExternal === true));
+                $j("#account-user-email-span").toggle(data.externalFlags.emailExternal === true);
+                $j("#account-user-display-name").toggle(!(data.externalFlags.displayNameExternal === true));
+                $j("#account-user-display-name-select-box").toggle(!(data.externalFlags.displayNameExternal === true));
+                $j("#account-user-display-name-span").toggle(data.externalFlags.displayNameExternal === true);
 
-    function hideAndReload() {
-        hideUserProfile();
-        window.ws && ws.nav && ws.nav.reload(true);
-        window.ws && ws.ui && ws.ui.success("User profile has been saved successfully!");
-    }
+                $j("#account-user-failures-only").prop("checked", data.testsFailuresOnly);
+                $j("#account-user-show-formulas").prop("checked", data.showFormulas);
+                $j("#account-user-show-real-numbers").prop("checked", data.showRealNumbers);
+                $j("#account-user-firstname-span").text(data.firstName);
+                $j("#account-user-display-name-span").text(data.displayName);
+                $j("#account-user-email-span").text(data.email);
+                $j("#account-user-lastname-span").text(data.lastName);
+                $j("#account-user-username").text(data.username);
+                $j("#account-user-firstname").val(data.firstName);
+                $j("#account-user-display-name").val(data.displayName);
+                $j("#account-user-email").val(data.email);
+                $j("#account-user-lastname").val(data.lastName);
+                $j('#account-user-failures-per-test-row').toggle(data.testsFailuresOnly === true);
+                $j("#account-user-show-header").attr("checked", data.showHeader);
+                $j("#account-user-complex-result").attr("checked", data.showComplexResult);
+                $j("#account-user-tests-per-page").val(data.testsPerPage);
+                $j("#account-user-failures-per-test").val(data.testsFailuresPerTest);
 
-    function hideUserProfile() {
-        RichFaces.$("modalUserProfile").hide();
+                $j.ajax({
+                    type: "GET",
+                    url: "#{contextPath}/web/users/options",
+                    datatype: "json"
+                })
+                .done(function (options) {
+                    $j("#account-user-name-row").toggle(options.userMode !== 'single');
+                    $j("#account-user-email-row").toggle(options.userMode !== 'single');
+                    $j("#account-user-password-row").toggle(options.userMode === 'multi' && data.internalUser === true);
+                    $j("#account-user-mode-hidden").val(options.userMode);
+                });
+                initAccountUserAreYouSure();
+                initUserDisplayNameSelect($j("#account-user-display-name-select-box"), $j("#account-user-firstname"), $j("#account-user-lastname"), $j("#account-user-display-name"));
+                RichFaces.$("account-user-form:userProfileTab").switchToItem(tab === "settings" ? "userProfileSettings" : "@first");
+                RichFaces.$("modalUserProfile").show();
+            });
+        }
 
-        $j("#userProfileForm\\:firstNameError,#userProfileForm\\:lastNameError,#userProfileForm\\:currentPasswordError, #userProfileForm\\:newPasswordError, #userProfileForm\\:confirmPasswordError").text("");
-        $j("#userProfileForm")[0].reset();
-        $j("#userProfileForm\\:caseFailures").toggle($j("#userProfileForm\\:testsFailuresOnly").is(':checked'));
-        $j("#userProfileForm").trigger('reinitialize.areYouSure');
-    }
+        function initAccountUserAreYouSure() {
+            $j("#account-user-form").find('.save-button').prop("disabled", true);
+
+            // Ignore hidden input for selected tab from the dirtiness check
+            $j("#account-user-form\\:userProfileTab-value").addClass('ays-ignore');
+            $j(".fake-autofill-field").addClass('ays-ignore');
+
+            $j("#account-user-form").bind('dirty.areYouSure', function () {
+                $j("#account-user-form").find('.save-button').prop("disabled", false);
+            });
+
+            $j("#account-user-form").bind('clean.areYouSure', function () {
+                 $j("#account-user-form").find('.save-button').prop("disabled", true);
+            });
+
+            // Enable save button only if the form is dirty - using events.
+            $j("#account-user-form").areYouSure();
+        }
+
+        function hideAndReloadAccountUserForm() {
+            hideAccountUserForm();
+            window.ws && ws.nav && ws.nav.reload(true);
+            window.ws && ws.ui && ws.ui.success("User profile has been saved successfully!");
+        }
+
+        function hideAccountUserForm() {
+            RichFaces.$("modalUserProfile").hide();
+            clearAccountUserForm();
+            $j("#account-user-failures-per-test-row").toggle($j("#account-user-failures-only").is(':checked'));
+            $j("#account-user-form").trigger('reinitialize.areYouSure');
+        }
+
+        function clearAccountUserForm() {
+            $j("#account-user-change-password-error, #account-user-lastname-error, #account-user-display-name-error, #account-user-email-error, #account-user-firstname-error").text("");
+            $j("#account-user-username, #account-user-lastname-span, #account-user-firstname-span, #account-user-email-span, #account-user-display-name-span").text("");
+            $j("#account-user-lastname, #account-user-new-password, #account-user-email, #account-user-firstname, #account-user-display-name, #account-user-current-password, #account-user-confirm-password").val("");
+            $j("#account-user-show-header, #account-user-show-real-numbers, #account-user-show-formulas, #account-user-failures-only, #account-user-complex-result").removeAttr("checked");
+            $j("#account-user-tests-per-page, #account-user-failures-per-test").val(-1);
+        }
 
     //]]>
-</script>
+    </script>
 
 </ui:composition>

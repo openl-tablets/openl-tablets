@@ -1,15 +1,16 @@
 package org.openl.rules.workspace.lw.impl;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.lw.LocalWorkspace;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
 public class LocalWorkspaceManagerImplTest {
     @Rule
@@ -25,7 +26,8 @@ public class LocalWorkspaceManagerImplTest {
 
     @Test
     public void removeWorkspaceOnSessionTimeout() {
-        WorkspaceUserImpl user = new WorkspaceUserImpl("user.1");
+        WorkspaceUserImpl user = new WorkspaceUserImpl("user.1",
+            (username) -> new UserInfo("user.1", "user.1@email", "User 1"));
         LocalWorkspace workspace1 = manager.getWorkspace(user.getUserId());
         String repoId = "design";
 
@@ -44,7 +46,9 @@ public class LocalWorkspaceManagerImplTest {
 
     @Test
     public void dontCreateEmptyFolder() {
-        LocalWorkspace workspace1 = manager.getWorkspace(new WorkspaceUserImpl("user.1").getUserId());
+        LocalWorkspace workspace1 = manager.getWorkspace(
+            new WorkspaceUserImpl("user.1", (username) -> new UserInfo("user.1", "user.1@email", "User 1"))
+                .getUserId());
         assertFalse(workspace1.getLocation().exists());
     }
 }

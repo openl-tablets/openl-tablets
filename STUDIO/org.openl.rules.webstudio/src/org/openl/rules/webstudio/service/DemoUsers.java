@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.service;
 import java.util.Arrays;
 import java.util.HashSet;
 
+import org.openl.rules.security.UserExternalFlags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -40,21 +41,21 @@ public class DemoUsers {
             return;
         }
 
-        initUser("admin", "Administrators");
-        initUser("a1", "Administrators");
-        initUser("u0", "Testers");
-        initUser("u1", "Developers", "Analysts");
-        initUser("u2", "Viewers");
-        initUser("u3", "Viewers");
-        initUser("u4", "Deployers");
-        initUser("user", "Viewers");
+        initUser("admin", "admin@example.com", "Admin", "Administrators");
+        initUser("a1", "a1@example.com", "A1", "Administrators");
+        initUser("u0", "u0@example.com", "U0", "Testers");
+        initUser("u1", "u1@example.com", "U1", "Developers", "Analysts");
+        initUser("u2", "u2@example.com", "U2", "Viewers");
+        initUser("u3", "u3@example.com", "U3", "Viewers");
+        initUser("u4", "u4@example.com", "U4", "Deployers");
+        initUser("user", "user@example.com", "User", "Viewers");
 
         initialized = true;
     }
 
-    private void initUser(String user, String... groups) {
+    private void initUser(String user, String email, String displayName, String... groups) {
         String password = passwordEncoder.encode(user);
-        userManagementService.addUser(user, null, null, password);
+        userManagementService.addUser(user, null, null, password, email, displayName, new UserExternalFlags());
         userManagementService.updateAuthorities(user, new HashSet<>(Arrays.asList(groups)));
 
     }

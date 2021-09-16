@@ -1,9 +1,5 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -37,6 +33,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -47,6 +44,10 @@ import org.openl.util.StringUtils;
 import org.richfaces.model.UploadedFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class OpenAPIProjectCreatorTest {
 
@@ -94,7 +95,8 @@ public class OpenAPIProjectCreatorTest {
         when(designTimeRepoMock.getRepository(REPO_ID)).thenReturn(tempRepo);
 
         when(userWorkspaceMock.getDesignTimeRepository()).thenReturn(designTimeRepoMock);
-        when(userWorkspaceMock.getUser()).thenReturn(new WorkspaceUserImpl("USER_MOCK"));
+        when(userWorkspaceMock.getUser()).thenReturn(new WorkspaceUserImpl("USER_MOCK",
+            (username) -> new UserInfo("USER_MOCK", "USER_MOCK@email", "USER MOCK")));
         when(userWorkspaceMock.getProjectsLockEngine()).thenReturn(new DummyLockEngine());
     }
 

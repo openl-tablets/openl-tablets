@@ -34,6 +34,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.FileChangesFromFolder;
 import org.openl.util.FileSignatureHelper;
 import org.openl.util.FileTypeHelper;
@@ -143,9 +144,9 @@ public class RulesDeployerService implements Closeable {
             final String fullDeployPath = baseDeployPath + deployPath;
             try {
                 if (Optional.ofNullable(deployRepo.check(fullDeployPath))
-                        .map(FileData::getSize)
-                        .filter(size -> size > FileData.UNDEFINED_SIZE)
-                        .isPresent()) {
+                    .map(FileData::getSize)
+                    .filter(size -> size > FileData.UNDEFINED_SIZE)
+                    .isPresent()) {
                     FileItem archive = deployRepo.read(fullDeployPath);
                     if (archive != null) {
                         IOUtils.copyAndClose(archive.getStream(), output);
@@ -159,13 +160,13 @@ public class RulesDeployerService implements Closeable {
             final boolean isMultiProject = isDeployment || ((FolderRepository) deployRepo).listFolders(fullDeployPath)
                 .size() > 1;
 
-            final String basePath = (isMultiProject ? fullDeployPath : baseDeployPath + projectsPath.iterator().next()) + "/";
+            final String basePath = (isMultiProject ? fullDeployPath
+                                                    : baseDeployPath + projectsPath.iterator().next()) + "/";
             List<FileData> files = deployRepo.list(basePath);
             try (ZipOutputStream target = new ZipOutputStream(output)) {
                 for (FileData fileData : files) {
                     try (FileItem fileItem = deployRepo.read(fileData.getName())) {
-                        ZipEntry targetEntry = new ZipEntry(
-                            fileItem.getData().getName().substring(basePath.length()));
+                        ZipEntry targetEntry = new ZipEntry(fileItem.getData().getName().substring(basePath.length()));
                         target.putNextEntry(targetEntry);
                         IOUtils.copy(fileItem.getStream(), target);
                     }
@@ -211,14 +212,14 @@ public class RulesDeployerService implements Closeable {
         if (deployRepo.supports().folders()) {
             FileData data = new FileData();
             data.setName(baseDeployPath + deployPath);
-            data.setAuthor(DEFAULT_AUTHOR_NAME);
+            data.setAuthor(new UserInfo(DEFAULT_AUTHOR_NAME));
             data.setComment("Delete deployment.");
             return deployRepo.deleteHistory(data);
         } else {
             List<FileData> toDelete = projectsPath.stream().map(name -> baseDeployPath + name).map(name -> {
                 FileData data = new FileData();
                 data.setName(name);
-                data.setAuthor(DEFAULT_AUTHOR_NAME);
+                data.setAuthor(new UserInfo(DEFAULT_AUTHOR_NAME));
                 data.setComment("Delete deployment.");
                 return data;
             }).collect(Collectors.toList());
@@ -269,7 +270,7 @@ public class RulesDeployerService implements Closeable {
             BasicFileAttributes attrs = Files.readAttributes(pathToArchive, BasicFileAttributes.class);
             FileData dest = new FileData();
             dest.setName(baseDeployPath + deploymentName);
-            dest.setAuthor(DEFAULT_AUTHOR_NAME);
+            dest.setAuthor(new UserInfo(DEFAULT_AUTHOR_NAME));
             dest.setSize(attrs.size());
             try (FileChangesFromFolder changes = new FileChangesFromFolder(root, dest.getName())) {
                 ((FolderRepository) deployRepo).save(Collections.singletonList(new FolderItem(dest, changes)),
@@ -412,7 +413,7 @@ public class RulesDeployerService implements Closeable {
         FileData dest = new FileData();
         String name = baseDeployPath + deploymentName;
         dest.setName(name + '/' + projectName);
-        dest.setAuthor(DEFAULT_AUTHOR_NAME);
+        dest.setAuthor(new UserInfo(DEFAULT_AUTHOR_NAME));
         return Optional.of(dest);
     }
 

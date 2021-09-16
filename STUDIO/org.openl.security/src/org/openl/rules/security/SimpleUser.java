@@ -11,6 +11,9 @@ public class SimpleUser implements User {
     private String username;
     private String passwordHash;
     private Collection<Privilege> privileges;
+    private String email;
+    private String displayName;
+    private UserExternalFlags externalFlags;
 
     public SimpleUser() {
     }
@@ -19,12 +22,38 @@ public class SimpleUser implements User {
             String lastName,
             String username,
             String passwordHash,
-            Collection<Privilege> privileges) {
+            Collection<Privilege> privileges,
+            String email,
+            String displayName,
+            UserExternalFlags externalFlags) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.username = username;
         this.passwordHash = passwordHash;
         this.privileges = privileges;
+        this.email = email;
+        this.displayName = displayName;
+        this.externalFlags = externalFlags;
+    }
+
+    public SimpleUser(String username, Collection<Privilege> privileges) {
+        this.username = username;
+        this.privileges = privileges;
+        this.firstName = null;
+        this.lastName = null;
+        this.passwordHash = null;
+        this.email = null;
+        this.displayName = null;
+        this.externalFlags = new UserExternalFlags();
+    }
+
+    @Override
+    public UserExternalFlags getExternalFlags() {
+        return externalFlags;
+    }
+
+    public void setExternalFlags(UserExternalFlags externalFlags) {
+        this.externalFlags = externalFlags;
     }
 
     @Override
@@ -52,6 +81,15 @@ public class SimpleUser implements User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    @Override
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     /**
@@ -89,6 +127,15 @@ public class SimpleUser implements User {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override

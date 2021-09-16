@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
@@ -31,8 +32,10 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.FileChangesFromFolder;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
@@ -50,23 +53,28 @@ public class ZipProjectSaveStrategy {
     private final DesignTimeRepository designTimeRepository;
     private final PathFilter zipFilter;
     private final ZipCharsetDetector zipCharsetDetector;
+    private final UserManagementService userManagementService;
 
     @Inject
     public ZipProjectSaveStrategy(DesignTimeRepository designTimeRepository,
             @Qualifier("zipFilter") PathFilter zipFilter,
-            ZipCharsetDetector zipCharsetDetector) {
+            ZipCharsetDetector zipCharsetDetector,
+            UserManagementService userManagementService) {
         this.designTimeRepository = designTimeRepository;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
+        this.userManagementService = userManagementService;
     }
 
     public FileData save(CreateUpdateProjectModel model, Path zipArchive) throws IOException {
         Repository repository = designTimeRepository.getRepository(model.getRepoName());
-
+        UserInfo author = Optional.ofNullable(userManagementService.getUser(model.getAuthor()))
+            .map(user -> new UserInfo(user.getLoginName(), user.getEmail(), user.getDisplayName()))
+            .orElse(new UserInfo(model.getAuthor()));
         FileData projectData = new FileData();
         projectData.setName(designTimeRepository.getRulesLocation() + model.getProjectName());
         projectData.setComment(StringUtils.trimToEmpty(model.getComment()));
-        projectData.setAuthor(model.getAuthor());
+        projectData.setAuthor(author);
         if (repository.supports().mappedFolders()) {
             AdditionalData<FileMappingData> additionalData = new FileMappingData(projectData.getName(),
                 model.getFullPath());

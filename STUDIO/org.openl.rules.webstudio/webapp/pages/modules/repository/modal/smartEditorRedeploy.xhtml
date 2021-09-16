@@ -18,7 +18,7 @@
             <h:panelGroup style="width:380px; height:180px; overflow:auto;" id="modalSmartRedeployData">
                 <h:panelGroup layout="block" style="margin: 0 7px">
                     <h:outputText value="Repository: "/>
-                    <h:selectOneMenu value="#{smartRedeployEditorController.repositoryConfigName}">
+                    <h:selectOneMenu id="redeploySmartEditorRepository" value="#{smartRedeployEditorController.repositoryConfigName}">
                         <f:selectItems value="#{smartRedeployEditorController.repositories}" var="repository"
                                        itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
                         <f:ajax event="change" render="@form" execute="@this"/>
@@ -78,12 +78,15 @@
             </h:panelGrid>
 
             <footer>
-                <a4j:commandButton id="smartRedeployBtn" value="Deploy"
+                <a4j:commandButton value="Deploy"
                                    disabled="#{!smartRedeployEditorController.projectHasSelectedItems or smartRedeployEditorController.protectedDeployRepository}"
-                                   onclick="return startSmartRedeploy();"
+                                   onclick="withCommitInfoRequired('#{studio.currentUsername}', () => JSON.parse('#{smartRedeployEditorController.repositoryTypes}')[$j('#smartRedeployEditorForm\\:redeploySmartEditorRepository option:selected').val()] === 'repo-git' || '#{smartRedeployEditorController.deployConfigRepositoryType}' === 'repo-git',  () => $j('#smartRedeployEditorForm\\:smartRedeployBtn').click()); return false;"
+                                   styleClass="button-primary"/>
+                <a4j:commandButton id="smartRedeployBtn"
                                    action="#{smartRedeployEditorController.redeploy}"
+                                   onclick="return startSmartRedeploy();"
+                                   styleClass="hidden"
                                    render="@form"
-                                   styleClass="button-primary"
                                    oncomplete="onDeployComplete(event.data,#{!facesContext.validationFailed});"/>
 
                 <a4j:commandButton id="cancelBtn" value="Cancel"

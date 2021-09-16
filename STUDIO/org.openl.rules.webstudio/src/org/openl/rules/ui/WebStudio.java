@@ -1,10 +1,5 @@
 package org.openl.rules.ui;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
-import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
-import static org.openl.rules.security.Privileges.VIEW_PROJECTS;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,9 +27,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.openl.engine.OpenLSystemProperties;
+import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -66,6 +61,7 @@ import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -92,9 +88,23 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.thoughtworks.xstream.XStreamException;
+
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
+import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
+import static org.openl.rules.security.Privileges.VIEW_PROJECTS;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.RULES_TREE_VIEW;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TABLE_FORMULAS_SHOW;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TABLE_VIEW;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_FAILURES_ONLY;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_FAILURES_PERTEST;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_RESULT_COMPLEX_SHOW;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_TESTS_PERPAGE;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TRACE_REALNUMBERS_SHOW;
 
 /**
  * TODO Remove JSF dependency TODO Separate user session from app session TODO Move settings to separate UserSettings
@@ -106,9 +116,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private final Logger log = LoggerFactory.getLogger(WebStudio.class);
 
-    private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName, String.CASE_INSENSITIVE_ORDER);
+    private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName,
+        String.CASE_INSENSITIVE_ORDER);
     private static final Comparator<ProjectDescriptor> PROJECT_DESCRIPTOR_COMPARATOR = Comparator
-            .comparing(ProjectDescriptor::getName, String.CASE_INSENSITIVE_ORDER);
+        .comparing(ProjectDescriptor::getName, String.CASE_INSENSITIVE_ORDER);
 
     private final RulesTreeView typeView = new TypeView();
     private final RulesTreeView fileView = new FileView();
@@ -157,6 +168,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private final RulesUserSession rulesUserSession;
 
+    private final PropertyResolver propertyResolver;
+
     /**
      * Projects that are currently processed, for example saved. Projects's state can be in intermediate state, and it
      * can affect their modified status.
@@ -168,7 +181,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
         userSettingsManager = WebStudioUtils.getBean(UserSettingManagementService.class);
         rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
-
+        propertyResolver = WebStudioUtils.getBean(PropertyResolver.class);
         initWorkspace(session);
         initUserSettings();
         projectResolver = ProjectResolver.getInstance();
@@ -197,14 +210,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private void initUserSettings() {
         String userName = rulesUserSession.getUserName();
 
-        treeView = getTreeView(userSettingsManager.getStringProperty(userName, "rules.tree.view"));
-        tableView = userSettingsManager.getStringProperty(userName, "table.view");
-        showFormulas = userSettingsManager.getBooleanProperty(userName, "table.formulas.show");
-        testsPerPage = userSettingsManager.getIntegerProperty(userName, "test.tests.perpage");
-        testsFailuresOnly = userSettingsManager.getBooleanProperty(userName, "test.failures.only");
-        testsFailuresPerTest = userSettingsManager.getIntegerProperty(userName, "test.failures.pertest");
-        showComplexResult = userSettingsManager.getBooleanProperty(userName, "test.result.complex.show");
-        showRealNumbers = userSettingsManager.getBooleanProperty(userName, "trace.realNumbers.show");
+        treeView = getTreeView(userSettingsManager.getStringProperty(userName, RULES_TREE_VIEW));
+        tableView = userSettingsManager.getStringProperty(userName, TABLE_VIEW);
+        showFormulas = userSettingsManager.getBooleanProperty(userName, TABLE_FORMULAS_SHOW);
+        testsPerPage = userSettingsManager.getIntegerProperty(userName, TEST_TESTS_PERPAGE);
+        testsFailuresOnly = userSettingsManager.getBooleanProperty(userName, TEST_FAILURES_ONLY);
+        testsFailuresPerTest = userSettingsManager.getIntegerProperty(userName, TEST_FAILURES_PERTEST);
+        showComplexResult = userSettingsManager.getBooleanProperty(userName, TEST_RESULT_COMPLEX_SHOW);
+        showRealNumbers = userSettingsManager.getBooleanProperty(userName, TRACE_REALNUMBERS_SHOW);
     }
 
     public RulesTreeView[] getTreeViews() {
@@ -370,19 +383,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return tableView;
     }
 
-    public void setTableView(String tableView) {
-        this.tableView = tableView;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), "table.view", tableView);
-    }
-
-    public boolean isShowHeader() {
-        return tableView.equals(IXlsTableNames.VIEW_DEVELOPER);
-    }
-
-    public void setShowHeader(boolean showHeader) {
-        setTableView(showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
-    }
-
     public ProjectModel getModel() {
         return model;
     }
@@ -468,6 +468,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
     }
 
+    public String getCurrentRepositoryType() {
+        return new RepositoryConfiguration(currentRepositoryId, propertyResolver).getType();
+    }
+
     public boolean isAutoCompile() {
         return Props.bool(AdministrationSettings.AUTO_COMPILE);
     }
@@ -521,12 +525,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return;
             }
             boolean anotherModuleOpened = currentModule != module;
-            boolean anotherProjectOpened = !(model.getModuleInfo() != null && project != null &&
-                model.getModuleInfo().getProject().getName().equals(project.getName()));
+            boolean anotherProjectOpened = !(model.getModuleInfo() != null && project != null && model.getModuleInfo()
+                .getProject()
+                .getName()
+                .equals(project.getName()));
             currentModule = module;
             currentProject = project;
-            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile ||
-                anotherModuleOpened || anotherProjectOpened)) {
+            if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || anotherModuleOpened || anotherProjectOpened)) {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
                 } else if (needCompile) {
@@ -597,8 +602,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (FileNotFoundException e) {
             log.debug("Error while updating the module. Please close the module Excel file and try again.", e);
             throw new IllegalStateException(
-                    "Error while updating the module. Please close the module Excel file and try again.",
-                    e);
+                "Error while updating the module. Please close the module Excel file and try again.",
+                e);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
             throw new IllegalStateException("Error while updating the module.", e);
@@ -645,7 +650,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 throw new ValidationException(errorMessage);
             }
 
-            final String userName = rulesUserSession.getUserName();
+            final CommonUser user = rulesUserSession.getUserWorkspace().getUser();
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             final LocalRepository repository = userWorkspace.getLocalWorkspace().getRepository(currentRepositoryId);
             // project folder is not the same as project name
@@ -677,7 +682,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 public boolean execute(String filePath, InputStream inputStream) throws IOException {
                     File outputFile = new File(projectFolder, filePath);
                     FileData data = new FileData();
-                    data.setAuthor(userName);
+                    data.setAuthor(user.getUserInfo());
                     data.setComment("Uploaded from external source");
                     data.setName(projectPath + "/" + filePath);
                     repository.save(data, inputStream);
@@ -710,7 +715,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
     }
 
-    public void initProjectHistory(){
+    public void initProjectHistory() {
         processProjectHistory(currentProject, ProjectHistoryService::init);
     }
 
@@ -718,8 +723,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         for (Module module : project.getModules()) {
             File moduleFile = module.getRulesPath().toFile();
             String moduleHistoryPath = project.getProjectFolder()
-                    .resolve(FolderHelper.resolveHistoryFolder(module))
-                    .toString();
+                .resolve(FolderHelper.resolveHistoryFolder(module))
+                .toString();
             func.accept(moduleHistoryPath, moduleFile);
         }
     }
@@ -767,8 +772,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return newProjectDescriptor;
     }
 
-    public synchronized void forceUpdateProjectDescriptor(String repoId, ProjectDescriptor newProjectDescriptor,
-                                                          ProjectDescriptor oldProjectDescriptor) {
+    public synchronized void forceUpdateProjectDescriptor(String repoId,
+            ProjectDescriptor newProjectDescriptor,
+            ProjectDescriptor oldProjectDescriptor) {
         newProjectDescriptor.getModules().sort(MODULES_COMPARATOR);
         if (currentProject.equals(oldProjectDescriptor)) {
             currentProject = newProjectDescriptor;
@@ -998,7 +1004,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private void setTreeView(RulesTreeView treeView) {
         this.treeView = treeView;
         model.redraw();
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), "rules.tree.view", treeView.getName());
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), RULES_TREE_VIEW, treeView.getName());
+    }
+
+    public String getCurrentUsername() {
+        return rulesUserSession.getUserName();
     }
 
     public void setTreeView(String name) {
@@ -1031,36 +1041,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return showFormulas;
     }
 
-    public void setShowFormulas(boolean showFormulas) {
-        this.showFormulas = showFormulas;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), "table.formulas.show", showFormulas);
-    }
-
     public int getTestsPerPage() {
         return testsPerPage;
-    }
-
-    public void setTestsPerPage(int testsPerPage) {
-        this.testsPerPage = testsPerPage;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.tests.perpage", testsPerPage);
     }
 
     public boolean isTestsFailuresOnly() {
         return testsFailuresOnly;
     }
 
-    public void setTestsFailuresOnly(boolean testsFailuresOnly) {
-        this.testsFailuresOnly = testsFailuresOnly;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.failures.only", testsFailuresOnly);
-    }
-
     public int getTestsFailuresPerTest() {
         return testsFailuresPerTest;
-    }
-
-    public void setTestsFailuresPerTest(int testsFailuresPerTest) {
-        this.testsFailuresPerTest = testsFailuresPerTest;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.failures.pertest", testsFailuresPerTest);
     }
 
     public boolean isCollapseProperties() {
@@ -1073,11 +1063,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public boolean isShowComplexResult() {
         return showComplexResult;
-    }
-
-    public void setShowComplexResult(boolean showComplexResult) {
-        this.showComplexResult = showComplexResult;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), "test.result.complex.show", showComplexResult);
     }
 
     public void setNeedRestart(boolean needRestart) {
@@ -1157,7 +1142,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             });
             repositoryId = projects.entrySet()
                 .stream()
-                .filter(entry -> entry.getValue().stream().anyMatch(projectDescriptor -> projectDescriptor.equals(project)))
+                .filter(
+                    entry -> entry.getValue().stream().anyMatch(projectDescriptor -> projectDescriptor.equals(project)))
                 .findFirst()
                 .map(Map.Entry::getKey)
                 .orElse(currentRepositoryId);
@@ -1215,8 +1201,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public boolean isBranchProtected() {
         return Optional.ofNullable(getCurrentProject())
-                .map(UserWorkspaceProject::isBranchProtected)
-                .orElse(Boolean.FALSE);
+            .map(UserWorkspaceProject::isBranchProtected)
+            .orElse(Boolean.FALSE);
     }
 
     public Map<String, Object> getExternalProperties() {
@@ -1268,7 +1254,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return Collections.emptyList();
             }
             RulesProject project = getCurrentProject();
-            return ((BranchRepository) getCurrentProject().getDesignRepository()).getBranches(project.getDesignFolderName());
+            return ((BranchRepository) getCurrentProject().getDesignRepository())
+                .getBranches(project.getDesignFolderName());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
@@ -1286,7 +1273,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (project.isModified()) {
                 return false;
             }
-            List<String> branches = ((BranchRepository) project.getDesignRepository()).getBranches(project.getDesignFolderName());
+            List<String> branches = ((BranchRepository) project.getDesignRepository())
+                .getBranches(project.getDesignFolderName());
             if (branches.size() < 2) {
                 return false;
             }
@@ -1391,11 +1379,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 model.clearModuleInfo();
             }
         }
-    }
-
-    public void setShowRealNumbers(boolean showRealNumbers) {
-        this.showRealNumbers = showRealNumbers;
-        userSettingsManager.setProperty(rulesUserSession.getUserName(), "trace.realNumbers.show", showRealNumbers);
     }
 
     public boolean isShowRealNumbers() {

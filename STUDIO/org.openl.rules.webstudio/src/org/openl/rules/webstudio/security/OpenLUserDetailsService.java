@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.openl.rules.security.Group;
@@ -11,6 +12,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
+import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
@@ -44,36 +46,91 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
         if (defaultGroup != null) {
             privileges.add(defaultGroup);
         }
-
-        String username = user.getUsername();
-        String password = user.getPassword();
-        String firstName = user.getFirstName();
-        String lastName = user.getLastName();
-
         if (!groupsAreManagedInStudio) {
             // Map external authorities to OpenL privileges
             mapAuthorities(user.getAuthorities(), privileges);
         }
-        User userFromDB = getUserFromDB(username, password, firstName, lastName);
-        if (userFromDB != null) {
-            // Add authorities from the DB
-            privileges.addAll((Collection<? extends Privilege>) userFromDB.getAuthorities());
-        }
 
-        return new SimpleUser(firstName, lastName, username, password, privileges);
+        SimpleUser simpleUser = new SimpleUser(user.getFirstName(),
+            user.getLastName(),
+            user.getUsername(),
+            user.getPassword(),
+            privileges,
+            user.getEmail(),
+            user.getDisplayName(),
+            user.getExternalFlags());
+
+        syncUserWithDB(simpleUser);
+
+        return simpleUser;
     }
 
-    private User getUserFromDB(String username, String password, String firstName, String lastName) {
-        adminUsersInitializer.initIfSuperuser(username);
-        User userDetails = userManagementService.loadUserByUsername(username);
+    private User syncUserWithDB(SimpleUser simpleUser) {
+        adminUsersInitializer.initIfSuperuser(simpleUser.getUsername());
+        User userDetails = userManagementService.getApplicationUser(simpleUser.getUsername());
         if (userDetails == null) {
             // Create a new user
-            userManagementService.addUser(username, firstName, lastName, password);
+            userManagementService.addUser(simpleUser.getUsername(),
+                simpleUser.getFirstName(),
+                simpleUser.getLastName(),
+                simpleUser.getPassword(),
+                simpleUser.getEmail(),
+                simpleUser.getDisplayName(),
+                simpleUser.getExternalFlags());
         } else {
+            syncUserData(userDetails, simpleUser);
             // Update exists
-            userManagementService.updateUserData(username, firstName, lastName, password, true);
+            userManagementService.updateUserData(simpleUser.getUsername(),
+                simpleUser.getFirstName(),
+                simpleUser.getLastName(),
+                simpleUser.getPassword(),
+                true,
+                simpleUser.getEmail(),
+                simpleUser.getDisplayName(),
+                simpleUser.getExternalFlags());
         }
         return userDetails;
+    }
+
+    private void syncUserData(User userDetails, SimpleUser simpleUser) {
+        // Add authorities from the DB
+        simpleUser.getAuthorities().addAll((Collection<? extends Privilege>) userDetails.getAuthorities());
+
+        // sync external user
+        if (simpleUser.getPassword() == null) {
+            UserExternalFlags externalFlags = simpleUser.getExternalFlags();
+            if (!externalFlags.isEmailExternal()) {
+                simpleUser.setEmail(userDetails.getEmail());
+            }
+            if (!externalFlags.isDisplayNameExternal()) {
+                String displayName = userDetails.getDisplayName();
+
+                // try to restore display name from previous pattern
+                String firstName = StringUtils.trimToEmpty(simpleUser.getFirstName());
+                String lastName = StringUtils.trimToEmpty(simpleUser.getLastName());
+                String prevFirstName = StringUtils.trimToEmpty(userDetails.getFirstName());
+                String prevLastName = StringUtils.trimToEmpty(userDetails.getLastName());
+                String firstLastCase = StringUtils.trimToEmpty(prevFirstName + " " + prevLastName);
+                String lastFirstCase = StringUtils.trimToEmpty(prevLastName + " " + prevFirstName);
+                // preventing of removing existing display name pattern match by all empty fields from external service
+                if (externalFlags.isFirstNameExternal() || externalFlags.isLastNameExternal()) {
+                    String syncFirstName = externalFlags.isFirstNameExternal() ? firstName : prevFirstName;
+                    String syncLastName = externalFlags.isLastNameExternal() ? lastName : prevLastName;
+                    if (Objects.equals(userDetails.getDisplayName(), firstLastCase)) {
+                        displayName = syncFirstName + " " + syncLastName;
+                    } else if (Objects.equals(userDetails.getDisplayName(), lastFirstCase)) {
+                        displayName = syncLastName + " " + syncFirstName;
+                    }
+                }
+                simpleUser.setDisplayName(StringUtils.trimToEmpty(displayName));
+            }
+            if (!externalFlags.isFirstNameExternal()) {
+                simpleUser.setFirstName(userDetails.getFirstName());
+            }
+            if (!externalFlags.isLastNameExternal()) {
+                simpleUser.setLastName(userDetails.getLastName());
+            }
+        }
     }
 
     private void mapAuthorities(Collection<? extends Privilege> authorities, List<Privilege> privileges) {

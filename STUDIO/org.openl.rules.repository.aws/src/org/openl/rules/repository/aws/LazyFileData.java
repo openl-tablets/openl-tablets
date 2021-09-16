@@ -6,6 +6,7 @@ import java.net.URLEncoder;
 import java.util.Map;
 
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +28,13 @@ class LazyFileData extends FileData {
     }
 
     @Override
-    public String getAuthor() {
+    public UserInfo getAuthor() {
         verifyLoaded();
         return super.getAuthor();
     }
 
     @Override
-    public void setAuthor(String author) {
+    public void setAuthor(UserInfo author) {
         s3 = null;
         super.setAuthor(author);
     }
@@ -57,7 +58,7 @@ class LazyFileData extends FileData {
             ObjectMetadata metadata = api.getObjectMetadata(request);
 
             Map<String, String> userMetadata = metadata.getUserMetadata();
-            super.setAuthor(decode(userMetadata.get(METADATA_AUTHOR)));
+            super.setAuthor(new UserInfo(decode(userMetadata.get(METADATA_AUTHOR))));
             super.setComment(decode(userMetadata.get(METADATA_COMMENT)));
 
             s3 = null;

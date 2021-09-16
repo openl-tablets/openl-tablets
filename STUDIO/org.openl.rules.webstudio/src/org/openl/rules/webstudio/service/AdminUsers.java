@@ -9,6 +9,7 @@ import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.UserExternalFlags;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -48,17 +49,23 @@ public class AdminUsers {
     }
 
     public boolean isSuperuser(String username) {
-        return administrators.contains(username)   ;
+        return administrators.contains(username);
     }
 
     public void initIfSuperuser(String username) {
         if (!isSuperuser(username)) {
             return;
         }
-        SimpleUser user = (SimpleUser) userService.loadUserByUsername(username);
+        SimpleUser user = (SimpleUser) userService.getApplicationUser(username);
         String adminGroup = assignPrivileges(username);
         if (user == null) {
-            userService.addUser(username, null, null, passwordEncoder.encode(username));
+            userService.addUser(username,
+                null,
+                null,
+                passwordEncoder.encode(username),
+                null,
+                null,
+                new UserExternalFlags());
             userService.updateAuthorities(username, Collections.singleton(adminGroup));
         } else if (!user.hasPrivilege(ADMIN)) {
             Set<String> groups = new HashSet<>();

@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import javax.annotation.PostConstruct;
 
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @ComponentScan(basePackages = "org.openl.rules.rest.validation")
@@ -28,6 +30,16 @@ public class MockConfiguration {
     @Bean
     public DesignTimeRepository designTimeRepository() {
         return mock(DesignTimeRepository.class);
+    }
+
+    @Bean
+    public UserManagementService userManagementService() {
+        return mock(UserManagementService.class);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return mock(PasswordEncoder.class);
     }
 
     @Bean

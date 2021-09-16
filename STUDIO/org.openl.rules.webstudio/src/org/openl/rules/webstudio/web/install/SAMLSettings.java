@@ -12,6 +12,8 @@ public class SAMLSettings {
     private String usernameAttribute;
     private String firstNameAttribute;
     private String secondNameAttribute;
+    private String displayNameAttribute;
+    private String emailAttribute;
     private String groupsAttribute;
     private String authenticationContexts;
     private boolean localLogout;
@@ -36,6 +38,8 @@ public class SAMLSettings {
             String usernameAttribute,
             String firstNameAttribute,
             String secondNameAttribute,
+            String displayNameAttribute,
+            String emailAttribute,
             String groupsAttribute,
             String authenticationContexts,
             boolean localLogout,
@@ -71,6 +75,24 @@ public class SAMLSettings {
         this.metadataTrustCheck = metadataTrustCheck;
         this.isAppAfterBalancer = isAppAfterBalancer;
         this.serverCertificate = serverCertificate;
+        this.displayNameAttribute = displayNameAttribute;
+        this.emailAttribute = emailAttribute;
+    }
+
+    public String getDisplayNameAttribute() {
+        return displayNameAttribute;
+    }
+
+    public void setDisplayNameAttribute(String displayNameAttribute) {
+        this.displayNameAttribute = displayNameAttribute;
+    }
+
+    public String getEmailAttribute() {
+        return emailAttribute;
+    }
+
+    public void setEmailAttribute(String emailAttribute) {
+        this.emailAttribute = emailAttribute;
     }
 
     public String getWebStudioUrl() {

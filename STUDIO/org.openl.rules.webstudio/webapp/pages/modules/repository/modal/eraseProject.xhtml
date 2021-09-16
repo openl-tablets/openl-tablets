@@ -48,15 +48,19 @@
       <footer>
         <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
                 Now errors are shown after dialog is closed. -->
-        <h:commandButton value="Erase" action="#{repositoryTreeController.eraseProject}" styleClass="button-primary" />
+        <h:commandButton value="Erase" styleClass="button-primary"
+                         onclick="withCommitInfoRequired('#{studio.currentUsername}', () => eraseProjectRepositoryType === 'repo-git', () => $j('#eraseProjectForm\\:eraseProjectButton').click()); return false;"/>
+        <h:commandButton id="eraseProjectButton" action="#{repositoryTreeController.eraseProject}" styleClass="hidden" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalEraseProject')}.hide();" />
       </footer>
     </h:form>
   </rich:popupPanel>
 
   <script>
-    function confirmEraseProject() {
-      RichFaces.$('modalEraseProject').show();
-    }
+      let eraseProjectRepositoryType = undefined;
+      function confirmEraseProject(repositoryType) {
+        eraseProjectRepositoryType = repositoryType;
+        RichFaces.$('modalEraseProject').show();
+      }
   </script>
 </ui:composition>

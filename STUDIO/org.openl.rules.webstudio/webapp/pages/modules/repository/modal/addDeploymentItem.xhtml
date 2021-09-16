@@ -74,7 +74,7 @@
                       </h:panelGroup>
                   </rich:column>
                   <rich:column styleClass="modified-by-col">
-                    <h:outputText value="#{version.versionInfo.createdBy}" />
+                    <h:outputText title="#{version.versionInfo.emailCreatedBy}" value="#{version.versionInfo.createdBy}" />
                   </rich:column>
                   <rich:column styleClass="modified-at-col">
                     <h:outputText value="#{version.versionInfo.createdAt}">

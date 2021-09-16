@@ -1,0 +1,13 @@
+PUT /rest/users/jsmith HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+    "displayName":"js",
+    "groups":["Developers"],
+    "password": "pass2",
+    "firstName": "J",
+    "lastName": "S",
+    "email": "js@email"
+}
+

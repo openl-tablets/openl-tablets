@@ -47,8 +47,11 @@
                 <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
                 Now errors are shown after dialog is closed. -->
                 <h:commandButton value="Undelete"
-                    action="#{repositoryTreeController.undeleteProject}"
-                    styleClass="button-primary" />
+                                 onclick="withCommitInfoRequired('#{studio.currentUsername}', () => undeleteProjectRepositoryType === 'repo-git', () => $j('#modalUndeleteProjectForm\\:undeleteButton').click()); return false;"
+                                 styleClass="button-primary" />
+                <h:commandButton id="undeleteButton"
+                                 action="#{repositoryTreeController.undeleteProject}"
+                                 styleClass="hidden" />
                 <input type="button" value="Cancel"
                     onclick="#{rich:component('modalUndeleteProject')}.hide();" />
             </footer>
@@ -57,8 +60,10 @@
     </rich:popupPanel>
 
     <script>
-        function confirmUndeleteProject() {
-          RichFaces.$('modalUndeleteProject').show();
+        let undeleteProjectRepositoryType = undefined;
+        function confirmUndeleteProject(repositoryType) {
+            undeleteProjectRepositoryType = repositoryType;
+            RichFaces.$('modalUndeleteProject').show();
         }
     </script>
 

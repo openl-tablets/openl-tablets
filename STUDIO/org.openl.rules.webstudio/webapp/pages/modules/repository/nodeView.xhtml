@@ -77,9 +77,9 @@
             <h:panelGroup rendered="#{node.type == 'project'}">
                 <h:panelGroup rendered="#{artefact.deleted}">
                     <h:commandButton id="undeleteId1" rendered="#{repositoryTreeState.canUndelete}" value="Undelete"
-                                     onclick="confirmUndeleteProject();return false;" title="#{undeleteMessage}"/>
+                                     onclick="confirmUndeleteProject('#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{undeleteMessage}"/>
                     <h:commandButton id="eraseId1" rendered="#{repositoryTreeState.canErase}" value="Erase"
-                                     onclick="confirmEraseProject();return false;" title="#{eraseMessage}"/>
+                                     onclick="confirmEraseProject('#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{eraseMessage}"/>
                 </h:panelGroup>
 
                 <h:panelGroup rendered="#{!artefact.deleted}">
@@ -116,15 +116,15 @@
 
                         <h:commandButton id="saveId1"
                                          rendered="#{repositoryTreeState.canSaveProject and !repositoryTreeState.localOnly}"
-                                         value="Save" onclick="openSaveDialog();return false;" title="#{saveMessage}"/>
+                                         value="Save" onclick="openSaveDialog('#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{saveMessage}"/>
                         <h:commandButton rendered="#{repositoryTreeState.canMerge}" value="Sync" title="#{mergeMessage}"
-                                         onclick="openMergeBranchesDialog('#{artefact.repository.id}', '#{artefact.name}'); return false;"/>
+                                         onclick="openMergeBranchesDialog('#{artefact.repository.id}', '#{repositoryTreeController.currentNodeRepositoryType}', '#{artefact.name}'); return false;"/>
 
                         <h:commandButton id="copyId1" rendered="#{repositoryTreeState.canCreate}" value="Copy"
-                                         onclick="openCopyProjectDialog('#{artefact.repository.id}', '#{artefact.name}', function() {location.href = location.href;});return false;"
+                                         onclick="openCopyProjectDialog('#{artefact.repository.id}', '#{repositoryTreeController.currentNodeRepositoryType}', '#{artefact.name}', function() {location.href = location.href;});return false;"
                                          title="#{copyMessage}"/>
                         <h:commandButton id="deleteId2" rendered="#{repositoryTreeState.canDelete}" value="Delete"
-                                         onclick="#{rich:component('modalDeleteNode')}.show();return false;"
+                                         onclick="onShowModalDeleteNode('#{repositoryTreeController.currentNodeRepositoryType}');return false;"
                                          title="#{deleteMessage}"/>
                         <h:commandButton id="deleteBranchId" rendered="#{repositoryTreeState.canDeleteBranch}" value="Delete Branch"
                                          onclick="openDeleteBranchDialog();return false;"
@@ -230,7 +230,7 @@
                     </h:panelGroup>
                     <tr>
                         <td class="label">Modified By:</td>
-                        <td>#{node.modifiedBy}</td>
+                        <td><h:outputText title="#{node.emailModifiedBy}" value="#{node.modifiedBy}"/></td>
                     </tr>
                     <tr>
                         <td class="label">Modified At:</td>
@@ -348,9 +348,9 @@
         <div class="nav-panel">
             <h:panelGroup rendered="#{artefact.deleted}">
                 <h:commandButton id="undeleteId2" rendered="#{repositoryTreeState.canUndelete}" value="Undelete"
-                                 onclick="confirmUndeleteProject();return false;" title="#{undeleteMessage}"/>
+                                 onclick="confirmUndeleteProject('#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{undeleteMessage}"/>
                 <h:commandButton id="eraseId2" rendered="#{repositoryTreeState.canErase}" value="Erase"
-                                 onclick="confirmEraseProject();return false;" title="#{eraseMessage}"/>
+                                 onclick="confirmEraseProject('#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{eraseMessage}"/>
             </h:panelGroup>
             <h:panelGroup rendered="#{not artefact.deleted}">
                 <h:commandButton id="deployId" rendered="#{deploymentController.canDeploy}" value="Deploy"
@@ -367,12 +367,14 @@
                 <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canOpen}" value="Open"
                                  action="#{deploymentController.open}"
                                  title="Make project available for editing and lock it from editing by other users"/>
-                <h:commandButton id="saveDeployId" rendered="#{repositoryTreeState.canSaveDeployment}" value="Save"
-                                 action="#{deploymentController.save}" title="#{saveMessage}"/>
+                <h:commandButton rendered="#{repositoryTreeState.canSaveDeployment}"
+                                 onclick="withCommitInfoRequired('#{studio.currentUsername}', () => '#{repositoryTreeController.currentNodeRepositoryType}' === 'repo-git', () => $j('#saveDeployId').click()); return false;"
+                                 value="Save" title="#{saveMessage}"/>
+                <h:commandButton id="saveDeployId" styleClass="hidden" action="#{deploymentController.save}"/>
                 <h:commandButton id="copyId2" rendered="#{repositoryTreeState.canCreateDeployment}" value="Copy"
-                                 onclick="openCopyDeploymentProjectDialog();return false;" title="#{copyMessage}"/>
+                                 onclick="openCopyDeploymentProjectDialog(undefined, '#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{copyMessage}"/>
                 <h:commandButton id="deleteId3" rendered="#{repositoryTreeState.canDeleteDeployment}" value="Delete"
-                                 onclick="#{rich:component('modalDeleteNode')}.show();return false;"
+                                 onclick="onShowModalDeleteNode('#{repositoryTreeController.currentNodeRepositoryType}');return false;"
                                  title="#{deleteMessage}"/>
 
                 <h:commandButton id="unlockId2"
@@ -402,7 +404,6 @@
             </rich:tab>
         </rich:tabPanel>
     </h:panelGroup>
-
     <script>
         //<![CDATA[
         var $selectedBranch;

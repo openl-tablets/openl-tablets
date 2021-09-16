@@ -19,8 +19,10 @@ import javax.ws.rs.core.StreamingOutput;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.webstudio.service.UserManagementService;
+import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -40,9 +42,11 @@ public class ConflictService {
     private static final Logger LOG = LoggerFactory.getLogger(ConflictService.class);
 
     private final MultiUserWorkspaceManager workspaceManager;
+    private final UserManagementService userManagementService;
 
-    public ConflictService(MultiUserWorkspaceManager workspaceManager) {
+    public ConflictService(MultiUserWorkspaceManager workspaceManager, UserManagementService userManagementService) {
         this.workspaceManager = workspaceManager;
+        this.userManagementService = userManagementService;
     }
 
     @GET
@@ -174,8 +178,10 @@ public class ConflictService {
     }
 
     private WorkspaceUserImpl getUser() {
-        String name = getUserName();
-        return new WorkspaceUserImpl(name);
+        return new WorkspaceUserImpl(getUserName(),
+            (username) -> Optional.ofNullable(userManagementService.getUser(username))
+                .map(usr -> new UserInfo(usr.getLoginName(), usr.getEmail(), usr.getDisplayName()))
+                .orElse(null));
     }
 
     private static String getUserName() {

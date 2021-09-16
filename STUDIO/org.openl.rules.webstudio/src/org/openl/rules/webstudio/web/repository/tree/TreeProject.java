@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
 import java.util.Date;
+import java.util.Optional;
 
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -8,6 +9,7 @@ import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.slf4j.Logger;
@@ -99,7 +101,16 @@ public class TreeProject extends TreeFolder {
 
     public String getModifiedBy() {
         try {
-            return getProject().getFileData().getAuthor();
+            return Optional.ofNullable(getProject().getFileData().getAuthor()).map(UserInfo::getName).orElse(null);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return "Error";
+        }
+    }
+
+    public String getEmailModifiedBy() {
+        try {
+            return Optional.ofNullable(getProject().getFileData().getAuthor()).map(UserInfo::getEmail).orElse(null);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return "Error";

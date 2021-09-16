@@ -12,6 +12,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +54,9 @@ public class Migrator {
         if (stringFromVersion.compareTo("5.24.0") < 0) {
             migrateTo5_24(settings, props);
         }
+        if (stringFromVersion.compareTo("5.26.0") < 0) {
+            migrateTo5_26_0(settings, props);
+        }
 
         try {
             settings.save(props);
@@ -60,6 +64,21 @@ public class Migrator {
         } catch (IOException e) {
             LOG.error("Migration of properties failed.", e);
         }
+    }
+
+    // 5.26.0
+    private static void migrateTo5_26_0(DynamicPropertySource settings, HashMap<String, String> props) {
+        String newDefaultCommentTemplate = "{user-message} Type: {commit-type}.";
+        Arrays.stream(settings.getPropertyNames())
+            .filter(propertyName -> propertyName.startsWith("repository."))
+            .filter(propertyName -> propertyName.endsWith(".comment-template"))
+            .forEach(propertyName -> {
+                String commentTemplate = (String) settings.getProperty(propertyName);
+                if (commentTemplate != null && commentTemplate.contains("{username}")) {
+                    props.put(propertyName + "-old", commentTemplate);
+                    props.put(propertyName, newDefaultCommentTemplate);
+                }
+            });
     }
 
     // 5.24
@@ -115,8 +134,8 @@ public class Migrator {
         props.put("project.history.home", null); // Remove
 
         // migrate deploy-config
-        if (("true").equals(settings.getProperty("repository.deploy-config.separate-repository")) ||
-                ("true").equals(Props.text("repository.deploy-config.separate-repository"))) {
+        if (("true").equals(settings.getProperty("repository.deploy-config.separate-repository")) || ("true")
+            .equals(Props.text("repository.deploy-config.separate-repository"))) {
             props.put("repository.deploy-config.separate-repository", null);
             props.put("repository.deploy-config.use-repository", null);
 
@@ -124,7 +143,7 @@ public class Migrator {
             // null means this property have default value from previous OpenL version
             Object depConfRepo = settings.getProperty("repository.deploy-config.factory");
             if (settings.getProperty(
-                    "repository.deploy-config.local-repository-path") == null && (depConfRepo == null || "repo-git"
+                "repository.deploy-config.local-repository-path") == null && (depConfRepo == null || "repo-git"
                     .equals(depConfRepo)) || "org.openl.rules.repository.git.GitRepository".equals(depConfRepo)) {
                 props.put("repository.deploy-config.local-repository-path", "${openl.home}/deploy-config-repository");
             }
@@ -134,9 +153,8 @@ public class Migrator {
 
         // migrate design repository path
         Object desRepo = settings.getProperty("repository.design.factory");
-        if (settings.getProperty(
-            "repository.design.local-repository-path") == null && (desRepo == null || "repo-git"
-                .equals(desRepo)) || "org.openl.rules.repository.git.GitRepository".equals(desRepo)) {
+        if (settings.getProperty("repository.design.local-repository-path") == null && (desRepo == null || "repo-git"
+            .equals(desRepo)) || "org.openl.rules.repository.git.GitRepository".equals(desRepo)) {
             props.put("repository.design.local-repository-path", "${openl.home}/design-repository");
         }
 
@@ -144,27 +162,41 @@ public class Migrator {
         Object desNewBranchPattern = settings.getProperty("repository.design.new-branch-pattern");
         if (desNewBranchPattern != null) {
             String migratedNewBranchPattern = desNewBranchPattern.toString()
-                    .replace("{0}", "{project-name}")
-                    .replace("{1}", "{username}")
-                    .replace("{2}", "{current-date}");
+                .replace("{0}", "{project-name}")
+                .replace("{1}", "{username}")
+                .replace("{2}", "{current-date}");
             props.put("repository.design.new-branch.pattern", migratedNewBranchPattern);
             props.put("repository.design.new-branch-pattern", null);
         }
-        rename(settings, props, "repository.deploy-config.comment-validation-pattern", "repository.deploy-config.comment-template.comment-validation-pattern");
-        rename(settings, props, "repository.deploy-config.invalid-comment-message", "repository.deploy-config.comment-template.invalid-comment-message");
-        rename(settings, props, "repository.design.comment-validation-pattern", "repository.design.comment-template.comment-validation-pattern");
-        rename(settings, props, "repository.design.invalid-comment-message", "repository.design.comment-template.invalid-comment-message");
+        rename(settings,
+            props,
+            "repository.deploy-config.comment-validation-pattern",
+            "repository.deploy-config.comment-template.comment-validation-pattern");
+        rename(settings,
+            props,
+            "repository.deploy-config.invalid-comment-message",
+            "repository.deploy-config.comment-template.invalid-comment-message");
+        rename(settings,
+            props,
+            "repository.design.comment-validation-pattern",
+            "repository.design.comment-template.comment-validation-pattern");
+        rename(settings,
+            props,
+            "repository.design.invalid-comment-message",
+            "repository.design.comment-template.invalid-comment-message");
 
         // migrate deployment repository path
         Object productionFactory = settings.getProperty("repository.production.factory");
-        if (settings.getProperty(
-                "repository.production.local-repository-path") == null && ("repo-git"
-                .equals(productionFactory) || "org.openl.rules.repository.git.GitRepositoryrepo-git".equals(productionFactory))) {
+        if (settings.getProperty("repository.production.local-repository-path") == null && ("repo-git".equals(
+            productionFactory) || "org.openl.rules.repository.git.GitRepositoryrepo-git".equals(productionFactory))) {
             props.put("repository.production.local-repository-path", "${openl.home}/production-repository");
         }
     }
 
-    private static void rename(DynamicPropertySource settings, HashMap<String, String> props, String oldKey, String newKey) {
+    private static void rename(DynamicPropertySource settings,
+            HashMap<String, String> props,
+            String oldKey,
+            String newKey) {
         if (settings.containsProperty(oldKey)) {
             String value = (String) settings.getProperty(oldKey);
             props.put(oldKey, null);

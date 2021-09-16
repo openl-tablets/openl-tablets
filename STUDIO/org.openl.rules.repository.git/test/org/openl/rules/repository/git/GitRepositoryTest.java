@@ -1,17 +1,5 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.openl.rules.repository.git.TestGitUtils.assertContains;
-import static org.openl.rules.repository.git.TestGitUtils.createFileData;
-import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
-import static org.openl.rules.repository.git.TestGitUtils.writeText;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,9 +35,22 @@ import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.openl.rules.repository.git.TestGitUtils.assertContains;
+import static org.openl.rules.repository.git.TestGitUtils.createFileData;
+import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
+import static org.openl.rules.repository.git.TestGitUtils.writeText;
 
 public class GitRepositoryTest {
     private static final String BRANCH = "test";
@@ -78,7 +79,7 @@ public class GitRepositoryTest {
             // create initial commit in master
             createNewFile(parent, "file-in-master", "root");
             git.add().addFilepattern(".").call();
-            RevCommit commit = git.commit().setMessage("Initial").setCommitter("user1", "user1@mail.to").call();
+            RevCommit commit = git.commit().setMessage("Initial").setCommitter("User 1", "user1@email.to").call();
             addTag(git, commit, 1);
 
             // create first commit in test branch
@@ -91,7 +92,7 @@ public class GitRepositoryTest {
             git.add().addFilepattern(".").call();
             commit = git.commit()
                 .setMessage("Initial commit in test branch")
-                .setCommitter("user1", "user1@mail.to")
+                .setCommitter("User 1", "user1@email.to")
                 .call();
             addTag(git, commit, 2);
 
@@ -102,7 +103,7 @@ public class GitRepositoryTest {
             commit = git.commit()
                 .setAll(true)
                 .setMessage("Second modification")
-                .setCommitter("user2", "user2@gmail.to")
+                .setCommitter("User 2", "user2@email.to")
                 .call();
             addTag(git, commit, 3);
 
@@ -112,7 +113,7 @@ public class GitRepositoryTest {
             git.add().addFilepattern(".").call();
             commit = git.commit()
                 .setMessage("Additional commit in master")
-                .setCommitter("user1", "user1@mail.to")
+                .setCommitter("User 1", "user1@email.to")
                 .call();
             addTag(git, commit, 4);
         }
@@ -161,19 +162,22 @@ public class GitRepositoryTest {
 
         FileData file1 = getFileData(files, "rules/project1/file1");
         assertNotNull(file1);
-        assertEquals("user1", file1.getAuthor());
+        assertEquals("User 1", file1.getAuthor().getDisplayName());
+        assertEquals("user1@email.to", file1.getAuthor().getEmail());
         assertEquals("Initial commit in test branch", file1.getComment());
         assertEquals(3, file1.getSize());
 
         FileData file2 = getFileData(files, "rules/project1/file2");
         assertNotNull(file2);
-        assertEquals("user2", file2.getAuthor());
+        assertEquals("User 2", file2.getAuthor().getDisplayName());
+        assertEquals("user2@email.to", file2.getAuthor().getEmail());
         assertEquals("Second modification", file2.getComment());
         assertEquals(12, file2.getSize());
 
         FileData file3 = getFileData(files, "rules/project1/folder/file3");
         assertNotNull(file3);
-        assertEquals("user2", file3.getAuthor());
+        assertEquals("User 2", file3.getAuthor().getDisplayName());
+        assertEquals("user2@email.to", file3.getAuthor().getEmail());
         assertEquals("Second modification", file3.getComment());
         assertEquals(9, file3.getSize());
     }
@@ -203,7 +207,8 @@ public class GitRepositoryTest {
 
         FileData file2Rev2 = find(files, "rules/project1/file2");
         assertEquals("Rules_2", file2Rev2.getVersion());
-        assertEquals("user1", file2Rev2.getAuthor());
+        assertEquals("User 1", file2Rev2.getAuthor().getDisplayName());
+        assertEquals("user1@email.to", file2Rev2.getAuthor().getEmail());
         assertEquals("Initial commit in test branch", file2Rev2.getComment());
         assertEquals("Expected file content: 'Hello!'", 6, file2Rev2.getSize());
 
@@ -220,7 +225,8 @@ public class GitRepositoryTest {
 
         FileData file2Rev3 = find(files, "rules/project1/file2");
         assertEquals("Rules_3", file2Rev3.getVersion());
-        assertEquals("user2", file2Rev3.getAuthor());
+        assertEquals("User 2", file2Rev3.getAuthor().getDisplayName());
+        assertEquals("user2@email.to", file2Rev3.getAuthor().getEmail());
         assertEquals("Second modification", file2Rev3.getComment());
         assertEquals("Expected file content: 'Hello World!'", 12, file2Rev3.getSize());
 
@@ -232,26 +238,30 @@ public class GitRepositoryTest {
     public void check() throws IOException {
         FileData file1 = repo.check("rules/project1/file1");
         assertNotNull(file1);
-        assertEquals("user1", file1.getAuthor());
+        assertEquals("User 1", file1.getAuthor().getDisplayName());
+        assertEquals("user1@email.to", file1.getAuthor().getEmail());
         assertEquals("Initial commit in test branch", file1.getComment());
         assertEquals(3, file1.getSize());
 
         FileData file2 = repo.check("rules/project1/file2");
         assertNotNull(file2);
-        assertEquals("user2", file2.getAuthor());
+        assertEquals("User 2", file2.getAuthor().getDisplayName());
+        assertEquals("user2@email.to", file2.getAuthor().getEmail());
         assertEquals("Second modification", file2.getComment());
         assertEquals(12, file2.getSize());
 
         FileData file3 = repo.check("rules/project1/folder/file3");
         assertNotNull(file3);
-        assertEquals("user2", file3.getAuthor());
+        assertEquals("User 2", file3.getAuthor().getDisplayName());
+        assertEquals("user2@email.to", file3.getAuthor().getEmail());
         assertEquals("Second modification", file3.getComment());
         assertEquals(9, file3.getSize());
 
         FileData project1 = repo.check("rules/project1");
         assertNotNull(project1);
         assertEquals("rules/project1", project1.getName());
-        assertEquals("user2", project1.getAuthor());
+        assertEquals("User 2", project1.getAuthor().getDisplayName());
+        assertEquals("user2@email.to", project1.getAuthor().getEmail());
         assertEquals("Second modification", project1.getComment());
         assertEquals(FileData.UNDEFINED_SIZE, project1.getSize());
     }
@@ -274,7 +284,8 @@ public class GitRepositoryTest {
 
         assertNotNull(result);
         assertEquals(path, result.getName());
-        assertEquals("John Smith", result.getAuthor());
+        assertEquals("John Smith", result.getAuthor().getDisplayName());
+        assertEquals("jsmith@email", result.getAuthor().getEmail());
         assertEquals("Comment for rules/project1/folder/file4", result.getComment());
         assertEquals(text.length(), result.getSize());
         assertEquals("Rules_5", result.getVersion());
@@ -313,7 +324,7 @@ public class GitRepositoryTest {
 
         FileData folderData = new FileData();
         folderData.setName("rules/project1");
-        folderData.setAuthor("John Smith");
+        folderData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
         folderData.setComment("Bulk change");
 
         FileData savedData = repo.save(folderData, changes, ChangesetType.FULL);
@@ -338,7 +349,7 @@ public class GitRepositoryTest {
         FileData fileData = new FileData();
         fileData.setName("rules/project1/file2");
         fileData.setComment("Delete file 2");
-        fileData.setAuthor("John Smith");
+        fileData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
         boolean deleted = repo.delete(fileData);
         assertTrue("'file2' has not been deleted", deleted);
 
@@ -352,7 +363,7 @@ public class GitRepositoryTest {
         FileData projectData = new FileData();
         projectData.setName(projectPath);
         projectData.setComment("Delete project1");
-        projectData.setAuthor("John Smith");
+        projectData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
         assertTrue("'project1' has not been deleted", repo.delete(projectData));
 
         FileData deletedProject = repo.check(projectPath);
@@ -360,6 +371,7 @@ public class GitRepositoryTest {
 
         // Restore the project
         FileData toDelete = new FileData();
+        toDelete.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
         toDelete.setName(projectPath);
         toDelete.setVersion(deletedProject.getVersion());
         toDelete.setComment("Delete project1.");
@@ -408,7 +420,7 @@ public class GitRepositoryTest {
         FileData fileData = new FileData();
         fileData.setName(name);
         fileData.setComment("Delete project1");
-        fileData.setAuthor("John Smith");
+        fileData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
         boolean deleted = repo.delete(fileData);
         assertTrue("'file2' has not been deleted", deleted);
 
@@ -458,7 +470,7 @@ public class GitRepositoryTest {
         try (Git git = repo.getClosableGit()) {
             git.checkout().setName(repo.getBranch()).setForced(true).call();
             git.rm().addFilepattern(FOLDER_IN_REPOSITORY).call();
-            git.commit().setMessage("External erase").setCommitter("user1", "user1@mail.to").call();
+            git.commit().setMessage("External erase").setCommitter("User 1", "user1@email.to").call();
         }
     }
 
@@ -485,11 +497,13 @@ public class GitRepositoryTest {
 
         FileData v3 = repo.checkHistory("rules/project1", "Rules_3");
         assertEquals("Rules_3", v3.getVersion());
-        assertEquals("user2", v3.getAuthor());
+        assertEquals("User 2", v3.getAuthor().getDisplayName());
+        assertEquals("user2@email.to", v3.getAuthor().getEmail());
 
         FileData v2 = repo.checkHistory("rules/project1", "Rules_2");
         assertEquals("Rules_2", v2.getVersion());
-        assertEquals("user1", v2.getAuthor());
+        assertEquals("User 1", v2.getAuthor().getDisplayName());
+        assertEquals("user1@email.to", v2.getAuthor().getEmail());
 
         assertNull(repo.checkHistory("rules/project1", "Rules_1"));
     }
@@ -508,12 +522,13 @@ public class GitRepositoryTest {
         FileData dest = new FileData();
         dest.setName("rules/project1/file2-copy");
         dest.setComment("Copy file 2");
-        dest.setAuthor("John Smith");
+        dest.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
 
         FileData copy = repo.copyHistory("rules/project1/file2", dest, "Rules_2");
         assertNotNull(copy);
         assertEquals("rules/project1/file2-copy", copy.getName());
-        assertEquals("John Smith", copy.getAuthor());
+        assertEquals("John Smith", copy.getAuthor().getDisplayName());
+        assertEquals("jsmith@email", copy.getAuthor().getEmail());
         assertEquals("Copy file 2", copy.getComment());
         assertEquals(6, copy.getSize());
         assertEquals("Rules_5", copy.getVersion());
@@ -522,11 +537,12 @@ public class GitRepositoryTest {
         FileData destProject = new FileData();
         destProject.setName("rules/project2");
         destProject.setComment("Copy of project1");
-        destProject.setAuthor("John Smith");
+        destProject.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
         FileData project2 = repo.copyHistory("rules/project1", destProject, "Rules_2");
         assertNotNull(project2);
         assertEquals("rules/project2", project2.getName());
-        assertEquals("John Smith", project2.getAuthor());
+        assertEquals("John Smith", project2.getAuthor().getDisplayName());
+        assertEquals("jsmith@email", project2.getAuthor().getEmail());
         assertEquals("Copy of project1", project2.getComment());
         assertEquals(FileData.UNDEFINED_SIZE, project2.getSize());
         assertEquals("Rules_6", project2.getVersion());
@@ -541,7 +557,7 @@ public class GitRepositoryTest {
         try {
             FileData data = new FileData();
             data.setName("rules/project1/file2");
-            data.setAuthor(null);
+            data.setAuthor(new UserInfo(null));
             data.setComment(null);
             repo.save(data, IOUtils.toInputStream("error"));
             fail("Exception should be thrown");
@@ -702,7 +718,8 @@ public class GitRepositoryTest {
                 assertEquals(resolveText, IOUtils.toStringAndClose(remoteItem.getStream()));
                 FileData remoteData = remoteItem.getData();
                 assertEquals(localData.getVersion(), remoteData.getVersion());
-                assertEquals("John Smith", remoteData.getAuthor());
+                assertEquals("John Smith", remoteData.getAuthor().getDisplayName());
+                assertEquals("jsmith@email", remoteData.getAuthor().getEmail());
                 assertEquals(mergeMessage, remoteData.getComment());
 
                 // User modifies a file based on old version (baseCommit) and gets conflict.
@@ -794,7 +811,7 @@ public class GitRepositoryTest {
 
                 FileData folderData1 = new FileData();
                 folderData1.setName("rules/project1");
-                folderData1.setAuthor("John Smith");
+                folderData1.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
                 folderData1.setComment("Bulk change by John");
 
                 FileData save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
@@ -808,7 +825,7 @@ public class GitRepositoryTest {
 
                 FileData folderData2 = new FileData();
                 folderData2.setName("rules/project1");
-                folderData2.setAuthor("Jane Smith");
+                folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
                 folderData2.setComment("Bulk change by Jane");
                 repository2.save(folderData2, changes2, ChangesetType.DIFF);
 
@@ -845,7 +862,7 @@ public class GitRepositoryTest {
 
                 FileData folderData2 = new FileData();
                 folderData2.setName("rules/project1");
-                folderData2.setAuthor("Jane Smith");
+                folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
                 folderData2.setComment("Bulk change by Jane");
                 folderData2.setVersion(baseCommit);
                 folderData2
@@ -856,7 +873,8 @@ public class GitRepositoryTest {
                 assertEquals(resolveText, IOUtils.toStringAndClose(remoteItem.getStream()));
                 FileData remoteData = remoteItem.getData();
                 assertEquals(localData.getVersion(), remoteData.getVersion());
-                assertEquals("Jane Smith", remoteData.getAuthor());
+                assertEquals("Jane Smith", remoteData.getAuthor().getDisplayName());
+                assertEquals("jasmith@email", remoteData.getAuthor().getEmail());
                 assertEquals(mergeMessage, remoteData.getComment());
 
                 String file1Content = IOUtils.toStringAndClose(repository2.read("rules/project1/file1").getStream());
@@ -872,7 +890,7 @@ public class GitRepositoryTest {
 
                     FileData folderData3 = new FileData();
                     folderData3.setName("rules/project1");
-                    folderData3.setAuthor("Jane Smith");
+                    folderData3.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
                     folderData3.setComment("Bulk change by Jane");
                     folderData3.setVersion(baseCommit); // It's is needed for this scenario
                     repository2.save(folderData3, changes3, ChangesetType.DIFF);
@@ -913,7 +931,7 @@ public class GitRepositoryTest {
 
                 FileData folderData1 = new FileData();
                 folderData1.setName("rules/project1");
-                folderData1.setAuthor("John Smith");
+                folderData1.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
                 folderData1.setComment("Bulk change by John");
 
                 FileData save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
@@ -926,7 +944,7 @@ public class GitRepositoryTest {
 
                 FileData folderData2 = new FileData();
                 folderData2.setName("rules/project1");
-                folderData2.setAuthor("Jane Smith");
+                folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
                 folderData2.setComment("Bulk change by Jane");
                 repository2.save(folderData2, changes2, ChangesetType.DIFF);
 
@@ -960,7 +978,7 @@ public class GitRepositoryTest {
 
                 FileData folderData2 = new FileData();
                 folderData2.setName("rules/project1");
-                folderData2.setAuthor("Jane Smith");
+                folderData2.setAuthor(new UserInfo("jasmith", "jasmith@email", "Jane Smith"));
                 folderData2.setComment("Bulk change by Jane");
                 folderData2.setVersion(baseCommit);
                 folderData2
@@ -998,7 +1016,7 @@ public class GitRepositoryTest {
 
             FileData folderData1 = new FileData();
             folderData1.setName("rules/project1");
-            folderData1.setAuthor("John Smith");
+            folderData1.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
             folderData1.setComment("Bulk change by John");
 
             FileData save1 = repository1.save(folderData1, changes1, ChangesetType.DIFF);
@@ -1012,7 +1030,7 @@ public class GitRepositoryTest {
 
             FileData folderData2 = new FileData();
             folderData2.setName("rules/project1");
-            folderData2.setAuthor("Jane Smith");
+            folderData2.setAuthor(new UserInfo("jasmith", "jasmith@eamil", "Jane Smith"));
             folderData2.setComment("Bulk change by Jane");
             FolderItem folderItem = new FolderItem(folderData2, changes2);
             repository2.save(Collections.singletonList(folderItem), ChangesetType.DIFF);
@@ -1111,7 +1129,7 @@ public class GitRepositoryTest {
             RevCommit commit = git.commit()
                 .setAll(true)
                 .setMessage("Second modification")
-                .setCommitter("user2", "user2@gmail.to")
+                .setCommitter("User 2", "user2@email.to")
                 .call();
             // Fetch must not fail if some tag is added.
             addTag(git, commit, 42);
@@ -1171,7 +1189,7 @@ public class GitRepositoryTest {
         repo.save(createFileData("rules/project1/folder/file4", mainText), IOUtils.toInputStream(mainText));
 
         // After current branch was switched to 'test', invoke pull on 'new-branch'.
-        newBranchRepo.pull("John Smith");
+        newBranchRepo.pull(new UserInfo("jsmith", "jsmith@email", "John Smith"));
 
         assertNotNull("The file '" + newPath + "' must exist in '" + newBranch + "'", newBranchRepo.check(newPath));
         // Check that pull is invoked on correct branch and that 'new-branch' isn't merged into 'test'.
@@ -1205,7 +1223,7 @@ public class GitRepositoryTest {
         repo.save(createFileData("rules/project1/folder/file4", mainText), IOUtils.toInputStream(mainText));
 
         // After current branch was switched to 'test', merge 'branch1' to 'branch2'.
-        branch2Repo.merge(branch1, "John Smith", null);
+        branch2Repo.merge(branch1, new UserInfo("jsmith", "jsmith@email", "John Smith"), null);
 
         // Check that 'branch1' and 'branch2' aren't merged into 'test'
         assertNull(

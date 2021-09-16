@@ -16,7 +16,7 @@ public class FileData {
 
     private String name;
     private long size = UNDEFINED_SIZE;
-    private String author;
+    private UserInfo author;
     private String comment;
     private Date modifiedAt;
     private String version;
@@ -59,11 +59,11 @@ public class FileData {
      *
      * @return The author of the last modification.
      */
-    public String getAuthor() {
+    public UserInfo getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public void setAuthor(UserInfo author) {
         this.author = author;
     }
 

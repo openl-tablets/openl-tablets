@@ -19,6 +19,7 @@ import javax.naming.ldap.InitialLdapContext;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.UserExternalFlags;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,15 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
 
         String firstName = ctx.getStringAttribute("givenName");
         String lastName = ctx.getStringAttribute("sn");
+        String email = ctx.getStringAttribute("mail");
+        String displayName = ctx.getStringAttribute("displayName");
+        if (StringUtils.isBlank(displayName)) {
+            displayName = ctx.getStringAttribute("cn");
+        }
+        UserExternalFlags externalFlags = new UserExternalFlags(StringUtils.isNotBlank(firstName),
+            StringUtils.isNotBlank(lastName),
+            StringUtils.isNotBlank(email),
+            StringUtils.isNotBlank(displayName));
 
         Collection<? extends GrantedAuthority> userAuthorities = getAuthorities(ctx,
             username,
@@ -82,7 +92,14 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             }
         }
         String fixedUsername = fixCaseMatching(ctx, username);
-        SimpleUser simpleUser = new SimpleUser(firstName, lastName, fixedUsername, null, privileges);
+        SimpleUser simpleUser = new SimpleUser(firstName,
+            lastName,
+            fixedUsername,
+            null,
+            privileges,
+            email,
+            displayName,
+            externalFlags);
         return authoritiesMapper.apply(simpleUser);
     }
 

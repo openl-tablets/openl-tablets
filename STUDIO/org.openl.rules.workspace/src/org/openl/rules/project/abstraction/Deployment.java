@@ -81,7 +81,7 @@ public class Deployment extends AProjectFolder implements IDeployment {
 
     @Override
     public ProjectVersion getVersion() {
-        RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(null, null);
+        RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(null, null, null);
         return new RepositoryProjectVersionImpl(commonVersion, rvii);
     }
 

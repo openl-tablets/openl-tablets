@@ -46,7 +46,7 @@
                 <h:outputText value="#{productionRepositoriesTreeController.getBusinessVersion(prj)}"/>
               </rich:column>
               <rich:column rendered="#{node.type == 'proddeployment'}" style="text-align:center">
-                <h:outputText value="#{prj.modifiedBy}" />
+                <h:outputText title="#{prj.emailModifiedBy}" value="#{prj.modifiedBy}" />
               </rich:column>
               <rich:column rendered="#{node.type == 'proddeployment'}" style="text-align:center">
                 <h:outputText value="#{prj.modifiedAt}">

@@ -11,8 +11,10 @@ public class CommitMessageParserTest {
 
     @Test
     public void testMessageParser() {
-        CommitMessageParser decompiler = new CommitMessageParser("{user-message} Author: {username}. Commit type: {commit-type}.");
-        CommitMessage commitMessage = decompiler.parse("Project My Rules is saved. Author: John Smith. Commit type: SAVE.");
+        CommitMessageParser decompiler = new CommitMessageParser(
+            "{user-message} Author: {username}. Commit type: {commit-type}.");
+        CommitMessage commitMessage = decompiler
+            .parse("Project My Rules is saved. Author: John Smith. Commit type: SAVE.");
 
         assertNotNull("Commit message must be parsed!", commitMessage);
         assertEquals("Project My Rules is saved.", commitMessage.getMessage());
@@ -37,15 +39,19 @@ public class CommitMessageParserTest {
         assertEquals("John Smith", commitMessage.getAuthor());
         assertEquals(CommitType.ERASE, commitMessage.getCommitType());
 
-        commitMessage = decompiler.parse("\n\rProject\n\rMy\n\r\n\rRules\n\ris erased\n\r. Author: John Smith. Commit type: ERASE.");
+        commitMessage = decompiler
+            .parse("\n\rProject\n\rMy\n\r\n\rRules\n\ris erased\n\r. Author: John Smith. Commit type: ERASE.");
         assertNotNull("Commit message must be parsed!", commitMessage);
         assertEquals("\n\rProject\n\rMy\n\r\n\rRules\n\ris erased\n\r.", commitMessage.getMessage());
         assertEquals("John Smith", commitMessage.getAuthor());
         assertEquals(CommitType.ERASE, commitMessage.getCommitType());
 
-        commitMessage = decompiler.parse("Merge with commit 573dd47e6302faf1ba15ff6599e997f2bed4cbb9 Conflicts: My Rules/rules-deploy.xml (yours). Author: John Smith. Commit type: MERGE.");
+        commitMessage = decompiler.parse(
+            "Merge with commit 573dd47e6302faf1ba15ff6599e997f2bed4cbb9 Conflicts: My Rules/rules-deploy.xml (yours). Author: John Smith. Commit type: MERGE.");
         assertNotNull("Commit message must be parsed!", commitMessage);
-        assertEquals("Merge with commit 573dd47e6302faf1ba15ff6599e997f2bed4cbb9 Conflicts: My Rules/rules-deploy.xml (yours).", commitMessage.getMessage());
+        assertEquals(
+            "Merge with commit 573dd47e6302faf1ba15ff6599e997f2bed4cbb9 Conflicts: My Rules/rules-deploy.xml (yours).",
+            commitMessage.getMessage());
         assertEquals("John Smith", commitMessage.getAuthor());
         assertEquals(CommitType.MERGE, commitMessage.getCommitType());
 
@@ -77,7 +83,6 @@ public class CommitMessageParserTest {
         assertNotNull("Commit message must be parsed!", commitMessage);
         assertNull(commitMessage.getMessage());
         assertEquals("John Smith", commitMessage.getAuthor());
-        assertEquals("John Smith", commitMessage.getAuthor());
         assertEquals(CommitType.SAVE, commitMessage.getCommitType());
 
         commitMessage = decompiler.parse("foo SAVE John Smith.");
@@ -91,8 +96,10 @@ public class CommitMessageParserTest {
         commitMessage = decompiler.parse("");
         assertNull("Commit message must not be parsed!", commitMessage);
 
-        decompiler = new CommitMessageParser("Webstudio {user-message} Author: {username}. Commit type: {commit-type}. {user-message} Author: {username}. Commit type: {commit-type}.");
-        commitMessage = decompiler.parse("Webstudio foo-bar Author: John Smith. Commit type: ARCHIVE. foo-bar Author: John Smith. Commit type: ARCHIVE.");
+        decompiler = new CommitMessageParser(
+            "Webstudio {user-message} Author: {username}. Commit type: {commit-type}. {user-message} Author: {username}. Commit type: {commit-type}.");
+        commitMessage = decompiler.parse(
+            "Webstudio foo-bar Author: John Smith. Commit type: ARCHIVE. foo-bar Author: John Smith. Commit type: ARCHIVE.");
         assertNotNull("Commit message must be parsed!", commitMessage);
         assertEquals("foo-bar", commitMessage.getMessage());
         assertEquals("John Smith", commitMessage.getAuthor());

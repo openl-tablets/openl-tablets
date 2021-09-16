@@ -1,0 +1,11 @@
+PUT /rest/users/info HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+    "displayName":"Admin",
+    "firstName": "Ad",
+    "lastName": "Min",
+    "email": "admin@email"
+}
+

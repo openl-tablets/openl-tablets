@@ -12,6 +12,7 @@ public class ProjectDescription {
     private String version; // Last version of the project
     private Date modifiedAt; // When was the project modified
     private String modifiedBy; // Who modified the project
+    private String emailModifiedBy; // Email who modified the project
     private boolean locked; // Is the project locked for editing?
     private String lockedBy; // Who locked the project for editing
     private Date lockedAt; // When locked the project for editing
@@ -38,6 +39,14 @@ public class ProjectDescription {
 
     public void setModifiedAt(Date modifiedAt) {
         this.modifiedAt = modifiedAt;
+    }
+
+    public String getEmailModifiedBy() {
+        return emailModifiedBy;
+    }
+
+    public void setEmailModifiedBy(String emailModifiedBy) {
+        this.emailModifiedBy = emailModifiedBy;
     }
 
     public String getModifiedBy() {

@@ -9,6 +9,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.openl.rules.repository.api.ChangesetType;
@@ -17,6 +18,7 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
@@ -299,7 +301,8 @@ public class LocalRepository extends FileSystemRepository {
 
             @Override
             public void saveFileData(String repositoryId, FileData fileData) {
-                if (fileData.getVersion() == null || fileData.getAuthor() == null || fileData.getModifiedAt() == null) {
+                if (fileData.getVersion() == null || fileData.getAuthor() == null || fileData.getAuthor()
+                    .getName() == null || fileData.getModifiedAt() == null) {
                     // No need to save empty fileData
                     return;
                 }
@@ -309,8 +312,9 @@ public class LocalRepository extends FileSystemRepository {
                 if (mappingData != null) {
                     properties.setProperty(PATH_IN_REPOSITORY, mappingData.getInternalPath());
                 }
+                String name = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
                 properties.setProperty(VERSION_PROPERTY, fileData.getVersion());
-                properties.setProperty(AUTHOR_PROPERTY, fileData.getAuthor());
+                properties.setProperty(AUTHOR_PROPERTY, name);
                 properties.setProperty(MODIFIED_AT_PROPERTY,
                     new SimpleDateFormat(DATE_FORMAT).format(fileData.getModifiedAt()));
                 properties.setProperty(MODIFIED_AT_LONG_PROPERTY, "" + fileData.getModifiedAt().getTime());
@@ -381,7 +385,7 @@ public class LocalRepository extends FileSystemRepository {
                     fileData.setName(name);
                     fileData.setVersion(version);
                     fileData.setBranch(branch);
-                    fileData.setAuthor(author);
+                    fileData.setAuthor(new UserInfo(author));
                     fileData.setModifiedAt(modifiedAt);
                     fileData.setSize(Long.parseLong(size));
                     fileData.setComment(comment);

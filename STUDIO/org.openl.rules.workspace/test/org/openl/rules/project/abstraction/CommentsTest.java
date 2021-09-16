@@ -170,7 +170,7 @@ public class CommentsTest {
         assertEquals("WebStudio/$$$myProj$ectName$$/myUserName/myCurrentDate {foo}",
             comments.newBranch("$$$myProj$ectName$$", "myUserName", "myCurrentDate"));
         assertEquals("WebStudio/Foo岸Бар9-1/myUserName/myCurrentDate {foo}",
-                comments.newBranch("Foo岸~^:Бар9-1.", "myUserName", "myCurrentDate"));
+            comments.newBranch("Foo岸~^:Бар9-1.", "myUserName", "myCurrentDate"));
     }
 
     @Test

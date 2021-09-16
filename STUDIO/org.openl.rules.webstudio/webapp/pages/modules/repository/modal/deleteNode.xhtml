@@ -69,11 +69,11 @@
             </h:panelGroup>
 
             <footer>
-                <a4j:commandButton value="Delete"
-                    action="#{repositoryTreeController.deleteNode}"
-                    styleClass="button-primary"
-                    render="projectTree nodeView @form"
-                    oncomplete="if(#{!facesContext.validationFailed}) RichFaces.$('modalDeleteNode').hide()"/>
+                <a4j:commandButton value="Delete" styleClass="button-primary"
+                                   onclick="withCommitInfoRequired('#{studio.currentUsername}', () => deleteNodeRepositoryType === 'repo-git', () => $j('#deleteNodeForm\\:deleteNodeButton').click()); return false;"/>
+                <a4j:commandButton action="#{repositoryTreeController.deleteNode}" id="deleteNodeButton"
+                                   styleClass="hidden" render="projectTree nodeView @form"
+                                   oncomplete="if(#{!facesContext.validationFailed}) RichFaces.$('modalDeleteNode').hide()"/>
                 <input type="button" value="Cancel" onclick="closeDeleteNodeDialog();" />
             </footer>
 
@@ -84,6 +84,13 @@
 
     <script>
         //<![CDATA[
+        let deleteNodeRepositoryType = undefined;
+
+        function onShowModalDeleteNode(repositoryType) {
+            deleteNodeRepositoryType = repositoryType;
+            RichFaces.$('modalDeleteNode').show();
+        }
+
         function closeDeleteNodeDialog() {
             resetActiveProjectNode();
             RichFaces.$('modalDeleteNode').hide();

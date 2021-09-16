@@ -14,12 +14,12 @@ import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -63,7 +63,11 @@ public class ADeploymentProject extends UserWorkspaceProject {
         lockEngine = null;
     }
 
-    public void addProjectDescriptor(String repositoryId, String name, String path, String branch, CommonVersion version) {
+    public void addProjectDescriptor(String repositoryId,
+            String name,
+            String path,
+            String branch,
+            CommonVersion version) {
         if (hasProjectDescriptor(name)) {
             removeProjectDescriptor(name);
         }
@@ -142,13 +146,13 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     ByteArrayOutputStream out = new ByteArrayOutputStream();
                     IOUtils.copyAndClose(inputStream, out);
 
-                    fileData.setAuthor(user == null ? null : user.getUserName());
+                    fileData.setAuthor(user == null ? null : user.getUserInfo());
                     fileData.setSize(out.size());
 
                     FileItem change = new FileItem(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
-                            new ByteArrayInputStream(out.toByteArray()));
+                        new ByteArrayInputStream(out.toByteArray()));
                     setFileData(((FolderRepository) getRepository())
-                            .save(fileData, Collections.singletonList(change), ChangesetType.FULL));
+                        .save(fileData, Collections.singletonList(change), ChangesetType.FULL));
                 } catch (IOException e) {
                     throw new ProjectException(e.getMessage(), e);
                 }
@@ -169,7 +173,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     zipOutputStream.closeEntry();
 
                     zipOutputStream.close();
-                    fileData.setAuthor(user == null ? null : user.getUserName());
+                    fileData.setAuthor(user == null ? null : user.getUserInfo());
                     fileData.setSize(out.size());
                     setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
                 } catch (IOException e) {
@@ -249,7 +253,8 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 if (source.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
                     InputStream content = null;
                     try {
-                        content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
+                        content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
+                            .getContent();
                         List<ProjectDescriptor> newDescriptors = ProjectDescriptorHelper.deserialize(content);
                         if (newDescriptors != null) {
                             descriptors = newDescriptors;

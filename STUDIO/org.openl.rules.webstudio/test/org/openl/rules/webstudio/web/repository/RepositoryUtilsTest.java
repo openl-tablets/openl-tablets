@@ -1,10 +1,5 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -14,6 +9,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.UserInfo;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class RepositoryUtilsTest {
 
@@ -43,7 +44,7 @@ public class RepositoryUtilsTest {
         cal.set(2020, Calendar.AUGUST, 17, 11, 12, 13);
         cal.set(Calendar.MILLISECOND, 0);
         when(fileData.getModifiedAt()).thenReturn(cal.getTime());
-        when(fileData.getAuthor()).thenReturn("John Smith");
+        when(fileData.getAuthor()).thenReturn(new UserInfo("jsmith", "jsmith@email", "John Smith"));
 
         final String actual = RepositoryUtils.buildProjectVersion(fileData);
         assertEquals("John Smith-2020-08-17_11-12-13", actual);

@@ -34,6 +34,7 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.exception.ForbiddenException;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
@@ -107,7 +108,8 @@ public class DesignTimeRepositoryService {
     private <T extends AProject> Map<String, Object> mapProjectResponse(T src, Features features) {
         Map<String, Object> dest = new LinkedHashMap<>();
         dest.put("name", src.getBusinessName());
-        dest.put("modifiedBy", Optional.of(src.getFileData()).map(FileData::getAuthor).orElse(null));
+        dest.put("modifiedBy",
+            Optional.of(src.getFileData()).map(FileData::getAuthor).map(UserInfo::getName).orElse(null));
         dest.put("modifiedAt",
             Optional.of(src.getFileData())
                 .map(FileData::getModifiedAt)
@@ -119,8 +121,7 @@ public class DesignTimeRepositoryService {
             dest.put("branch", Optional.of(src.getFileData()).map(FileData::getBranch).orElse(null));
         }
         if (features.mappedFolders()) {
-            Optional.ofNullable(src.getRealPath())
-                .ifPresent(p -> dest.put("path", p.replace('\\', '/')));
+            Optional.ofNullable(src.getRealPath()).ifPresent(p -> dest.put("path", p.replace('\\', '/')));
         }
         return dest;
     }

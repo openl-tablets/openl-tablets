@@ -6,15 +6,16 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
-import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -114,7 +115,9 @@ public class AProjectArtefact implements IProjectArtefact {
         if (fileData == null) {
             return new RepositoryProjectVersionImpl(true);
         }
-        RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(fileData.getModifiedAt(), fileData.getAuthor());
+        RepositoryVersionInfoImpl rvii = Optional.ofNullable(fileData.getAuthor())
+            .map(author -> new RepositoryVersionInfoImpl(fileData.getModifiedAt(), author.getName(), author.getEmail()))
+            .orElse(new RepositoryVersionInfoImpl(fileData.getModifiedAt(), null, null));
         String version = fileData.getVersion();
         RepositoryProjectVersionImpl projectVersion = new RepositoryProjectVersionImpl(version == null ? "0" : version,
             rvii,
@@ -128,7 +131,7 @@ public class AProjectArtefact implements IProjectArtefact {
     }
 
     public void refresh() {
-        //nothing to do
+        // nothing to do
     }
 
     /**
@@ -142,8 +145,9 @@ public class AProjectArtefact implements IProjectArtefact {
     }
 
     /**
-     * Try to lock the project if it's not locked already.
-     * If the project was locked by other user, throws ProjectException.
+     * Try to lock the project if it's not locked already. If the project was locked by other user, throws
+     * ProjectException.
+     * 
      * @throws ProjectException if cannot lock the project, or the project was locked by other user.
      */
     public final void tryLockOrThrow() throws ProjectException {

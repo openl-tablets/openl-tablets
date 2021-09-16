@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -24,6 +25,8 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -57,6 +60,9 @@ public class ExportBean {
     private String artifactName;
 
     @Autowired
+    private UserManagementService userManagementService;
+
+    @Autowired
     private Utils utils;
 
     private static UserWorkspace getUserWorkspace() {
@@ -77,15 +83,20 @@ public class ExportBean {
                 String userName = WebStudioUtils.getRulesUserSession().getUserName();
 
                 FileData fileData = selectedProject.getFileData();
+                String name = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
                 String modifiedOnStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(fileData.getModifiedAt());
-                String suffix = fileData.getAuthor() + "-" + modifiedOnStr;
+                String suffix = name + "-" + modifiedOnStr;
                 fileName = String.format("%s-%s.zip", selectedProject.getName(), suffix);
-                file = ProjectExportHelper.export(new WorkspaceUserImpl(userName), selectedProject);
+                WorkspaceUserImpl user = new WorkspaceUserImpl(userName,
+                    (username) -> Optional.ofNullable(userManagementService.getUser(username))
+                        .map(usr -> new UserInfo(usr.getLoginName(), usr.getEmail(), usr.getDisplayName()))
+                        .orElse(null));
+                file = ProjectExportHelper.export(user, selectedProject);
             } else {
                 Repository repository = selectedProject.getDesignRepository();
                 String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
                 AProject forExport = userWorkspace.getDesignTimeRepository()
-                        .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
+                    .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
                 file = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
                 String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
                 fileName = String.format("%s-%s.zip", selectedProject.getBusinessName(), suffix);
@@ -129,7 +140,7 @@ public class ExportBean {
                 Repository repository = selectedProject.getDesignRepository();
                 String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
                 AProject forExport = userWorkspace.getDesignTimeRepository()
-                        .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
+                    .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
                 projectResource = (AProjectResource) forExport.getArtefact(getArtifactName());
             }
 
@@ -149,7 +160,6 @@ public class ExportBean {
         }
     }
 
-
     public List<SelectItem> getSelectedProjectVersions() {
         List<SelectItem> projectVersions = new ArrayList<>();
         try {
@@ -157,9 +167,9 @@ public class ExportBean {
             if (repositoryId != null && currentProjectName != null) {
                 RulesProject project = userWorkspace.getProject(repositoryId, currentProjectName, false);
                 if (project.isOpened()) {
-                    if(project.isModified()){
+                    if (project.isModified()) {
                         projectVersions.add(new SelectItem(IN_EDITING_VERSION, IN_EDITING_VERSION));
-                    }else{
+                    } else {
                         projectVersions.add(new SelectItem(VIEWING_VERSION, VIEWING_VERSION));
                     }
                 }

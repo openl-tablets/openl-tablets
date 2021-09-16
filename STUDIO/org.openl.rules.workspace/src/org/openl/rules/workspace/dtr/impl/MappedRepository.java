@@ -39,6 +39,7 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -387,7 +388,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     }
 
     @Override
-    public void merge(String branchFrom, String author, ConflictResolveData conflictResolveData) throws IOException {
+    public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
         ((BranchRepository) delegate).merge(branchFrom, author, conflictResolveData);
     }
 
@@ -397,7 +398,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     }
 
     @Override
-    public void pull(String author) throws IOException {
+    public void pull(UserInfo author) throws IOException {
         ((BranchRepository) delegate).pull(author);
     }
 
@@ -529,7 +530,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
 
         FileData configData = new FileData();
         configData.setName(configFile);
-        configData.setAuthor(getClass().getName());
+        configData.setAuthor(new UserInfo(getClass().getName()));
         configData.setComment("Update mapping");
         repositorySettings.getRepository().save(configData, configInputStream);
         this.externalToInternal = projectIndex;

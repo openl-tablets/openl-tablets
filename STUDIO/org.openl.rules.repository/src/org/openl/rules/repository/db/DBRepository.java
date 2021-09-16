@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -20,6 +21,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.util.IOUtils;
@@ -208,9 +210,10 @@ abstract class DBRepository implements Repository, Closeable {
         PreparedStatement statement = null;
         try {
             connection = getConnection();
+            String username = Optional.ofNullable(destData.getAuthor()).map(UserInfo::getUsername).orElse(null);
             statement = connection.prepareStatement(settings.copyFile);
             statement.setString(1, destData.getName());
-            statement.setString(2, destData.getAuthor());
+            statement.setString(2, username);
             statement.setString(3, destData.getComment());
             statement.setString(4, srcName);
             statement.executeUpdate();
@@ -355,9 +358,10 @@ abstract class DBRepository implements Repository, Closeable {
         PreparedStatement statement = null;
         try {
             connection = getConnection();
+            String username = Optional.ofNullable(destData.getAuthor()).map(UserInfo::getUsername).orElse(null);
             statement = connection.prepareStatement(settings.copyHistory);
             statement.setString(1, destData.getName());
-            statement.setString(2, destData.getAuthor());
+            statement.setString(2, username);
             statement.setString(3, destData.getComment());
 
             statement.setLong(4, Long.parseLong(version));
@@ -479,7 +483,7 @@ abstract class DBRepository implements Repository, Closeable {
         FileData fileData = new FileData();
         fileData.setName(rs.getString("file_name"));
         fileData.setSize(rs.getLong("file_size"));
-        fileData.setAuthor(rs.getString("author"));
+        fileData.setAuthor(new UserInfo(rs.getString("author")));
         fileData.setComment(rs.getString("file_comment"));
         fileData.setModifiedAt(rs.getTimestamp("modified_at"));
         fileData.setVersion(rs.getString("id"));
@@ -532,8 +536,9 @@ abstract class DBRepository implements Repository, Closeable {
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(settings.insertFile);
+            String username = Optional.ofNullable(data.getAuthor()).map(UserInfo::getUsername).orElse(null);
             statement.setString(1, data.getName());
-            statement.setString(2, data.getAuthor());
+            statement.setString(2, username);
             statement.setString(3, data.getComment());
             if (stream != null) {
                 statement.setBinaryStream(4, stream);

@@ -86,14 +86,12 @@
             </h:panelGroup>
 
             <span class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    #{userProfileBean.user.username}<b class="caret"></b>
-                </a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">#{studio.currentUsername}<b class="caret"/></a>
                 <ul class="dropdown-menu pull-right" role="menu" style="margin-top: 15px">
                     <li><a class="changes-listener" tabindex="-1" href="javascript:void(0)"
-                           onclick="editUserProfile();">#{msg['ws.header.user.details']}</a></li>
+                           onclick="showAccountUserFrom();">#{msg['ws.header.user.details']}</a></li>
                     <li><a class="changes-listener" tabindex="-1" href="javascript:void(0)"
-                           onclick="editUserProfile('settings');">#{msg['ws.header.user.settings']}</a></li>
+                           onclick="showAccountUserFrom('settings');">#{msg['ws.header.user.settings']}</a></li>
                     <li class="divider"></li>
                     <li><a tabindex="-1" href="javascript:void(0)"
                            onclick="window.open('#{versionProperties.getUrl()}/files/openl-tablets/#{versionProperties.getVersion()}/OpenL Tablets - WebStudio User Guide.pdf','help','width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');">#{msg['ws.header.help']}</a></li>

@@ -97,19 +97,14 @@
             <footer>
                 <ui:param name="hasTags" value="#{repositoryTreeController.hasTags}"/>
 
-                <a4j:commandButton id="copy#{hasTags ? '' : 'Hidden'}" value="Copy"
-                                   onclick="return createTagsOnCopyOrConfirmSwitchBranch(#{copyBean.confirmationRequired});"
+                <a4j:commandButton value="Copy"
+                                   onclick="copyProjectWithRequiredInfo(() => $j('#copyProjectForm\\:copyButton').click(), $j('#copyProjectForm\\:newProjectName').val()); return false;"
+                                   styleClass="button-primary"/>
+                <a4j:commandButton id="copyButton"
+                                   onclick="return confirmSwitchingToNewBranch(#{copyBean.confirmationRequired});"
                                    action="#{copyBean.copy}"
+                                   styleClass="hidden"
                                    render="@form"
-                                   styleClass="button-primary"
-                                   rendered="#{hasTags}"
-                                   data="#{copyBean.errorMessage}"
-                                   oncomplete="updateStates(); if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); refreshPage(); return false;}"/>
-                <a4j:commandButton id="copy#{hasTags ? 'Hidden' : ''}" value="Copy"
-                                   onclick="return #{hasTags} || confirmSwitchingToNewBranch(#{copyBean.confirmationRequired});"
-                                   action="#{copyBean.copy}"
-                                   render="@form"
-                                   styleClass="button-primary #{hasTags ? 'hidden' : ''}"
                                    data="#{copyBean.errorMessage}"
                                    oncomplete="updateStates(); if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); refreshPage(); return false;}"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyProject').hide();"/>
@@ -132,8 +127,11 @@
             location.reload();
         };
 
-        function openCopyProjectDialog(repositoryId, projectName, refreshPageFunc) {
+        let copyProjectRepositoryType = undefined;
+
+        function openCopyProjectDialog(repositoryId, repositoryType, projectName, refreshPageFunc) {
             renderCopyProjectForm(repositoryId, projectName);
+            copyProjectRepositoryType = repositoryType;
             if (refreshPageFunc) {
                 refreshPage = refreshPageFunc;
             }
@@ -245,22 +243,18 @@
             return confirm("#{msg['ws.project.warning.other.branch']}");
         };
 
-        function createTagsOnCopyOrConfirmSwitchBranch(required) {
-            let $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
-            if (required && !$separateProjectCheckbox.is(':checked')) {
-                if (!confirm("#{msg['ws.project.warning.other.branch']}")) {
-                    return false;
+        function copyProjectWithRequiredInfo(originalSubmit, projectName) {
+            let afterAction = () => $j('#copyProjectForm\\:copyButton').click();
+
+            if (#{hasTags}) {
+                var $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
+                if ($separateProjectCheckbox.length === 0 || $separateProjectCheckbox.is(':checked')) {
+                    afterAction = () => createProjectTags(projectName, originalSubmit);
                 }
             }
-            if ($separateProjectCheckbox.length === 0 || $separateProjectCheckbox.is(':checked')) {
-                createProjectTags($j('#copyProjectForm\\:newProjectName').val(), function () {
-                    $j('#copyProjectForm\\:copyHidden').click();
-                });
-                return false;
-            }
-            return true;
-        }
 
+            withCommitInfoRequired('#{studio.currentUsername}', () => copyProjectRepositoryType === "repo-git", afterAction);
+        }
         //]]>
     </script>
 </ui:composition>

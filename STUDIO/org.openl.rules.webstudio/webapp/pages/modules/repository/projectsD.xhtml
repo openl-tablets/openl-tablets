@@ -47,7 +47,7 @@
                 <h:outputText value="#{prj.status}" />
               </rich:column>
               <rich:column styleClass="modified-by-col">
-                <h:outputText value="#{prj.modifiedBy}" />
+                <h:outputText title="#{prj.emailModifiedBy}" value="#{prj.modifiedBy}" />
               </rich:column>
               <rich:column styleClass="modified-at-col">
                 <h:outputText value="#{prj.modifiedAt}">
@@ -58,7 +58,7 @@
                 <h:panelGroup rendered="#{!prj.data.deleted}">
                   &#160;
                   <h:commandLink immediate="true" rendered="#{repositoryTreeState.canCreateDeployment}"
-                        onclick="openCopyDeploymentProjectDialog('#{prj.name}'); return false;"
+                        onclick="openCopyDeploymentProjectDialog('#{prj.name}', '#{repositoryTreeController.getRepositoryType(prj.data.repository.id)}'); return false;"
                         title="Copy Deploy Configuration">
                     <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy" />
                   </h:commandLink>
@@ -72,8 +72,11 @@
                   </h:panelGroup>
                   <h:panelGroup rendered="#{repositoryTreeController.canDeleteDeployment and not prj.data.branchProtected and (not prj.data.locked or prj.data.lockedByMe)}">
                     &#160;
-                    <h:commandLink immediate="true" action="#{repositoryTreeController.deleteDeploymentConfiguration}" title="Archive Deploy Configuration"
-                      onclick="if(!window.confirm('Are you sure you want to archive the Deploy Configuration?')) {return false;}" styleClass="delete-icon">
+                    <h:commandLink immediate="true" title="Archive Deploy Configuration"
+                                 onclick="withCommitInfoRequired('#{studio.currentUsername}', () => '#{repositoryTreeController.getRepositoryType(prj.data.repository.id)}' === 'repo-git', () => $j(this).next().click()); return false;"
+                                   styleClass="delete-icon"/>
+                    <h:commandLink id="archiveDeployConfig" immediate="true" action="#{repositoryTreeController.deleteDeploymentConfiguration}"
+                      onclick="if(!window.confirm('Are you sure you want to archive the Deploy Configuration?')) {return false;}" styleClass="hidden">
                       <f:param name="deploymentProjectName" value="#{prj.name}" />
                     </h:commandLink>
                   </h:panelGroup>
@@ -87,5 +90,4 @@
             </h:panelGroup>
         </div>
     </div>
-
 </ui:composition>

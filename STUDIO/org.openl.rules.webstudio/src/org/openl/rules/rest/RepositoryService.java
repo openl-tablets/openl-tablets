@@ -1,7 +1,5 @@
 package org.openl.rules.rest;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -15,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
 import javax.ws.rs.Consumes;
@@ -36,10 +35,10 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
-import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -51,9 +50,11 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.security.Privileges;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -72,6 +73,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.xml.sax.InputSource;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+
 /*
  GET /projects                                       list of (Project Name, Last Version, Last Modified Date, Last Modified By, Status, Editor)
  GET /project/{Project Name}/[{version}]             (Project_Name.zip)
@@ -89,11 +92,16 @@ public class RepositoryService {
 
     private final MultiUserWorkspaceManager workspaceManager;
 
+    private final UserManagementService userManagementService;
+
     private final Comments designRepoComments;
 
-    public RepositoryService(MultiUserWorkspaceManager workspaceManager, PropertyResolver propertyResolver) {
+    public RepositoryService(MultiUserWorkspaceManager workspaceManager,
+            PropertyResolver propertyResolver,
+            UserManagementService userManagementService) {
         this.workspaceManager = workspaceManager;
         this.designRepoComments = new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID);
+        this.userManagementService = userManagementService;
     }
 
     /**
@@ -150,8 +158,7 @@ public class RepositoryService {
     @GET
     @Path("project/{name}/{version}")
     @Produces("application/zip")
-    public Response getProject(@PathParam("name") final String name,
-            @PathParam("version") final String version) {
+    public Response getProject(@PathParam("name") final String name, @PathParam("version") final String version) {
         try {
             if (!isGranted(Privileges.VIEW_PROJECTS)) {
                 return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
@@ -170,7 +177,8 @@ public class RepositoryService {
 
                 final String rulesPath = getDesignTimeRepository().getRulesLocation();
 
-                entity = (StreamingOutput) out -> RepositoryUtils.archive((FolderRepository) repository, rulesPath, name, version, out, null);
+                entity = (StreamingOutput) out -> RepositoryUtils
+                    .archive((FolderRepository) repository, rulesPath, name, version, out, null);
             } else {
                 FileItem fileItem = repository.readHistory(projectPath, version);
                 if (fileItem == null) {
@@ -298,11 +306,7 @@ public class RepositoryService {
         return addProject(uriInfo, zipFile, null);
     }
 
-    private Response addProject(String uri,
-            String name,
-            InputStream zipFile,
-            long zipSize,
-            String comment) {
+    private Response addProject(String uri, String name, InputStream zipFile, long zipSize, String comment) {
         try {
             if (getRepository().supports().branches()) {
                 BranchRepository branchRepo = (BranchRepository) getRepository();
@@ -348,7 +352,7 @@ public class RepositoryService {
             FileData data = new FileData();
             data.setName(fileName);
             data.setComment("[REST] " + StringUtils.trimToEmpty(comment));
-            data.setAuthor(getUserName());
+            data.setAuthor(getUser().getUserInfo());
 
             FileData save;
             if (repository.supports().folders()) {
@@ -453,6 +457,7 @@ public class RepositoryService {
         description.setVersion(version.getRevision());
         VersionInfo versionInfo = version.getVersionInfo();
         description.setModifiedBy(versionInfo.getCreatedBy());
+        description.setEmailModifiedBy(versionInfo.getEmailCreatedBy());
         description.setModifiedAt(versionInfo.getCreatedAt());
         boolean locked = project.isLocked();
         description.setLocked(locked);
@@ -465,8 +470,10 @@ public class RepositoryService {
     }
 
     private WorkspaceUserImpl getUser() {
-        String name = getUserName();
-        return new WorkspaceUserImpl(name);
+        return new WorkspaceUserImpl(getUserName(),
+            (username) -> Optional.ofNullable(userManagementService.getUser(username))
+                .map(usr -> new UserInfo(usr.getLoginName(), usr.getEmail(), usr.getDisplayName()))
+                .orElse(null));
     }
 
     private String getUserName() {

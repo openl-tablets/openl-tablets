@@ -52,7 +52,7 @@
                 <h:outputText value="#{prj.status}" />
               </rich:column>
               <rich:column styleClass="modified-by-col">
-                <h:outputText value="#{prj.modifiedBy}" />
+                <h:outputText title="#{prj.emailModifiedBy}" value="#{prj.modifiedBy}" />
               </rich:column>
               <rich:column styleClass="modified-at-col">
                 <h:outputText value="#{prj.modifiedAt}">
@@ -64,7 +64,7 @@
                   &#160;
                   <h:commandLink immediate="true"
                       rendered="#{repositoryTreeState.canCreate}"
-                      onclick="openCopyProjectDialog('#{prj.data.repository.id}', '#{prj.data.name}', function() {location.href = location.href;}); return false;" title="Copy project">
+                      onclick="openCopyProjectDialog('#{prj.data.repository.id}', '#{repositoryTreeController.getRepositoryType(prj.data.repository.id)}', '#{prj.data.name}', function() {location.href = location.href;}); return false;" title="Copy project">
                       <h:graphicImage url="/webresource/images/copy.gif" styleClass="actionImage" alt="Copy"/>
                   </h:commandLink>
                   <h:panelGroup rendered="#{repositoryTreeController.canUnlock and prj.data.locked and not prj.data.lockedByMe}">
@@ -78,7 +78,7 @@
                   <h:panelGroup rendered="#{repositoryTreeController.canDelete and not prj.data.branchProtected and (not prj.data.locked or prj.data.lockedByMe)}">
                       &#160;
                       <h:commandLink immediate="true"
-                          onclick="#{rich:component('modalDeleteNode')}.show();"
+                          onclick="onShowModalDeleteNode('#{repositoryTreeController.getRepositoryType(prj.data.repository.id)}');"
                           title="Archive project" styleClass="delete-icon">
                           <f:param name="repositoryId" value="#{prj.data.repository.id}" />
                           <f:param name="projectName" value="#{prj.data.name}" />
@@ -96,5 +96,4 @@
             </h:panelGroup>
         </div>
     </div>
-
 </ui:composition>

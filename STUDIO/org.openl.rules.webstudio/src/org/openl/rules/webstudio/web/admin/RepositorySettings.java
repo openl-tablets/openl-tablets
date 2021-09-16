@@ -7,6 +7,7 @@ public abstract class RepositorySettings {
     private final String COMMENT_VALIDATION_PATTERN;
     private final String INVALID_COMMENT_MESSAGE;
     private final String COMMENT_TEMPLATE;
+    private final String COMMENT_TEMPLATE_OLD;
     private final String DEFAULT_COMMENT_SAVE;
     private final String DEFAULT_COMMENT_CREATE;
     private final String DEFAULT_COMMENT_ARCHIVE;
@@ -19,6 +20,7 @@ public abstract class RepositorySettings {
     private String commentValidationPattern;
     private String invalidCommentMessage;
     private String commentTemplate;
+    private String commentTemplateOld;
     private String defaultCommentSave;
     private String defaultCommentCreate;
     private String defaultCommentArchive;
@@ -36,6 +38,7 @@ public abstract class RepositorySettings {
         COMMENT_VALIDATION_PATTERN = configPrefix + ".comment-template.comment-validation-pattern";
         INVALID_COMMENT_MESSAGE = configPrefix + ".comment-template.invalid-comment-message";
         COMMENT_TEMPLATE = configPrefix + ".comment-template";
+        COMMENT_TEMPLATE_OLD = configPrefix + ".comment-template-old";
         DEFAULT_COMMENT_SAVE = configPrefix + ".comment-template.user-message.default.save";
         DEFAULT_COMMENT_CREATE = configPrefix + ".comment-template.user-message.default.create";
         DEFAULT_COMMENT_ARCHIVE = configPrefix + ".comment-template.user-message.default.archive";
@@ -70,6 +73,15 @@ public abstract class RepositorySettings {
 
     public void setCommentTemplate(String commentTemplate) {
         this.commentTemplate = commentTemplate;
+    }
+
+    public String getCommentTemplateOld() {
+        return commentTemplateOld;
+    }
+
+    public RepositorySettings setCommentTemplateOld(String commentTemplateOld) {
+        this.commentTemplateOld = commentTemplateOld;
+        return this;
     }
 
     public String getDefaultCommentSave() {
@@ -149,6 +161,7 @@ public abstract class RepositorySettings {
         commentValidationPattern = properties.getProperty(COMMENT_VALIDATION_PATTERN);
         invalidCommentMessage = properties.getProperty(INVALID_COMMENT_MESSAGE);
         commentTemplate = properties.getProperty(COMMENT_TEMPLATE);
+        commentTemplateOld = properties.getProperty(COMMENT_TEMPLATE_OLD);
         defaultCommentSave = properties.getProperty(DEFAULT_COMMENT_SAVE);
         defaultCommentCreate = properties.getProperty(DEFAULT_COMMENT_CREATE);
         defaultCommentArchive = properties.getProperty(DEFAULT_COMMENT_ARCHIVE);
@@ -167,6 +180,7 @@ public abstract class RepositorySettings {
         propertiesHolder.setProperty(INVALID_COMMENT_MESSAGE, invalidCommentMessage);
 
         propertiesHolder.setProperty(COMMENT_TEMPLATE, commentTemplate);
+        propertiesHolder.setProperty(COMMENT_TEMPLATE_OLD, commentTemplateOld);
         propertiesHolder.setProperty(DEFAULT_COMMENT_SAVE, defaultCommentSave);
         propertiesHolder.setProperty(DEFAULT_COMMENT_CREATE, defaultCommentCreate);
         propertiesHolder.setProperty(DEFAULT_COMMENT_ARCHIVE, defaultCommentArchive);
@@ -177,11 +191,11 @@ public abstract class RepositorySettings {
     }
 
     protected void revert(PropertiesHolder properties) {
-        properties.revertProperties(
-            USE_CUSTOM_COMMENTS,
+        properties.revertProperties(USE_CUSTOM_COMMENTS,
             COMMENT_VALIDATION_PATTERN,
             INVALID_COMMENT_MESSAGE,
             COMMENT_TEMPLATE,
+            COMMENT_TEMPLATE_OLD,
             DEFAULT_COMMENT_SAVE,
             DEFAULT_COMMENT_CREATE,
             DEFAULT_COMMENT_ARCHIVE,
@@ -200,6 +214,7 @@ public abstract class RepositorySettings {
         setUseCustomComments(other.isUseCustomComments());
         setCommentValidationPattern(other.getCommentValidationPattern());
         setCommentTemplate(other.getCommentTemplate());
+        setCommentTemplateOld(other.getCommentTemplateOld());
         setInvalidCommentMessage(other.getInvalidCommentMessage());
         setDefaultCommentSave(other.getDefaultCommentSave());
         setDefaultCommentCreate(other.getDefaultCommentCreate());
@@ -212,7 +227,8 @@ public abstract class RepositorySettings {
     }
 
     /**
-     * Change repository settings to distinguish from other repository. Used when create a new repository based on template.
+     * Change repository settings to distinguish from other repository. Used when create a new repository based on
+     * template.
      */
     public void applyRepositorySuffix(FreeValueFinder valueFinder) {
     }

@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
@@ -109,6 +110,7 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.rules.repository.git.branch.BranchDescription;
@@ -134,8 +136,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String uri;
     private String login;
     private String password;
-    private String userDisplayName;
-    private String userEmail;
     private String localRepositoryPath;
     private String branch = Constants.MASTER;
     private String baseBranch = branch;
@@ -145,6 +145,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private String commentTemplate;
     private String escapedCommentTemplate;
     private CommitMessageParser commitMessageParser;
+    private String commentTemplateOld;
+    private CommitMessageParser commitMessageParserOld;
     private RepositorySettings repositorySettings;
     private Date settingsSyncDate = new Date();
     private volatile boolean noVerify;
@@ -319,10 +321,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         git.add().addFilepattern(fileInRepository).call();
         return git.commit()
             .setMessage(formatComment(CommitType.SAVE, data))
-            .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(),
-                userEmail != null ? userEmail : "")
             .setOnly(fileInRepository)
             .setNoVerify(noVerify)
+            .setCommitter(data.getAuthor().getDisplayName(),
+                Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
             .call();
     }
 
@@ -366,10 +368,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.add().addFilepattern(markerFile).call();
                 RevCommit commit = git.commit()
                     .setMessage(commitMessage)
-                    .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(),
-                        userEmail != null ? userEmail : "")
                     .setOnly(markerFile)
                     .setNoVerify(noVerify)
+                    .setCommitter(data.getAuthor().getDisplayName(),
+                        Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
                     .call();
                 commitId = commit.getId().getName();
 
@@ -379,9 +381,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.rm().addFilepattern(name).call();
                 RevCommit commit = git.commit()
                     .setMessage(formatComment(CommitType.ERASE, data))
-                    .setCommitter(userDisplayName != null ? userDisplayName : data.getAuthor(),
-                        userEmail != null ? userEmail : "")
                     .setNoVerify(noVerify)
+                    .setCommitter(data.getAuthor().getDisplayName(),
+                        Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
                     .call();
                 commitId = commit.getId().getName();
 
@@ -438,9 +440,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             git.add().addFilepattern(destData.getName()).call();
             RevCommit commit = git.commit()
                 .setMessage(formatComment(CommitType.SAVE, destData))
-                .setCommitter(userDisplayName != null ? userDisplayName : destData.getAuthor(),
-                    userEmail != null ? userEmail : "")
                 .setNoVerify(noVerify)
+                .setCommitter(destData.getAuthor().getDisplayName(),
+                    Optional.ofNullable(destData.getAuthor().getEmail()).orElse(""))
                 .call();
             commitId = commit.getId().getName();
 
@@ -504,7 +506,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         String name = data.getName();
         String version = data.getVersion();
-        String author = StringUtils.trimToEmpty(data.getAuthor());
         String commitId = null;
 
         Lock writeLock = repositoryLock.writeLock();
@@ -519,11 +520,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.rm().addFilepattern(name).call();
                 String commitMessage = formatComment(CommitType.ERASE, data);
                 commit = git.commit()
-                    .setCommitter(userDisplayName != null ? userDisplayName : author,
-                        userEmail != null ? userEmail : "")
                     .setMessage(commitMessage)
                     .setOnly(name)
                     .setNoVerify(noVerify)
+                    .setCommitter(data.getAuthor().getDisplayName(),
+                        Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
                     .call();
             } else {
                 FileData fileData = checkHistory(name, version);
@@ -540,16 +541,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 git.rm().addFilepattern(markerFile).call();
                 String commitMessage = formatComment(CommitType.RESTORE, data);
                 commit = git.commit()
-                    .setCommitter(userDisplayName != null ? userDisplayName : author,
-                        userEmail != null ? userEmail : "")
                     .setMessage(commitMessage)
                     .setOnly(markerFile)
                     .setNoVerify(noVerify)
+                    .setCommitter(data.getAuthor().getDisplayName(),
+                        Optional.ofNullable(data.getAuthor().getEmail()).orElse(""))
                     .call();
             }
 
             commitId = commit.getId().getName();
-            addTagToCommit(commit, author);
+            addTagToCommit(commit, data.getAuthor());
 
             push();
         } catch (IOException e) {
@@ -805,17 +806,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private void updateGitConfigs() throws IOException {
         StoredConfig config = git.getRepository().getConfig();
-        if (StringUtils.isNotBlank(userDisplayName)) {
-            config
-                .setString(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_NAME, userDisplayName);
-        } else {
-            config.unset(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_NAME);
-        }
-        if (StringUtils.isNotBlank(userEmail)) {
-            config.setString(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_EMAIL, userEmail);
-        } else {
-            config.unset(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_EMAIL);
-        }
 
         if (gcAutoDetach != null) {
             config.setBoolean(ConfigConstants.CONFIG_GC_SECTION,
@@ -931,14 +921,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         this.password = password;
     }
 
-    public void setUserDisplayName(String userDisplayName) {
-        this.userDisplayName = userDisplayName;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
     public void setLocalRepositoryPath(String localRepositoryPath) {
         this.localRepositoryPath = localRepositoryPath;
     }
@@ -970,11 +952,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     public void setCommentTemplate(String commentTemplate) {
         this.commentTemplate = commentTemplate;
-        String ct = commentTemplate.replace("{commit-type}", "{0}")
-            .replace("{user-message}", "{1}")
-            .replace("{username}", "{2}");
+        String ct = commentTemplate.replace("{commit-type}", "{0}").replace("{user-message}", "{1}");
         this.escapedCommentTemplate = escapeCurlyBrackets(ct);
         this.commitMessageParser = new CommitMessageParser(commentTemplate);
+    }
+
+    public void setCommentTemplateOld(String commentTemplateOld) {
+        this.commentTemplateOld = commentTemplateOld;
+        this.commitMessageParserOld = new CommitMessageParser(commentTemplateOld);
     }
 
     public void setRepositorySettings(RepositorySettings repositorySettings) {
@@ -1019,7 +1004,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private FileData createFileData(TreeWalk dirWalk, String baseFolder, ObjectId start) {
         String fullPath = baseFolder + dirWalk.getPathString();
-        return new LazyFileData(branch, fullPath, this, start, getFileId(dirWalk), commitMessageParser);
+        return new LazyFileData(branch,
+            fullPath,
+            this,
+            start,
+            getFileId(dirWalk),
+            commitMessageParser,
+            commitMessageParserOld);
     }
 
     private boolean isEmpty() throws IOException {
@@ -1037,7 +1028,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private FileData createFileData(TreeWalk dirWalk, RevCommit fileCommit) {
         String fullPath = dirWalk.getPathString();
 
-        return new LazyFileData(branch, fullPath, this, fileCommit, getFileId(dirWalk), commitMessageParser);
+        return new LazyFileData(branch,
+            fullPath,
+            this,
+            fileCommit,
+            getFileId(dirWalk),
+            commitMessageParser,
+            commitMessageParserOld);
     }
 
     private ObjectId getFileId(TreeWalk dirWalk) {
@@ -1247,7 +1244,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void pull(String commitToRevert, String mergeAuthor) throws GitAPIException, IOException {
+    private void pull(String commitToRevert, UserInfo mergeAuthor) throws GitAPIException, IOException {
         if (uri == null) {
             return;
         }
@@ -1273,18 +1270,20 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 return;
             }
 
-            String mergeMessage = getMergeMessage(mergeAuthor, r);
-
+            String mergeMessage = getMergeMessage(r);
             MergeResult mergeResult = git.merge()
                 .include(r.getObjectId())
                 .setStrategy(MergeStrategy.RECURSIVE)
                 .setMessage(mergeMessage)
+                .setCommit(false)
                 .call();
 
             if (!mergeResult.getMergeStatus().isSuccessful()) {
                 validateMergeConflict(mergeResult, true);
                 throw new IOException("Cannot merge: " + mergeResult.toString());
             }
+            applyMergeCommit(mergeResult, mergeMessage, mergeAuthor);
+
         } catch (GitAPIException | IOException e) {
             reset(commitToRevert);
             throw e;
@@ -1295,6 +1294,18 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 // Don't override exception thrown in catch block.
                 log.error(e.getMessage(), e);
             }
+        }
+    }
+
+    private void applyMergeCommit(MergeResult mergeResult,
+            String mergeMessage,
+            UserInfo mergeAuthor) throws GitAPIException {
+        if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.MERGED_NOT_COMMITTED)) {
+            git.commit()
+                .setMessage(mergeMessage)
+                .setNoVerify(noVerify)
+                .setCommitter(mergeAuthor.getDisplayName(), Optional.ofNullable(mergeAuthor.getEmail()).orElse(""))
+                .call();
         }
     }
 
@@ -1825,12 +1836,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return name.startsWith(Constants.R_TAGS) ? name.substring(Constants.R_TAGS.length()) : name;
     }
 
-    private void addTagToCommit(RevCommit commit, String mergeAuthor) throws GitAPIException, IOException {
+    private void addTagToCommit(RevCommit commit, UserInfo mergeAuthor) throws GitAPIException, IOException {
         addTagToCommit(commit, commit.getId().getName(), mergeAuthor);
     }
 
-    private void addTagToCommit(RevCommit commit, String commitToRevert, String mergeAuthor) throws GitAPIException,
-                                                                                             IOException {
+    private void addTagToCommit(RevCommit commit, String commitToRevert, UserInfo mergeAuthor) throws GitAPIException,
+                                                                                               IOException {
         pull(commitToRevert, mergeAuthor);
 
         if (!tagPrefix.isEmpty()) {
@@ -1914,7 +1925,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public void pull(String author) throws IOException {
+    public void pull(UserInfo author) throws IOException {
         initializeGit(true);
 
         if (uri == null) {
@@ -1941,7 +1952,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public void merge(String branchFrom, String author, ConflictResolveData conflictResolveData) throws IOException {
+    public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
         initializeGit(true);
 
         Lock writeLock = repositoryLock.writeLock();
@@ -1958,9 +1969,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             refToResetTo = git.getRepository().findRef(branch).getObjectId().getName();
 
             Ref branchRef = git.getRepository().findRef(branchFrom);
-            String mergeMessage = getMergeMessage(author, branchRef);
+            String mergeMessage = getMergeMessage(branchRef);
             MergeResult mergeResult = git.merge()
                 .include(branchRef)
+                .setCommit(false)
                 .setMessage(mergeMessage)
                 .setFastForward(MergeCommand.FastForwardMode.NO_FF)
                 .call();
@@ -1969,6 +1981,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 resolveConflict(mergeResult, conflictResolveData, author);
             } else {
                 validateMergeConflict(mergeResult, true);
+                applyMergeCommit(mergeResult, mergeMessage, author);
             }
 
             pull(null, author);
@@ -2124,8 +2137,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         CommitCommand commitCommand = git.commit()
             .setNoVerify(noVerify)
             .setMessage(formatComment(CommitType.SAVE, folderData))
-            .setCommitter(userDisplayName != null ? userDisplayName : folderData.getAuthor(),
-                userEmail != null ? userEmail : "");
+            .setCommitter(folderData.getAuthor().getDisplayName(),
+                Optional.ofNullable(folderData.getAuthor().getEmail()).orElse(""));
 
         return commitChangedFiles(commitCommand);
     }
@@ -2182,14 +2195,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             checkoutForced(branch);
             ObjectId commitId = lastCommit.getId();
             ObjectIdRef.Unpeeled ref = new ObjectIdRef.Unpeeled(Ref.Storage.LOOSE, commitId.name(), commitId.copy());
-            String mergeMessage = getMergeMessage(folderData.getAuthor(), ref);
-            MergeResult mergeDetached = git.merge().include(commitId).setMessage(mergeMessage).call();
+            String mergeMessage = getMergeMessage(ref);
+            MergeResult mergeDetached = git.merge().include(commitId).setMessage(mergeMessage).setCommit(false).call();
             validateMergeConflict(mergeDetached, false);
+            applyMergeCommit(mergeDetached, mergeMessage, folderData.getAuthor());
         }
     }
 
-    private RevCommit resolveConflict(String author, ConflictResolveData conflictResolveData) throws GitAPIException,
-                                                                                              IOException {
+    private RevCommit resolveConflict(UserInfo author, ConflictResolveData conflictResolveData) throws GitAPIException,
+                                                                                                IOException {
         // Merge with a commit we have a conflict.
         MergeResult mergeResult = git.merge()
             .include(getCommitByVersion(conflictResolveData.getCommitToMerge()))
@@ -2200,7 +2214,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private RevCommit resolveConflict(MergeResult mergeResult,
             ConflictResolveData conflictResolveData,
-            String author) throws IOException, GitAPIException {
+            UserInfo author) throws IOException, GitAPIException {
         if (mergeResult.getMergeStatus() != MergeResult.MergeStatus.CONFLICTING) {
             log.debug("Merge status: {}", mergeResult.getMergeStatus());
             throw new IOException("There is no merge conflict, nothing to resolve.");
@@ -2214,7 +2228,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         CommitCommand conflictResolveCommit = git.commit()
             .setNoVerify(noVerify)
             .setMessage(mergeMessage)
-            .setCommitter(userDisplayName != null ? userDisplayName : author, userEmail != null ? userEmail : "");
+            .setCommitter(author.getDisplayName(), Optional.ofNullable(author.getEmail()).orElse(""));
 
         Status status = git.status().call();
 
@@ -2475,8 +2489,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.setLogin(login);
         repo.setPassword(password);
         repo.credentialsProvider = credentialsProvider;
-        repo.setUserDisplayName(userDisplayName);
-        repo.setUserEmail(userEmail);
         repo.setLocalRepositoryPath(localRepositoryPath);
         repo.setBranch(branch);
         repo.protectedBranchFilter = protectedBranchFilter;
@@ -2485,6 +2497,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         repo.setListenerTimerPeriod(listenerTimerPeriod);
         repo.setConnectionTimeout(connectionTimeout);
         repo.setCommentTemplate(commentTemplate);
+        repo.setCommentTemplateOld(commentTemplateOld);
         repo.setRepositorySettings(repositorySettings);
         repo.git = git;
         repo.repositoryLock = repositoryLock; // must be common for all instances because git
@@ -2584,7 +2597,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         FileData data = new FileData();
         data.setName(branchesConfigFile);
-        data.setAuthor(getClass().getName());
+        data.setAuthor(new UserInfo(getClass().getName()));
         data.setComment("Update branches info");
         repositorySettings.getRepository().save(data, new ByteArrayInputStream(outputStream.toByteArray()));
     }
@@ -2639,13 +2652,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private String formatComment(CommitType commitType, FileData data) {
         String comment = StringUtils.trimToEmpty(data.getComment());
-        return MessageFormat.format(escapedCommentTemplate, commitType, comment, data.getAuthor());
+        return MessageFormat.format(escapedCommentTemplate, commitType, comment);
     }
 
-    private String getMergeMessage(String mergeAuthor, Ref r) throws IOException {
+    private String getMergeMessage(Ref r) throws IOException {
         String userMessage = new MergeMessageFormatter().format(Collections.singletonList(r),
             git.getRepository().exactRef(Constants.HEAD));
-        return MessageFormat.format(escapedCommentTemplate, CommitType.MERGE, userMessage, mergeAuthor);
+        return MessageFormat.format(escapedCommentTemplate, CommitType.MERGE, userMessage);
     }
 
     private void unlockSettings() {
@@ -2796,7 +2809,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                         GitRepository.this,
                                         revCommit,
                                         getFileId(dirWalk),
-                                        commitMessageParser));
+                                        commitMessageParser,
+                                        commitMessageParserOld));
                                 } else {
                                     files.add(createFileData(dirWalk, baseFolder, start));
                                 }
@@ -2896,7 +2910,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     GitRepository.this,
                     commit,
                     null,
-                    commitMessageParser);
+                    commitMessageParser,
+                    commitMessageParserOld);
                 // Must mark it as deleted explicitly because the file can be erased outside of WebStudio.
                 data.setDeleted(true);
 

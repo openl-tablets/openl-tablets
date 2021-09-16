@@ -1,14 +1,5 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.openl.rules.repository.git.TestGitUtils.assertContains;
-import static org.openl.rules.repository.git.TestGitUtils.createFileData;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,9 +21,19 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.openl.rules.repository.git.TestGitUtils.assertContains;
+import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 
 public class LocalGitRepositoryTest {
     private static final String FOLDER_IN_REPOSITORY = "rules/project1";
@@ -80,7 +81,8 @@ public class LocalGitRepositoryTest {
 
         assertNotNull(result);
         assertEquals(path, result.getName());
-        assertEquals("John Smith", result.getAuthor());
+        assertEquals("jsmith@email", result.getAuthor().getEmail());
+        assertEquals("John Smith", result.getAuthor().getDisplayName());
         assertEquals("Comment for rules/project1/folder/file4", result.getComment());
         assertEquals(text.length(), result.getSize());
         assertNotNull(result.getModifiedAt());
@@ -96,7 +98,7 @@ public class LocalGitRepositoryTest {
 
         FileData folderData = new FileData();
         folderData.setName("rules/project1");
-        folderData.setAuthor("John Smith");
+        folderData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
         folderData.setComment("Bulk change");
 
         FileData savedData = repo.save(folderData, changes, ChangesetType.FULL);
@@ -121,7 +123,7 @@ public class LocalGitRepositoryTest {
 
         FileData folderData = new FileData();
         folderData.setName("rules/project1");
-        folderData.setAuthor("John Smith");
+        folderData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
 
         // git.gc() is invoked inside repo.save()
         FileData savedData = repo.save(folderData, changes, ChangesetType.FULL);
@@ -165,7 +167,7 @@ public class LocalGitRepositoryTest {
         writeSampleFile(repo.forBranch("branch1"), "rules/project1/file3", "'file3' in the branch 'branch1' was added");
 
         assertFalse(repo.isMergedInto("branch1", repo.getBranch()));
-        repo.merge("branch1", "admin", null);
+        repo.merge("branch1", new UserInfo("admin", "admin@email", "Admin"), null);
         assertTrue(repo.isMergedInto("branch1", repo.getBranch()));
         assertFalse(repo.isMergedInto(repo.getBranch(), "branch1"));
 
@@ -189,7 +191,7 @@ public class LocalGitRepositoryTest {
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
         try {
-            repo.merge("branch1", "admin", null);
+            repo.merge("branch1", new UserInfo("admin", "admin@email", "Admin"), null);
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
             final String resolveMessage = "Resolve conflict (use theirs)";
@@ -198,7 +200,9 @@ public class LocalGitRepositoryTest {
             Iterable<FileItem> resolvedFiles = Collections
                 .singletonList(new FileItem(file, IOUtils.toInputStream(textInBranch1)));
 
-            repo.merge("branch1", "admin", new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+            repo.merge("branch1",
+                new UserInfo("admin", "admin@email", "Admin"),
+                new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
 
             assertEquals(resolveMessage, repo.check(project1).getComment());
             assertEquals(textInBranch1, IOUtils.toStringAndClose(repo.read(file).getStream()));
@@ -223,7 +227,7 @@ public class LocalGitRepositoryTest {
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
         try {
-            repo.merge("branch1", "admin", null);
+            repo.merge("branch1", new UserInfo("admin", "admin@email", "Admin"), null);
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
             String diff = e.getDiffs().get(file);
@@ -246,7 +250,7 @@ public class LocalGitRepositoryTest {
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
         try {
-            repo.merge("branch1", "admin", null);
+            repo.merge("branch1", new UserInfo("admin", "admin@email", "Admin"), null);
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
             final String resolveMessage = "Resolve conflict (use yours)";
@@ -255,7 +259,9 @@ public class LocalGitRepositoryTest {
             Iterable<FileItem> resolvedFiles = Collections
                 .singletonList(new FileItem(file, IOUtils.toInputStream(textInMaster)));
 
-            repo.merge("branch1", "admin", new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+            repo.merge("branch1",
+                new UserInfo("admin", "admin@email", "Admin"),
+                new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
 
             assertEquals(resolveMessage, repo.check(project1).getComment());
             assertEquals(textInMaster, IOUtils.toStringAndClose(repo.read(file).getStream()));
@@ -285,8 +291,8 @@ public class LocalGitRepositoryTest {
         assertEquals(2, repoForBranch1.listHistory("rules/project1").size());
         assertEquals(2, repo.listHistory("rules/project2").size());
 
-        repoForBranch1.merge(repo.getBranch(), "user1", null);
-        repo.merge(repoForBranch1.getBranch(), "user1", null);
+        repoForBranch1.merge(repo.getBranch(), new UserInfo("user1", "user1@email", "User 1"), null);
+        repo.merge(repoForBranch1.getBranch(), new UserInfo("user1", "user1@email", "User 1"), null);
 
         List<FileData> historyForProject2 = repo.listHistory("rules/project2");
         // See EPBDS-10480 for details.
@@ -313,7 +319,7 @@ public class LocalGitRepositoryTest {
         assertTrue(repo.isMergedInto(mainBranch, branch1));
 
         // Merge changes to main branch.
-        repo.merge(branch1, "admin", null);
+        repo.merge(branch1, new UserInfo("admin", "admin@email", "Admin"), null);
         assertTrue(repo.isMergedInto(branch1, mainBranch));
         assertTrue(repo.isMergedInto(mainBranch, branch1));
 
@@ -325,7 +331,7 @@ public class LocalGitRepositoryTest {
         assertTrue(repo.isMergedInto(mainBranch, branch1));
 
         // Merge changes to main branch
-        repo.merge(branch1, "admin", null);
+        repo.merge(branch1, new UserInfo("admin", "admin@email", "Admin"), null);
         assertTrue(repo.isMergedInto(branch1, mainBranch));
         assertTrue(repo.isMergedInto(mainBranch, branch1));
 
@@ -354,7 +360,7 @@ public class LocalGitRepositoryTest {
         // Modify a file in branch1 and merge it to main branch.
         final String textInBranch1 = "Modify 'file1' in the branch 'branch1'. #1";
         modifyFile(repoBranch1, "rules/project1/file1", textInBranch1);
-        repo.merge(branch1, "admin", null);
+        repo.merge(branch1, new UserInfo("admin", "admin@email", "Admin"), null);
         assertTrue(repo.isMergedInto(branch1, mainBranch));
         assertTrue(repo.isMergedInto(mainBranch, branch1));
 
@@ -362,7 +368,7 @@ public class LocalGitRepositoryTest {
         final String textInBranch2 = "Modify 'file1' in the branch 'branch2'.";
         modifyFile(repoBranch2, "rules/project1/file1", textInBranch2);
         try {
-            repo.merge(branch2, "admin", null);
+            repo.merge(branch2, new UserInfo("admin", "admin@email", "Admin"), null);
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
             final String resolveMessage = "Resolve conflict (use theirs)";
@@ -370,7 +376,9 @@ public class LocalGitRepositoryTest {
                 .singletonList(new FileItem("rules/project1/file1", IOUtils.toInputStream(textInBranch1)));
 
             // Resolve conflict with choosing "theirs".
-            repo.merge(branch2, "admin", new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+            repo.merge(branch2,
+                new UserInfo("admin", "admin@email", "Admin"),
+                new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
             assertTrue(repo.isMergedInto(branch2, mainBranch));
             // Because it was a conflict, project state in mainBranch differs from the state in branch2
             assertFalse(repo.isMergedInto(mainBranch, branch2));

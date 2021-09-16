@@ -31,8 +31,10 @@ import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.WebStudioFormats;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -55,6 +57,7 @@ public class MergeConflictBean {
     private final Logger log = LoggerFactory.getLogger(MergeConflictBean.class);
 
     private final MultiUserWorkspaceManager workspaceManager;
+    private final UserManagementService userManagementService;
 
     private final Map<String, ConflictResolution> conflictResolutions = new HashMap<>();
     private final Map<String, Boolean> existInRepositoryCache = new HashMap<>();
@@ -64,8 +67,9 @@ public class MergeConflictBean {
     private String mergeError;
     private String uploadError;
 
-    public MergeConflictBean(MultiUserWorkspaceManager workspaceManager) {
+    public MergeConflictBean(MultiUserWorkspaceManager workspaceManager, UserManagementService userManagementService) {
         this.workspaceManager = workspaceManager;
+        this.userManagementService = userManagementService;
     }
 
     public List<ConflictGroup> getConflictGroups() {
@@ -197,7 +201,8 @@ public class MergeConflictBean {
             UserWorkspace userWorkspace = getUserWorkspace();
 
             SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
-            Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository(mergeConflict.getRepositoryId());
+            Repository designRepository = userWorkspace.getDesignTimeRepository()
+                .getRepository(mergeConflict.getRepositoryId());
             for (String file : mergeConflict.getException().getConflictedFiles()) {
                 if (designRepository.supports().mappedFolders()) {
                     designRepository = ((FolderMapper) designRepository).getDelegate();
@@ -205,7 +210,8 @@ public class MergeConflictBean {
                 FileData fileData = designRepository.checkHistory(file, commit);
                 if (fileData != null) {
                     String modifiedOnStr = formatter.format(fileData.getModifiedAt());
-                    return fileData.getAuthor() + ": " + modifiedOnStr;
+                    String name = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
+                    return name + ": " + modifiedOnStr;
                 }
             }
         } catch (Exception e) {
@@ -387,7 +393,7 @@ public class MergeConflictBean {
             if (mergeOperation) {
                 ((BranchRepository) designRepository).forBranch(mergeConflict.getMergeBranchTo())
                     .merge(mergeConflict.getMergeBranchFrom(),
-                        userWorkspace.getUser().getUserName(),
+                        userWorkspace.getUser().getUserInfo(),
                         conflictResolveData);
             } else {
                 project.save(conflictResolveData);
@@ -446,7 +452,7 @@ public class MergeConflictBean {
     }
 
     private Map<String, List<Module>> findModulesToAppend(MergeConflictInfo mergeConflict,
-        List<FileItem> resolvedFiles) throws IOException {
+            List<FileItem> resolvedFiles) throws IOException {
         UserWorkspace userWorkspace = getUserWorkspace();
         String repositoryId = mergeConflict.getRepositoryId();
         Map<String, List<Module>> modulesToAppend = new HashMap<>();
@@ -498,8 +504,9 @@ public class MergeConflictBean {
         return modulesToAppend;
     }
 
-    private void updateRulesXmlFiles(String repositoryId, Map<String, List<Module>> modulesToAppend, String branch) throws
-                                                                                                                    IOException {
+    private void updateRulesXmlFiles(String repositoryId,
+            Map<String, List<Module>> modulesToAppend,
+            String branch) throws IOException {
         // Update rules.xml files if needed after merge was successful.
         if (!modulesToAppend.isEmpty()) {
             Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository(repositoryId);
@@ -533,7 +540,7 @@ public class MergeConflictBean {
             if (!files.isEmpty()) {
                 FileData folderData = new FileData();
                 folderData.setName("");
-                folderData.setAuthor(getUserWorkspace().getUser().getUserName());
+                folderData.setAuthor(getUserWorkspace().getUser().getUserInfo());
                 folderData.setComment(mergeMessage);
                 folderData.setBranch(branch);
                 ((FolderRepository) repository).save(folderData, files, ChangesetType.DIFF);
@@ -570,7 +577,8 @@ public class MergeConflictBean {
                 boolean merging = mergeConflict.isMerging();
                 String yourBranch = getYourBranch();
                 String theirBranch = getTheirBranch();
-                Repository designRepository = getUserWorkspace().getDesignTimeRepository().getRepository(mergeConflict.getRepositoryId());
+                Repository designRepository = getUserWorkspace().getDesignTimeRepository()
+                    .getRepository(mergeConflict.getRepositoryId());
                 for (String file : conflicts) {
                     ConflictResolution resolution = conflictResolutions.get(file);
 
@@ -717,7 +725,11 @@ public class MergeConflictBean {
     }
 
     private UserWorkspace getUserWorkspace() {
-        WorkspaceUser user = new WorkspaceUserImpl(SecurityContextHolder.getContext().getAuthentication().getName());
+        String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+        WorkspaceUser user = new WorkspaceUserImpl(userName,
+            (username) -> Optional.ofNullable(userManagementService.getUser(username))
+                .map(usr -> new UserInfo(usr.getLoginName(), usr.getEmail(), usr.getDisplayName()))
+                .orElse(null));
         return workspaceManager.getUserWorkspace(user);
     }
 

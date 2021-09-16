@@ -12,6 +12,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.TraceHelper;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -55,6 +56,9 @@ public abstract class WebStudioUtils {
             rulesUserSession.setWorkspaceManager((MultiUserWorkspaceManager) WebApplicationContextUtils
                 .getWebApplicationContext(session.getServletContext())
                 .getBean("workspaceManager"));
+            rulesUserSession.setUserManagementService(
+                (UserManagementService) WebApplicationContextUtils.getWebApplicationContext(session.getServletContext())
+                    .getBean("userManagementService"));
             session.setAttribute(Constants.RULES_USER_SESSION, rulesUserSession);
         }
         return rulesUserSession;
@@ -136,12 +140,11 @@ public abstract class WebStudioUtils {
     public static HttpSession getSession() {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         if (requestAttributes instanceof ServletRequestAttributes) {
-            HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
+            HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
             return request.getSession(false);
         }
         return null;
     }
-
 
     public static void throwValidationError(String message) {
         throw new ValidatorException(new FacesMessage(message));

@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +24,7 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -38,6 +36,7 @@ import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -49,6 +48,9 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.jsf.FacesContextUtils;
+
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
 
 /**
  * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor
@@ -231,16 +233,18 @@ public class CopyBean {
                 designData.setName(designPath);
 
                 FileMappingData mappingData = new FileMappingData(designPath, projectFolder + newProjectName);
+                WorkspaceUser user = userWorkspace.getUser();
 
                 if (copyOldRevisions && repositoryId.equals(toRepositoryId)) {
                     List<ProjectVersion> versions = project.getVersions();
                     int start = versions.size() - revisionsCount;
                     for (int i = start; i < versions.size(); i++) {
                         ProjectVersion version = versions.get(i);
-
+                        String createdBy = version.getVersionInfo().getCreatedBy();
                         FileData fileData = new FileData();
                         fileData.setName(designPath);
-                        fileData.setAuthor(version.getVersionInfo().getCreatedBy());
+                        fileData.setAuthor(
+                            new UserInfo(createdBy, version.getVersionInfo().getEmailCreatedBy(), createdBy));
                         fileData.setComment(version.getVersionComment());
                         if (designRepository.supports().mappedFolders()) {
                             fileData.addAdditionalData(mappingData);
@@ -256,10 +260,10 @@ public class CopyBean {
                 }
                 designData.setComment(comment);
                 designProject.setResourceTransformer(new ProjectDescriptorTransformer(newProjectName));
-                designProject.update(localProject, userWorkspace.getUser());
+                designProject.update(localProject, user);
                 designProject.setResourceTransformer(null);
 
-                RulesProject copiedProject = new RulesProject(userWorkspace.getUser(),
+                RulesProject copiedProject = new RulesProject(user,
                     userWorkspace.getLocalWorkspace().getRepository(toRepositoryId),
                     null,
                     designRepository,
@@ -465,8 +469,8 @@ public class CopyBean {
         DesignTimeRepository designRepo = getUserWorkspace().getDesignTimeRepository();
         return designRepo.getRepositories()
             .stream()
-            .filter(repo -> !repo.supports()
-                .branches() || !((BranchRepository) repo).isBranchProtected(((BranchRepository) repo).getBranch()))
+            .filter(repo -> !repo.supports().branches() || !((BranchRepository) repo)
+                .isBranchProtected(((BranchRepository) repo).getBranch()))
             .collect(Collectors.toList());
     }
 
