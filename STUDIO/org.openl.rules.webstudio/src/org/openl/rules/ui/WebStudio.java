@@ -1141,7 +1141,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } else {
             // Get a project
             List<ProjectDescriptor> allProjects = getAllProjects();
-            ProjectDescriptor project = CollectionUtils.findFirst(allProjects, projectDescriptor -> tableURI.startsWith(projectDescriptor.getName() + "/"));
+            ProjectDescriptor project = CollectionUtils.findFirst(allProjects,
+                projectDescriptor -> tableURI.startsWith(projectDescriptor.getRelativeUri()));
             if (project == null) {
                 return null;
             }
@@ -1152,7 +1153,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     // Eclipse project
                     return false;
                 }
-                return tableURI.startsWith(project.getName() + "/" + module1.getRulesRootPath().getPath());
+                return tableURI.startsWith(module1.getRelativeUri());
             });
             repositoryId = projects.entrySet()
                 .stream()
