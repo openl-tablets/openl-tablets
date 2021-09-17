@@ -294,7 +294,7 @@
                 <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
             </h:panelGroup>
             <a4j:jsFunction name="refreshVersionsContentProject"
-                            action="#{nodeVersionsBean.updateNodeToView}"
+                            action="#{repositoryTreeController.forceUpdateVersionsBean}"
                             render="versionsContentProject"
                             oncomplete="initExpandableLinks()"/>
 
@@ -385,7 +385,7 @@
                     <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
                 </h:panelGroup>
                 <a4j:jsFunction name="refreshVersionsContentDeployConfig"
-                                action="#{nodeVersionsBean.updateNodeToView}"
+                                action="#{repositoryTreeController.forceUpdateVersionsBean}"
                                 render="versionsContentDeployConfig"
                                 oncomplete="initExpandableLinks()"/>
             </rich:tab>
