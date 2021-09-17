@@ -159,6 +159,9 @@ public class DatatypeOpenClass extends ADynamicClass {
         staticFields.put("class", new JavaOpenClass.JavaClassClassField(instanceClass));
         this.fields = fields;
         this.staticFields = staticFields;
+        Optional.ofNullable(superClass)
+                .map(IOpenClass::getIndexField)
+                .ifPresent(this::setIndexField);
     }
 
     @Override
