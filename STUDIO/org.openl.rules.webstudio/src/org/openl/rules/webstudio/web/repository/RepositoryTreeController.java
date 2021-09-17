@@ -191,6 +191,9 @@ public class RepositoryTreeController {
     @Autowired
     private TagTypeService tagTypeService;
 
+    @Autowired
+    private NodeVersionsBean nodeVersionsBean;
+
     private String repositoryId;
     private String projectName;
     private String projectFolder = "";
@@ -1586,6 +1589,7 @@ public class RepositoryTreeController {
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
+            forceUpdateVersionsBean();
         } catch (Exception e) {
             String msg = "Failed to open project.";
             log.error(msg, e);
@@ -2828,5 +2832,10 @@ public class RepositoryTreeController {
 
     private void saveTags(RulesProject project) {
         projectTagsBean.saveTags(project);
+    }
+
+    public void forceUpdateVersionsBean() {
+        nodeVersionsBean.setNodeToView(repositoryTreeState.getSelectedNode());
+        setVersion(null);
     }
 }
