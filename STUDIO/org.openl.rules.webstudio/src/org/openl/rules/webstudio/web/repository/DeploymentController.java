@@ -27,6 +27,7 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
+import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -373,24 +374,45 @@ public class DeploymentController {
         UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         for (DeploymentDescriptorItem item : items) {
             if (item.isSelected()) {
-                String projectName = item.getName();
                 try {
-                    RulesProject project = workspace.getProject(item.getRepositoryId(), projectName, false);
+                    RulesProject project = getRulesProject(workspace, item);
+                    // Get treeNodeId immediately
+                    String treeNodeId = RepositoryUtils.getTreeNodeId(project);
                     if (!project.isModified()) {
                         project.openVersion(item.getVersion().getVersionName());
                     }
                     repositoryTreeState
-                        .refreshNode(repositoryTreeState.findNodeById(repositoryTreeState.getRulesRepository(),
-                            RepositoryUtils.getTreeNodeId(project)));
+                        .refreshNode(repositoryTreeState.findNodeById(repositoryTreeState.getRulesRepository(), treeNodeId));
                 } catch (Exception e) {
-                    LOG.error("Failed to open project '{}'.", projectName, e);
-                    WebStudioUtils.addErrorMessage("Failed to open project '" + projectName + "': " + e.getMessage());
+                    LOG.error("Failed to open project '{}'.", item.getName(), e);
+                    WebStudioUtils.addErrorMessage(
+                        String.format("Failed to open project '%s': %s", item.getName(), e.getMessage()));
                 }
             }
             item.setSelected(false);
             WebStudioUtils.getWebStudio().reset();
         }
         return null;
+    }
+
+    private RulesProject getRulesProject(UserWorkspace workspace,
+            DeploymentDescriptorItem deployment) throws ProjectException {
+        try {
+            return workspace.getProject(deployment.getRepositoryId(), deployment.getName(), false);
+        } catch (ProjectException e) {
+            Repository repo = workspace.getDesignTimeRepository().getRepository(deployment.getRepositoryId());
+            if (repo.supports().mappedFolders()) {
+                String mappedName = ((MappedRepository) repo).getMappedName(deployment.getName(), deployment.getPath());
+                try {
+                    return workspace.getProject(deployment.getRepositoryId(), mappedName, false);
+                } catch (Exception e1) {
+                    e.addSuppressed(e1);
+                    throw e;
+                }
+            } else {
+                throw e;
+            }
+        }
     }
 
     private List<ProjectDescriptor> replaceDescriptor(ADeploymentProject project,
