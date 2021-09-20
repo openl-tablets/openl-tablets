@@ -1058,4 +1058,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
         }
         return hexString.toString();
     }
+
+    @Override
+    public boolean isBranchProtected(String branch) {
+        return ((BranchRepository) delegate).isBranchProtected(branch);
+    }
 }

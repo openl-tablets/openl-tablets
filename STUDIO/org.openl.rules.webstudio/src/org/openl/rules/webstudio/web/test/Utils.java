@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import javax.servlet.http.HttpSession;
 
 import org.openl.CompiledOpenClass;
@@ -10,10 +13,10 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.util.Arrays;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
@@ -74,18 +77,23 @@ public final class Utils {
         return results;
     }
 
-    private static TestUnitsResults[] runAllTests(ProjectModel model, IOpenMethod[] tests, boolean currentOpenedModule) {
+    private static TestUnitsResults[] runAllTests(ProjectModel model,
+            IOpenMethod[] tests,
+            boolean currentOpenedModule) {
         if (Arrays.isNotEmpty(tests)) {
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
                 TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tests[i];
                 IOpenMethod testedMethod = testSuiteMethod.getTestedMethod();
-                IMemberMetaInfo metaInfo = testedMethod.getInfo();
-                String sourceUrl = metaInfo.getSourceUrl();
-
                 TestSuite testSuite = new TestSuite(testSuiteMethod);
                 TestUnitsResults testUnitsResults;
-                if (currentOpenedModule || model.getErrorsByUri(sourceUrl).isEmpty()) {
+                Collection<IOpenMethod> methods = (testedMethod instanceof OpenMethodDispatcher) ? ((OpenMethodDispatcher) testedMethod)
+                    .getCandidates() : Collections.singleton(testedMethod);
+                boolean noErrors = true;
+                for (IOpenMethod method : methods) {
+                    noErrors = noErrors && model.getErrorsByUri(method.getInfo().getSourceUrl()).isEmpty();
+                }
+                if (currentOpenedModule || noErrors) {
                     testUnitsResults = model.runTest(testSuite, currentOpenedModule);
                 } else {
                     testUnitsResults = new TestUnitsResults(testSuite);
@@ -103,7 +111,7 @@ public final class Utils {
             return null;
         }
         CompiledOpenClass compiledOpenClass = currentOpenedModule ? model.getOpenedModuleCompiledOpenClass()
-                                                         : model.getCompiledOpenClass();
+                                                                  : model.getCompiledOpenClass();
         IOpenClass moduleClass = compiledOpenClass.getOpenClassWithErrors();
         if (moduleClass instanceof XlsModuleOpenClass) {
             return ((XlsModuleOpenClass) moduleClass).getDataBase();

@@ -1,7 +1,15 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.*;
+import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
+import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
+import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
+import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
+import static org.openl.rules.security.Privileges.ERASE_PROJECTS;
+import static org.openl.rules.security.Privileges.VIEW_PROJECTS;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -199,7 +207,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                         final List<OpenLProject> projectsForTags = projectService.getProjectsForTag(tag.getId());
 
                         final List<RulesProject> subProjects = rulesProjects.stream()
-                            .filter(project -> projectsForTags.stream().anyMatch(p -> p.getProjectPath().equals(project.getRealPath())))
+                            .filter(project -> projectsForTags.stream()
+                                .anyMatch(p -> p.getProjectPath().equals(project.getRealPath())))
                             .collect(Collectors.toList());
 
                         if (!subProjects.isEmpty()) {
@@ -490,7 +499,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         return nodes;
     }
 
-    private TreeNode findNodeById(TreeNode currentNode, String id) {
+    TreeNode findNodeById(TreeNode currentNode, String id) {
         final TreeNode child = (TreeNode) currentNode.getChild(id);
         if (child != null) {
             return child;
@@ -721,7 +730,16 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanCreateDeployment() {
-        return isGranted(CREATE_DEPLOYMENT);
+        return isGranted(CREATE_DEPLOYMENT) && !isMainBranchProtected(
+            userWorkspace.getDesignTimeRepository().getDeployConfigRepository());
+    }
+
+    private boolean isMainBranchProtected(Repository repo) {
+        if (repo.supports().branches()) {
+            BranchRepository branchRepo = (BranchRepository) repo;
+            return branchRepo.isBranchProtected(branchRepo.getBranch());
+        }
+        return false;
     }
 
     public boolean getCanEditDeployment() {
@@ -730,7 +748,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return false;
         }
 
-        return isGranted(EDIT_DEPLOYMENT);
+        return isGranted(EDIT_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanDeleteDeployment() {
@@ -740,18 +758,20 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return true;
         }
         return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(
-            DELETE_DEPLOYMENT);
+            DELETE_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanSaveDeployment() {
         ADeploymentProject selectedProject = (ADeploymentProject) getSelectedProject();
-        return selectedProject.isOpenedForEditing() && selectedProject.isModified() && isGranted(EDIT_DEPLOYMENT);
+        return selectedProject.isOpenedForEditing() && selectedProject
+            .isModified() && isGranted(EDIT_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanSaveProject() {
         try {
             UserWorkspaceProject selectedProject = getSelectedProject();
-            return selectedProject != null && selectedProject.isModified() && isGranted(EDIT_PROJECTS);
+            return selectedProject != null && selectedProject.isModified() && isGranted(
+                EDIT_PROJECTS) && !isCurrentBranchProtected(selectedProject);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -777,7 +797,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
             boolean unlocked = !selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser());
             boolean mainBranch = isMainBranch(selectedProject);
-            return unlocked && isGranted(DELETE_PROJECTS) && mainBranch;
+            boolean branchProtected = isCurrentBranchProtected(selectedProject);
+            return unlocked && isGranted(DELETE_PROJECTS) && mainBranch && !branchProtected;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -792,7 +813,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
             boolean unlocked = !selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser());
             boolean mainBranch = isMainBranch(selectedProject);
-            return unlocked && isGranted(DELETE_PROJECTS) && !mainBranch;
+            boolean branchProtected = isCurrentBranchProtected(selectedProject);
+            return unlocked && isGranted(DELETE_PROJECTS) && !mainBranch && !branchProtected;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -811,9 +833,18 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         return mainBranch;
     }
 
+    private boolean isCurrentBranchProtected(UserWorkspaceProject selectedProject) {
+        Repository repo = selectedProject.getDesignRepository();
+        if (repo != null && repo.supports().branches()) {
+            return ((BranchRepository) repo).isBranchProtected(selectedProject.getBranch());
+        }
+        return false;
+    }
+
     public boolean getCanErase() {
         UserWorkspaceProject project = getSelectedProject();
-        return project.isDeleted() && isGranted(ERASE_PROJECTS) && isMainBranch(project);
+        boolean branchProtected = isCurrentBranchProtected(project);
+        return project.isDeleted() && isGranted(ERASE_PROJECTS) && isMainBranch(project) && !branchProtected;
     }
 
     public boolean getCanOpen() {
@@ -872,13 +903,19 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanUndelete() {
         UserWorkspaceProject project = getSelectedProject();
-        return project.isDeleted() && isGranted(EDIT_PROJECTS) && isMainBranch(project);
+        boolean branchProtected = isCurrentBranchProtected(project);
+        return project.isDeleted() && isGranted(EDIT_PROJECTS) && isMainBranch(project) && !branchProtected;
     }
 
     // for any project artefact
     public boolean getCanModify() {
         UserWorkspaceProject project = getSelectedProject();
-        return project.isOpenedForEditing() && isGranted(EDIT_PROJECTS);
+        if (project != null) {
+            boolean branchProtected = isCurrentBranchProtected(project);
+            return project.isOpenedForEditing() && isGranted(EDIT_PROJECTS) && !branchProtected;
+        } else {
+            return false;
+        }
     }
 
     public boolean getCanModifyTags() {

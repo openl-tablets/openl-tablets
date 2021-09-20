@@ -101,7 +101,7 @@ import org.openl.rules.webstudio.web.util.OpenAPIEditorService;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
-import org.openl.rules.workspace.WorkspaceUserImpl;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -601,6 +601,19 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public List<Repository> getCreateAllowedRepositories() {
+        DesignTimeRepository designRepo = userWorkspace.getDesignTimeRepository();
+        return designRepo.getRepositories()
+            .stream()
+            .filter(repo -> !repo.supports()
+                .branches() || !((BranchRepository) repo).isBranchProtected(((BranchRepository) repo).getBranch()))
+            .collect(Collectors.toList());
+    }
+
+    public boolean getCanCreateNewProject() {
+        return !getCreateAllowedRepositories().isEmpty();
+    }
+
     public String createNewRulesProject() {
         String comment;
         if (StringUtils.isNotBlank(createProjectComment)) {
@@ -695,7 +708,7 @@ public class RepositoryTreeController {
                 msg = "Project name must not be empty.";
             } else if (!NameChecker.checkName(projectName)) {
                 msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
-            }else if (NameChecker.isReservedName(projectName)) {
+            } else if (NameChecker.isReservedName(projectName)) {
                 msg = "Specified project name is a reserved word.";
             } else if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, projectName)) {
                 msg = "Cannot create project because project with such name already exists.";
@@ -1118,8 +1131,7 @@ public class RepositoryTreeController {
                     // Check for reserved folder name
                     if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userId)) {
                         try {
-                            LocalRepository repository = localWorkspaceManager
-                                .getWorkspace(userId)
+                            LocalRepository repository = localWorkspaceManager.getWorkspace(userId)
                                 .getRepository(repoId);
                             repository.initialize();
 
@@ -1525,7 +1537,7 @@ public class RepositoryTreeController {
     private List<TreeNode> getRulesProjects(TreeNode node) {
         List<TreeNode> list = new ArrayList<>();
         for (TreeNode treeNode : node.getChildNodes()) {
-            if (UiConst.TYPE_PROJECT .equals(treeNode.getType())) {
+            if (UiConst.TYPE_PROJECT.equals(treeNode.getType())) {
                 list.add(treeNode);
             } else if (UiConst.TYPE_GROUP.equals(treeNode.getType())) {
                 list.addAll(getRulesProjects(treeNode));
@@ -1690,7 +1702,8 @@ public class RepositoryTreeController {
                 }
             }
         } else if (node instanceof TreeProject || node instanceof TreeDProject) {
-            if (node.getData().getName().equals(projectName) && repositoryId.equals(node.getData().getRepository().getId())) {
+            if (node.getData().getName().equals(projectName) && repositoryId
+                .equals(node.getData().getRepository().getId())) {
                 repositoryTreeState.setSelectedNode(node);
                 return true;
             }
@@ -2299,8 +2312,8 @@ public class RepositoryTreeController {
         final String projectName = WebStudioUtils.getRequestParameter("projectName");
 
         try {
-            activeProjectNode = repositoryTreeState.getRulesRepository()
-                .getChild(RepositoryUtils.getTreeNodeId(repositoryId, projectName));
+            activeProjectNode = repositoryTreeState.findNodeById(repositoryTreeState.getRulesRepository(),
+                RepositoryUtils.getTreeNodeId(repositoryId, projectName));
         } catch (Exception e) {
             log.error("Cannot delete rules project '{}'.", projectName, e);
             WebStudioUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
@@ -2447,7 +2460,12 @@ public class RepositoryTreeController {
 
     public TreeNode getSelectedNode() {
         TreeNode selectedNode = repositoryTreeState.getSelectedNode();
-        return activeProjectNode != null && selectedNode instanceof TreeRepository ? activeProjectNode : selectedNode;
+        return activeProjectNode != null && (selectedNode instanceof TreeRepository || selectedNode instanceof TreeProjectGrouping) ? activeProjectNode
+                                                                                                                                    : selectedNode;
+    }
+
+    public void resetActiveProjectNode() {
+        activeProjectNode = null;
     }
 
     public boolean isRenamed(RulesProject project) {

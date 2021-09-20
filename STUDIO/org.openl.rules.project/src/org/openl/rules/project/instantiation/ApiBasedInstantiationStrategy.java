@@ -70,7 +70,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         if (engineFactory == null) {
 
             Module module = getModule();
-            IOpenSourceCodeModule source = new ModulePathSourceCodeModule(module.getRulesPath(), module.getName());
+            IOpenSourceCodeModule source = new ModulePathSourceCodeModule(module);
             source.setParams(prepareExternalParameters());
 
             engineFactory = new RulesEngineFactory<>(source, serviceClass);

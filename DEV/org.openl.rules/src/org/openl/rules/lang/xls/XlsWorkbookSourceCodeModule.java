@@ -94,6 +94,11 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
         return src.getUri();
     }
 
+    @Override
+    public String getFileUri() {
+        return src.getFileUri();
+    }
+
     public Workbook getWorkbook() {
         return workbookLoader.getWorkbook();
     }
@@ -112,7 +117,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
         synchronized (fileAccessLock) {
             File sourceFile = null;
             try {
-                URI uri = new URI(getUri());
+                URI uri = new URI(getFileUri());
                 sourceFile = new File(uri);
             } catch (URISyntaxException me) {
                 log.debug("Cannot get source file", me);

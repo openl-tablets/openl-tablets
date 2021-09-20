@@ -33,6 +33,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
@@ -136,6 +137,7 @@ public class DesignTimeRepositoryService {
 
         Repository repository = getRepositoryByName(repoName);
         SecurityChecker.allow(overwrite ? Privileges.EDIT_PROJECTS : Privileges.CREATE_PROJECTS);
+        allowedToPush(repository);
 
         CreateUpdateProjectModel model = new CreateUpdateProjectModel(repoName,
             getUserName(),
@@ -199,5 +201,14 @@ public class DesignTimeRepositoryService {
             return repository;
         }
         throw new NotFoundException("design.repo.message", repoName);
+    }
+
+    private void allowedToPush(Repository repo) {
+        if (repo.supports().branches()) {
+            BranchRepository branchRepo = (BranchRepository) repo;
+            if (branchRepo.isBranchProtected(branchRepo.getBranch())) {
+                throw new ForbiddenException("default.message");
+            }
+        }
     }
 }

@@ -46,7 +46,7 @@
         <a4j:commandButton value="Save" action="#{mainBean.saveProject}" render="@form" styleClass="button-primary"
                            data="#{studio.mergeConflict}"
                            oncomplete="onSaveComplete(event.data, #{!facesContext.validationFailed});"/>
-        <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('modalSave').hide();" />
+        <input type="button" value="Cancel" onclick="RichFaces.$('modalSave').hide();" />
       </footer>
     </h:form>
 

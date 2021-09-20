@@ -25,7 +25,7 @@
                         <h:outputText value="Their branch:"/>
                         <h:selectOneMenu id="branchToMerge" value="#{branchesBean.branchToMerge}">
                             <f:ajax event="change"
-                                    render="importButton exportButton cannotImportMessage cannotExportMessage cannotExportToLockedMessage"/>
+                                    render="importButton exportButton cannotImportMessage cannotExportMessage cannotExportToLockedMessage mergeAttentionMessage"/>
                             <f:selectItems value="#{branchesBean.branchesToMerge}"/>
                         </h:selectOneMenu>
                     </h:panelGrid>
@@ -34,6 +34,8 @@
                 <ui:param name="theirBranchMerged" value="#{branchesBean.theirBranchMerged}"/>
                 <ui:param name="yourBranchMerged" value="#{branchesBean.yourBranchMerged}"/>
                 <ui:param name="mergedOrLocked" value="#{branchesBean.mergedOrLocked}"/>
+                <ui:param name="theirBranchProtected" value="#{branchesBean.theirBranchProtected}"/>
+                <ui:param name="yourBranchProtected" value="#{branchesBean.yourBranchProtected}"/>
                 <ui:param name="locked" value="#{branchesBean.locked}"/>
                 <ui:param name="projectLockedInAnotherBranch" value="#{branchesBean.projectLockedInAnotherBranch}"/>
                 <ui:param name="confirmExportMessage" value="There were updates in `#{branchesBean.branchToMerge}` after the last `Receive their updates` action. Are you sure it will not impact the project and everything will work?
@@ -56,6 +58,18 @@ If not, please use `Receive their updates` button and test that everything works
                 </h:panelGroup>
 
                 <input id="newUrlAfterMerge" type="hidden" value="#{studio.url()}"/>
+
+                <h:panelGroup id="mergeAttentionMessage">
+                    <h:panelGroup  rendered="#{not yourBranchProtected and theirBranchProtected}">
+                        <p><span class="attention-text">WARNING!</span> Their branch is protected. Merging into protected branches is not allowed</p>
+                    </h:panelGroup>
+                    <h:panelGroup  rendered="#{yourBranchProtected and not theirBranchProtected}">
+                        <p><span class="attention-text">WARNING!</span> Your branch is protected. Merging into protected branches is not allowed</p>
+                    </h:panelGroup>
+                    <h:panelGroup  rendered="#{yourBranchProtected and theirBranchProtected}">
+                        <p><span class="attention-text">WARNING!</span> Both branches are protected. Merging into protected branches is not allowed</p>
+                    </h:panelGroup>
+                </h:panelGroup>
             </h:panelGroup>
 
             <footer>
@@ -66,7 +80,7 @@ If not, please use `Receive their updates` button and test that everything works
                                    render="projectTree nodeView @form"
                                    data="#{studio.mergeConflict}"
                                    action="#{branchesBean.mergeImport}" styleClass="button-primary"
-                                   disabled="#{theirBranchMerged}"
+                                   disabled="#{theirBranchMerged or yourBranchProtected}"
                                    oncomplete="onMergeComplete(event.data, #{!facesContext.validationFailed});"/>
                 <a4j:commandButton id="exportButton"
                                    value="Send your updates"
@@ -74,7 +88,7 @@ If not, please use `Receive their updates` button and test that everything works
                                    render="projectTree nodeView @form"
                                    data="#{studio.mergeConflict}"
                                    action="#{branchesBean.mergeExport}" styleClass="button-primary"
-                                   disabled="#{mergedOrLocked}"
+                                   disabled="#{mergedOrLocked or theirBranchProtected}"
                                    onclick="if (!#{theirBranchMerged}) return confirm('#{confirmExportMessage}'); else return true;"
                                    oncomplete="onMergeComplete(event.data, #{!facesContext.validationFailed and !locked});"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalMergeBranches').hide();"/>

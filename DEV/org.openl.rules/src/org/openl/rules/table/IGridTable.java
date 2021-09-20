@@ -26,6 +26,8 @@ public interface IGridTable extends ITable<IGridTable> {
 
     String getUri();
 
+    void resetUri();
+
     XlsUrlParser getUriParser();
 
     String getUri(int col, int row);

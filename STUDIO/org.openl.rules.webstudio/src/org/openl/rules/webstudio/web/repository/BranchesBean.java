@@ -83,7 +83,8 @@ public class BranchesBean {
             Repository repository = project.getDesignRepository();
             if (repository.supports().branches()) {
                 try {
-                    List<String> projectBranches = ((BranchRepository) repository).getBranches(project.getDesignFolderName());
+                    List<String> projectBranches = ((BranchRepository) repository)
+                        .getBranches(project.getDesignFolderName());
 
                     List<SelectItem> projectBranchesList = new ArrayList<>();
                     for (String projectBranch : projectBranches) {
@@ -112,6 +113,7 @@ public class BranchesBean {
 
     private void merge(String branchToMergeFrom, String branchToMergeTo) {
         WebStudio studio = WebStudioUtils.getWebStudio();
+        studio.getModel().clearModuleInfo();
         String nameBeforeMerge = null;
         try {
             if (branchToMergeFrom == null || branchToMergeTo == null) {
@@ -210,6 +212,22 @@ public class BranchesBean {
         return isYourBranchMerged() || isProjectLockedInAnotherBranch();
     }
 
+    public boolean isTheirBranchProtected() {
+        return isBranchProtected(branchToMerge);
+    }
+
+    public boolean isYourBranchProtected() {
+        return isBranchProtected(currentBranch);
+    }
+
+    private boolean isBranchProtected(String branch) {
+        return Optional.ofNullable(getProject(currentProjectName))
+            .map(RulesProject::getDesignRepository)
+            .filter(repo -> repo.supports().branches())
+            .map(repo -> ((BranchRepository) repo).isBranchProtected(branch))
+            .orElse(Boolean.FALSE);
+    }
+
     public boolean isLocked() {
         return isProjectLockedInAnotherBranch();
     }
@@ -301,7 +319,7 @@ public class BranchesBean {
         if (!found) {
             // Get base branch. It can be different from project.getDesignRepository().getBranch().
             branchToMerge = ((BranchRepository) getUserWorkspace().getDesignTimeRepository()
-                    .getRepository(currentRepositoryId)).getBranch();
+                .getRepository(currentRepositoryId)).getBranch();
 
             boolean existInCombobox = false;
             List<SelectItem> branchesToMerge = getBranchesToMerge();

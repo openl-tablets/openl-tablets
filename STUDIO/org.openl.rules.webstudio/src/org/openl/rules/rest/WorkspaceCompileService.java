@@ -97,7 +97,7 @@ public class WorkspaceCompileService {
                     tableDescriptions.sort(Comparator.comparing(TableBean.TableDescription::getName));
                 }
                 tableTestsInfo.put("allTests", tableDescriptions);
-                tableTestsInfo.put("compiled", model.isCompilationCompleted());
+                tableTestsInfo.put("compiled", !model.isCompilationInProgress());
             }
         }
         return tableTestsInfo;
@@ -111,7 +111,7 @@ public class WorkspaceCompileService {
         ProjectModel model = studio.getModel();
         TestSuiteMethod[] allTestMethods = model.getAllTestMethods();
         moduleTestsInfo.put("count", CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0);
-        moduleTestsInfo.put("compiled", model.isCompilationCompleted());
+        moduleTestsInfo.put("compiled", !model.isCompilationInProgress());
         moduleTestsInfo.put("tableRunState",
             !model.isProjectCompilationCompleted() ? TableRunState.CAN_RUN_MODULE : TableRunState.CAN_RUN);
         return moduleTestsInfo;
@@ -121,7 +121,7 @@ public class WorkspaceCompileService {
     @Path("project")
     public boolean project() {
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
-        return webStudio.getModel().isCompilationCompleted();
+        return !webStudio.getModel().isCompilationInProgress();
     }
 
     @GET

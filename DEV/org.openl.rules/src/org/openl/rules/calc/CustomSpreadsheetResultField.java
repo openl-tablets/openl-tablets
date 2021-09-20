@@ -47,11 +47,10 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField implements I
             // Lazy initialization for cells level recursive compilation
             try {
                 setType(field.getType());
+                field = null;
             } catch (RecursiveSpreadsheetMethodPreBindingException | SpreadsheetCellsLoopException e) {
-                LOG.debug("Error occurred: ", e);
-                setType(JavaOpenClass.OBJECT);
+                return JavaOpenClass.OBJECT;
             }
-            field = null;
         }
         return super.getType();
     }

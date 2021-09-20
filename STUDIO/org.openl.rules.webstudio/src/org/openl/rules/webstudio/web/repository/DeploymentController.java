@@ -240,6 +240,19 @@ public class DeploymentController {
         return null;
     }
 
+    public boolean isProtectedDeployRepository() {
+        Repository repo = deploymentManager.repositoryFactoryProxy.getRepositoryInstance(getRepositoryConfigName());
+        return isMainBranchProtected(repo);
+    }
+
+    protected boolean isMainBranchProtected(Repository repo) {
+        if (repo.supports().branches()) {
+            BranchRepository branchRepo = (BranchRepository) repo;
+            return branchRepo.isBranchProtected(branchRepo.getBranch());
+        }
+        return false;
+    }
+
     public List<DeploymentDescriptorItem> getItems() {
         ADeploymentProject project = getSelectedProject();
         if (project == null) {
@@ -366,8 +379,9 @@ public class DeploymentController {
                     if (!project.isModified()) {
                         project.openVersion(item.getVersion().getVersionName());
                     }
-                    repositoryTreeState.refreshNode(
-                        repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(project)));
+                    repositoryTreeState
+                        .refreshNode(repositoryTreeState.findNodeById(repositoryTreeState.getRulesRepository(),
+                            RepositoryUtils.getTreeNodeId(project)));
                 } catch (Exception e) {
                     LOG.error("Failed to open project '{}'.", projectName, e);
                     WebStudioUtils.addErrorMessage("Failed to open project '" + projectName + "': " + e.getMessage());

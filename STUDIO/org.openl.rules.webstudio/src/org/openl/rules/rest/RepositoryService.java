@@ -45,12 +45,14 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
+import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -302,6 +304,12 @@ public class RepositoryService {
             long zipSize,
             String comment) {
         try {
+            if (getRepository().supports().branches()) {
+                BranchRepository branchRepo = (BranchRepository) getRepository();
+                if (branchRepo.isBranchProtected(branchRepo.getBranch())) {
+                    throw new ForbiddenException("default.message");
+                }
+            }
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
             String repositoryId = getDefaultRepositoryId();
             if (userWorkspace.hasProject(repositoryId, name)) {

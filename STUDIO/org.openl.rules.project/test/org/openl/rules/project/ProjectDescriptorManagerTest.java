@@ -33,6 +33,13 @@ public class ProjectDescriptorManagerTest {
     private static final Path DESCRIPTOR_PATH = Paths.get("test-resources/descriptor.zip");
 
     @Test
+    public void testRelativeUri() {
+        ProjectDescriptor pd = new ProjectDescriptor();
+        pd.setProjectFolder(Paths.get("test/rules/test xls"));
+        assertEquals("test%20xls", pd.getRelativeUri());
+    }
+
+    @Test
     public void testReadDescriptor1() throws IOException, ValidationException {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ProjectDescriptor descriptor = manager.readDescriptor("test-resources/descriptor/rules1.xml");

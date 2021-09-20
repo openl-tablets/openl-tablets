@@ -41,6 +41,8 @@ import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -61,6 +63,8 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
@@ -79,6 +83,7 @@ import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
+import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.Props;
@@ -113,7 +118,7 @@ public class ProjectModel {
      */
     private volatile CompiledOpenClass compiledOpenClass;
     private volatile CompiledOpenClass openedModuleCompiledOpenClass;
-    private volatile boolean compilationCompleted;
+    private volatile boolean compilationInProgress;
     private volatile String projectCompilationCompleted;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
@@ -345,9 +350,8 @@ public class ProjectModel {
 
         for (IOpenMethod candidate : candidates) {
             IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
-
             if (resolvedMethod != null) {
-                return resolvedMethod;
+                return WrapperLogic.wrapOpenMethod(resolvedMethod, (XlsModuleOpenClass) method.getDeclaringClass());
             }
         }
 
@@ -663,7 +667,7 @@ public class ProjectModel {
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
-        if (isGranted(EDIT_PROJECTS)) {
+        if (isGranted(EDIT_PROJECTS) && !isCurrentBranchProtected()) {
             RulesProject project = getProject();
 
             if (project != null) {
@@ -690,11 +694,20 @@ public class ProjectModel {
     }
 
     public boolean isCanEditTable(String uri) {
-        return isEditableTable(uri) && isGranted(EDIT_TABLES);
+        return isEditableTable(uri) && isGranted(EDIT_TABLES) && !isCurrentBranchProtected();
     }
 
     public boolean isCanEditProject() {
         return isEditable() && isGranted(EDIT_TABLES);
+    }
+
+    private boolean isCurrentBranchProtected() {
+        RulesProject project = getProject();
+        if (project != null && !project.isLocalOnly()) {
+            Repository repo = project.getDesignRepository();
+            return repo.supports().branches() && ((BranchRepository) repo).isBranchProtected(project.getBranch());
+        }
+        return false;
     }
 
     public boolean isReady() {
@@ -840,11 +853,25 @@ public class ProjectModel {
         return element;
     }
 
+    private boolean isGapOverlap(ProjectTreeNode tableNode) {
+        if (tableNode.getTableSyntaxNode() != null) {
+            String tableType = tableNode.getTableSyntaxNode().getType();
+            if (XlsNodeTypes.XLS_DT.toString().equals(tableType)) {
+                return DispatcherTablesBuilder.isDispatcherTable(tableNode.getTableSyntaxNode());
+            }
+        }
+        return false;
+    }
+
     private TreeNode build(ProjectTreeNode root) {
         TreeNode node = createNode(root);
         Iterable<ProjectTreeNode> children = root.getChildren();
         int errors = 0;
         for (ProjectTreeNode child : children) {
+            // Always hide dispatcher tables
+            if (isGapOverlap(child)) {
+                continue;
+            }
             TreeNode rfChild = build(child);
             if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType()) || IProjectTypes.PT_WORKBOOK
                 .equals(rfChild.getType())) {
@@ -1184,28 +1211,28 @@ public class ProjectModel {
                     null);
                 if (!ReloadType.NO.equals(reloadType) || !Objects.equals(projectDependencyName,
                     projectCompilationCompleted)) {
-                    this.compilationCompleted = false;
+                    this.compilationInProgress = true;
+                    projectCompilationCompleted = null;
+                    webStudioWorkspaceDependencyManager.loadDependencyAsync(
+                        new Dependency(DependencyType.MODULE,
+                            new IdentifierNode(DependencyType.MODULE.name(), null, projectDependencyName, null)),
+                        (compiledDependency) -> {
+                            try {
+                                this.compiledOpenClass = this.validate();
+                                XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                                    .getMetaInfo();
+                                getModuleSyntaxNodesByProject(moduleInfo.getProject().getName())
+                                    .add(metaInfo1.getXlsModuleNode());
+                                redraw();
+                            } catch (Exception | LinkageError e) {
+                                onCompilationFailed(e);
+                            }
+                            this.projectCompilationCompleted = compiledDependency.getDependencyName();
+                            this.compilationInProgress = false;
+                        });
                 }
-                projectCompilationCompleted = null;
-                webStudioWorkspaceDependencyManager.loadDependencyAsync(
-                    new Dependency(DependencyType.MODULE,
-                        new IdentifierNode(DependencyType.MODULE.name(), null, projectDependencyName, null)),
-                    (compiledDependency) -> {
-                        try {
-                            this.compiledOpenClass = this.validate();
-                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                                .getMetaInfo();
-                            getModuleSyntaxNodesByProject(moduleInfo.getProject().getName())
-                                .add(metaInfo1.getXlsModuleNode());
-                            redraw();
-                        } catch (Exception | LinkageError e) {
-                            onCompilationFailed(e);
-                        }
-                        this.projectCompilationCompleted = compiledDependency.getDependencyName();
-                        this.compilationCompleted = true;
-                    });
             } else {
-                compilationCompleted = true;
+                this.compilationInProgress = false;
             }
         } catch (Exception | LinkageError e) {
             onCompilationFailed(e);
@@ -1213,7 +1240,7 @@ public class ProjectModel {
     }
 
     private void onCompilationFailed(Throwable t) {
-        compilationCompleted = true;
+        compilationInProgress = false;
         log.error("Failed to load.", t);
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
         for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(t)) {
@@ -1463,8 +1490,8 @@ public class ProjectModel {
         }
     }
 
-    public boolean isCompilationCompleted() {
-        return compilationCompleted;
+    public boolean isCompilationInProgress() {
+        return compilationInProgress;
     }
 
     public boolean isProjectCompilationCompleted() {

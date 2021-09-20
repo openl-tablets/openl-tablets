@@ -19,7 +19,6 @@
 
             .repositoryConfigButton {
                 vertical-align: top;
-                float: right;
                 opacity: 0;
                 transition: visibility 0.1s linear, opacity 0.2s ease-out;
             }
@@ -29,9 +28,15 @@
                 opacity: 0.4;
             }
 
-            .tab-panel-vertical > ul li.sub-repo-item a,
-            .tab-panel-vertical > ul li.sub-repo-item a span{
-                display: inline-block;
+            .tab-panel-vertical > ul li.sub-repo-item a {
+                flex: 1;
+                min-width: 0; /* required to make text-overflow working */
+            }
+
+            .tab-panel-vertical > ul li.sub-repo-item a span {
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             .addRepositoryConfig {
@@ -92,6 +97,7 @@
             .tab-panel-vertical .repo-tab > ul li {
                 text-align: left;
                 width: 170px;
+                display: flex;
             }
 
             .tab-panel-vertical .repo-tab > ul li a {
@@ -141,6 +147,7 @@
                     tabActiveClass: "selected-tab",
                     panelActiveClass: "displayed"
                 });
+                $j('#tab-container').bind('easytabs:after', initSubmenuTooltips);
                 $j('#repo-tab-container').easytabs({
                     tabs: '.tab-element',
                     defaultTab: '.default-tab',
@@ -179,7 +186,17 @@
                             jQuery('#notificationPanel').trigger('refresh');
                         });
                 });
+                initSubmenuTooltips();
+            }
 
+            function initSubmenuTooltips() {
+                $j(".tab-panel-vertical > ul li.sub-repo-item a span").each(function () {
+                    let el = $j(this);
+                    if (el[0].scrollWidth > el[0].clientWidth) {
+                        // If text is truncated, then show tooltip.
+                        el.attr("title", el.text());
+                    }
+                });
             }
 
             function confirmSave() {

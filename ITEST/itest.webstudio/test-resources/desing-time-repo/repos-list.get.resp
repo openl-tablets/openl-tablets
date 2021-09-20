@@ -9,6 +9,9 @@ Content-Type: application/json
         "id": "design-non-flat",
         "name": "Git Non Flat"
     }, {
+        "id": "design-protected-flat",
+        "name": "Git Protected Branch Flat"
+    }, {
         "id": "design",
         "name": "H2"
     }

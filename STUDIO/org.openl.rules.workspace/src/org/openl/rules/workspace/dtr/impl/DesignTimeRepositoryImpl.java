@@ -477,7 +477,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return repositories;
     }
 
-    private Repository getDeployConfigRepository() {
+    @Override
+    public Repository getDeployConfigRepository() {
         return deployConfigRepository;
     }
 

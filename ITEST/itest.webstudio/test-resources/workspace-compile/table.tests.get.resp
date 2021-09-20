@@ -6,12 +6,12 @@ Content-Type: application/json
    "allTests":[
       {
          "uri":"#local/Sample/Main/table",
-         "id":"02dad54296dbc34cb91772216b27ca8e",
+         "id":"c1af650ae61ff58aa262f77e51e06f1f",
          "name":"HelloTest (1 test case)"
       },
       {
          "uri":"#local/Sample/Main/table",
-         "id":"40da0feaf93e639c615086b2c9845cc7",
+         "id":"bb7899212a651584123555cfe8f07050",
          "name":"HelloTest3 (1 test case)"
       }
    ]

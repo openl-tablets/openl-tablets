@@ -63,6 +63,11 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
     }
 
     @Override
+    public String getFileUri() {
+        return workbookSource.getFileUri();
+    }
+
+    @Override
     public String getUri() {
         String workbookUri = workbookSource.getUri();
         if (workbookUri == null) {

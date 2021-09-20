@@ -122,7 +122,8 @@ function updateSubmitListener(listener) {
         var $submit = $j(this);
         // Add showLoader listener only on submit buttons without onclick handler to skip
         // ajax jsf submit buttons and buttons with existed logic in onclick attribute.
-        if (!$submit.attr("onclick")) {
+        // Also skip buttons with their own Loader Handlers (buttons for file download).
+        if (!$submit.attr("onclick") && !$submit.hasClass('own-loader-handler')) {
             // Because this function is invoked on DOM change we must remove the handler we've set before.
             $submit.off("click", listener);
             $submit.on("click", listener);

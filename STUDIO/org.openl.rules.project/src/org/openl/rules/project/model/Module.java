@@ -2,6 +2,7 @@ package org.openl.rules.project.model;
 
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Optional;
 
 public class Module {
     private String name;
@@ -79,6 +80,14 @@ public class Module {
 
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
+    }
+
+    public String getRelativeUri() {
+        return Optional.ofNullable(project.getProjectFolder().getParent())
+                .orElse(project.getProjectFolder())
+                .toUri()
+                .relativize(getRulesPath().toUri())
+                .toString();
     }
 
     @Override

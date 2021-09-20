@@ -144,12 +144,14 @@
                         <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare"
                                          onclick="openCompareWindow(); return false;"
                                          title="Compare tables in Excel file between two project versions"/>
-                        <h:commandButton id="addFolder2" rendered="#{artefact.openedForEditing}" value="Add Folder"
-                                         onclick="if (!canOverwriteRevision()) return false; openNewFolderDialog();return false;"
-                                         title="#{addFolderMessage}"/>
-                        <h:commandButton id="uploadFile2" rendered="#{artefact.openedForEditing}" value="Upload File"
-                                         onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;"
-                                         title="#{uploadFileMessage}"/>
+                        <h:panelGroup rendered="#{repositoryTreeState.canModify}">
+                            <h:commandButton id="addFolder2" rendered="#{artefact.openedForEditing}" value="Add Folder"
+                                             onclick="if (!canOverwriteRevision()) return false; openNewFolderDialog();return false;"
+                                             title="#{addFolderMessage}"/>
+                            <h:commandButton id="uploadFile2" rendered="#{artefact.openedForEditing}" value="Upload File"
+                                             onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;"
+                                             title="#{uploadFileMessage}"/>
+                        </h:panelGroup>
                         <h:commandButton id="exportVersionId" rendered="#{repositoryTreeState.canExport}" value="Export"
                                          onclick="openExportProjectDialog('#{artefact.repository.id}', '#{artefact.name}');return false;"
                                          title="Download the project as a zip archive"/>
@@ -322,7 +324,7 @@
          As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.
     --></ui:remove>
         <rich:tab id="rulesDeployConfiguration" name="RulesDeployConfiguration" header="Rules Deploy Configuration"
-                  onenter="#{artefact.project.openedForEditing ? '' : 'refreshRulesDeployConfiguration()'}"
+                  onenter="#{repositoryTreeState.canModify and artefact.project.openedForEditing ? '' : 'refreshRulesDeployConfiguration()'}"
                   disabled="#{node.type != 'project'}"
                   headerClass="#{node.type == 'project' ? 'showHeader' : 'hideHeader'}">
             <h:panelGroup id="rulesDeployConfigurationContent">
@@ -362,7 +364,7 @@
                                  action="#{deploymentController.close}"
                                  title="Close Deploy Configuration and make it unavailable for editing"
                                  onclick="if (#{deploymentController.modified}) {#{rich:component('modalCloseDeployConfiguration')}.show();return false;}"/>
-                <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canEditDeployment}" value="Open"
+                <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canOpen}" value="Open"
                                  action="#{deploymentController.open}"
                                  title="Make project available for editing and lock it from editing by other users"/>
                 <h:commandButton id="saveDeployId" rendered="#{repositoryTreeState.canSaveDeployment}" value="Save"
@@ -415,6 +417,12 @@
             $selectedBranch = $j('#branchSelector option:selected');
 
             initExpandableLinks();
+
+            //hide action column if no child elements there
+            if ($j(".filtered-table > tbody > tr > .action-col > *").length === 0) {
+                $j(".filtered-table > thead > tr > .action-col").hide();
+                $j(".filtered-table > tbody > tr > .action-col").hide();
+            }
         });
 
         function canOverwriteRevision() {

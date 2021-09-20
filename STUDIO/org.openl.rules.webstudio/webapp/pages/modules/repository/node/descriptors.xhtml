@@ -54,7 +54,7 @@
     <rich:column>
       <h:outputText value="#{item.messages}" escape="false" styleClass="#{item.styleForMessages}" />
     </rich:column>
-    <rich:column styleClass="action-col center-align">
+    <rich:column styleClass="action-col center-align" rendered="${repositoryTreeState.canModify}">
       <h:commandLink action="#{deploymentController.deleteItem}" immediate="true"
         onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the deployed project?')) {return false;}" rendered="#{artefact.openedForEditing}" title="Delete"
         styleClass="delete-icon">
@@ -83,7 +83,7 @@
 
   <br/><br/>
   <h:panelGrid columns="2" cellpadding="0" cellspacing="0">
-    <h:commandButton id="addProjectsId" value="Add" disabled="#{!artefact.openedForEditing}" onclick="if (!canOverwriteRevision()) return false; showAddDeployEntry();return false;" title="Add projects"/>
+    <h:commandButton id="addProjectsId" value="Add" disabled="#{!artefact.openedForEditing or not repositoryTreeState.canModify}" onclick="if (!canOverwriteRevision()) return false; showAddDeployEntry();return false;" title="Add projects"/>
     <h:commandButton id="openSelectedProjectsBtn" value="Open" onclick="return !isEmptySelection()" action="#{deploymentController.openSelectedProjects}" title="Open selected projects"/>
   </h:panelGrid>
 
