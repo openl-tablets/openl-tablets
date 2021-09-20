@@ -1,0 +1,20 @@
+<project>
+  <name>EPBDS-11911_Project_Dependencies</name>
+  <comment></comment>
+  <modules>
+    <module>
+      <name>m3</name>
+      <rules-root path="m3.xlsx"/>
+    </module>
+    <module>
+      <name>Model</name>
+      <rules-root path="Model.xlsx"/>
+    </module>
+  </modules>
+  <dependencies>
+    <dependency>
+      <name>Project1</name>
+      <autoIncluded>false</autoIncluded>
+    </dependency>
+  </dependencies>
+</project>
