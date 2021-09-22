@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
@@ -38,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.jaxrs2.Reader;
+import io.swagger.v3.oas.models.OpenAPI;
 
 public class OpenApiGenerator {
 
@@ -71,7 +73,7 @@ public class OpenApiGenerator {
         this.provideVariations = provideVariations;
     }
 
-    public String generate() throws RulesInstantiationException {
+    public OpenAPI generate() throws RulesInstantiationException {
         final ClassLoader serviceClassLoader = resolveServiceClassLoader(instantiationStrategy);
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -89,7 +91,7 @@ public class OpenApiGenerator {
                 try {
                     OpenApiRulesCacheWorkaround.reset();
                     openApiObjectMapperHack.apply(objectMapper);
-                    return OpenApiSerializationUtils.toJson(reader.read(enhancedServiceClass));
+                    return reader.read(enhancedServiceClass);
                 } catch (Exception e) {
                     StringBuilder message = new StringBuilder("Failed to build OpenAPI for the current project.");
                     if (org.openl.util.StringUtils.isNotBlank(e.getMessage())) {

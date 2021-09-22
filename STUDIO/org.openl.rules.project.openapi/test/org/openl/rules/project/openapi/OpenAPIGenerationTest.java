@@ -4,13 +4,17 @@ import static org.junit.Assert.assertFalse;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +31,9 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+
+import io.swagger.v3.oas.models.OpenAPI;
 
 public class OpenAPIGenerationTest {
 
@@ -34,7 +41,10 @@ public class OpenAPIGenerationTest {
 
     public static final String DIR = "test-resources/functionality/";
 
-    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    @SuppressWarnings("unchecked")
+    private static final Pair<ObjectMapper, String>[] MAPPER_TO_FILE = new Pair[] {
+            Pair.of(new ObjectMapper(), ".openapi.json"),
+            Pair.of(new ObjectMapper(new YAMLFactory()), ".openapi.yaml") };
 
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
@@ -115,45 +125,63 @@ public class OpenAPIGenerationTest {
                 continue;
             }
 
-            JsonNode actualNode;
+            OpenAPI actualOpenAPI;
             try {
-                String actualOpenAPI = OpenApiGenerator.builder(projectDescriptor, instantiationStrategy)
+                actualOpenAPI = OpenApiGenerator.builder(projectDescriptor, instantiationStrategy)
                     .generator()
                     .generate();
-                actualNode = OBJECT_MAPPER.readTree(actualOpenAPI);
-            } catch (RulesInstantiationException | JsonProcessingException e) {
+            } catch (RulesInstantiationException e) {
                 error(messagesCount.getAndIncrement(), startTime, sourceFile, "Open API Generation fails.", e);
                 testsFailed = true;
                 continue;
             }
 
-            // Check OpenAPI
-            String expectOpenAPIFileName = sourceFile + ".openapi.json";
-            File expectedOpenAPIFile = new File(testsDir, expectOpenAPIFileName);
-            if (!expectedOpenAPIFile.exists()) {
-                error(messagesCount.getAndIncrement(),
-                    startTime,
-                    sourceFile,
-                    "Failed to find expected Open API file: " + expectOpenAPIFileName);
-                testsFailed = true;
-                continue;
-            }
-            if (expectedOpenAPIFile.exists()) {
-                JsonNode expectedNode;
+            Set<String> missedExpectedOpenAPIs = new HashSet<>();
+            for (Pair<ObjectMapper, String> pair : MAPPER_TO_FILE) {
+                String actualOpenAPIStr;
                 try {
-                    expectedNode = OBJECT_MAPPER.readTree(expectedOpenAPIFile);
-                } catch (IOException exc) {
-                    error(messagesCount.getAndIncrement(),
-                        startTime,
-                        sourceFile,
-                        "Failed to read Open API file '{}'.",
-                        expectedOpenAPIFile,
-                        exc);
+                    actualOpenAPIStr = pair.getValue().endsWith(".json") ? OpenApiSerializationUtils
+                        .toJson(actualOpenAPI) : OpenApiSerializationUtils.toYaml(actualOpenAPI);
+                } catch (JsonProcessingException e) {
+                    error(messagesCount.getAndIncrement(), startTime, sourceFile, "Open API Generation fails.", e);
                     testsFailed = true;
                     continue;
                 }
 
-                compareJsonObjects(messagesCount, startTime, sourceFile, expectedNode, actualNode, "");
+                // Check OpenAPI
+                String expectOpenAPIFileName = sourceFile + pair.getValue();
+                File expectedOpenAPIFile = new File(testsDir, expectOpenAPIFileName);
+                if (!expectedOpenAPIFile.exists()) {
+                    missedExpectedOpenAPIs.add(expectOpenAPIFileName);
+                    continue;
+                }
+                if (expectedOpenAPIFile.exists()) {
+                    JsonNode expectedNode;
+                    JsonNode actualNode;
+                    try {
+                        actualNode = pair.getKey().readTree(actualOpenAPIStr);
+                        expectedNode = pair.getKey().readTree(expectedOpenAPIFile);
+                    } catch (IOException exc) {
+                        error(messagesCount.getAndIncrement(),
+                            startTime,
+                            sourceFile,
+                            "Failed to read Open API file '{}'.",
+                            expectedOpenAPIFile,
+                            exc);
+                        testsFailed = true;
+                        continue;
+                    }
+
+                    compareJsonObjects(messagesCount, startTime, sourceFile, expectedNode, actualNode, "");
+                }
+            }
+
+            if (missedExpectedOpenAPIs.size() == MAPPER_TO_FILE.length) {
+                error(messagesCount.getAndIncrement(),
+                        startTime,
+                        sourceFile,
+                        "Failed to find one of expected Open API files: " + String.join(", ", missedExpectedOpenAPIs));
+                testsFailed = true;
             }
 
             // Output

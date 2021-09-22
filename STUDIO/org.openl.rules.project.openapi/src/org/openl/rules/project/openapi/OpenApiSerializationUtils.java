@@ -8,6 +8,8 @@ import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.core.util.Separators;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.ObjectMapperFactory;
@@ -15,10 +17,14 @@ import io.swagger.v3.parser.ObjectMapperFactory;
 public final class OpenApiSerializationUtils {
 
     private static final ObjectMapper JSON_MAPPER;
+    private static final ObjectMapper YAML_MAPPER;
 
     static {
         JSON_MAPPER = ObjectMapperFactory.createJson();
         OpenApiObjectMapperConfigurationHelper.configure(JSON_MAPPER);
+        YAML_MAPPER = ObjectMapperFactory.createYaml();
+        ((YAMLFactory) YAML_MAPPER.getFactory()).disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
+        OpenApiObjectMapperConfigurationHelper.configure(YAML_MAPPER);
     }
 
     private OpenApiSerializationUtils() {
@@ -42,6 +48,10 @@ public final class OpenApiSerializationUtils {
         }.withObjectIndenter(indenter).withArrayIndenter(indenter);
 
         return JSON_MAPPER.writer(prettyPrinter).writeValueAsString(api).replace(": { }", ": {}");
+    }
+
+    public static String toYaml(OpenAPI api) throws JsonProcessingException {
+        return api != null ? YAML_MAPPER.writeValueAsString(api) : null;
     }
 
 }

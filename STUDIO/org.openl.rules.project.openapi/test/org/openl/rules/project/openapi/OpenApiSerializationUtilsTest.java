@@ -42,6 +42,13 @@ public class OpenApiSerializationUtilsTest {
         assertEquals(expectedJson, actualJsonApi);
     }
 
+    @Test
+    public void testToYaml() throws IOException {
+        final String actualYamlApi = OpenApiSerializationUtils.toYaml(reader.read(Service.class));
+        final String expectedYaml = readText("api_serialization/openapi.yaml");
+        assertEquals(expectedYaml, actualYamlApi);
+    }
+
     private static String readText(String file) throws IOException {
         return IOUtils.toStringAndClose(OpenApiSerializationUtilsTest.class.getResourceAsStream("/" + file));
     }
