@@ -40,6 +40,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
@@ -49,6 +50,8 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.rules.project.model.validation.ValidationException;
+import org.openl.rules.project.openapi.OpenApiGenerator;
+import org.openl.rules.project.openapi.OpenApiSerializationUtils;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.NoMatchFileNameException;
@@ -81,6 +84,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.context.annotation.RequestScope;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Service
 @RequestScope
@@ -116,6 +121,7 @@ public class ProjectBean {
     private String currentPathPattern;
     private Integer currentModuleIndex;
     private IRulesDeploySerializer rulesDeploySerializer;
+    private String existedOpenAPIFilePath;
 
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
 
@@ -823,6 +829,99 @@ public class ProjectBean {
                 type);
         }
         return result;
+    }
+
+    public void generateOpenAPISchema() {
+        tryLockProject();
+        ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
+        RulesProject currentProject = studio.getCurrentProject();
+        try {
+            OpenAPI.Type openAPIType = Optional
+                .of(WebStudioUtils.getRequestParameter("genOpenAPISchemaForm:openAPIType"))
+                .map(FileNameFormatter::normalizePath)
+                .map(OpenAPI.Type::valueOf)
+                .orElseThrow(() -> new IllegalArgumentException("Failed to parse OpenAPI type."));
+
+            OpenApiGenerator generator = OpenApiGenerator
+                .builder(studio.getModel().getModuleInfo().getProject(),
+                    studio.getModel().getRulesInstantiationStrategy())
+                .generator();
+
+            currentProject.addResource(openAPIType.getDefaultFileName(), serializeOpenApi(generator, openAPIType));
+
+            ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentProjectDescriptor);
+            clean(newProjectDescriptor);
+            OpenAPI openAPI = new OpenAPI();
+            openAPI.setPath(openAPIType.getDefaultFileName());
+            openAPI.setMode(OpenAPI.Mode.RECONCILIATION);
+            newProjectDescriptor.setOpenapi(openAPI);
+            save(newProjectDescriptor);
+
+        } catch (Exception e) {
+            throw new Message("Failed to generate Open API Schema. Details: " + e.getMessage(), e);
+        }
+    }
+
+    public void regenerateOpenAPISchema() {
+        tryLockProject();
+        RulesProject currentProject = studio.getCurrentProject();
+        try {
+            OpenApiGenerator generator = OpenApiGenerator
+                .builder(studio.getModel().getModuleInfo().getProject(),
+                    studio.getModel().getRulesInstantiationStrategy())
+                .generator();
+
+            OpenAPI.Type openAPIType = FileUtils.getExtension(existedOpenAPIFilePath)
+                .equals("json") ? OpenAPI.Type.JSON : OpenAPI.Type.YAML;
+
+            ((AProjectResource) currentProject.getProject().getArtefact(existedOpenAPIFilePath))
+                .setContent(serializeOpenApi(generator, openAPIType));
+        } catch (Exception e) {
+            throw new Message("Failed to generate Open API Schema. Details: " + e.getMessage(), e);
+        }
+    }
+
+    private InputStream serializeOpenApi(OpenApiGenerator generator, OpenAPI.Type openAPIType) throws JsonProcessingException, RulesInstantiationException {
+        String generatedOpenAPISchema;
+        switch (openAPIType) {
+            case JSON:
+                generatedOpenAPISchema = OpenApiSerializationUtils.toJson(generator.generate());
+                break;
+            case YAML:
+                generatedOpenAPISchema = OpenApiSerializationUtils.toYaml(generator.generate());
+                break;
+            default:
+                throw new IllegalStateException(); // Must newer happened.
+        }
+        return IOUtils.toInputStream(generatedOpenAPISchema);
+    }
+
+    public List<String> getOpenApiTypes() {
+        return Arrays.asList(OpenAPI.Type.JSON.name(), OpenAPI.Type.YAML.name());
+    }
+
+    public boolean isOpenAPIFileExists() {
+        existedOpenAPIFilePath = null;
+        ProjectDescriptor currentDescriptor = studio.getCurrentProjectDescriptor();
+        RulesProject currentProject = studio.getCurrentProject();
+        if (currentDescriptor.getOpenapi() != null && StringUtils
+            .isNotBlank(currentDescriptor.getOpenapi().getPath()) && currentProject
+                .hasArtefact(currentDescriptor.getOpenapi().getPath())) {
+            existedOpenAPIFilePath = currentDescriptor.getOpenapi().getPath();
+            return true;
+        }
+        if (currentProject.hasArtefact(OpenAPI.Type.JSON.getDefaultFileName())) {
+            existedOpenAPIFilePath = OpenAPI.Type.JSON.getDefaultFileName();
+            return true;
+        } else if (currentProject.hasArtefact(OpenAPI.Type.YAML.getDefaultFileName())) {
+            existedOpenAPIFilePath = OpenAPI.Type.YAML.getDefaultFileName();
+            return true;
+        }
+        return false;
+    }
+
+    public String getExistedOpenAPIFilePath() {
+        return existedOpenAPIFilePath;
     }
 
     public void regenerateOpenAPI() {

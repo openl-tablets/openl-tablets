@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.After;
@@ -178,9 +177,9 @@ public class OpenAPIGenerationTest {
 
             if (missedExpectedOpenAPIs.size() == MAPPER_TO_FILE.length) {
                 error(messagesCount.getAndIncrement(),
-                        startTime,
-                        sourceFile,
-                        "Failed to find one of expected Open API files: " + String.join(", ", missedExpectedOpenAPIs));
+                    startTime,
+                    sourceFile,
+                    "Failed to find one of expected Open API files: " + String.join(", ", missedExpectedOpenAPIs));
                 testsFailed = true;
             }
 

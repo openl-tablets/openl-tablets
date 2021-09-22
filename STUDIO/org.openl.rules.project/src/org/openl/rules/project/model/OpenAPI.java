@@ -2,9 +2,26 @@ package org.openl.rules.project.model;
 
 public final class OpenAPI {
 
+    public static final String OPEN_API_JSON = "openapi.json";
+
     public enum Mode {
         RECONCILIATION,
         GENERATION
+    }
+
+    public enum Type {
+        YAML("openapi.yaml"),
+        JSON("openapi.json");
+
+        private final String defaultFileName;
+
+        Type(String defaultFileName) {
+            this.defaultFileName = defaultFileName;
+        }
+
+        public String getDefaultFileName() {
+            return defaultFileName;
+        }
     }
 
     private String path;
