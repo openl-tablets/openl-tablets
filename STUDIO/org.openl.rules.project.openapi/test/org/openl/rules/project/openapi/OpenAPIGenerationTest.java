@@ -91,7 +91,7 @@ public class OpenAPIGenerationTest {
                     projectDescriptor = engineFactory.getProjectDescriptor();
                     instantiationStrategy = engineFactory.getRulesInstantiationStrategy();
                 } catch (ProjectResolvingException | RulesInstantiationException e) {
-                    error(messagesCount.incrementAndGet(), startTime, sourceFile, "Compilation fails.", e);
+                    error(messagesCount.getAndIncrement(), startTime, sourceFile, "Compilation fails.", e);
                     testsFailed = true;
                     continue;
                 }
@@ -103,7 +103,7 @@ public class OpenAPIGenerationTest {
             // Check compilation
             if (compiledOpenClass.hasErrors()) {
                 for (OpenLMessage msg : compiledOpenClass.getMessages()) {
-                    error(messagesCount.incrementAndGet(),
+                    error(messagesCount.getAndIncrement(),
                         startTime,
                         sourceFile,
                         "   {}: {}    at {}",
@@ -122,7 +122,7 @@ public class OpenAPIGenerationTest {
                     .generate();
                 actualNode = OBJECT_MAPPER.readTree(actualOpenAPI);
             } catch (RulesInstantiationException | JsonProcessingException e) {
-                error(messagesCount.incrementAndGet(), startTime, sourceFile, "Open API Generation fails.", e);
+                error(messagesCount.getAndIncrement(), startTime, sourceFile, "Open API Generation fails.", e);
                 testsFailed = true;
                 continue;
             }
@@ -131,7 +131,7 @@ public class OpenAPIGenerationTest {
             String expectOpenAPIFileName = sourceFile + ".openapi.json";
             File expectedOpenAPIFile = new File(testsDir, expectOpenAPIFileName);
             if (!expectedOpenAPIFile.exists()) {
-                error(messagesCount.incrementAndGet(),
+                error(messagesCount.getAndIncrement(),
                     startTime,
                     sourceFile,
                     "Failed to find expected Open API file: " + expectOpenAPIFileName);
@@ -143,7 +143,7 @@ public class OpenAPIGenerationTest {
                 try {
                     expectedNode = OBJECT_MAPPER.readTree(expectedOpenAPIFile);
                 } catch (IOException exc) {
-                    error(messagesCount.incrementAndGet(),
+                    error(messagesCount.getAndIncrement(),
                         startTime,
                         sourceFile,
                         "Failed to read Open API file '{}'.",
@@ -235,9 +235,9 @@ public class OpenAPIGenerationTest {
             JsonNode expectedJson,
             JsonNode actualJson,
             String path) {
-        error(messagesCount.incrementAndGet(), startTime, sourceFile, "Path: \\" + path);
-        log.error("   Expected: {}", expectedJson);
-        log.error("   Actual: {}", actualJson);
+        error(messagesCount.getAndIncrement(), startTime, sourceFile, "  Path: \\" + path);
+        log.error("    Expected: {}", expectedJson);
+        log.error("    Actual: {}", actualJson);
     }
 
 }

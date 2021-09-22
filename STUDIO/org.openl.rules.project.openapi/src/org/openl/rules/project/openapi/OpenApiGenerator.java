@@ -254,8 +254,11 @@ public class OpenApiGenerator {
             return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
                 compiledOpenClass.getOpenClassWithErrors(),
                 classLoader,
-                "unknown",
-                "unknown",
+                Optional.ofNullable(getRulesDeploy().getServiceName()).orElse("unknown"),
+                Optional.ofNullable(getRulesDeploy().getUrl())
+                    .filter(StringUtils::isNotBlank)
+                    .map(url -> url.charAt(0) == '/' ? url : "/" + url)
+                    .orElse("/unknown"),
                 true,
                 isProvidedRuntimeContext(),
                 isProvideVariations(),
