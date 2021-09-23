@@ -4,6 +4,7 @@
 
 package org.openl.binding.impl;
 
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -52,20 +53,41 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         }
 
         if (methodCaller instanceof CastingMethodCaller) {
-            CastingMethodCaller castingMethodCaller = (CastingMethodCaller) methodCaller;
-            IOpenMethod method = castingMethodCaller.getMethod();
+            IOpenMethod method = methodCaller.getMethod();
             if (("eq".equals(method.getName()) || "ne".equals(method.getName())) && method.getDeclaringClass().getInstanceClass() == Comparison.class) {
                 IOpenClass[] parameterTypes = method.getSignature().getParameterTypes();
                 if (parameterTypes.length == 2 && parameterTypes[0].getInstanceClass() == Object.class && parameterTypes[1].getInstanceClass() == Object.class) {
-                    if (!Objects.equals(b1.getType(), b2.getType())) {
-                        BindHelper.processWarn(String.format("Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns %s.",
-                            b1.getType().getName(), b2.getType().getName(), "eq".equals(method.getName())), node, bindingContext);
-                    }
+                    validateComparison(b1, b2, method, node, bindingContext);
                 }
             }
         }
 
         return new BinaryOpNode(node, b1, b2, methodCaller);
+    }
+
+    private static void validateComparison(IBoundNode b1, IBoundNode b2, IOpenMethod method, ISyntaxNode node, IBindingContext bindingContext) {
+        IOpenClass b1Type = b1.getType();
+        IOpenClass b2Type = b2.getType();
+        if (!Objects.equals(b1Type, b2Type)) {
+            Class<?> b1InstanceClass = b1Type.getInstanceClass();
+            Class<?> b2InstanceClass = b2Type.getInstanceClass();
+            if (b1InstanceClass == null || b2InstanceClass == null) {
+                return;
+            }
+            boolean b1Final = Modifier.isFinal(b1InstanceClass.getModifiers());
+            boolean b2Final = Modifier.isFinal(b2InstanceClass.getModifiers());
+            if (!b1Final && !b2Final) {
+                return;
+            }
+            if (b1Final && b2InstanceClass.isAssignableFrom(b1InstanceClass)) {
+                return;
+            }
+            if (b2Final && b1InstanceClass.isAssignableFrom(b2InstanceClass)) {
+                return;
+            }
+            BindHelper.processWarn(String.format("Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns %s.",
+                b1.getType().getName(), b2.getType().getName(), "ne".equals(method.getName())), node, bindingContext);
+        }
     }
 
     public static String errorMsg(String methodName, IOpenClass t1, IOpenClass t2) {

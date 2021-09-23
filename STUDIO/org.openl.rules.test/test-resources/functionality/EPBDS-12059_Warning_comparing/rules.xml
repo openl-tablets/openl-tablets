@@ -1,0 +1,12 @@
+<project>
+  <name>EPBDS-12059_Warning_comparing</name>
+  <modules>
+    <module>
+      <name>Main</name>
+      <rules-root path="Main.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="classes"/>
+  </classpath>
+</project>
