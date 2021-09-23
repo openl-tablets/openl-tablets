@@ -1,5 +1,5 @@
-WARN: Warning: Compared elements have different types ('Bean', 'Bean[]'). Comparing these types always returns false.
-WARN: Warning: Compared elements have different types ('Bean', 'Bean[]'). Comparing these types always returns false.
-WARN: Warning: Compared elements have different types ('Bean[]', 'java.lang.Integer'). Comparing these types always returns true.
-WARN: Warning: Compared elements have different types ('Bean', 'Bean[]'). Comparing these types always returns false.
+WARN: Warning: Compared elements have different types ('Bean', 'Bean[]'). Comparing these types always returns true.
+WARN: Warning: Compared elements have different types ('Bean', 'Bean[]'). Comparing these types always returns true.
+WARN: Warning: Compared elements have different types ('Bean[]', 'java.lang.Integer'). Comparing these types always returns false.
+WARN: Warning: Compared elements have different types ('Bean', 'Bean[]'). Comparing these types always returns true.
 ERROR: Operator 'gt(Bean[], java.lang.Integer)' is not found.
