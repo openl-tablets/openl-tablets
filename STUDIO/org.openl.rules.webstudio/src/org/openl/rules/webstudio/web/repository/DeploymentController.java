@@ -29,6 +29,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -400,8 +401,11 @@ public class DeploymentController {
         try {
             return workspace.getProject(deployment.getRepositoryId(), deployment.getName(), false);
         } catch (ProjectException e) {
+            if (StringUtils.isBlank(deployment.getRepositoryId())) {
+                throw e;
+            }
             Repository repo = workspace.getDesignTimeRepository().getRepository(deployment.getRepositoryId());
-            if (repo.supports().mappedFolders()) {
+            if (repo.supports().mappedFolders() && StringUtils.isNotBlank(deployment.getPath())) {
                 String mappedName = ((MappedRepository) repo).getMappedName(deployment.getName(), deployment.getPath());
                 try {
                     return workspace.getProject(deployment.getRepositoryId(), mappedName, false);
