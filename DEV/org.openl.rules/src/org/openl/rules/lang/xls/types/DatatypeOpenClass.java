@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.openl.base.INamedThing;
@@ -210,39 +209,6 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
     @Override
     public IOpenClass getComponentClass() {
         return null;
-    }
-
-    /**
-     * Override super class implementation to provide possibility to compare datatypes with info about their fields
-     *
-     * @author DLiauchuk
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(superClass, javaName);
-    }
-
-    /**
-     * Override super class implementation to provide possibility to compare datatypes with info about their fields Is
-     * used in {@link XlsBinder} (method filterDependencyTypes)
-     *
-     * @author DLiauchuk
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        DatatypeOpenClass other = (DatatypeOpenClass) obj;
-
-        return Objects.equals(superClass, other.getSuperClass()) && Objects.equals(getMetaInfo(),
-            other.getMetaInfo()) && Objects.equals(javaName, other.getJavaName());
     }
 
     @Override
