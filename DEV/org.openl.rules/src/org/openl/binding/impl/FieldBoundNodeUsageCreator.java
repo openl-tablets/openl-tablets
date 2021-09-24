@@ -1,16 +1,21 @@
 package org.openl.binding.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.dependency.DependencyType;
 import org.openl.dependency.DependencyVar;
 import org.openl.meta.IMetaInfo;
+import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.IOriginalDeclaredClassesOpenField;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.constants.ConstantOpenField;
@@ -66,20 +71,32 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
         if (boundField instanceof IOriginalDeclaredClassesOpenField) {
             IOriginalDeclaredClassesOpenField combinedOpenField = (IOriginalDeclaredClassesOpenField) boundField;
             IOpenClass[] declaredClasses = combinedOpenField.getDeclaringClasses();
-            Map<IOpenClass, List<IOpenClass>> types = Arrays.stream(declaredClasses)
-                .collect(Collectors.groupingBy(c -> c.getField(boundField.getName(), false).getType()));
-            StringBuilder classNames = new StringBuilder();
-            if (types.keySet().size() > 1) {
-                for (IOpenClass iOpenClass : types.keySet()) {
-                    classNames.append("\n").append(MethodUtil.printType(iOpenClass)).append(" in ");
-                    classNames.append(configureClassNames(types.get(iOpenClass)));
+            if (Arrays.stream(declaredClasses).allMatch(e -> e instanceof CustomSpreadsheetResultOpenClass)) {
+                Collection<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = Arrays
+                    .stream(declaredClasses)
+                    .map(CustomSpreadsheetResultOpenClass.class::cast)
+                    .flatMap(
+                        e -> e instanceof CombinedSpreadsheetResultOpenClass ? ((CombinedSpreadsheetResultOpenClass) e)
+                            .getCombinedTypes()
+                            .stream() : Stream.of(e))
+                    .collect(Collectors.toList());
+                Map<IOpenClass, List<CustomSpreadsheetResultOpenClass>> groupedByTypes = customSpreadsheetResultOpenClasses
+                    .stream()
+                    .filter(e -> e.getField(boundField.getName()) != null)
+                    .collect(Collectors.groupingBy(c -> c.getField(boundField.getName()).getType()));
+                StringBuilder classNames = new StringBuilder();
+                if (groupedByTypes.keySet().size() > 1) {
+                    for (Map.Entry<IOpenClass, List<CustomSpreadsheetResultOpenClass>> e : groupedByTypes.entrySet()) {
+                        classNames.append("\n").append(MethodUtil.printType(e.getKey())).append(" in ");
+                        classNames.append(concatenateSpreadsheetResultTables(new ArrayList<>(e.getValue())));
+                    }
                 }
-            } else if (types.keySet().size() == 1) {
-                classNames = new StringBuilder(configureClassNames(types.values().iterator().next()));
+                description = MethodUtil.printType(boundField.getDeclaringClass()) + classNames + "\n" + MethodUtil
+                    .printType(boundField.getType()) + " " + boundField.getName();
+            } else {
+                description = MethodUtil.printType(boundField.getDeclaringClass()) + "\n" + MethodUtil
+                    .printType(boundField.getType()) + " " + boundField.getName();
             }
-            String prefix = declaredClasses.length > 1 ? "Spreadsheets: " : "Spreadsheet ";
-            description = prefix + classNames + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField
-                .getName();
             syntaxNode = getIdentifierSyntaxNode(syntaxNode);
             IMetaInfo metaInfo = type.getMetaInfo();
             if (metaInfo != null) {
@@ -160,33 +177,43 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
         return Optional.empty();
     }
 
-    private static String configureClassNames(List<IOpenClass> classes) {
-        List<IOpenClass> iOpenClasses;
-        if (classes.size() > 3) {
-            iOpenClasses = classes.subList(0, 3);
-        } else {
-            iOpenClasses = classes;
-        }
-        String classNames = iOpenClasses.stream()
-            .map(c -> c.getName().replaceAll(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX, ""))
-            .collect(Collectors.joining(","));
-        int classRemoved = 0;
-        if (classNames.length() > MAX_DESCRIPTION_CLASS_LENGTH && classes.size() > 1) {
-            for (int i = classes.size() - 1; i != 0 && classNames.length() > MAX_DESCRIPTION_CLASS_LENGTH; i--) {
-                classRemoved++;
-                classNames = classNames.replaceAll(
-                    "," + classes.get(i).getName().replaceAll(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX, ""),
-                    "");
+    private static String concatenateSpreadsheetResultTables(Collection<CustomSpreadsheetResultOpenClass> types) {
+        StringBuilder sb = new StringBuilder();
+        boolean stringLengthExceeded = false;
+        int concatenated = 0;
+        for (CustomSpreadsheetResultOpenClass c : types.size() > 3 ? new ArrayList<>(types).subList(0, 3) : types) {
+            concatenated++;
+            StringBuilder sb1 = new StringBuilder();
+            if (c instanceof CombinedSpreadsheetResultOpenClass) {
+                for (CustomSpreadsheetResultOpenClass t : ((CombinedSpreadsheetResultOpenClass) c).getCombinedTypes()) {
+                    if (sb1.length() > 0) {
+                        sb1.append(", ");
+                    }
+                    sb1.append(t.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
+                }
+            } else if (c != null) {
+                if (sb1.length() > 0) {
+                    sb1.append(", ");
+                }
+                sb1.append(c.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
+            } else {
+                throw new IllegalStateException();
             }
-        }
-        if (classes.size() > MAX_DESCRIPTION_CLASS_NUMBER || classRemoved > 0) {
-            int more = classRemoved;
-            if (classes.size() > MAX_DESCRIPTION_CLASS_NUMBER) {
-                more += classes.size() - MAX_DESCRIPTION_CLASS_NUMBER;
+            if (sb.length() + sb1.length() > MAX_DESCRIPTION_CLASS_LENGTH) {
+                stringLengthExceeded = true;
+                break;
             }
-            classNames += "...(" + more + ")more";
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
+            sb.append(sb1);
+            concatenated++;
         }
-        return classNames;
+        int more = types.size() - concatenated;
+        if (types.size() > MAX_DESCRIPTION_CLASS_NUMBER || stringLengthExceeded) {
+            sb.append("...(").append(more).append(") more");
+        }
+        return sb.toString();
     }
 
     private static ISyntaxNode getIdentifierSyntaxNode(ISyntaxNode syntaxNode) {

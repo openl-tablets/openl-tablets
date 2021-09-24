@@ -320,9 +320,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // TotalAssets2012
         usedNodes = getMetaInfo(assetsCompareMetaReader, assetsCompare.getGridTable().getCell(1, 3)).getUsedNodes();
         assertEquals(3, usedNodes.size());
-        assertEquals("Cell type: Integer", usedNodes.get(0).getDescription()); // =
+        assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResultTotalAssets $AssetsCalc2012", usedNodes.get(1).getDescription()); // $AssetsCalc2012
-        assertEquals("Spreadsheet TotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+        assertEquals("SpreadsheetResultTotalAssets TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
         // (other
         // spreadsheet)
 
@@ -385,7 +385,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals("SpreadsheetResultTotalAssets totalAssets1", usedNodes.get(1).getDescription()); // $AssetsCalc2012
         assertEquals(totalAssets.getUri(),
             usedNodes.stream().filter(e -> e.getUri() != null).findFirst().get().getUri());
-        assertEquals("Spreadsheet TotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+        assertEquals("SpreadsheetResultTotalAssets TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
         // (other
         // spreadsheet)
         assertEquals(totalAssets.getUri(), usedNodes.get(2).getUri());
@@ -395,7 +395,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(3, usedNodes.size());
         assertEquals("Cell type: Integer", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResult totalAssets2", usedNodes.get(1).getDescription()); // totalAssets2
-        assertEquals("Spreadsheet TotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+        assertEquals("SpreadsheetResultTotalAssets TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
         // (other spreadsheet)
     }
 
