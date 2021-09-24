@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -19,7 +18,6 @@ import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContextHelper;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
-import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
@@ -56,8 +54,6 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public abstract class FunctionalRow implements IDecisionRow {
-
-    private static final AtomicLong SPR_NAME_COUNTER = new AtomicLong();
 
     private static final String NO_PARAM = "P";
     private static final Object[] NO_PARAMS = new Object[0];
@@ -144,7 +140,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     /**
      * Whole representation of decision table. Horizontal representation of the table where conditions are listed from
-     * top to bottom. And must be readed from left to right</br>
+     * top to bottom. And must be read from left to right</br>
      * Example:
      *
      * <table cellspacing="2">
@@ -339,8 +335,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             }
             if (paramType.getInstanceClass() == SpreadsheetResult.class && OpenLSystemProperties
                 .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
-                CustomSpreadsheetResultOpenClass columnCustomSpreadsheetResultOpenClass = null;
-                boolean f = false;
+                Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = new HashSet<>();
                 for (int j = 0; j < storage[i].size(); j++) {
                     if (storage[i].getValue(j) instanceof CompositeMethod) {
                         CompositeMethod compositeMethod = (CompositeMethod) storage[i].getValue(j);
@@ -351,30 +346,23 @@ public abstract class FunctionalRow implements IDecisionRow {
                             methodTypeDim++;
                         }
                         if (paramDim == methodTypeDim && methodBodyType instanceof CustomSpreadsheetResultOpenClass) {
-                            if (columnCustomSpreadsheetResultOpenClass == null) {
-                                columnCustomSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) methodBodyType;
-                            } else {
-                                if (!Objects.equals(columnCustomSpreadsheetResultOpenClass, methodBodyType)) {
-                                    if (!f) {
-                                        CustomSpreadsheetResultOpenClass columnCustomSpreadsheetResultOpenClass1 = new CustomSpreadsheetResultOpenClass(
-                                            Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + "$DTColumn$" + SPR_NAME_COUNTER
-                                                .incrementAndGet(),
-                                            (XlsModuleOpenClass) decisionTable.getModule(),
-                                            null);
-                                        columnCustomSpreadsheetResultOpenClass1
-                                            .updateWithType(columnCustomSpreadsheetResultOpenClass);
-                                        columnCustomSpreadsheetResultOpenClass = columnCustomSpreadsheetResultOpenClass1;
-                                        f = true;
-                                    }
-                                    columnCustomSpreadsheetResultOpenClass.updateWithType(methodBodyType);
-                                }
-                            }
+                            customSpreadsheetResultOpenClasses.add((CustomSpreadsheetResultOpenClass) methodBodyType);
                         }
                     }
                 }
-                params[i] = new ParameterDeclaration(columnCustomSpreadsheetResultOpenClass,
-                    params[i].getName(),
-                    params[i].getModule());
+                if (!customSpreadsheetResultOpenClasses.isEmpty()) {
+                    CustomSpreadsheetResultOpenClass columnCustomSpreadsheetResultOpenClass;
+                    if (customSpreadsheetResultOpenClasses.size() == 1) {
+                        columnCustomSpreadsheetResultOpenClass = customSpreadsheetResultOpenClasses.iterator().next();
+                    } else {
+                        columnCustomSpreadsheetResultOpenClass = ((XlsModuleOpenClass) decisionTable.getModule())
+                            .buildOrGetCombinedSpreadsheetResult(
+                                customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
+                    }
+                    params[i] = new ParameterDeclaration(columnCustomSpreadsheetResultOpenClass,
+                        params[i].getName(),
+                        params[i].getModule());
+                }
             }
         }
 

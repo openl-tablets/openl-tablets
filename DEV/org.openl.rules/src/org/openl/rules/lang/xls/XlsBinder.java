@@ -238,6 +238,7 @@ public class XlsBinder implements IOpenBinder {
             ValidationManager.validate(compileContext, topNode.getType(), bindingContext);
             return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getMessages());
         } finally {
+            moduleOpenClass.clearOddData();
             if (ValidationManager.isValidationEnabled() && bindingContext.isExecutionMode()) {
                 moduleOpenClass.clearForExecutionMode();
             }
@@ -335,6 +336,15 @@ public class XlsBinder implements IOpenBinder {
                     if (type instanceof CustomSpreadsheetResultOpenClass) {
                         type.getFields().forEach(IOpenField::getType);
                     }
+                }
+                int combinedSpreadsheetResultOpenClassesSize = 0;
+                while (combinedSpreadsheetResultOpenClassesSize != moduleOpenClass
+                        .getCombinedSpreadsheetResultOpenClasses()
+                        .size()) {
+                    combinedSpreadsheetResultOpenClassesSize = moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
+                            .size();
+                    moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
+                            .forEach(e -> e.getFields().forEach(IOpenField::getType));
                 }
                 moduleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
