@@ -1528,7 +1528,7 @@ public class RepositoryTreeController {
      * @return list of rules projects
      */
     public List<TreeNode> getRulesProjects() {
-        final TreeNode node = getSelectedNode();
+        final TreeNode node = repositoryTreeState.getSelectedNode();
         final List<TreeNode> rulesProjects = getRulesProjects(node);
         rulesProjects.sort(Comparator.comparing(treeNode -> treeNode.getName().toLowerCase()));
         return rulesProjects;
