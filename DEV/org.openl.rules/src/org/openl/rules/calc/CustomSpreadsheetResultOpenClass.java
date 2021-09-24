@@ -939,4 +939,25 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
         return spreadsheetResultConstructorMap;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
+
+        CustomSpreadsheetResultOpenClass that = (CustomSpreadsheetResultOpenClass) o;
+
+        return Objects.equals(module, that.module);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (module != null ? module.hashCode() : 0);
+        return result;
+    }
 }

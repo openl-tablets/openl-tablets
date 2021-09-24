@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
@@ -432,16 +431,23 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hashCode(getName());
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        AOpenClass that = (AOpenClass) o;
+        if (getInstanceClass() != null ? !getInstanceClass().equals(that.getInstanceClass())
+                                       : that.getInstanceClass() != null)
+            return false;
+        return getName().equals(that.getName());
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof IOpenClass)) {
-            return false;
-        }
-        return Objects.equals(getName(), ((IOpenClass) obj).getName());
+    public int hashCode() {
+        int result = getInstanceClass() != null ? getInstanceClass().hashCode() : 0;
+        result = 31 * result + getName().hashCode();
+        return result;
     }
 
     private Map<String, List<IOpenMethod>> allMethodNamesMap;
