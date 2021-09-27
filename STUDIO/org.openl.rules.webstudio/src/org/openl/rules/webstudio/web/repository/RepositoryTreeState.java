@@ -267,6 +267,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 setSelectedNode(rulesRepository);
             } else if (UiConst.TYPE_DEPLOYMENT_REPOSITORY.equals(getSelectedNode().getType())) {
                 setSelectedNode(deploymentRepository);
+            } else if (UiConst.TYPE_GROUP.equals(getSelectedNode().getType())) {
+                setSelectedNode(findNodeById(rulesRepository, getSelectedNode().getId()));
             } else {
                 updateSelectedNode();
             }
