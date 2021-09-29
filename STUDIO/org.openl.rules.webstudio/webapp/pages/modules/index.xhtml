@@ -868,9 +868,15 @@
                         // Something gone wrong
                         if (response.status == 404) {
                             // Project or module isn't found
+                            ws.storage.set(WS_PREVIOUS_PAGE_STATE_VAR, {
+                                repositoryId: init.repositoryId,
+                                project: "",
+                                module: ""
+                            });
                             var notFoundUrl = urlRewrite.prefix + 'pageNotFound.xhtml';
                             if (init && init.project) {
                                 notFoundUrl += ("?project=" + init.project);
+                                notFoundUrl += ("&repositoryId=" + init.repositoryId);
                                 if (init.module) {
                                     notFoundUrl += "&module=" + init.module;
                                 }
