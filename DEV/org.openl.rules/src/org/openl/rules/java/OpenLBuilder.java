@@ -1,8 +1,18 @@
 package org.openl.rules.java;
 
 import org.openl.OpenL;
-import org.openl.conf.*;
+import org.openl.conf.AOpenLBuilder;
+import org.openl.conf.JavaImportTypeConfiguration;
+import org.openl.conf.JavaLibraryConfiguration;
+import org.openl.conf.LibraryFactoryConfiguration;
+import org.openl.conf.NameSpacedLibraryConfiguration;
+import org.openl.conf.NameSpacedTypeConfiguration;
+import org.openl.conf.NoAntOpenLTask;
+import org.openl.conf.NodeBinderFactoryConfiguration;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
+import org.openl.conf.TypeCastFactory;
+import org.openl.conf.TypeFactoryConfiguration;
+import org.openl.rules.calc.AnySpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.enumeration.CaProvincesEnum;
 import org.openl.rules.enumeration.CaRegionsEnum;
@@ -129,6 +139,7 @@ public class OpenLBuilder extends AOpenLBuilder {
         javaImport1.addClassImport(InOrNotIn.class.getName());
 
         javaImport1.addClassImport(SpreadsheetResult.class.getName());
+        javaImport1.addClassImport(AnySpreadsheetResult.class.getName());
 
         javaImport1.addClassImport(CaProvincesEnum.class.getName());
         javaImport1.addClassImport(CaRegionsEnum.class.getName());

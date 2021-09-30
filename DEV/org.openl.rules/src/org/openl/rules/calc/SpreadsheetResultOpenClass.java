@@ -32,7 +32,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     private final Map<MethodKey, IOpenMethod> constructorMap = new HashMap<>();
 
     public SpreadsheetResultOpenClass(Class<?> type) {
-        super(type);
+        super(SpreadsheetResult.class);
     }
 
     public SpreadsheetResultOpenClass(XlsModuleOpenClass module) {

@@ -451,7 +451,7 @@ public final class RuleRowHelper {
                 //
                 String message = String.format("Cannot parse cell value '%s'. Expected value of type '%s'.",
                     source,
-                    expectedType.getSimpleName());
+                    paramType.getDisplayName(INamedThing.SHORT));
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
                     bindingContext);
                 BindHelper.processError(message, e, cellSourceCodeModule, bindingContext);

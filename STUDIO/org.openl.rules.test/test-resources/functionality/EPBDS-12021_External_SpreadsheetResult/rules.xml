@@ -1,0 +1,13 @@
+<project>
+    <name>Project3_invalid_reference</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="Main.xlsx"/>
+        </module>
+        <module>
+            <name>Second</name>
+            <rules-root path="Second.xlsx"/>
+        </module>
+    </modules>
+</project>
