@@ -31,7 +31,6 @@ import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
@@ -273,8 +272,7 @@ public class RulesDeployerService implements Closeable {
             dest.setAuthor(new UserInfo(DEFAULT_AUTHOR_NAME));
             dest.setSize(attrs.size());
             try (FileChangesFromFolder changes = new FileChangesFromFolder(root, dest.getName())) {
-                ((FolderRepository) deployRepo).save(Collections.singletonList(new FolderItem(dest, changes)),
-                    ChangesetType.FULL);
+                ((FolderRepository) deployRepo).save(dest, changes, ChangesetType.FULL);
             }
         } else {
             // split zip to single-project deployment if repository doesn't support folders

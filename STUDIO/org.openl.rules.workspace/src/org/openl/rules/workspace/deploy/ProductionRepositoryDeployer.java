@@ -27,10 +27,10 @@ import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.folder.CombinedFileChanges;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -188,13 +188,19 @@ public class ProductionRepositoryDeployer {
                     }
                 }
                 if (deployRepo.supports().folders()) {
-                    List<FolderItem> folderItems = fileItems.stream().map(fi -> {
-                        FileData data = fi.getData();
-                        FileChangesFromZip files = new FileChangesFromZip(new ZipInputStream(fi.getStream()),
-                            data.getName());
-                        return new FolderItem(data, files);
-                    }).collect(Collectors.toList());
-                    ((FolderRepository) deployRepo).save(folderItems, ChangesetType.FULL);
+                    if (!fileItems.isEmpty()) {
+                        FileData folderData = new FileData();
+                        final String projectName = fileItems.get(0).getData().getName();
+                        String folderPath = projectName.substring(0, projectName.lastIndexOf('/'));
+                        folderData.setName(folderPath);
+                        folderData.setAuthor(new UserInfo("OpenL_Deployer"));
+
+                        final List<Iterable<FileItem>> iterableList = fileItems.stream().map(fi -> new FileChangesFromZip(new ZipInputStream(fi.getStream()),
+                                fi.getData().getName())).collect(Collectors.toList());
+
+
+                        ((FolderRepository) deployRepo).save(folderData, new CombinedFileChanges(iterableList), ChangesetType.FULL);
+                    }
                 } else {
                     deployRepo.save(fileItems);
                 }

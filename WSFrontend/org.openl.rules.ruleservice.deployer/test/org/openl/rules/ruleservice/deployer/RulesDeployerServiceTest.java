@@ -24,7 +24,6 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
@@ -240,11 +239,9 @@ public class RulesDeployerServiceTest {
         try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy("EPBDS-10894.zip", is, true);
         }
-        List<FolderItem> actualFileItems = catchDeployFolders();
-        assertEquals(1, actualFileItems.size());
-        FolderItem folderItem = actualFileItems.get(0);
-        assertEquals("EPBDS-10894_yaml_project", folderItem.getData().getName());
-        assertEquals(13251, folderItem.getData().getSize());
+        FileData folderData = catchDeployFolders();
+        assertEquals("EPBDS-10894_yaml_project", folderData.getName());
+        assertEquals(13251, folderData.getSize());
     }
 
     @Test
@@ -253,11 +250,9 @@ public class RulesDeployerServiceTest {
         try (InputStream is = getResourceAsStream("noname-multiple-deployment.zip")) {
             deployer.deploy("customName-deployment", is, true);
         }
-        List<FolderItem> actualFileItems = catchDeployFolders();
-        assertEquals(1, actualFileItems.size());
-        FolderItem folderItem = actualFileItems.get(0);
-        assertEquals("customName-deployment", folderItem.getData().getName());
-        assertEquals(13770, folderItem.getData().getSize());
+        FileData folderData = catchDeployFolders();
+        assertEquals("customName-deployment", folderData.getName());
+        assertEquals(13770, folderData.getSize());
     }
 
     @Test
@@ -294,12 +289,14 @@ public class RulesDeployerServiceTest {
         return captor.getValue();
     }
 
-    private List<FolderItem> catchDeployFolders() throws IOException {
-        Class<List<FolderItem>> listClass = (Class) List.class;
-        ArgumentCaptor<List<FolderItem>> captor = ArgumentCaptor.forClass(listClass);
+    private FileData catchDeployFolders() throws IOException {
+        Class<FileData> fileDataClass = FileData.class;
+        Class<List<FileItem>> listClass = (Class) List.class;
+        ArgumentCaptor<FileData> captor1 = ArgumentCaptor.forClass(fileDataClass);
+        ArgumentCaptor<List<FileItem>> captor2 = ArgumentCaptor.forClass(listClass);
 
-        verify((FolderRepository) mockedDeployRepo, times(1)).save(captor.capture(), eq(ChangesetType.FULL));
-        return captor.getValue();
+        verify((FolderRepository) mockedDeployRepo, times(1)).save(captor1.capture(), captor2.capture(), eq(ChangesetType.FULL));
+        return captor1.getValue();
     }
 
     private void assertMultipleDeployment(Set<String> expectedNames, List<FileItem> actualFileDatas) {
