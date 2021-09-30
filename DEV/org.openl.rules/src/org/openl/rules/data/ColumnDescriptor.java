@@ -193,7 +193,7 @@ public class ColumnDescriptor {
     public Object populateLiteral(Object literal,
             ILogicalTable valuesTable,
             OpenlToolAdaptor toolAdapter,
-            IRuntimeEnv env) throws SyntaxNodeException {
+            IRuntimeEnv env, boolean allowsNullObject) throws SyntaxNodeException {
 
         if (field == null) {
             /*
@@ -228,6 +228,8 @@ public class ColumnDescriptor {
             }
             if (res != null) {
                 field.set(literal, res, env);
+            } else if (allowsNullObject) {
+                field.set(literal, paramType.nullObject(), env);
             }
         }
         return env.popThis();
