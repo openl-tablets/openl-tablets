@@ -106,7 +106,6 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.MergeConflictException;
@@ -1281,7 +1280,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             if (!mergeResult.getMergeStatus().isSuccessful()) {
                 validateMergeConflict(mergeResult, true);
-                throw new IOException("Cannot merge: " + mergeResult.toString());
+                throw new IOException("Cannot merge: " + mergeResult);
             }
             applyMergeCommit(mergeResult, mergeMessage, mergeAuthor);
 
@@ -1887,46 +1886,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         monitor.fireOnChange();
         return check(folderData.getName());
-    }
-
-    @Override
-    public List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) throws IOException {
-        initializeGit(true);
-
-        List<FileData> result = new ArrayList<>();
-        Lock writeLock = repositoryLock.writeLock();
-        String firstCommitId = null;
-        try {
-            log.debug("save(folderItems, changesetType): lock");
-            writeLock.lock();
-            checkoutForcedOrReset(branch);
-
-            for (FolderItem folderItem : folderItems) {
-                RevCommit commit = createCommit(folderItem.getData(), folderItem.getFiles(), changesetType);
-                if (firstCommitId == null) {
-                    firstCommitId = commit.getId().getName();
-                }
-
-                resolveAndMerge(folderItem.getData(), false, commit);
-                addTagToCommit(commit, firstCommitId, folderItem.getData().getAuthor());
-            }
-            push();
-        } catch (IOException e) {
-            reset(firstCommitId);
-            throw e;
-        } catch (Exception e) {
-            reset(firstCommitId);
-            throw new IOException(e.getMessage(), e);
-        } finally {
-            writeLock.unlock();
-            log.debug("save(folderItems, changesetType): unlock");
-        }
-        monitor.fireOnChange();
-
-        for (FolderItem folderItem : folderItems) {
-            result.add(check(folderItem.getData().getName()));
-        }
-        return result;
     }
 
     @Override

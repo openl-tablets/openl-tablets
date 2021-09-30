@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +32,6 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
@@ -356,27 +354,6 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
         }
         return toExternal(mapping,
             delegate.save(toInternal(mapping, folderData), toInternal(mapping, folderData, files), changesetType));
-    }
-
-    @Override
-    public List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) throws IOException {
-        if (folderItems.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        if (folderItems.get(0).getData().getAdditionalData(FileMappingData.class) != null) {
-            throw new UnsupportedOperationException("File name mapping is not supported.");
-        }
-        ProjectIndex mapping = getUpToDateMapping(true);
-
-        List<FolderItem> folderItemsInternal = new ArrayList<>(folderItems.size());
-        for (FolderItem fi : folderItems) {
-            folderItemsInternal
-                .add(new FolderItem(toInternal(mapping, fi.getData()), toInternal(mapping, null, fi.getFiles())));
-        }
-        List<FileData> result = delegate.save(folderItemsInternal, changesetType);
-
-        return toExternal(mapping, result);
     }
 
     @Override
