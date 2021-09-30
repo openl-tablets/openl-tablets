@@ -31,7 +31,6 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.RepositorySettings;
@@ -1032,8 +1031,7 @@ public class GitRepositoryTest {
             folderData2.setName("rules/project1");
             folderData2.setAuthor(new UserInfo("jasmith", "jasmith@eamil", "Jane Smith"));
             folderData2.setComment("Bulk change by Jane");
-            FolderItem folderItem = new FolderItem(folderData2, changes2);
-            repository2.save(Collections.singletonList(folderItem), ChangesetType.DIFF);
+            repository2.save(folderData2, changes2, ChangesetType.DIFF);
 
             fail("MergeConflictException is expected");
         } catch (MergeConflictException e) {
