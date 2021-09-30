@@ -32,7 +32,6 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.util.FileSignatureHelper;
@@ -364,11 +363,6 @@ abstract class AbstractArchiveRepository implements FolderRepository, Closeable 
 
     @Override
     public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) {
         throw new UnsupportedOperationException();
     }
 

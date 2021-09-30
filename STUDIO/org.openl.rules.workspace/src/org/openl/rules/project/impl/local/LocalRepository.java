@@ -17,7 +17,6 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
@@ -101,15 +100,6 @@ public class LocalRepository extends FileSystemRepository {
         FileData fileData = super.save(folderData, files, changesetType);
         notifyModified(folderData.getName());
         return fileData;
-    }
-
-    @Override
-    public List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) throws IOException {
-        List<FileData> result = super.save(folderItems, changesetType);
-        for (FileData data : result) {
-            notifyModified(data.getName());
-        }
-        return result;
     }
 
     @Override

@@ -40,14 +40,4 @@ public interface FolderRepository extends Repository {
      */
     FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException;
 
-    /**
-     * Save multiple files at once Used only in deployment services
-     *
-     * @param folderItems list of folder descriptor and its files
-     * @param changesetType if {@link ChangesetType#DIFF}, only changed files. If {@link ChangesetType#FULL} all files
-     *            that exist in project
-     * @return the resulted folder descriptor after successful writing.
-     * @throws IOException if not possible to save the folder.
-     */
-    List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) throws IOException;
 }

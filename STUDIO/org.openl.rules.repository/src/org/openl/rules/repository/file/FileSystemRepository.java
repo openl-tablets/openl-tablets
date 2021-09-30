@@ -19,7 +19,6 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.common.ChangesMonitor;
@@ -386,16 +385,6 @@ public class FileSystemRepository implements FolderRepository, Closeable {
         FileData saved = folder.exists() ? getFileData(folder) : null;
         invokeListener();
         return saved;
-    }
-
-    @Override
-    public List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) throws IOException {
-        List<FileData> result = new ArrayList<>();
-        for (FolderItem folderItem : folderItems) {
-            FileData saved = save(folderItem.getData(), folderItem.getFiles(), changesetType);
-            result.add(saved);
-        }
-        return result;
     }
 
     private void removeAbsentFiles(File directory, Collection<File> toSave) {
