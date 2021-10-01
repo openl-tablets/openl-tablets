@@ -19,6 +19,7 @@ import org.openl.vm.IRuntimeEnv;
 public class Spreadsheet extends ExecutableRulesMethod {
 
     public static final String SPREADSHEETRESULT_TYPE_PREFIX = "SpreadsheetResult";
+    public static final String SPREADSHEETRESULT_SHORT_TYPE_PREFIX = "SR";
 
     private IResultBuilder resultBuilder;
 
