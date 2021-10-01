@@ -1,0 +1,1 @@
+ERROR: Field '$B' is not found in type 'SpreadsheetResultcreateSpr'.

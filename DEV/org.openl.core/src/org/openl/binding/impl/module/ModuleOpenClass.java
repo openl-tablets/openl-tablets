@@ -8,6 +8,7 @@ package org.openl.binding.impl.module;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +39,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * Value: {@link IOpenClass} for datatype.
      */
     private final ConcurrentHashMap<String, IOpenClass> internalTypes = new ConcurrentHashMap<>();
-    private final Collection<IOpenClass> types = Collections.unmodifiableCollection(internalTypes.values());
 
     /**
      * Set of dependencies for current module.
@@ -116,7 +116,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     @Override
     public Collection<IOpenClass> getTypes() {
-        return types;
+        return Collections.unmodifiableSet(new HashSet<>(internalTypes.values()));
     }
 
     /**
@@ -126,8 +126,13 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     @Override
     public void addType(IOpenClass type) {
-        IOpenClass openClass = internalTypes.put(type.getName(), type);
-        if (openClass != null && !openClass.equals(type) && openClass.getPackageName().equals(type.getPackageName())) {
+        addType(type.getName(), type, true);
+        addType(type.getJavaName(), type, false);
+    }
+
+    protected void addType(String name, IOpenClass type, boolean overwrite) {
+        IOpenClass openClass = internalTypes.put(name, type);
+        if (!overwrite && openClass != null && !openClass.equals(type)) {
             throw new DuplicatedTypeException(null, type.getName());
         }
     }

@@ -58,9 +58,10 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
             .collect(Collectors.toList());
         for (CustomSpreadsheetResultOpenClass c : types) {
             if (sb.length() > 0) {
-                sb.append("&");
+                sb.append(" & ");
             }
-            sb.append(c.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
+            sb.append(Spreadsheet.SPREADSHEETRESULT_SHORT_TYPE_PREFIX)
+                .append(c.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
         }
         return sb.toString();
     }

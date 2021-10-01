@@ -36,6 +36,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
@@ -60,6 +61,7 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -669,7 +671,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     public void addType(IOpenClass type) {
         validateType(type);
-        super.addType(type);
+        addType(type.getName(), type, true);
+        if (type instanceof DomainOpenClass) {
+            return;
+        }
+        if (type instanceof CustomSpreadsheetResultOpenClass) {
+            addType(
+                Spreadsheet.SPREADSHEETRESULT_SHORT_TYPE_PREFIX + type.getName()
+                    .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()),
+                type,
+                false);
+        } else {
+            addType(type.getJavaName(), type, false);
+        }
     }
 
     protected void addTestSuiteMethodsFromDependencies() {
