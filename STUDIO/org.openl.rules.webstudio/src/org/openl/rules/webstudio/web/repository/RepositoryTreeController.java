@@ -1627,18 +1627,20 @@ public class RepositoryTreeController {
     public String openProjectVersion() {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
-            boolean openedSimilarToHistoric = false;
-            if (repositoryProject instanceof RulesProject) {
-                RulesProject project = (RulesProject) repositoryProject;
-                AProject historic = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
-                openedSimilarToHistoric = userWorkspace.isOpenedOtherProject(historic);
-            }
-            if (userWorkspace.isOpenedOtherProject(repositoryProject) || openedSimilarToHistoric) {
-                WebStudioUtils.addErrorMessage(OPENED_OTHER_PROJECT);
-                // To avoid unnecessary request for the version when it's not needed (from
-                // getHasDependenciesForVersion())
-                version = null;
-                return null;
+            if (!UiConst.TYPE_DEPLOYMENT_PROJECT.equals(repositoryTreeState.getSelectedNode().getType())) {
+                boolean openedSimilarToHistoric = false;
+                if (repositoryProject instanceof RulesProject) {
+                    RulesProject project = (RulesProject) repositoryProject;
+                    AProject historic = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
+                    openedSimilarToHistoric = userWorkspace.isOpenedOtherProject(historic);
+                }
+                if (openedSimilarToHistoric || userWorkspace.isOpenedOtherProject(repositoryProject)) {
+                    WebStudioUtils.addErrorMessage(OPENED_OTHER_PROJECT);
+                    // To avoid unnecessary request for the version when it's not needed (from
+                    // getHasDependenciesForVersion())
+                    version = null;
+                    return null;
+                }
             }
 
             if (repositoryProject.isOpened()) {
