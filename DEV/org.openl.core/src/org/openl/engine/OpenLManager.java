@@ -54,7 +54,7 @@ public final class OpenLManager {
             IOpenMethodHeader methodHeader,
             IBindingContext bindingContext) {
 
-        CompositeMethod compositeMethod = new CompositeMethod(methodHeader, null, null);
+        CompositeMethod compositeMethod = new CompositeMethod(methodHeader, null);
 
         compileMethod(openl, source, compositeMethod, bindingContext);
 
@@ -126,7 +126,7 @@ public final class OpenLManager {
             IBindingContext bindingContext) {
 
         OpenMethodHeader header = new OpenMethodHeader(methodName, NullOpenClass.the, signature, declaringClass);
-        CompositeMethod compositeMethod = new CompositeMethod(header, null, null);
+        CompositeMethod compositeMethod = new CompositeMethod(header, null);
 
         MethodBindingContext methodBindingContext = new MethodBindingContext(header, bindingContext);
         IParsedCode parsedCode = openl.getParser().parseAsMethodBody(source);

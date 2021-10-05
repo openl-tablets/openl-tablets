@@ -31,10 +31,9 @@ public class CompositeMethod extends ExecutableMethod {
 
     private IOpenClass bodyType;
 
-    public CompositeMethod(IOpenMethodHeader header, IBoundMethodNode methodBodyBoundNode, IOpenClass bodyType) {
+    public CompositeMethod(IOpenMethodHeader header, IBoundMethodNode methodBodyBoundNode) {
         super(header);
         this.methodBodyBoundNode = methodBodyBoundNode;
-        this.bodyType = bodyType;
     }
 
     public IOpenClass getBodyType() {
