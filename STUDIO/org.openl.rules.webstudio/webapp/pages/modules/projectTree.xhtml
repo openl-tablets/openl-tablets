@@ -134,13 +134,19 @@
                         }
 
                         function filterSpecificProject(projectToSelect) {
-                            $j('.panel-header').addClass('hidden');
-                            $j('.panel-body').addClass('specificProject');
+                            //Must hide elements only if the projectToSelect exists, otherwise all elements will be hidden
+                            let projectExists = $j("#projects > ul > li > a")
+                                .filter((id, el) => el.text === projectToSelect).size() > 0;
+                            if (projectExists) {
+                                $j('.panel-header').addClass('hidden');
+                                $j('.panel-body').addClass('specificProject');
 
-                            projects.each(function () {
-                                var projectName = $j(this).find(">a").text();
-                                $j(this).toggle(projectName == projectToSelect);
-                            });
+                                projects.each(function () {
+                                    var projectName = $j(this).find(">a").text();
+                                    $j(this).toggle(projectName == projectToSelect);
+                                });
+                            }
+
                         }
                         //]]>
                     </script>
