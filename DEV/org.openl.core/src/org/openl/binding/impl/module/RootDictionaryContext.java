@@ -48,9 +48,9 @@ public class RootDictionaryContext implements VariableInContextFinder {
         public String getDisplayName(int mode) {
             if (mode == INamedThing.LONG) {
                 if (parent != null) {
-                    return parent.getDisplayName(mode) + "." + field.getDisplayName(mode);
+                    return parent.getDisplayName(mode) + "." + delegate.getDisplayName(mode);
                 }
-                return field.getDisplayName(mode);
+                return delegate.getDisplayName(mode);
             }
             return super.getDisplayName(mode);
         }
