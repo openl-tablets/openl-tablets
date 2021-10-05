@@ -968,6 +968,8 @@
                                 }
 
                                 centerLayout.hide("south");
+                                //Needed to open the project module tree if the project can be found
+                                filterSpecificProject(decodeURIComponent(init.project));
                                 fixRichFaces();
                             });
                         }
