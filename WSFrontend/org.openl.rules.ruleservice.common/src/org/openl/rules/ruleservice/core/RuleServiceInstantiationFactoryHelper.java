@@ -1,9 +1,10 @@
 package org.openl.rules.ruleservice.core;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.objectweb.asm.AnnotationVisitor;
@@ -27,6 +29,7 @@ import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.ModuleSpecificType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
+import org.openl.rules.ruleservice.core.interceptors.RulesType;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAfterAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAroundAdvice;
@@ -60,24 +63,24 @@ public final class RuleServiceInstantiationFactoryHelper {
      * @author PUdalau
      */
     private static class RuleServiceInterceptorsSupportClassVisitor extends ClassVisitor {
-        private final Map<String, List<Pair<Method, Pair<Class<?>, Boolean>>>> methodsWithReturnTypeNeedsChange;
+        private final Map<String, List<Pair<Method, MethodSignatureChanges>>> methodsWithSignatureNeedsChange;
         private final Map<String, List<Method>> methodsToRemove;
 
         /**
          * Constructs instance with delegated {@link ClassVisitor} and set of methods.
          *
          * @param visitor delegated {@link ClassVisitor}.
-         * @param methodsWithReturnTypeNeedsChange Methods where to change return type.
+         * @param methodsWithSignatureNeedsChange Methods where to change return type.
          */
         private RuleServiceInterceptorsSupportClassVisitor(ClassVisitor visitor,
-                Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange,
+                Map<Method, MethodSignatureChanges> methodsWithSignatureNeedsChange,
                 Collection<Method> methodsToRemove) {
             super(Opcodes.ASM5, visitor);
-            Objects.requireNonNull(methodsWithReturnTypeNeedsChange, "methodsWithReturnTypeNeedsChange cannot be null");
-            this.methodsWithReturnTypeNeedsChange = new HashMap<>();
+            Objects.requireNonNull(methodsWithSignatureNeedsChange, "methodsWithSignatureNeedsChange cannot be null");
+            this.methodsWithSignatureNeedsChange = new HashMap<>();
             // Build map by method name to improve performance of the method search loop
-            for (Entry<Method, Pair<Class<?>, Boolean>> entry : methodsWithReturnTypeNeedsChange.entrySet()) {
-                List<Pair<Method, Pair<Class<?>, Boolean>>> listOfMethods = this.methodsWithReturnTypeNeedsChange
+            for (Entry<Method, MethodSignatureChanges> entry : methodsWithSignatureNeedsChange.entrySet()) {
+                List<Pair<Method, MethodSignatureChanges>> listOfMethods = this.methodsWithSignatureNeedsChange
                     .computeIfAbsent(entry.getKey().getName(), e -> new ArrayList<>());
                 listOfMethods.add(Pair.of(entry.getKey(), entry.getValue()));
             }
@@ -106,18 +109,23 @@ public final class RuleServiceInstantiationFactoryHelper {
                     }
                 }
             }
-            List<Pair<Method, Pair<Class<?>, Boolean>>> listOfMethods = methodsWithReturnTypeNeedsChange.get(name);
+            List<Pair<Method, MethodSignatureChanges>> listOfMethods = methodsWithSignatureNeedsChange.get(name);
             if (listOfMethods != null) {
-                for (Pair<Method, Pair<Class<?>, Boolean>> entry : listOfMethods) {
+                for (Pair<Method, MethodSignatureChanges> entry : listOfMethods) {
                     Method method = entry.getKey();
                     if (descriptor.equals(Type.getMethodDescriptor(method))) {
-                        Class<?> newRetType = entry.getValue().getKey();
+                        Class<?>[] newParamTypes = entry.getValue().getParamTypes();
+                        Class<?> newRetType = entry.getValue().getReturnType();
                         MethodVisitor mv = super.visitMethod(access,
                             name,
-                            Type.getMethodDescriptor(Type.getType(newRetType), Type.getArgumentTypes(descriptor)),
+                            Type.getMethodDescriptor(
+                                newRetType != null ? Type.getType(newRetType) : Type.getReturnType(descriptor),
+                                newParamTypes != null ? Arrays.stream(newParamTypes)
+                                    .map(Type::getType)
+                                    .toArray(Type[]::new) : Type.getArgumentTypes(descriptor)),
                             signature,
                             exceptions);
-                        if (!entry.getValue().getValue()) {
+                        if (newRetType != null && entry.getValue().isGenerateConverters()) {
                             AnnotationVisitor av = mv
                                 .visitAnnotation(Type.getDescriptor(ServiceCallAfterInterceptor.class), true);
                             AnnotationVisitor av1 = av.visitArray("value");
@@ -175,33 +183,22 @@ public final class RuleServiceInstantiationFactoryHelper {
             boolean provideVariations) {
         Objects.requireNonNull(serviceClass, "serviceClass cannot be null");
 
-        Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange = getMethodsWithReturnTypeNeedsChange(
+        Map<Method, MethodSignatureChanges> methodsWithSignatureNeedsChange = getMethodsWithSignatureNeedsChange(
             openClass,
             serviceClass,
+            classLoader,
             toServiceClass,
             provideRuntimeContext,
             provideVariations);
 
         Set<Method> methodsToRemove = getMethodsToRemove(serviceClass, removeServiceExtraMethods);
 
-        if (methodsWithReturnTypeNeedsChange.isEmpty() && methodsToRemove.isEmpty()) {
+        if (methodsWithSignatureNeedsChange.isEmpty() && methodsToRemove.isEmpty()) {
             return serviceClass;
         } else {
-            Logger log = LoggerFactory.getLogger(RuleServiceInstantiationFactoryHelper.class);
-            for (Entry<Method, Pair<Class<?>, Boolean>> entry : methodsWithReturnTypeNeedsChange.entrySet()) {
-                Method method = entry.getKey();
-                if (method.getReturnType().isAssignableFrom(entry.getValue().getKey()) && log.isWarnEnabled()) {
-                    log.warn(
-                        "Wrong return type for method '{}' in class '{}' is used. Return type is replaced to '{}'.",
-                        MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
-                        serviceClass.getName(),
-                        entry.getValue().getKey().getTypeName());
-                }
-            }
-
             ClassWriter classWriter = new ClassWriter(0);
             ClassVisitor classVisitor = new RuleServiceInterceptorsSupportClassVisitor(classWriter,
-                methodsWithReturnTypeNeedsChange,
+                methodsWithSignatureNeedsChange,
                 methodsToRemove);
             String className = serviceClass.getName() + UNDECORATED_CLASS_NAME_SUFFIX;
             InterfaceTransformer transformer = new InterfaceTransformer(serviceClass, className);
@@ -215,15 +212,6 @@ public final class RuleServiceInstantiationFactoryHelper {
                 throw new OpenlNotCheckedException(e);
             }
         }
-    }
-
-    private static Class<?> getGenericType(Class<?> clazz) {
-        if (clazz
-            .getGenericSuperclass() instanceof ParameterizedType && ((ParameterizedType) clazz.getGenericSuperclass())
-                .getActualTypeArguments()[0] instanceof Class) {
-            return (Class<?>) ((ParameterizedType) clazz.getGenericSuperclass()).getActualTypeArguments()[0];
-        }
-        return Object.class;
     }
 
     private static Class<? extends ServiceMethodAfterAdvice<?>> getLastServiceMethodAfterAdvice(
@@ -240,11 +228,27 @@ public final class RuleServiceInstantiationFactoryHelper {
         return null;
     }
 
-    private static Class<?> notNullIfNewMethodReturnTypeWithAnnotations(IOpenClass openClass,
+    private static Class<?> resolveNewMethodReturnType(IOpenClass openClass,
             Method method,
+            ClassLoader classLoader,
             boolean toServiceClass,
             boolean provideRuntimeContext,
             boolean provideVariations) {
+        if (toServiceClass && method.isAnnotationPresent(RulesType.class)) {
+            RulesType rulesType = method.getAnnotation(RulesType.class);
+            try {
+                Class<?> loadedType = findOrLoadType(rulesType, openClass, classLoader);
+                Class<?> t = method.getReturnType();
+                while (t.isArray()) {
+                    t = t.getComponentType();
+                    loadedType = Array.newInstance(loadedType, 0).getClass();
+                }
+                return loadedType;
+            } catch (ClassNotFoundException e) {
+                throw new InstantiationException(
+                    String.format("Failed to load type '%s' that used in @RulesType annotation.", rulesType.value()));
+            }
+        }
         ServiceCallAfterInterceptor serviceCallAfterInterceptor = method
             .getAnnotation(ServiceCallAfterInterceptor.class);
         if (serviceCallAfterInterceptor != null && (!provideVariations || !method.getReturnType()
@@ -252,7 +256,7 @@ public final class RuleServiceInstantiationFactoryHelper {
             Class<? extends ServiceMethodAfterAdvice<?>> lastServiceMethodAfterAdvice = getLastServiceMethodAfterAdvice(
                 serviceCallAfterInterceptor);
             if (lastServiceMethodAfterAdvice != null) {
-                return extractTypeForMethod(openClass,
+                return extractReturnTypeForMethod(openClass,
                     method,
                     toServiceClass,
                     lastServiceMethodAfterAdvice,
@@ -260,14 +264,13 @@ public final class RuleServiceInstantiationFactoryHelper {
                     provideVariations);
             }
         }
-
         ServiceCallAroundInterceptor serviceCallAroundInterceptor = method
             .getAnnotation(ServiceCallAroundInterceptor.class);
         if (serviceCallAroundInterceptor != null && (!provideVariations || !method.getReturnType()
             .equals(VariationsResult.class))) {
             Class<? extends ServiceMethodAroundAdvice<?>> serviceMethodAroundAdvice = serviceCallAroundInterceptor
                 .value();
-            return extractTypeForMethod(openClass,
+            return extractReturnTypeForMethod(openClass,
                 method,
                 toServiceClass,
                 serviceMethodAroundAdvice,
@@ -277,7 +280,39 @@ public final class RuleServiceInstantiationFactoryHelper {
         return null;
     }
 
-    private static Class<?> extractTypeForMethod(IOpenClass openClass,
+    public static Class<?> findOrLoadType(RulesType rulesType,
+            IOpenClass openClass,
+            ClassLoader classLoader) throws ClassNotFoundException {
+        String typeName = rulesType.value();
+        try {
+            return classLoader.loadClass(typeName);
+        } catch (ClassNotFoundException e) {
+            for (IOpenClass type : openClass.getTypes()) {
+                if (Objects.equals(type.getName(), typeName)) {
+                    return type.getInstanceClass();
+                }
+            }
+            List<CustomSpreadsheetResultOpenClass> sprTypes = openClass.getTypes()
+                .stream()
+                .filter(CustomSpreadsheetResultOpenClass.class::isInstance)
+                .map(CustomSpreadsheetResultOpenClass.class::cast)
+                .collect(Collectors.toList());
+
+            for (CustomSpreadsheetResultOpenClass sprType : sprTypes) {
+                if (Objects.equals(sprType.getBeanClass().getName(), typeName)) {
+                    return sprType.getBeanClass();
+                }
+            }
+            for (CustomSpreadsheetResultOpenClass sprType : sprTypes) {
+                if (Objects.equals(sprType.getBeanClass().getSimpleName(), typeName)) {
+                    return sprType.getBeanClass();
+                }
+            }
+            throw e;
+        }
+    }
+
+    private static Class<?> extractReturnTypeForMethod(IOpenClass openClass,
             Method method,
             boolean toServiceClass,
             Class<? extends ServiceMethodAdvice> serviceMethodAdvice,
@@ -287,22 +322,17 @@ public final class RuleServiceInstantiationFactoryHelper {
             UseOpenMethodReturnType useOpenMethodReturnType = serviceMethodAdvice
                 .getAnnotation(UseOpenMethodReturnType.class);
             if (useOpenMethodReturnType != null) {
-                Class<?> t = extractOpenMethodReturnType(openClass,
+                return extractOpenMethodReturnType(openClass,
                     method,
                     serviceMethodAdvice,
                     useOpenMethodReturnType.value(),
                     provideRuntimeContext,
                     provideVariations);
-                if (t != null) {
-                    return t;
-                }
             }
-            if (serviceMethodAdvice.isAnnotationPresent(NotConvertor.class)) {
-                return null;
-            }
-            return getGenericType(serviceMethodAdvice);
+            return null;
+        } else {
+            return Object.class;
         }
-        return Object.class;
     }
 
     private static Class<?> extractOpenMethodReturnType(IOpenClass openClass,
@@ -385,20 +415,23 @@ public final class RuleServiceInstantiationFactoryHelper {
      * @param serviceClass Class to be analyzed.
      * @return Methods which have after interceptors.
      */
-    private static Map<Method, Pair<Class<?>, Boolean>> getMethodsWithReturnTypeNeedsChange(IOpenClass openClass,
+    private static Map<Method, MethodSignatureChanges> getMethodsWithSignatureNeedsChange(IOpenClass openClass,
             Class<?> serviceClass,
+            ClassLoader classLoader,
             boolean toServiceClass,
             boolean provideRuntimeContext,
             boolean provideVariations) {
-        Map<Method, Pair<Class<?>, Boolean>> ret = new HashMap<>();
+        Map<Method, MethodSignatureChanges> ret = new HashMap<>();
         for (Method method : serviceClass.getMethods()) {
-            Class<?> newReturnType = notNullIfNewMethodReturnTypeWithAnnotations(openClass,
+            Class<?>[] newParamTypes = resolveNewMethodParamTypes(method, openClass, classLoader);
+            Class<?> newReturnType = resolveNewMethodReturnType(openClass,
                 method,
+                classLoader,
                 toServiceClass,
                 provideRuntimeContext,
                 provideVariations);
             if (newReturnType != null) {
-                ret.put(method, Pair.of(newReturnType, Boolean.TRUE));
+                ret.put(method, new MethodSignatureChanges(newParamTypes, newReturnType, false));
             } else if (toServiceClass && !isTypeChangingAnnotationPresent(method) && !method
                 .isAnnotationPresent(ServiceExtraMethod.class)) {
                 IOpenMember openMember = MethodUtils
@@ -413,7 +446,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                     dim++;
                 }
                 if (provideVariations && method.getReturnType().equals(VariationsResult.class)) {
-                    ret.put(method, Pair.of(VariationsResult.class, Boolean.FALSE));
+                    ret.put(method, new MethodSignatureChanges(newParamTypes, VariationsResult.class, true));
                 } else if (type instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
                     XlsModuleOpenClass module = (XlsModuleOpenClass) openClass;
@@ -423,7 +456,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                     if (dim > 0) {
                         t = Array.newInstance(t, new int[dim]).getClass();
                     }
-                    ret.put(method, Pair.of(t, Boolean.FALSE));
+                    ret.put(method, new MethodSignatureChanges(newParamTypes, t, true));
                 } else if (type instanceof SpreadsheetResultOpenClass) {
                     XlsModuleOpenClass module = (XlsModuleOpenClass) openClass;
                     // Check: custom spreadsheet is enabled
@@ -434,14 +467,46 @@ public final class RuleServiceInstantiationFactoryHelper {
                         if (dim > 0) {
                             t = Array.newInstance(t, new int[dim]).getClass();
                         }
-                        ret.put(method, Pair.of(t, Boolean.FALSE));
+                        ret.put(method, new MethodSignatureChanges(newParamTypes, t, true));
                     }
-                } else if (JavaOpenClass.OBJECT.equals(type)) {
-                    ret.put(method, Pair.of(openMember.getType().getInstanceClass(), Boolean.FALSE));
+                } else if (JavaOpenClass.OBJECT.equals(type) && !JavaOpenClass.OBJECT.equals(openMember.getType())) {
+                    ret.put(method,
+                        new MethodSignatureChanges(newParamTypes, openMember.getType().getInstanceClass(), true));
                 }
+            } else if (toServiceClass && newParamTypes != null) {
+                ret.put(method, new MethodSignatureChanges(newParamTypes, null, false));
             }
         }
         return ret;
+    }
+
+    private static Class<?>[] resolveNewMethodParamTypes(Method method, IOpenClass openClass, ClassLoader classLoader) {
+        Class<?>[] methodParamTypes = new Class<?>[method.getParameterCount()];
+        boolean f = false;
+        int i = 0;
+        for (Annotation[] annotations : method.getParameterAnnotations()) {
+            methodParamTypes[i] = method.getParameterTypes()[i];
+            for (Annotation a : annotations) {
+                if (a instanceof RulesType) {
+                    try {
+                        Class<?> loadedType = findOrLoadType((RulesType) a, openClass, classLoader);
+                        Class<?> t = method.getParameterTypes()[i];
+                        while (t.isArray()) {
+                            t = t.getComponentType();
+                            loadedType = Array.newInstance(loadedType, 0).getClass();
+                        }
+                        methodParamTypes[i] = loadedType;
+                        f = true;
+                    } catch (ClassNotFoundException e) {
+                        throw new InstantiationException(
+                            String.format("Failed to load type '%s' that used in @RulesType annotation.",
+                                ((RulesType) a).value()));
+                    }
+                }
+            }
+            i++;
+        }
+        return f ? methodParamTypes : null;
     }
 
     /**
@@ -461,6 +526,30 @@ public final class RuleServiceInstantiationFactoryHelper {
             }
         }
         return ret;
+    }
+
+    private static class MethodSignatureChanges {
+        boolean generateConverters;
+        Class<?>[] paramTypes;
+        Class<?> returnType;
+
+        public MethodSignatureChanges(Class<?>[] paramTypes, Class<?> returnType, boolean generateConverters) {
+            this.paramTypes = paramTypes;
+            this.generateConverters = generateConverters;
+            this.returnType = returnType;
+        }
+
+        public Class<?>[] getParamTypes() {
+            return paramTypes;
+        }
+
+        public boolean isGenerateConverters() {
+            return generateConverters;
+        }
+
+        public Class<?> getReturnType() {
+            return returnType;
+        }
     }
 
 }

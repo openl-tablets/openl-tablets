@@ -31,7 +31,7 @@ interface MyService {
     // will be skipped because of such method does not exist in rules
 
     @ServiceCallAfterInterceptor([ResponseInterceptor.class])
-    Response parse2(@RulesType("java.lang.String") Object p);
+    Object parse2(@RulesType("java.lang.String") Object p);
 
     @GET
     @Path("parse/{num}")

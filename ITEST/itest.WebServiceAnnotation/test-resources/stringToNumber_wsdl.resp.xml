@@ -91,7 +91,7 @@
             <xsd:element name="parse4PathParamResponse" type="tns:parse4PathParamResponse"/>
             <xsd:complexType name="parse4PathParamResponse">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="return" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="return" type="ns0:MyType"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:element name="parse4" type="tns:parse4"/>
@@ -103,7 +103,7 @@
             <xsd:element name="parse4Response" type="tns:parse4Response"/>
             <xsd:complexType name="parse4Response">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="return" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="return" type="ns0:MyType"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:element name="parse" type="tns:parse"/>
@@ -139,7 +139,7 @@
             <xsd:element name="parse4QueryParamResponse" type="tns:parse4QueryParamResponse"/>
             <xsd:complexType name="parse4QueryParamResponse">
                 <xsd:sequence>
-                    <xsd:element minOccurs="0" name="return" type="xsd:anyType"/>
+                    <xsd:element minOccurs="0" name="return" type="ns0:MyType"/>
                 </xsd:sequence>
             </xsd:complexType>
             <xsd:element name="parse6" type="tns:parse6"/>

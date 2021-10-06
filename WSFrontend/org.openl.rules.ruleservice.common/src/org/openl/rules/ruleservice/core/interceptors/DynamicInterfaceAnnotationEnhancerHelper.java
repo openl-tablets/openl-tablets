@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -11,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
@@ -20,9 +18,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
-import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.InstantiationException;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
@@ -109,13 +107,20 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                             }
                                         } else if (annotation instanceof RulesType) {
                                             RulesType rulesType = (RulesType) annotation;
-                                            Class<?> type = findOrLoadType(rulesType);
-                                            String d = typesInCurrentMethod[i].getDescriptor();
-                                            while (d.length() > 0 && d.startsWith("[")) {
-                                                d = d.substring(1);
-                                            }
-                                            if (Objects.equals(Type.getType(type), Type.getType(d))) {
-                                                isCompatibleParameter = true;
+                                            try {
+                                                Class<?> type = RuleServiceInstantiationFactoryHelper
+                                                    .findOrLoadType(rulesType, openClass, classLoader);
+                                                String d = typesInCurrentMethod[i].getDescriptor();
+                                                while (d.startsWith("[")) {
+                                                    d = d.substring(1);
+                                                }
+                                                if (Objects.equals(Type.getType(type), Type.getType(d))) {
+                                                    isCompatibleParameter = true;
+                                                }
+                                            } catch (ClassNotFoundException e) {
+                                                throw new InstantiationException(String.format(
+                                                    "Failed to apply annotation template class to the service class. Failed to load type '%s' that used in @RulesType annotation.",
+                                                    rulesType.value()));
                                             }
                                         }
                                     }
@@ -139,37 +144,10 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                 }
                 if (templateMethod != null) {
                     foundMethods.add(templateMethod);
-                    Type returnType;
-                    RulesType rulesType = templateMethod.getAnnotation(RulesType.class);
-                    if (rulesType != null) {
-                        Class<?> type = findOrLoadType(rulesType);
-                        Class<?> t = templateMethod.getReturnType();
-                        while (t.isArray()) {
-                            t = t.getComponentType();
-                            type = Array.newInstance(type, 0).getClass();
-                        }
-                        returnType = Type.getType(type);
-                    } else {
-                        returnType = Type.getReturnType(descriptor);
-                    }
-                    final Type[] methodParameterTypes = Type.getArgumentTypes(descriptor);
-                    for (int i = 0; i < templateMethod.getParameterCount(); i++) {
-                        for (Annotation annotation : templateMethod.getParameterAnnotations()[i]) {
-                            if (annotation instanceof RulesType) {
-                                RulesType paramRulesType = (RulesType) annotation;
-                                Class<?> type = findOrLoadType(paramRulesType);
-                                String d = methodParameterTypes[i].getDescriptor();
-                                while (d.length() > 0 && d.startsWith("[")) {
-                                    d = d.substring(1);
-                                    type = Array.newInstance(type, 0).getClass();
-                                }
-                                methodParameterTypes[i] = Type.getType(type);
-                            }
-                        }
-                    }
                     MethodVisitor mv = super.visitMethod(access,
                         name,
-                        Type.getMethodDescriptor(returnType, methodParameterTypes),
+                        Type.getMethodDescriptor(Type.getType(templateMethod.getReturnType()),
+                            Type.getArgumentTypes(descriptor)),
                         signature,
                         exceptions);
                     Annotation[] annotations = templateMethod.getAnnotations();
@@ -193,36 +171,6 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                 }
             }
             return super.visitMethod(access, name, descriptor, signature, exceptions);
-        }
-
-        private Class<?> findOrLoadType(RulesType rulesType) {
-            String typeName = rulesType.value();
-            try {
-                return classLoader.loadClass(typeName);
-            } catch (ClassNotFoundException e) {
-                for (IOpenClass type : openClass.getTypes()) {
-                    if (Objects.equals(type.getName(), typeName)) {
-                        return type.getInstanceClass();
-                    }
-                }
-                List<CustomSpreadsheetResultOpenClass> sprTypes = openClass.getTypes().stream()
-                        .filter(CustomSpreadsheetResultOpenClass.class::isInstance)
-                        .map(CustomSpreadsheetResultOpenClass.class::cast)
-                        .collect(Collectors.toList());
-
-                for (CustomSpreadsheetResultOpenClass sprType : sprTypes) {
-                    if (Objects.equals(sprType.getBeanClass().getName(), typeName)) {
-                        return sprType.getBeanClass();
-                    }
-                }
-                for (CustomSpreadsheetResultOpenClass sprType : sprTypes) {
-                    if (Objects.equals(sprType.getBeanClass().getSimpleName(), typeName)) {
-                        return sprType.getBeanClass();
-                    }
-                }
-                throw new InstantiationException(
-                    String.format("Failed to apply annotation template class to the service class. Failed to load type '%s' that used in @RulesType annotation.", typeName));
-            }
         }
     }
 
@@ -273,7 +221,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                 }
                 log.warn("Method '{}' from annotation template {} is not found in the service class.",
                     MethodUtil.printQualifiedMethodName(method),
-                        method.getDeclaringClass().isInterface() ? "interface" : "class");
+                    method.getDeclaringClass().isInterface() ? "interface" : "class");
             }
         }
     }
