@@ -60,7 +60,7 @@ jobs:
       run: >
         eval docker build $tags_8
         --build-arg VERSION=$version
-        --build-arg JDK=8-jre-slim-buster
+        --build-arg JDK=8-jre-slim
         -f ./Dockerfiles/Demo .
 
     - name: DEMO JDK 11
@@ -69,21 +69,21 @@ jobs:
       run: >
         eval docker build $tags_11
         --build-arg VERSION=$version
-        --build-arg JDK=11-slim-buster
+        --build-arg JDK=11-slim
         -f ./Dockerfiles/Demo .
 
     - name: Rule Services (All) JDK 8
       run: >
         docker build -t openltablets/ws:$version-jre8-all
         --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk8-openjdk-slim-buster
+        --build-arg TOMCAT=9-jdk8-openjdk-slim
         -f ./Dockerfiles/RuleServices-all .
 
     - name: Rule Services (All) JDK 11
       run: >
         docker build -t openltablets/ws:$version-all
         --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk11-openjdk-slim-buster
+        --build-arg TOMCAT=9-jdk11-openjdk-slim
         -f ./Dockerfiles/RuleServices-all .
 
     - name: Rule Services JDK 8
@@ -92,7 +92,7 @@ jobs:
       run: >
         eval docker build $tags_8
         --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk8-openjdk-slim-buster
+        --build-arg TOMCAT=9-jdk8-openjdk-slim
         -f ./Dockerfiles/RuleServices .
 
     - name: Rule Services JDK 11
@@ -101,7 +101,7 @@ jobs:
       run: >
         eval docker build $tags_11
         --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk11-openjdk-slim-buster
+        --build-arg TOMCAT=9-jdk11-openjdk-slim
         -f ./Dockerfiles/RuleServices .
 
     - name: WebStudio JDK 8
@@ -110,7 +110,7 @@ jobs:
       run: >
         eval docker build $tags_8
         --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk8-openjdk-slim-buster
+        --build-arg TOMCAT=9-jdk8-openjdk-slim
         -f ./Dockerfiles/WebStudio .
 
     - name: WebStudio JDK 11
@@ -119,7 +119,7 @@ jobs:
       run: >
         eval docker build $tags_11
         --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk11-openjdk-slim-buster
+        --build-arg TOMCAT=9-jdk11-openjdk-slim
         -f ./Dockerfiles/WebStudio .
 
     - name: Push images
