@@ -218,7 +218,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-    protected void beforeInvocation(Method interfaceMethod, Object... args) throws Throwable {
+    private void beforeInvocation(Method interfaceMethod, Object... args) throws Throwable {
         List<ServiceMethodBeforeAdvice> preInterceptors = beforeInterceptors.get(interfaceMethod);
         if (preInterceptors != null) {
             for (ServiceMethodBeforeAdvice interceptor : preInterceptors) {
@@ -229,7 +229,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-    protected Object serviceExtraMethodInvoke(Method interfaceMethod,
+    private Object serviceExtraMethodInvoke(Method interfaceMethod,
             Object serviceBean,
             Object... args) throws Exception {
         ServiceExtraMethodHandler<?> serviceExtraMethodHandler = serviceExtraMethodAnnotations.get(interfaceMethod);
@@ -239,7 +239,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         throw new OpenLRuntimeException("Service method advice is not found.");
     }
 
-    protected Object afterInvocation(Method interfaceMethod,
+    private Object afterInvocation(Method interfaceMethod,
             Object result,
             Exception t,
             Object... args) throws Exception {
@@ -451,7 +451,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         return t;
     }
 
-    protected Pair<ExceptionType, String> getExceptionDetailAndType(Exception ex) {
+    private Pair<ExceptionType, String> getExceptionDetailAndType(Exception ex) {
         Throwable t = ex;
 
         ExceptionType type = ExceptionType.SYSTEM;
@@ -482,7 +482,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         return new ImmutablePair<>(type, message);
     }
 
-    protected String getExceptionMessage(Method method, Throwable ex, Object... args) {
+    private String getExceptionMessage(Method method, Throwable ex, Object... args) {
         StringBuilder argsTypes = new StringBuilder();
         boolean f = false;
         for (Class<?> clazz : method.getParameterTypes()) {
@@ -504,7 +504,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             if (arg == null) {
                 argsValues.append("null");
             } else {
-                argsValues.append(arg.toString());
+                argsValues.append(arg);
 
             }
         }
@@ -512,7 +512,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         sb.append("During OpenL rule execution exception was occurred. Method name is '".toUpperCase());
         sb.append(method.getName());
         sb.append("'. Arguments types are: ");
-        sb.append(argsTypes.toString());
+        sb.append(argsTypes);
         sb.append(". Arguments values are: ");
         sb.append(argsValues.toString().replace("\r", "").replace("\n", ""));
         sb.append(". Exception class is: ");
