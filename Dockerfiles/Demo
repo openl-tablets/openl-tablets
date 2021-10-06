@@ -1,4 +1,4 @@
-ARG JDK=11-slim-buster
+ARG JDK=11-slim
 
 FROM openjdk:$JDK
 

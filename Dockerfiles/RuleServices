@@ -1,4 +1,4 @@
-ARG TOMCAT=9-jdk11-openjdk-slim-buster
+ARG TOMCAT=9-jdk11-openjdk-slim
 
 FROM tomcat:$TOMCAT
 
