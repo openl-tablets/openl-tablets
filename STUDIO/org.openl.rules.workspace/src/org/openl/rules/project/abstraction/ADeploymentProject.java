@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
@@ -243,6 +244,21 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     private List<ProjectDescriptor> getDescriptors() {
         synchronized (this) {
+            try {
+                AProjectArtefact descriptorFile = getArtefactsInternal().get(ArtefactProperties.DESCRIPTORS_FILE);
+                if (descriptorFile != null) {
+                    //Determine whether the file has been modified by other WebStudio instances or manually, if so, then refresh it
+                    Date modifiedAt = getRepository().read(descriptorFile.getArtefactPath().getStringValue()).getData().getModifiedAt();
+                    if (!modifiedAt.equals(getFileData().getModifiedAt())) {
+                        super.refresh();
+                        setHistoryVersion(null);
+                        descriptors = null;
+                        createInternalArtefacts();
+                    }
+                }
+            } catch (Exception e) {
+                LOG.error(e.getMessage(), e);
+            }
             if (descriptors == null) {
                 descriptors = new ArrayList<>();
                 ADeploymentProject source = openedVersion == null ? this : openedVersion;
