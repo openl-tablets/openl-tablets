@@ -666,4 +666,11 @@ public class RunWebservicesITest {
     public void EPBDS_11883() {
         client.send("EPBDS-11883/Table1.json.post");
     }
+
+    @Test
+    public void EPBDS_12114() {
+        client.send("EPBDS-12114/swagger.json.get");
+        client.send("EPBDS-12114/openapi.json.get");
+        client.send("EPBDS-12114/doPing.json.post");
+    }
 }
