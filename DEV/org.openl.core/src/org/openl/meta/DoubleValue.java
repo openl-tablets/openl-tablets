@@ -717,13 +717,12 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         return BigDecimal.valueOf(x.doubleValue());
     }
 
-    public static DoubleValue round(DoubleValue value) {
+    public static Integer round(DoubleValue value) {
         if (value == null) {
             return null;
         }
 
-        double rounded = Round.round(value.value, 0);
-        return new DoubleValue(rounded, NumberOperations.ROUND, value);
+        return Round.round(value.value);
     }
 
     public static DoubleValue round(DoubleValue value, int scale) {

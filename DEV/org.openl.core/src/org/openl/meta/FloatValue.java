@@ -673,13 +673,12 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         return new BigDecimal(String.valueOf(x.floatValue()));
     }
 
-    public static FloatValue round(FloatValue value) {
+    public static Integer round(FloatValue value) {
         if (value == null) {
             return null;
         }
 
-        float rounded = Round.round(value.value, 0);
-        return new FloatValue(rounded, NumberOperations.ROUND, value);
+        return Round.round(value.value);
     }
 
     public static FloatValue round(FloatValue value, int scale) {

@@ -28,7 +28,7 @@ public final class Round {
     /**
      * Like {@link #round(double)} but null-safe.
      */
-    public static Long round(Double value) {
+    public static Integer round(Double value) {
         if (value == null) {
             return null;
         }
@@ -52,18 +52,18 @@ public final class Round {
      * @param value a floating-point value to be rounded to a {@code long}.
      * @return the value of the argument rounded to the nearest {@code long} value.
      */
-    public static long round(double value) {
+    public static int round(double value) {
         if (value == 0.0 || Double.isNaN(value)) {
             return 0;
         }
-        if (Double.POSITIVE_INFINITY == value) {
-            return Long.MAX_VALUE;
-        } else if (Double.NEGATIVE_INFINITY == value) {
-            return Long.MIN_VALUE;
+       if (value >= Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        } else if (value <= Integer.MIN_VALUE) {
+            return Integer.MIN_VALUE;
         } else if (value > 0) {
             // A workaround for rounding the closest to .5 numbers
             // ULP is used for fix imprecise operations of double values
-            return Math.round(value + Math.ulp(value));
+            return (int) Math.round(value + Math.ulp(value));
         } else {
             // Make rounding symmetrical: 0.5 ==> 1 and -0.5 ==> -1
             return -round(-value);

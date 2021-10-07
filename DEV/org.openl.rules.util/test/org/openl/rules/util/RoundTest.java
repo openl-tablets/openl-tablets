@@ -11,8 +11,8 @@ public class RoundTest {
     public void testRoundDouble() {
 
         assertEquals(0, Round.round(Double.NaN));
-        assertEquals(Long.MAX_VALUE, Round.round(Double.POSITIVE_INFINITY));
-        assertEquals(Long.MIN_VALUE, Round.round(Double.NEGATIVE_INFINITY));
+        assertEquals(Integer.MAX_VALUE, Round.round(Double.POSITIVE_INFINITY));
+        assertEquals(Integer.MIN_VALUE, Round.round(Double.NEGATIVE_INFINITY));
 
         assertEquals(0, Round.round(0d));
         assertEquals(0, Round.round(Math.ulp(0d)));
