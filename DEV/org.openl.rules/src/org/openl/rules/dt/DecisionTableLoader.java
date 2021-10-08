@@ -1,5 +1,6 @@
 package org.openl.rules.dt;
 
+import static org.openl.rules.dt.DecisionTableHelper.isRulesTable;
 import static org.openl.rules.dt.DecisionTableHelper.isLookup;
 import static org.openl.rules.dt.DecisionTableHelper.isSimple;
 import static org.openl.rules.dt.DecisionTableHelper.isSmart;
@@ -166,6 +167,23 @@ public class DecisionTableLoader {
                             direction = Direction.UNKNOWN;
                         }
                     }
+                }
+            }
+        } else if (isRulesTable(tableSyntaxNode)) {
+            ILogicalTable tableBody = tableSyntaxNode.getTableBody();
+            if (tableBody != null) {
+                final int originalHeadersCnt = DecisionTableHelper.countAllHeaderTypes(tableBody);
+                if (originalHeadersCnt == tableBody.getWidth()) {
+                    return Direction.NORMAL;
+                }
+                tableBody = tableBody.transpose();
+                final int transposedHeadersCnt = DecisionTableHelper.countAllHeaderTypes(tableBody);
+                if (transposedHeadersCnt == tableBody.getWidth() || originalHeadersCnt < transposedHeadersCnt) {
+                    return Direction.TRANSPOSED;
+                } else if (originalHeadersCnt > transposedHeadersCnt) {
+                    return Direction.NORMAL;
+                } else {
+                    return Direction.UNKNOWN;
                 }
             }
         }
