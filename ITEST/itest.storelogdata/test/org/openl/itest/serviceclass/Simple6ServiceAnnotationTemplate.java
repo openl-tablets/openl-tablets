@@ -27,4 +27,13 @@ public interface Simple6ServiceAnnotationTemplate {
     @RulesType("DoSomething") // SpreadsheetResult custom class type
     Object DoSomethingExtra();
 
+    @StoreLogDataToCassandra(value = HelloEntity6.class, sync = true)
+    @PrepareStoreLogData(value = Simple6AlwaysThrowException.class, before = true)
+    @ServiceExtraMethod(Simple6ServiceExtraMethodHandler.class)
+    Simple6ResponseDTO AlwaysThrowExceptionBeforeCall();
+
+    @StoreLogDataToCassandra(value = HelloEntity6.class, sync = true)
+    @PrepareStoreLogData(Simple6AlwaysThrowException.class)
+    @ServiceExtraMethod(Simple6ServiceExtraMethodHandler.class)
+    Simple6ResponseDTO AlwaysThrowExceptionAfterCall();
 }
