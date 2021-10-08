@@ -227,6 +227,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             decisionTable = null;
             paramsTable = null;
             codeTable = null;
+            infoTable = null;
             presentationTable = null;
         }
     }
