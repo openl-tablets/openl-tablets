@@ -2,6 +2,7 @@ package org.openl.meta;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -725,6 +726,13 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         return Round.round(value.value);
     }
 
+    public static Integer round(DoubleValue value, RoundingMode roundingMode) {
+        if (value == null) {
+            return null;
+        }
+        return Round.round(value.value, roundingMode);
+    }
+
     public static DoubleValue round(DoubleValue value, int scale) {
         if (value == null) {
             return null;
@@ -734,12 +742,16 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         return new DoubleValue(rounded, NumberOperations.ROUND, value, new DoubleValue(scale));
     }
 
+
     public static DoubleValue round(DoubleValue value, int scale, int roundingMethod) {
+        return round(value, scale, RoundingMode.valueOf(roundingMethod));
+    }
+
+    public static DoubleValue round(DoubleValue value, int scale, RoundingMode roundingMode) {
         if (value == null) {
             return null;
         }
-
-        double rounded = Round.round(value.value, scale, roundingMethod);
+        double rounded = Round.round(value.value, scale, roundingMode);
         return new DoubleValue(rounded, NumberOperations.ROUND, value, new DoubleValue(scale));
     }
 

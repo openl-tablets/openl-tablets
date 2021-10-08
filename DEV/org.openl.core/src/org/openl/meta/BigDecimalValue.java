@@ -2,6 +2,7 @@ package org.openl.meta;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -715,12 +716,20 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         return round(value, scale, BigDecimal.ROUND_HALF_UP);
     }
 
+    public static BigDecimalValue round(BigDecimalValue value, RoundingMode roundingMode) {
+        return round(value, 0, roundingMode);
+    }
+
     public static BigDecimalValue round(BigDecimalValue value, int scale, int roundingMethod) {
+        return round(value, scale, RoundingMode.valueOf(roundingMethod));
+    }
+
+    public static BigDecimalValue round(BigDecimalValue value, int scale, RoundingMode roundingMode) {
         if (value == null) {
             return null;
         }
 
-        return new BigDecimalValue(new BigDecimalValue(value.getValue().setScale(scale, roundingMethod)),
+        return new BigDecimalValue(new BigDecimalValue(value.getValue().setScale(scale, roundingMode)),
             NumberOperations.ROUND,
             value);
     }

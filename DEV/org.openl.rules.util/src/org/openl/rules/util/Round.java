@@ -35,6 +35,13 @@ public final class Round {
         return round((double) value);
     }
 
+    public static Integer round(Double value, RoundingMode roundingMode) {
+        if (value == null) {
+            return null;
+        }
+        return round((double) value, roundingMode);
+    }
+
     /**
      * Returns the closest {@code long} to the argument, with ties rounding up. The value is rounded like using the
      * {@link RoundingMode#HALF_UP} method.
@@ -70,6 +77,13 @@ public final class Round {
         }
     }
 
+    public static int round(double x, RoundingMode rounding) {
+        if (x == 0 || Double.isInfinite(x) || Double.isNaN(x)) {
+            return round(x);
+        }
+        return BigDecimal.valueOf(x).setScale(0, rounding).intValue();
+    }
+
     /**
      * Like {@link #round(float)} but null-safe.
      */
@@ -78,6 +92,13 @@ public final class Round {
             return null;
         }
         return round((float) value);
+    }
+
+    public static Integer round(Float value, RoundingMode roundingMode) {
+        if (value == null) {
+            return null;
+        }
+        return round((float) value, roundingMode);
     }
 
     /**
@@ -112,6 +133,14 @@ public final class Round {
             return -round(-value);
         }
     }
+
+    public static int round(float x, RoundingMode rounding) {
+        if (x == 0 || Float.isInfinite(x) || Float.isNaN(x)) {
+            return round(x);
+        }
+        return BigDecimal.valueOf(x).setScale(0, rounding).intValue();
+    }
+
 
     /**
      * Returns the closest integer to the argument, with ties rounding up. The value is rounded like using the
@@ -256,9 +285,16 @@ public final class Round {
      */
     public static BigDecimal round(BigDecimal x, int scale, RoundingMode rounding) {
         if (x == null) {
-            return x;
+            return null;
         }
         return x.setScale(scale, rounding);
+    }
+
+    public static BigDecimal round(BigDecimal x, RoundingMode rounding) {
+        if (x == null) {
+            return null;
+        }
+        return x.setScale(0, rounding);
     }
 
     /** For backward compatibility */
