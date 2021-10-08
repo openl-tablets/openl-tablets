@@ -4100,6 +4100,11 @@ public final class DecisionTableHelper {
         return IXlsTableNames.SIMPLE_DECISION_LOOKUP.equals(dtType);
     }
 
+    public static boolean isRulesTable(TableSyntaxNode tableSyntaxNode) {
+        String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
+        return IXlsTableNames.DECISION_TABLE.equals(dtType) || IXlsTableNames.DECISION_TABLE2.equals(dtType);
+    }
+
     static int countHConditionsByHeaders(ILogicalTable table) {
         int width = table.getWidth();
         int cnt = 0;
@@ -4125,6 +4130,23 @@ public final class DecisionTableHelper {
                 value = value.toUpperCase();
                 if (isValidConditionHeader(value) || isValidMergedConditionHeader(value)) {
                     ++cnt;
+                }
+            }
+        }
+        return cnt;
+    }
+
+    static int countAllHeaderTypes(ILogicalTable table) {
+        int width = table.getWidth();
+        int cnt = 0;
+        for (int i = 0; i < width; i++) {
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
+            if (value != null) {
+                value = value.toUpperCase();
+                if (StringUtils.isEmpty(value) || isConditionHeader(value) || isValidRetHeader(value)
+                        || isValidCRetHeader(value) || isValidActionHeader(value) || isValidKeyHeader(value)
+                        || isValidRuleHeader(value)) {
+                    cnt++;
                 }
             }
         }
