@@ -716,8 +716,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         return round(value, scale, BigDecimal.ROUND_HALF_UP);
     }
 
-    public static BigDecimalValue round(BigDecimalValue value, RoundingMode roundingMode) {
-        return round(value, 0, roundingMode);
+    public static BigInteger round(BigDecimalValue value, RoundingMode roundingMode) {
+        return round(value, 0, roundingMode).getValue().toBigInteger();
     }
 
     public static BigDecimalValue round(BigDecimalValue value, int scale, int roundingMethod) {

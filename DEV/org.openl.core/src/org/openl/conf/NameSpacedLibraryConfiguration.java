@@ -40,7 +40,7 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
         }
         if (fields.isEmpty()) {
             return null;
-        }else if(fields.size()==1){
+        } else if (fields.size() == 1) {
             return fields.iterator().next();
         }
         throw new AmbiguousFieldException(name, fields);
