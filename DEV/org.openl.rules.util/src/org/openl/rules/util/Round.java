@@ -1,6 +1,7 @@
 package org.openl.rules.util;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 
 /**
@@ -146,8 +147,9 @@ public final class Round {
      * Returns the closest integer to the argument, with ties rounding up. The value is rounded like using the
      * {@link RoundingMode#HALF_UP} method.
      */
-    public static BigDecimal round(BigDecimal value) {
-        return Round.round(value, 0);
+    public static BigInteger round(BigDecimal value) {
+        BigDecimal round = Round.round(value, 0);
+        return round != null ? round.toBigInteger() : null;
     }
 
     /**
@@ -290,11 +292,12 @@ public final class Round {
         return x.setScale(scale, rounding);
     }
 
-    public static BigDecimal round(BigDecimal x, RoundingMode rounding) {
+    public static BigInteger round(BigDecimal x, RoundingMode rounding) {
         if (x == null) {
             return null;
         }
-        return x.setScale(0, rounding);
+        BigDecimal bigDecimal = x.setScale(0, rounding);
+        return bigDecimal != null ? bigDecimal.toBigInteger() : null;
     }
 
     /** For backward compatibility */

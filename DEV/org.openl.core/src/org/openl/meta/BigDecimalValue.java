@@ -708,8 +708,9 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
         return new BigIntegerValue(String.valueOf(x.longValue()), x, false);
     }
 
-    public static BigDecimalValue round(BigDecimalValue value) {
-        return round(value, 0);
+    public static BigInteger round(BigDecimalValue value) {
+        BigDecimal bigDecimalValue = round(value, 0).getValue();
+        return bigDecimalValue != null ? bigDecimalValue.toBigInteger() : null;
     }
 
     public static BigDecimalValue round(BigDecimalValue value, int scale) {
@@ -717,7 +718,8 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     public static BigInteger round(BigDecimalValue value, RoundingMode roundingMode) {
-        return round(value, 0, roundingMode).getValue().toBigInteger();
+        BigDecimal bigDecimalValue = round(value, 0, roundingMode).getValue();
+        return bigDecimalValue != null ? bigDecimalValue.toBigInteger() : null;
     }
 
     public static BigDecimalValue round(BigDecimalValue value, int scale, int roundingMethod) {
