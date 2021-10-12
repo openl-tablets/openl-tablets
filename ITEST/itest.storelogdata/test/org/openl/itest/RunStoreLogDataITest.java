@@ -866,6 +866,9 @@ public class RunStoreLogDataITest {
         client.send("simple6_ResponseById4.get");
 
         client.send("simple6_DoSomethingExtra.get");
+
+        client.send("simple6_AlwaysThrowExceptionAfterCall.get");
+        client.send("simple6_AlwaysThrowExceptionBeforeCall.get");
     }
 
     private interface Procedure {

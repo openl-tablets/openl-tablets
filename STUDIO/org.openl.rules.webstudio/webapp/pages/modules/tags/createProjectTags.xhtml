@@ -109,9 +109,20 @@
                 $j(this).prev('input[type=hidden]').val($j(this).val());
             });
 
+            let applyManualEdit = function (e) {
+                e.preventDefault();
+                $j(this).blur();
+                $j(this).prev('input[type=hidden]').val($j(this).val());
+            };
+
             $editableInput.each(function () {
                 let handler = $j._data(this, "events")['keydown'][0]['handler'];
+                let input = this;
                 $j(this).off('keydown').on('keydown', function (e) {
+                    if (e.key === "Enter") {
+                        applyManualEdit.call(input, e);
+                        return;
+                    }
                     if (e.key === "ArrowUp" || e.key === "ArrowDown") {
                         handler.apply(this, arguments);
                         setTimeout(() => {
@@ -120,7 +131,7 @@
                         });
                         return;
                     }
-                    if (e.key !== "Enter" && e.key !== "Escape" && e.key !== "Tab") {
+                    if (e.key !== "Escape" && e.key !== "Tab") {
                         if ($j(this).val() === "[None]" && !$j(this).prop('readonly')) {
                             $j(this).val("");
                         }

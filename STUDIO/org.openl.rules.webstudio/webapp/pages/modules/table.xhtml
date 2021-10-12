@@ -1115,24 +1115,27 @@
                 datatype: "text"
             })
                 .done(function (data) {
-                    $jq('#tableTestsPanel').toggle(data.allTests.length !== 0);
-                    $jq('#testsPanel').toggle(data.allTests.length !== 0);
+                    var testsNotEmpty = data.allTests && data.allTests.length !== 0;
+                    $jq('#tableTestsPanel').toggle(testsNotEmpty);
+                    $jq('#testsPanel').toggle(testsNotEmpty);
                     $jq('#testsSection span').remove();
                     const rowTemplate = $j('#testsSection>div:nth-child(1)');
                     const htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
 
                     let availableTests = '';
-                    data.allTests.forEach(function (item, i) {
-                        const testLinkRow = htmlTemplate.replace(/{testLink}/g, item.uri)
+                    if (testsNotEmpty) {
+                        data.allTests.forEach(function (item, i) {
+                            const testLinkRow = htmlTemplate.replace(/{testLink}/g, item.uri)
                                 .replace(/{testName}/g, item.name)
                                 .replace(/{testId}/g, item.id);
-                        if (i === 0) {
-                            rowTemplate.after(testLinkRow.replace(/div/g, "span"));
-                        } else {
-                            $j("#tests-section-toggle-id").show();
-                            availableTests += testLinkRow;
-                        }
-                    });
+                            if (i === 0) {
+                                rowTemplate.after(testLinkRow.replace(/div/g, "span"));
+                            } else {
+                                $j("#tests-section-toggle-id").show();
+                                availableTests += testLinkRow;
+                            }
+                        });
+                    }
                     $j('#tests-section-available-tests-id').html(availableTests);
 
                     if (data.compiled !== true) {

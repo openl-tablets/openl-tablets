@@ -11,16 +11,13 @@ import org.springframework.stereotype.Service;
 @Service
 @ViewScope
 public class NodeVersionsBean {
-    private final RepositoryTreeState repositoryTreeState;
 
-    private final RepositoryTreeController repositoryTreeController;
+    private final RepositoryTreeState repositoryTreeState;
 
     private TreeNode nodeToView;
 
-    public NodeVersionsBean(RepositoryTreeState repositoryTreeState,
-        RepositoryTreeController repositoryTreeController) {
+    public NodeVersionsBean(RepositoryTreeState repositoryTreeState) {
         this.repositoryTreeState = repositoryTreeState;
-        this.repositoryTreeController = repositoryTreeController;
     }
 
     public TreeNode getNodeToView() {
@@ -32,8 +29,7 @@ public class NodeVersionsBean {
         return nodeToView;
     }
 
-    public void updateNodeToView() {
-        this.nodeToView = repositoryTreeState.getSelectedNode();
-        repositoryTreeController.setVersion(null);
+    public void setNodeToView(TreeNode nodeToView) {
+        this.nodeToView = nodeToView;
     }
 }

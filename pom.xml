@@ -78,7 +78,7 @@
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
-        <org.springframework.version>5.3.9</org.springframework.version>
+        <org.springframework.version>5.3.10</org.springframework.version>
         <org.springsecurity.version>5.5.2</org.springsecurity.version>
         <org.hibernate.version>5.4.32.Final</org.hibernate.version>
         <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
@@ -87,13 +87,14 @@
         <org.mojarra.version>2.3.9</org.mojarra.version>
         <asm.version>9.2</asm.version>
         <cglib.version>3.3.0</cglib.version>
-        <kafka.version>2.8.0</kafka.version>
+        <!-- Kafka 3.0.0 is not supported by Kafka-Junit yet -->
+        <kafka.version>2.8.1</kafka.version>
         <kafka-junit.version>2.8.0</kafka-junit.version>
         <cassandra.driver.version>4.13.0</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.11.0</cassandra.unit.driver.version>
-        <org.apache.cxf.version>3.4.4</org.apache.cxf.version>
-        <!-- if updated org.apache.cxf.version to version from org.apache.cxf -->
+        <org.apache.cxf.version>3.4.5</org.apache.cxf.version>
+        <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-frontend-jaxrs:jar -->
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-databinding-aegis:jar -> org.apache.cxf:cxf-core -> org.glassfish.jaxb:jaxb-runtime -->
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
@@ -105,17 +106,17 @@
         <com.fasterxml.jackson.version>2.11.4</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.43.v20210629</jetty.server.version>
+        <jetty.server.version>9.4.44.v20210927</jetty.server.version>
         <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
-        <elasticsearch.version>6.8.18</elasticsearch.version>
+        <elasticsearch.version>6.8.19</elasticsearch.version>
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
         <org.apache.avro.version>1.10.0</org.apache.avro.version>
         <org.apache.zookeeper.version>3.7.0</org.apache.zookeeper.version>
         <org.apache.thrift.version>0.13.0</org.apache.thrift.version>
         <org.apache.ant.version>1.10.11</org.apache.ant.version>
         <io.netty.version>4.1.67.Final</io.netty.version>
-        <owasp.version>6.2.2</owasp.version>
-        <groovy.version>3.0.8</groovy.version>
+        <owasp.version>6.3.2</owasp.version>
+        <groovy.version>3.0.9</groovy.version>
         <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
         <jaeger.client.version>1.6.0</jaeger.client.version>
         <opentracing.kafka.client>0.1.15</opentracing.kafka.client>
@@ -254,7 +255,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.3.2</version>
                     <configuration>
                         <warSourceDirectory>webapp</warSourceDirectory>
                     </configuration>
@@ -308,7 +309,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.1.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -1121,12 +1122,12 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.51.2</version>
+                <version>3.52.3</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-jaxrs</artifactId>
-                <version>1.6.2</version>
+                <version>1.6.3</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.validation</groupId>
@@ -1137,7 +1138,7 @@
             <dependency>
                 <groupId>io.swagger</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>1.6.2</version>
+                <version>1.6.3</version>
             </dependency>
             <!-- Apache CXF Runtime CORBA Binding -->
             <dependency>
@@ -1153,7 +1154,7 @@
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-elasticsearch</artifactId>
-                <version>3.2.12.RELEASE</version>
+                <version>3.2.13.RELEASE</version>
                 <exclusions>
                     <!-- Elasticsearch rest template is used, no need in transport client -->
                     <exclusion>
@@ -1167,7 +1168,7 @@
                 </exclusions>
             </dependency>
             <!-- Upgrade Elasticsearch using by spring-data-elasticsearch. -->
-            <!-- Reduce dependencies as spring-data-elasticsearch uses 6.8.8 -->
+            <!-- Reduce dependencies as spring-data-elasticsearch uses 6.8.14 -->
             <dependency>
                 <groupId>org.elasticsearch.client</groupId>
                 <artifactId>elasticsearch-rest-high-level-client</artifactId>
@@ -1184,7 +1185,7 @@
                 <!-- to remove dependency duplication from the elasticsearc -->
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.10.10</version>
+                <version>2.10.12</version>
             </dependency>
             <dependency>
                 <groupId>org.codelibs</groupId>
@@ -1330,7 +1331,7 @@
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
-                <version>5.12.0.202106070339-r</version>
+                <version>5.13.0.202109080827-r</version>
             </dependency>
             <!-- The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms. This jar
             contains JCE provider and lightweight API for the Bouncy Castle Cryptography APIs for JDK 1.5 to JDK 1.8.
@@ -1361,6 +1362,7 @@
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
+                <!-- HikariCP:5.0.0 doesn't support Java 8. Will be possible to migrate on it after that OpenL dropped Java 8 support -->
                 <version>4.0.3</version>
             </dependency>
             <!-- Microsoft JDBC Driver for SQL Server -->
@@ -1608,7 +1610,7 @@
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
-                <version>4.9.1</version>
+                <version>4.9.2</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
