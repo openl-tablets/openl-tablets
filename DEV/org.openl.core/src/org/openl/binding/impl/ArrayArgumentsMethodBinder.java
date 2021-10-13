@@ -14,6 +14,7 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.method.MethodSearch;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
@@ -49,7 +50,8 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             int countOfChanged,
             MutableInt bestCountOfChanged,
             Map<MethodKey, IOpenMethod> candidates,
-            MutableObject<IBoundNode> best) {
+            MutableObject<IBoundNode> best,
+            IOpenClass targetType) {
         if (countOfChanged > bestCountOfChanged.getValue() || arrayArgArguments.isEmpty()) {
             return;
         }
@@ -57,8 +59,12 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
         //
         IMethodCaller singleParameterMethodCaller;
         try {
-            singleParameterMethodCaller = bindingContext
-                .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, methodArguments);
+            if (targetType == null) {
+                singleParameterMethodCaller = bindingContext
+                        .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, methodArguments);
+            } else {
+                singleParameterMethodCaller = MethodSearch.findMethod(methodName, methodArguments, bindingContext, targetType);
+            }
         } catch (AmbiguousMethodException e) {
             if (countOfChanged < bestCountOfChanged.getValue()) {
                 candidates.clear();
@@ -121,7 +127,8 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             int countOfChanged,
             MutableInt bestCountOfChanged,
             Map<MethodKey, IOpenMethod> candidates,
-            MutableObject<IBoundNode> best) {
+            MutableObject<IBoundNode> best,
+            IOpenClass targetType) {
         int arrayArgumentIndex = indexesOfArrayArguments.get(indexToChange);
 
         boolean last = indexToChange == indexesOfArrayArguments.size() - 1;
@@ -138,7 +145,8 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             bestCountOfChanged,
             candidates,
             best,
-            last);
+            last,
+            targetType);
         // Try interpret array argument as multicall
         arrayArgArguments.addLast(arrayArgumentIndex);
         unwrappedArgumentsTypes[arrayArgumentIndex] = argumentsTypes[arrayArgumentIndex].getComponentClass();
@@ -152,7 +160,8 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             bestCountOfChanged,
             candidates,
             best,
-            last);
+            last,
+            targetType);
         arrayArgArguments.removeLast();
     }
 
@@ -166,7 +175,8 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             MutableInt bestCountOfChanged,
             Map<MethodKey, IOpenMethod> candidates,
             MutableObject<IBoundNode> best,
-            boolean last) {
+            boolean last,
+            IOpenClass targetType) {
         if (last) {
             matchMultiCallMethodNode(node,
                 bindingContext,
@@ -175,7 +185,8 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
                 countOfChanged,
                 bestCountOfChanged,
                 candidates,
-                best);
+                best,
+                targetType);
         } else {
             recursiveMultiCallMethodNodeSearch(node,
                 bindingContext,
@@ -186,7 +197,8 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
                 countOfChanged,
                 bestCountOfChanged,
                 candidates,
-                best);
+                best,
+                targetType);
         }
     }
 
@@ -202,6 +214,10 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+        return bindInternal(node, bindingContext, null);
+    }
+
+    private IBoundNode bindInternal(ISyntaxNode node, IBindingContext bindingContext, IOpenClass targetType) {
         List<Integer> indexesOfArrayArguments = getIndexesOfArrayArguments();
         if (!indexesOfArrayArguments.isEmpty()) {
             IOpenClass[] unwrappedArgumentsTypes = new IOpenClass[argumentsTypes.length];
@@ -220,7 +236,8 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
                 0,
                 bestCountOfChanges,
                 candidates,
-                best);
+                best,
+                targetType);
             if (candidates.size() > 1) {
                 throw new AmbiguousMethodException(methodName, argumentsTypes, new ArrayList<>(candidates.values()));
             }
@@ -229,5 +246,11 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             LOG.debug("There is no any array argument in signature for method '{}'", methodName);
         }
         return null;
+    }
+
+    @Override
+    public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) throws Exception {
+        IOpenClass type = targetNode.getType();
+        return bindInternal(node, bindingContext, type);
     }
 }
