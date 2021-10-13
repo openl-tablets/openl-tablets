@@ -52,7 +52,11 @@ public class DependencyOpenClass extends OpenClassDelegator {
 
     @Override
     public IOpenMethod getMethod(String name, IOpenClass[] classes) {
-        return applyDependencyLogicToMethod(super.getMethod(name, classes));
+        IOpenMethod method = super.getMethod(name, classes);
+        if (method == null) {
+            return null;
+        }
+        return applyDependencyLogicToMethod(method);
     }
 
     @Override
