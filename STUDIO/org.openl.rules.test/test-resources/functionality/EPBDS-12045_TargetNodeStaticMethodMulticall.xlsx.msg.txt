@@ -1,0 +1,1 @@
+WARN: Accessing to static method 'from' from non-static object of type 'java.util.Date'.
