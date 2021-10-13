@@ -226,15 +226,60 @@ public class MethodNodeBinder extends ANodeBinder {
         IMethodCaller methodCaller = MethodSearch.findMethod(methodName, types, bindingContext, type);
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
-        if (methodCaller == null) {
-            throw new MethodNotFoundException(type, methodName, types);
+        if (methodCaller != null && noArrayOneElementCast(methodCaller)) {
+            errorNode = validateMethod(node, bindingContext, target, methodCaller);
+            if (errorNode != null) {
+                return errorNode;
+            }
+            return new MethodBoundNode(node, target, methodCaller, children);
         }
 
-        errorNode = validateMethod(node, bindingContext, target, methodCaller);
-        if (errorNode != null) {
-            return errorNode;
+        // can`t find directly the method with given name and parameters. so,
+        // if there are any parameters, try to bind it some additional ways
+        // someMethod( parameter1, ... )
+        //
+        if (childrenCount > 1) {
+
+            // Try to bind method, that contains one of the arguments as array type.
+            // For this try to find method without
+            // array argument (but the component type of it on the same place). And
+            // call it several times on runtime
+            // for collecting results.
+            //
+            IBoundNode arrayArgumentsMethod = makeTargetArrayArgumentsMethod(node,
+                    bindingContext,
+                    methodName,
+                    types,
+                    children,
+                    target);
+
+            if (arrayArgumentsMethod != null) {
+                errorNode = validateMethod(node, bindingContext, target, ((MethodBoundNode) arrayArgumentsMethod).getMethodCaller());
+                if (errorNode != null) {
+                    return errorNode;
+                }
+                return arrayArgumentsMethod;
+            }
+
+            if (methodCaller != null) {
+                errorNode = validateMethod(node, bindingContext, target, methodCaller);
+                if (errorNode != null) {
+                    return errorNode;
+                }
+                return new MethodBoundNode(node, methodCaller, children);
+            }
         }
-        return new MethodBoundNode(node, target, methodCaller, children);
+
+        throw new MethodNotFoundException(type, methodName, types);
+    }
+
+    protected IBoundNode makeTargetArrayArgumentsMethod(ISyntaxNode methodNode,
+                                                  IBindingContext bindingContext,
+                                                  String methodName,
+                                                  IOpenClass[] argumentTypes,
+                                                  IBoundNode[] children,
+                                                  IBoundNode target) throws Exception {
+        return new ArrayArgumentsMethodBinder(methodName, argumentTypes, children).bindTarget(methodNode, bindingContext, target);
     }
 
     private IBoundNode validateMethod(ISyntaxNode node,
