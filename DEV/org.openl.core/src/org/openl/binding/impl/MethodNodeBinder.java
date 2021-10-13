@@ -247,14 +247,17 @@ public class MethodNodeBinder extends ANodeBinder {
             // for collecting results.
             //
             IBoundNode arrayArgumentsMethod = makeTargetArrayArgumentsMethod(node,
-                    bindingContext,
-                    methodName,
-                    types,
-                    children,
-                    target);
+                bindingContext,
+                methodName,
+                types,
+                children,
+                target);
 
             if (arrayArgumentsMethod != null) {
-                errorNode = validateMethod(node, bindingContext, target, ((MethodBoundNode) arrayArgumentsMethod).getMethodCaller());
+                errorNode = validateMethod(node,
+                    bindingContext,
+                    target,
+                    ((MethodBoundNode) arrayArgumentsMethod).getMethodCaller());
                 if (errorNode != null) {
                     return errorNode;
                 }
@@ -274,12 +277,13 @@ public class MethodNodeBinder extends ANodeBinder {
     }
 
     protected IBoundNode makeTargetArrayArgumentsMethod(ISyntaxNode methodNode,
-                                                  IBindingContext bindingContext,
-                                                  String methodName,
-                                                  IOpenClass[] argumentTypes,
-                                                  IBoundNode[] children,
-                                                  IBoundNode target) throws Exception {
-        return new ArrayArgumentsMethodBinder(methodName, argumentTypes, children).bindTarget(methodNode, bindingContext, target);
+            IBindingContext bindingContext,
+            String methodName,
+            IOpenClass[] argumentTypes,
+            IBoundNode[] children,
+            IBoundNode target) throws Exception {
+        return new ArrayArgumentsMethodBinder(methodName, argumentTypes, children)
+            .bindTarget(methodNode, bindingContext, target);
     }
 
     private IBoundNode validateMethod(ISyntaxNode node,
@@ -289,11 +293,14 @@ public class MethodNodeBinder extends ANodeBinder {
         boolean methodIsStatic = methodCaller.getMethod().isStatic();
         if (target.isStaticTarget() != methodIsStatic) {
             if (methodIsStatic) {
-                BindHelper.processWarn(String.format("Accessing to static method '%s' from non-static object of type '%s'.",
-                        methodCaller.getMethod().getName(), target.getType().getName()), node, bindingContext);
+                BindHelper
+                    .processWarn(String.format("Accessing to static method '%s' from non-static object of type '%s'.",
+                        methodCaller.getMethod().getName(),
+                        target.getType().getName()), node, bindingContext);
             } else {
                 return makeErrorNode(String.format("Accessing to non-static method '%s' of static type '%s'.",
-                        methodCaller.getMethod().getName(), target.getType().getName()), node, bindingContext);
+                    methodCaller.getMethod().getName(),
+                    target.getType().getName()), node, bindingContext);
             }
         }
         return null;
