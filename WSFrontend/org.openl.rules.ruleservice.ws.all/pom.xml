@@ -127,10 +127,6 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws.tracing.jaeger</artifactId>
         </dependency>
         <dependency>
