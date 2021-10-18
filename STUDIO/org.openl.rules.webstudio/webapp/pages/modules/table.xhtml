@@ -425,19 +425,14 @@
                                 <td>
                                     <a4j:commandLink id="traceLink" title="Trace" styleClass="toolbarButton on-errors-hide menuButton changes-listener"
                                                      rendered="#{tableBean.canTrace}"
-                                                     onclick="onTrace(); return false;"
-                                                     onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                                     onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
+                                                     onclick="onTestMenuOpen(event, 'b-trace');return false;"
                                                      style="padding-right: 1px">
-                                        <a4j:jsFunction name="onTraceFunction" oncomplete="onTraceAction();" action="#{runTestHelper.initTrace}"/>
                                         <table>
                                             <tr>
                                                 <td>
                                                     <img src="#{contextPath}/webresource/images/trace.gif" />
                                                 </td>
-                                                <td rowspan="2" class="arrow"
-                                                    onclick="onTestMenuOpen(event, 'b-trace');return false;"
-                                                    style="visibility: hidden;">
+                                                <td rowspan="2" class="arrow" style="pointer-events: none;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
                                             </tr>
@@ -776,8 +771,6 @@
                 }
 
                 load() {
-                    console.log(ItemStatusesHandler._CACHE)
-                    console.log(this._key)
                     const that = this;
                     if (this._testCases?.length > 0 && ItemStatusesHandler._CACHE[that._key]) {
                         this._testCases.each(function () {
@@ -906,34 +899,6 @@
                     ws.ui.confirm({
                         title: 'Tests',
                         message: 'Tests can be run for the currently opened module only because other modules contain errors.',
-                        onOK: proceed
-                    });
-                } else {
-                    proceed();
-                }
-            });
-        }
-
-        function onTrace() {
-            itemStatuses.switchTo("b-trace");
-            compiled(function (compiled) {
-                let proceed = () => {
-                    if (isAnyTestSelected()) {
-                        $j("#testModuleHiddenInput").val(!compiled).prop('disabled', false);
-                        onTraceFunction();
-                    }
-                };
-
-                if (!compiled) {
-                    ws.ui.confirm({
-                        title: 'Trace',
-                        message: 'Trace can be run within current module only because the project is not compiled yet.',
-                        onOK: proceed
-                    });
-                } else if ($j("#tableHasProblems") === 'true') {
-                    ws.ui.confirm({
-                        title: 'Trace',
-                        message: 'Trace can be run for the currently opened module only because other modules contain errors.',
                         onOK: proceed
                     });
                 } else {
