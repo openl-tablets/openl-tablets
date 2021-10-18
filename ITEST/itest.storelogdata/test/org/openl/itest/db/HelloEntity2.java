@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.storelogdata.db;
+package org.openl.itest.db;
 
 import java.time.ZonedDateTime;
 
@@ -17,12 +17,15 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Request;
 import org.openl.rules.ruleservice.storelogdata.annotation.Response;
 import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
 import org.openl.rules.ruleservice.storelogdata.annotation.Url;
+import org.openl.rules.ruleservice.storelogdata.annotation.Value;
 
-@Entity(name = "openl_log_data")
-public class DefaultEntity {
+import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
+
+@Entity(name = "openl_logging_hello_entity2")
+public class HelloEntity2 {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "openl_log_data_generator")
-    @SequenceGenerator(name = "openl_log_data_generator", sequenceName = "openl_log_data_generator", allocationSize = 50)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "openl_logging_hello_entity2_generator")
+    @SequenceGenerator(name = "openl_logging_hello_entity2_generator", sequenceName = "openl_logging_hello_entity2_generator", allocationSize = 50)
     private Long id;
 
     @IncomingTime
@@ -39,6 +42,7 @@ public class DefaultEntity {
     @Lob
     private String response;
 
+    @ClusteringColumn(1)
     @ServiceName
     private String serviceName;
 
@@ -48,8 +52,19 @@ public class DefaultEntity {
     @MethodName
     private String methodName;
 
+    @ClusteringColumn(0)
     @Publisher
     private String publisherType;
+
+    @Value("hour")
+    private Integer hour;
+
+    private String value;
+
+    private String result;
+
+    public HelloEntity2() {
+    }
 
     public Long getId() {
         return id;
@@ -123,8 +138,35 @@ public class DefaultEntity {
         this.publisherType = publisherType;
     }
 
+    public void setHour(Integer hour) {
+        this.hour = hour;
+    }
+
+    public Integer getHour() {
+        return hour;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    @Value("value1")
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    @Value("result")
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
+    }
+
     @Override
     public String toString() {
-        return "DefaultEntity [id=" + id + "]";
+        return "HelloEntity2 [id=" + id + "]";
     }
+
 }

@@ -13,6 +13,7 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfte
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
+import org.openl.rules.ruleservice.storelogdata.db.annotation.StoreLogDataToDB;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLogDataToElasticsearch;
 
 public interface Simple4ServiceAnnotationTemplate {
@@ -25,11 +26,16 @@ public interface Simple4ServiceAnnotationTemplate {
             CustomElasticEntity2.class,
             CustomElasticEntity3.class,
             CustomElasticEntity8.class }, sync = true)
+    @StoreLogDataToDB(value = { org.openl.itest.db.HelloEntity1.class,
+            org.openl.itest.db.HelloEntity2.class,
+            org.openl.itest.db.HelloEntity3.class,
+            org.openl.itest.db.HelloEntity8.class }, sync = true)
     @PrepareStoreLogData(PrepareStoreLogDataValues.class)
     String Hello(IRulesRuntimeContext runtimeContext, Integer hour);
 
     @StoreLogDataToCassandra(HelloEntity1.class)
     @StoreLogDataToElasticsearch(CustomElasticEntity1.class)
+    @StoreLogDataToDB(org.openl.itest.db.HelloEntity1.class)
     @ServiceCallBeforeInterceptor(Simple4ServiceMethodBeforeAdvice.class)
     @ServiceCallAfterInterceptor(Simple4ServiceMethodAfterAdvice.class)
     @PrepareStoreLogData(value = BeforeBeforeInterceptor.class, bindToServiceMethodAdvice = Simple4ServiceMethodBeforeAdvice.class, before = true)

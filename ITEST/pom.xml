@@ -127,8 +127,8 @@
                 </property>
             </activation>
             <properties>
-                <http.timeout.connect>300</http.timeout.connect>
-                <http.timeout.read>5000</http.timeout.read>
+                <http.timeout.connect>500</http.timeout.connect>
+                <http.timeout.read>10000</http.timeout.read>
             </properties>
         </profile>
     </profiles>
