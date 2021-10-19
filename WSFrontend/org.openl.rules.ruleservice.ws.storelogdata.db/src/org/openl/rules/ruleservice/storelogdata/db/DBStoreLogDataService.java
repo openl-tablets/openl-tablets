@@ -133,7 +133,7 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
         for (Object entity : entities) {
             if (entity != null) {
                 try {
-                    hibernateSessionOperations.save(entityClasses.toArray(new Class<?>[0]), entity, sync);
+                    hibernateSessionOperations.save(entityClasses.toArray(new Class<?>[0]), entity);
                 } catch (Exception e) {
                     // Continue the loop if exception occurs
                     throw new StoreLogDataException("Failed on database save operation.", e);

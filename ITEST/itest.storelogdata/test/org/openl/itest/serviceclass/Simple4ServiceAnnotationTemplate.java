@@ -46,4 +46,8 @@ public interface Simple4ServiceAnnotationTemplate {
     @PrepareStoreLogData(value = AfterAfterInterceptors.class, bindToServiceMethodAdvice = Simple4ServiceMethodAfterAdvice.class)
     String Hello2(IRulesRuntimeContext runtimeContext, Integer hour);
 
+    @StoreLogDataToDB(value = org.openl.itest.db.HelloEntity9.class, sync = true)
+    @PrepareStoreLogData(PrepareStoreLogDataValues9.class)
+    String Hello3(IRulesRuntimeContext runtimeContext, Integer hour);
+
 }
