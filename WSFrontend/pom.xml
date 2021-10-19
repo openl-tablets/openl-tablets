@@ -17,6 +17,8 @@
         <module>org.openl.rules.ruleservice.kafka</module>
         <module>org.openl.rules.ruleservice.ws.databinding</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata</module>
+        <module>org.openl.rules.ruleservice.ws.storelogdata.db.annotation</module>
+        <module>org.openl.rules.ruleservice.ws.storelogdata.db</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata.cassandra</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch.annotation</module>

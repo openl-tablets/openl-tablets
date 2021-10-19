@@ -55,7 +55,7 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
             synchronized (this) {
                 if (supportedInjects == null) {
                     Collection<Inject<?>> injects = new ArrayList<>();
-                    injects.add(new Inject<>(CassandraSession.class, cassandraOperations::getCqlSession));
+                    injects.add(new Inject<>(CassandraSession.class, (m, a) -> cassandraOperations.getCqlSession()));
                     supportedInjects = Collections.unmodifiableCollection(injects);
                 }
             }

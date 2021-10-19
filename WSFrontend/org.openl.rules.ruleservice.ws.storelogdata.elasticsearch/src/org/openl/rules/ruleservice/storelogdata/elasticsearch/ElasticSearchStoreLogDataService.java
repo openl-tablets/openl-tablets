@@ -18,6 +18,7 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataException;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
+import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.InjectElasticsearchOperations;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLogDataToElasticsearch;
 import org.openl.spring.config.ConditionalOnEnable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,8 @@ public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataServic
             synchronized (this) {
                 if (supportedInjects == null) {
                     Collection<Inject<?>> injects = new ArrayList<>();
-                    injects.add(new Inject<>(InjectElasticsearchOperations.class, this::getElasticsearchOperations));
+                    injects.add(
+                        new Inject<>(InjectElasticsearchOperations.class, (m, a) -> this.getElasticsearchOperations()));
                     supportedInjects = Collections.unmodifiableCollection(injects);
                 }
             }

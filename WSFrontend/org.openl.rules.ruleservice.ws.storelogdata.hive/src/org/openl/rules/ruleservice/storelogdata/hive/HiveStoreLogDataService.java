@@ -53,7 +53,7 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
                 if (supportedInjects == null) {
                     Collection<Inject<?>> injects = new ArrayList<>();
                     injects.add(new Inject<>(HiveConnection.class,
-                        () -> hiveOperations.getConnection(),
+                        (m, a) -> hiveOperations.getConnection(),
                         IOUtils::closeQuietly));
                     supportedInjects = Collections.unmodifiableCollection(injects);
                 }
