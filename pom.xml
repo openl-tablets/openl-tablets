@@ -1404,6 +1404,16 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-entitymanager</artifactId>
+                <version>${org.hibernate.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-hikaricp</artifactId>
+                <version>${org.hibernate.version}</version>
+            </dependency>
             <!-- Hibernate's Bean Validation (JSR-303) reference implementation. -->
             <dependency>
                 <groupId>org.hibernate</groupId>
@@ -1862,6 +1872,16 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.db</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.db.annotation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -11,7 +11,7 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 import org.openl.rules.ruleservice.storelogdata.advice.ObjectSerializerAware;
 import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
-import org.openl.rules.ruleservice.storelogdata.elasticsearch.InjectElasticsearchOperations;
+import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.InjectElasticsearchOperations;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;

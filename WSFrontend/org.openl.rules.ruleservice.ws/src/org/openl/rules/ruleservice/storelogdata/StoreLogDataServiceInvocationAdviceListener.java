@@ -16,6 +16,7 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceList
 import org.openl.rules.ruleservice.core.interceptors.ServiceMethodAdvice;
 import org.openl.rules.ruleservice.storelogdata.advice.ObjectSerializerAware;
 import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
+import org.openl.rules.ruleservice.storelogdata.annotation.InjectObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogDatas;
 import org.slf4j.Logger;
@@ -99,7 +100,8 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     try {
                         storeLogDataAdvice = storeLogging.value().newInstance();
                         postProcessAdvice.accept(storeLogDataAdvice);
-                        storeLogData = processAwareInterfaces(storeLogData,
+                        storeLogData = processAwareInterfaces(interfaceMethod,
+                            storeLogData,
                             storeLogDataAdvice,
                             cache,
                             destroyFunctions);
@@ -124,10 +126,43 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
         }
     }
 
-    private StoreLogData processAwareInterfaces(StoreLogData storeLogData,
+    private StoreLogData processAwareInterfaces(Method interfaceMethod,
+            StoreLogData storeLogData,
             StoreLogDataAdvice storeLogDataAdvice,
             IdentityHashMap<Inject<?>, Object> cache,
             Collection<Consumer<Void>> destroyFunctions) {
+        storeLogData = injectObjectSerializer(storeLogData, storeLogDataAdvice);
+        for (Map.Entry<StoreLogDataService, Collection<Inject<?>>> entry : supportedInjects.entrySet()) {
+            for (Inject<?> inject : entry.getValue()) {
+                if (inject != null && inject.getAnnotationClass() != null) {
+                    try {
+                        Object resource = cache.get(inject);
+                        if (resource == null) {
+                            Object resource1 = AnnotationUtils.inject(storeLogDataAdvice,
+                                inject.getAnnotationClass(),
+                                e -> inject.getResource(interfaceMethod, e));
+                            cache.put(inject, resource1);
+                            if (resource1 != null) {
+                                destroyFunctions.add(e -> inject.destroy(resource1));
+                            }
+                        } else {
+                            AnnotationUtils.inject(storeLogDataAdvice, inject.getAnnotationClass(), e -> resource);
+                        }
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        log.error("Failed to inject a resource through annotation '{}'",
+                            inject.getAnnotationClass().getTypeName(),
+                            e);
+                    }
+                } else {
+                    log.error("Aware interface is null. Check store log data service implementation '{}'.",
+                        entry.getKey().getClass().getTypeName());
+                }
+            }
+        }
+        return storeLogData;
+    }
+
+    private StoreLogData injectObjectSerializer(StoreLogData storeLogData, StoreLogDataAdvice storeLogDataAdvice) {
         if (storeLogDataAdvice instanceof ObjectSerializerAware) {
             ObjectSerializerAware objectSerializerAware = (ObjectSerializerAware) storeLogDataAdvice;
             if (storeLogData == null) {
@@ -137,32 +172,14 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             }
             objectSerializerAware.setObjectSerializer(storeLogData.getObjectSerializer());
         }
-        for (Map.Entry<StoreLogDataService, Collection<Inject<?>>> entry : supportedInjects.entrySet()) {
-            for (Inject<?> inject : entry.getValue()) {
-                if (inject != null && inject.getAnnotationClass() != null) {
-                    try {
-                        Object resource = cache.get(inject);
-                        if (resource == null) {
-                            Object resource1 = AnnotationUtils
-                                .inject(storeLogDataAdvice, inject.getAnnotationClass(), inject::getResource);
-                            cache.put(inject, resource1);
-                            if (resource1 != null) {
-                                destroyFunctions.add((e) -> inject.destroy(resource1));
-                            }
-                        } else {
-                            AnnotationUtils.inject(storeLogDataAdvice, inject.getAnnotationClass(), () -> resource);
-                        }
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        log.error("Failed to inject resource of class '{}' through annotation '{}'",
-                            inject.getResource().getClass().getTypeName(),
-                            inject.getAnnotationClass().getTypeName(),
-                            e);
-                    }
-                } else {
-                    log.error("Aware interface is null. Check store log data service implementation '{}'.",
-                        entry.getKey().getClass().getTypeName());
-                }
-            }
+        try {
+            AnnotationUtils.inject(storeLogDataAdvice,
+                InjectObjectSerializer.class,
+                e -> StoreLogDataHolder.get().getObjectSerializer());
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Failed to inject a resource through annotation '{}'",
+                InjectObjectSerializer.class.getTypeName(),
+                e);
         }
         return storeLogData;
     }

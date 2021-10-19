@@ -176,8 +176,6 @@
             <artifactId>log4j-web</artifactId>
             <version>${log4j.version}</version>
         </dependency>
-
-
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice</artifactId>
@@ -190,7 +188,6 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive.annotation</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
