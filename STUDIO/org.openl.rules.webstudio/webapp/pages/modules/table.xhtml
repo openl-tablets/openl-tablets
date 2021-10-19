@@ -425,15 +425,11 @@
                                 <td>
                                     <a4j:commandLink id="traceLink" title="Trace" styleClass="toolbarButton on-errors-hide menuButton changes-listener"
                                                      rendered="#{tableBean.canTrace}"
-                                                     onclick="onTestMenuOpen(event, 'b-trace');return false;"
-                                                     style="padding-right: 1px">
+                                                     onclick="onTestMenuOpen(event, 'b-trace');return false;">
                                         <table>
                                             <tr>
                                                 <td>
                                                     <img src="#{contextPath}/webresource/images/trace.gif" />
-                                                </td>
-                                                <td rowspan="2" class="arrow" style="pointer-events: none;">
-                                                    <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
                                             </tr>
                                             <tr>
