@@ -67,7 +67,7 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
             EntityManager entityManager = getEntityManagerFactory(entityClasses).createEntityManager();
             EntityTransaction tx = entityManager.getTransaction();
             tx.begin();
-            entityManager.persist(entity);
+            entityManager.merge(entity);
             tx.commit();
             entityManager.close();
         } catch (PersistenceException e) {
