@@ -420,6 +420,7 @@ public final class DecisionTableHelper {
             fuzzyContext,
             dtHeaders,
             lookupReturnDtHeader,
+            firstColumnHeight,
             bindingContext);
     }
 
@@ -664,6 +665,7 @@ public final class DecisionTableHelper {
             DeclaredDTHeader declaredReturn,
             String header,
             boolean lookupReturnHeader,
+            int firstColumnHeight,
             IBindingContext bindingContext) {
         grid.setCellValue(declaredReturn.getColumn(), 0, header);
         grid.setCellValue(declaredReturn.getColumn(), 1, declaredReturn.getStatement());
@@ -693,7 +695,7 @@ public final class DecisionTableHelper {
                             paramType = declaredReturn.getCompositeMethod().getType();
                         }
                         typeOfColumns.add(paramType);
-                        int h = originalTable.getSource().getCell(c, 0).getHeight();
+                        int h = lookupReturnHeader ? firstColumnHeight : originalTable.getSource().getCell(c, 0).getHeight();
                         int w1 = originalTable.getSource().getCell(c, h).getWidth();
                         if (paramType != null && paramType.isArray()) {
                             // If we have more columns than parameters use excess columns for array typed parameter
@@ -1111,6 +1113,7 @@ public final class DecisionTableHelper {
             FuzzyContext fuzzyContext,
             List<DTHeader> dtHeaders,
             DeclaredDTHeader lookupReturnDtHeader,
+            int firstColumnHeight,
             IBindingContext bindingContext) throws OpenLCompilationException {
         final boolean isCollect = isCollect(tableSyntaxNode);
 
@@ -1123,6 +1126,7 @@ public final class DecisionTableHelper {
                     lookupReturnDtHeader,
                     isCollect ? CRET1_COLUMN_NAME : RET1_COLUMN_NAME,
                     true,
+                    firstColumnHeight,
                     bindingContext);
             } else {
                 int retColumn = getRetColumn(dtHeaders);
@@ -1154,6 +1158,7 @@ public final class DecisionTableHelper {
                         isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cRetNum++
                                   : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++,
                         false,
+                        firstColumnHeight,
                         bindingContext);
                 } else if (dtHeader instanceof SimpleReturnDTHeader || dtHeader instanceof FuzzyDTHeader && ((FuzzyDTHeader) dtHeader)
                     .getFieldsChain() == null) {
