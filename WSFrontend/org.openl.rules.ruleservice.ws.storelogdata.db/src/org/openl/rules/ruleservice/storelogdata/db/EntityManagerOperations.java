@@ -59,20 +59,16 @@ public class EntityManagerOperations implements RuleServicePublisherListener {
     private final AtomicReference<Map<Key, EntityManagerFactory>> entityManagers = new AtomicReference<>(
         Collections.unmodifiableMap(new HashMap<>()));
 
-    public void save(Class<?>[] entityClasses, Object entity, boolean sync) {
+    public void save(Class<?>[] entityClasses, Object entity) throws PersistenceException {
         if (entity == null) {
             return;
         }
-        try {
-            EntityManager entityManager = getEntityManagerFactory(entityClasses).createEntityManager();
-            EntityTransaction tx = entityManager.getTransaction();
-            tx.begin();
-            entityManager.merge(entity);
-            tx.commit();
-            entityManager.close();
-        } catch (PersistenceException e) {
-            log.error("Failed to save entity '{}'.", entity.getClass().getTypeName(), e);
-        }
+        EntityManager entityManager = getEntityManagerFactory(entityClasses).createEntityManager();
+        EntityTransaction tx = entityManager.getTransaction();
+        tx.begin();
+        entityManager.merge(entity);
+        tx.commit();
+        entityManager.close();
     }
 
     public EntityManagerFactory getEntityManagerFactory(Class<?>[] entityClasses) {

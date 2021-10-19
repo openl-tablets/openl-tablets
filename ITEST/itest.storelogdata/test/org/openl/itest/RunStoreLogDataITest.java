@@ -515,6 +515,9 @@ public class RunStoreLogDataITest {
     @Test
     public void testSyncStoreFails() {
         client.send("simple7_Hello.json");
+        truncateH2TableIfExists(getDBTableName(org.openl.itest.db.HelloEntity9.class));
+        client.send("simple4_Hello3.post");
+        client.send("simple4_Hello3_fail.post");
     }
 
     @Test
