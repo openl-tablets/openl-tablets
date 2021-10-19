@@ -57,7 +57,7 @@ public class FieldChain extends AOpenField {
         return name;
     }
 
-    private static String makeNames(IOpenField[] fields) {
+    public static String makeNames(IOpenField[] fields) {
         return Arrays.stream(fields).filter(Objects::nonNull).map(IOpenField::getName).collect(Collectors.joining("."));
     }
 
