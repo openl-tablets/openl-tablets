@@ -56,9 +56,19 @@ public class DBStoreLogDataService extends AbstractStoreLogDataService {
     }
 
     private EntityManager getEntityManager(Method m, Annotation annotation) {
-        StoreLogDataToDB storeLogDataToDB = m.getAnnotation(StoreLogDataToDB.class);
-        EntityManagerFactory entityManagerFactory = hibernateSessionOperations
-            .getEntityManagerFactory(storeLogDataToDB.value());
+        InjectEntityManager injectEntityManager = (InjectEntityManager) annotation;
+        Class<?>[] entityClasses;
+        if (injectEntityManager.value().length == 0) {
+            StoreLogDataToDB storeLogDataToDB = m.getAnnotation(StoreLogDataToDB.class);
+            if (storeLogDataToDB != null) {
+                entityClasses = storeLogDataToDB.value();
+            } else {
+                entityClasses = injectEntityManager.value();
+            }
+        } else {
+            entityClasses = injectEntityManager.value();
+        }
+        EntityManagerFactory entityManagerFactory = hibernateSessionOperations.getEntityManagerFactory(entityClasses);
         return entityManagerFactory.createEntityManager();
     }
 
