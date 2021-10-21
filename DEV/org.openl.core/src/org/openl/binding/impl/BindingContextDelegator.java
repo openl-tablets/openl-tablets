@@ -9,9 +9,9 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -19,7 +19,6 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -97,20 +96,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return findOpenClass(openClass);
     }
 
-    private IOpenClass findOpenClass(IOpenClass openClass) {
-        if (openClass == null) {
-            return null;
-        }
-        IOpenClass componentOpenClass = openClass;
-        int dim = 0;
-        while (componentOpenClass.isArray()) {
-            componentOpenClass = componentOpenClass.getComponentClass();
-            dim++;
-        }
-        IOpenClass thisContextOpenClass = this.findType(ISyntaxConstants.THIS_NAMESPACE, componentOpenClass.getName());
-        if (thisContextOpenClass != null) {
-            return dim > 0 ? thisContextOpenClass.getArrayType(dim) : thisContextOpenClass;
-        }
+    protected IOpenClass findOpenClass(IOpenClass openClass) {
         return openClass;
     }
 
