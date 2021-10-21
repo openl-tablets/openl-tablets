@@ -14,11 +14,11 @@
     <url>https://openl-tablets.org</url>
 
     <properties>
-        <surefire.argLine>-Xms8m -Xmx80m -Xss256k</surefire.argLine>
+        <surefire.argLine>-Xms8m -Xmx96m -Xss256k</surefire.argLine>
     </properties>
 
     <dependencies>
-        <!-- Itegration Tests-->
+        <!-- Integration Tests-->
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws</artifactId>
