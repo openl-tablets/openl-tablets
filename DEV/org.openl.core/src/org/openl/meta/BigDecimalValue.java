@@ -19,6 +19,7 @@ import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
 import org.openl.rules.util.Avg;
 import org.openl.rules.util.Product;
+import org.openl.rules.util.Round;
 import org.openl.rules.util.Statistics;
 import org.openl.rules.util.Sum;
 import org.openl.util.ArrayTool;
@@ -709,39 +710,39 @@ public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> imp
     }
 
     public static BigInteger round(BigDecimalValue value) {
-        BigDecimalValue round = round(value, 0);
-        if (round == null) {
+        if (value == null) {
             return null;
         }
-        BigDecimal bigDecimalValue = round.getValue();
-        return bigDecimalValue != null ? bigDecimalValue.toBigInteger() : null;
+        return Round.round(value.value);
     }
 
-    public static BigDecimalValue round(BigDecimalValue value, int scale) {
-        return round(value, scale, BigDecimal.ROUND_HALF_UP);
+    public static BigDecimal round(BigDecimalValue value, int scale) {
+        if (value == null) {
+            return null;
+        }
+        return Round.round(value.value, scale);
     }
 
     public static BigInteger round(BigDecimalValue value, RoundingMode roundingMode) {
-        BigDecimalValue round = round(value, 0, roundingMode);
-        if (round == null) {
+        if (value == null) {
             return null;
         }
-        BigDecimal bigDecimalValue = round.getValue();
-        return bigDecimalValue != null ? bigDecimalValue.toBigInteger() : null;
+        return Round.round(value.value, roundingMode);
     }
 
-    public static BigDecimalValue round(BigDecimalValue value, int scale, int roundingMethod) {
-        return round(value, scale, RoundingMode.valueOf(roundingMethod));
+    public static BigDecimal round(BigDecimalValue value, int scale, int roundingMode) {
+        if (value == null) {
+            return null;
+        }
+        return Round.round(value.value, scale, roundingMode);
     }
 
-    public static BigDecimalValue round(BigDecimalValue value, int scale, RoundingMode roundingMode) {
+    public static BigDecimal round(BigDecimalValue value, int scale, RoundingMode roundingMode) {
         if (value == null) {
             return null;
         }
 
-        return new BigDecimalValue(new BigDecimalValue(value.getValue().setScale(scale, roundingMode)),
-            NumberOperations.ROUND,
-            value);
+        return Round.round(value.value, scale, roundingMode);
     }
 
     public BigDecimalValue(String valueString) {

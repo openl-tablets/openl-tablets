@@ -148,8 +148,7 @@ public final class Round {
      * {@link RoundingMode#HALF_UP} method.
      */
     public static BigInteger round(BigDecimal value) {
-        BigDecimal round = Round.round(value, 0);
-        return round != null ? round.toBigInteger() : null;
+        return Round.round(value, HALF_UP);
     }
 
     /**
@@ -296,8 +295,7 @@ public final class Round {
         if (x == null) {
             return null;
         }
-        BigDecimal bigDecimal = x.setScale(0, rounding);
-        return bigDecimal != null ? bigDecimal.toBigInteger() : null;
+        return x.setScale(0, rounding).toBigInteger();
     }
 
     /** For backward compatibility */

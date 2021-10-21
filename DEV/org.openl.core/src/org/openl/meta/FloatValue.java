@@ -690,26 +690,28 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         return Round.round(value.value, roundingMode);
     }
 
-    public static FloatValue round(FloatValue value, int scale) {
+    public static Float round(FloatValue value, int scale) {
         if (value == null) {
             return null;
         }
 
-        float rounded = Round.round(value.value, scale);
-        return new FloatValue(rounded, NumberOperations.ROUND, value, new FloatValue(scale));
+        return Round.round(value.value, scale);
     }
 
-    public static FloatValue round(FloatValue value, int scale, int roundingMethod) {
-        return round(value, scale,  RoundingMode.valueOf(roundingMethod));
-    }
-
-    public static FloatValue round(FloatValue value, int scale, RoundingMode roundingMode) {
+    public static Float round(FloatValue value, int scale, int roundingMode) {
         if (value == null) {
             return null;
         }
 
-        float rounded = Round.round(value.value, scale, roundingMode);
-        return new FloatValue(rounded, NumberOperations.ROUND, value, new FloatValue(scale));
+        return Round.round(value.value, scale, roundingMode);
+    }
+
+    public static Float round(FloatValue value, int scale, RoundingMode roundingMode) {
+        if (value == null) {
+            return null;
+        }
+
+        return Round.round(value.value, scale, roundingMode);
     }
 
     public FloatValue(String valueString) {
