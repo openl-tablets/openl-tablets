@@ -253,7 +253,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 // thru DomainOpenClass (skip java code generation for alias
                 // types, csr types).
                 //
-                if (openClass instanceof DatatypeOpenClass) {
+                if (openClass instanceof DatatypeOpenClass && ((DatatypeOpenClass) openClass).getBytecode() != null) {
                     Class<?> datatypeClass = openClass.getInstanceClass();
                     String dataType = datatypeClass.getName();
                     info("Java Bean for Datatype: " + dataType);
