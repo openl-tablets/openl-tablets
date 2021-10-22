@@ -6,14 +6,12 @@ import java.util.Optional;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.exception.AmbiguousFieldException;
-import org.openl.binding.impl.module.ArrayOpenField;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -39,7 +37,19 @@ public class IdentifierBinder extends ANodeBinder {
         try {
             field = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
         } catch (AmbiguousFieldException ex) {
-            field = selectFieldFromAmbiguous(ex, node, bindingContext);
+            Collection<IOpenField> matchingFields = ex.getMatchingFields();
+            long arraysCount = matchingFields.stream().filter(e -> e.getType().isArray()).count();
+            if (matchingFields.size() - arraysCount == 1) {
+                Optional<IOpenField> f = matchingFields.stream().filter(e -> !e.getType().isArray()).findFirst();
+                if (f.isPresent()) {
+                    bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(ex.getMessage(), node));
+                    field = f.get();
+                } else {
+                    throw ex;
+                }
+            } else {
+                throw ex;
+            }
         }
         if (field != null) {
             return new FieldBoundNode(node, field);
@@ -103,21 +113,6 @@ public class IdentifierBinder extends ANodeBinder {
 
         BindHelper.checkOnDeprecation(node, bindingContext, field);
         return new FieldBoundNode(node, field, target, dims);
-    }
-
-    private IOpenField selectFieldFromAmbiguous(AmbiguousFieldException ex, ISyntaxNode node, IBindingContext bindingContext){
-        Collection<IOpenField> matchingFields = ex.getMatchingFields();
-        if (matchingFields.stream().allMatch(e -> e instanceof OpenFieldDelegator)) {
-            long arraysCount = matchingFields.stream().filter(e -> ((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField).count();
-            if (matchingFields.size() - arraysCount == 1) {
-                Optional<IOpenField> f = matchingFields.stream().filter(e -> !(((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField)).findFirst();
-                if (f.isPresent()) {
-                    bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(ex.getMessage(), node));
-                    return f.get();
-                }
-            }
-        }
-        throw ex;
     }
 
     private static boolean isAllowStrictFieldMatch(IOpenClass type) {
