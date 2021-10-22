@@ -6,8 +6,6 @@
 
 package org.openl.binding.exception;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,25 +21,21 @@ import org.openl.types.IOpenField;
  */
 public class AmbiguousFieldException extends OpenlNotCheckedException {
 
-    private final Collection<IOpenField> matchingFields;
+    private final List<IOpenField> matchingFields;
 
     private final String fieldName;
 
     public AmbiguousFieldException(String fieldName, List<IOpenField> matchingFields) {
         this.fieldName = fieldName;
-        this.matchingFields = Collections.unmodifiableList(matchingFields);
-    }
-
-    public Collection<IOpenField> getMatchingFields() {
-        return matchingFields;
+        this.matchingFields = matchingFields;
     }
 
     @Override
     public String getMessage() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Field '").append(fieldName);
-        sb.append("' is ambiguous:\n").append("Matching fields:\n");
+        sb.append("Field ").append(fieldName);
+        sb.append(" is ambiguous:\n").append("Matching fields:\n");
         boolean first = true;
         Set<IOpenClass> openClasses = new HashSet<>();
         for (IOpenField f : matchingFields) {

@@ -1,13 +1,8 @@
 package org.openl.binding.impl;
 
-import java.util.Collection;
-import java.util.Optional;
-
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
@@ -33,24 +28,8 @@ public class IdentifierBinder extends ANodeBinder {
         // See http://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#jls-6.4.2 for details
         // Implementation below tries to follow that specification.
 
-        IOpenField field = null;
-        try {
-            field = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
-        } catch (AmbiguousFieldException ex) {
-            Collection<IOpenField> matchingFields = ex.getMatchingFields();
-            long arraysCount = matchingFields.stream().filter(e -> e.getType().isArray()).count();
-            if (matchingFields.size() - arraysCount == 1) {
-                Optional<IOpenField> f = matchingFields.stream().filter(e -> !e.getType().isArray()).findFirst();
-                if (f.isPresent()) {
-                    bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(ex.getMessage(), node));
-                    field = f.get();
-                } else {
-                    throw ex;
-                }
-            } else {
-                throw ex;
-            }
-        }
+        IOpenField field = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
+
         if (field != null) {
             return new FieldBoundNode(node, field);
         }

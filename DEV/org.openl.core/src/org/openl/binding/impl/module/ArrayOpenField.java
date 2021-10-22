@@ -1,22 +1,20 @@
 package org.openl.binding.impl.module;
 
-import java.lang.reflect.Array;
-
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
+import java.lang.reflect.Array;
+
 public class ArrayOpenField implements IOpenField {
 
     private final IOpenField field;
     private final IOpenClass type;
-    private final int dimension;
 
-    public ArrayOpenField(IOpenField field, int dimension) {
+    public ArrayOpenField(IOpenField field, int dimension){
         this.field = field;
         this.type = field.getType().getArrayType(dimension);
-        this.dimension = dimension;
     }
 
     @Override
@@ -87,6 +85,6 @@ public class ArrayOpenField implements IOpenField {
 
     @Override
     public IOpenClass getDeclaringClass() {
-        return field.getDeclaringClass().getArrayType(dimension);
+        return field.getDeclaringClass();
     }
 }

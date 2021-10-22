@@ -2,6 +2,6 @@ ERROR: Field '$paraM1' is not found in type 'SpreadsheetResultsecondSpr'.
 ERROR: Field '$paraM1' is not found in type 'SpreadsheetResultsecondSpr'.
 ERROR: Field '$PaRam2' is not found in type 'SpreadsheetResultsecondSpr'.
 ERROR: Identifier '$CallMethod' is not found.
-ERROR: Field 'ambar' is ambiguous:
-ERROR: Field 'aMBaR' is ambiguous:
+ERROR: Field ambar is ambiguous:
+ERROR: Field aMBaR is ambiguous:
 ERROR: Field '$PaRam2' is not found in type 'SpreadsheetResultsecondSpr'.
