@@ -126,21 +126,11 @@ public class RootDictionaryContext implements VariableInContextFinder {
             return;
         }
         add(new ContextField(parent, field));
+
         if (level + 1 <= maxDepthLevel) {
             IOpenClass fieldType = field.getType();
             if (fieldType.isSimple()) {
                 return;
-            }
-            if (fieldType.isArray()) {
-                int dimension = 0;
-                IOpenClass type = field.getType();
-                while (type.isArray()) {
-                    type = type.getComponentClass();
-                    dimension++;
-                }
-                for (IOpenField f : type.getFields()) {
-                    initializeField(field, new ArrayOpenField(f, dimension), level + 1);
-                }
             }
             for (IOpenField openField : fieldType.getFields()) {
                 initializeField(field, openField, level + 1);

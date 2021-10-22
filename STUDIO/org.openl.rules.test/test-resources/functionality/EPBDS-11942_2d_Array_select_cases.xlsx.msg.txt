@@ -1,3 +1,0 @@
-WARN: Warning: Compared elements have different types ('java.lang.String[]', 'java.lang.String'). Comparing these types always returns true.
-WARN: Warning: Compared elements have different types ('java.lang.String[]', 'java.lang.String'). Comparing these types always returns true.
-WARN: Warning: Compared elements have different types ('java.lang.String[]', 'java.lang.String'). Comparing these types always returns true.
