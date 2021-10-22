@@ -258,6 +258,7 @@
                     <version>3.3.2</version>
                     <configuration>
                         <warSourceDirectory>webapp</warSourceDirectory>
+                        <webappDirectory>${project.build.directory}/webapp</webappDirectory>
                     </configuration>
                 </plugin>
                 <plugin>

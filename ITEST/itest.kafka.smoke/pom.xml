@@ -28,7 +28,7 @@
 	                <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
                         <systemPropertyVariables>
                             <webservice-webapp>
-                                ../../WSFrontend/org.openl.rules.ruleservice.ws.all/target/webservice-all
+                                ../../WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp
                             </webservice-webapp>
                         </systemPropertyVariables>
                     </configuration>

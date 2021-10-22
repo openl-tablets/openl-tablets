@@ -83,7 +83,7 @@
                                     <artifactId>org.openl.rules.ruleservice.ws</artifactId>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/webservice-all/WEB-INF/classes</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/webapp/WEB-INF/classes</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -95,7 +95,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/webservice-all/WEB-INF/lib</outputDirectory>
+                            <outputDirectory>${project.build.directory}/webapp/WEB-INF/lib</outputDirectory>
                             <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j-impl</includeArtifactIds>
                         </configuration>
                     </execution>

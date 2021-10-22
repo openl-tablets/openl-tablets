@@ -97,7 +97,7 @@
                         <reuseForks>false</reuseForks>
                         <systemPropertyVariables>
                             <webservice-webapp>
-                                ../../WSFrontend/org.openl.rules.ruleservice.ws/target/webservice
+                                ../../WSFrontend/org.openl.rules.ruleservice.ws/target/webapp
                             </webservice-webapp>
                             <openl.config.location>file:./openl-repository/</openl.config.location>
                             <openl.config.name>application.properties, application-{profile}.properties</openl.config.name>
