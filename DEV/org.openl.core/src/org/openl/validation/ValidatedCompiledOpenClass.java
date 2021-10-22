@@ -15,7 +15,7 @@ import org.openl.types.IOpenClass;
 public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
     private final CompiledOpenClass delegate;
     private final Collection<OpenLMessage> validationMessages = new LinkedHashSet<>();
-    boolean hasErrors;
+    private boolean hasErrors;
 
     public static ValidatedCompiledOpenClass instanceOf(CompiledOpenClass compiledOpenClass) {
         if (compiledOpenClass instanceof ValidatedCompiledOpenClass) {

@@ -14,6 +14,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.slf4j.LoggerFactory;
+
 /**
  * A set of methods to work with a file system.
  *
@@ -87,7 +89,7 @@ public class FileUtils {
      * @param src the source directory
      * @param dest the destination directory
      * @return the list of looped directories
-     * @throws IOException
+     * @throws IOException if an I/O error occurs
      */
     private static Collection<String> getLoopedDirectories(File src, File dest) throws IOException {
         if (!dest.getCanonicalPath().startsWith(src.getCanonicalPath())) {
@@ -146,7 +148,9 @@ public class FileUtils {
         }
 
         // Try to preserve file date
-        destDir.setLastModified(srcDir.lastModified());
+        if (!destDir.setLastModified(srcDir.lastModified())) {
+            LoggerFactory.getLogger(FileUtils.class).warn("Failed to set modified time to file '{}'.", destDir);
+        }
     }
 
     /**
@@ -186,7 +190,9 @@ public class FileUtils {
             throw new IOException(String.format("Failed to copy full contents from '%s' to '%s'", srcFile, destFile));
         }
         // Try to preserve file date
-        destFile.setLastModified(srcFile.lastModified());
+        if (!destFile.setLastModified(srcFile.lastModified())) {
+            LoggerFactory.getLogger(FileUtils.class).warn("Failed to set modified time to file '{}'.", destFile);
+        }
     }
 
     /**
@@ -448,7 +454,7 @@ public class FileUtils {
     private static int getSeparatorIndex(String filename) {
         int winSep = filename.lastIndexOf('\\');
         int unixSep = filename.lastIndexOf('/');
-        return winSep > unixSep ? winSep : unixSep;
+        return Math.max(winSep, unixSep);
     }
 
     private static int getExtensionIndex(String filename) {

@@ -120,7 +120,7 @@ public class TestDownloadService {
             -1,
             null,
             false,
-            false);
+            true);
     }
 
 }

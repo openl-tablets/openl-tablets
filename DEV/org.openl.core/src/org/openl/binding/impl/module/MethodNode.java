@@ -18,9 +18,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberBoundNode {
 
-    int localFrameSize, parametersSize;
-
-    final DeferredMethod deferredMethod;
+    private final DeferredMethod deferredMethod;
 
     public MethodNode(ISyntaxNode syntaxNode, DeferredMethod deferredMethod) {
         super(syntaxNode);
@@ -71,7 +69,7 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      */
     @Override
     public int getLocalFrameSize() {
-        return localFrameSize;
+        return 0;
     }
 
     public String getName() {
@@ -85,7 +83,7 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
      */
     @Override
     public int getParametersSize() {
-        return parametersSize;
+        return 0;
     }
 
     /*

@@ -11,7 +11,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ModuleNode extends ABoundNode {
 
-    final IOpenClass type;
+    private final IOpenClass type;
 
     public ModuleNode(ISyntaxNode syntaxNode, IOpenClass type) {
         super(syntaxNode);

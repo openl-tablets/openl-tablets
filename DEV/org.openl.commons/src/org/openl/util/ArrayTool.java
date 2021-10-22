@@ -11,12 +11,12 @@ public final class ArrayTool {
     private ArrayTool() {
     }
 
-    static class ArrayIterator<T> implements Iterator<T> {
-        int _index;
-        final int _size;
-        final T[] _array;
+    private static class ArrayIterator<T> implements Iterator<T> {
+        private int _index;
+        private final int _size;
+        private final T[] _array;
 
-        ArrayIterator(T[] array) {
+        private ArrayIterator(T[] array) {
             _size = Array.getLength(array);
             _array = array;
         }
@@ -79,16 +79,13 @@ public final class ArrayTool {
      * @return true if array is empty; false - otherwise
      */
     public static boolean isEmpty(Object[] array) {
-
         if (array != null) {
-
             for (Object element : array) {
                 if (element != null) {
                     return false;
                 }
             }
         }
-
         return true;
     }
 
@@ -96,7 +93,6 @@ public final class ArrayTool {
         if (ary1 == null || ary2 == null) {
             return false;
         }
-
         for (int arrayElement : ary2) {
             if (!contains(ary1, arrayElement)) {
                 return false;
@@ -109,7 +105,6 @@ public final class ArrayTool {
         if (ary1 == null || ary2 == null) {
             return false;
         }
-
         for (byte arrayElement : ary2) {
             if (!contains(ary1, arrayElement)) {
                 return false;
@@ -122,7 +117,6 @@ public final class ArrayTool {
         if (ary1 == null || ary2 == null) {
             return false;
         }
-
         for (short arrayElement : ary2) {
             if (!contains(ary1, arrayElement)) {
                 return false;
@@ -135,7 +129,6 @@ public final class ArrayTool {
         if (ary1 == null || ary2 == null) {
             return false;
         }
-
         for (long arrayElement : ary2) {
             if (!contains(ary1, arrayElement)) {
                 return false;
@@ -148,7 +141,6 @@ public final class ArrayTool {
         if (ary1 == null || ary2 == null) {
             return false;
         }
-
         for (char arrayElement : ary2) {
             if (!contains(ary1, arrayElement)) {
                 return false;
@@ -161,7 +153,6 @@ public final class ArrayTool {
         if (ary1 == null || ary2 == null) {
             return false;
         }
-
         for (float arrayElement : ary2) {
             if (!contains(ary1, arrayElement)) {
                 return false;
@@ -174,7 +165,6 @@ public final class ArrayTool {
         if (ary1 == null || ary2 == null) {
             return false;
         }
-
         for (String arrayElement : ary2) {
             if (!contains(ary1, arrayElement)) {
                 return false;
@@ -187,7 +177,6 @@ public final class ArrayTool {
         if (ary1 == null || ary2 == null) {
             return false;
         }
-
         for (double arrayElement : ary2) {
             if (!contains(ary1, arrayElement)) {
                 return false;
@@ -232,41 +221,17 @@ public final class ArrayTool {
      * @return array of objects
      */
     public static Object[] toArray(Object object) {
-
         if (object == null) {
             return null;
         }
+        final Class<?> clazz = object.getClass().isArray() ? object.getClass().getComponentType() : object.getClass();
+        final Class<?> componentType = clazz.isPrimitive() ? ClassUtils.primitiveToWrapper(clazz) : clazz;
 
-        int size;
-
-        if (!object.getClass().isArray()) {
-            size = 1;
-        } else {
-            size = Array.getLength(object);
-        }
-
-        Class<?> clazz;
-
-        if (object.getClass().isArray()) {
-            clazz = object.getClass().getComponentType();
-        } else {
-            clazz = object.getClass();
-        }
-
-        Class<?> componentType;
-
-        if (clazz.isPrimitive()) {
-            componentType = ClassUtils.primitiveToWrapper(clazz);
-        } else {
-            componentType = clazz;
-        }
-
-        Object[] newArray = (Object[]) Array.newInstance(componentType, size);
-
+        int size = !object.getClass().isArray() ? 1 : Array.getLength(object);
+        final Object[] newArray = (Object[]) Array.newInstance(componentType, size);
         for (int i = 0; i < size; i++) {
             newArray[i] = Array.get(object, i);
         }
-
         return newArray;
     }
 
@@ -274,15 +239,12 @@ public final class ArrayTool {
         if (CollectionUtils.isEmpty(values)) {
             return 0;
         }
-
         int count = values.length;
-
         for (Object value : values) {
             if (value == null) {
                 count--;
             }
         }
-
         return count;
     }
 
@@ -291,12 +253,10 @@ public final class ArrayTool {
         T[] result;
 
         int valuableSize = getNotNullValuesCount(array);
-
         if (array == null || valuableSize == array.length) {
             result = array;
         } else {
             result = (T[]) Array.newInstance(array.getClass().getComponentType(), valuableSize);
-
             int i = 0;
             for (T value : array) {
                 if (value != null) {

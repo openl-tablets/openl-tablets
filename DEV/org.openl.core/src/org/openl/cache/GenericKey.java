@@ -28,7 +28,7 @@ public class GenericKey {
     }
 
     private static class SingleKey extends GenericKey {
-        Object object;
+        private final Object object;
 
         SingleKey(Object object) {
             assert object != null;
@@ -43,9 +43,7 @@ public class GenericKey {
             if (o == null || getClass() != o.getClass()) {
                 return false;
             }
-
             SingleKey singleKey = (SingleKey) o;
-
             return object.equals(singleKey.object);
         }
 
@@ -56,8 +54,8 @@ public class GenericKey {
     }
 
     private static class TupleKey extends GenericKey {
-        Object object1;
-        Object object2;
+        private final Object object1;
+        private final Object object2;
 
         TupleKey(Object object1, Object object2) {
             assert object1 != null && object2 != null;

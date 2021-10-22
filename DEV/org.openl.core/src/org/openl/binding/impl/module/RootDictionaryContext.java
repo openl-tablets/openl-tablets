@@ -13,10 +13,10 @@ import org.openl.vm.IRuntimeEnv;
 
 public class RootDictionaryContext implements VariableInContextFinder {
 
-    static class ContextField extends OpenFieldDelegator {
-        final IOpenField parent;
+    private static final class ContextField extends OpenFieldDelegator {
+        private final IOpenField parent;
 
-        protected ContextField(IOpenField parent, IOpenField delegate) {
+        private ContextField(IOpenField parent, IOpenField delegate) {
             super(delegate);
             this.parent = parent;
         }
@@ -85,10 +85,8 @@ public class RootDictionaryContext implements VariableInContextFinder {
     }
 
     private void add(ContextField contextField) {
-
         String name = contextField.getName().toLowerCase();
         List<IOpenField> ff = fields.get(name);
-
         if (ff == null) {
             ff = new ArrayList<>();
             ff.add(contextField);
@@ -100,7 +98,6 @@ public class RootDictionaryContext implements VariableInContextFinder {
             return;
         }
         ff.add(contextField);
-
     }
 
     @Override
@@ -117,7 +114,6 @@ public class RootDictionaryContext implements VariableInContextFinder {
         if (ff.size() > 1) {
             throw new AmbiguousFieldException(name, ff);
         }
-
         return ff.get(0);
     }
 

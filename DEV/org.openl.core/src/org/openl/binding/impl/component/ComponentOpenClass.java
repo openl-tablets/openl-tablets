@@ -6,7 +6,11 @@ import java.util.List;
 import org.openl.OpenL;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.types.*;
+import org.openl.types.IAggregateInfo;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
@@ -32,7 +36,7 @@ public class ComponentOpenClass extends ADynamicClass {
         this.openl = openl;
         this.init = new DefaultInitializer();
 
-        /**
+        /*
          * TODO: fixme. Calling method in constructor that is overloaded in childs. At this time childs are not built
          * yet.
          */
@@ -68,7 +72,7 @@ public class ComponentOpenClass extends ADynamicClass {
     }
 
     private class DefaultInitializer implements IOpenMethod {
-        final List<IBoundNode> boundNodes = new ArrayList<>();
+        private final List<IBoundNode> boundNodes = new ArrayList<>();
 
         public void addNode(IBoundNode node) {
             boundNodes.add(node);
@@ -116,7 +120,6 @@ public class ComponentOpenClass extends ADynamicClass {
                 for (IBoundNode node : boundNodes) {
                     node.evaluate(env);
                 }
-
                 return null;
             } finally {
                 env.popThis();
@@ -136,7 +139,7 @@ public class ComponentOpenClass extends ADynamicClass {
 
     public class GetOpenClass implements IOpenMethod {
 
-        private IOpenClass openClass;
+        private final IOpenClass openClass;
 
         public GetOpenClass(IOpenClass openClass) {
             this.openClass = openClass;

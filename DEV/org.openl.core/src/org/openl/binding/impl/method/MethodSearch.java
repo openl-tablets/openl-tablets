@@ -37,7 +37,7 @@ public final class MethodSearch {
     private MethodSearch() {
     }
 
-    static final int[] NO_MATCH = new int[0];
+    private static final int[] NO_MATCH = new int[0];
 
     private static int[] calcMatch(JavaOpenMethod method,
             IOpenClass[] methodParam,

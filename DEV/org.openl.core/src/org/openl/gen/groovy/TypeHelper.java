@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 public class TypeHelper {
 
-    static final Pattern ARRAY_MATCHER = Pattern.compile("[\\[\\]]");
+    private static final Pattern ARRAY_MATCHER = Pattern.compile("[\\[\\]]");
 
     public static final Set<String> DEFAULT_IMPORTS = Collections
         .unmodifiableSet(new HashSet<>(Arrays.asList("java.lang.Object",

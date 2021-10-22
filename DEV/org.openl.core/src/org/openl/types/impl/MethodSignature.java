@@ -17,7 +17,7 @@ import org.openl.util.StringUtils;
  */
 public class MethodSignature implements IMethodSignature {
 
-    final IParameterDeclaration[] parameters;
+    private final IParameterDeclaration[] parameters;
 
     public MethodSignature(IParameterDeclaration... parameters) {
         this.parameters = parameters;

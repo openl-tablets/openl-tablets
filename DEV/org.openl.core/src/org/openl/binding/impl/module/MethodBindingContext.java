@@ -24,20 +24,15 @@ import org.openl.util.RuntimeExceptionWrapper;
 public class MethodBindingContext extends BindingContextDelegator {
 
     public static final boolean DEFAULT_SEARCH_IN_CONTEXT = true;
-
     public static final int DEFAULT_CONTEXT_LEVEL = 1;
 
-    final LocalFrameBuilder localFrame = new LocalFrameBuilder();
-
-    IOpenClass returnType;
-    final IOpenMethodHeader header;
-
-    final boolean searchInParameterContext;
-    final int parameterContextDepthLevel;
-
-    ILocalVar[] paramVars;
-
-    VariableInContextFinder rootContext;
+    private final LocalFrameBuilder localFrame = new LocalFrameBuilder();
+    private IOpenClass returnType;
+    private final IOpenMethodHeader header;
+    private final boolean searchInParameterContext;
+    private final int parameterContextDepthLevel;
+    private final ILocalVar[] paramVars;
+    private VariableInContextFinder rootContext;
 
     public MethodBindingContext(IOpenMethodHeader header, IBindingContext delegate) {
         super(delegate);
@@ -83,22 +78,18 @@ public class MethodBindingContext extends BindingContextDelegator {
     @Override
     public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField var = localFrame.findLocalVar(namespace, name);
-
         if (var != null) {
             return var;
         }
-
         var = delegate.findVar(namespace, name, strictMatch);
         if (var != null) {
             return var;
         }
-
         if (searchInParameterContext) {
             VariableInContextFinder cxt = getRootContext(parameterContextDepthLevel);
             return cxt.findVariable(name);
         }
         return null;
-
     }
 
     /*

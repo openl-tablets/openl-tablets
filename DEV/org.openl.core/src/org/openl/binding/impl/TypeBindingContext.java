@@ -109,10 +109,10 @@ public class TypeBindingContext extends BindingContextDelegator {
 
     private static class LocalVarMethodCaller implements IMethodCaller, IOwnTargetMethod {
 
-        final ILocalVar localvar;
-        final IMethodCaller method;
+        private final ILocalVar localvar;
+        private final IMethodCaller method;
 
-        public LocalVarMethodCaller(ILocalVar localvar, IMethodCaller method) {
+        private LocalVarMethodCaller(ILocalVar localvar, IMethodCaller method) {
             super();
             this.localvar = localvar;
             this.method = method;

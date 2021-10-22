@@ -37,8 +37,7 @@ public class SessionTimeoutFilter implements Filter {
             }
         }
 
-        if (request.getRequestedSessionId() != null && !(request.isRequestedSessionIdValid() || request.getSession()
-            .isNew())) {
+        if (request.isRequestedSessionIdValid() && request.getSession(false) == null) {
             HttpServletResponse response = (HttpServletResponse) servletResponse;
             String redirectUrl = request.getContextPath() + redirectPage;
             log.info("Session Expired: redirect to {} page", redirectPage);

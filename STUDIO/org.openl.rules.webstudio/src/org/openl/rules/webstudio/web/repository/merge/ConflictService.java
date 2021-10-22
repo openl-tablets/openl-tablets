@@ -170,7 +170,7 @@ public class ConflictService {
             -1,
             null,
             false,
-            false);
+            true);
     }
 
     private WorkspaceUserImpl getUser() {

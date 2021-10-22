@@ -16,8 +16,8 @@ import org.openl.util.CategorizedMap;
  */
 public class NodeBinderFactoryConfiguration extends AConfigurationElement {
 
-    static public class SingleBinderFactory extends ClassFactory {
-        String node;
+    public static class SingleBinderFactory extends ClassFactory {
+        private String node;
 
         public SingleBinderFactory() {
             singleton = true;
@@ -33,23 +33,17 @@ public class NodeBinderFactoryConfiguration extends AConfigurationElement {
             return INodeBinder.class.getName();
         }
 
-        /**
-         * @return
-         */
         public String getNode() {
             return node;
         }
 
-        /**
-         * @param string
-         */
         public void setNode(String string) {
             node = string;
         }
 
     }
 
-    final CategorizedMap map = new CategorizedMap();
+    private final CategorizedMap map = new CategorizedMap();
 
     public void addConfiguredBinder(SingleBinderFactory factory) {
         map.put(factory.getNode(), factory);
