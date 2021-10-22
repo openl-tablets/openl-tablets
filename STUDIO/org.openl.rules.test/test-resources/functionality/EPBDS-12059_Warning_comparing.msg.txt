@@ -1,6 +1,0 @@
-WARN: Warning: Compared elements have different types ('org.openl.rules.beans.Child1', 'org.openl.rules.beans.FinalChild3'). Comparing these types always returns false.
-WARN: Warning: Compared elements have different types ('org.openl.rules.beans.FinalChild2', 'org.openl.rules.beans.FinalChild3'). Comparing these types always returns false.
-WARN: Warning: Compared elements have different types ('org.openl.rules.beans.FinalChild3', 'org.openl.rules.beans.Interface1'). Comparing these types always returns false.
-WARN: Warning: Compared elements have different types ('org.openl.rules.beans.FinalChild4WithInterface', 'org.openl.rules.beans.Child1'). Comparing these types always returns false.
-WARN: Warning: Compared elements have different types ('int', 'java.lang.String'). Comparing these types always returns false.
-WARN: Warning: Compared elements have different types ('org.openl.rules.beans.Child1', 'org.openl.rules.beans.FinalChild2'). Comparing these types always returns true.
