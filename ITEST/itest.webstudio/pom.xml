@@ -38,7 +38,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <webservice-webapp>
-                            ../../STUDIO/org.openl.rules.webstudio/target/webstudio
+                            ../../STUDIO/org.openl.rules.webstudio/target/webapp
                         </webservice-webapp>
                     </systemPropertyVariables>
                 </configuration>
