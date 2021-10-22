@@ -18,7 +18,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class Binder implements IOpenBinder {
 
-    final Map<MethodKey, Object> methodCache = new HashMap<>();
+    private final Map<MethodKey, Object> methodCache = new HashMap<>();
     private final OpenL openl;
     private final INodeBinderFactory nodeBinderFactory;
     private final ICastFactory castFactory;
@@ -96,5 +96,9 @@ public class Binder implements IOpenBinder {
             bindingContext.popLocalVarContext();
         }
         return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(), bindingContext.getMessages());
+    }
+
+    public Map<MethodKey, Object> getMethodCache() {
+        return methodCache;
     }
 }

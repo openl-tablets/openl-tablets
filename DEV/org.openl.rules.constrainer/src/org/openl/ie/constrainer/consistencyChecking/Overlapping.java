@@ -37,7 +37,7 @@ public class Overlapping {
             this.bit = bit;
         }
 
-        final int bit;
+        private final int bit;
 
         public int getBit() {
             return bit;

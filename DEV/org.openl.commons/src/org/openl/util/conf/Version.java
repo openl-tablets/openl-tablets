@@ -12,28 +12,27 @@ import org.openl.util.StringUtils;
  */
 public class Version implements Comparable<Version> {
 
-    public interface IVersionStartPatternFinder {
+    private interface IVersionStartPatternFinder {
         /**
          *
-         * @param s
+         * @param s target string
          * @param previousStart index of previously found start or -1 if this is first
          * @return index of possible start for version or -1
          */
         int findVersionStart(String s, int previousStart);
     }
 
-    class Parser {
-        int pos;
-        final String s;
+    private class Parser {
+        private int pos;
+        private final String s;
 
-        Parser(String s, int from) {
+        private Parser(String s, int from) {
             this.s = s;
-            pos = from;
+            this.pos = from;
         }
 
-        int getInt() {
+        private int getInt() {
             int len = s.length();
-
             if (pos >= len || !Character.isDigit(s.charAt(pos))) {
                 return -1;
             }
@@ -49,20 +48,18 @@ public class Version implements Comparable<Version> {
             }
             ++pos;
             return n;
-
         }
 
         void parseVersion() {
-            if ((version[MAJOR] = getInt()) >= 0
-                    && (version[MINOR] = getInt()) >= 0
-                    && (version[VARIANT] = getInt()) >= 0) {
+            if ((version[MAJOR] = getInt()) >= 0 && (version[MINOR] = getInt()) >= 0) {
+                version[VARIANT] = getInt();
             }
             version[BUILD] = getInt();
         }
 
     }
 
-    static public class StandardVersionStartPatternFinder implements IVersionStartPatternFinder {
+    public static class StandardVersionStartPatternFinder implements IVersionStartPatternFinder {
 
         @Override
         public int findVersionStart(String s, int previousStart) {
@@ -79,23 +76,18 @@ public class Version implements Comparable<Version> {
     }
 
     public static final int MAJOR = 0, MINOR = 1, VARIANT = 2, BUILD = 3;
-
     public static final String JAVA_VERSION_PATTERN = ".._";
 
-    final int[] version = new int[] { -1, -1, -1, -1 };
-
-    String pattern = JAVA_VERSION_PATTERN;
+    private final int[] version = new int[] { -1, -1, -1, -1 };
+    private String pattern = JAVA_VERSION_PATTERN;
 
     public static int calcNumbersSeparatedByDots(String s, int from, String pattern) {
         int nnum = 0;
-
         int len = s.length();
-
         boolean inNumber = false;
 
         for (int i = from; i < len && nnum <= pattern.length(); ++i) {
             char c = s.charAt(i);
-
             if (inNumber) {
                 if (Character.isDigit(c)) {
                     continue;
@@ -112,17 +104,8 @@ public class Version implements Comparable<Version> {
                 continue;
             }
             break;
-
         }
         return nnum;
-    }
-
-    /**
-     * @param vx
-     * @return
-     */
-    public static Version extractVersion(String vx) throws Exception {
-        return extractVersion(vx, JAVA_VERSION_PATTERN);
     }
 
     static public Version extractVersion(String s, IVersionStartPatternFinder finder, String pattern) throws Exception {
@@ -130,7 +113,6 @@ public class Version implements Comparable<Version> {
         if (idx == -1) {
             throw new Exception("Could not find version pattern in " + s);
         }
-
         return parseVersion(s, idx, pattern);
     }
 
@@ -147,27 +129,15 @@ public class Version implements Comparable<Version> {
             if (idx == -1) {
                 return -1;
             }
-
             if (isVersion(s, idx, pattern)) {
                 return idx;
             }
-
             if (++loopProtector > 100) {
                 throw new RuntimeException("Check implementation of Your Pattern Finder");
             }
-
         }
     }
 
-    public static int findVersionStart(String s, String pattern) {
-        return findVersionStart(s, new StandardVersionStartPatternFinder(), pattern);
-    }
-
-    /**
-     * @param t1
-     * @param i
-     * @return
-     */
     public static boolean isVersion(String t1, int i) {
         return isVersion(t1, i, JAVA_VERSION_PATTERN);
     }
@@ -179,15 +149,6 @@ public class Version implements Comparable<Version> {
         return calcNumbersSeparatedByDots(s, from, pattern) == pattern.length() + 1;
     }
 
-    /**
-     * @param s
-     * @param i
-     * @return
-     */
-    public static Version parseVersion(String s, int i) {
-        return parseVersion(s, i, JAVA_VERSION_PATTERN);
-    }
-
     static public Version parseVersion(String s, int from, String pattern) {
         if (!isVersion(s, from, pattern)) {
             throw new RuntimeException("This is not a valid version: " + s.substring(from) + " in " + s);
@@ -195,16 +156,14 @@ public class Version implements Comparable<Version> {
 
         Version v = new Version();
         v.setPattern(pattern);
-
         v.parseIn(s, from);
         return v;
-
     }
 
-    public Version() {
+    private Version() {
     }
 
-    public Version(int major, int minor, int variant, int build, String pattern) {
+    Version(int major, int minor, int variant, int build, String pattern) {
         version[MAJOR] = major;
         version[MINOR] = minor;
         version[VARIANT] = variant;
@@ -240,37 +199,22 @@ public class Version implements Comparable<Version> {
         return true;
     }
 
-    /**
-     * @return
-     */
     public int getBuild() {
         return version[BUILD];
     }
 
-    /**
-     * @return
-     */
     public int getMajor() {
         return version[MAJOR];
     }
 
-    /**
-     * @return
-     */
     public int getMinor() {
         return version[MINOR];
     }
 
-    /**
-     * @return
-     */
     public String getPattern() {
         return pattern;
     }
 
-    /**
-     * @return
-     */
     public int getVariant() {
         return version[VARIANT];
     }
@@ -280,45 +224,26 @@ public class Version implements Comparable<Version> {
         return version[BUILD] * 119 + version[VARIANT] * 37 + version[MINOR] * 17 + version[MAJOR];
     }
 
-    /**
-     * @param s
-     * @param from
-     */
     private void parseIn(String s, int from) {
         new Parser(s, from).parseVersion();
     }
 
-    /**
-     * @param i
-     */
     public void setBuild(int i) {
         version[BUILD] = i;
     }
 
-    /**
-     * @param i
-     */
     public void setMajor(int i) {
         version[MAJOR] = i;
     }
 
-    /**
-     * @param i
-     */
     public void setMinor(int i) {
         version[MINOR] = i;
     }
 
-    /**
-     * @param string
-     */
     public void setPattern(String string) {
         pattern = string;
     }
 
-    /**
-     * @param i
-     */
     public void setVariant(int i) {
         version[VARIANT] = i;
     }
@@ -326,7 +251,6 @@ public class Version implements Comparable<Version> {
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
-
         for (int i = 0; i < version.length; i++) {
             if (version[i] >= 0) {
                 buf.append(version[i]);
@@ -336,9 +260,7 @@ public class Version implements Comparable<Version> {
             if (i < pattern.length()) {
                 buf.append(pattern.charAt(i));
             }
-
         }
-
         return buf.toString();
     }
 

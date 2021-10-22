@@ -17,7 +17,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 class FullClassnameSupport {
-    static final Field binaryNodeLeftField;
+    private static final Field binaryNodeLeftField;
 
     static {
         Field binaryNodeLeftFieldTmp = null;

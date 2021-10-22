@@ -5,7 +5,7 @@ import java.net.URL;
 import java.util.Objects;
 
 class GroovyResourceLoader implements groovy.lang.GroovyResourceLoader {
-    groovy.lang.GroovyResourceLoader delegate;
+    private final groovy.lang.GroovyResourceLoader delegate;
 
     GroovyResourceLoader(groovy.lang.GroovyResourceLoader delegate) {
         this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");

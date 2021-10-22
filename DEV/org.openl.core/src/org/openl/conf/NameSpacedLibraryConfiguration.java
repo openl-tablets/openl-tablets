@@ -20,9 +20,9 @@ import org.openl.types.IOpenMethod;
  */
 public class NameSpacedLibraryConfiguration extends AConfigurationElement {
 
-    String namespace;
+    private String namespace;
 
-    final ArrayList<IMethodFactoryConfigurationElement> factories = new ArrayList<>();
+    private final ArrayList<IMethodFactoryConfigurationElement> factories = new ArrayList<>();
 
     public void addJavalib(JavaLibraryConfiguration factory) {
         factories.add(factory);
@@ -52,16 +52,10 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
         return methods.toArray(IOpenMethod.EMPTY_ARRAY);
     }
 
-    /**
-     * @return
-     */
     public String getNamespace() {
         return namespace;
     }
 
-    /**
-     * @param string
-     */
     public void setNamespace(String string) {
         namespace = string;
     }

@@ -9,25 +9,22 @@ import org.openl.ie.constrainer.*;
 public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
     private static final int MAX_OVERLOADS = 50;
-    private CDecisionTable _dt;
+    private final CDecisionTable _dt;
 
-    final List<Overlapping> overlappings = new ArrayList<>();
+    private final List<Overlapping> overlappings = new ArrayList<>();
 
-    final HashSet<IntPair> checkedPairs = new HashSet<>();
+    private final HashSet<IntPair> checkedPairs = new HashSet<>();
 
-    final boolean[] removed;
-    final boolean[] hadBeenRemoved;
-    int nRemoved = 0;
+    private final boolean[] removed;
+    private final boolean[] hadBeenRemoved;
+    private int nRemoved = 0;
 
     private void remove(int i) {
-        // System.out.println(" ---- Remove " + i);
-
         removed[i] = true;
         nRemoved++;
     }
 
     private void restore(int i) {
-        // System.out.println(" ++++ Restore " + i);
         removed[i] = false;
         nRemoved--;
     }
@@ -36,7 +33,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
         private static final long serialVersionUID = 4298252562811799305L;
 
-        final List<Overlapping> overlappingRules;
+        private final List<Overlapping> overlappingRules;
 
         public GoalSaveSolutions(Constrainer c, List<Overlapping> ovlRules) {
             super(c);

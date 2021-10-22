@@ -37,14 +37,10 @@ public class PropertyFileLoader {
     public static final Properties NO_PROPERTIES = new Properties();
 
     private final String propertiesFileDefaultName;
-
     private final String propertiesFileProperty;
-
-    private Properties properties = null;
-
+    private Properties properties;
     private final IConfigurableResourceContext context;
-
-    private PropertyFileLoader parent;
+    private final PropertyFileLoader parent;
 
     public PropertyFileLoader(String propertiesFileDefaultName,
             String propertiesFileProperty,
@@ -66,21 +62,18 @@ public class PropertyFileLoader {
         }
 
         // check the propertiesFileProperty first
-
         String propertiesFileName = getContext().findProperty(propertiesFileProperty);
         if (propertiesFileName == null) {
             propertiesFileName = propertiesFileDefaultName;
         }
 
         // is it valid URL?
-
         log.debug("Looking for '{}'.", propertiesFileName);
         if (!loadAsURL(propertiesFileName) && !loadAsResource(propertiesFileName) && !loadAsFile(propertiesFileName)) {
             properties = parent == null ? NO_PROPERTIES : parent.getProperties();
         }
 
         return properties;
-
     }
 
     public String getProperty(String propertyName) {
@@ -107,8 +100,7 @@ public class PropertyFileLoader {
             }
             properties = loadProperties(f);
             return true;
-        } catch (Exception t) {
-            // System.out.println("File not as found: " + url);
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -121,8 +113,7 @@ public class PropertyFileLoader {
             }
             properties = loadProperties(url);
             return true;
-        } catch (Exception t) {
-            // Log.debug("Loading as resource: ", t);
+        } catch (Exception ignored) {
             return false;
         }
     }
@@ -131,8 +122,7 @@ public class PropertyFileLoader {
         try {
             properties = loadProperties(new URL(url));
             return true;
-        } catch (Exception t) {
-            // Log.debug("Loading as url: ", t);
+        } catch (Exception ignored) {
             return false;
         }
     }

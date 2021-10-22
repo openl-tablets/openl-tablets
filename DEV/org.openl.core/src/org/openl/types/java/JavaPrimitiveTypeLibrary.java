@@ -18,7 +18,7 @@ import org.openl.types.ITypeLibrary;
  */
 public class JavaPrimitiveTypeLibrary implements ITypeLibrary {
 
-    static final Map<String, JavaOpenClass> classMap;
+    private static final Map<String, JavaOpenClass> classMap;
 
     static {
         classMap = new HashMap<>();

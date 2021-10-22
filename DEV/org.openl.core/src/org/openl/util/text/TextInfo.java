@@ -16,9 +16,8 @@ import java.util.List;
  */
 public class TextInfo {
 
-    final String text;
-
-    int[] lineTable;
+    private final String text;
+    private int[] lineTable;
 
     public static int getColumn(String line, int linePos, int tabsize) {
         int col = 0;

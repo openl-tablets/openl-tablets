@@ -34,7 +34,7 @@ public interface IBindingContext extends ICastFactory {
      *
      * @param namespace type namespace
      * @param type type
-     * @throws Exception if an error has occurred
+     * @throws DuplicatedTypeException if an error has occurred
      */
     IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException;
 
@@ -49,7 +49,7 @@ public interface IBindingContext extends ICastFactory {
     IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException;
 
     /**
-     * @see {@link IOpenClass#getField(String, boolean)}
+     * @see IOpenClass#getField(String, boolean
      */
     IOpenField findVar(String namespace, String vname, boolean strictMatch) throws AmbiguousFieldException;
 

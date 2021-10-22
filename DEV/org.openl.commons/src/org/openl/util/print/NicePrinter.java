@@ -17,15 +17,11 @@ import java.util.Map;
  */
 public class NicePrinter {
 
-    final int identStep = 2;
-
-    StringBuilder buffer;
-
-    int ident = 0;
-
-    final HashMap<Object, Integer> printedObjects = new HashMap<>();
-
-    int printedID = 0;
+    private static final int DEF_IDENT_STEP = 2;
+    private final StringBuilder buffer;
+    private int ident = 0;
+    private final HashMap<Object, Integer> printedObjects = new HashMap<>();
+    private int printedID = 0;
 
     public static String getTypeName(Object obj) {
         return obj.getClass().getName();
@@ -114,7 +110,7 @@ public class NicePrinter {
     public void startNewLine() {
         buffer.append('\n');
         for (int i = 0; i < ident; ++i) {
-            for (int j = 0; j < identStep; j++) {
+            for (int j = 0; j < DEF_IDENT_STEP; j++) {
                 buffer.append(' ');
             }
         }

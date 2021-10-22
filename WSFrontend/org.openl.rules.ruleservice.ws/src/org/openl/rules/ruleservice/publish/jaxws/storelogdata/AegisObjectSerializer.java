@@ -78,8 +78,11 @@ public class AegisObjectSerializer implements ObjectSerializer {
         final AegisType aegisType = context.getTypeMapping().getType(type);
 
         XMLStreamReader xmlReader = null;
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE);
         try (InputStream source = new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8))) {
-            xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(source);
+            xmlReader = factory.createXMLStreamReader(source);
             return (T) reader.read(xmlReader, aegisType);
         } finally {
             if (xmlReader != null) {

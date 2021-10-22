@@ -30,21 +30,13 @@ import org.openl.types.impl.MethodKey;
 public class OpenLConfiguration implements IOpenLConfiguration {
 
     private String uri;
-
     private IOpenLConfiguration parent;
-
     private IConfigurableResourceContext configurationContext;
-
     private ClassFactory grammarFactory;
-
     private NodeBinderFactoryConfiguration binderFactory;
-
     private LibraryFactoryConfiguration methodFactory;
-
     private TypeCastFactory typeCastFactory;
-
     private TypeFactoryConfiguration typeFactory;
-
     private Map<String, IOpenFactoryConfiguration> openFactories = null;
 
     @Override
@@ -230,7 +222,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? NotExistNodeBinder.the : parent.getNodeBinder(node);
     }
 
-    final Map<String, Map<String, IOpenClass>> cache = new HashMap<>();
+    private final Map<String, Map<String, IOpenClass>> cache = new HashMap<>();
 
     @Override
     public IOpenClass getType(String namespace, String name) throws AmbiguousTypeException {
@@ -350,8 +342,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     private static class Key {
-        final IOpenClass openClass1;
-        final IOpenClass openClass2;
+        private final IOpenClass openClass1;
+        private final IOpenClass openClass2;
 
         public Key(IOpenClass openClass1, IOpenClass openClass2) {
             super();

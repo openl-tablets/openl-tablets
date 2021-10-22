@@ -1,6 +1,3 @@
-/**
- * Created Jul 14, 2007
- */
 package org.openl.domain;
 
 /**
@@ -10,17 +7,17 @@ package org.openl.domain;
 public interface IIntSelector {
 
     final class IntSelectIterator extends AIntIterator {
-        final IIntSelector selector;
-        final IIntIterator it;
-        int next;
-        boolean hasNext = false;
+        private final IIntSelector selector;
+        private final IIntIterator it;
+        private int next;
+        private boolean hasNext = false;
 
         IntSelectIterator(IIntIterator it, IIntSelector selector) {
             this.it = it;
             this.selector = selector;
         }
 
-        void findNext() {
+        private void findNext() {
             while (it.hasNext()) {
                 int x = it.nextInt();
                 if (selector.select(x)) {

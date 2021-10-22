@@ -21,8 +21,8 @@ import org.openl.util.RuntimeExceptionWrapper;
 public abstract class AGenericConfiguration extends AConfigurationElement {
 
     public static class StringProperty {
-        String name;
-        String value;
+        private String name;
+        private String value;
 
         public String getName() {
             return name;
@@ -43,16 +43,11 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
     }
 
     // must implement getImplementingClass()
-    protected String implementingClassName;
-    String classResourse; // existing class
-    String fileResource;
-
-    String urlResource;
-
-    List<StringProperty> properties;
-
-    // TODO will do it later
-    String classPathResource;
+    private String implementingClassName;
+    private String classResourse; // existing class
+    private String fileResource;
+    private String urlResource;
+    private List<StringProperty> properties;
 
     public void addProperty(StringProperty prop) {
         if (properties == null) {

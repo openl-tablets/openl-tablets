@@ -8,7 +8,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ParameterDeclarationNode extends ABoundNode implements IBoundParameterDeclaration {
 
-    final IParameterDeclaration parameterDeclaration;
+    private final IParameterDeclaration parameterDeclaration;
 
     ParameterDeclarationNode(ISyntaxNode syntaxNode, IParameterDeclaration parameterDeclaration) {
         super(syntaxNode);

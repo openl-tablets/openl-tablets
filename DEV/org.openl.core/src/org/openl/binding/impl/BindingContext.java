@@ -57,10 +57,6 @@ public class BindingContext implements IBindingContext {
         errors.add(error);
     }
 
-    public ILocalVar addParameter(String namespace, String name, IOpenClass type) {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public IOpenClass addType(String namespace, IOpenClass type) {
         throw new UnsupportedOperationException();
@@ -91,7 +87,7 @@ public class BindingContext implements IBindingContext {
             String name,
             IOpenClass[] parTypes) throws AmbiguousMethodException {
         MethodKey key = new MethodKey(namespace + ':' + name, parTypes, true);
-        Map<MethodKey, Object> methodCache = ((Binder) binder).methodCache;
+        Map<MethodKey, Object> methodCache = ((Binder) binder).getMethodCache();
 
         synchronized (methodCache) {
             Object res = methodCache.get(key);

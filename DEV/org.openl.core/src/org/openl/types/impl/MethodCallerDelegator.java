@@ -5,7 +5,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class MethodCallerDelegator implements IMethodCaller {
-    final IMethodCaller delegate;
+    private final IMethodCaller delegate;
 
     public MethodCallerDelegator(IMethodCaller delegate) {
         super();

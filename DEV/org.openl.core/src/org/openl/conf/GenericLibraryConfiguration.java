@@ -14,7 +14,7 @@ import org.openl.binding.IOpenLibrary;
  */
 public class GenericLibraryConfiguration extends AGenericConfiguration implements IMethodFactoryConfigurationElement {
 
-    IOpenLibrary library;
+    private IOpenLibrary library;
 
     @Override
     public Class<?> getImplementingClass() {
@@ -28,12 +28,10 @@ public class GenericLibraryConfiguration extends AGenericConfiguration implement
      */
     @Override
     public synchronized IOpenLibrary getLibrary(IConfigurableResourceContext cxt) {
-
         if (library == null) {
             library = (IOpenLibrary) createResource(cxt);
         }
         return library;
-
     }
 
 }
