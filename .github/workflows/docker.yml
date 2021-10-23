@@ -19,15 +19,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Define settings
+      run: |
+        echo "JAVA8=8-jre-focal" >> $GITHUB_ENV
+        echo "JAVA11=11-jre-focal" >> $GITHUB_ENV
+        echo "SERVER=https://repo.maven.apache.org/maven2" >> $GITHUB_ENV
+
     - name: Setup Soft
-      run: sudo apt-get install -y --no-install-recommends libxml2-utils
+      run: |
+        sudo apt-get install -y --no-install-recommends libxml2-utils
+        gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 902B17732F38021331F3019F82521DFA3BF8F6FC
 
     - name: Checkout
       uses: actions/checkout@v2
 
     - name: Determine the latest version
       run: |
-        SERVER="https://repo.maven.apache.org/maven2"
         metaUrl="$SERVER/org/openl/org.openl.core/maven-metadata.xml"
         metaData="$(wget -qO - $metaUrl)"
         latest="$(echo $metaData | xmllint --xpath /metadata/versioning/latest/text\(\) - )"
@@ -54,73 +61,116 @@ jobs:
         echo "tags_8=$tags_8" >> $GITHUB_ENV
         echo "version=$version" >> $GITHUB_ENV
 
-    - name: DEMO JDK 8
-      env:
-        appName : demo
-      run: >
-        eval docker build $tags_8
-        --build-arg VERSION=$version
-        --build-arg JDK=8-jre-slim
-        -f ./Dockerfiles/Demo .
+    - name: Download WebStudio
+      run: |
+        # Define urls
+        artifactUrl="$SERVER/org/openl/rules/org.openl.rules.webstudio"
+        downloadUrl="$artifactUrl/$version/org.openl.rules.webstudio-$version.war"
+        # Download artifact.
+        wget --progress=dot:giga -O app.war "$downloadUrl"
+        wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc"
+        # GPG verification
+        gpg --batch --verify app.war.asc app.war
+        unzip -q app.war -d webstudio
+        rm app.war.asc
+        rm app.war
+
+    - name: Download Rule Services
+      run: |
+        # Define urls
+        artifactUrl="$SERVER/org/openl/rules/org.openl.rules.ruleservice.ws"
+        downloadUrl="$artifactUrl/$version/org.openl.rules.ruleservice.ws-$version.war"
+        # Download artifact.
+        wget --progress=dot:giga -O app.war "$downloadUrl"
+        wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc"
+        # GPG verification
+        gpg --batch --verify app.war.asc app.war
+        unzip -q app.war -d webservice
+        rm app.war.asc
+        rm app.war
+
+    - name: Download Rule Services (ALL)
+      run: |
+        # Define urls
+        artifactUrl="$SERVER/org/openl/rules/org.openl.rules.ruleservice.ws.all"
+        downloadUrl="$artifactUrl/$version/org.openl.rules.ruleservice.ws.all-$version.war"
+        # Download artifact.
+        wget --progress=dot:giga -O app.war "$downloadUrl"
+        wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc"
+        # GPG verification
+        gpg --batch --verify app.war.asc app.war
+        unzip -q app.war -d webservice-all
+        rm app.war.asc
+        rm app.war
+
+    - name: Download DEMO
+      run: |
+        # Define urls
+        artifactUrl="$SERVER/org/openl/rules/demo/openl-demo-app"
+        downloadUrl="$artifactUrl/$version/openl-demo-app-$version.zip"
+        # Download artifact.
+        wget --progress=dot:giga -O openl-tablets-demo.zip "$downloadUrl"
+        wget --progress=dot:giga -O demo.zip.asc "$downloadUrl.asc"
+        # GPG verification
+        gpg --batch --verify demo.zip.asc openl-tablets-demo.zip
+        rm demo.zip.asc
 
     - name: DEMO JDK 11
       env:
         appName : demo
       run: >
         eval docker build $tags_11
-        --build-arg VERSION=$version
-        --build-arg JDK=11-slim
         -f ./Dockerfiles/Demo .
 
     - name: Rule Services (All) JDK 8
       run: >
         docker build -t openltablets/ws:$version-jre8-all
-        --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk8-openjdk-slim
-        -f ./Dockerfiles/RuleServices-all .
+        --build-arg APP=webservice-all
+        --build-arg JDK=$JAVA8
+        -f ./Dockerfiles/WebApp .
 
     - name: Rule Services (All) JDK 11
       run: >
         docker build -t openltablets/ws:$version-all
-        --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk11-openjdk-slim
-        -f ./Dockerfiles/RuleServices-all .
+        --build-arg APP=webservice-all
+        --build-arg JDK=$JAVA11
+        -f ./Dockerfiles/WebApp .
 
     - name: Rule Services JDK 8
       env:
         appName : ws
       run: >
         eval docker build $tags_8
-        --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk8-openjdk-slim
-        -f ./Dockerfiles/RuleServices .
+        --build-arg APP=webservice
+        --build-arg JDK=$JAVA8
+        -f ./Dockerfiles/WebApp .
 
     - name: Rule Services JDK 11
       env:
         appName : ws
       run: >
         eval docker build $tags_11
-        --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk11-openjdk-slim
-        -f ./Dockerfiles/RuleServices .
+        --build-arg APP=webservice
+        --build-arg JDK=$JAVA11
+        -f ./Dockerfiles/WebApp .
 
     - name: WebStudio JDK 8
       env:
         appName : webstudio
       run: >
         eval docker build $tags_8
-        --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk8-openjdk-slim
-        -f ./Dockerfiles/WebStudio .
+        --build-arg APP=webstudio
+        --build-arg JDK=$JAVA8
+        -f ./Dockerfiles/WebApp .
 
     - name: WebStudio JDK 11
       env:
         appName : webstudio
       run: >
         eval docker build $tags_11
-        --build-arg VERSION=$version
-        --build-arg TOMCAT=9-jdk11-openjdk-slim
-        -f ./Dockerfiles/WebStudio .
+        --build-arg APP=webstudio
+        --build-arg JDK=$JAVA11
+        -f ./Dockerfiles/WebApp .
 
     - name: Push images
       run: |
