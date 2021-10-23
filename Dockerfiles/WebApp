@@ -1,26 +1,32 @@
-ARG TOMCAT=9-jdk11-openjdk-slim
+ARG JDK=11-jre-focal
 
-FROM tomcat:$TOMCAT
+FROM eclipse-temurin:${JDK} as jdk
 
-ARG VERSION="latest"
-ARG SERVER="https://repo.maven.apache.org/maven2"
+FROM ubuntu:focal
+
+ARG APP=target/webapp
+
+# Copy Java
+ENV JAVA_HOME /opt/java/openjdk
+COPY --from=jdk $JAVA_HOME $JAVA_HOME
+
+# Will be replaced on Jetty in 5.26
+# Copy Tomcat
+ENV CATALINA_HOME /usr/local/tomcat
+COPY --from=tomcat:9-jre11-temurin-focal $CATALINA_HOME $CATALINA_HOME
+
+# Define executables
+ENV PATH $CATALINA_HOME/bin:$JAVA_HOME/bin:$PATH
+
+WORKDIR $CATALINA_HOME
 
 RUN set -eux ; \
-    \
-# Create non-root OpenL user
-    groupadd  -r openl && useradd -m -g openl openl ; \
     \
 # Prepare environment. Install required utils for Docker image building.
     savedAptMark="$(apt-mark showmanual)"; \
     \
     apt-get update ; \
-    apt-get install -y --no-install-recommends \
-    wget \
-    unzip \
-    gnupg \
-    libxml2-utils \
-    xmlstarlet \
-    ; \
+    apt-get install -y --no-install-recommends xmlstarlet ; \
     \
 # Clean up temporaries
     rm -rf /var/lib/apt/lists/* ; \
@@ -41,41 +47,42 @@ RUN set -eux ; \
 # Fix SEVERE error while running image via non-root user
     mkdir -p conf/Catalina/localhost ; \
     \
-# Download artifact.
-    artifactUrl="$SERVER/org/openl/rules/org.openl.rules.webstudio" ; \
-    if [ "$VERSION" = "latest" ] ; then \
-      version="$(wget -qO - $artifactUrl/maven-metadata.xml \
-               | xmllint --xpath /metadata/versioning/$VERSION/text\(\) - )" ; \
-    else \
-      version=$VERSION ; \
-    fi ; \
-    downloadUrl="$artifactUrl/$version/org.openl.rules.webstudio-$version.war" ; \
-    \
-    wget --progress=dot:giga -O app.war "$downloadUrl" ; \
-    wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc" ; \
-    \
-# GPG verification
-    export GNUPGHOME="$(mktemp -d)" ; \
-    gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 902B17732F38021331F3019F82521DFA3BF8F6FC ; \
-    gpg --batch --verify app.war.asc app.war ; \
-    gpgconf --kill all ; \
-    rm -rf "$GNUPGHOME" ; \
-    rm app.war.asc ; \
-    \
-# Unpack demo files
-    unzip -q app.war -d webapps/ROOT ; \
-    rm app.war ; \
-    \
 # Cleanup apt-get installations
     apt-mark auto '.*' > /dev/null ; \
     [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null ; \
-    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false ; \
-    \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
+
 # Install fonts required for Apache POI (export into Excel with autowidth of columns)
+RUN set -eux ; \
+    \
     apt-get update ; \
     apt-get install -y --no-install-recommends \
     fontconfig ; \
     rm -rf /var/lib/apt/lists/*
 
+ENV OPENL_HOME /openl
 
-ENV JAVA_OPTS="-Xms128m -XX:MaxRAMPercentage=90.0"
+# Create a system 'openl' user with home directory. Home directory is required for Java Prefs persistence to prevent
+# WARN spamming in the log.
+RUN useradd -r -m -U -s /usr/sbin/nologin openl
+
+# Writable folder for 'openl' user where application files are stored.
+# It should be mounted on an external volume to persist application data between redeploying if it is required.
+# Do not confuse this with home directory of 'openl' user.
+RUN mkdir -p "$OPENL_HOME" && chown openl:openl "$OPENL_HOME"
+# Will be uncomment in 5.26
+#USER openl
+
+ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
+
+EXPOSE 8080
+CMD ["catalina.sh", "run"]
+
+COPY $APP webapps/ROOT
+
+WORKDIR $OPENL_HOME
+
+# For migration from '/root/.openl' default folder to '/openl'. Will be removed in 5.26
+RUN ln -s "$OPENL_HOME" /root/.openl && chown -h openl:openl /root/.openl
+ENV OPENL_HOME=.
+WORKDIR /root/.openl
