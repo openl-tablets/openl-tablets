@@ -10,6 +10,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.AutoCastableResultOpenMethod;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.StaticDomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
 
@@ -24,8 +25,9 @@ public class RulesUtilsGetValuesAutoCastFactory implements AutoCastFactory {
         Method javaMethod = javaOpenMethod.getJavaMethod();
         AutoCastReturnType autoCastReturnType = javaMethod.getAnnotation(AutoCastReturnType.class);
         if (autoCastReturnType != null) {
-            IOpenClass arrayType = JavaOpenClass
-                .getOpenClass(Array.newInstance(parameterTypes[0].getInstanceClass(), 1).getClass());
+            IOpenClass arrayType = JavaOpenClass.getOpenClass(
+                Array.newInstance(((StaticDomainOpenClass) parameterTypes[0]).getDelegate().getInstanceClass(), 1)
+                    .getClass());
             IOpenCast cast = bindingContext.getCast(javaOpenMethod.getType(), arrayType);
             if (cast != null) {
                 return new AutoCastableResultOpenMethod(methodCaller, arrayType, cast);

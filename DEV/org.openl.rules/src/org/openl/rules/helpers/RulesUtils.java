@@ -35,7 +35,7 @@ import org.openl.meta.DoubleValue;
 import org.openl.meta.LongValue;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
-import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.impl.StaticDomainOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.CollectionUtils;
 import org.openl.util.DateTool;
@@ -3602,14 +3602,14 @@ public final class RulesUtils {
     }
 
     @AutoCastReturnType(RulesUtilsGetValuesAutoCastFactory.class)
-    public static Object getValues(DomainOpenClass clazz) {
-        IDomain<?> domain = clazz.getDomain();
+    public static Object getValues(StaticDomainOpenClass staticDomainOpenClass) {
+        IDomain<?> domain = staticDomainOpenClass.getDomain();
         int size = 0;
         for (Object item : domain) {
             size++;
         }
 
-        Class<?> type = clazz.getInstanceClass();
+        Class<?> type = staticDomainOpenClass.getDelegate().getInstanceClass();
         Object result = Array.newInstance(type, size);
         int i = 0;
         for (Object item : domain) {
@@ -3635,8 +3635,8 @@ public final class RulesUtils {
             while (aClass != null) {
                 Field[] declaredFields = aClass.getDeclaredFields();
                 for (Field field : declaredFields) {
-                    if (field.getName().equals(fieldName) && java.lang.reflect.Modifier.isPublic(field.getModifiers())
-                            && java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                    if (field.getName().equals(fieldName) && java.lang.reflect.Modifier
+                        .isPublic(field.getModifiers()) && java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
                         return field.get(null);
                     }
                 }
