@@ -32,7 +32,7 @@ public class IdentifierBinder extends ANodeBinder {
         // See http://docs.oracle.com/javase/specs/jls/se8/html/jls-6.html#jls-6.4.2 for details
         // Implementation below tries to follow that specification.
 
-        IOpenField field = null;
+        IOpenField field;
         try {
             field = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, fieldName, strictMatch);
         } catch (AmbiguousFieldException ex) {
@@ -48,8 +48,9 @@ public class IdentifierBinder extends ANodeBinder {
         String typeName = node.getText();
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
         if (type != null) {
+            type = type.toStaticClass();
             BindHelper.checkOnDeprecation(node, bindingContext, type);
-            return new TypeBoundNode(node, type.toStaticClass());
+            return new TypeBoundNode(node, type);
         }
         return null;
     }
@@ -86,7 +87,7 @@ public class IdentifierBinder extends ANodeBinder {
         if (target.isStaticTarget()) {
             field = type.getStaticField(fieldName, strictMatch);
         } else {
-            if (!isAllowStrictFieldMatch(type)) {
+            if (!isAllowOnlyStrictFieldMatch(type)) {
                 // disable strict match for all types to save backward compatibility with old client projects, except
                 // new types annotated with @AllowOnlyStrictFieldMatchType
                 strictMatch = false;
@@ -98,7 +99,7 @@ public class IdentifierBinder extends ANodeBinder {
             throw new OpenlNotCheckedException(String.format("%s '%s' is not found in type '%s'.",
                 type.isStatic() ? "Static field" : "Field",
                 fieldName,
-                type));
+                type.getName()));
         }
 
         if (target.isStaticTarget() != field.isStatic()) {
@@ -123,12 +124,18 @@ public class IdentifierBinder extends ANodeBinder {
         return new FieldBoundNode(node, field, target, dims);
     }
 
-    private IOpenField selectFieldFromAmbiguous(AmbiguousFieldException ex, ISyntaxNode node, IBindingContext bindingContext){
+    private IOpenField selectFieldFromAmbiguous(AmbiguousFieldException ex,
+            ISyntaxNode node,
+            IBindingContext bindingContext) {
         Collection<IOpenField> matchingFields = ex.getMatchingFields();
         if (matchingFields.stream().allMatch(e -> e instanceof OpenFieldDelegator)) {
-            long arraysCount = matchingFields.stream().filter(e -> ((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField).count();
+            long arraysCount = matchingFields.stream()
+                .filter(e -> ((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField)
+                .count();
             if (matchingFields.size() - arraysCount == 1) {
-                Optional<IOpenField> f = matchingFields.stream().filter(e -> !(((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField)).findFirst();
+                Optional<IOpenField> f = matchingFields.stream()
+                    .filter(e -> !(((OpenFieldDelegator) e).getDelegate() instanceof ArrayOpenField))
+                    .findFirst();
                 if (f.isPresent()) {
                     bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(ex.getMessage(), node));
                     return f.get();
@@ -138,7 +145,7 @@ public class IdentifierBinder extends ANodeBinder {
         throw ex;
     }
 
-    private static boolean isAllowStrictFieldMatch(IOpenClass type) {
+    private static boolean isAllowOnlyStrictFieldMatch(IOpenClass type) {
         return type != null && type.getInstanceClass() != null && type.getInstanceClass()
             .isAnnotationPresent(AllowOnlyStrictFieldMatchType.class);
     }

@@ -5,11 +5,12 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousFieldException;
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class StaticOpenClass implements IOpenClass {
@@ -35,19 +36,25 @@ public class StaticOpenClass implements IOpenClass {
         return delegate.getDomain();
     }
 
+    public IOpenClass getDelegate() {
+        return delegate;
+    }
+
     @Override
     public boolean isAssignableFrom(IType type) {
-        return delegate.isAssignableFrom(type);
+        return JavaOpenClass.CLASS.isAssignableFrom(type);
     }
 
     @Override
     public IOpenMethod getConstructor(IOpenClass[] params) throws AmbiguousMethodException {
-        return delegate.getConstructor(params);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Iterable<IOpenMethod> methods(String name) {
-        return StreamSupport.stream(delegate.methods(name).spliterator(), false).filter(IOpenMember::isStatic).collect(Collectors.toList());
+        return StreamSupport.stream(delegate.methods(name).spliterator(), false)
+            .filter(IOpenMember::isStatic)
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -92,7 +99,7 @@ public class StaticOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenField getStaticField(String name) {;
+    public IOpenField getStaticField(String name) {
         return delegate.getStaticField(name);
     }
 
@@ -118,12 +125,12 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public Class<?> getInstanceClass() {
-        return delegate.getInstanceClass();
+        return JavaOpenClass.CLASS.getInstanceClass();
     }
 
     @Override
     public String getJavaName() {
-        return delegate.getJavaName();
+        return JavaOpenClass.CLASS.getJavaName();
     }
 
     @Override
@@ -139,27 +146,27 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public boolean isAbstract() {
-        return false;
+        return JavaOpenClass.CLASS.isAbstract();
     }
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        return this.equals(ioc);
+        return JavaOpenClass.CLASS.isAssignableFrom(ioc);
     }
 
     @Override
     public boolean isInstance(Object instance) {
-        return false;
+        return JavaOpenClass.CLASS.isInstance(instance);
     }
 
     @Override
     public boolean isSimple() {
-        return delegate.isSimple();
+        return JavaOpenClass.CLASS.isSimple();
     }
 
     @Override
     public boolean isArray() {
-        return delegate.isArray();
+        return JavaOpenClass.CLASS.isArray();
     }
 
     @Override
@@ -194,7 +201,7 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public void addType(IOpenClass type) throws Exception {
-        delegate.addType(type);
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -214,7 +221,7 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public boolean isInterface() {
-        return delegate.isInterface();
+        return JavaOpenClass.CLASS.isInterface();
     }
 
     @Override
@@ -229,6 +236,6 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public String toString() {
-        return delegate.toString();
+        return getName();
     }
 }

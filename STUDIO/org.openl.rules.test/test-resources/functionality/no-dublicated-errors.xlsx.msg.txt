@@ -1,5 +1,5 @@
 ERROR: Operator 'negative(int[])' is not found.
-ERROR: Static field 'name' is not found in type 'org.openl.generated.beans.Person'.
+ERROR: Static field 'name' is not found in type 'Person'.
 ERROR: Static method 'get(int)' is not found in type 'java.util.Calendar'.
 ERROR: Expected boolean type for condition.
 ERROR: Operator 'add(int[], int)' is not found.

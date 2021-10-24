@@ -3,8 +3,8 @@ package org.openl.types.impl;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousFieldException;
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
@@ -13,6 +13,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.StaticOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -20,6 +21,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class DomainOpenClass implements IOpenClass {
+    private volatile StaticOpenClass staticOpenClass;
 
     private IDomain<?> domain;
 
@@ -274,7 +276,14 @@ public class DomainOpenClass implements IOpenClass {
 
     @Override
     public IOpenClass toStaticClass() {
-        return this;
+        if (staticOpenClass == null) {
+            synchronized (this) {
+                if (staticOpenClass == null) {
+                    staticOpenClass = new StaticDomainOpenClass(this);
+                }
+            }
+        }
+        return staticOpenClass;
     }
 
     @Override
