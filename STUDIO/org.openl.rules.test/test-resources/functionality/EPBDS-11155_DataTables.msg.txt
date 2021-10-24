@@ -1,1 +1,1 @@
-ERROR: Field myTypes is ambiguous:
+ERROR: Field 'myTypes' is ambiguous:
