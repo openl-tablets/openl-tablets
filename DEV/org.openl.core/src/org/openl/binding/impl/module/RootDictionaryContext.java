@@ -48,9 +48,9 @@ public class RootDictionaryContext implements VariableInContextFinder {
         public String getDisplayName(int mode) {
             if (mode == INamedThing.LONG) {
                 if (parent != null) {
-                    return parent.getDisplayName(mode) + "." + field.getDisplayName(mode);
+                    return parent.getDisplayName(mode) + "." + delegate.getDisplayName(mode);
                 }
-                return field.getDisplayName(mode);
+                return delegate.getDisplayName(mode);
             }
             return super.getDisplayName(mode);
         }
@@ -122,11 +122,21 @@ public class RootDictionaryContext implements VariableInContextFinder {
             return;
         }
         add(new ContextField(parent, field));
-
         if (level + 1 <= maxDepthLevel) {
             IOpenClass fieldType = field.getType();
             if (fieldType.isSimple()) {
                 return;
+            }
+            if (fieldType.isArray()) {
+                int dimension = 0;
+                IOpenClass type = field.getType();
+                while (type.isArray()) {
+                    type = type.getComponentClass();
+                    dimension++;
+                }
+                for (IOpenField f : type.getFields()) {
+                    initializeField(field, new ArrayOpenField(f, dimension), level + 1);
+                }
             }
             for (IOpenField openField : fieldType.getFields()) {
                 initializeField(field, openField, level + 1);

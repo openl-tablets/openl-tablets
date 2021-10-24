@@ -16,10 +16,10 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class OpenFieldDelegator implements IOpenField {
-    protected final IOpenField field;
+    protected final IOpenField delegate;
 
     public OpenFieldDelegator(IOpenField field) {
-        this.field = field;
+        this.delegate = field;
     }
 
     @Override
@@ -33,12 +33,12 @@ public class OpenFieldDelegator implements IOpenField {
 
         if (obj instanceof OpenFieldDelegator) {
             OpenFieldDelegator d = (OpenFieldDelegator) obj;
-            return field.equals(d.field);
+            return delegate.equals(d.delegate);
         }
 
         if (obj instanceof IOpenField) {
             IOpenField f = (IOpenField) obj;
-            return field.equals(f);
+            return delegate.equals(f);
         }
 
         return super.equals(obj);
@@ -50,7 +50,7 @@ public class OpenFieldDelegator implements IOpenField {
      */
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        return field.get(target, env);
+        return delegate.get(target, env);
     }
 
     /**
@@ -58,16 +58,16 @@ public class OpenFieldDelegator implements IOpenField {
      */
     @Override
     public IOpenClass getDeclaringClass() {
-        return field.getDeclaringClass();
+        return delegate.getDeclaringClass();
     }
 
     @Override
     public String getDisplayName(int mode) {
-        return field.getDisplayName(mode);
+        return delegate.getDisplayName(mode);
     }
 
-    public IOpenField getField() {
-        return field;
+    public IOpenField getDelegate() {
+        return delegate;
     }
 
     /**
@@ -75,7 +75,7 @@ public class OpenFieldDelegator implements IOpenField {
      */
     @Override
     public IMemberMetaInfo getInfo() {
-        return field.getInfo();
+        return delegate.getInfo();
     }
 
     /**
@@ -83,7 +83,7 @@ public class OpenFieldDelegator implements IOpenField {
      */
     @Override
     public String getName() {
-        return field.getName();
+        return delegate.getName();
     }
 
     /**
@@ -91,7 +91,7 @@ public class OpenFieldDelegator implements IOpenField {
      */
     @Override
     public IOpenClass getType() {
-        return field.getType();
+        return delegate.getType();
     }
 
     /*
@@ -101,7 +101,7 @@ public class OpenFieldDelegator implements IOpenField {
      */
     @Override
     public int hashCode() {
-        return field.hashCode();
+        return delegate.hashCode();
     }
 
     /**
@@ -109,7 +109,7 @@ public class OpenFieldDelegator implements IOpenField {
      */
     @Override
     public boolean isConst() {
-        return field.isConst();
+        return delegate.isConst();
     }
 
     /**
@@ -117,7 +117,7 @@ public class OpenFieldDelegator implements IOpenField {
      */
     @Override
     public boolean isReadable() {
-        return field.isReadable();
+        return delegate.isReadable();
     }
 
     /**
@@ -125,7 +125,7 @@ public class OpenFieldDelegator implements IOpenField {
      */
     @Override
     public boolean isStatic() {
-        return field.isStatic();
+        return delegate.isStatic();
     }
 
     /**
@@ -133,7 +133,7 @@ public class OpenFieldDelegator implements IOpenField {
      */
     @Override
     public boolean isWritable() {
-        return field.isWritable();
+        return delegate.isWritable();
     }
 
     /**
@@ -142,12 +142,12 @@ public class OpenFieldDelegator implements IOpenField {
      */
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        field.set(target, value, env);
+        delegate.set(target, value, env);
     }
 
     @Override
     public String toString() {
-        return field.toString();
+        return delegate.toString();
     }
 
 }
