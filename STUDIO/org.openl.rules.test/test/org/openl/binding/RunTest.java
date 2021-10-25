@@ -264,7 +264,7 @@ public class RunTest {
 
         assertError(
             "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(Date d)!@ d.getDay() < 6]",
-            "Failure in the method: `bbccdd`.getDay(). Cause: object is not an instance of declaring class");
+            "Failure in the method 'java.util.Date.getDay()'. Cause: object is not an instance of declaring class");
         assertEquals(
             "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(String s)!@ s.contains(\"ee\")]",
             "dddee");

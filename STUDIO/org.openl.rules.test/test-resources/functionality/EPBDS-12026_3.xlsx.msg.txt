@@ -1,1 +1,1 @@
-ERROR: Cannot convert from 'Tier' to 'Tier'.
+ERROR: Cannot convert from 'Reference<Tier>' to 'Tier'.
