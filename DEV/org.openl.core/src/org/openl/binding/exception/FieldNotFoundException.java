@@ -8,6 +8,7 @@ package org.openl.binding.exception;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.types.IOpenClass;
+import org.openl.types.StaticOpenClass;
 
 /**
  * @author snshor
@@ -37,7 +38,9 @@ public class FieldNotFoundException extends OpenLCompilationException {
         sb.append(type != null && type.isStatic() ? "Static Field '" : "Field '");
         sb.append(fieldName).append("' is not found");
         if (type != null) {
-            sb.append(" in type '").append(type.getName());
+            sb.append(" in type '")
+                .append(type instanceof StaticOpenClass ? ((StaticOpenClass) type).getDelegate().getName()
+                                                        : type.getName());
         }
         sb.append("'.");
         return sb.toString();

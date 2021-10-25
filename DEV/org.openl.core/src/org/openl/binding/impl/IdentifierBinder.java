@@ -13,6 +13,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.StaticOpenClass;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.types.java.JavaOpenClass;
 
@@ -99,7 +100,7 @@ public class IdentifierBinder extends ANodeBinder {
             throw new OpenlNotCheckedException(String.format("%s '%s' is not found in type '%s'.",
                 type.isStatic() ? "Static field" : "Field",
                 fieldName,
-                type.getName()));
+                type instanceof StaticOpenClass ? ((StaticOpenClass) type).getDelegate().getName() : type.getName()));
         }
 
         if (target.isStaticTarget() != field.isStatic()) {

@@ -23,12 +23,12 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public String getDisplayName(int mode) {
-        return delegate.getDisplayName(mode);
+        return "Reference<" + delegate.getDisplayName(mode) + ">";
     }
 
     @Override
     public String getName() {
-        return delegate.getName();
+        return "Reference<" + delegate.getName() + ">";
     }
 
     @Override

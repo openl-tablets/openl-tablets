@@ -17,7 +17,6 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -146,23 +145,20 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
             return method.invoke(target, params);
         } catch (InvocationTargetException t) {
             Throwable targetException = t.getTargetException();
-            String msg = getMessage(target, method, params, targetException);
+            String msg = getMessage(targetException);
             throw new OpenLRuntimeException(msg, targetException);
         } catch (Exception t) {
-            String msg = getMessage(target, method, params, t);
+            String msg = getMessage(t);
             throw new OpenLRuntimeException(msg, t);
         }
     }
 
-    private String getMessage(Object target, Method m, Object[] params, Throwable exception) {
-        String paramsValue = StringUtils.join(params, ", ");
-        String targetValue = target == null ? "" : "`" + target + "`.";
-        String callingValue = targetValue + m.getName() + "(" + paramsValue + ")";
+    private String getMessage(Throwable exception) {
         String message = exception.getMessage();
         if (message == null) {
             message = exception.toString();
         }
-        return "Failure in the method: " + callingValue + ". Cause: " + message;
+        return "Failure in the method '" + MethodUtil.printQualifiedMethodName(method) + "'. Cause: " + message;
     }
 
     /*
