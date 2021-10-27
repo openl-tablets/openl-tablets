@@ -16,7 +16,7 @@ public class DependencyOpenClass extends OpenClassDelegator {
     }
 
     private IOpenMethod applyDependencyLogic(IOpenMethod openMethod) {
-        if (dependencyWrapperLogic != null) {
+        if (dependencyWrapperLogic != null && openMethod != null) {
             return dependencyWrapperLogic.applyDependencyLogic(openMethod);
         }
         return openMethod;
