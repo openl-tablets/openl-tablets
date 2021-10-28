@@ -99,6 +99,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.ModuleOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.IOUtils;
@@ -658,6 +659,27 @@ public final class DecisionTableHelper {
         return Pair.of(fieldsChainSb.toString(), type);
     }
 
+    private static String getTypeNameToUseInOpenLCode(IOpenClass type, IBindingContext bindingContext) {
+        IOpenClass g = type;
+        int dim = 0;
+        while (g.isArray()) {
+            g = g.getComponentClass();
+            dim++;
+        }
+        if (g instanceof ModuleOpenClass) {
+            IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, g.getName());
+            if (t == null || !Objects.equals(g, t)) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(((ModuleOpenClass) g).getNameWithModuleName());
+                for (int i = 0; i < dim; i++) {
+                    sb.append("[]");
+                }
+                return sb.toString();
+            }
+        }
+        return type.getName();
+    }
+
     private static void writeReturnWithReturnDtHeader(TableSyntaxNode tableSyntaxNode,
             ILogicalTable uncutOriginalTable,
             ILogicalTable originalTable,
@@ -688,7 +710,8 @@ public final class DecisionTableHelper {
                         if (param != null) {
                             String paramName = declaredReturn.getMatchedDefinition().getParameter(param.getName());
                             parameterNames.add(paramName);
-                            String value = param.getType().getName() + (paramName != null ? " " + paramName : "");
+                            String value = getTypeNameToUseInOpenLCode(param.getType(),
+                                bindingContext) + (paramName != null ? " " + paramName : "");
                             grid.setCellValue(c, 2, value);
                             paramType = param.getType();
                         } else {
@@ -761,7 +784,8 @@ public final class DecisionTableHelper {
             Map<String, Map<IOpenField, String>> variables,
             String insertStatement,
             Set<String> variableAssignments,
-            StringBuilder sb) {
+            StringBuilder sb,
+            IBindingContext bindingContext) {
         if (fieldsChain == null) {
             return type;
         }
@@ -781,11 +805,11 @@ public final class DecisionTableHelper {
                         var = RandomStringUtils.random(8, true, false);
                     }
                     generatedNames.add(var);
-                    sb.append(type.getName())
+                    sb.append(getTypeNameToUseInOpenLCode(type, bindingContext))
                         .append(" ")
                         .append(var)
                         .append("=new ")
-                        .append(type.getName())
+                        .append(getTypeNameToUseInOpenLCode(type, bindingContext))
                         .append("();");
                     sb.append("int ").append(var).append("_").append("=0;");
                     vm = variables.computeIfAbsent(currentVariable, e -> new HashMap<>());
@@ -936,9 +960,10 @@ public final class DecisionTableHelper {
                             variables,
                             statement,
                             variableAssignments,
-                            sb);
-                        final String statementInReturn = fuzzyContext.getFuzzyReturnType()
-                            .getName() + "." + buildStatementByFieldsChain(fuzzyContext.getFuzzyReturnType(),
+                            sb,
+                            bindingContext);
+                        final String statementInReturn = getTypeNameToUseInOpenLCode(fuzzyContext.getFuzzyReturnType(),
+                            bindingContext) + "." + buildStatementByFieldsChain(fuzzyContext.getFuzzyReturnType(),
                                 fieldsChain).getKey();
                         Set<String> matchedStatements = ambiguousReturnStatementMatching
                             .computeIfAbsent(statementInReturn, k -> new HashSet<>());
@@ -983,11 +1008,11 @@ public final class DecisionTableHelper {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append(compoundReturnType.getName())
+        sb.append(getTypeNameToUseInOpenLCode(compoundReturnType, bindingContext))
             .append(" ")
             .append(FUZZY_RET_VARIABLE_NAME)
             .append(" = new ")
-            .append(compoundReturnType.getName())
+            .append(getTypeNameToUseInOpenLCode(compoundReturnType, bindingContext))
             .append("();");
         sb.append("int ").append(FUZZY_RET_VARIABLE_NAME).append("_").append(" = 0;");
 
@@ -1016,9 +1041,12 @@ public final class DecisionTableHelper {
                 variables,
                 compoundColumnParamNames[i],
                 variableAssignments,
-                sb);
+                sb,
+                bindingContext);
 
-            grid.setCellValue(fuzzyDTHeader.getColumn(), 2, type.getName() + " " + compoundColumnParamNames[i]);
+            grid.setCellValue(fuzzyDTHeader.getColumn(),
+                2,
+                getTypeNameToUseInOpenLCode(type, bindingContext) + " " + compoundColumnParamNames[i]);
 
             if (fuzzyDTHeader.getWidth() > 1) {
                 grid.addMergedRegion(new GridRegion(2,
@@ -1242,7 +1270,8 @@ public final class DecisionTableHelper {
                     parameterNames.add(paramName);
                     grid.setCellValue(column,
                         2,
-                        param.getType().getName() + (paramName != null ? " " + paramName : ""));
+                        getTypeNameToUseInOpenLCode(param.getType(),
+                            bindingContext) + (paramName != null ? " " + paramName : ""));
                     typeOfColumns.add(param.getType());
                 } else {
                     parameterNames.add(null);
@@ -1549,12 +1578,16 @@ public final class DecisionTableHelper {
                             .getStatement() + " " + stringOperator + ">= min";
                     }
                     grid.setCellValue(column, 1, statement);
-                    grid.setCellValue(column, 2, type.getName() + " " + (minMaxOrder ? "min" : "max"));
+                    grid.setCellValue(column,
+                        2,
+                        getTypeNameToUseInOpenLCode(type, bindingContext) + " " + (minMaxOrder ? "min" : "max"));
                     int w1 = numberOfColumnsUnderTitleCounter.getWidth(column, 0);
                     if (w1 > 1) {
                         grid.addMergedRegion(new GridRegion(2, column, 2, column + w1 - 1));
                     }
-                    grid.setCellValue(column + w1, 2, type.getName() + " " + (minMaxOrder ? "max" : "min"));
+                    grid.setCellValue(column + w1,
+                        2,
+                        getTypeNameToUseInOpenLCode(type, bindingContext) + " " + (minMaxOrder ? "max" : "min"));
                     int w2 = numberOfColumnsUnderTitleCounter.getWidth(column, 1);
                     if (w2 > 1) {
                         grid.addMergedRegion(new GridRegion(2, column + w1, 2, column + w1 + w2 - 1));
@@ -3777,11 +3810,19 @@ public final class DecisionTableHelper {
 
         if (canMadeDecisionAboutSingle) {
             if ((isIntType || isDoubleType || isCharType) && isAllParsableAsSingleFlag || isStringType && isAllParsableAsDomainFlag) {
-                return buildTripleForConditionColumnWithSimpleType(condition, type, false, isMoreThanOneColumnIsUsed);
+                return buildTripleForConditionColumnWithSimpleType(condition,
+                    type,
+                    false,
+                    isMoreThanOneColumnIsUsed,
+                    bindingContext);
             }
 
             if (isStringType && isAllParsableAsDomainArrayFlag) {
-                return buildTripleForConditionColumnWithSimpleType(condition, type, true, isMoreThanOneColumnIsUsed);
+                return buildTripleForConditionColumnWithSimpleType(condition,
+                    type,
+                    true,
+                    isMoreThanOneColumnIsUsed,
+                    bindingContext);
             }
         }
 
@@ -3964,11 +4005,19 @@ public final class DecisionTableHelper {
         }
 
         if (!type.isArray() && isAllParsableAsArrayFlag && (!isAllParsableAsSingleFlag || arraySeparatorFoundFlag)) {
-            return buildTripleForConditionColumnWithSimpleType(condition, type, true, isMoreThanOneColumnIsUsed);
+            return buildTripleForConditionColumnWithSimpleType(condition,
+                type,
+                true,
+                isMoreThanOneColumnIsUsed,
+                bindingContext);
         }
 
         if (isAllParsableAsSingleFlag) {
-            return buildTripleForConditionColumnWithSimpleType(condition, type, false, isMoreThanOneColumnIsUsed);
+            return buildTripleForConditionColumnWithSimpleType(condition,
+                type,
+                false,
+                isMoreThanOneColumnIsUsed,
+                bindingContext);
         }
 
         if (!type.isArray()) {
@@ -3995,18 +4044,28 @@ public final class DecisionTableHelper {
                     true,
                     isMoreThanOneColumnIsUsed);
             }
-            return buildTripleForConditionColumnWithSimpleType(condition, type, true, isMoreThanOneColumnIsUsed);
+            return buildTripleForConditionColumnWithSimpleType(condition,
+                type,
+                true,
+                isMoreThanOneColumnIsUsed,
+                bindingContext);
         } else {
-            return buildTripleForConditionColumnWithSimpleType(condition, type, false, isMoreThanOneColumnIsUsed);
+            return buildTripleForConditionColumnWithSimpleType(condition,
+                type,
+                false,
+                isMoreThanOneColumnIsUsed,
+                bindingContext);
         }
     }
 
     private static Triple<String[], IOpenClass, String> buildTripleForConditionColumnWithSimpleType(DTHeader condition,
             IOpenClass type,
             boolean isArray,
-            boolean isMoreThanOneColumnIsUsed) {
+            boolean isMoreThanOneColumnIsUsed,
+            IBindingContext bindingContext) {
         if (type.isArray() && type.getComponentClass().isArray()) {
-            return Triple.of(new String[] { type.getName() }, type, condition.getStatement());
+            return Triple
+                .of(new String[] { getTypeNameToUseInOpenLCode(type, bindingContext) }, type, condition.getStatement());
         }
         int v;
         if (isArray) {
@@ -4016,12 +4075,14 @@ public final class DecisionTableHelper {
         }
 
         if (v == 0) {
-            return Triple.of(new String[] { type.getName() }, type, condition.getStatement());
-        } else if (v == 1) {
             return Triple
-                .of(new String[] { type.getName() + "[]" }, AOpenClass.getArrayType(type, 1), condition.getStatement());
+                .of(new String[] { getTypeNameToUseInOpenLCode(type, bindingContext) }, type, condition.getStatement());
+        } else if (v == 1) {
+            return Triple.of(new String[] { getTypeNameToUseInOpenLCode(type, bindingContext) + "[]" },
+                AOpenClass.getArrayType(type, 1),
+                condition.getStatement());
         } else {
-            return Triple.of(new String[] { type.getName() + "[][]" },
+            return Triple.of(new String[] { getTypeNameToUseInOpenLCode(type, bindingContext) + "[][]" },
                 AOpenClass.getArrayType(type, 2),
                 condition.getStatement());
         }

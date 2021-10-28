@@ -9,8 +9,11 @@ package org.openl.syntax.impl;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.exception.OpenLCompilationException;
@@ -25,45 +28,28 @@ import org.openl.util.text.TextInterval;
  *
  * @author snshor
  */
-public class Tokenizer {
+public final class Tokenizer {
 
     private static final int EOF = -1;
     private static final String TOKEN_TYPE = "token";
 
     private static final Map<String, Tokenizer> tokenizers = new ConcurrentHashMap<>();
 
-    private boolean[] delimitersTable = {};
+    private final Set<Integer> delimitersTable;
 
-    public Tokenizer(String delimiters) {
-        makeTable(delimiters);
+    private Tokenizer(String delimiters) {
+        delimitersTable = makeTable(delimiters);
     }
 
-    /**
-     * Makes delimiters table. Delimiters table is array of boolean values where element index is delimiter character
-     * code (char casted to integer) and value is boolean value that has <code>true</code> value if the character is
-     * used as delimiter; <code>false</code> - otherwise.
-     *
-     * @param delimiters string of delimiters (each char is delimiter)
-     */
-    private void makeTable(String delimiters) {
-        if (StringUtils.isEmpty(delimiters)) {
-            return;
+    private Set<Integer> makeTable(String x) {
+        if (StringUtils.isEmpty(x)) {
+            return Collections.emptySet();
         }
-
-        int min = 0;
-
-        for (int i = 0; i < delimiters.length(); i++) {
-
-            if (delimiters.charAt(i) > min) {
-                min = delimiters.charAt(i);
-            }
+        Set<Integer> ret = new HashSet<>();
+        for (int i = 0; i < x.length(); i++) {
+            ret.add((int) x.charAt(i));
         }
-
-        delimitersTable = new boolean[min + 1];
-
-        for (int i = 0; i < delimiters.length(); i++) {
-            delimitersTable[delimiters.charAt(i)] = true;
-        }
+        return ret;
     }
 
     /**
@@ -73,7 +59,15 @@ public class Tokenizer {
      * @return <code>true</code> if character is delimiter; <code>false</code> - otherwise
      */
     private boolean isDelimiter(int character) {
-        return character < delimitersTable.length && delimitersTable[character];
+        return delimitersTable.contains(character);
+    }
+
+    private boolean isEscapeBegin(int character) {
+        return character == '`';
+    }
+
+    private boolean isEscapeEnd(int character) {
+        return character == '`';
     }
 
     /**
@@ -91,31 +85,33 @@ public class Tokenizer {
             int position = -1;
             int character;
             StringBuilder buffer = null;
-
+            boolean escaped = false;
             do {
+                boolean f = true;
                 character = reader.read();
-                position += 1;
-
-                if ((character == EOF || isDelimiter(character)) && buffer != null) {
-                    String value = buffer.toString();
+                position++;
+                if (!escaped && isEscapeBegin(character)) {
+                    escaped = true;
+                } else if (escaped && isEscapeEnd(character)) {
+                    escaped = false;
+                } else if ((character == EOF || !escaped && isDelimiter(character)) && buffer != null) {
+                    f = false;
+                    String value = buffer.toString().trim();
                     if (value.isEmpty()) {
                         buffer = null;
                     } else {
                         TextInterval location = LocationUtils.createTextInterval(startToken, position);
-
                         return new IdentifierNode(TOKEN_TYPE, location, value, source);
                     }
-                } else {
-                    if (character != EOF && !isDelimiter(character)) {
-                        if (buffer == null) {
-                            buffer = new StringBuilder();
-                            startToken = position;
-                        }
-
-                        buffer.append((char) character);
-                    }
                 }
+                if (f) {
+                    if (buffer == null) {
+                        buffer = new StringBuilder();
+                        startToken = position;
+                    }
 
+                    buffer.append((char) character);
+                }
             } while (character != EOF);
 
             return new IdentifierNode(TOKEN_TYPE, LocationUtils.createTextInterval(0, 0), StringUtils.EMPTY, source);
@@ -147,12 +143,17 @@ public class Tokenizer {
             int character;
             StringBuilder buffer = null;
             boolean continueLooping;
-
+            boolean escaped = false;
             do {
+                boolean f = true;
                 character = reader.read();
-                position += 1;
-
-                if (character == EOF || isDelimiter(character)) {
+                position++;
+                if (!escaped && isEscapeBegin(character)) {
+                    escaped = true;
+                } else if (escaped && isEscapeEnd(character)) {
+                    escaped = false;
+                } else if (character == EOF || !escaped && isDelimiter(character)) {
+                    f = false;
                     if (buffer != null) {
                         String value = buffer.toString().trim();
                         if (!value.isEmpty()) {
@@ -162,14 +163,14 @@ public class Tokenizer {
                         }
                         buffer = null;
                     }
-                } else {
-                    if (!isDelimiter(character)) {
-                        if (buffer == null) {
-                            buffer = new StringBuilder();
-                            startToken = position;
-                        }
-                        buffer.append((char) character);
+                }
+                if (f) {
+                    if (buffer == null) {
+                        buffer = new StringBuilder();
+                        startToken = position;
                     }
+
+                    buffer.append((char) character);
                 }
 
                 if (textLocation != null) {
@@ -211,13 +212,13 @@ public class Tokenizer {
         return getTokenizer(delimiter).parse(source, null);
     }
 
-    private static Tokenizer getTokenizer(String delimeter) {
+    private static Tokenizer getTokenizer(String delimiter) {
 
-        Tokenizer tokenizer = tokenizers.get(delimeter);
+        Tokenizer tokenizer = tokenizers.get(delimiter);
 
         if (tokenizer == null) {
-            tokenizer = new Tokenizer(delimeter);
-            tokenizers.put(delimeter, tokenizer);
+            tokenizer = new Tokenizer(delimiter);
+            tokenizers.put(delimiter, tokenizer);
         }
 
         return tokenizer;

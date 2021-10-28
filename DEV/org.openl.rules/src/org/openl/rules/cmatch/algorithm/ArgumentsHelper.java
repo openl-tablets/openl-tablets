@@ -62,7 +62,7 @@ public class ArgumentsHelper {
         }
 
         String[] possibleNames = argNames.toArray(StringUtils.EMPTY_STRING_ARRAY);
-        return new DomainOpenClass("names", JavaOpenClass.STRING, new EnumDomain<>(possibleNames), null);
+        return new DomainOpenClass("names", JavaOpenClass.STRING, new EnumDomain<>(possibleNames), null, null);
     }
 
     public Argument getTypeByName(String argName) {

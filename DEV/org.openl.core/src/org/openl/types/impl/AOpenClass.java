@@ -95,7 +95,11 @@ public abstract class AOpenClass implements IOpenClass {
                 for (int j = 0; j < dim; j++) {
                     domainOpenClassName.append("[]");
                 }
-                return new DomainOpenClass(domainOpenClassName.toString(), arrayType, openClass.getDomain(), null);
+                return new DomainOpenClass(domainOpenClassName.toString(),
+                    arrayType,
+                    openClass.getDomain(),
+                    openClass instanceof ModuleOpenClass ? ((ModuleOpenClass) openClass).getModuleName() : null,
+                    null);
             } else {
                 return arrayType;
             }

@@ -20,7 +20,7 @@ import org.openl.vm.IRuntimeEnv;
  * {@link IOpenClass} implementation, that adds restriction for instances of this class by {@link IDomain}
  *
  */
-public class DomainOpenClass implements IOpenClass {
+public class DomainOpenClass implements IOpenClass, ModuleOpenClass {
     private volatile StaticOpenClass staticOpenClass;
 
     private IDomain<?> domain;
@@ -29,13 +29,32 @@ public class DomainOpenClass implements IOpenClass {
     private final IOpenClass baseClass;
     private final String name;
     private IMetaInfo metaInfo;
+    private final String moduleName;
 
-    public DomainOpenClass(String name, IOpenClass baseClass, IDomain<?> domain, IMetaInfo metaInfo) {
+    public DomainOpenClass(String name,
+            IOpenClass baseClass,
+            IDomain<?> domain,
+            String moduleName,
+            IMetaInfo metaInfo) {
         assert name != null;
         this.baseClass = baseClass;
         this.name = name;
         this.metaInfo = metaInfo;
         this.domain = domain;
+        this.moduleName = moduleName;
+    }
+
+    @Override
+    public String getNameWithModuleName() {
+        if (moduleName == null) {
+            throw new IllegalStateException("moduleName is not defined");
+        }
+        return "`" + moduleName + "`." + getName();
+    }
+
+    @Override
+    public String getModuleName() {
+        return moduleName;
     }
 
     @Override

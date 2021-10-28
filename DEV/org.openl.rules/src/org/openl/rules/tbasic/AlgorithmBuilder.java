@@ -69,6 +69,7 @@ public class AlgorithmBuilder {
                 new DomainOpenClass(OPERATION1,
                     JavaOpenClass.STRING,
                     new EnumDomain<>(algorithmOperationsArray),
+                    null,
                     null),
                 false);
         } catch (Exception e) {

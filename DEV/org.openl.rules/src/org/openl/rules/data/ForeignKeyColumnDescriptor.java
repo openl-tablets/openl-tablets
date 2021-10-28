@@ -565,7 +565,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         }
         EnumDomain<Object> domain = new EnumDomain<>(foreignArray);
-        return new DomainOpenClass(getField().getName(), columnType, domain, null);
+        return new DomainOpenClass(getField().getName(), columnType, domain, null, null);
     }
 
     private ResultChainObject getChainObject(IBindingContext bindingContext,

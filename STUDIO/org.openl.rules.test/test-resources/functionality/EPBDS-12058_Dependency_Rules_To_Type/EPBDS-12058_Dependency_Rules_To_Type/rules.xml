@@ -1,0 +1,19 @@
+<project>
+    <name>MainSpr</name>
+    <modules>
+        <module>
+            <name>MyMain</name>
+            <rules-root path="MainSpr.xlsx"/>
+        </module>
+        <module>
+            <name>module2</name>
+            <rules-root path="module2.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>TheProject</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>
