@@ -25,7 +25,7 @@ public class JdbcDBRepository extends DBRepository {
     }
 
     @Override
-    protected Connection getConnection() throws SQLException {
+    protected Connection createConnection() throws SQLException {
         if (StringUtils.isBlank(login)) {
             return DriverManager.getConnection(uri);
         } else {

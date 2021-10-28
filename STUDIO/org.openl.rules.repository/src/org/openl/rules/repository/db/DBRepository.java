@@ -34,9 +34,11 @@ abstract class DBRepository implements Repository, Closeable {
 
     private String id;
     private String name;
-    private Settings settings;
+    private volatile Settings settings;
     private ChangesMonitor monitor;
     private int listenerTimerPeriod = 10;
+
+    private volatile boolean initialized = false;
 
     public void setId(String id) {
         this.id = id;
@@ -377,7 +379,21 @@ abstract class DBRepository implements Repository, Closeable {
         return new FeaturesBuilder(this).build();
     }
 
-    protected abstract Connection getConnection() throws SQLException;
+    @Override
+    public void validateConnection() throws IOException {
+        try (Connection ignored = getConnection()) {
+            LOG.info("Repository '{}' is successfully connected to the database.", name);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
+    protected abstract Connection createConnection() throws SQLException;
+
+    private Connection getConnection() throws SQLException, IOException {
+        initializeDatabase();
+        return createConnection();
+    }
 
     private FileData getLatestVersionFileData(String name) throws IOException {
         Connection connection = null;
@@ -485,6 +501,11 @@ abstract class DBRepository implements Repository, Closeable {
             monitor.release();
             monitor = null;
         }
+
+        synchronized (this) {
+            settings = null;
+            initialized = false;
+        }
     }
 
     private FileData insertFile(FileData data, InputStream stream) throws IOException {
@@ -534,18 +555,22 @@ abstract class DBRepository implements Repository, Closeable {
     public void initialize() {
         try {
             JDBCDriverRegister.registerDrivers();
-            loadDBSettings();
-            initializeDatabase();
             monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), listenerTimerPeriod);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to initialize a repository.", e);
+        }
+
+        try {
+            initializeDatabase();
+        } catch (Exception e) {
+            LOG.warn("Can't initialize database during Repository instantiation.", e);
         }
     }
 
     private void loadDBSettings() throws IOException, SQLException {
         Connection connection = null;
         try {
-            connection = getConnection();
+            connection = createConnection();
             DatabaseMetaData metaData = connection.getMetaData();
             String databaseCode = metaData.getDatabaseProductName().toLowerCase().replace(" ", "_");
             int majorVersion = metaData.getDatabaseMajorVersion();
@@ -563,41 +588,57 @@ abstract class DBRepository implements Repository, Closeable {
     }
 
     @SuppressWarnings("squid:S2095") // Statement is closed by safeClose(...) method in finally block
-    private void initializeDatabase() throws SQLException {
-        Object revision = checkRepository();
-        if (!(revision instanceof Throwable)) {
-            LOG.info("SQL result: {}. The repository is already initialized.", revision);
+    private void initializeDatabase() throws SQLException, IOException {
+        if (initialized) {
             return;
         }
-        LOG.info("SQL error: {}", ((Throwable) revision).getMessage());
-        LOG.info("Initializing the repository in the DB...");
-        Connection connection = null;
-        Statement statement = null;
-        Boolean autoCommit = null;
-        try {
-            connection = getConnection();
-            autoCommit = connection.getAutoCommit();
-            connection.setAutoCommit(false);
-            statement = connection.createStatement();
 
-            for (String query : settings.initStatements) {
-                if (StringUtils.isNotBlank(query)) {
-                    statement.execute(query);
+        synchronized (this) {
+            if (initialized) {
+                return;
+            }
+
+            if (settings == null) {
+                loadDBSettings();
+            }
+
+            Object revision = checkRepository();
+            if (!(revision instanceof Throwable)) {
+                LOG.info("SQL result: {}. The repository is already initialized.", revision);
+                initialized = true;
+                return;
+            }
+            LOG.info("SQL error: {}", ((Throwable) revision).getMessage());
+            LOG.info("Initializing the repository in the DB...");
+            Connection connection = null;
+            Statement statement = null;
+            Boolean autoCommit = null;
+            try {
+                connection = createConnection();
+                autoCommit = connection.getAutoCommit();
+                connection.setAutoCommit(false);
+                statement = connection.createStatement();
+
+                for (String query : settings.initStatements) {
+                    if (StringUtils.isNotBlank(query)) {
+                        statement.execute(query);
+                    }
                 }
+                connection.commit();
+                initialized = true;
+                LOG.info("The repository is initialized.");
+            } catch (Exception e) {
+                if (connection != null) {
+                    connection.rollback();
+                }
+                throw e;
+            } finally {
+                if (autoCommit != null) {
+                    connection.setAutoCommit(autoCommit);
+                }
+                SqlDBUtils.safeClose(statement);
+                SqlDBUtils.safeClose(connection);
             }
-            connection.commit();
-            LOG.info("The repository is initialized.");
-        } catch (Exception e) {
-            if (connection != null) {
-                connection.rollback();
-            }
-            throw e;
-        } finally {
-            if (autoCommit != null) {
-                connection.setAutoCommit(autoCommit);
-            }
-            SqlDBUtils.safeClose(statement);
-            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -605,6 +646,11 @@ abstract class DBRepository implements Repository, Closeable {
 
         @Override
         public Object getRevision() {
+            try {
+                initializeDatabase();
+            } catch (Exception e) {
+                LOG.warn(e.getMessage(), e);
+            }
             Object revision = checkRepository();
             if (revision instanceof Throwable) {
                 LOG.warn("Cannot check revision of the repository.", (Throwable) revision);
@@ -623,7 +669,7 @@ abstract class DBRepository implements Repository, Closeable {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            connection = getConnection();
+            connection = createConnection();
             statement = connection.prepareStatement(settings.selectLastChange);
             rs = statement.executeQuery();
 
