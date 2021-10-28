@@ -1,6 +1,9 @@
 package org.openl.types.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.openl.domain.EnumDomain;
@@ -15,7 +18,7 @@ public class DomainOpenClassTest {
     public void testNotArray() {
         IOpenClass baseClass = JavaOpenClass.STRING;
         IDomain<String> domain = new EnumDomain<>(new String[] { "Value1", "Value2" });
-        DomainOpenClass domainClass = new DomainOpenClass("TestClass", baseClass, domain, null);
+        DomainOpenClass domainClass = new DomainOpenClass("TestClass", baseClass, domain, null, null);
         assertEquals(DomainOpenClassAggregateInfo.DOMAIN_AGGREGATE, domainClass.getAggregateInfo());
 
         assertEquals(baseClass, domainClass.getBaseClass());
@@ -35,14 +38,14 @@ public class DomainOpenClassTest {
     public void testArray() {
         IOpenClass baseClass = JavaOpenClass.STRING.getAggregateInfo().getIndexedAggregateType(JavaOpenClass.STRING);
         IDomain<String> domain = new EnumDomain<>(new String[] { "Value1", "Value2" });
-        DomainOpenClass domainClass = new DomainOpenClass("TestClass[]", baseClass, domain, null);
+        DomainOpenClass domainClass = new DomainOpenClass("TestClass[]", baseClass, domain, null, null);
         assertEquals(DomainOpenClassAggregateInfo.DOMAIN_AGGREGATE, domainClass.getAggregateInfo());
 
         assertTrue(domainClass.isArray());
 
         assertEquals(baseClass, domainClass.getBaseClass());
 
-        assertEquals(new DomainOpenClass("TestClass", baseClass, domain, null), domainClass.getComponentClass());
+        assertEquals(new DomainOpenClass("TestClass", baseClass, domain, null, null), domainClass.getComponentClass());
 
         IOpenClass aggregateDomain = domainClass.getAggregateInfo().getIndexedAggregateType(domainClass);
 

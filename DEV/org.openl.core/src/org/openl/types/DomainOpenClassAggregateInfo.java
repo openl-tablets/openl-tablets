@@ -22,6 +22,7 @@ public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
         return new DomainOpenClass(componentType.getName() + "[]",
             openClass,
             componentType.getDomain(),
+            ((DomainOpenClass) componentType).getModuleName(),
             componentType.getMetaInfo());
     }
 
@@ -45,6 +46,7 @@ public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
         return new DomainOpenClass(componentType,
             super.getComponentType(domainType.getBaseClass()),
             domainType.getDomain(),
+            domainType.getModuleName(),
             domainType.getMetaInfo());
     }
 

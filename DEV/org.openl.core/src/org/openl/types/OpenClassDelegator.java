@@ -179,4 +179,8 @@ public class OpenClassDelegator implements IOpenClass {
     public boolean isStatic() {
         return delegate.isStatic();
     }
+
+    public IOpenClass getDelegate() {
+        return delegate;
+    }
 }

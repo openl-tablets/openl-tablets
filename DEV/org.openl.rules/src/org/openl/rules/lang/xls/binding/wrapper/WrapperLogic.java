@@ -35,8 +35,9 @@ import org.openl.vm.IRuntimeEnv;
 public final class WrapperLogic {
 
     static {
-        DependencyOpenClass.dependencyWrapperLogic = openMethod -> wrapOpenMethod(openMethod,
-            (XlsModuleOpenClass) openMethod.getDeclaringClass(),
+        DependencyOpenClass.dependencyWrapperLogicToMethod = (openMethod, dependencyOpenClass) -> wrapOpenMethod(
+            openMethod,
+            (XlsModuleOpenClass) dependencyOpenClass.getDelegate(),
             true);
     }
 

@@ -997,8 +997,8 @@ public class DataTableBindHelper {
             if (loadedFieldType instanceof TestMethodOpenClass) {
                 StringBuilder sb = new StringBuilder();
                 MethodUtil.printMethod(((TestMethodOpenClass) loadedFieldType).getTestedMethod(), sb);
-                errorMessage = String.format("Expected one of the parameters from the method '%s', but found '%s'.",
-                    sb.toString(),
+                errorMessage = String
+                    .format("Expected one of the parameters from the method '%s', but found '%s'.", sb,
                     fieldName);
             } else {
                 errorMessage = String.format("%s '%s' is not found in type '%s'.",

@@ -1,7 +1,9 @@
 package org.openl.dependency;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -21,6 +23,7 @@ public class DependencyBindingContext extends BindingContextDelegator {
     private final IDependencyManager dependencyManager;
 
     private final Set<String> loadedDependencies = new HashSet<>();
+    private final Map<CompiledDependency, DependencyVar> dependencyVarsCache = new HashMap<>();
 
     public DependencyBindingContext(IBindingContext delegate, IDependencyManager dependencyManager) {
         super(delegate);
@@ -50,7 +53,7 @@ public class DependencyBindingContext extends BindingContextDelegator {
                     addMessages(compiledDependency.getCompiledOpenClass().getMessages());
                 }
                 String tName = typeName.substring(typeName.indexOf(".") + 1);
-                IOpenClass t = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors().findType(tName);
+                IOpenClass t = buildDependencyVar(compiledDependency).getType().findType(tName);
                 if (t != null) {
                     return t;
                 }
@@ -76,6 +79,18 @@ public class DependencyBindingContext extends BindingContextDelegator {
         return null;
     }
 
+    private DependencyVar buildDependencyVar(CompiledDependency compiledDependency) {
+        DependencyVar dependencyVar = dependencyVarsCache.get(compiledDependency);
+        if (dependencyVar == null) {
+            dependencyVar = new DependencyVar(compiledDependency.getDependency().getNode().getIdentifier(),
+                new DependencyOpenClass(compiledDependency.getDependency().getNode().getIdentifier(),
+                    compiledDependency.getCompiledOpenClass().getOpenClassWithErrors()),
+                compiledDependency.getDependencyType());
+            dependencyVarsCache.put(compiledDependency, dependencyVar);
+        }
+        return dependencyVar;
+    }
+
     @Override
     public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField var = super.findVar(namespace, name, strictMatch);
@@ -92,9 +107,7 @@ public class DependencyBindingContext extends BindingContextDelegator {
                 loadedDependencies.add(name);
                 addMessages(compiledDependency.getCompiledOpenClass().getMessages());
             }
-            return new DependencyVar(compiledDependency.getDependency().getNode().getIdentifier(),
-                new DependencyOpenClass(compiledDependency.getCompiledOpenClass().getOpenClassWithErrors()),
-                compiledDependency.getDependencyType());
+            return buildDependencyVar(compiledDependency);
         } catch (Exception e) {
             if (!loadedDependencies.contains(name)) {
                 addMessages(OpenLMessagesUtils.newErrorMessages(e));

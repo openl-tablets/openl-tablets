@@ -35,7 +35,6 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.rules.testmethod.TestMethodOpenClass;
-import org.openl.util.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -44,6 +43,7 @@ import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.MessageUtils;
+import org.openl.util.TableNameChecker;
 import org.openl.util.text.TextInterval;
 
 /**
@@ -95,16 +95,14 @@ public class DataNodeBinder extends AXlsTableBinder {
             throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
         }
 
-        String typeName = parsedHeader[TYPE_INDEX].getText();
+        String typeName = parsedHeader[TYPE_INDEX].getOriginalIdentifier();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getText();
         if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
             String message = "Data table " + tableName + NAME_ERROR_MESSAGE;
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
         }
-        IOpenClass tableType = OpenLManager.makeType(((IBindingContext) bindingContext).getOpenL(),
-                typeName,
-                source,
-                bindingContext);
+        IOpenClass tableType = OpenLManager
+            .makeType(((IBindingContext) bindingContext).getOpenL(), typeName, source, bindingContext);
 
         // Check that table type loaded properly.
         //
@@ -135,7 +133,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         }
         parsedHeader1.add(new IdentifierNode(parsedHeader[1].getType(),
             new TextInterval(parsedHeader[1].getLocation().getStart(), parsedHeader[i - 1].getLocation().getEnd()),
-            parsedHeader[1].getIdentifier() + sb.toString(),
+            parsedHeader[1].getOriginalIdentifier() + sb,
             parsedHeader[1].getModule()));
         parsedHeader1.addAll(Arrays.asList(parsedHeader).subList(i, parsedHeader.length));
         return parsedHeader1.toArray(new IdentifierNode[] {});

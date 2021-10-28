@@ -13,11 +13,13 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
+import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -27,6 +29,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
+import org.openl.types.impl.ModuleOpenClass;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenConstructor;
@@ -41,7 +44,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author snshor
  */
-public class DatatypeOpenClass extends ADynamicClass implements WrapModuleSpecificTypes {
+public class DatatypeOpenClass extends ADynamicClass implements ModuleOpenClass, WrapModuleSpecificTypes {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatatypeOpenClass.class);
 
@@ -54,6 +57,8 @@ public class DatatypeOpenClass extends ADynamicClass implements WrapModuleSpecif
     private TableSyntaxNode tableSyntaxNode;
 
     private byte[] bytecode;
+
+    private String moduleName;
 
     /**
      * User has a possibility to set the package (by table properties mechanism) where he wants to generate datatype
@@ -76,6 +81,23 @@ public class DatatypeOpenClass extends ADynamicClass implements WrapModuleSpecif
             javaName = packageName + '.' + name;
         }
         this.packageName = packageName;
+    }
+
+    @Override
+    public String getNameWithModuleName() {
+        if (moduleName == null) {
+            throw new IllegalStateException("moduleName is not defined");
+        }
+        return "`" + moduleName + "`." + getName();
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
+    @Override
+    public String getModuleName() {
+        return moduleName;
     }
 
     @Override
@@ -189,6 +211,39 @@ public class DatatypeOpenClass extends ADynamicClass implements WrapModuleSpecif
         return null;
     }
 
+    /**
+     * Override super class implementation to provide possibility to compare datatypes with info about their fields
+     *
+     * @author DLiauchuk
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(superClass, javaName);
+    }
+
+    /**
+     * Override super class implementation to provide possibility to compare datatypes with info about their fields Is
+     * used in {@link XlsBinder} (method filterDependencyTypes)
+     *
+     * @author DLiauchuk
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        DatatypeOpenClass other = (DatatypeOpenClass) obj;
+
+        return Objects.equals(superClass, other.getSuperClass()) && Objects.equals(getMetaInfo(),
+            other.getMetaInfo()) && Objects.equals(javaName, other.getJavaName());
+    }
+
     @Override
     public String toString() {
         return javaName;
@@ -249,7 +304,7 @@ public class DatatypeOpenClass extends ADynamicClass implements WrapModuleSpecif
     }
 
     private IOpenMethod wrapDatatypeOpenConstructor(MethodKey mk, IOpenMethod method) {
-        if (method instanceof JavaOpenConstructor && javaName.equals(method.getDeclaringClass().getJavaName())) {
+        if (method instanceof JavaOpenConstructor) {
             JavaOpenConstructor javaOpenConstructor = (JavaOpenConstructor) method;
             if (javaOpenConstructor.getNumberOfParameters() == 0) {
                 return new DatatypeOpenConstructor(javaOpenConstructor, this);
