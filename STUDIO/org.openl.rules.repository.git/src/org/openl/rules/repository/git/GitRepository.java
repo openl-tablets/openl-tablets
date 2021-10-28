@@ -147,14 +147,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private CommitMessageParser commitMessageParser;
     private RepositorySettings repositorySettings;
     private Date settingsSyncDate = new Date();
-    private boolean noVerify;
+    private volatile boolean noVerify;
     private Boolean gcAutoDetach;
     private int failedAuthenticationSeconds;
     private Integer maxAuthenticationAttempts;
     private WildcardBranchNameFilter protectedBranchFilter = WildcardBranchNameFilter.NO_MATCH;
 
     private ChangesMonitor monitor;
-    private Git git;
+    private volatile Git git;
     private NotResettableCredentialsProvider credentialsProvider;
 
     private ReadWriteLock repositoryLock = new ReentrantReadWriteLock();
@@ -193,6 +193,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public List<FileData> list(String path) throws IOException {
+        initializeGit(true);
+
         if (isEmpty()) {
             return Collections.emptyList();
         }
@@ -205,17 +207,23 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public FileData check(String name) throws IOException {
+        initializeGit(true);
+
         return iterate(name, new CheckCommand());
     }
 
     @Override
     public FileItem read(String name) throws IOException {
+        initializeGit(true);
+
         return iterate(name, new ReadCommand());
     }
 
     @Override
     @SuppressWarnings("squid:S2095") // resources are closed by IOUtils
     public FileData save(FileData data, InputStream stream) throws IOException {
+        initializeGit(true);
+
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("save(data, stream): lock");
@@ -240,6 +248,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
+        initializeGit(true);
+
         List<FileData> result = new ArrayList<>();
         Lock writeLock = repositoryLock.writeLock();
         String firstCommitId = null;
@@ -318,6 +328,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public boolean delete(FileData data) throws IOException {
+        initializeGit(true);
+
         if (deleteInternal(data)) {
             monitor.fireOnChange();
             return true;
@@ -396,6 +408,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public boolean delete(List<FileData> data) throws IOException {
+        initializeGit(true);
+
         boolean deleted = false;
         for (FileData f : data) {
             deleted |= deleteInternal(f);
@@ -458,26 +472,36 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public List<FileData> listHistory(String name) throws IOException {
+        initializeGit(true);
+
         return iterateHistory(name, new ListHistoryVisitor());
     }
 
     @Override
     public List<FileData> listFiles(String path, String version) throws IOException {
+        initializeGit(true);
+
         return parseHistory(path, version, new ListFilesHistoryVisitor(version));
     }
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
+        initializeGit(true);
+
         return parseHistory(name, version, new CheckHistoryVisitor(version));
     }
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
+        initializeGit(true);
+
         return parseHistory(name, version, new ReadHistoryVisitor(version));
     }
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
+        initializeGit(true);
+
         String name = data.getName();
         String version = data.getVersion();
         String author = StringUtils.trimToEmpty(data.getAuthor());
@@ -547,6 +571,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
+        initializeGit(true);
+
         if (version == null) {
             return copy(srcName, destData);
         }
@@ -604,11 +630,41 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return check(destData.getName());
     }
 
+    @Override
+    public void validateConnection() throws IOException {
+        initializeGit(true);
+        if (uri != null) {
+            try {
+                git.fetch()
+                    .setCredentialsProvider(credentialsProvider)
+                    .setTimeout(connectionTimeout)
+                    .setDryRun(true)
+                    .call();
+            } catch (GitAPIException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
     public void initialize() {
+        initializeGit(false);
+
+        monitor = new ChangesMonitor(new GitRevisionGetter(), listenerTimerPeriod);
+    }
+
+    private void initializeGit(boolean failOnError) {
+        if (git != null) {
+            return;
+        }
+
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("initialize(): lock");
             writeLock.lock();
+
+            if (git != null) {
+                return;
+            }
 
             if (StringUtils.isNotBlank(login) && StringUtils.isNotBlank(password)) {
                 credentialsProvider = new NotResettableCredentialsProvider(login,
@@ -620,215 +676,233 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             File local = new File(localRepositoryPath);
 
-            boolean shouldCloneOrInit;
-            boolean shouldUpdateOrigin = false;
-            if (!local.exists()) {
-                shouldCloneOrInit = true;
-            } else {
-                File[] files = local.listFiles();
-                if (files == null) {
-                    throw new IOException(String.format("'%s' is not a directory.", local));
-                }
-
-                if (files.length > 0) {
-                    if (RepositoryCache.FileKey.resolve(local, FS.DETECTED) != null) {
-                        log.debug("Reuse existing git repository {}", local);
-                        try (Repository repository = Git.open(local).getRepository()) {
-                            if (uri != null) {
-                                String remoteUrl = repository.getConfig()
-                                    .getString(ConfigConstants.CONFIG_REMOTE_SECTION,
-                                        Constants.DEFAULT_REMOTE_NAME,
-                                        ConfigConstants.CONFIG_KEY_URL);
-                                if (!uri.equals(remoteUrl)) {
-                                    URI proposedUri = getUri(uri);
-                                    URI savedUri = getUri(remoteUrl);
-                                    if (!proposedUri.equals(savedUri)) {
-                                        if (savedUri != null && isSame(proposedUri, savedUri)) {
-                                            shouldUpdateOrigin = true;
-                                        } else {
-                                            throw new IOException(String.format(
-                                                "Folder '%s' already contains local git repository, but is configured to different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
-                                                local,
-                                                remoteUrl));
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        shouldCloneOrInit = false;
-                    } else {
-                        // Cannot overwrite existing files that is definitely not git repository
-                        throw new IOException(String.format(
-                            "Folder '%s' already exists and is not a git repository. Use another local path or delete the existing folder to create a git repository.",
-                            local));
-                    }
-                } else {
-                    shouldCloneOrInit = true;
-                }
-            }
-
-            if (shouldCloneOrInit) {
-                try {
-                    if (uri != null) {
-                        CloneCommand cloneCommand = Git.cloneRepository()
-                            .setURI(uri)
-                            .setDirectory(local)
-                            .setBranch(branch)
-                            .setCloneAllBranches(true);
-
-                        CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.CLONE);
-                        if (credentialsProvider != null) {
-                            cloneCommand.setCredentialsProvider(credentialsProvider);
-                        }
-
-                        Git cloned = cloneCommand.call();
-                        successAuthentication(GitActionType.CLONE);
-                        cloned.close();
-                    } else {
-                        Git repo = Git.init().setDirectory(local).call();
-                        repo.close();
-                    }
-                } catch (Exception e) {
-                    FileUtils.deleteQuietly(local);
-                    throw e;
-                }
-            } else if (shouldUpdateOrigin) {
-                try (Repository repository = Git.open(local).getRepository()) {
-                    StoredConfig config = repository.getConfig();
-                    config.setString(ConfigConstants.CONFIG_REMOTE_SECTION,
-                        Constants.DEFAULT_REMOTE_NAME,
-                        ConfigConstants.CONFIG_KEY_URL,
-                        uri);
-                    config.save();
-                }
-            }
+            boolean clonedOrCreated = cloneOrInit(local);
 
             git = Git.open(local);
-            StoredConfig config = git.getRepository().getConfig();
-            if (StringUtils.isNotBlank(userDisplayName)) {
-                config.setString(ConfigConstants.CONFIG_USER_SECTION,
-                    null,
-                    ConfigConstants.CONFIG_KEY_NAME,
-                    userDisplayName);
-            } else {
-                config.unset(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_NAME);
-            }
-            if (StringUtils.isNotBlank(userEmail)) {
-                config
-                    .setString(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_EMAIL, userEmail);
-            } else {
-                config.unset(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_EMAIL);
-            }
-
-            if (gcAutoDetach != null) {
-                config.setBoolean(ConfigConstants.CONFIG_GC_SECTION,
-                    null,
-                    ConfigConstants.CONFIG_KEY_AUTODETACH,
-                    gcAutoDetach);
-            }
-
-            config.save();
+            updateGitConfigs();
 
             // Track all remote branches as local branches
-            List<Ref> remoteBranches = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
-            TreeSet<String> localBranches = getAvailableBranches();
-            String remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
-            for (Ref remoteBranch : remoteBranches) {
-                if (remoteBranch.isSymbolic()) {
-                    log.debug("Skip the symbolic branch '{}'.", remoteBranch.getName());
-                    continue;
-                }
-                if (!remoteBranch.getName().startsWith(remotePrefix)) {
-                    log.warn("The branch {} will not be tracked", remoteBranch.getName());
-                    continue;
-                }
-                String branchName = remoteBranch.getName().substring(remotePrefix.length());
-                try {
-                    if (!localBranches.contains(branchName)) {
-                        createRemoteTrackingBranch(branchName);
-                    }
-                } catch (RefAlreadyExistsException e) {
-                    // the error may appear on non-case sensitive OS
-                    log.warn(
-                        "The branch '{}' will not be tracked because a branch with the same name already exists. Branches with the same name, but different capitalization do not work on non-case sensitive OS.",
-                        remoteBranch.getName());
-                }
-            }
+            trackRemoteBranches();
 
             // Check if we should skip hooks.
-            noVerify = false;
-            File hookDir = new File(git.getRepository().getDirectory(), Constants.HOOKS);
-            File preCommitHook = new File(hookDir, PreCommitHook.NAME);
-            File commitMsgHook = new File(hookDir, CommitMsgHook.NAME);
-            if (!preCommitHook.isFile() && !commitMsgHook.isFile()) {
-                log.debug("Hooks are absent");
-                noVerify = true;
-            } else {
-                try {
-                    if (!Files.isExecutable(preCommitHook.toPath()) || !Files.isExecutable(commitMsgHook.toPath())) {
-                        log.debug("Hook exists but not executable");
-                        noVerify = true;
-                    }
-                } catch (SecurityException e) {
-                    log.warn("Hook exists but there is no access to invoke the file.", e);
-                    noVerify = true;
-                }
+            detectCanRunHooks();
+
+            if (!clonedOrCreated && uri != null) {
+                FetchResult fetchResult = fetchAll();
+                doFastForward(fetchResult);
+                fastForwardNotMergedCommits(fetchResult);
             }
 
-            if (!shouldCloneOrInit && uri != null) {
-                try {
-                    FetchResult fetchResult = fetchAll();
-                    doFastForward(fetchResult);
-                    fastForwardNotMergedCommits(fetchResult);
-                } catch (Exception e) {
-                    log.warn(e.getMessage(), e);
-                    // For all cases we should not fail. The local repository exists,
-                    // will fetch later.
-                }
-            }
+            readBranchesWithLock();
 
-            lockSettings();
-            try {
-                readBranches();
-            } finally {
-                unlockSettings();
-            }
             if (credentialsProvider != null) {
                 credentialsProvider.successAuthentication(GitActionType.INIT);
             }
-            monitor = new ChangesMonitor(new GitRevisionGetter(), listenerTimerPeriod);
         } catch (Exception e) {
-            Throwable cause = ExceptionUtils.getRootCause(e);
-            if (cause == null) {
-                cause = e;
-            }
-
-            // Unknown host
-            if (cause instanceof UnknownHostException) {
-                String error = String.format("Unknown host for URL %s.", uri);
-                final String message = cause.getMessage();
-                if (message != null) {
-                    error += " Root cause message: " + message;
-                }
-                throw new IllegalArgumentException(error, e);
-            }
-
-            if (e instanceof TransportException) {
+            if (git != null) {
                 try {
-                    if ((new URIish(uri)).getScheme() == null) {
-                        throw new IllegalStateException("Incorrect URL.", e);
-                    }
-                } catch (URISyntaxException uriSyntaxException) {
-                    throw new IllegalStateException("Incorrect URL.", uriSyntaxException);
+                    git.close();
+                } catch (Exception ignored) {
                 }
+                git = null;
             }
-
-            // Other cases
-            throw new IllegalStateException("Failed to initialize a repository: " + e.getMessage(), e);
+            if (failOnError) {
+                throwClearException(e);
+            } else {
+                log.error(e.getMessage(), e);
+            }
         } finally {
             writeLock.unlock();
             log.debug("initialize(): unlock");
         }
+    }
+
+    private boolean cloneOrInit(File local) throws IOException, GitAPIException {
+        boolean shouldCloneOrInit;
+        boolean shouldUpdateOrigin = false;
+        if (!local.exists()) {
+            shouldCloneOrInit = true;
+        } else {
+            File[] files = local.listFiles();
+            if (files == null) {
+                throw new IOException(String.format("'%s' is not a directory.", local));
+            }
+
+            if (files.length > 0) {
+                if (RepositoryCache.FileKey.resolve(local, FS.DETECTED) != null) {
+                    log.debug("Reuse existing git repository {}", local);
+                    try (Repository repository = Git.open(local).getRepository()) {
+                        if (uri != null) {
+                            String remoteUrl = repository.getConfig()
+                                .getString(ConfigConstants.CONFIG_REMOTE_SECTION,
+                                    Constants.DEFAULT_REMOTE_NAME,
+                                    ConfigConstants.CONFIG_KEY_URL);
+                            if (!uri.equals(remoteUrl)) {
+                                URI proposedUri = getUri(uri);
+                                URI savedUri = getUri(remoteUrl);
+                                if (!proposedUri.equals(savedUri)) {
+                                    if (savedUri != null && isSame(proposedUri, savedUri)) {
+                                        shouldUpdateOrigin = true;
+                                    } else {
+                                        throw new IOException(String.format(
+                                            "Folder '%s' already contains local git repository, but is configured to different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
+                                            local,
+                                            remoteUrl));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    shouldCloneOrInit = false;
+                } else {
+                    // Cannot overwrite existing files that is definitely not git repository
+                    throw new IOException(String.format(
+                        "Folder '%s' already exists and is not a git repository. Use another local path or delete the existing folder to create a git repository.",
+                        local));
+                }
+            } else {
+                shouldCloneOrInit = true;
+            }
+        }
+
+        if (shouldCloneOrInit) {
+            try {
+                if (uri != null) {
+                    CloneCommand cloneCommand = Git.cloneRepository()
+                        .setURI(uri)
+                        .setDirectory(local)
+                        .setBranch(branch)
+                        .setCloneAllBranches(true);
+
+                    CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.CLONE);
+                    if (credentialsProvider != null) {
+                        cloneCommand.setCredentialsProvider(credentialsProvider);
+                    }
+
+                    Git cloned = cloneCommand.call();
+                    successAuthentication(GitActionType.CLONE);
+                    cloned.close();
+                } else {
+                    Git repo = Git.init().setDirectory(local).call();
+                    repo.close();
+                }
+            } catch (Exception e) {
+                FileUtils.deleteQuietly(local);
+                throw e;
+            }
+        } else if (shouldUpdateOrigin) {
+            try (Repository repository = Git.open(local).getRepository()) {
+                StoredConfig config = repository.getConfig();
+                config.setString(ConfigConstants.CONFIG_REMOTE_SECTION,
+                    Constants.DEFAULT_REMOTE_NAME,
+                    ConfigConstants.CONFIG_KEY_URL,
+                    uri);
+                config.save();
+            }
+        }
+        return shouldCloneOrInit;
+    }
+
+    private void updateGitConfigs() throws IOException {
+        StoredConfig config = git.getRepository().getConfig();
+        if (StringUtils.isNotBlank(userDisplayName)) {
+            config
+                .setString(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_NAME, userDisplayName);
+        } else {
+            config.unset(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_NAME);
+        }
+        if (StringUtils.isNotBlank(userEmail)) {
+            config.setString(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_EMAIL, userEmail);
+        } else {
+            config.unset(ConfigConstants.CONFIG_USER_SECTION, null, ConfigConstants.CONFIG_KEY_EMAIL);
+        }
+
+        if (gcAutoDetach != null) {
+            config.setBoolean(ConfigConstants.CONFIG_GC_SECTION,
+                null,
+                ConfigConstants.CONFIG_KEY_AUTODETACH,
+                gcAutoDetach);
+        }
+
+        config.save();
+    }
+
+    private void trackRemoteBranches() throws GitAPIException {
+        List<Ref> remoteBranches = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
+        TreeSet<String> localBranches = getAvailableBranches();
+        String remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
+        for (Ref remoteBranch : remoteBranches) {
+            if (remoteBranch.isSymbolic()) {
+                log.debug("Skip the symbolic branch '{}'.", remoteBranch.getName());
+                continue;
+            }
+            if (!remoteBranch.getName().startsWith(remotePrefix)) {
+                log.warn("The branch {} will not be tracked", remoteBranch.getName());
+                continue;
+            }
+            String branchName = remoteBranch.getName().substring(remotePrefix.length());
+            try {
+                if (!localBranches.contains(branchName)) {
+                    createRemoteTrackingBranch(branchName);
+                }
+            } catch (RefAlreadyExistsException e) {
+                // the error may appear on non-case sensitive OS
+                log.warn(
+                        "The branch '{}' will not be tracked because a branch with the same name already exists. Branches with the same name, but different capitalization do not work on non-case sensitive OS.",
+                        remoteBranch.getName());
+            }
+        }
+    }
+
+    private void detectCanRunHooks() {
+        noVerify = false;
+        File hookDir = new File(git.getRepository().getDirectory(), Constants.HOOKS);
+        File preCommitHook = new File(hookDir, PreCommitHook.NAME);
+        File commitMsgHook = new File(hookDir, CommitMsgHook.NAME);
+        if (!preCommitHook.isFile() && !commitMsgHook.isFile()) {
+            log.debug("Hooks are absent");
+            noVerify = true;
+        } else {
+            try {
+                if (!Files.isExecutable(preCommitHook.toPath()) || !Files.isExecutable(commitMsgHook.toPath())) {
+                    log.debug("Hook exists but not executable");
+                    noVerify = true;
+                }
+            } catch (SecurityException e) {
+                log.warn("Hook exists but there is no access to invoke the file.", e);
+                noVerify = true;
+            }
+        }
+    }
+
+    private void throwClearException(Exception e) {
+        Throwable cause = ExceptionUtils.getRootCause(e);
+        if (cause == null) {
+            cause = e;
+        }
+
+        // Unknown host
+        if (cause instanceof UnknownHostException) {
+            String error = String.format("Unknown host for URL %s.", uri);
+            final String message = cause.getMessage();
+            if (message != null) {
+                error += " Root cause message: " + message;
+            }
+            throw new IllegalArgumentException(error, e);
+        }
+
+        if (e instanceof TransportException) {
+            try {
+                if ((new URIish(uri)).getScheme() == null) {
+                    throw new IllegalStateException("Incorrect URL.", e);
+                }
+            } catch (URISyntaxException uriSyntaxException) {
+                throw new IllegalStateException("Incorrect URL.", uriSyntaxException);
+            }
+        }
+
+        // Other cases
+        throw new IllegalStateException("Failed to initialize a repository: " + e.getMessage(), e);
     }
 
     @Override
@@ -1065,12 +1139,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
             if (modified) {
                 if (withLock) {
-                    lockSettings();
-                    try {
-                        readBranches();
-                    } finally {
-                        unlockSettings();
-                    }
+                    readBranchesWithLock();
                 } else {
                     readBranches();
                 }
@@ -1772,6 +1841,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public List<FileData> listFolders(String path) throws IOException {
+        initializeGit(true);
+
         return iterate(path, new ListFoldersCommand());
     }
 
@@ -1779,6 +1850,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     public FileData save(FileData folderData,
             Iterable<FileItem> files,
             ChangesetType changesetType) throws IOException {
+        initializeGit(true);
+
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("save(folderData, files, changesetType): lock");
@@ -1802,6 +1875,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public List<FileData> save(List<FolderItem> folderItems, ChangesetType changesetType) throws IOException {
+        initializeGit(true);
+
         List<FileData> result = new ArrayList<>();
         Lock writeLock = repositoryLock.writeLock();
         String firstCommitId = null;
@@ -1840,6 +1915,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public void pull(String author) throws IOException {
+        initializeGit(true);
+
         if (uri == null) {
             return;
         }
@@ -1865,6 +1942,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public void merge(String branchFrom, String author, ConflictResolveData conflictResolveData) throws IOException {
+        initializeGit(true);
+
         Lock writeLock = repositoryLock.writeLock();
         String refToResetTo = null;
         try {
@@ -1910,6 +1989,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public boolean isMergedInto(String from, String to) throws IOException {
+        initializeGit(true);
+
         Lock readLock = repositoryLock.readLock();
         try {
             log.debug("isMergedInto(): lock");
@@ -2189,6 +2270,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public void createBranch(String projectPath, String newBranch) throws IOException {
+        initializeGit(true);
+
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("createBranch(): lock");
@@ -2243,6 +2326,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public void deleteBranch(String projectPath, String branch) throws IOException {
+        initializeGit(true);
+
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("deleteBranch(): lock");
@@ -2293,6 +2378,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public List<String> getBranches(String projectPath) throws IOException {
+        initializeGit(true);
+
         Lock readLock = repositoryLock.readLock();
         try {
             log.debug("getBranches(): lock");
@@ -2330,6 +2417,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public GitRepository forBranch(String branch) throws IOException {
+        initializeGit(true);
+
         Lock readLock = repositoryLock.readLock();
         try {
             log.debug("forBranch(): read: lock");
@@ -2444,6 +2533,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         Iterable<PushResult> results = push.call();
         successAuthentication(GitActionType.PUSH_BRANCH);
         validatePushResults(results);
+    }
+
+    private void readBranchesWithLock() throws IOException {
+        lockSettings();
+        try {
+            readBranches();
+        } finally {
+            unlockSettings();
+        }
     }
 
     private void readBranches() throws IOException {
@@ -2627,6 +2725,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         @Override
         public Object getRevision() {
             try {
+                initializeGit(true);
+
                 return getLastRevision();
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);

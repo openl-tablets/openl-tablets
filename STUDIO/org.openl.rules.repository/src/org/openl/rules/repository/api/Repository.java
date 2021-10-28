@@ -107,7 +107,7 @@ public interface Repository extends AutoCloseable {
      * @return true if at least one file is deleted
      * @throws IOException if not possible to delete the file
      */
-    boolean delete(List<FileData> data) throws  IOException;
+    boolean delete(List<FileData> data) throws IOException;
 
     /**
      * Set a listener to monitor changes in the repository.
@@ -185,5 +185,13 @@ public interface Repository extends AutoCloseable {
     @Override
     default void close() throws Exception {
         // Do nothing. For backward compatibility of API
+    }
+
+    /**
+     * Validate underlying connection. Default implementation does nothing.
+     * 
+     * @throws IOException if connection can't be established
+     */
+    default void validateConnection() throws IOException {
     }
 }
