@@ -1,0 +1,2 @@
+ERROR: Parent class 'Project1[/({module1.MyDatatype' is not found.
+ERROR: Failed to load a class for datatype 'org.openl.generated.beans.MyDatatype2'.
