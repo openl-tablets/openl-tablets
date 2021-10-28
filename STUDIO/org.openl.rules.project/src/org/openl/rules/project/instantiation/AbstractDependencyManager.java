@@ -260,10 +260,10 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             value = ASTERISK_SIGN.matcher(value).replaceAll("\\\\E.*\\\\Q");
             value = QUESTION_SIGN.matcher(value).replaceAll("\\\\E.\\\\Q");
             value = SLASH_SIGN.matcher(value).replaceAll("\\\\E\\\\s*/\\\\s*\\\\Q");
-            value = "\\Q" + value + "\\E";
         } else {
             withWildcard = false;
         }
+        value = "\\Q" + value + "\\E";
         IDependencyLoader currentDependencyLoader = !getCompilationStack().isEmpty() ? getCompilationStack().getFirst()
                                                                                      : null;
         Collection<IDependencyLoader> visibleDependencyLoaders = currentDependencyLoader != null ? findAllProjectDependencyLoaders(
