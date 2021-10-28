@@ -11,6 +11,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.binding.impl.BindingContextDelegator;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.impl.IdentifierNode;
@@ -55,6 +56,13 @@ public class DependencyBindingContext extends BindingContextDelegator {
                 String tName = typeName.substring(typeName.indexOf(".") + 1);
                 IOpenClass t = buildDependencyVar(compiledDependency).getType().findType(tName);
                 if (t != null) {
+                    OpenLClassLoader openLClassLoader = (OpenLClassLoader) Thread.currentThread()
+                        .getContextClassLoader();
+                    try {
+                        openLClassLoader.loadClass(t.getJavaName());
+                    } catch (ClassNotFoundException e) {
+                        openLClassLoader.addClassLoader(compiledDependency.getClassLoader());
+                    }
                     return t;
                 }
                 try {
