@@ -56,13 +56,6 @@ public class DependencyBindingContext extends BindingContextDelegator {
                 String tName = typeName.substring(typeName.indexOf(".") + 1);
                 IOpenClass t = buildDependencyVar(compiledDependency).getType().findType(tName);
                 if (t != null) {
-                    OpenLClassLoader openLClassLoader = (OpenLClassLoader) Thread.currentThread()
-                        .getContextClassLoader();
-                    try {
-                        openLClassLoader.loadClass(t.getJavaName());
-                    } catch (ClassNotFoundException e) {
-                        openLClassLoader.addClassLoader(compiledDependency.getClassLoader());
-                    }
                     return t;
                 }
                 try {
@@ -94,6 +87,8 @@ public class DependencyBindingContext extends BindingContextDelegator {
                 new DependencyOpenClass(compiledDependency.getDependency().getNode().getIdentifier(),
                     compiledDependency.getCompiledOpenClass().getOpenClassWithErrors()),
                 compiledDependency.getDependencyType());
+            ((OpenLClassLoader) Thread.currentThread().getContextClassLoader())
+                .addClassLoader(compiledDependency.getClassLoader());
             dependencyVarsCache.put(compiledDependency, dependencyVar);
         }
         return dependencyVar;
