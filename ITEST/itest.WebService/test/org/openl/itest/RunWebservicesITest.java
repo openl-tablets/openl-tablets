@@ -673,4 +673,9 @@ public class RunWebservicesITest {
         client.send("EPBDS-12114/openapi.json.get");
         client.send("EPBDS-12114/doPing.json.post");
     }
+
+    @Test
+    public void EPBDS_12057() {
+        client.send("EPBDS-12057/openapi.json.get");
+    }
 }
