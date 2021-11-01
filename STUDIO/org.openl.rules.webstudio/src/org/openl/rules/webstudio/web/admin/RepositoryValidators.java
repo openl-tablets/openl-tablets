@@ -84,15 +84,6 @@ public final class RepositoryValidators {
             }
         }
 
-        List<String> names = new ArrayList<>();
-        if (prodConfig.getType().equalsIgnoreCase("git")) {
-            String localRepositoryPath = ((GitRepositorySettings) prodConfig.getSettings()).getLocalRepositoryPath();
-            if (names.contains(localRepositoryPath)) {
-                throw new RepositoryValidationException("ALARMA!!!");
-            }
-            names.add(localRepositoryPath);
-        }
-
         RepositorySettings settings = prodConfig.getSettings();
 
         if (settings instanceof CommonRepositorySettings) {
