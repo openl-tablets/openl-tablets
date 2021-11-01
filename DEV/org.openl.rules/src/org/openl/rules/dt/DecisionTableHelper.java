@@ -695,7 +695,8 @@ public final class DecisionTableHelper {
                             paramType = declaredReturn.getCompositeMethod().getType();
                         }
                         typeOfColumns.add(paramType);
-                        int h = lookupReturnHeader ? firstColumnHeight : originalTable.getSource().getCell(c, 0).getHeight();
+                        int h = lookupReturnHeader ? firstColumnHeight
+                                                   : originalTable.getSource().getCell(c, 0).getHeight();
                         int w1 = originalTable.getSource().getCell(c, h).getWidth();
                         if (paramType != null && paramType.isArray()) {
                             // If we have more columns than parameters use excess columns for array typed parameter
@@ -4134,28 +4135,30 @@ public final class DecisionTableHelper {
             if (value != null) {
                 value = value.toUpperCase();
                 if (isValidConditionHeader(value) || isValidMergedConditionHeader(value)) {
-                    ++cnt;
+                    cnt++;
                 }
             }
         }
         return cnt;
     }
 
-    static int countAllHeaderTypes(ILogicalTable table) {
+    static Pair<Integer, Integer> countAllHeaderTypes(ILogicalTable table) {
         int width = table.getWidth();
         int cnt = 0;
+        int nonHeaderCnt = 0;
         for (int i = 0; i < width; i++) {
             String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
-            if (value != null) {
+            if (value != null && !StringUtils.isEmpty(value)) {
                 value = value.toUpperCase();
-                if (StringUtils.isEmpty(value) || isConditionHeader(value) || isValidRetHeader(value)
-                        || isValidCRetHeader(value) || isValidActionHeader(value) || isValidKeyHeader(value)
-                        || isValidRuleHeader(value)) {
+                if (isConditionHeader(value) || isValidRetHeader(value) || isValidCRetHeader(
+                    value) || isValidActionHeader(value) || isValidKeyHeader(value) || isValidRuleHeader(value)) {
                     cnt++;
+                } else {
+                    nonHeaderCnt++;
                 }
             }
         }
-        return cnt;
+        return Pair.of(cnt, nonHeaderCnt);
     }
 
     private static final class ParameterTokens {
