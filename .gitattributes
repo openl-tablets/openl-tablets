@@ -1,0 +1,11 @@
+# EOL for bash scripts
+**/*.sh eol=lf
+
+# EOL for Dockerfile
+Dockerfiles/* eol=lf
+**/Dockerfile eol=lf
+
+# EOL for Http Requests
+**/*.req eol=crlf
+**/*.resp eol=crlf
+**/*.http eol=crlf
