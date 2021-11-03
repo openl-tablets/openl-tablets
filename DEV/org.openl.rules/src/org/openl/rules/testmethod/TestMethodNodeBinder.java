@@ -28,19 +28,21 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.util.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.MessageUtils;
+import org.openl.util.TableNameChecker;
 
 /**
  * @author snshor
@@ -93,7 +95,15 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             throw SyntaxNodeExceptionUtils.createError("Test table format: Test <methodname> <testname>", source);
         }
 
-        final String methodName = parsedHeader[TESTED_METHOD_INDEX].getIdentifier();
+        String methodName = parsedHeader[TESTED_METHOD_INDEX].getOriginalIdentifier();
+        IOpenClass moduleToSearch = module;
+        int d = methodName.indexOf(".");
+        if (d < methodName.length() - 1 && d > 1 && methodName.charAt(0) == '`' && methodName.charAt(d - 1) == '`') {
+            String moduleName = methodName.substring(1, d - 1);
+            methodName = methodName.substring(d + 1);
+            IOpenField moduleField = bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, moduleName, true);
+            moduleToSearch = moduleField.getType();
+        }
         String tableName;
         if (parsedHeader.length == 2) {
             // $Test$0 or $Run$0
@@ -114,7 +124,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         TestedMethodBindingDetails best = null;
         boolean hasNoErrorBinding = false;
         List<TestedMethodBindingDetails> noErrorsCases = null;
-        for (IOpenMethod testedMethod : module.getMethods()) {
+        for (IOpenMethod testedMethod : moduleToSearch.getMethods()) {
             if (!methodName.equals(testedMethod.getName())) {
                 continue;
             }
