@@ -95,7 +95,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             throw SyntaxNodeExceptionUtils.createError("Test table format: Test <methodname> <testname>", source);
         }
 
-        String methodName = parsedHeader[TESTED_METHOD_INDEX].getOriginalIdentifier();
+        String methodName = parsedHeader[TESTED_METHOD_INDEX].getOriginalText();
         IOpenClass moduleToSearch = module;
         int d = methodName.indexOf(".");
         if (d < methodName.length() - 1 && d > 1 && methodName.charAt(0) == '`' && methodName.charAt(d - 1) == '`') {

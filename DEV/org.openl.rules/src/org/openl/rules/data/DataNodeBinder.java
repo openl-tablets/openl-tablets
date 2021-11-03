@@ -95,7 +95,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
         }
 
-        String typeName = parsedHeader[TYPE_INDEX].getOriginalIdentifier();
+        String typeName = parsedHeader[TYPE_INDEX].getOriginalText();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getText();
         if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
             String message = "Data table " + tableName + NAME_ERROR_MESSAGE;
@@ -133,7 +133,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         }
         parsedHeader1.add(new IdentifierNode(parsedHeader[1].getType(),
             new TextInterval(parsedHeader[1].getLocation().getStart(), parsedHeader[i - 1].getLocation().getEnd()),
-            parsedHeader[1].getOriginalIdentifier() + sb,
+            parsedHeader[1].getOriginalText() + sb,
             parsedHeader[1].getModule()));
         parsedHeader1.addAll(Arrays.asList(parsedHeader).subList(i, parsedHeader.length));
         return parsedHeader1.toArray(new IdentifierNode[] {});

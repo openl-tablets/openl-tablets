@@ -28,7 +28,7 @@ public class IdentifierNode extends TerminalNode {
         return identifier;
     }
 
-    public String getOriginalIdentifier() {
+    public String getOriginalText() {
         return originalIdentifier != null ? originalIdentifier : getIdentifier();
     }
 
