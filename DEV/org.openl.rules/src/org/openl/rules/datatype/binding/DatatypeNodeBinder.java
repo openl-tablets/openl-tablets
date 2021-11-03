@@ -96,7 +96,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             // Get type name.
             //
-            String type = parsedHeader[2].getIdentifier().substring(beginIndex, endIndex).trim();
+            String type = parsedHeader[2].getOriginalText().substring(beginIndex, endIndex).trim();
 
             // Create appropriate domain object.
             //

@@ -1,0 +1,15 @@
+<project>
+    <name>EPBDS-12071_Dependency_Rules_Sprs</name>
+    <modules>
+        <module>
+            <name>mymodule</name>
+            <rules-root path="mymodule.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>Project1</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>

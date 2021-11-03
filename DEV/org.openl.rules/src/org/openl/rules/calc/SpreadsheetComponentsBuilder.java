@@ -335,7 +335,7 @@ public class SpreadsheetComponentsBuilder {
             SymbolicTypeDefinition symbolicTypeDefinition = headerDefinition.getDefinition();
             IdentifierNode typeIdentifierNode = symbolicTypeDefinition.getType();
             if (typeIdentifierNode != null) {
-                String typeIdentifier = typeIdentifierNode.getText();
+                String typeIdentifier = typeIdentifierNode.getOriginalText();
                 headerType = OpenLManager.makeType(bindingContext.getOpenL(),
                     typeIdentifier,
                     symbolicTypeDefinition.getSource(),
