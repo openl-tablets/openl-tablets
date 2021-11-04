@@ -114,7 +114,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             ((IOpenClassAware) o).setIOpenClass(openClass);
         }
         try {
-            AnnotationUtils.inject(o, InjectOpenClass.class, () -> openClass);
+            AnnotationUtils.inject(o, InjectOpenClass.class, (e) -> openClass);
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error("Failed to inject '{}' class instance.", IOpenClass.class.getTypeName());
         }
@@ -125,7 +125,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             }
         }
         try {
-            AnnotationUtils.inject(o, InjectOpenMember.class, () -> findIOpenMember(method));
+            AnnotationUtils.inject(o, InjectOpenMember.class, (e) -> findIOpenMember(method));
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error("Failed to inject '{}' class instance.", IOpenMember.class.getTypeName());
         }

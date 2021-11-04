@@ -613,7 +613,7 @@
                                          onclick="createProjectTags('', function () {$j('#importFromRepoForm\\:sbtRepoHidden').click();}); return false;"
                                          rendered="#{hasTags}"/>
                         <h:commandButton id="sbtRepo#{hasTags ? 'Hidden' : ''}" value="Import" action="#{repositoryTreeController.importFromRepo}"
-                                         onclick="if (!#{repositoryTreeController.openLProjectInFolder} &amp;&amp; !confirm('Chosen folder is not OpenL project. Are you sure?')) return false;"
+                                         onclick="if (!#{repositoryTreeController.openLProjectInFolder} &amp;&amp; !confirm('Chosen folder is not OpenL project. Are you sure?')) return false; else showLoader();"
                                          styleClass="button-primary #{hasTags ? 'hidden' : ''}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>

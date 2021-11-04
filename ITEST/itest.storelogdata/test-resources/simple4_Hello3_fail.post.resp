@@ -1,0 +1,4 @@
+HTTP/1.1 500
+Content-Type: text/plain
+
+No message body writer has been found for class org.openl.rules.ruleservice.publish.jaxrs.JAXRSErrorResponse, ContentType: text/plain

@@ -1,49 +1,19 @@
-ARG JDK=11-slim
+FROM ubuntu:focal
 
-FROM openjdk:$JDK
-
-ARG VERSION="latest"
-ARG SERVER="https://repo.maven.apache.org/maven2"
+COPY openl-tablets-demo.zip demo.zip
 
 RUN set -eux ; \
-    \
-# Create non-root OpenL user
-    groupadd  -r openl && useradd -m -g openl openl ; \
     \
 # Prepare environment. Install required utils for Docker image building.
     savedAptMark="$(apt-mark showmanual)"; \
     \
     apt-get update ; \
     apt-get install -y --no-install-recommends \
-    wget \
     unzip \
-    gnupg \
-    libxml2-utils \
     ; \
     \
 # Clean up temporaries
     rm -rf /var/lib/apt/lists/* ; \
-    \
-# Download artifact.
-    artifactUrl="$SERVER/org/openl/rules/demo/openl-demo-app" ; \
-    if [ "$VERSION" = "latest" ] ; then \
-      version="$(wget -qO - $artifactUrl/maven-metadata.xml \
-               | xmllint --xpath /metadata/versioning/$VERSION/text\(\) - )" ; \
-    else \
-      version=$VERSION ; \
-    fi ; \
-    downloadUrl="$artifactUrl/$version/openl-demo-app-$version.zip" ; \
-    \
-    wget --progress=dot:giga -O demo.zip "$downloadUrl" ; \
-    wget --progress=dot:giga -O demo.zip.asc "$downloadUrl.asc" ; \
-    \
-# GPG verification
-    export GNUPGHOME="$(mktemp -d)" ; \
-    gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 902B17732F38021331F3019F82521DFA3BF8F6FC ; \
-    gpg --batch --verify demo.zip.asc demo.zip ; \
-    gpgconf --kill all ; \
-    rm -rf "$GNUPGHOME" ; \
-    rm demo.zip.asc ; \
     \
 # Unpack demo files
     unzip -q demo.zip ; \
@@ -60,25 +30,30 @@ RUN set -eux ; \
 # Permission for rootless mode (for running as non-root)
     cd .. ; \
     chmod 777 logs temp work ; \
-    chmod 777 -R openl-demo ; \
-    \
-# Cleanup apt-get installations
-    apt-mark auto '.*' > /dev/null ; \
-    [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null ; \
-    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false ; \
-    \
+    chmod 777 -R openl-demo
+
+FROM ubuntu:focal
+
+# Copy Java
+ENV JAVA_HOME /opt/java/openjdk
+COPY --from=eclipse-temurin:11-jre-focal $JAVA_HOME $JAVA_HOME
+
 # Install fonts required for Apache POI (export into Excel with autowidth of columns)
+RUN set -eux ; \
+    \
     apt-get update ; \
     apt-get install -y --no-install-recommends \
     fontconfig ; \
     rm -rf /var/lib/apt/lists/*
 
-
-WORKDIR /demo
-
-EXPOSE 8080
+RUN useradd -r -m -U -s /usr/sbin/nologin openl
+USER openl
 
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=90.0"
 
+EXPOSE 8080
 #Start Tomcat
 CMD export CATALINA_OPTS="-Dopenl.home=./openl-demo -Dws.port=8080 $CATALINA_OPTS" && sh bin/catalina.sh start && tail -f /dev/null
+
+COPY --from=0 /demo /demo
+WORKDIR /demo

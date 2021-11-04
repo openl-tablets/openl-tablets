@@ -16,11 +16,11 @@
 
     <h:form id="copyDeploymentProjectForm">
       <h:panelGroup id="modalCopyDeploymentProjectData">
-        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-          <h:outputText value="Project Name:" />
+        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label, ">
+          <h:outputText value="Deployment Configuration:" />
           <input id="deploymentProjectName1" value="#{artefact.name}" type="text" size="35" readonly="readonly" title="#{artefact.name}"/>
-          <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name:" />
-          <h:inputText id="newProjectName" size="35"
+          <h:outputLabel for="newDeploymentConfiguration" styleClass="required" value="New Deployment Configuration:" />
+          <h:inputText id="newDeploymentConfiguration" size="35"
               maxlength="50"
               value="#{repositoryTreeController.newProjectName}"
               onkeyup="#{rich:element('copyDProject')}.disabled = (this.value.trim().length === 0);" />
@@ -46,11 +46,11 @@
         el.title = projectName;
       }
       RichFaces.$('modalCopyDeploymentProject').show();
-      focusElement('copyDeploymentProjectForm:newProjectName');
+      focusElement('copyDeploymentProjectForm:newDeploymentConfiguration');
       document.getElementById('copyDeploymentProjectForm:hiddenProjectName').value = document.getElementById('deploymentProjectName1').value;
     }
     function clearCopyDeploymentProjectForm() {
-        $j("#copyDeploymentProjectForm\\:newProjectName").val("");
+        $j("#copyDeploymentProjectForm\\:newDeploymentConfiguration").val("");
         $j("#copyDeploymentProjectForm\\:copyDProject").prop("disabled", true);
     }
   </script>

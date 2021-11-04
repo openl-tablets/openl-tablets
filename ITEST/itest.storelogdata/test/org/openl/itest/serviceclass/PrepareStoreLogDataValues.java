@@ -2,6 +2,8 @@ package org.openl.itest.serviceclass;
 
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+
 import org.openl.itest.cassandra.HelloEntity8;
 import org.openl.itest.elasticsearch.CustomElasticEntity8;
 import org.openl.rules.ruleservice.core.interceptors.IOpenClassAware;
@@ -11,7 +13,8 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 import org.openl.rules.ruleservice.storelogdata.advice.ObjectSerializerAware;
 import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
-import org.openl.rules.ruleservice.storelogdata.elasticsearch.InjectElasticsearchOperations;
+import org.openl.rules.ruleservice.storelogdata.db.annotation.InjectEntityManager;
+import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.InjectElasticsearchOperations;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -29,6 +32,9 @@ public class PrepareStoreLogDataValues implements StoreLogDataAdvice, ObjectSeri
 
     @InjectElasticsearchOperations
     ElasticsearchOperations elasticsearchOperations;
+
+    @InjectEntityManager
+    EntityManager entityManager;
 
     @Override
     public void setObjectSerializer(ObjectSerializer objectSerializer) {
@@ -53,11 +59,14 @@ public class PrepareStoreLogDataValues implements StoreLogDataAdvice, ObjectSeri
 
         values.put("awareInstancesFound", objectSerializer != null && openMember != null && openClass != null);
 
-        values.put("cassandraSessionFound", cassandraSession != null);
+        values.put("cassandraSessionFound", cassandraSession != null && !cassandraSession.isClosed());
 
         values.put("elasticsearchOperationsFound", elasticsearchOperations != null);
 
+        values.put("dbConnectionFound", entityManager != null && entityManager.isOpen());
+
         StoreLogDataHolder.get().ignore(HelloEntity8.class);
         StoreLogDataHolder.get().ignore(CustomElasticEntity8.class);
+        StoreLogDataHolder.get().ignore(org.openl.itest.db.HelloEntity8.class);
     }
 }

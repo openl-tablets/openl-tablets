@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>5.25.1-SNAPSHOT</version>
+        <version>5.25.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -28,7 +28,7 @@
 	                <forkedProcessExitTimeoutInSeconds>120</forkedProcessExitTimeoutInSeconds>
                         <systemPropertyVariables>
                             <webservice-webapp>
-                                ../../WSFrontend/org.openl.rules.ruleservice.ws.all/target/webservice-all
+                                ../../WSFrontend/org.openl.rules.ruleservice.ws.all/target/webapp
                             </webservice-webapp>
                         </systemPropertyVariables>
                     </configuration>
