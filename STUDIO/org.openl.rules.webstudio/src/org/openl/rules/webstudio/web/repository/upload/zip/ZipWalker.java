@@ -10,7 +10,7 @@ import java.util.zip.ZipInputStream;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.RootFolderExtractor;
 import org.openl.rules.workspace.filter.PathFilter;
-import org.openl.util.IOUtils;
+import org.openl.util.FileUtils;
 
 public class ZipWalker {
     private final ProjectFile uploadedFile;
@@ -24,12 +24,12 @@ public class ZipWalker {
     }
 
     public void iterateEntries(ZipEntryCommand command) throws IOException {
-        ZipInputStream zipInputStream = null;
-        try {
-            zipInputStream = getZipInputStream();
+        try (ZipInputStream zipInputStream = getZipInputStream()) {
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                String fileName = folderExtractor.extractFromRootFolder(zipEntry.getName());
+                String name = zipEntry.getName();
+                FileUtils.getValidPath(name);
+                String fileName = folderExtractor.extractFromRootFolder(name);
                 if (zipEntry.isDirectory()) {
                     if (!command.execute(fileName)) {
                         break;
@@ -40,10 +40,7 @@ public class ZipWalker {
                     }
                 }
             }
-        } finally {
-            IOUtils.closeQuietly(zipInputStream);
         }
-
     }
 
     private ZipInputStream getZipInputStream() throws IOException {
@@ -51,19 +48,17 @@ public class ZipWalker {
     }
 
     private RootFolderExtractor createFolderExtractor(PathFilter zipFilter) throws IOException {
-        ZipInputStream zipInputStream = null;
-        try {
-            zipInputStream = getZipInputStream();
+        try (ZipInputStream zipInputStream = getZipInputStream()) {
             Set<String> names = new TreeSet<>();
             ZipEntry zipEntry;
             while ((zipEntry = zipInputStream.getNextEntry()) != null) {
-                names.add(zipEntry.getName());
+                String name = zipEntry.getName();
+                FileUtils.getValidPath(name);
+                names.add(name);
             }
             zipInputStream.close();
 
             return new RootFolderExtractor(names, zipFilter);
-        } finally {
-            IOUtils.closeQuietly(zipInputStream);
         }
     }
 

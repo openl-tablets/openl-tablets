@@ -1,6 +1,7 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -23,6 +24,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
+import org.openl.util.RuntimeExceptionWrapper;
 
 public class LocalWorkspaceImpl implements LocalWorkspace {
     private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
@@ -139,7 +141,12 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     }
 
     private void loadProjects() {
-        List<FileData> folders = localRepository.listFolders("");
+        List<FileData> folders;
+        try {
+            folders = localRepository.listFolders("");
+        } catch (IOException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        }
         for (FileData folder : folders) {
             AProject lpi;
             String name = folder.getName();

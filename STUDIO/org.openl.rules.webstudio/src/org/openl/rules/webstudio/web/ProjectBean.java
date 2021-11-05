@@ -75,7 +75,6 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
-import org.openl.util.formatters.FileNameFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -790,7 +789,7 @@ public class ProjectBean {
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
         clean(newProjectDescriptor);
 
-        String openAPIPathParam = FileNameFormatter
+        String openAPIPathParam = FileUtils
             .normalizePath(WebStudioUtils.getRequestParameter("importOpenAPIForm:openAPIPath"));
 
         OpenAPI openAPI = projectDescriptor.getOpenapi();
@@ -834,7 +833,7 @@ public class ProjectBean {
         ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
         List<Module> modules = currentProjectDescriptor.getModules();
 
-        String openAPIPathParam = FileNameFormatter
+        String openAPIPathParam = FileUtils
             .normalizePath(WebStudioUtils.getRequestParameter("generateOpenAPIForm:openAPIPath"));
         String algorithmModuleNameParam = WebStudioUtils.getRequestParameter("generateOpenAPIForm:algorithmModuleName");
         String modelModuleNameParam = WebStudioUtils.getRequestParameter("generateOpenAPIForm:modelModuleName");
@@ -912,7 +911,7 @@ public class ProjectBean {
             String internalOpenAPIPath = openAPIFile.getArtefactPath().getStringValue();
             OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
 
-            ProjectModel projectModel = getProjectModel(FileNameFormatter.normalizePath(workspacePath),
+            ProjectModel projectModel = getProjectModel(FileUtils.normalizePath(workspacePath),
                 internalOpenAPIPath,
                 converter);
 
@@ -1148,7 +1147,7 @@ public class ProjectBean {
         if (filePath.startsWith(basePath)) {
             filePath = filePath.substring(filePath.lastIndexOf(basePath) + basePath.length() + 1);
         }
-        return FileNameFormatter.normalizePath(filePath);
+        return FileUtils.normalizePath(filePath);
     }
 
     private EnvironmentModel getEnvironmentModel(String moduleName) {

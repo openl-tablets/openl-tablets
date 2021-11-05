@@ -1,7 +1,15 @@
 package org.openl.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.junit.Test;
 
@@ -102,5 +110,58 @@ public class FileUtilsTest {
         assertEquals("a\\b\\c", FileUtils.removeExtension("a\\b\\c"));
         assertEquals("a\\b\\c\\", FileUtils.removeExtension("a\\b\\c\\"));
         assertEquals("a\\b.txt\\c", FileUtils.removeExtension("a\\b.txt\\c"));
+    }
+
+    @Test
+    public void normalizePathTest() {
+        assertEquals("/foo/", FileUtils.normalizePath("/foo/"));
+        assertEquals("/foo/", FileUtils.normalizePath("\\foo\\"));
+        assertEquals("foo", FileUtils.normalizePath("foo"));
+        assertEquals("/foo/bar", FileUtils.normalizePath("/foo\\\\bar"));
+        assertEquals("", FileUtils.normalizePath(""));
+        assertNull(FileUtils.normalizePath(null));
+    }
+
+    @Test
+    public void getValidPathTest() throws Exception {
+        assertEquals(Paths.get("/foo").toString(), FileUtils.getValidPath("/foo").toString());
+        assertEquals(Paths.get("foo/bar").toString(), FileUtils.getValidPath("foo", "bar").toString());
+        assertEquals(Paths.get("/foo/.openl").toString(), FileUtils.getValidPath("/foo/.openl").toString());
+
+        assertInvalid("../..", () -> FileUtils.getValidPath("../../"));
+        assertInvalid("../foo", () -> FileUtils.getValidPath("../", "foo"));
+        assertInvalid("foo/../bar", () -> FileUtils.getValidPath("foo", "../bar"));
+    }
+
+    @Test
+    public void resolveValidPath() throws Exception {
+        final Path parent = Paths.get("foo").toAbsolutePath();
+        assertInvalid("../bar", () -> FileUtils.resolveValidPath(parent, "../", "bar"));
+        assertOutside("/bar", () -> FileUtils.resolveValidPath(parent, "/bar"));
+        assertEquals(parent.resolve("bar/bar").toString(), FileUtils.resolveValidPath(parent, "bar/bar").toString());
+    }
+
+    public static void assertInvalid(String suffix, Executable exec) throws Exception {
+        try {
+            exec.execute();
+            fail("Expected ValidatorException but nothing was thrown");
+        } catch (InvalidPathException e) {
+            assertEquals("Resulted path does not match canonical: " + suffix, e.getMessage());
+        }
+    }
+
+    public static void assertOutside(String suffix, Executable exec) throws Exception {
+        try {
+            exec.execute();
+            fail("Expected ValidatorException but nothing was thrown");
+        } catch (InvalidPathException e) {
+            assertEquals("Resulted path is outside of parent: " + suffix, e.getMessage());
+        }
+    }
+
+    public interface Executable {
+
+        void execute() throws Exception;
+
     }
 }

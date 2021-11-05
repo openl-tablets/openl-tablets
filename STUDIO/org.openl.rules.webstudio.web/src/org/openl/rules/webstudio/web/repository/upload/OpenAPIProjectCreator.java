@@ -39,7 +39,6 @@ import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
-import org.openl.util.formatters.FileNameFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,8 +107,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         if (algorithmsPath.startsWith("/")) {
             throw new OpenAPIProjectException("Path for Rules cannot start with '/'");
         }
-        String normalizedAlgorithmsPath = FileNameFormatter.normalizePath(algorithmsPath);
-        String normalizedModelsPath = FileNameFormatter.normalizePath(modelsPath);
+        String normalizedAlgorithmsPath = FileUtils.normalizePath(algorithmsPath);
+        String normalizedModelsPath = FileUtils.normalizePath(modelsPath);
 
         if (normalizedAlgorithmsPath.endsWith("/")) {
             normalizedAlgorithmsPath = normalizedAlgorithmsPath.substring(0, normalizedAlgorithmsPath.length() - 1);

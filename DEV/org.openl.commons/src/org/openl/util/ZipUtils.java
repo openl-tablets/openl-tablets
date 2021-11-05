@@ -1,8 +1,14 @@
 package org.openl.util;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
@@ -40,18 +46,16 @@ public final class ZipUtils {
      * @param zippedStream the zipped input stream
      * @param outputFolder the output folder for extracted files
      */
-    public static void extractAll(InputStream zippedStream, File outputFolder) throws IOException {
-
+    public static void extractAll(InputStream zippedStream, Path outputFolder) throws IOException {
         byte[] buffer = new byte[BUFFER_SIZE];
 
         try (ZipInputStream zis = new ZipInputStream(zippedStream)) {
             // get the zipped file list entry
             ZipEntry ze = zis.getNextEntry();
             while (ze != null) {
-
                 if (!ze.isDirectory()) {
                     String fileName = ze.getName();
-                    File unzipped = new File(outputFolder, fileName);
+                    Path unzipped = FileUtils.resolveValidPath(outputFolder, fileName);
                     extractOneFile(zis, unzipped, buffer);
                 }
                 ze = zis.getNextEntry();
@@ -59,10 +63,22 @@ public final class ZipUtils {
         }
     }
 
-    private static void extractOneFile(ZipInputStream zis, File targetFile, byte[] buffer) throws IOException {
+    /**
+     * Extract all files from a zipped stream into a directory.
+     *
+     * @param zippedStream the zipped input stream
+     * @param outputFolder the output folder for extracted files
+     */
+    public static void extractAll(InputStream zippedStream, File outputFolder) throws IOException {
+        extractAll(zippedStream, outputFolder.toPath());
+    }
+
+    private static void extractOneFile(ZipInputStream zis, Path targetFile, byte[] buffer) throws IOException {
         // create all non exists folders
-        new File(targetFile.getParent()).mkdirs();
-        try (FileOutputStream fos = new FileOutputStream(targetFile)) {
+        if (!Files.exists(targetFile.getParent())) {
+            Files.createDirectories(targetFile.getParent());
+        }
+        try (OutputStream fos = Files.newOutputStream(targetFile)) {
             IOUtils.copy(zis, fos, buffer);
         }
     }
@@ -121,11 +137,11 @@ public final class ZipUtils {
             try {
                 URI uriToZip = new URI(path);
                 if (uriToZip.getSchemeSpecificPart().contains("%")) {
-                    //FIXME workaround to fix double URI encoding for URIs from ZipPath
+                    // FIXME workaround to fix double URI encoding for URIs from ZipPath
                     try {
                         uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
                     } catch (URISyntaxException ignored) {
-                        //it's ok
+                        // it's ok
                     }
                 }
                 return Paths.get(uriToZip);
