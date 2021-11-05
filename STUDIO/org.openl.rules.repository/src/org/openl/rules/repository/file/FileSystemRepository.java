@@ -48,7 +48,11 @@ public class FileSystemRepository implements FolderRepository, Closeable {
     }
 
     public void setUri(String path) {
-        this.root = new File(path);
+        try {
+            this.root = FileUtils.getValidPath(path).toFile();
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e.getMessage(), e);
+        }
     }
 
     public void initialize() {
@@ -82,14 +86,14 @@ public class FileSystemRepository implements FolderRepository, Closeable {
     @Override
     public List<FileData> list(String path) throws IOException {
         LinkedList<FileData> files = new LinkedList<>();
-        File directory = new File(root, path);
+        File directory = resolveFile(path);
         listFiles(files, directory);
         return files;
     }
 
     @Override
     public FileData check(String name) throws IOException {
-        File file = new File(root, name);
+        File file = resolveFile(name);
         if (file.exists()) {
             return getFileData(file);
         }
@@ -98,7 +102,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
 
     @Override
     public FileItem read(String name) throws IOException {
-        File file = new File(root, name);
+        File file = resolveFile(name);
         if (file.exists()) {
             FileData data = getFileData(file);
             FileInputStream stream = new FileInputStream(file);
@@ -114,9 +118,13 @@ public class FileSystemRepository implements FolderRepository, Closeable {
         return saved;
     }
 
+    private File resolveFile(String path) throws IOException {
+        return new File(root, FileUtils.getValidPath(path).toString());
+    }
+
     private FileData write(FileData data, InputStream stream) throws IOException {
         String dataName = data.getName();
-        File file = new File(root, dataName);
+        File file = resolveFile(dataName);
         if (!file.getParentFile().mkdirs() && !file.getParentFile().exists()) {
             LOG.warn("Couldn't create the folder '{}'", file.getParentFile());
         }
@@ -147,7 +155,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        File file = new File(root, data.getName());
+        File file = resolveFile(data.getName());
         try {
             FileUtils.delete(file);
         } catch (FileNotFoundException e) {
@@ -167,7 +175,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
     public boolean delete(List<FileData> data) throws IOException {
         boolean deleted = false;
         for (FileData fd : data) {
-            File f = new File(root, fd.getName());
+            File f = resolveFile(fd.getName());
             try {
                 FileUtils.delete(f);
                 deleted = true;
@@ -188,9 +196,9 @@ public class FileSystemRepository implements FolderRepository, Closeable {
     }
 
     private FileData copy(String srcName, FileData destData) throws IOException {
-        File srcFile = new File(root, srcName);
+        File srcFile = resolveFile(srcName);
         String destName = destData.getName();
-        File destFile = new File(root, destName);
+        File destFile = resolveFile(destName);
         FileUtils.copy(srcFile, destFile);
         return getFileData(destFile);
     }
@@ -203,8 +211,8 @@ public class FileSystemRepository implements FolderRepository, Closeable {
     }
 
     @Override
-    public List<FileData> listHistory(String name) {
-        File file = new File(root, name);
+    public List<FileData> listHistory(String name) throws IOException {
+        File file = resolveFile(name);
         try {
             if (file.exists()) {
                 FileData data = getFileData(file);
@@ -312,9 +320,9 @@ public class FileSystemRepository implements FolderRepository, Closeable {
     }
 
     @Override
-    public List<FileData> listFolders(String path) {
+    public List<FileData> listFolders(String path) throws IOException {
         LinkedList<FileData> files = new LinkedList<>();
-        File directory = new File(root, path);
+        File directory = resolveFile(path);
         File[] found = directory.listFiles();
 
         if (found != null) {
@@ -360,7 +368,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
         List<File> savedFiles = new ArrayList<>();
         for (FileItem change : files) {
             FileData data = change.getData();
-            File file = new File(root, data.getName());
+            File file = resolveFile(data.getName());
             savedFiles.add(file);
             createParent(file);
 
@@ -379,7 +387,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
             }
         }
 
-        File folder = new File(root, folderData.getName());
+        File folder = resolveFile(folderData.getName());
         if (changesetType == ChangesetType.FULL) {
             removeAbsentFiles(folder, savedFiles);
         }

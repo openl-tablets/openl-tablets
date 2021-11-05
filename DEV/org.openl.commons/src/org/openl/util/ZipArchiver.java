@@ -10,8 +10,6 @@ import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.openl.util.formatters.FileNameFormatter;
-
 /**
  * Pack a file to an output stream.
  *
@@ -51,14 +49,14 @@ public final class ZipArchiver implements Closeable {
     }
 
     public void addFile(InputStream inputStream, String path) throws IOException {
-        String zipPath = FileNameFormatter.normalizePath(path);
+        String zipPath = FileUtils.normalizePath(path);
         ZipEntry entry = new ZipEntry(zipPath);
         zos.putNextEntry(entry);
         IOUtils.copy(inputStream, zos, buffer);
     }
 
     public void addFolder(String path) throws IOException {
-        String zipPath = FileNameFormatter.normalizePath(path + File.separatorChar);
+        String zipPath = FileUtils.normalizePath(path + File.separatorChar);
         ZipEntry entry = new ZipEntry(zipPath);
         zos.putNextEntry(entry);
     }
