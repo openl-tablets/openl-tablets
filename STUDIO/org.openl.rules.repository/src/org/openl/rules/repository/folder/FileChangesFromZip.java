@@ -1,22 +1,26 @@
 package org.openl.rules.repository.folder;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.openl.rules.repository.api.FileItem;
+import org.openl.util.FileUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileChangesFromZip implements Iterable<FileItem> {
     private static final Logger LOG = LoggerFactory.getLogger(FileChangesFromZip.class);
     private final ZipInputStream stream;
-    private final String folderTo;
+    private final Path folderTo;
 
     public FileChangesFromZip(ZipInputStream stream, String folderTo) {
         this.stream = stream;
-        this.folderTo = folderTo;
+        this.folderTo = Paths.get(folderTo);
     }
 
     @Override
@@ -40,7 +44,13 @@ public class FileChangesFromZip implements Iterable<FileItem> {
 
             @Override
             public FileItem next() {
-                return new FileItem(folderTo + "/" + entry.getName(), stream);
+                String fullPath;
+                try {
+                    fullPath = FileUtils.resolveValidPath(folderTo, entry.getName()).toString();
+                } catch (IOException e) {
+                    throw RuntimeExceptionWrapper.wrap(e);
+                }
+                return new FileItem(FileUtils.normalizePath(fullPath), stream);
             }
 
             @Override

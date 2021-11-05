@@ -8,11 +8,14 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +27,7 @@ import org.slf4j.LoggerFactory;
 public class FileUtils {
 
     private static final int DEFAULT_BUFFER_SIZE = 8 * 1024 * 1024;
+    private static final Pattern BACK_SLASH_PATTERN = Pattern.compile("\\\\+");
 
     /**
      * Returns the path to the system temporary directory.
@@ -467,5 +471,58 @@ public class FileUtils {
             return dot;
         }
         return -1;
+    }
+
+    public static String normalizePath(String path) {
+        if (StringUtils.isEmpty(path)) {
+            return path;
+        }
+        return BACK_SLASH_PATTERN.matcher(path).replaceAll("/");
+    }
+
+    /**
+     * Validates to prevent moving out of given path.
+     * <p>
+     * Examples:
+     * 
+     * <pre>
+     * ../../foo    - invalid
+     * /foo/../bar  - invalid
+     * /foo/bar/..  - invalid
+     * /foo/bar     - valid
+     * </pre>
+     * </p>
+     *
+     * @param first the path string or initial part of the path string
+     * @param more additional strings to be joined to form the path string
+     * @throws IOException I/O error
+     * @throws InvalidPathException if path is not valid
+     */
+    public static Path getValidPath(String first, String... more) throws IOException {
+        final Path target = Paths.get(first, more);
+        if (!target.toFile().getCanonicalPath().endsWith(target.toString())) {
+            throw new InvalidPathException(normalizePath(target.toString()), "Resulted path does not match canonical");
+        }
+        return target;
+    }
+
+    /**
+     * Constructs resulting path between parent and given children paths. Does additional validation to prevent moving
+     * out of given parent
+     *
+     * @param parent parent directory
+     * @param child the path string or initial part of the path string
+     * @param more additional strings to be joined to form the path string
+     * @return resulting validated path
+     * @throws IOException I/O error
+     * @throws InvalidPathException if resulted path cannot be resolved or resulted path invalid
+     */
+    public static Path resolveValidPath(Path parent, String child, String... more) throws IOException {
+        Path targetChild = getValidPath(child, more);
+        Path result = parent.resolve(targetChild);
+        if (!result.startsWith(parent)) {
+            throw new InvalidPathException(normalizePath(targetChild.toString()), "Resulted path is outside of parent");
+        }
+        return result;
     }
 }

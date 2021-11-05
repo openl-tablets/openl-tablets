@@ -3,6 +3,7 @@ package org.openl.rules.repository.file;
 import static org.junit.Assert.*;
 
 import java.io.*;
+import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -112,6 +113,24 @@ public class FileSystemRepositoryTest {
         assertSave(repo, "folder", "multiple", calendar.getTime(), "folder/file1");
         assertSave(repo, "fol/der/", "text", calendar.getTime(), "fol/der/file1", "fol/der/file2");
 
+        assertNoSaveParentFolder(repo, "../.override", "This new content");
+        assertNoReadParentFolder(repo, "../.override");
+    }
+
+    private void assertNoSaveParentFolder(Repository repo, String name, String text) throws IOException {
+        try {
+            assertSave(repo, name, text, null);
+        } catch (InvalidPathException e) {
+            assertTrue(e.getMessage().startsWith("Resulted path does not match canonical: "));
+        }
+    }
+
+    private void assertNoReadParentFolder(Repository repo, String name) throws IOException {
+        try {
+            repo.read(name);
+        } catch (InvalidPathException e) {
+            assertTrue(e.getMessage().startsWith("Resulted path does not match canonical: "));
+        }
     }
 
     private void assertNoRead(Repository repo, String name) throws IOException {
