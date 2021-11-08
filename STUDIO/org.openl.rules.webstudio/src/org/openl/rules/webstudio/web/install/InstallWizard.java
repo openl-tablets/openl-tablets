@@ -467,7 +467,7 @@ public class InstallWizard implements Serializable {
         }
 
         if (StringUtils.isBlank(serverUrl)) {
-            throw new ValidatorException(createErrorMessage("CAS server url cannot be blank."));
+            throw new ValidatorException(createErrorMessage("CAS server URL cannot be blank."));
         }
 
         if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {
@@ -505,7 +505,7 @@ public class InstallWizard implements Serializable {
         }
 
         if (StringUtils.isBlank(serverUrl)) {
-            throw new ValidatorException(createErrorMessage("SAML server metadata url cannot be blank."));
+            throw new ValidatorException(createErrorMessage("SAML server metadata URL cannot be blank."));
         }
 
         if (StringUtils.isBlank(requestTimeout)) {
