@@ -2566,7 +2566,7 @@ public final class DecisionTableHelper {
         if (dtHeader.isReturn()) {
             return dtHeader.getColumn() + dtHeader.getWidth() == maxColumn;
         }
-        if (dtHeader.isCondition() || dtHeader.isAction()) {
+        if (!dtHeader.isHCondition() && dtHeader.isCondition() || dtHeader.isAction()) {
             return dtHeader.getColumn() + dtHeader.getWidth() < maxColumn - columnsForReturn;
         }
         return true;
