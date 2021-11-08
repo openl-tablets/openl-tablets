@@ -264,3 +264,10 @@ function fixRichFaces() {
     initPopupPanels();
     makePopupPanelsReallyResizable();
 }
+
+function is4xxStatus(code) {
+    if (typeof code !== "number") {
+        return false;
+    }
+    return ~~(code / 100) === 4;
+}
