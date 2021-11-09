@@ -860,7 +860,7 @@ public class ProjectBean {
             save(newProjectDescriptor);
 
         } catch (Exception e) {
-            throw new Message("Failed to generate Open API Schema. Details: " + e.getMessage(), e);
+            throw new Message("Failed to generate OpenAPI Schema. Details: " + e.getMessage(), e);
         }
     }
 
@@ -879,7 +879,7 @@ public class ProjectBean {
             ((AProjectResource) currentProject.getProject().getArtefact(existedOpenAPIFilePath))
                 .setContent(serializeOpenApi(generator, openAPIType));
         } catch (Exception e) {
-            throw new Message("Failed to generate Open API Schema. Details: " + e.getMessage(), e);
+            throw new Message("Failed to generate OpenAPI Schema. Details: " + e.getMessage(), e);
         }
     }
 

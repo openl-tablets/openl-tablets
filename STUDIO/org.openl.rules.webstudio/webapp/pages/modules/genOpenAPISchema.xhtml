@@ -7,7 +7,7 @@
 
     <rich:popupPanel id="genOpenAPISchemaModal" minWidth="530" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Generate Open API Schema"/>
+            <h:outputText value="Generate OpenAPI Schema"/>
         </f:facet>
 
         <f:facet name="controls">
@@ -23,7 +23,7 @@
                 </h:selectOneMenu>
             </h:panelGrid>
             <h:panelGroup rendered="#{projectBean.openAPIFileExists}" styleClass="warning">
-                <h:outputText value="Existed Open API Schema file will be overrided: #{projectBean.existedOpenAPIFilePath}"/>
+                <h:outputText value="Existed OpenAPI Schema file will be overrided: #{projectBean.existedOpenAPIFilePath}"/>
             </h:panelGroup>
             <footer>
                 <a4j:commandButton id="genOpenAPIBtn" value="Generate"

@@ -130,7 +130,7 @@ public class OpenAPIGenerationTest {
                     .generator()
                     .generate();
             } catch (RulesInstantiationException e) {
-                error(messagesCount.getAndIncrement(), startTime, sourceFile, "Open API Generation fails.", e);
+                error(messagesCount.getAndIncrement(), startTime, sourceFile, "OpenAPI Generation fails.", e);
                 testsFailed = true;
                 continue;
             }
@@ -142,7 +142,7 @@ public class OpenAPIGenerationTest {
                     actualOpenAPIStr = pair.getValue().endsWith(".json") ? OpenApiSerializationUtils
                         .toJson(actualOpenAPI) : OpenApiSerializationUtils.toYaml(actualOpenAPI);
                 } catch (JsonProcessingException e) {
-                    error(messagesCount.getAndIncrement(), startTime, sourceFile, "Open API Generation fails.", e);
+                    error(messagesCount.getAndIncrement(), startTime, sourceFile, "OpenAPI Generation fails.", e);
                     testsFailed = true;
                     continue;
                 }
@@ -164,7 +164,7 @@ public class OpenAPIGenerationTest {
                         error(messagesCount.getAndIncrement(),
                             startTime,
                             sourceFile,
-                            "Failed to read Open API file '{}'.",
+                            "Failed to read OpenAPI file '{}'.",
                             expectedOpenAPIFile,
                             exc);
                         testsFailed = true;
@@ -179,7 +179,7 @@ public class OpenAPIGenerationTest {
                 error(messagesCount.getAndIncrement(),
                     startTime,
                     sourceFile,
-                    "Failed to find one of expected Open API files: " + String.join(", ", missedExpectedOpenAPIs));
+                    "Failed to find one of expected OpenAPI files: " + String.join(", ", missedExpectedOpenAPIs));
                 testsFailed = true;
             }
 
