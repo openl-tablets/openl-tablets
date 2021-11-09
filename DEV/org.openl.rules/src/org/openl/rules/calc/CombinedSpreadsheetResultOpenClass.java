@@ -16,12 +16,16 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
 
     private final Set<CustomSpreadsheetResultOpenClass> combinedOpenClasses = new HashSet<>();
 
+    private final boolean anonymous;
+
     public CombinedSpreadsheetResultOpenClass(XlsModuleOpenClass module) {
         super("CombinedSpreadsheetResult", module, null, false);
+        this.anonymous = true;
     }
 
     public CombinedSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module) {
         super(name, module, null, true);
+        this.anonymous = false;
     }
 
     @Override
@@ -32,8 +36,12 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
     private void registerCustomSpreadsheetResultOpenClass(
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         if (customSpreadsheetResultOpenClass instanceof CombinedSpreadsheetResultOpenClass) {
-            combinedOpenClasses
-                .addAll(((CombinedSpreadsheetResultOpenClass) customSpreadsheetResultOpenClass).combinedOpenClasses);
+            CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass = (CombinedSpreadsheetResultOpenClass) customSpreadsheetResultOpenClass;
+            if (combinedSpreadsheetResultOpenClass.anonymous) {
+                combinedOpenClasses.addAll(
+                    ((CombinedSpreadsheetResultOpenClass) customSpreadsheetResultOpenClass).combinedOpenClasses);
+                return;
+            }
         }
         combinedOpenClasses.add(customSpreadsheetResultOpenClass);
     }
@@ -51,19 +59,40 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
     }
 
     @Override
-    public String getName() {
-        StringBuilder sb = new StringBuilder();
-        List<CustomSpreadsheetResultOpenClass> types = getCombinedTypes().stream()
-            .sorted(Comparator.comparing(CustomSpreadsheetResultOpenClass::getName))
-            .collect(Collectors.toList());
-        for (CustomSpreadsheetResultOpenClass c : types) {
-            if (sb.length() > 0) {
-                sb.append(" & ");
-            }
-            sb.append(Spreadsheet.SPREADSHEETRESULT_SHORT_TYPE_PREFIX)
-                .append(c.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
+    public boolean isAssignableFrom(IOpenClass ioc) {
+        if (ioc instanceof CombinedSpreadsheetResultOpenClass) {
+            CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass = (CombinedSpreadsheetResultOpenClass) ioc;
+            return getCombinedTypes().stream()
+                .map(IOpenClass::getName)
+                .collect(Collectors.toSet())
+                .containsAll(combinedSpreadsheetResultOpenClass.getCombinedTypes()
+                    .stream()
+                    .map(IOpenClass::getName)
+                    .collect(Collectors.toSet()));
         }
-        return sb.toString();
+        if (ioc instanceof CustomSpreadsheetResultOpenClass) {
+            return getCombinedTypes().stream().map(IOpenClass::getName).anyMatch(e -> e.equals(ioc.getName()));
+        }
+        return false;
+    }
+
+    @Override
+    public String getName() {
+        if (anonymous) {
+            StringBuilder sb = new StringBuilder();
+            List<CustomSpreadsheetResultOpenClass> types = getCombinedTypes().stream()
+                .sorted(Comparator.comparing(CustomSpreadsheetResultOpenClass::getName))
+                .collect(Collectors.toList());
+            for (CustomSpreadsheetResultOpenClass c : types) {
+                if (sb.length() > 0) {
+                    sb.append(" & ");
+                }
+                sb.append(Spreadsheet.SPREADSHEETRESULT_SHORT_TYPE_PREFIX)
+                    .append(c.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
+            }
+            return sb.toString();
+        }
+        return super.getName();
     }
 
     @Override

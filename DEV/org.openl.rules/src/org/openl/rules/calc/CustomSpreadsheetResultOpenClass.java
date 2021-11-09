@@ -169,7 +169,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        if (ioc instanceof CustomSpreadsheetResultOpenClass) {
+        if (ioc instanceof CustomSpreadsheetResultOpenClass && !(ioc instanceof CombinedSpreadsheetResultOpenClass)) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) ioc;
             return !getModule().isExternalModule(customSpreadsheetResultOpenClass.getModule(),
                 new IdentityHashMap<>()) && this.getName().equals(customSpreadsheetResultOpenClass.getName());
@@ -199,7 +199,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return module;
     }
 
-    private void extendSpreadsheetResult(String[] rowNames,
+    private void extendSpreadsheetResult(String name,
+            String[] rowNames,
             String[] columnNames,
             String[] rowNamesForResultModel,
             String[] columnNamesForResultModel,
@@ -325,7 +326,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         if (customSpreadsheetResultOpenClass.getModule() != getModule()) {
             customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass.convertToModuleType(getModule(), false);
         }
-        this.extendSpreadsheetResult(customSpreadsheetResultOpenClass.rowNames,
+        this.extendSpreadsheetResult(customSpreadsheetResultOpenClass.getName(),
+                customSpreadsheetResultOpenClass.rowNames,
             customSpreadsheetResultOpenClass.columnNames,
             customSpreadsheetResultOpenClass.rowNamesForResultModel,
             customSpreadsheetResultOpenClass.columnNamesForResultModel,
