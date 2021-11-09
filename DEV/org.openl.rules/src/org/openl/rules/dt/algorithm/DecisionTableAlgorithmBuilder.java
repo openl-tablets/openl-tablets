@@ -185,8 +185,9 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         for (int i = 0; i < nActions; i++) {
             IAction action = table.getAction(i);
             prepareAction(action, actionBindingContext, ruleExecutionType);
-            if (action.isReturnAction() && table.isTypeCustomSpreadsheetResult() && OpenLSystemProperties
-                .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
+            if ((action.isReturnAction() || action.isCollectReturnAction()) && table
+                .isTypeCustomSpreadsheetResult() && OpenLSystemProperties
+                    .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
                 CompositeMethod compositeMethod = (CompositeMethod) action.getMethod();
                 table.getCustomSpreadsheetResultType().updateWithType(compositeMethod.getBodyType());
             }

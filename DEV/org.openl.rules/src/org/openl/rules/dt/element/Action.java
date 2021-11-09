@@ -9,6 +9,8 @@ import java.util.Optional;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.data.RuleExecutionObject;
@@ -39,6 +41,7 @@ public class Action extends FunctionalRow implements IAction {
     private static final String EXTRA_RET = "e$x$t$r$a$R$e$t";
     private boolean isSingleReturnParam;
     private IOpenClass returnType;
+    private IOpenClass singleActionReturnType;
     private final ActionType actionType;
     private final boolean skipEmptyResult;
 
@@ -104,17 +107,28 @@ public class Action extends FunctionalRow implements IAction {
             // execution.
             //
             if (returnValue == null || ClassUtils.isAssignable(returnValue.getClass(), methodType.getInstanceClass())) {
-                return returnValue;
+                return ifSpreadsheetResultUseDTSprType(returnValue);
             }
 
-            // At this point of action execution we have the result value but it
+            // At this point of action execution we have the result value, but it
             // has different type than return type of method. We should skip
             // optimization for this step and invoke method.
             //
-            return executeActionInternal(ruleN, target, params, env);
+            return ifSpreadsheetResultUseDTSprType(executeActionInternal(ruleN, target, params, env));
         }
 
-        return executeActionInternal(ruleN, target, params, env);
+        return ifSpreadsheetResultUseDTSprType(executeActionInternal(ruleN, target, params, env));
+    }
+
+    private Object ifSpreadsheetResultUseDTSprType(Object value) {
+        if (singleActionReturnType instanceof CustomSpreadsheetResultOpenClass) {
+            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) value;
+            SpreadsheetResult newSpreadsheetResult = new SpreadsheetResult(spreadsheetResult);
+            newSpreadsheetResult
+                .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) singleActionReturnType);
+            return newSpreadsheetResult;
+        }
+        return value;
     }
 
     private Object executeActionInternal(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
@@ -136,9 +150,8 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private static IOpenClass extractMethodTypeForCollectReturnAction(TableSyntaxNode tableSyntaxNode,
-            IOpenMethodHeader header,
+            IOpenClass type,
             IBindingContext bindingContext) {
-        IOpenClass type = header.getType();
         if (type.isArray()) {
             return type.getComponentClass();
         }
@@ -171,14 +184,18 @@ public class Action extends FunctionalRow implements IAction {
             IOpenClass ruleExecutionType,
             TableSyntaxNode tableSyntaxNode) throws Exception {
 
-        this.returnType = header.getType();
+        this.returnType = decisionTable.getType();
 
         IOpenClass methodType = JavaOpenClass.VOID;
         if (isReturnAction()) {
             methodType = header.getType();
+            this.singleActionReturnType = decisionTable.getType();
         } else {
             if (isCollectReturnAction()) {
-                methodType = extractMethodTypeForCollectReturnAction(tableSyntaxNode, header, bindingContext);
+                methodType = extractMethodTypeForCollectReturnAction(tableSyntaxNode, header.getType(), bindingContext);
+                this.singleActionReturnType = extractMethodTypeForCollectReturnAction(tableSyntaxNode,
+                    decisionTable.getType(),
+                    bindingContext);
             } else {
                 if (isCollectReturnKeyAction()) {
                     methodType = extractMethodTypeForCollectReturnKeyAction(tableSyntaxNode, bindingContext);

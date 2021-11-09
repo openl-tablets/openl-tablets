@@ -45,6 +45,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
 import org.openl.rules.binding.RulesModuleBindingContext;
+import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
@@ -58,7 +59,6 @@ import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
 import org.openl.rules.dt.ActionsTableBinder;
 import org.openl.rules.dt.ConditionsTableBinder;
-import org.openl.rules.dt.DecisionTableBoundNode;
 import org.openl.rules.dt.ReturnsTableBinder;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.lang.xls.binding.AExecutableNodeBinder;
@@ -339,12 +339,12 @@ public class XlsBinder implements IOpenBinder {
                 }
                 int combinedSpreadsheetResultOpenClassesSize = 0;
                 while (combinedSpreadsheetResultOpenClassesSize != moduleOpenClass
-                        .getCombinedSpreadsheetResultOpenClasses()
-                        .size()) {
+                    .getCombinedSpreadsheetResultOpenClasses()
+                    .size()) {
                     combinedSpreadsheetResultOpenClassesSize = moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
-                            .size();
+                        .size();
                     moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
-                            .forEach(e -> e.getFields().forEach(IOpenField::getType));
+                        .forEach(e -> e.getFields().forEach(IOpenField::getType));
                 }
                 moduleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
@@ -566,11 +566,16 @@ public class XlsBinder implements IOpenBinder {
                 String sprResTypeName = getSprResTypeNameIfCustomSpreadsheetResultTableSyntaxNode(tableSyntaxNode);
                 if (sprResTypeName != null) {
                     if (rulesModuleBindingContext.getModule().findType(sprResTypeName) == null) {
-                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-                            sprResTypeName,
-                            rulesModuleBindingContext.getModule(),
-                            rulesModuleBindingContext.isExecutionMode() ? null : tableSyntaxNode.getTableBody(),
-                            true);
+                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
+                        if (XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType())) {
+                            customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(sprResTypeName,
+                                rulesModuleBindingContext.getModule(),
+                                rulesModuleBindingContext.isExecutionMode() ? null : tableSyntaxNode.getTableBody(),
+                                true);
+                        } else {
+                            customSpreadsheetResultOpenClass = new CombinedSpreadsheetResultOpenClass(sprResTypeName,
+                                rulesModuleBindingContext.getModule());
+                        }
                         customSpreadsheetResultOpenClasses.add(customSpreadsheetResultOpenClass);
                     }
                 }

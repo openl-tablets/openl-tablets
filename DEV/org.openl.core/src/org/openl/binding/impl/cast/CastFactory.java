@@ -712,6 +712,9 @@ public class CastFactory implements ICastFactory {
 
         if (fromClass == toClass && from != to && from instanceof ADynamicClass && to instanceof ADynamicClass) {
             // Dynamic classes with the same instance class
+            if (to.isAssignableFrom(from)) {
+                return getUpCast(fromClass, toClass);
+            }
             return null;
         }
 
