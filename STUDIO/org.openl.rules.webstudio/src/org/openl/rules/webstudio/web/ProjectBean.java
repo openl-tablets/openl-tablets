@@ -840,7 +840,7 @@ public class ProjectBean {
         try {
             OpenAPI.Type openAPIType = Optional
                 .of(WebStudioUtils.getRequestParameter("genOpenAPISchemaForm:openAPIType"))
-                .map(FileNameFormatter::normalizePath)
+                .map(FileUtils::normalizePath)
                 .map(OpenAPI.Type::valueOf)
                 .orElseThrow(() -> new IllegalArgumentException("Failed to parse OpenAPI type."));
 
