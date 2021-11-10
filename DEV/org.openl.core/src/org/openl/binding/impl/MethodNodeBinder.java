@@ -11,8 +11,11 @@ import org.openl.binding.impl.cast.AutoCastFactory;
 import org.openl.binding.impl.cast.AutoCastReturnType;
 import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.method.VarArgsOpenMethod;
+import org.openl.binding.impl.module.ModuleSpecificOpenField;
+import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
+import org.openl.binding.impl.module.ModuleSpecificType;
+import org.openl.binding.impl.module.WrapModuleSpecificTypes;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -144,7 +147,8 @@ public class MethodNodeBinder extends ANodeBinder {
                 children,
                 childrenCount,
                 argumentType,
-                dims);
+                dims,
+                bindingContext);
             if (field != null) {
                 return field;
             }
@@ -183,15 +187,21 @@ public class MethodNodeBinder extends ANodeBinder {
             IBoundNode[] children,
             int childrenCount,
             IOpenClass argumentType,
-            int dims) throws Exception {
+            int dims,
+            IBindingContext bindingContext) throws Exception {
         // Try to bind method call Name(driver) as driver.Name;
         //
         if (childrenCount == 2) {
-
             // only one child, as there are 2 nodes, one of them is the function itself.
             //
             IOpenField field = argumentType.getField(methodName, false);
             if (field != null) {
+                if (argumentType instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
+                    IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, field.getType().getName());
+                    if (t != null) {
+                        field = new ModuleSpecificOpenField(field, t);
+                    }
+                }
                 log(methodName, argumentTypes, "field access method");
                 return new FieldBoundNode(methodNode, field, children[0], dims);
             }
@@ -220,10 +230,11 @@ public class MethodNodeBinder extends ANodeBinder {
         String methodName = ((IdentifierNode) lastNode).getIdentifier();
 
         IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
-        IOpenClass[] types = getTypes(children);
+        IOpenClass[] paramTypes = getTypes(children);
 
         IOpenClass type = target.getType();
-        IMethodCaller methodCaller = MethodSearch.findMethod(methodName, types, bindingContext, type);
+        IMethodCaller methodCaller = ModuleSpecificOpenMethod
+            .findMethodCaller(type, methodName, paramTypes, bindingContext);
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller != null && noArrayOneElementCast(methodCaller)) {
@@ -249,7 +260,7 @@ public class MethodNodeBinder extends ANodeBinder {
             IBoundNode arrayArgumentsMethod = makeTargetArrayArgumentsMethod(node,
                 bindingContext,
                 methodName,
-                types,
+                paramTypes,
                 children,
                 target);
 
@@ -273,7 +284,7 @@ public class MethodNodeBinder extends ANodeBinder {
             }
         }
 
-        throw new MethodNotFoundException(type, methodName, types);
+        throw new MethodNotFoundException(type, methodName, paramTypes);
     }
 
     protected IBoundNode makeTargetArrayArgumentsMethod(ISyntaxNode methodNode,

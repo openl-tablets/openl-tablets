@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.DuplicatedFieldException;
+import org.openl.binding.impl.module.WrapModuleSpecificTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -40,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author snshor
  */
-public class DatatypeOpenClass extends ADynamicClass {
+public class DatatypeOpenClass extends ADynamicClass implements WrapModuleSpecificTypes {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatatypeOpenClass.class);
 
@@ -157,9 +158,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         staticFields.put("class", new JavaOpenClass.JavaClassClassField(instanceClass, this));
         this.fields = fields;
         this.staticFields = staticFields;
-        Optional.ofNullable(superClass)
-                .map(IOpenClass::getIndexField)
-                .ifPresent(this::setIndexField);
+        Optional.ofNullable(superClass).map(IOpenClass::getIndexField).ifPresent(this::setIndexField);
     }
 
     @Override

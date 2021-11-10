@@ -7,6 +7,9 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.module.ArrayOpenField;
+import org.openl.binding.impl.module.ModuleSpecificOpenField;
+import org.openl.binding.impl.module.ModuleSpecificType;
+import org.openl.binding.impl.module.WrapModuleSpecificTypes;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.ISyntaxNode;
@@ -101,6 +104,13 @@ public class IdentifierBinder extends ANodeBinder {
                 type.isStatic() ? "Static field" : "Field",
                 fieldName,
                 type instanceof StaticOpenClass ? ((StaticOpenClass) type).getDelegate().getName() : type.getName()));
+        }
+
+        if (type instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
+            IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, field.getType().getName());
+            if (t != null) {
+                field = new ModuleSpecificOpenField(field, t);
+            }
         }
 
         if (target.isStaticTarget() != field.isStatic()) {

@@ -1,11 +1,11 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.lang.xls.binding.ModuleSpecificType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.prebind.ILazyMethod;
 import org.openl.rules.method.table.TableMethod;

@@ -4,7 +4,16 @@
 
 package org.openl.rules.lang.xls;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -12,7 +21,16 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.openl.ICompileContext;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
-import org.openl.binding.*;
+import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundCode;
+import org.openl.binding.IBoundNode;
+import org.openl.binding.ICastFactory;
+import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.INameSpacedMethodFactory;
+import org.openl.binding.INameSpacedTypeFactory;
+import org.openl.binding.INameSpacedVarFactory;
+import org.openl.binding.INodeBinderFactory;
+import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.ErrorBoundNode;
@@ -270,13 +288,11 @@ public class XlsBinder implements IOpenBinder {
 
             IBoundNode topNode;
 
-            // Bind constants
+            // Constants
             TableSyntaxNode[] constantNodes = selectNodes(moduleNode, constantsSelector);
-            bindInternal(moduleNode, moduleOpenClass, constantNodes, openl, rulesModuleBindingContext);
 
-            // Bind datatype nodes.
+            // Datatypes
             TableSyntaxNode[] datatypeNodes = selectNodes(moduleNode, dataTypeSelector);
-            bindInternal(moduleNode, moduleOpenClass, datatypeNodes, openl, rulesModuleBindingContext);
 
             // Conditions && Returns && Actions
             TableSyntaxNode[] dtHeaderDefinitionsNodes = selectNodes(moduleNode, dtDefinitionSelector);
@@ -293,6 +309,15 @@ public class XlsBinder implements IOpenBinder {
             TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(
                 ArrayUtils.addAll(ArrayUtils.addAll(dtHeaderDefinitionsNodes, dts), spreadsheets),
                 commonTables);
+
+            registerNewCustomSpreadsheetResultTypes(commonAndSpreadsheetTables, rulesModuleBindingContext);
+
+            // Bind constants
+            bindInternal(moduleNode, moduleOpenClass, constantNodes, openl, rulesModuleBindingContext);
+
+            // Bind datatype nodes.
+            bindInternal(moduleNode, moduleOpenClass, datatypeNodes, openl, rulesModuleBindingContext);
+
             bindInternal(moduleNode, moduleOpenClass, commonAndSpreadsheetTables, openl, rulesModuleBindingContext);
 
             // Select Test and RunMethod tables
@@ -511,8 +536,6 @@ public class XlsBinder implements IOpenBinder {
 
         IMemberBoundNode[] childrens = new IMemberBoundNode[tableSyntaxNodes.length];
         OpenMethodHeader[] openMethodHeaders = new OpenMethodHeader[tableSyntaxNodes.length];
-
-        registerNewCustomSpreadsheetResultTypes(tableSyntaxNodes, rulesModuleBindingContext);
 
         SyntaxNodeExceptionHolder syntaxNodeExceptionHolder = new SyntaxNodeExceptionHolder();
         try {
