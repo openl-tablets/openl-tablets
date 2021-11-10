@@ -88,19 +88,24 @@ public class NumericComparableString implements Comparable<NumericComparableStri
         if (getClass() != obj.getClass()) {
             return false;
         }
-        NumericComparableString other = (NumericComparableString) obj;
-        if (value == null) {
-            return other.value == null;
-        } else {
-            return this.compareTo(other) == 0;
-        }
+        return this.compareTo((NumericComparableString) obj) == 0;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (value == null ? 0 : value.hashCode());
+        int length = value.length();
+        boolean leading = true;
+        for(int i = 0; i < length; i++) {
+            char c = value.charAt(i);
+            if (leading && Character.digit(c, 10) == 0) {
+                // don't calculate hash for insignificant zero.
+                continue;
+            }
+            leading = !Character.isDigit(c);
+            result = prime * result + c;
+        }
         return result;
     }
 
