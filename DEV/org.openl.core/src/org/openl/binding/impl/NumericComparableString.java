@@ -1,7 +1,8 @@
 package org.openl.binding.impl;
 
+import org.openl.util.StringPool;
+
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -45,13 +46,6 @@ public class NumericComparableString implements Comparable<NumericComparableStri
         splits = NUMBERS.split(value);
         splitsNumbers = new BigInteger[splits.length];
         initSplitsNumbers();
-    }
-
-    private NumericComparableString(String value, String[] splits, BigInteger[] splitsNumbers) {
-        this.value = Objects.requireNonNull(value,
-            "Error initializing StringRangeValue class. Parameter 'value' cannot be null");
-        this.splits = Objects.requireNonNull(splits);
-        this.splitsNumbers = Objects.requireNonNull(splitsNumbers);
     }
 
     @Override
@@ -115,22 +109,40 @@ public class NumericComparableString implements Comparable<NumericComparableStri
     }
 
     public NumericComparableString incrementAndGet() {
-        BigInteger[] splitsNumbers = Arrays.copyOf(this.splitsNumbers, this.splitsNumbers.length);
-        String[] splits = Arrays.copyOf(this.splits, this.splits.length);
-        if (splitsNumbers[splitsNumbers.length - 1] != null) {
-            splitsNumbers[splitsNumbers.length - 1] = splitsNumbers[splitsNumbers.length - 1].add(BigInteger.ONE);
-            splits[splits.length - 1] = keepLeadingZeros(splits[splits.length - 1],
-                splitsNumbers[splitsNumbers.length - 1].toString());
-        } else {
-            splits[splits.length - 1] = splits[splits.length - 1] + Character.MIN_VALUE;
-        }
-        StringBuilder sb = new StringBuilder();
-        Arrays.stream(splits).forEach(sb::append);
-        return new NumericComparableString(sb.toString(), splits, splitsNumbers);
+        return valueOf(increment(value));
     }
 
-    private static String keepLeadingZeros(String originalNumb, String modifiedNumb) {
-        final int end = originalNumb.length() - modifiedNumb.length(); // difference
-        return end < 1 ? modifiedNumb : originalNumb.substring(0, end) + modifiedNumb;
+    public static String increment(String value) {
+        if (value.isEmpty()) {
+            return "\u0000";
+        }
+        String result;
+        int i = value.length() - 1;
+        char lastChar = value.charAt(i);
+        while (i > 0 && Character.digit(lastChar, 10) == 9) {
+            // searching the position where a trailing number can be increased
+            i--;
+            lastChar = value.charAt(i);
+        }
+        if (i == value.length() - 1) {
+            if (Character.isDigit(lastChar)) {
+                // "abc08" => "abc0" + (8+1) => "abc09"
+                // "9" => "" + (9+1) => "10"
+                result = value.substring(0, i) + (Character.digit(lastChar, 10) + 1);
+            } else {
+                // "abc" => "abc\u0000"
+                result = value + Character.MIN_VALUE;
+            }
+        } else {
+            if (Character.isDigit(lastChar)) {
+                // "789" => "7" + (89+1) => "790"
+                // "99" => "" + (99+1) => "100"
+                result = value.substring(0, i) + new BigInteger(value.substring(i)).add(BigInteger.ONE);
+            } else {
+                // "abc99" => "abc" + (99+1) => "abc100"
+                result = value.substring(0, i + 1) + new BigInteger(value.substring(i + 1)).add(BigInteger.ONE);
+            }
+        }
+        return StringPool.intern(result);
     }
 }
