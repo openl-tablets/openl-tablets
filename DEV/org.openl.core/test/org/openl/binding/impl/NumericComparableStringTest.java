@@ -148,6 +148,13 @@ public class NumericComparableStringTest {
         assertFalse(result < 0 && inverse <= 0);
         assertFalse(result > 0 && inverse >= 0);
         assertFalse(result == 0 && inverse != 0);
+        if (a.equals(b)) {
+            assertEquals(a, b);
+            assertEquals(b, a);
+            assertEquals(a.hashCode(), b.hashCode());
+            assertEquals(0, result);
+            assertEquals(0, inverse);
+        }
         return result;
     }
 }
