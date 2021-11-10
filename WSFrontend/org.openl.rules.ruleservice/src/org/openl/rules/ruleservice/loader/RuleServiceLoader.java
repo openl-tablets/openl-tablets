@@ -54,4 +54,9 @@ public interface RuleServiceLoader {
      * @return cleared folder path
      */
     String getLogicalProjectFolder(String realFolderPath);
+
+    /**
+     * Checks if rules service loader is ready (there are no connection issues etc.).
+     */
+    boolean isReady();
 }

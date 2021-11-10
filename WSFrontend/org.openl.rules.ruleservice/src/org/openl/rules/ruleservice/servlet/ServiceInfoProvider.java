@@ -25,4 +25,8 @@ public interface ServiceInfoProvider {
      */
     Collection<ServiceInfo> getServicesInfo();
 
+    /**
+     * Checks if service info provider is ready (there are no connection issues etc.).
+     */
+    boolean isReady();
 }
