@@ -136,6 +136,7 @@
                             $j("#progress-info-panel[data-compilation-status='finished'][data-compilation-finished='" + timestamp + "']");
                        if (requiredProgressPanel.length > 0 ) {
                             requiredProgressPanel.hide();
+                            requiredProgressPanel.text(requiredProgressPanel.text()); // To trigger observer
                             if ($jq('#warnings-count').text() == 0 && $jq('#errors-count').text() == 0) {
                                 ws.ui.problems.hide()
                             }
