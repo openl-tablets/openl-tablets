@@ -229,7 +229,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             Path zipRoot = FileSystems.getFileSystem(jarURI).getPath("/");
             return projectResolver.isRulesProject(zipRoot) != null;
         } catch (FileSystemNotFoundException ignored) {
-            try (FileSystem fs = FileSystems.newFileSystem(jarURI, Collections.emptyMap());) {
+            try (FileSystem fs = FileSystems.newFileSystem(jarURI, Collections.emptyMap())) {
                 return projectResolver.isRulesProject(fs.getPath("/")) != null;
             } catch (IOException | UnsupportedOperationException | ProviderNotFoundException e) {
                 return false;
@@ -334,5 +334,16 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             return realFolderPath;
         }
         return realFolderPath.substring(baseDeployFolder.length());
+    }
+
+    @Override
+    public boolean isReady() {
+        try {
+            repository.validateConnection();
+            return true;
+        } catch (Exception e) {
+            log.debug(e.getMessage(), e);
+            return false;
+        }
     }
 }
