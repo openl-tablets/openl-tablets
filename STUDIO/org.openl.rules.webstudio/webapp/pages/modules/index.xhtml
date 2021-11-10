@@ -870,23 +870,37 @@
                 })
 
                 callbacks.push(function(){
-                    $j('.layout-extractable-info').bind('DOMSubtreeModified', function(){
-                        var layoutPane = $j($j(this).parents(".ui-layout-pane")[0]);
-                        if (layoutPane) {
-                            var layoutDirection =
-                                layoutPane.attr("class")
-                                    .split(/\s+/)
-                                    .find(function(e){return e.startsWith("ui-layout-pane-");})
-                                    .split(/-/)[3];
+                    let compilationProgressObserver = null;
+                    const layout = $j('.panel-header>.layout-extractable-info');
+                    if (layout[0]) {
+                        const callback = function() {
+                            let layoutPane = layout.parents(".ui-layout-pane:first");
+                            if (layoutPane) {
+                                let layoutDirection =
+                                    layoutPane.attr("class")
+                                        .split(/\s+/)
+                                        .find(function(e){return e.startsWith("ui-layout-pane-");})
+                                        .split(/-/)[3];
 
-                            var layoutToggler = $j(layoutPane.siblings(".ui-layout-resizer-" + layoutDirection)[0]);
-                            var extractedLayoutInfo = layoutToggler.find(".layout-extractable-info");
-                            if (extractedLayoutInfo) {
-                                layoutToggler.find(".layout-extractable-info").remove();
+                                let layoutToggler = layoutPane.siblings(".ui-layout-resizer-" + layoutDirection + ":first");
+                                let extractedLayoutInfo = layoutToggler.find(".layout-extractable-info");
+                                if (extractedLayoutInfo.length > 0) {
+                                    extractedLayoutInfo.remove();
+                                }
+                                let cloned = layout.clone();
+                                cloned.find("*").removeAttr("id");
+                                cloned.appendTo(layoutToggler);
                             }
-                            $j(this).clone().appendTo(layoutToggler);
                         }
-                    });
+                        callback();
+                        // Create an observer instance linked to the callback function
+                        compilationProgressObserver = new MutationObserver(callback);
+                        // Start observing the target node for configured mutations
+                        compilationProgressObserver.observe(layout[0], {
+                            childList: true,
+                            subtree: true
+                        });
+                    }
                 })
 
                 var initUrl = urlRewrite.prefix + "init.xhtml";
