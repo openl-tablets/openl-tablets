@@ -49,8 +49,13 @@ jobs:
           maven-
 
     - name: Build with Maven
-      run: mvn -B deploy -Psources,gpg-sign -DskipTests
+      run: mvn -B package -DskipTests
+
+    - name: Deploy Maven artifacts
+      run: |
+        mvn -B deploy -DskipTests -pl STUDIO/org.openl.rules.webstudio
+        mvn -B deploy -DskipTests -pl WSFrontend/org.openl.rules.ruleservice.ws
+        mvn -B deploy -DskipTests -pl WSFrontend/org.openl.rules.ruleservice.ws.all
+        mvn -B deploy -DskipTests -pl DEMO/org.openl.rules.demo
       env:
         GITHUB_TOKEN: ${{ github.token }}
-        SIGN_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
-        SIGN_KEY_PASS: ${{ secrets.OSSRH_GPG_PASSPHRASE }}
