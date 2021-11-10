@@ -113,6 +113,13 @@ public class IdentifierBinder extends ANodeBinder {
             }
         }
 
+        if (type instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
+            IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, field.getType().getName());
+            if (t != null) {
+                field = new ModuleSpecificOpenField(field, t);
+            }
+        }
+
         if (target.isStaticTarget() != field.isStatic()) {
 
             if (field.isStatic()) {
