@@ -59,3 +59,17 @@ jobs:
         mvn -B deploy -DskipTests -pl DEMO/org.openl.rules.demo
       env:
         GITHUB_TOKEN: ${{ github.token }}
+
+    - name: Build Docker images
+      run: |
+        repo=ghcr.io/${{ github.repository_owner }}
+        cd Dockerfiles
+        docker build -t $repo/ws:x        -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws
+        docker build -t $repo/ws:x-all    -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws.all
+        docker build -t $repo/webstudio:x -f WebApp ../STUDIO/org.openl.rules.webstudio
+        docker build -t $repo/demo:x      -f Demo   ../DEMO/org.openl.rules.demo/target
+        #
+        echo ${{ github.token }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+        docker push -a $repo/demo
+        docker push -a $repo/ws
+        docker push -a $repo/webstudio
