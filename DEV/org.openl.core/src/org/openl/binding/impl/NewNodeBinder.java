@@ -7,7 +7,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
-import org.openl.binding.impl.method.MethodSearch;
+import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -32,7 +32,7 @@ public class NewNodeBinder extends ANodeBinder {
         int childrenCount = node.getNumberOfChildren();
 
         if (childrenCount < 1) {
-            return makeErrorNode("New node must have at least one subnode", node, bindingContext);
+            return makeErrorNode("New node must have at least one sub-node.", node, bindingContext);
         }
 
         ISyntaxNode typeNode = node.getChild(0);
@@ -50,13 +50,13 @@ public class NewNodeBinder extends ANodeBinder {
         if (hasErrorBoundNode(children)) {
             return new ErrorBoundNode(node);
         }
-        IOpenClass[] types = getTypes(children);
+        IOpenClass[] paramTypes = getTypes(children);
 
-        IMethodCaller methodCaller = MethodSearch.findConstructor(types, bindingContext, type);
+        IMethodCaller methodCaller = ModuleSpecificOpenMethod.findConstructorCaller(type, paramTypes, bindingContext);
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller == null) {
-            String constructor = MethodUtil.printMethod(type.getName(), types);
+            String constructor = MethodUtil.printMethod(type.getName(), paramTypes);
             return makeErrorNode(MessageUtils.getConstructorNotFoundMessage(constructor), typeNode, bindingContext);
         }
 

@@ -82,7 +82,7 @@ public abstract class AOpenMethodDelegator implements IOpenMethod, IMethodSignat
 
     @Override
     public boolean isConstructor() {
-        return false;
+        return getDelegate().isConstructor();
     }
 
     @Override
