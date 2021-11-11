@@ -34,7 +34,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         super(declaringClass, name, null);
         Objects.requireNonNull(field1, "field1 cannot be null");
         Objects.requireNonNull(field2, "field2 cannot be null");
-        this.fields = new ArrayList<>(extractFields(field1));
+        this.fields = new HashSet<>(extractFields(field1));
         this.fields.addAll(extractFields(field2));
 
         List<IOpenClass> declaringClasses = new ArrayList<>();

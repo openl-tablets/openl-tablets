@@ -3,7 +3,6 @@ package org.openl.rules.calc;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Stack;
 
 import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -80,7 +79,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                 noStrictMatchCache.put(fieldName.toLowerCase(), RESOLVING_IN_PROGRESS);
             }
             openField = super.getField(fieldName, strictMatch);
-            boolean g = SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get() == null;
+
             if (openField == null && fieldName.startsWith("$")) {
                 if (module == null) {
                     openField = new SpreadsheetResultField(this, fieldName, JavaOpenClass.OBJECT);
@@ -88,19 +87,8 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                     CustomSpreadsheetResultField mergedField = null;
                     for (IOpenClass openClass : module.getTypes()) {
                         if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                            try {
-                                if (g) {
-                                    SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
-                                }
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashMap<>());
-                                module.getRulesModuleBindingContext()
-                                    .findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
-                            } finally {
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
-                                if (g) {
-                                    SpreadsheetStructureBuilder.preventCellsLoopingOnThis.remove();
-                                }
-                            }
+                            module.getRulesModuleBindingContext()
+                                .findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
                             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                             IOpenField f = customSpreadsheetResultOpenClass.getField(fieldName, strictMatch);
                             if (f instanceof CustomSpreadsheetResultField) {
@@ -117,19 +105,8 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                         }
                     }
                     if (mergedField != null) {
-                        try {
-                            if (g) {
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
-                            }
-                            SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashMap<>());
-                            mergedField.getType(); // Fires compilation
-                            openField = mergedField;
-                        } finally {
-                            SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
-                            if (g) {
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.remove();
-                            }
-                        }
+                        mergedField.getType(); // Fires compilation
+                        openField = mergedField;
                     }
                 }
             }

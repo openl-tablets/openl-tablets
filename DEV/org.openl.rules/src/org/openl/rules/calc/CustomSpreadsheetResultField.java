@@ -46,7 +46,7 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField implements I
             try {
                 setType(field.getType());
                 field = null;
-            } catch (RecursiveSpreadsheetMethodPreBindingException | SpreadsheetCellsLoopException e) {
+            } catch (RecursiveSpreadsheetMethodPreBindingException e) {
                 return JavaOpenClass.OBJECT;
             }
         }
