@@ -9,7 +9,7 @@ import org.openl.ie.constrainer.*;
  */
 final class BitArray implements java.io.Serializable {
 
-    final static int BITS_PER_WORD = 32;
+    private static final int BITS_PER_WORD = 32;
 
     int[] _bits;
     final int _size;

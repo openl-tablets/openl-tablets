@@ -425,20 +425,11 @@
                                 <td>
                                     <a4j:commandLink id="traceLink" title="Trace" styleClass="toolbarButton on-errors-hide menuButton changes-listener"
                                                      rendered="#{tableBean.canTrace}"
-                                                     onclick="onTrace(); return false;"
-                                                     onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                                     onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                                     style="padding-right: 1px">
-                                        <a4j:jsFunction name="onTraceFunction" oncomplete="onTraceAction();" action="#{runTestHelper.initTrace}"/>
+                                                     onclick="onTestMenuOpen(event, 'b-trace');return false;">
                                         <table>
                                             <tr>
                                                 <td>
                                                     <img src="#{contextPath}/webresource/images/trace.gif" />
-                                                </td>
-                                                <td rowspan="2" class="arrow"
-                                                    onclick="onTestMenuOpen(event, 'b-trace');return false;"
-                                                    style="visibility: hidden;">
-                                                    <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -755,6 +746,97 @@
 
     <script>
         //<![CDATA[
+        const itemStatuses = function () {
+            class ItemStatusesHandler {
+                static EVENT_KEY = "click.statusHandlerEvents";
+                static _CACHE = {};
+
+                _testCases = null;
+                _allTestCheck = null;
+                _key = null;
+
+                save() {
+                    const that = this;
+                    if (this._testCases?.length > 0) {
+                        let cache = {}
+                        this._testCases.each(function () {
+                            cache[this.getAttribute("value")] = this.checked;
+                        });
+                        ItemStatusesHandler._CACHE[that._key] = cache;
+                    }
+                }
+
+                load() {
+                    const that = this;
+                    if (this._testCases?.length > 0 && ItemStatusesHandler._CACHE[that._key]) {
+                        this._testCases.each(function () {
+                            this.checked = ItemStatusesHandler._CACHE[that._key][this.getAttribute("value")];
+                            this.onclick();
+                        });
+                    }
+                }
+
+                bindEvents() {
+                    const that = this;
+                    // Unbind old handlers.
+                    this._allTestCheck.unbind(ItemStatusesHandler.EVENT_KEY);
+                    this._testCases.unbind(ItemStatusesHandler.EVENT_KEY);
+                    // Bind new handlers.
+                    this._allTestCheck.bind(ItemStatusesHandler.EVENT_KEY, function () {
+                        that.save();
+                    });
+                    this._testCases.bind(ItemStatusesHandler.EVENT_KEY, function () {
+                        ItemStatusesHandler._CACHE[that._key][this.getAttribute("value")] = this.checked;
+                    });
+                }
+
+                constructor(key, preset) {
+                    if (key == null) {
+                        throw new Error("Key is not defined!");
+                    }
+                    if (ItemStatusesHandler._CACHE[key]) {
+                        throw new Error("Duplicated key: " + key);
+                    }
+                    this._key = key;
+                    this._testCases = $j("#testTable INPUT[type='checkbox']:not(INPUT[id='allTestCheck'])");
+                    this._allTestCheck = $j("#allTestCheck");
+
+                    if (this._testCases?.length > 0 && preset != null) {
+                        this._testCases.each(function () {
+                            if (typeof preset == "boolean") {
+                                this.checked = preset;
+                            } else {
+                                let checked = preset[this.getAttribute("value")]
+                                if (checked != null && typeof checked == "boolean") {
+                                    this.checked = checked;
+                                } else {
+                                    this.checked = false;
+                                }
+                            }
+                            this.onclick();
+                        });
+                    }
+                    this.save();
+                }
+            }
+
+            let all = {}
+
+            all["b-run"] = new ItemStatusesHandler("b-run", true);
+            all["b-benchmark"] = all["b-run"]; // Using the same handler for benchmark.
+            all["b-trace"] = new ItemStatusesHandler("b-trace", false);
+
+            return {
+                switchTo(key) {
+                    if (all[key] != null) {
+                        let current = all[key];
+                        current.bindEvents();
+                        current.load();
+                    }
+                }
+            }
+        }();
+
         function open_win(url, name) {
             window.open(url, name, "toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=yes, resizable=yes, copyhistory=yes, width=1240, height=700, top=20, left=100")
         }
@@ -795,6 +877,7 @@
         }
 
         function onRun(skipSelectionCheck) {
+            itemStatuses.switchTo("b-run");
             compiled(function (compiled) {
                 let proceed = () => {
                     if (skipSelectionCheck || isAnyTestSelected()) {
@@ -820,34 +903,8 @@
             });
         }
 
-        function onTrace() {
-            compiled(function (compiled) {
-                let proceed = () => {
-                    if (isAnyTestSelected()) {
-                        $j("#testModuleHiddenInput").val(!compiled).prop('disabled', false);
-                        onTraceFunction();
-                    }
-                };
-
-                if (!compiled) {
-                    ws.ui.confirm({
-                        title: 'Trace',
-                        message: 'Trace can be run within current module only because the project is not compiled yet.',
-                        onOK: proceed
-                    });
-                } else if ($j("#tableHasProblems") === 'true') {
-                    ws.ui.confirm({
-                        title: 'Trace',
-                        message: 'Trace can be run for the currently opened module only because other modules contain errors.',
-                        onOK: proceed
-                    });
-                } else {
-                    proceed();
-                }
-            });
-        }
-
         function onBenchmark() {
+            itemStatuses.switchTo("b-benchmark");
             compiled(function (compiled) {
                 let proceed = () => {
                     if (isAnyTestSelected()) {
@@ -961,12 +1018,14 @@
         }
 
         function onTestMenuOpen(event, block) {
+            itemStatuses.switchTo(block);
             showButtonMenu(event, 'unitsMenu', 'a');
             $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
             $j('#unitsMenu .' + block).show();
         }
 
         function showUnitsMenu(event, block) {
+            itemStatuses.switchTo(block);
             showButtonMenu(event, 'unitsMenu', 'a');
             $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
             $j('#unitsMenu .' + block).show();

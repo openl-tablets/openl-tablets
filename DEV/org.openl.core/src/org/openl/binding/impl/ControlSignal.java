@@ -16,14 +16,6 @@ public class ControlSignal extends RuntimeException {
         super();
     }
 
-    public ControlSignal(String message) {
-        super(message);
-    }
-
-    public ControlSignal(String message, Throwable cause) {
-        super(message, cause);
-    }
-
     public ControlSignal(Throwable cause) {
         super(cause);
     }

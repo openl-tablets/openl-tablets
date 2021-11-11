@@ -1,6 +1,7 @@
 package org.openl.rules.dt;
 
 import static org.openl.rules.dt.DecisionTableHelper.isLookup;
+import static org.openl.rules.dt.DecisionTableHelper.isRulesTable;
 import static org.openl.rules.dt.DecisionTableHelper.isSimple;
 import static org.openl.rules.dt.DecisionTableHelper.isSmart;
 
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -166,6 +168,31 @@ public class DecisionTableLoader {
                             direction = Direction.UNKNOWN;
                         }
                     }
+                }
+            }
+        } else if (isRulesTable(tableSyntaxNode)) {
+            ILogicalTable tableBody = tableSyntaxNode.getTableBody();
+            if (tableBody != null) {
+                Pair<Integer, Integer> tableBodyCounts = DecisionTableHelper.countAllHeaderTypes(tableBody);
+                final int originalHeadersCnt = tableBodyCounts.getLeft();
+                final int originalNonHeadersCnt = tableBodyCounts.getRight();
+                if (originalNonHeadersCnt == 0) {
+                    return Direction.NORMAL;
+                }
+                ILogicalTable tableBodyT = tableBody.transpose();
+                Pair<Integer, Integer> transposedTableBodyCounts = DecisionTableHelper.countAllHeaderTypes(tableBodyT);
+                final int transposedHeadersCnt = transposedTableBodyCounts.getLeft();
+                final int transposedNonHeadersCnt = transposedTableBodyCounts.getRight();
+                if (transposedNonHeadersCnt == 0 || originalNonHeadersCnt > transposedNonHeadersCnt) {
+                    return Direction.TRANSPOSED;
+                } else if (originalNonHeadersCnt < transposedNonHeadersCnt) {
+                    return Direction.NORMAL;
+                } else if (originalHeadersCnt > transposedHeadersCnt) {
+                    return Direction.NORMAL;
+                } else if (originalHeadersCnt < transposedHeadersCnt) {
+                    return Direction.TRANSPOSED;
+                } else {
+                    return Direction.UNKNOWN;
                 }
             }
         }

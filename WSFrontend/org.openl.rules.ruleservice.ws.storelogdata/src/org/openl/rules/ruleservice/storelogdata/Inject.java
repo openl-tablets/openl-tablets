@@ -1,23 +1,24 @@
 package org.openl.rules.ruleservice.storelogdata;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-public class Inject<T> {
+public class Inject<R> {
     private final Class<? extends Annotation> annotationClass;
-    private final Supplier<T> resourceSupplier;
-    private final Consumer<T> destroyFunction;
+    private final BiFunction<Method, Annotation, R> resourceFunction;
+    private final Consumer<R> destroyFunction;
 
-    public Inject(Class<? extends Annotation> annotationClass, Supplier<T> resourceSupplier) {
-        this(annotationClass, resourceSupplier, null);
+    public Inject(Class<? extends Annotation> annotationClass, BiFunction<Method, Annotation, R> resourceFunction) {
+        this(annotationClass, resourceFunction, null);
     }
 
     public Inject(Class<? extends Annotation> annotationClass,
-            Supplier<T> resourceSupplier,
-            Consumer<T> destroyFunction) {
+            BiFunction<Method, Annotation, R> resourceFunction,
+            Consumer<R> destroyFunction) {
         this.annotationClass = annotationClass;
-        this.resourceSupplier = resourceSupplier;
+        this.resourceFunction = resourceFunction;
         this.destroyFunction = destroyFunction;
     }
 
@@ -25,14 +26,14 @@ public class Inject<T> {
         return annotationClass;
     }
 
-    public T getResource() {
-        return resourceSupplier.get();
+    public R getResource(Method interfaceMethod, Annotation annotation) {
+        return resourceFunction.apply(interfaceMethod, annotation);
     }
 
     @SuppressWarnings("unchecked")
     public void destroy(Object resource) {
         if (destroyFunction != null) {
-            destroyFunction.accept((T) resource);
+            destroyFunction.accept((R) resource);
         }
     }
 }

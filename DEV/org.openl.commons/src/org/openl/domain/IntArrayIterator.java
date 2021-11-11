@@ -1,6 +1,3 @@
-/**
- * Created Jul 13, 2007
- */
 package org.openl.domain;
 
 /**

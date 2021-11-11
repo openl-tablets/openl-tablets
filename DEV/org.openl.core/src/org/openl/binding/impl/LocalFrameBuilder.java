@@ -8,6 +8,7 @@ package org.openl.binding.impl;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Objects;
 
 import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.DuplicatedVarException;
@@ -21,13 +22,13 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class LocalFrameBuilder {
-    static class LocalVar implements ILocalVar {
-        final String namespace;
-        final String name;
-        final int indexInLocalFrame;
-        final IOpenClass type;
+    private static class LocalVar implements ILocalVar {
+        private final String namespace;
+        private final String name;
+        private final int indexInLocalFrame;
+        private final IOpenClass type;
 
-        LocalVar(String namespace, String name, int indexInLocalFrame, IOpenClass type) {
+        private LocalVar(String namespace, String name, int indexInLocalFrame, IOpenClass type) {
             this.namespace = namespace;
             this.name = name;
             this.indexInLocalFrame = indexInLocalFrame;
@@ -62,9 +63,6 @@ public class LocalFrameBuilder {
             return name;
         }
 
-        /**
-         * @return
-         */
         @Override
         public int getIndexInLocalFrame() {
             return indexInLocalFrame;
@@ -90,9 +88,6 @@ public class LocalFrameBuilder {
             return name;
         }
 
-        /**
-         * @return
-         */
         @Override
         public String getNamespace() {
             return namespace;
@@ -165,12 +160,11 @@ public class LocalFrameBuilder {
 
     }
 
-    static public class LocalVarFrameElement extends ArrayList<ILocalVar> {
+    public static class LocalVarFrameElement extends ArrayList<ILocalVar> {
     }
 
-    final LinkedList<LocalVarFrameElement> localFrames = new LinkedList<>();
-
-    int localVarFrameSize = 0;
+    private final LinkedList<LocalVarFrameElement> localFrames = new LinkedList<>();
+    private int localVarFrameSize = 0;
 
     public LocalFrameBuilder() {
         super();
@@ -204,7 +198,7 @@ public class LocalFrameBuilder {
         for (LocalVarFrameElement frame : localFrames) {
             for (ILocalVar var : frame) {
                 String s1 = var.getNamespace();
-                if (var.getName().equals(varname) && (s1 != null ? s1.equals(namespace) : namespace == null)) {
+                if (var.getName().equals(varname) && (Objects.equals(s1, namespace))) {
                     return var;
                 }
             }

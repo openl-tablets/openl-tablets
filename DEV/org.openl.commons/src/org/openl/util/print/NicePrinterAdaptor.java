@@ -20,37 +20,31 @@ import org.openl.util.ClassUtils;
  */
 public class NicePrinterAdaptor {
 
-    static class MapEntryComparator<K, V> implements Comparator<Map.Entry<K, V>> {
+    private static class MapEntryComparator<K, V> implements Comparator<Map.Entry<K, V>> {
 
         @Override
         public int compare(Map.Entry<K, V> e1, Map.Entry<K, V> e2) {
-
             String key1 = String.valueOf(e1.getKey());
             String key2 = String.valueOf(e2.getKey());
 
             if (key1.equals("id")) {
                 return -1;
             }
-
             if (key2.equals("id")) {
                 return 1;
             }
-
             if (key1.equals("name")) {
                 return -1;
             }
-
             if (key2.equals("name")) {
                 return 1;
             }
-
             return key1.compareTo(key2);
-
         }
 
     }
 
-    static final Class<?>[] primitiveClasses = { Integer.class,
+    private static final Class<?>[] primitiveClasses = { Integer.class,
             Double.class,
             Boolean.class,
             Character.class,
@@ -61,23 +55,19 @@ public class NicePrinterAdaptor {
             String.class,
             Date.class };
 
-    public static final Comparator<Map.Entry<Object, Object>> mapComparator = new MapEntryComparator<>();
+    private static final Comparator<Map.Entry<Object, Object>> mapComparator = new MapEntryComparator<>();
 
     public static boolean isPrimitiveClass(Class<?> c) {
-
         for (Class<?> primitiveClass : primitiveClasses) {
             if (primitiveClass == c) {
                 return true;
             }
         }
-
         return false;
     }
 
     public static String shortTypeName(String classname) {
-
         int idx = classname.lastIndexOf('.');
-
         return idx < 0 ? classname : classname.substring(idx + 1);
     }
 
@@ -108,7 +98,6 @@ public class NicePrinterAdaptor {
 
     public void printArray(Object ary, int newID, NicePrinter printer) {
         int len = Array.getLength(ary);
-
         if (len == 0) {
             printer.getBuffer().append("[]");
             return;
@@ -126,7 +115,6 @@ public class NicePrinterAdaptor {
         printer.getBuffer().append('}');
 
         printer.decIdent();
-
     }
 
     public void printCollection(Collection<?> c, int newID, NicePrinter printer) {
@@ -141,7 +129,6 @@ public class NicePrinterAdaptor {
     @SuppressWarnings("unchecked")
     public void printMap(Map map, Comparator<Map.Entry<Object, Object>> mapEntryComparator, NicePrinter printer) {
         int len = map.size();
-
         if (len == 0) {
             printer.getBuffer().append("[]");
             return;
@@ -170,7 +157,6 @@ public class NicePrinterAdaptor {
         printer.getBuffer().append('}');
 
         printer.decIdent();
-
     }
 
     public void printNull(NicePrinter printer) {
@@ -201,22 +187,16 @@ public class NicePrinterAdaptor {
 
     private static String printDouble(double dd) {
         double d = dd < 0 ? -dd : dd;
-
         double x = 1;
-
         for (int i = 0; i < 7; i++) {
             if (d > x) {
-
                 NumberFormat nf = NumberFormat.getNumberInstance();
-
                 nf.setMinimumFractionDigits(0);
                 nf.setMaximumFractionDigits(2 + i);
-
                 return nf.format(dd);
             }
             x /= 10;
         }
-
         return String.valueOf(dd);
 
     }

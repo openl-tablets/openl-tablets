@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>5.25.1-SNAPSHOT</version>
+        <version>5.25.2-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws</artifactId>
     <packaging>war</packaging>
@@ -122,7 +122,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/webservice/WEB-INF/lib</outputDirectory>
+                            <outputDirectory>${project.build.directory}/webapp/WEB-INF/lib</outputDirectory>
                             <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j-impl</includeArtifactIds>
                         </configuration>
                     </execution>
@@ -284,11 +284,6 @@
                 <dependency>
                     <groupId>com.sun.activation</groupId>
                     <artifactId>jakarta.activation</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>org.apache.geronimo.specs</groupId>
-                    <artifactId>geronimo-jta_1.1_spec</artifactId>
-                    <version>1.1.1</version>
                 </dependency>
                 <dependency>
                     <groupId>jakarta.xml.ws</groupId>

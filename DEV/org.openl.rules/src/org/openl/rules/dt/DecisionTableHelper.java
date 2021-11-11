@@ -420,6 +420,7 @@ public final class DecisionTableHelper {
             fuzzyContext,
             dtHeaders,
             lookupReturnDtHeader,
+            firstColumnHeight,
             bindingContext);
     }
 
@@ -664,6 +665,7 @@ public final class DecisionTableHelper {
             DeclaredDTHeader declaredReturn,
             String header,
             boolean lookupReturnHeader,
+            int firstColumnHeight,
             IBindingContext bindingContext) {
         grid.setCellValue(declaredReturn.getColumn(), 0, header);
         grid.setCellValue(declaredReturn.getColumn(), 1, declaredReturn.getStatement());
@@ -693,7 +695,8 @@ public final class DecisionTableHelper {
                             paramType = declaredReturn.getCompositeMethod().getType();
                         }
                         typeOfColumns.add(paramType);
-                        int h = originalTable.getSource().getCell(c, 0).getHeight();
+                        int h = lookupReturnHeader ? firstColumnHeight
+                                                   : originalTable.getSource().getCell(c, 0).getHeight();
                         int w1 = originalTable.getSource().getCell(c, h).getWidth();
                         if (paramType != null && paramType.isArray()) {
                             // If we have more columns than parameters use excess columns for array typed parameter
@@ -1111,6 +1114,7 @@ public final class DecisionTableHelper {
             FuzzyContext fuzzyContext,
             List<DTHeader> dtHeaders,
             DeclaredDTHeader lookupReturnDtHeader,
+            int firstColumnHeight,
             IBindingContext bindingContext) throws OpenLCompilationException {
         final boolean isCollect = isCollect(tableSyntaxNode);
 
@@ -1123,6 +1127,7 @@ public final class DecisionTableHelper {
                     lookupReturnDtHeader,
                     isCollect ? CRET1_COLUMN_NAME : RET1_COLUMN_NAME,
                     true,
+                    firstColumnHeight,
                     bindingContext);
             } else {
                 int retColumn = getRetColumn(dtHeaders);
@@ -1154,6 +1159,7 @@ public final class DecisionTableHelper {
                         isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cRetNum++
                                   : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++,
                         false,
+                        firstColumnHeight,
                         bindingContext);
                 } else if (dtHeader instanceof SimpleReturnDTHeader || dtHeader instanceof FuzzyDTHeader && ((FuzzyDTHeader) dtHeader)
                     .getFieldsChain() == null) {
@@ -2561,7 +2567,7 @@ public final class DecisionTableHelper {
         if (dtHeader.isReturn()) {
             return dtHeader.getColumn() + dtHeader.getWidth() == maxColumn;
         }
-        if (dtHeader.isCondition() || dtHeader.isAction()) {
+        if (!dtHeader.isHCondition() && dtHeader.isCondition() || dtHeader.isAction()) {
             return dtHeader.getColumn() + dtHeader.getWidth() < maxColumn - columnsForReturn;
         }
         return true;
@@ -4100,6 +4106,11 @@ public final class DecisionTableHelper {
         return IXlsTableNames.SIMPLE_DECISION_LOOKUP.equals(dtType);
     }
 
+    public static boolean isRulesTable(TableSyntaxNode tableSyntaxNode) {
+        String dtType = tableSyntaxNode.getHeader().getHeaderToken().getIdentifier();
+        return IXlsTableNames.DECISION_TABLE.equals(dtType) || IXlsTableNames.DECISION_TABLE2.equals(dtType);
+    }
+
     static int countHConditionsByHeaders(ILogicalTable table) {
         int width = table.getWidth();
         int cnt = 0;
@@ -4124,11 +4135,30 @@ public final class DecisionTableHelper {
             if (value != null) {
                 value = value.toUpperCase();
                 if (isValidConditionHeader(value) || isValidMergedConditionHeader(value)) {
-                    ++cnt;
+                    cnt++;
                 }
             }
         }
         return cnt;
+    }
+
+    static Pair<Integer, Integer> countAllHeaderTypes(ILogicalTable table) {
+        int width = table.getWidth();
+        int cnt = 0;
+        int nonHeaderCnt = 0;
+        for (int i = 0; i < width; i++) {
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
+            if (value != null && !StringUtils.isEmpty(value)) {
+                value = value.toUpperCase();
+                if (isConditionHeader(value) || isValidRetHeader(value) || isValidCRetHeader(
+                    value) || isValidActionHeader(value) || isValidKeyHeader(value) || isValidRuleHeader(value)) {
+                    cnt++;
+                } else {
+                    nonHeaderCnt++;
+                }
+            }
+        }
+        return Pair.of(cnt, nonHeaderCnt);
     }
 
     private static final class ParameterTokens {

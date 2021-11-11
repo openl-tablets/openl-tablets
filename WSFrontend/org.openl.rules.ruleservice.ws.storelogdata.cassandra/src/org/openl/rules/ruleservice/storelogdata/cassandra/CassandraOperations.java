@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -119,24 +117,21 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         }
     }
 
-    public void save(Object entity, boolean sync) {
+    public void save(Object entity, boolean sync) throws ReflectiveOperationException, DaoCreationException {
         if (entity == null) {
             return;
         }
-        try {
-            createSchemaIfMissed(entity.getClass());
-            EntitySupport entitySupport = entity.getClass().getAnnotation(EntitySupport.class);
-            if (entitySupport == null) {
-                LOG.error("Failed to save cassandra entity. Annotation @EntitySupport is not presented in class '{}'.",
-                    entity.getClass().getTypeName());
-            } else {
-                CompletionStage<Void> completionStage = getEntitySaver(entity.getClass()).insert(entity);
-                if (sync) {
-                    completionStage.toCompletableFuture().join();
-                }
+        createSchemaIfMissed(entity.getClass());
+        EntitySupport entitySupport = entity.getClass().getAnnotation(EntitySupport.class);
+        if (entitySupport == null) {
+            throw new CassandraOperationException(String.format(
+                "Failed to save cassandra entity. Annotation @EntitySupport is not presented in class '%s'.",
+                entity.getClass().getTypeName()));
+        } else {
+            CompletionStage<Void> completionStage = getEntitySaver(entity.getClass()).insert(entity);
+            if (sync) {
+                completionStage.toCompletableFuture().join();
             }
-        } catch (ReflectiveOperationException | DaoCreationException | CompletionException | CancellationException e) {
-            LOG.error("Failed to save cassandra entity '{}'.", entity.getClass().getTypeName(), e);
         }
     }
 

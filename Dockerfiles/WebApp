@@ -1,0 +1,88 @@
+ARG JDK=11-jre-focal
+
+FROM eclipse-temurin:${JDK} as jdk
+
+FROM ubuntu:focal
+
+ARG APP=target/webapp
+
+# Copy Java
+ENV JAVA_HOME /opt/java/openjdk
+COPY --from=jdk $JAVA_HOME $JAVA_HOME
+
+# Will be replaced on Jetty in 5.26
+# Copy Tomcat
+ENV CATALINA_HOME /usr/local/tomcat
+COPY --from=tomcat:9-jre11-temurin-focal $CATALINA_HOME $CATALINA_HOME
+
+# Define executables
+ENV PATH $CATALINA_HOME/bin:$JAVA_HOME/bin:$PATH
+
+WORKDIR $CATALINA_HOME
+
+RUN set -eux ; \
+    \
+# Prepare environment. Install required utils for Docker image building.
+    savedAptMark="$(apt-mark showmanual)"; \
+    \
+    apt-get update ; \
+    apt-get install -y --no-install-recommends xmlstarlet ; \
+    \
+# Clean up temporaries
+    rm -rf /var/lib/apt/lists/* ; \
+    \
+# Update server.xml If app is used under load balancer or reverse proxy with ssl certificate,
+# but from Tomcat's image perspective it's running an http server. So feature of this valve is
+# to replace the apparent scheme (http/https) and server port with the scheme presented by a proxy
+# or a load balancer. If the proxy passes some header variables, Tomcat will start to think that
+# it is running https.
+# <Valve className="org.apache.catalina.valves.RemoteIpValve" internalProxies=".*" protocolHeader="X-Forwarded-Proto"/>
+    xmlstarlet ed -P -S \
+        -s /Server/Service/Engine/Host -t elem -n Valve -v "" \
+        -i //Valve -t attr -n "className" -v "org.apache.catalina.valves.RemoteIpValve" \
+        -i //Valve -t attr -n "internalProxies" -v ".*" \
+        -i //Valve -t attr -n "protocolHeader" -v "X-Forwarded-Proto" \
+        conf/server.xml ; \
+    \
+# Fix SEVERE error while running image via non-root user
+    mkdir -p conf/Catalina/localhost ; \
+    \
+# Cleanup apt-get installations
+    apt-mark auto '.*' > /dev/null ; \
+    [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null ; \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
+
+# Install fonts required for Apache POI (export into Excel with autowidth of columns)
+RUN set -eux ; \
+    \
+    apt-get update ; \
+    apt-get install -y --no-install-recommends \
+    fontconfig ; \
+    rm -rf /var/lib/apt/lists/*
+
+ENV OPENL_HOME /openl
+
+# Create a system 'openl' user with home directory. Home directory is required for Java Prefs persistence to prevent
+# WARN spamming in the log.
+RUN useradd -r -m -U -s /usr/sbin/nologin openl
+
+# Writable folder for 'openl' user where application files are stored.
+# It should be mounted on an external volume to persist application data between redeploying if it is required.
+# Do not confuse this with home directory of 'openl' user.
+RUN mkdir -p "$OPENL_HOME" && chown openl:openl "$OPENL_HOME"
+# Will be uncomment in 5.26
+#USER openl
+
+ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
+
+EXPOSE 8080
+CMD ["catalina.sh", "run"]
+
+COPY $APP webapps/ROOT
+
+WORKDIR $OPENL_HOME
+
+# For migration from '/root/.openl' default folder to '/openl'. Will be removed in 5.26
+RUN ln -s "$OPENL_HOME" /root/.openl && chown -h openl:openl /root/.openl
+ENV OPENL_HOME=.
+WORKDIR /root/.openl

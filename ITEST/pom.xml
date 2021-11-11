@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.25.1-SNAPSHOT</version>
+        <version>5.25.2-SNAPSHOT</version>
     </parent>
 
     <groupId>org.openl.itest</groupId>
@@ -97,7 +97,7 @@
                         <reuseForks>false</reuseForks>
                         <systemPropertyVariables>
                             <webservice-webapp>
-                                ../../WSFrontend/org.openl.rules.ruleservice.ws/target/webservice
+                                ../../WSFrontend/org.openl.rules.ruleservice.ws/target/webapp
                             </webservice-webapp>
                             <openl.config.location>file:./openl-repository/</openl.config.location>
                             <openl.config.name>application.properties, application-{profile}.properties</openl.config.name>
@@ -127,8 +127,8 @@
                 </property>
             </activation>
             <properties>
-                <http.timeout.connect>300</http.timeout.connect>
-                <http.timeout.read>5000</http.timeout.read>
+                <http.timeout.connect>500</http.timeout.connect>
+                <http.timeout.read>10000</http.timeout.read>
             </properties>
         </profile>
     </profiles>

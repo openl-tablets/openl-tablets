@@ -2,11 +2,16 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenLCompilationException;
@@ -19,10 +24,12 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.xls.XlsUrlParser;
+import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.util.BiMap;
 import org.openl.util.MessageUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -648,8 +655,34 @@ public class Table implements ITable {
 
         IRuntimeEnv env = openlAdapter.getOpenl().getVm().getRuntimeEnv();
         env.pushLocalFrame(new Object[] { new DatatypeArrayMultiRowElementContext() });
+        boolean hasError = false;
+        Set<String> fieldWithValue = new HashSet<>();
+        if (Objects.equals(tableSyntaxNode.getType(), XlsNodeTypes.XLS_TEST_METHOD.toString())) {
+            hasError = Arrays.stream(dataModel.getDescriptors()).anyMatch(m -> m.getName().startsWith(TestMethodHelper.EXPECTED_ERROR));
+            fieldWithValue = Arrays.stream(dataModel.getDescriptors())
+                .filter(d -> {
+                    ILogicalTable lTable = logicalTable.getSubtable(d.getColumnIdx(), rowNum, 1, 1);
+                    boolean nonEmptyResCell = !(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
+                        .getStringValue() != null && d.getField() != null;
+                    return nonEmptyResCell && d.getField().getName().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME) &&
+                        d.getField() instanceof FieldChain && ((FieldChain) d.getField()).getFields().length > 1;
+                })
+                .map(d -> {
+                    FieldChain fieldChain = (FieldChain) d.getField();
+                    return (FieldChain.makeNames(Arrays.copyOfRange(fieldChain.getFields(), 0, fieldChain.getFields().length - 1)));
+                })
+                .collect(Collectors.toSet());
+        }
         for (ColumnDescriptor columnDescriptor : dataModel.getDescriptors()) {
-            literal = processColumn(columnDescriptor, openlAdapter, constructor, rowNum, literal, env);
+            boolean hasValue = false;
+            if (columnDescriptor.getField() instanceof FieldChain) {
+                FieldChain fieldChain = (FieldChain) columnDescriptor.getField();
+                if (fieldChain.getFields().length > 1) {
+                    String fieldName = FieldChain.makeNames(Arrays.copyOfRange(fieldChain.getFields(), 0, fieldChain.getFields().length-1));
+                    hasValue = fieldWithValue.contains(fieldName);
+                }
+            }
+            literal = processColumn(columnDescriptor, openlAdapter, constructor, rowNum, literal, env, hasError, hasValue);
         }
         env.popLocalFrame();
         if (literal == null) {
@@ -673,7 +706,7 @@ public class Table implements ITable {
             boolean constructor,
             int rowNum,
             Object literal,
-            IRuntimeEnv env) throws SyntaxNodeException {
+            IRuntimeEnv env, boolean hasError, boolean hasValue) throws SyntaxNodeException {
 
         if (columnDescriptor != null && !columnDescriptor.isReference()) {
             if (constructor) {
@@ -684,9 +717,11 @@ public class Table implements ITable {
                 try {
                     ILogicalTable lTable = logicalTable.getSubtable(columnDescriptor.getColumnIdx(), rowNum, 1, 1);
                     if (!(lTable.getHeight() == 1 && lTable.getWidth() == 1) || lTable.getCell(0, 0)
-                        .getStringValue() != null) { // EPBDS-6104. For empty values should be used data type default
-                        // value.
-                        return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env);
+                        .getStringValue() != null) { // EPBDS-6104. For empty values should be used data type default value.
+                        return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env, false);
+                    } else if (columnDescriptor.getField()!=null && columnDescriptor.getField().getName().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME) &&
+                        !columnDescriptor.isValuesAnArray() && !hasError && hasValue) {
+                        return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env, true);
                     }
                 } catch (SyntaxNodeException ex) {
                     openlAdapter.getBindingContext().addError(ex);

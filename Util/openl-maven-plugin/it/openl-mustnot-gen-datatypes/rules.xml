@@ -1,0 +1,11 @@
+<project>
+    <name>openl-mustnot-gen-datatypes</name>
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="groovy"/>
+    </classpath>
+</project>

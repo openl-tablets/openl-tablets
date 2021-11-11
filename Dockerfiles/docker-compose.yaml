@@ -1,0 +1,35 @@
+version: '2.2'
+
+services:
+
+  webstudio:
+    build:
+      context: ../STUDIO/org.openl.rules.webstudio
+      dockerfile: ../../Dockerfiles/WebApp
+    container_name: webstudio
+    ports:
+      - "8181:8080"
+
+  ws:
+    build:
+      context: ../WSFrontend/org.openl.rules.ruleservice.ws
+      dockerfile: ../../Dockerfiles/WebApp
+    container_name: ws
+    ports:
+      - "8182:8080"
+
+  ws-all:
+    build:
+      context: ../WSFrontend/org.openl.rules.ruleservice.ws.all
+      dockerfile: ../../Dockerfiles/WebApp
+    container_name: ws-all
+    ports:
+      - "8183:8080"
+
+  demo:
+    build:
+      context: ../DEMO/org.openl.rules.demo/target
+      dockerfile: ../../../Dockerfiles/Demo
+    container_name: demo
+    ports:
+      - "8184:8080"

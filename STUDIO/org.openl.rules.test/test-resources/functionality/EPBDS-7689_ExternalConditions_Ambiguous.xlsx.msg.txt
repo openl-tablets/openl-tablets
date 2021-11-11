@@ -1,2 +1,2 @@
-ERROR: Field 'tra' is ambiguous:
+ERROR: Field tra is ambiguous:
 ERROR: Method 'println(null-Class)' is ambiguous:

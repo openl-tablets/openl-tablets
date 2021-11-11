@@ -71,7 +71,7 @@ import org.openl.ie.tools.RTExceptionWrapper;
 
 public final class Constrainer implements Serializable {
 
-    static public double FLOAT_PRECISION = 1.0e-6;
+    public static double FLOAT_PRECISION = 1.0e-6;
 
     // PRIVATE MEMBERS
     private final String _name;
@@ -82,7 +82,7 @@ public final class Constrainer implements Serializable {
 
     private final FastVector _constraints;
 
-    private int _choice_point;
+    private final int _choice_point;
 
     private GoalStack _goal_stack;
 

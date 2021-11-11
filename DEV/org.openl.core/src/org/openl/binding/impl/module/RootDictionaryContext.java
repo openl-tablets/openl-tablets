@@ -13,10 +13,10 @@ import org.openl.vm.IRuntimeEnv;
 
 public class RootDictionaryContext implements VariableInContextFinder {
 
-    static class ContextField extends OpenFieldDelegator {
-        final IOpenField parent;
+    private static final class ContextField extends OpenFieldDelegator {
+        private final IOpenField parent;
 
-        protected ContextField(IOpenField parent, IOpenField delegate) {
+        private ContextField(IOpenField parent, IOpenField delegate) {
             super(delegate);
             this.parent = parent;
         }
@@ -48,9 +48,9 @@ public class RootDictionaryContext implements VariableInContextFinder {
         public String getDisplayName(int mode) {
             if (mode == INamedThing.LONG) {
                 if (parent != null) {
-                    return parent.getDisplayName(mode) + "." + delegate.getDisplayName(mode);
+                    return parent.getDisplayName(mode) + "." + field.getDisplayName(mode);
                 }
-                return delegate.getDisplayName(mode);
+                return field.getDisplayName(mode);
             }
             return super.getDisplayName(mode);
         }
@@ -85,10 +85,8 @@ public class RootDictionaryContext implements VariableInContextFinder {
     }
 
     private void add(ContextField contextField) {
-
         String name = contextField.getName().toLowerCase();
         List<IOpenField> ff = fields.get(name);
-
         if (ff == null) {
             ff = new ArrayList<>();
             ff.add(contextField);
@@ -100,7 +98,6 @@ public class RootDictionaryContext implements VariableInContextFinder {
             return;
         }
         ff.add(contextField);
-
     }
 
     @Override
@@ -117,7 +114,6 @@ public class RootDictionaryContext implements VariableInContextFinder {
         if (ff.size() > 1) {
             throw new AmbiguousFieldException(name, ff);
         }
-
         return ff.get(0);
     }
 
@@ -126,21 +122,11 @@ public class RootDictionaryContext implements VariableInContextFinder {
             return;
         }
         add(new ContextField(parent, field));
+
         if (level + 1 <= maxDepthLevel) {
             IOpenClass fieldType = field.getType();
             if (fieldType.isSimple()) {
                 return;
-            }
-            if (fieldType.isArray()) {
-                int dimension = 0;
-                IOpenClass type = field.getType();
-                while (type.isArray()) {
-                    type = type.getComponentClass();
-                    dimension++;
-                }
-                for (IOpenField f : type.getFields()) {
-                    initializeField(field, new ArrayOpenField(f, dimension), level + 1);
-                }
             }
             for (IOpenField openField : fieldType.getFields()) {
                 initializeField(field, openField, level + 1);

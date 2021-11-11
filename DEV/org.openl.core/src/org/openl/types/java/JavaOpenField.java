@@ -22,8 +22,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class JavaOpenField implements IOpenField {
 
-    final Field field;
-    String contextProperty;
+    private final Field field;
+    private String contextProperty;
 
     JavaOpenField(Field field) {
         this.field = field;

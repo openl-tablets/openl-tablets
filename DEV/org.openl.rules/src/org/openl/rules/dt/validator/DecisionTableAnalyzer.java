@@ -151,7 +151,7 @@ public class DecisionTableAnalyzer {
         if (field instanceof OpenFieldDelegator) {
             OpenFieldDelegator delegator = (OpenFieldDelegator) field;
 
-            return delegator.getDelegate();
+            return delegator.getField();
         }
 
         return field;

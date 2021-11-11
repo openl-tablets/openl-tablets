@@ -13,13 +13,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class IndexNode extends ATargetBoundNode {
 
-    final IOpenIndex index;
+    private final IOpenIndex index;
 
-    /**
-     * @param syntaxNode
-     * @param children
-     * @param targetNode
-     */
     IndexNode(ISyntaxNode syntaxNode, IBoundNode[] children, IBoundNode targetNode, IOpenIndex index) {
         super(syntaxNode, targetNode, children);
         this.index = index;

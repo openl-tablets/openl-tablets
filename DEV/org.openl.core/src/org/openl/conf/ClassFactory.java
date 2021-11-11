@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ClassFactory extends AConfigurationElement {
     private static final Logger LOG = LoggerFactory.getLogger(ClassFactory.class);
-    static final Class<?>[] NO_PARAMS = {};
-    protected String className;
-    protected String extendsClassName;
+    private static final Class<?>[] NO_PARAMS = {};
+    private String className;
+    private String extendsClassName;
 
     protected boolean singleton;
 
@@ -51,7 +51,7 @@ public class ClassFactory extends AConfigurationElement {
 
     public static Object newInstance(Class<?> cc, String uri) {
         try {
-            return cc.newInstance();
+            return cc.getDeclaredConstructor().newInstance();
         } catch (Exception | LinkageError t) {
             throw new OpenLConfigurationException(String.format("Failed to instantiate class '%s'.", cc.getTypeName()),
                 uri,
@@ -61,7 +61,7 @@ public class ClassFactory extends AConfigurationElement {
 
     public static Object newInstance(String classname, IConfigurableResourceContext cxt, String uri) {
         try {
-            return cxt.getClassLoader().loadClass(classname).newInstance();
+            return cxt.getClassLoader().loadClass(classname).getDeclaredConstructor().newInstance();
         } catch (Exception | LinkageError t) {
             throw new OpenLConfigurationException(String.format("Failed to instantiate class '%s'.", classname),
                 uri,
@@ -85,24 +85,6 @@ public class ClassFactory extends AConfigurationElement {
 
         return c;
 
-    }
-
-    public static Constructor<?> validateHasConstructor(Class<?> clazz, Class<?>[] params, String uri) {
-        Constructor<?> c;
-        try {
-            c = clazz.getConstructor(params);
-        } catch (Exception | LinkageError t) {
-            String methodString = MethodUtil.printMethod("", params);
-            throw new OpenLConfigurationException(String
-                .format("Constructor '%s' is not found in class '%s'.", methodString, clazz.getTypeName()), uri, t);
-        }
-
-        if (!Modifier.isPublic(c.getModifiers())) {
-            throw new OpenLConfigurationException(String.format("Constructor '%s.%s' is not a public.",
-                clazz.getTypeName(),
-                c.getName() + MethodUtil.printMethod("", params)), uri, null);
-        }
-        return c;
     }
 
     public static Method validateHasMethod(Class<?> clazz, String methodName, Class<?>[] params, String uri) {
@@ -153,16 +135,10 @@ public class ClassFactory extends AConfigurationElement {
 
     }
 
-    /**
-     * @return
-     */
     public String getClassName() {
         return className;
     }
 
-    /**
-     * @return
-     */
     public String getExtendsClassName() {
         return extendsClassName;
     }
@@ -185,7 +161,7 @@ public class ClassFactory extends AConfigurationElement {
      */
     protected Object getResourceInternal(IConfigurableResourceContext cxt) {
         try {
-            return cxt.getClassLoader().loadClass(className).newInstance();
+            return cxt.getClassLoader().loadClass(className).getDeclaredConstructor().newInstance();
         } catch (Exception | LinkageError t) {
             throw new OpenLConfigurationException(String.format("Failed to instantiate class '%s'.", className),
                 getUri(),
@@ -193,30 +169,18 @@ public class ClassFactory extends AConfigurationElement {
         }
     }
 
-    /**
-     * @return
-     */
     public boolean isSingleton() {
         return singleton;
     }
 
-    /**
-     * @param string
-     */
     public void setClassName(String string) {
         className = string;
     }
 
-    /**
-     * @param string
-     */
     public void setExtendsClassName(String string) {
         extendsClassName = string;
     }
 
-    /**
-     * @param b
-     */
     public void setSingleton(boolean b) {
         singleton = b;
     }
@@ -229,13 +193,10 @@ public class ClassFactory extends AConfigurationElement {
     @Override
     public void validate(IConfigurableResourceContext cxt) {
         Class<?> c = validateClassExistsAndPublic(className, cxt.getClassLoader(), getUri());
-
         if (getExtendsClassName() != null) {
             Class<?> c2 = validateClassExistsAndPublic(getExtendsClassName(), cxt.getClassLoader(), getUri());
-
             validateSuper(c, c2, getUri());
         }
-
         validateHaveNewInstance(c, getUri());
     }
 

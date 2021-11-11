@@ -1,6 +1,3 @@
-/**
- * Created Jul 14, 2007
- */
 package org.openl.domain;
 
 import org.openl.util.AOpenIterator;

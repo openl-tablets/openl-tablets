@@ -17,7 +17,7 @@ public class DTCheckerImpl implements DTChecker {
     static public class CDecisionTableImpl implements CDecisionTable {
         private final IntBoolExp[] _rules;
         private final IntExpArray _vars;
-        boolean overrideAscending;
+        private final boolean overrideAscending;
 
         public CDecisionTableImpl(IntBoolExp[][] data, IntExpArray vars, boolean overrideAscending) {
             if (data == null) {

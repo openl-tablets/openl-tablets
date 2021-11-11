@@ -16,11 +16,8 @@ public class NoAntOpenLTask {
     private static IOpenLConfiguration lastConfiguration;
 
     private boolean inheritExtendedConfigurationLoader = false;
-
-    final OpenLConfiguration conf = new OpenLConfiguration();
-
+    private final OpenLConfiguration conf = new OpenLConfiguration();
     private String category;
-
     private String extendsCategory;
 
     static IOpenLConfiguration retrieveConfiguration() {

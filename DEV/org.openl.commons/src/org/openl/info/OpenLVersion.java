@@ -22,7 +22,7 @@ public final class OpenLVersion {
     private static final String version;
     private static final String buildDate;
     private static final String buildNumber;
-    public static Map<String, String> info;
+    private static final Map<String, String> info;
 
     static {
         Properties props = new Properties();

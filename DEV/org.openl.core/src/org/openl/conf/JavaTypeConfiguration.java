@@ -14,13 +14,9 @@ import org.openl.types.ITypeLibrary;
  */
 public class JavaTypeConfiguration extends AConfigurationElement implements ITypeFactoryConfigurationElement {
 
-    String className;
+    private String className;
+    private ITypeLibrary library;
 
-    ITypeLibrary library = null;
-
-    /**
-     * @return
-     */
     public String getClassName() {
         return className;
     }
@@ -38,9 +34,6 @@ public class JavaTypeConfiguration extends AConfigurationElement implements ITyp
         return library;
     }
 
-    /**
-     * @param string
-     */
     public void setClassName(String string) {
         className = string;
     }

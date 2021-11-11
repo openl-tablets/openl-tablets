@@ -47,11 +47,11 @@ public interface ServiceAnnotationTemplate {
     Integer method3(@QueryParam("x") Integer a, @RulesType("MyDatatype") Object myDatatype);
 
     @Path("/m1")
-    Object m1(@RulesType("MyDatatype") Object myDatatype);
+    Integer m1(@RulesType("MyDatatype") Object myDatatype);
 
     @Path("/m2")
-    Object m2(@RulesType("MyDatatype") Object myDatatype);
+    Integer m2(@RulesType("MyDatatype") Object myDatatype);
 
     @Path("/m3")
-    Object m3(@RulesType("MyDatatype") Object myDatatype);
+    Integer m3(@RulesType("MyDatatype") Object myDatatype);
 }
