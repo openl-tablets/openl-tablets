@@ -39,7 +39,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.NumericComparableString;
+import org.openl.binding.impl.NumericStringComparator;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
@@ -1395,15 +1395,18 @@ public final class DecisionTableHelper {
                     continue;
                 }
 
-                if (JavaOpenClass.STRING.equals(type)) {
-                    o1 = NumericComparableString.valueOf((String) o1);
-                    o2 = NumericComparableString.valueOf((String) o2);
-                }
-
-                if (o1 instanceof Comparable && o2 instanceof Comparable) {
-                    if (((Comparable) o1).compareTo(o2) > 0) {
+                if (JavaOpenClass.STRING.equals(type) && o1 != null && o2 != null) {
+                    int res = NumericStringComparator.INSTANCE.compare((String) o1, (String) o2);
+                    if (res > 0) {
                         t1++;
-                    } else if (((Comparable) o1).compareTo(o2) < 0) {
+                    } else if (res < 0) {
+                        t2++;
+                    }
+                } else if (o1 instanceof Comparable && o2 instanceof Comparable) {
+                    int res = ((Comparable) o1).compareTo(o2);
+                    if (res > 0) {
+                        t1++;
+                    } else if (res < 0) {
                         t2++;
                     }
                 }

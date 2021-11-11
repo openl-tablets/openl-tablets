@@ -6,7 +6,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.impl.NumericComparableString;
+import org.openl.binding.impl.NumericStringComparator;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
@@ -61,20 +61,20 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
         } else {
             LinkedHashMap<Object, ParameterDeclarationTreeNode> fields = new LinkedHashMap<>();
             IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-            SortedMap<NumericComparableString, IOpenField> fieldMap = new TreeMap<>();
+            SortedMap<String, IOpenField> fieldMap = new TreeMap<>(NumericStringComparator.INSTANCE);
             try {
                 for (IOpenField field : getType().getFields()) {
-                    fieldMap.put(NumericComparableString.valueOf(field.getName()), field);
+                    fieldMap.put(field.getName(), field);
                 }
             } catch (LinkageError e) {
                 LOG.debug("Ignored error: ", e);
                 return fields;
             }
 
-            for (Entry<NumericComparableString, IOpenField> fieldEntry : fieldMap.entrySet()) {
+            for (Entry<String, IOpenField> fieldEntry : fieldMap.entrySet()) {
                 IOpenField field = fieldEntry.getValue();
                 if (!field.isConst() && field.isReadable()) {
-                    String fieldName = fieldEntry.getKey().getValue();
+                    String fieldName = fieldEntry.getKey();
                     Object fieldValue;
                     IOpenClass fieldType = field.getType();
 
