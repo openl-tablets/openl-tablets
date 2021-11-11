@@ -48,12 +48,12 @@ public abstract class AServiceAnnotationTemplate {
     public abstract Integer method3(@QueryParam("x") Integer a, @RulesType("MyDatatype") Object myDatatype);
 
     @Path("/m1")
-    public abstract Object m1(@RulesType("MyDatatype") Object myDatatype);
+    public abstract Integer m1(@RulesType("MyDatatype") Object myDatatype);
 
     @Path("/m2")
-    public abstract Object m2(@RulesType("MyDatatype") Object myDatatype);
+    public abstract Integer m2(@RulesType("MyDatatype") Object myDatatype);
 
     @Path("/m3")
-    public abstract Object m3(@RulesType("MyDatatype") Object myDatatype);
+    public abstract Integer m3(@RulesType("MyDatatype") Object myDatatype);
 
 }
