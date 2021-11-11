@@ -12,7 +12,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 
 public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultOpenClass {
-    private static final int MAX_LENGTH_DISPLAY_NAME = 50;
+    private static final int MAX_LENGTH_DISPLAY_NAME = 150;
 
     private final Set<CustomSpreadsheetResultOpenClass> combinedOpenClasses = new HashSet<>();
 
