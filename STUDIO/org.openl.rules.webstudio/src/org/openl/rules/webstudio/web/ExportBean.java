@@ -188,7 +188,7 @@ public class ExportBean {
 
     private static void addCookie(String name, String value, int age) {
         Cookie cookie = new Cookie(name, StringTool.encodeURL(value));
-        cookie.setHttpOnly(true);
+        cookie.setHttpOnly(false); // Has to be visible from client scripting
         String contextPath = ((HttpServletRequest) WebStudioUtils.getExternalContext().getRequest()).getContextPath();
         if (!StringUtils.isEmpty(contextPath)) {
             cookie.setPath(contextPath);

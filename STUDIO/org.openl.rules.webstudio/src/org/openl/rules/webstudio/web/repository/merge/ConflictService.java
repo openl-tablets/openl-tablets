@@ -170,7 +170,7 @@ public class ConflictService {
             -1,
             null,
             false,
-            true);
+            false); // Has to be visible from client scripting
     }
 
     private WorkspaceUserImpl getUser() {
