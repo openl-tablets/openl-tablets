@@ -3,17 +3,19 @@ package org.openl.rules.calc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.binding.impl.module.ModuleSpecificType;
-import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
@@ -92,30 +94,43 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                 this.casts = null;
             } else {
                 boolean allTypesCustomSpreadsheetResult = true;
+                Set<XlsModuleOpenClass> modules = Collections.newSetFromMap(new IdentityHashMap<>());
                 for (IOpenClass openClass : types) {
                     if (!(openClass instanceof CustomSpreadsheetResultOpenClass)) {
                         allTypesCustomSpreadsheetResult = false;
                         break;
+                    } else {
+                        modules.add(((CustomSpreadsheetResultOpenClass) openClass).getModule());
                     }
                 }
-                if (allTypesCustomSpreadsheetResult) {
-                    this.type = getDeclaringClass().getModule()
-                            .buildOrGetCombinedSpreadsheetResult(types.stream()
-                                    .map(CustomSpreadsheetResultOpenClass.class::cast)
-                                    .toArray(CustomSpreadsheetResultOpenClass[]::new));
+                if (allTypesCustomSpreadsheetResult && modules.size() == 1 && modules.iterator()
+                    .next() == getDeclaringClass().getModule()) {
+                    Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = types.stream()
+                        .map(CustomSpreadsheetResultOpenClass.class::cast)
+                        .collect(Collectors.toSet());
+                    if (customSpreadsheetResultOpenClasses.size() > 1) {
+                        this.type = getDeclaringClass().getModule()
+                            .buildOrGetCombinedSpreadsheetResult(
+                                customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
+                    } else {
+                        this.type = customSpreadsheetResultOpenClasses.iterator().next();
+                    }
                     this.casts = null;
                 } else {
                     Iterator<IOpenClass> itr = types.iterator();
-                    IOpenClass t = getDeclaringClass().toModuleType(itr.next());
+                    IOpenClass t = itr.next();
                     while (itr.hasNext()) {
-                        IOpenClass t1 = getDeclaringClass().toModuleType(itr.next());
-                        CastToWiderType castToWiderType = CastToWiderType.create(getDeclaringClass().getModule().getRulesModuleBindingContext(), t, t1);
+                        IOpenClass t1 = itr.next();
+                        CastToWiderType castToWiderType = CastToWiderType
+                            .create(getDeclaringClass().getModule().getRulesModuleBindingContext(), t, t1);
                         t = castToWiderType.getWiderType();
                     }
                     this.casts = new ArrayList<>();
                     this.type = t;
                     for (IOpenClass type : types) {
-                        IOpenCast cast = getDeclaringClass().getModule().getRulesModuleBindingContext().getCast(type, this.type);
+                        IOpenCast cast = getDeclaringClass().getModule()
+                            .getRulesModuleBindingContext()
+                            .getCast(type, this.type);
                         this.casts.add(Pair.of(type, cast));
                     }
                 }
