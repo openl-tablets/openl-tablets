@@ -148,18 +148,6 @@
         <module>Util/openl-openapi-parser</module>
         <module>Util/openl-excel-builder</module>
     </modules>
-    <distributionManagement>
-        <repository>
-            <id>internal-minsk</id>
-            <name>Release Repository</name>
-            <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
-        </repository>
-        <snapshotRepository>
-            <id>github</id>
-            <name>Snapshot Repository</name>
-            <url>https://maven.pkg.github.com/openl-tablets/openl-tablets</url>
-        </snapshotRepository>
-    </distributionManagement>
     <build>
         <defaultGoal>clean verify</defaultGoal>
         <sourceDirectory>src</sourceDirectory>
