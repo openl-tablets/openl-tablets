@@ -200,8 +200,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                                                   : "Dependency '{}' is not found in the compilation stack.",
                     dependencyName);
             }
-            boolean isCircularDependency = !dependencyLoader.isProjectLoader() && compilationStack
-                .contains(dependencyName);
+            boolean isCircularDependency = compilationStack.contains(dependencyName);
             if (!isCircularDependency && !compilationStack.isEmpty()) {
                 DependencyRelation dr = new DependencyRelation(getCompilationStack().getFirst(), dependencyName);
                 this.addDependencyRelation(dr);
@@ -279,6 +278,12 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     }
 
     public synchronized ClassLoader getExternalJarsClassLoader(ProjectDescriptor project) {
+        Set<ProjectDescriptor> breadcrumbs = new HashSet<>();
+        breadcrumbs.add(project);
+        return getExternalJarsClassLoaderRec(project, breadcrumbs);
+    }
+
+    public synchronized ClassLoader getExternalJarsClassLoaderRec(ProjectDescriptor project, Set<ProjectDescriptor> breadcrumbs) {
         getDependencyLoaders(); // Init dependency loaders
         if (externalJarsClassloaders.get(project.getName()) != null) {
             return externalJarsClassloaders.get(project.getName());
@@ -290,7 +295,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
                 for (ProjectDescriptor projectDescriptor : getProjectDescriptors()) {
                     if (projectDependencyDescriptor.getName().equals(projectDescriptor.getName())) {
-                        externalJarsClassloader.addClassLoader(getExternalJarsClassLoader(projectDescriptor));
+                        if (!breadcrumbs.contains(projectDescriptor)) {
+                            breadcrumbs.add(projectDescriptor);
+                            externalJarsClassloader.addClassLoader(getExternalJarsClassLoaderRec(projectDescriptor, breadcrumbs));
+                            breadcrumbs.remove(projectDescriptor);
+                        }
                         break;
                     }
                 }

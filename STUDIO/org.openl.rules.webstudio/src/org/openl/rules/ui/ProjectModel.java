@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -601,11 +602,10 @@ public class ProjectModel {
         if (webStudioWorkspaceDependencyManager != null) {
             Deque<ProjectDescriptor> queue = new ArrayDeque<>();
             queue.add(moduleInfo.getProject());
+            Set<ProjectDescriptor> projectDescriptors = new HashSet<>();
             while (!queue.isEmpty()) {
                 ProjectDescriptor projectDescriptor = queue.poll();
-
                 projectDescriptorConsumer.accept(projectDescriptor);
-
                 if (projectDescriptor.getDependencies() != null) {
                     projectDescriptor.getDependencies()
                         .stream()
@@ -618,11 +618,16 @@ public class ProjectModel {
                             .filter(IDependencyLoader::isProjectLoader)
                             .findFirst()
                             .map(IDependencyLoader::getProject)
-                            .ifPresent(queue::add));
+                            .filter(e->!projectDescriptors.contains(e))
+                            .ifPresent(e -> {
+                                queue.add(e);
+                                projectDescriptors.add(e);
+                            }));
                 }
             }
         }
     }
+
 
     public Collection<OpenLMessage> getModuleMessages() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
