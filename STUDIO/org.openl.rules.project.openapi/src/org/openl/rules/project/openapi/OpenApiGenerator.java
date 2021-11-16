@@ -83,7 +83,7 @@ public class OpenApiGenerator {
             Map<Method, Method> methodMap = buildMethodMapWithJAXRS(serviceClass, enhancedServiceClass);
             if (methodMap.isEmpty()) {
                 throw new RulesInstantiationException(
-                    "There are no suitable methods to check. Check the provided rules, annotation template class, and included/excluded methods in module settings.");
+                    "There are no public methods. Check the provided rules, annotation template class, and included/excluded methods in module settings.");
             }
             synchronized (OpenApiRulesCacheWorkaround.class) {
                 OpenApiObjectMapperHack openApiObjectMapperHack = new OpenApiObjectMapperHack();

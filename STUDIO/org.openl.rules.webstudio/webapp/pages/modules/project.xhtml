@@ -307,7 +307,7 @@
                         <span>OpenAPI</span>
                         <h:panelGroup rendered="#{editable}">
                             <a href="javascript:void(0)" title="Import OpenAPI" class="editable-link"
-                               onclick="editOpenAPI({path: '#{utils.toJSText(project.openapi.path)}', algorithmModuleName: '#{project.openapi.algorithmModuleName}', modelModuleName: '#{project.openapi.modelModuleName}'})">
+                               onclick="editOpenAPI({path: '#{utils.toJSText(projectBean.existedOpenAPIFilePath)}', algorithmModuleName: '#{project.openapi.algorithmModuleName}', modelModuleName: '#{project.openapi.modelModuleName}'})">
                                 <img src="#{request.contextPath}/webresource/images/import.png"
                                      height="16" width="16"
                                      style="opacity:0.4"/></a>
@@ -316,7 +316,7 @@
                     <div class="block-content">
                         <h:panelGroup rendered="#{editable and empty project.openapi.path}">
                             <a class="link-ref" href="javascript:void(0)"
-                               onclick="editOpenAPI({path: '#{utils.toJSText(project.openapi.path)}', algorithmModuleName: '#{project.openapi.algorithmModuleName}', modelModuleName: '#{project.openapi.modelModuleName}'})">Click to Import OpenAPI File</a>
+                               onclick="editOpenAPI({path: '#{utils.toJSText(projectBean.existedOpenAPIFilePath)}', algorithmModuleName: '#{project.openapi.algorithmModuleName}', modelModuleName: '#{project.openapi.modelModuleName}'})">Click to Import OpenAPI File</a>
                         </h:panelGroup>
                         <table class="properties">
                             <h:panelGroup rendered="#{not empty projectBean.lastOpenAPIFileUploadDate}">

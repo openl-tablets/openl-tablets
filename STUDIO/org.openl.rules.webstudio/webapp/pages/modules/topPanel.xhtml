@@ -42,7 +42,6 @@
         <ui:include src="/pages/modules/copyProject.xhtml" />
         <ui:include src="/pages/modules/tags/createProjectTags.xhtml" />
         <ui:include src="/pages/modules/repository/modal/selectFolder.xhtml" />
-        <ui:include src="/pages/modules/genOpenAPISchema.xhtml" />
     </h:panelGroup>
 
     <h:panelGroup rendered="#{studio.canMerge}">
@@ -230,15 +229,6 @@
 
             <h:panelGroup rendered="#{!empty module and studio.model.canCreateTable}">
                 <a href="#{studio.url('create/index')}" title="Create new table" class="primary" onclick="return canOverwriteRevision();">Create Table</a>
-                <h:commandLink styleClass="changes-listener" onclick="genOpenAPISchemaHandler.show(); return false;"
-                               rendered="#{not projectBean.openAPIFileExists}"
-                               id="genOpenAPIFileBtn"
-                               title="Generate OpenAPI Schema" value="Generate OpenAPI"/>
-
-                <h:commandLink styleClass="changes-listener" onclick="genOpenAPISchemaHandler.show(); return false;"
-                               id="genOpenAPIFileBtn2"
-                               rendered="#{projectBean.openAPIFileExists}"
-                               title="Regenerate OpenAPI Schema" value="Regenerate OpenAPI"/>
                 <span class="delimeter"></span>
             </h:panelGroup>
 

@@ -6,12 +6,6 @@
         xmlns:rich="http://richfaces.org/rich">
 
     <style>
-
-        .openAPIRequired:after {
-            content: "*";
-            color: red;
-        }
-
         input[type="radio"] {
             margin-top: -1px;
             vertical-align: middle;
@@ -26,7 +20,7 @@
         </f:facet>
         <f:facet name="controls">
             <h:graphicImage value="/images/close.gif" class="close"
-                            onclick="ws.ui.hide('importOpenAPIPopup')" alt="Close"/>
+                            onclick="ws.ui.hide('importOpenAPIPopup'); ws.nav.reload(true);" alt="Close"/>
         </f:facet>
 
         <h:form prependId="true" id="importOpenAPIForm" class="fields">
@@ -35,18 +29,36 @@
                     <table id="openapi-file-path" class="properties properties-form">
                         <tr>
                             <td>
-                                <label class="openAPIRequired"> OpenAPI File:</label>
+                                <label class="required"> OpenAPI File:</label>
                             </td>
                             <td>
-                                <h:inputText id="openAPIPath" size="35" maxlength="70" styleClass="shortInput"
-                                             validator="#{projectBean.validateOpenAPIPath}"/><br/>
-                                <a4j:outputPanel ajaxRendered="true">
-                                    <h:message for="openAPIPath" styleClass="error"/>
-                                </a4j:outputPanel>
+                                <table style="width: 300px">
+                                    <tr><td>
+                                        <input type="radio" name="openApiImportType"
+                                               id="openApiImportType1"
+                                               value="GENERATE"
+                                               checked="checked"/>
+                                        <label for="openApiImportType1">Auto generate from Rules and Datatype tables</label>
+                                    </td></tr>
+                                    <tr><td>
+                                        <input type="radio" name="openApiImportType"
+                                               id="openApiImportType2"
+                                               value="IMPORT"/>
+                                        <label for="openApiImportType2">Upload in the Repository</label>
+                                    </td></tr>
+                                    <tr><td>
+                                        <h:inputText id="openAPIPath" size="35" maxlength="70" styleClass="shortInput"
+                                                     style="margin-left: 25px;"
+                                                     validator="#{projectBean.validateOpenAPIPath}"/><br/>
+                                        <a4j:outputPanel ajaxRendered="true">
+                                            <h:message for="openAPIPath" styleClass="error" style="margin-left: 25px"/>
+                                        </a4j:outputPanel>
+                                    </td></tr>
+                                </table>
                             </td>
                         </tr>
                         <tr>
-                            <td><label>Mode:</label></td>
+                            <td><label class="required">Mode:</label></td>
                             <td>
                                 <table>
                                     <tr>
@@ -82,7 +94,7 @@
                     <table id="openapi-module-names" class="properties properties-form">
                         <tr>
                             <td>
-                                <label class="openAPIRequired">Rules Module:</label>
+                                <label class="required">Rules Module:</label>
                             </td>
                             <td>
                                 <h:inputText id="algorithmModuleName" size="35" maxlength="70" styleClass="shortInput"
@@ -94,7 +106,7 @@
                         </tr>
                         <tr>
                             <td>
-                                <label class="openAPIRequired">Data Module:</label>
+                                <label class="required">Data Module:</label>
                             </td>
                             <td>
                                 <h:inputText id="modelModuleName" size="35" maxlength="70" styleClass="shortInput"
@@ -117,7 +129,12 @@
                                    action="#{projectBean.getModulesInfo}"
                                    data="#{projectBean.modulesInfoList}"
                                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('importOpenAPIPopup'); openSettings(event.data);}"/>
-                <input type="button" value="Cancel" onclick="ws.ui.hide('importOpenAPIPopup');"/>
+                <a4j:commandButton id="createOrUpdateOpenAPISchemaBtn" value="#{projectBean.existedOpenAPIFilePath != null ? 'Update OpenAPI' : 'Create OpenAPI'}"
+                                   styleClass="button-primary"
+                                   style="display: none;"
+                                   action="#{projectBean.createOrUpdateOpenAPISchema}"
+                                   oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('importOpenAPIPopup'); ws.ui.success('OpenAPI file was #{projectBean.existedOpenAPIFilePath != null ? 'updated' : 'created'} successfully!'); editOpenAPIDone();}"/>
+                <input type="button" value="Cancel" onclick="ws.ui.hide('importOpenAPIPopup'); ws.nav.reload(true);"/>
             </footer>
 
             <a4j:jsFunction name="rerenderOpenAPIImportDialog"
@@ -127,7 +144,6 @@
                 <a4j:param name="modelModuleName"/>
                 <a4j:param name="algorithmModuleName"/>
             </a4j:jsFunction>
-
 
         </h:form>
 
@@ -199,10 +215,60 @@
 
                 getImportButton: function () {
                     return $j("#importOpenAPIForm\\:importOpenAPIBtn");
+                },
+
+                getOpenAPIImportTypeRadioButtons: function () {
+                    return $j("input[name='openApiImportType']")
+                },
+
+                getCreateOrUpdateOpenAPISchemaButton: function () {
+                    return $j("#importOpenAPIForm\\:createOrUpdateOpenAPISchemaBtn");
                 }
             };
 
             function Listeners(openAPIInfo) {
+
+                const switchFormState = function () {
+                    const openApiImportType = fields.getOpenAPIImportTypeRadioButtons().filter(":checked").val();
+                    const openApiMode = fields.getModeInputValue().val();
+
+                    if (openApiImportType === "GENERATE") {
+                        fields.getCreateOrUpdateOpenAPISchemaButton().show();
+                        fields.getReconciliationButton().hide();
+                        fields.getImportButton().hide();
+                        fields.getModelsInputs().hide();
+                    } else if (openApiImportType === "IMPORT") {
+                        fields.getCreateOrUpdateOpenAPISchemaButton().hide();
+                        if (openApiMode === "reconciliation") {
+                            fields.getModelsInputs().hide();
+                            fields.getImportButton().hide();
+                            fields.getReconciliationButton().show();
+                        } else if (openApiMode === "generation") {
+                            fields.getModelsInputs().show();
+                            fields.getImportButton().show();
+                            fields.getReconciliationButton().hide();
+                        }
+                    }
+                    resizePopupPanel("importOpenAPIPopup");
+                }
+
+                const onOpenAPIImportTypeChanged = function () {
+                    const openApiImportType = fields.getOpenAPIImportTypeRadioButtons().filter(":checked").val();
+                    switch (openApiImportType) {
+                        case "GENERATE":
+                            fields.getPath().attr("disabled", true);
+                            if (fields.getModeInputValue().val() !== RECONCILIATION) {
+                                fields.getModeInput().filter('[value="reconciliation"]').attr('checked', true).change();
+                            }
+                            fields.getModeInput().filter('[value="generation"]').attr("disabled", true);
+                            break;
+                        case "IMPORT":
+                            fields.getPath().attr("disabled", false);
+                            fields.getModeInput().filter('[value="generation"]').attr("disabled", false);
+                            break;
+                    }
+                    switchFormState();
+                }
 
                 let onModeChanged = function (event) {
                     if (!event) {
@@ -210,20 +276,11 @@
                     }
                     let self = this;
                     if (self.value === RECONCILIATION) {
-                        // show reconciliation button
-                        fields.getModelsInputs().hide();
-                        resizePopupPanel("importOpenAPIPopup");
-                        fields.getImportButton().hide();
-                        fields.getReconciliationButton().show();
                         validatePath();
                     } else {
-                        // show generation button and module names
-                        fields.getModelsInputs().show();
-                        resizePopupPanel("importOpenAPIPopup");
-                        fields.getImportButton().show();
-                        fields.getReconciliationButton().hide();
                         validatePathAndModulesNames();
                     }
+                    switchFormState();
                 };
 
                 let validatePath = function () {
@@ -246,8 +303,9 @@
 
                 (function initListeners() {
                     fields.getPath().off().on('keyup change', validatePath);
-                    validatePath();
                     fields.getModeInput().change(onModeChanged);
+                    onOpenAPIImportTypeChanged();
+                    fields.getOpenAPIImportTypeRadioButtons().change(onOpenAPIImportTypeChanged);
 
                     fields.getModelsModuleName().off().on('keyup change', validatePathAndModulesNames);
                     fields.getRulesModuleName().off().on('keyup change', validatePathAndModulesNames);
@@ -278,24 +336,14 @@
             openAPIEditor.fields.getRulesModuleName().val(algorithmModuleName);
 
             openAPIEditor.fields.getModeInput().val(['reconciliation']);
+            if (openAPIInfo?.path.length > 0) {
+                openAPIEditor.fields.getOpenAPIImportTypeRadioButtons().val(['IMPORT']);
+            }
 
             openAPIEditor.initListeners(openAPIInfo);
 
-
-            openAPIEditor.fields.getModelsInputs().hide();
-
-            openAPIEditor.fields.getImportButton().hide();
-
-            openAPIEditor.fields.getReconciliationButton().show();
-
-
-            resizePopupPanel("importOpenAPIPopup")
-
             $j("#importOpenAPIForm span.error").remove();
-
-
             ws.ui.show('importOpenAPIPopup');
-
         }
 
         function openSettings(data) {

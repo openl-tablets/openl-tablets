@@ -17,7 +17,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -64,6 +66,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.table.formatters.Formats;
 import org.openl.rules.ui.Message;
+import org.openl.rules.ui.ProjectCompilationStatus;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
 import org.openl.rules.webstudio.WebStudioFormats;
@@ -121,7 +124,6 @@ public class ProjectBean {
     private String currentPathPattern;
     private Integer currentModuleIndex;
     private IRulesDeploySerializer rulesDeploySerializer;
-    private String existedOpenAPIFilePath;
 
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
 
@@ -833,57 +835,79 @@ public class ProjectBean {
         return result;
     }
 
-    public void generateOpenAPISchema() {
-        tryLockProject();
-        ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
+    public void createOrUpdateOpenAPISchema() {
+        ProjectDescriptor currentDescriptor = studio.getCurrentProjectDescriptor();
+        List<Module> modules = currentDescriptor.getModules();
+        if (modules.isEmpty()) {
+            throw new Message("Project has no modules.");
+        }
         RulesProject currentProject = studio.getCurrentProject();
+        studio.init(currentProject.getDesignRepository().getId(),
+            currentProject.getBranch(),
+            currentProject.getName(),
+                modules.iterator().next().getName());
+        org.openl.rules.ui.ProjectModel projectModel = studio.getModel();
+        while (!isCompilationCompleted(projectModel)) {
+            ProjectCompilationStatus compilationStatus = projectModel.getCompilationStatus();
+            if (compilationStatus.getErrorsCount() > 0) {
+                break;
+            }
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new Message("Project compilation has been interrupted.", e);
+            }
+        }
+        final String existedOpenAPIFilePath = getExistedOpenAPIFilePath();
+        final boolean update = existedOpenAPIFilePath != null;
+        if (projectModel.getCompilationStatus().getErrorsCount() > 0) {
+            throw new Message(
+                String.format("Cannot %s OpenAPI file. Project has compilation error.", update ? "update" : "create"));
+        }
+
+        tryLockProject();
         try {
-            OpenAPI.Type openAPIType = Optional
-                .of(WebStudioUtils.getRequestParameter("genOpenAPISchemaForm:openAPIType"))
-                .map(FileNameFormatter::normalizePath)
-                .map(OpenAPI.Type::valueOf)
-                .orElseThrow(() -> new IllegalArgumentException("Failed to parse OpenAPI type."));
-
             OpenApiGenerator generator = OpenApiGenerator
-                .builder(studio.getModel().getModuleInfo().getProject(),
-                    studio.getModel().getRulesInstantiationStrategy())
+                .builder(projectModel.getModuleInfo().getProject(), projectModel.getRulesInstantiationStrategy())
                 .generator();
-
-            currentProject.addResource(openAPIType.getDefaultFileName(), serializeOpenApi(generator, openAPIType));
-
-            ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentProjectDescriptor);
+            final OpenAPI.Type openAPIType = Optional.of(OpenAPI.Type.JSON)
+                .map(t -> update ? OpenAPI.Type.chooseType(FileUtils.getExtension(existedOpenAPIFilePath)) : t)
+                .orElse(OpenAPI.Type.JSON);
+            try (InputStream in = serializeOpenApi(generator, openAPIType)) {
+                if (update) {
+                    ((AProjectResource) currentProject.getProject().getArtefact(existedOpenAPIFilePath)).setContent(in);
+                } else {
+                    currentProject.addResource(openAPIType.getDefaultFileName(), in);
+                }
+            }
+            ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentDescriptor);
             clean(newProjectDescriptor);
-            OpenAPI openAPI = new OpenAPI();
-            openAPI.setPath(openAPIType.getDefaultFileName());
-            openAPI.setMode(OpenAPI.Mode.RECONCILIATION);
-            newProjectDescriptor.setOpenapi(openAPI);
+            if (update && newProjectDescriptor.getOpenapi() != null) {
+                OpenAPI openAPI = newProjectDescriptor.getOpenapi();
+                openAPI.setPath(existedOpenAPIFilePath);
+                openAPI.setMode(OpenAPI.Mode.RECONCILIATION);
+            } else {
+                OpenAPI openAPI = new OpenAPI();
+                openAPI.setPath(openAPIType.getDefaultFileName());
+                openAPI.setMode(OpenAPI.Mode.RECONCILIATION);
+                newProjectDescriptor.setOpenapi(openAPI);
+            }
             save(newProjectDescriptor);
-
         } catch (Exception e) {
-            throw new Message("Failed to generate OpenAPI Schema. Details: " + e.getMessage(), e);
+            throw new Message(String.format("Failed to %s OpenAPI file. Details: %s", update ? "update" : "create", e.getMessage()), e);
         }
     }
 
-    public void regenerateOpenAPISchema() {
-        tryLockProject();
-        RulesProject currentProject = studio.getCurrentProject();
-        try {
-            OpenApiGenerator generator = OpenApiGenerator
-                .builder(studio.getModel().getModuleInfo().getProject(),
-                    studio.getModel().getRulesInstantiationStrategy())
-                .generator();
-
-            OpenAPI.Type openAPIType = FileUtils.getExtension(existedOpenAPIFilePath)
-                .equals("json") ? OpenAPI.Type.JSON : OpenAPI.Type.YAML;
-
-            ((AProjectResource) currentProject.getProject().getArtefact(existedOpenAPIFilePath))
-                .setContent(serializeOpenApi(generator, openAPIType));
-        } catch (Exception e) {
-            throw new Message("Failed to generate OpenAPI Schema. Details: " + e.getMessage(), e);
-        }
+    private static boolean isCompilationCompleted(org.openl.rules.ui.ProjectModel projectModel) {
+        return projectModel.isProjectCompilationCompleted() || Optional.ofNullable(projectModel.getModuleInfo())
+            .map(Module::getWebstudioConfiguration)
+            .map(WebstudioConfiguration::isCompileThisModuleOnly)
+            .orElse(Boolean.FALSE);
     }
 
-    private InputStream serializeOpenApi(OpenApiGenerator generator, OpenAPI.Type openAPIType) throws JsonProcessingException, RulesInstantiationException {
+    private static InputStream serializeOpenApi(OpenApiGenerator generator,
+            OpenAPI.Type openAPIType) throws JsonProcessingException, RulesInstantiationException {
         String generatedOpenAPISchema;
         switch (openAPIType) {
             case JSON:
@@ -898,32 +922,20 @@ public class ProjectBean {
         return IOUtils.toInputStream(generatedOpenAPISchema);
     }
 
-    public List<String> getOpenApiTypes() {
-        return Arrays.asList(OpenAPI.Type.JSON.name(), OpenAPI.Type.YAML.name());
-    }
-
-    public boolean isOpenAPIFileExists() {
-        existedOpenAPIFilePath = null;
+    public String getExistedOpenAPIFilePath() {
         ProjectDescriptor currentDescriptor = studio.getCurrentProjectDescriptor();
         RulesProject currentProject = studio.getCurrentProject();
-        if (currentDescriptor.getOpenapi() != null && StringUtils
-            .isNotBlank(currentDescriptor.getOpenapi().getPath()) && currentProject
-                .hasArtefact(currentDescriptor.getOpenapi().getPath())) {
-            existedOpenAPIFilePath = currentDescriptor.getOpenapi().getPath();
-            return true;
+        Optional<String> openApiPath = Optional.ofNullable(currentDescriptor.getOpenapi())
+                .map(OpenAPI::getPath)
+                .filter(StringUtils::isNotBlank);
+        if (openApiPath.isPresent() && currentProject.hasArtefact(openApiPath.get())) {
+            return openApiPath.get();
         }
-        if (currentProject.hasArtefact(OpenAPI.Type.JSON.getDefaultFileName())) {
-            existedOpenAPIFilePath = OpenAPI.Type.JSON.getDefaultFileName();
-            return true;
-        } else if (currentProject.hasArtefact(OpenAPI.Type.YAML.getDefaultFileName())) {
-            existedOpenAPIFilePath = OpenAPI.Type.YAML.getDefaultFileName();
-            return true;
-        }
-        return false;
-    }
-
-    public String getExistedOpenAPIFilePath() {
-        return existedOpenAPIFilePath;
+        return Stream.of(OpenAPI.Type.values())
+            .map(OpenAPI.Type::getDefaultFileName)
+            .filter(currentProject::hasArtefact)
+            .findFirst()
+            .orElse(null);
     }
 
     public void regenerateOpenAPI() {
