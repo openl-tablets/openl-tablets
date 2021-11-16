@@ -697,6 +697,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
         refreshMappingWithLock();
     }
 
+    @Override
+    public void validateConnection() throws IOException {
+        delegate.validateConnection();
+    }
+
     /**
      * Load mapping from properties file.
      *

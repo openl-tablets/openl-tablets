@@ -1,60 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
-	<bean id="instantiationStrategyFactory"
-		class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl">
-		<property name="lazyCompilation" value="${ruleservice.instantiation.strategy.lazy}"/>
-	</bean>
+    <!-- Controls instantiation of OpenL modules and creates service beans and service classes. -->
+    <bean id="instantiationStrategyFactory"
+          class="org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl">
+        <property name="lazyCompilation" value="${ruleservice.instantiation.strategy.lazy}"/>
+    </bean>
 
-	<!-- Reset cache on reload Application context -->
-	<bean class="org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache" factory-method="getInstance"
-		  destroy-method="reset"/>
+    <!-- Reset cache on reload Application context -->
+    <bean class="org.openl.rules.ruleservice.publish.lazy.CompiledOpenClassCache" factory-method="getInstance"
+          destroy-method="reset"/>
 
-	<bean id="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" depends-on="instantiationStrategyFactory">
-		<property name="staticMethod" value="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile"/>
-		<property name="arguments" value="${ruleservice.instantiation.strategy.maxthreadsforcompile}"/>
-	</bean>
+    <bean id="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile"
+          class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+          depends-on="instantiationStrategyFactory">
+        <property name="staticMethod"
+                  value="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile"/>
+        <property name="arguments" value="${ruleservice.instantiation.strategy.maxthreadsforcompile}"/>
+    </bean>
 
-	<bean id="ruleServiceInstantiationFactory"
-		class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl" depends-on="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile" autowire="byType">
-		<property name="instantiationStrategyFactory" ref="instantiationStrategyFactory" />
-		<property name="ruleServiceLoader" ref="ruleServiceLoader" />
-		<property name="externalParameters">
-			<props>
-				<prop key="custom.spreadsheet.type">${custom.spreadsheet.type}</prop>
-				<prop key="dispatching.mode">${dispatching.mode}</prop>
-				<prop key="dispatching.validation">${dispatching.validation}</prop>
-			</props>
-		</property>
-	</bean>
+    <bean id="ruleServiceInstantiationFactory"
+          class="org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationFactoryImpl"
+          depends-on="org.openl.rules.ruleservice.core.RuleServiceStaticConfigurationUtil.setMaxThreadsForCompile"
+          autowire="byType">
+        <property name="instantiationStrategyFactory" ref="instantiationStrategyFactory"/>
+        <property name="ruleServiceLoader" ref="ruleServiceLoader"/>
+        <property name="externalParameters">
+            <props>
+                <prop key="custom.spreadsheet.type">${custom.spreadsheet.type}</prop>
+                <prop key="dispatching.mode">${dispatching.mode}</prop>
+                <prop key="dispatching.validation">${dispatching.validation}</prop>
+            </props>
+        </property>
+    </bean>
 
-	<!-- Controls all services currently exposed.
-	Listens the data source changes and handles all deploy/redeploy/undelpoy operations.  -->
-	<bean id="serviceManager" class="org.openl.rules.ruleservice.management.ServiceManagerImpl">
-		<property name="serviceConfigurer" ref="serviceConfigurer"/>
-		<property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
-		<property name="ruleServiceLoader" ref="ruleServiceLoader"/>
-		<property name="supportedPublishers" ref="ruleServicePublishers"/>
-		<property name="defaultRuleServicePublishers" value="${ruleservice.publishers:}"/>
-	</bean>
+    <!-- Controls all services currently exposed.
+    Listens the data source changes and handles all deploy/redeploy/undelpoy operations.  -->
+    <bean id="serviceManager" class="org.openl.rules.ruleservice.management.ServiceManagerImpl">
+        <property name="serviceConfigurer" ref="serviceConfigurer"/>
+        <property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
+        <property name="ruleServiceLoader" ref="ruleServiceLoader"/>
+        <property name="supportedPublishers" ref="ruleServicePublishers"/>
+        <property name="defaultRuleServicePublishers" value="${ruleservice.publishers:}"/>
+    </bean>
 
-	<bean id="openLServiceInProcess" factory-bean="serviceManager" factory-method="getOpenLServiceInProcess" scope="prototype"/>
-	<bean id="xlsModuleOpenClassInProcess" factory-bean="serviceManager" factory-method="getXlsModuleOpenClassInProcess" scope="prototype"/>
-	<bean id="rulesDeployInProcess" factory-bean="serviceManager" factory-method="getRulesDeployInProcess" scope="prototype"/>
-	<bean id="serviceDescriptionInProcess" factory-bean="serviceManager" factory-method="getServiceDescriptionInProcess" scope="prototype"/>
+    <bean id="openLServiceInProcess" factory-bean="serviceManager" factory-method="getOpenLServiceInProcess"
+          scope="prototype"/>
+    <bean id="xlsModuleOpenClassInProcess" factory-bean="serviceManager" factory-method="getXlsModuleOpenClassInProcess"
+          scope="prototype"/>
+    <bean id="rulesDeployInProcess" factory-bean="serviceManager" factory-method="getRulesDeployInProcess"
+          scope="prototype"/>
+    <bean id="serviceDescriptionInProcess" factory-bean="serviceManager" factory-method="getServiceDescriptionInProcess"
+          scope="prototype"/>
 
-	<!-- Determines the services that should be exposed using RulesLoader. -->
-	<bean id="serviceConfigurer" class="org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer">
-		<property name="provideRuntimeContext" value="${ruleservice.isProvideRuntimeContext}"/>
-		<property name="supportVariations" value="${ruleservice.isSupportVariations}" />
-		<property name="supportedGroups" value="${ruleservice.datasource.groups}"/>
-		<property name="datasourceDeploymentPatterns" value="${ruleservice.datasource.deployments}"/>
-	</bean>
+    <!-- Determines the services that should be exposed using RulesLoader. -->
+    <bean id="serviceConfigurer" class="org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer">
+        <property name="provideRuntimeContext" value="${ruleservice.isProvideRuntimeContext}"/>
+        <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
+        <property name="supportedGroups" value="${ruleservice.datasource.groups}"/>
+        <property name="datasourceDeploymentPatterns" value="${ruleservice.datasource.deployments}"/>
+    </bean>
 
-	<bean id="serviceManagerStarter" class="org.openl.rules.ruleservice.conf.ServiceManagerStarterBean" depends-on="serviceManager" lazy-init="false">
-		<property name="serviceManager" ref="serviceManager"/>
-	</bean>
+    <bean id="serviceManagerStarter" class="org.openl.rules.ruleservice.conf.ServiceManagerStarterBean"
+          depends-on="serviceManager" lazy-init="false">
+        <property name="serviceManager" ref="serviceManager"/>
+    </bean>
 </beans>

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
        default-autowire="no">
 
-    <bean id="versionProperties" class="org.openl.info.OpenLVersion" />
+    <bean id="versionProperties" class="org.openl.info.OpenLVersion"/>
 
     <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
         <property name="scopes">
@@ -18,6 +17,6 @@
     </bean>
 
     <!-- Either webstudio-true.xml or webstudio-false.xml. -->
-    <import resource="webstudio-${webstudio.configured}.xml" />
+    <import resource="webstudio-${webstudio.configured}.xml"/>
 
 </beans>

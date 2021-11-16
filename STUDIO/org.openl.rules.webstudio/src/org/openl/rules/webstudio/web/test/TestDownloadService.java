@@ -120,7 +120,7 @@ public class TestDownloadService {
             -1,
             null,
             false,
-            true);
+            false); // Has to be visible from client scripting
     }
 
 }

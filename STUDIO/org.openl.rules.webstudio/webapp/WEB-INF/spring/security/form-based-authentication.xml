@@ -2,68 +2,68 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:security="http://www.springframework.org/schema/security"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-          http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
-          http://www.springframework.org/schema/security
-          https://www.springframework.org/schema/security/spring-security-5.4.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
     <!--  if you wish to use channel security, add "ChannelProcessingFilter," in front
       of "securityContextPersistenceFilter" in the list below -->
 
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
         <security:filter-chain-map request-matcher="ant">
-            <security:filter-chain pattern="#{loginUrl}" filters="none" />
-            <security:filter-chain pattern="/favicon.ico" filters="none" />
-            <security:filter-chain pattern="/css/**" filters="none" />
-            <security:filter-chain pattern="/images/**" filters="none" />
-            <security:filter-chain pattern="/javascript/**" filters="none" />
-            <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none" />
-            <security:filter-chain pattern="/faces/rfRes/**" filters="none" />
-            <security:filter-chain pattern="/org.richfaces.resources/**" filters="none" />
-            <security:filter-chain pattern="/faces/tableEditor/css/**" filters="none" />
-            <security:filter-chain pattern="/faces/tableEditor/img/**" filters="none" />
-            <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none" />
-            <security:filter-chain pattern="/faces/pages/public/**" filters="none" />
-            <security:filter-chain pattern="/web/public/**" filters="none" />
-            <security:filter-chain pattern="/rest/**" filters="restBasicAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor" />
+            <security:filter-chain pattern="#{loginUrl}" filters="none"/>
+            <security:filter-chain pattern="/favicon.ico" filters="none"/>
+            <security:filter-chain pattern="/css/**" filters="none"/>
+            <security:filter-chain pattern="/images/**" filters="none"/>
+            <security:filter-chain pattern="/javascript/**" filters="none"/>
+            <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
+            <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
+            <security:filter-chain pattern="/org.richfaces.resources/**" filters="none"/>
+            <security:filter-chain pattern="/faces/tableEditor/css/**" filters="none"/>
+            <security:filter-chain pattern="/faces/tableEditor/img/**" filters="none"/>
+            <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none"/>
+            <security:filter-chain pattern="/faces/pages/public/**" filters="none"/>
+            <security:filter-chain pattern="/web/public/**" filters="none"/>
+            <security:filter-chain pattern="/rest/**"
+                                   filters="restBasicAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor"/>
             <security:filter-chain pattern="/**"
-                                   filters="securityContextPersistenceFilter,logoutFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,exceptionTranslationFilter,filterSecurityInterceptor" />
+                                   filters="securityContextPersistenceFilter,logoutFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
         </security:filter-chain-map>
     </bean>
 
     <bean id="loginUrl" class="java.lang.String">
-        <constructor-arg value="/faces/pages/login.xhtml" />
+        <constructor-arg value="/faces/pages/login.xhtml"/>
     </bean>
     <bean id="loginCheckUrl" class="java.lang.String">
-        <constructor-arg value="/security_login_check" />
+        <constructor-arg value="/security_login_check"/>
     </bean>
     <bean id="logoutUrl" class="java.lang.String">
-        <constructor-arg value="/security_logout" />
+        <constructor-arg value="/security_logout"/>
     </bean>
     <bean id="logoutSuccessUrl" class="java.lang.String">
-        <constructor-arg ref="loginUrl" />
+        <constructor-arg ref="loginUrl"/>
     </bean>
 
     <bean id="usernamePasswordAuthenticationFilter"
           class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
-        <property name="authenticationManager" ref="authenticationManager" />
+        <property name="authenticationManager" ref="authenticationManager"/>
         <property name="authenticationFailureHandler">
             <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
-                <property name="defaultFailureUrl" ref="loginUrl" />
+                <property name="defaultFailureUrl" ref="loginUrl"/>
             </bean>
         </property>
         <property name="authenticationSuccessHandler">
             <bean class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
-                <property name="defaultTargetUrl" value="/" />
+                <property name="defaultTargetUrl" value="/"/>
                 <property name="targetUrlParameter" value="openl-redirect"/>
             </bean>
         </property>
-        <property name="filterProcessesUrl" ref="loginCheckUrl" />
+        <property name="filterProcessesUrl" ref="loginCheckUrl"/>
     </bean>
 
-    <bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
-        <constructor-arg name="loginFormUrl" ref="loginUrl" />
-        <property name="forceHttps" value="false" />
+    <bean id="authenticationEntryPoint"
+          class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+        <constructor-arg name="loginFormUrl" ref="loginUrl"/>
+        <property name="forceHttps" value="false"/>
         <property name="useForward" value="true"/>
     </bean>
 

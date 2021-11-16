@@ -24,9 +24,10 @@ import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Type;
 import org.openl.binding.exception.DuplicatedFieldException;
+import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
-import org.openl.rules.lang.xls.binding.ModuleSpecificType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
@@ -375,7 +376,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     @Override
-    public CustomSpreadsheetResultOpenClass makeCopyForModule(XlsModuleOpenClass module) {
+    public CustomSpreadsheetResultOpenClass makeCopyForModule(ModuleOpenClass module) {
         CustomSpreadsheetResultOpenClass type = new CustomSpreadsheetResultOpenClass(getName(),
             rowNames,
             columnNames,
@@ -383,7 +384,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             columnNamesForResultModel,
             rowTitles,
             columnTitles,
-            module,
+            (XlsModuleOpenClass) module,
             tableStructureDetails);
         for (IOpenField field : getFields()) {
             if (field instanceof CustomSpreadsheetResultField) {
@@ -938,5 +939,26 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             spreadsheetResultConstructorMap.put(new MethodKey(constructor), constructor);
         }
         return spreadsheetResultConstructorMap;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
+
+        CustomSpreadsheetResultOpenClass that = (CustomSpreadsheetResultOpenClass) o;
+
+        return Objects.equals(module, that.module);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (module != null ? module.hashCode() : 0);
+        return result;
     }
 }

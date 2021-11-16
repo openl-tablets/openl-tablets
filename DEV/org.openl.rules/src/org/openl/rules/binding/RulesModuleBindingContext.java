@@ -16,6 +16,7 @@ import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.binding.impl.module.ModuleBindingContext;
+import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.meta.TableMetaInfo;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
@@ -23,7 +24,6 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
-import org.openl.rules.lang.xls.binding.ModuleSpecificType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -579,5 +579,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     public void setIgnoreCustomSpreadsheetResultCompilation(boolean ignoreCustomSpreadsheetResultCompilation) {
         this.ignoreCustomSpreadsheetResultCompilation = ignoreCustomSpreadsheetResultCompilation;
+    }
+
+    protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
+        return componentOpenClass instanceof CustomSpreadsheetResultOpenClass || componentOpenClass instanceof SpreadsheetResultOpenClass;
     }
 }

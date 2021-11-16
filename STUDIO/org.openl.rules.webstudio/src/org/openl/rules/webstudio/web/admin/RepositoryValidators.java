@@ -172,7 +172,7 @@ public final class RepositoryValidators {
             .createPropertiesResolver(repoConfig.getPropertiesToValidate());
         try (Repository repository = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
             // Validate instantiation
-            Objects.requireNonNull(repository);
+            repository.validateConnection();
         }
     }
 }

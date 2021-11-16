@@ -117,7 +117,13 @@ public final class MethodSearch {
                     }
                 } else {
                     if (callParam[i] != methodParam[i]) {
-                        castHolder[i] = castFactory.getCast(callParam[i], methodParam[i]);
+                        if (IOpenClass.class.isAssignableFrom(methodParam[i].getInstanceClass()) && methodParam[i]
+                            .getInstanceClass()
+                            .isAssignableFrom(callParam[i].getClass())) {
+                            castHolder[i] = castFactory.getCast(callParam[i], JavaOpenClass.OBJECT);
+                        } else {
+                            castHolder[i] = castFactory.getCast(callParam[i], methodParam[i]);
+                        }
                         if (castHolder[i] == null || !castHolder[i].isImplicit()) {
                             return NO_MATCH;
                         }

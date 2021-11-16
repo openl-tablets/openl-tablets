@@ -2,29 +2,27 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-          http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
-          http://www.springframework.org/schema/util
-          http://www.springframework.org/schema/util/spring-util.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
-  <import resource="common-authentication.xml"/>
-  <import resource="form-based-authentication.xml"/>
-  <import resource="authorization.xml"/>
-  <import resource="db-services.xml"/>
+    <import resource="common-authentication.xml"/>
+    <import resource="form-based-authentication.xml"/>
+    <import resource="authorization.xml"/>
+    <import resource="db-services.xml"/>
 
-  <bean id="canCreateExternalUsers" class="java.lang.Boolean">
-    <constructor-arg type="boolean" value="false"/>
-  </bean>
+    <bean id="canCreateExternalUsers" class="java.lang.Boolean">
+        <constructor-arg type="boolean" value="false"/>
+    </bean>
 
-  <bean id="canCreateInternalUsers" class="java.lang.Boolean">
-    <constructor-arg type="boolean" value="true"/>
-  </bean>
+    <bean id="canCreateInternalUsers" class="java.lang.Boolean">
+        <constructor-arg type="boolean" value="true"/>
+    </bean>
 
-  <util:list id="authenticationProviders">
-    <ref bean="daoAuthenticationProvider" />
-  </util:list>
+    <util:list id="authenticationProviders">
+        <ref bean="daoAuthenticationProvider"/>
+    </util:list>
 
-  <util:list id="logoutHandlers">
-    <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
-  </util:list>
+    <util:list id="logoutHandlers">
+        <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
+    </util:list>
 </beans>

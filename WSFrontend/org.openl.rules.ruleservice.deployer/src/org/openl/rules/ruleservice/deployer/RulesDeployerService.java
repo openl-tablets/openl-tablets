@@ -122,6 +122,16 @@ public class RulesDeployerService implements Closeable {
         deployInternal(file.toPath(), FileUtils.getBaseName(file.getName()), ignoreIfExists);
     }
 
+    public boolean isReady() {
+        try {
+            deployRepo.validateConnection();
+            return true;
+        } catch (Exception e) {
+            LOG.debug(e.getMessage(), e);
+            return false;
+        }
+    }
+
     /**
      * Read a service by the given path name.
      *

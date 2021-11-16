@@ -138,7 +138,7 @@ public class Condition extends FunctionalRow implements ICondition {
 
         if (f instanceof OpenFieldDelegator) {
             OpenFieldDelegator d = (OpenFieldDelegator) f;
-            return d.getField();
+            return d.getDelegate();
         }
         return f;
     }

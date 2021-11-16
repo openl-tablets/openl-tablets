@@ -26,7 +26,7 @@
 
     <link href="#{contextPath}/webresource/css/tableeditor.min.css" rel="stylesheet" />
 
-    <script src="#{contextPath}/javascript/common.js?9"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
+    <script src="#{contextPath}/javascript/common.js?10"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
     <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
     <script src="#{contextPath}/javascript/vendor/jquery.are-you-sure.js"></script>
     <script src="#{contextPath}/javascript/vendor/bootstrap.min.js"></script>
@@ -761,12 +761,23 @@
             // Private API
 
             var handleError = function(code, error) {
-                if (code == 399) { // Session Timeout
+                if (code === 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
-                } else if (code != 404 && code != 0) { // 0 - timeout/abort
+                } else if (code !== 404 && code !== 0) { // 0 - timeout/abort
                     // 404 error is handled in other place. Other errors are unexpected errors
-                    if (error && code >= 400 && code < 500) {
-                        api.ui.info(error);
+                    if (is4xxStatus(code)) {
+                        let json = (function (rawJson) {
+                            try {
+                                return JSON.parse(rawJson);
+                            } catch (e) {
+                                return null;
+                            }
+                        })(error);
+                        if (json?.message != null) {
+                            api.ui.info(json.message);
+                        } else {
+                            api.ui.info("#{msg['ws.common.error.500']}");
+                        }
                     } else {
                         api.ui.info("#{msg['ws.common.error.500']}");
                     }
@@ -870,23 +881,37 @@
                 })
 
                 callbacks.push(function(){
-                    $j('.layout-extractable-info').bind('DOMSubtreeModified', function(){
-                        var layoutPane = $j($j(this).parents(".ui-layout-pane")[0]);
-                        if (layoutPane) {
-                            var layoutDirection =
-                                layoutPane.attr("class")
-                                    .split(/\s+/)
-                                    .find(function(e){return e.startsWith("ui-layout-pane-");})
-                                    .split(/-/)[3];
+                    let compilationProgressObserver = null;
+                    const layout = $j('.panel-header>.layout-extractable-info');
+                    if (layout[0]) {
+                        const callback = function() {
+                            let layoutPane = layout.parents(".ui-layout-pane:first");
+                            if (layoutPane) {
+                                let layoutDirection =
+                                    layoutPane.attr("class")
+                                        .split(/\s+/)
+                                        .find(function(e){return e.startsWith("ui-layout-pane-");})
+                                        .split(/-/)[3];
 
-                            var layoutToggler = $j(layoutPane.siblings(".ui-layout-resizer-" + layoutDirection)[0]);
-                            var extractedLayoutInfo = layoutToggler.find(".layout-extractable-info");
-                            if (extractedLayoutInfo) {
-                                layoutToggler.find(".layout-extractable-info").remove();
+                                let layoutToggler = layoutPane.siblings(".ui-layout-resizer-" + layoutDirection + ":first");
+                                let extractedLayoutInfo = layoutToggler.find(".layout-extractable-info");
+                                if (extractedLayoutInfo.length > 0) {
+                                    extractedLayoutInfo.remove();
+                                }
+                                let cloned = layout.clone();
+                                cloned.find("*").removeAttr("id");
+                                cloned.appendTo(layoutToggler);
                             }
-                            $j(this).clone().appendTo(layoutToggler);
                         }
-                    });
+                        callback();
+                        // Create an observer instance linked to the callback function
+                        compilationProgressObserver = new MutationObserver(callback);
+                        // Start observing the target node for configured mutations
+                        compilationProgressObserver.observe(layout[0], {
+                            childList: true,
+                            subtree: true
+                        });
+                    }
                 })
 
                 var initUrl = urlRewrite.prefix + "init.xhtml";

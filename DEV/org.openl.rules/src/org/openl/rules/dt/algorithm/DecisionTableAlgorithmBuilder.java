@@ -17,6 +17,7 @@ import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.rules.binding.RulesBindingDependencies;
+import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableUtils;
 import org.openl.rules.dt.IBaseAction;
@@ -348,9 +349,15 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(condition);
         for (IParameterDeclaration condParam : condition.getParams()) {
             if (identifierNodes.stream()
-                .anyMatch(identifierNode -> Objects.equals(condParam.getName(), identifierNode.getIdentifier()))) {
+                .anyMatch(identifierNode -> condParam.getName() != null && condParam.getName()
+                    .equalsIgnoreCase(identifierNode.getIdentifier()))) {
                 return true;
             }
+        }
+        if (identifierNodes.stream()
+            .anyMatch(identifierNode -> Objects.equals(SpreadsheetStructureBuilder.DOLLAR_SIGN + condition.getName(),
+                identifierNode.getIdentifier()))) {
+            return true;
         }
         return false;
     }

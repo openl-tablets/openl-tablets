@@ -348,6 +348,11 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             .collect(Collectors.toList());
     }
 
+    @Override
+    public boolean isReady() {
+        return ruleServiceLoader.isReady();
+    }
+
     private void setUrls(OpenLService service) {
         HashMap<String, String> result = new HashMap<>();
         CompiledOpenClass compiledOpenClass = service.getCompiledOpenClass();

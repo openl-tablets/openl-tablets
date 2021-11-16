@@ -1,84 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:security="http://www.springframework.org/schema/security"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:context="http://www.springframework.org/schema/context"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans
-          http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
-          http://www.springframework.org/schema/context
-          http://www.springframework.org/schema/context/spring-context-4.1.xsd
-          http://www.springframework.org/schema/security
-          https://www.springframework.org/schema/security/spring-security-5.4.xsd">
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
-  <import resource="db-services.xml"/>
+    <import resource="db-services.xml"/>
 
-  <bean id="canCreateExternalUsers" class="java.lang.Boolean">
-    <constructor-arg type="boolean" value="false"/>
-  </bean>
+    <bean id="canCreateExternalUsers" class="java.lang.Boolean">
+        <constructor-arg type="boolean" value="false"/>
+    </bean>
 
-  <bean id="canCreateInternalUsers" class="java.lang.Boolean">
-    <constructor-arg type="boolean" value="false"/>
-  </bean>
+    <bean id="canCreateInternalUsers" class="java.lang.Boolean">
+        <constructor-arg type="boolean" value="false"/>
+    </bean>
 
-  <bean class="org.openl.rules.webstudio.service.SingleUserModeInit" lazy-init="false">
-    <constructor-arg name="userDao" ref="openlUserDao"/>
-    <constructor-arg name="userName" value="DEFAULT"/>
-  </bean>
+    <bean class="org.openl.rules.webstudio.service.SingleUserModeInit" lazy-init="false">
+        <constructor-arg name="userDao" ref="openlUserDao"/>
+        <constructor-arg name="userName" value="DEFAULT"/>
+    </bean>
 
-  <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
-    <security:filter-chain-map request-matcher="ant">
-      <security:filter-chain pattern="/**"
-        filters="securityContextPersistenceFilter,autoLoginAuthenticationFilter,logoutFilter" />
-    </security:filter-chain-map>
-  </bean>
+    <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+        <security:filter-chain-map request-matcher="ant">
+            <security:filter-chain pattern="/**"
+                                   filters="securityContextPersistenceFilter,autoLoginAuthenticationFilter,logoutFilter"/>
+        </security:filter-chain-map>
+    </bean>
 
-  <bean id="securityContextPersistenceFilter"
-    class="org.springframework.security.web.context.SecurityContextPersistenceFilter" />
+    <bean id="securityContextPersistenceFilter"
+          class="org.springframework.security.web.context.SecurityContextPersistenceFilter"/>
 
-  <bean id="logoutUrl" class="java.lang.String">
-    <constructor-arg value="/security_logout" />
-  </bean>
+    <bean id="logoutUrl" class="java.lang.String">
+        <constructor-arg value="/security_logout"/>
+    </bean>
 
-  <bean id="autoLoginAuthenticationFilter" class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter" >
-    <constructor-arg value="key"/>
-    <constructor-arg value="DEFAULT"/>
-    <constructor-arg value="#{T(org.springframework.security.core.authority.AuthorityUtils).createAuthorityList('NO_ROLES')}"/>
-  </bean>
+    <bean id="autoLoginAuthenticationFilter"
+          class="org.springframework.security.web.authentication.AnonymousAuthenticationFilter">
+        <constructor-arg value="key"/>
+        <constructor-arg value="DEFAULT"/>
+        <constructor-arg
+                value="#{T(org.springframework.security.core.authority.AuthorityUtils).createAuthorityList('NO_ROLES')}"/>
+    </bean>
 
-  <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
-    <constructor-arg name="providers">
-      <list>
-        <bean class="org.springframework.security.authentication.TestingAuthenticationProvider" />
-      </list>
-    </constructor-arg>
-  </bean>
+    <bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
+        <constructor-arg name="providers">
+            <list>
+                <bean class="org.springframework.security.authentication.TestingAuthenticationProvider"/>
+            </list>
+        </constructor-arg>
+    </bean>
 
-  <!-- Allow unrestricted access  -->
-  <bean id="accessDecisionManager" class="org.springframework.security.access.AccessDecisionManager">
-    <lookup-method name="decide" bean="voidValue"/>
-    <lookup-method name="supports" bean="trueValue"/>
-  </bean>
-  <bean id="voidValue" class="java.lang.Void"/>
-  <bean id="trueValue" class="java.lang.Boolean" factory-method="valueOf">
-    <constructor-arg value="true"/>
-  </bean>
+    <!-- Allow unrestricted access  -->
+    <bean id="accessDecisionManager" class="org.springframework.security.access.AccessDecisionManager">
+        <lookup-method name="decide" bean="voidValue"/>
+        <lookup-method name="supports" bean="trueValue"/>
+    </bean>
+    <bean id="voidValue" class="java.lang.Void"/>
+    <bean id="trueValue" class="java.lang.Boolean" factory-method="valueOf">
+        <constructor-arg value="true"/>
+    </bean>
 
-  <bean id="securityMetadataSource" class="org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource"/>
-  <bean id="openlManagerSecurity" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
-    <property name="validateConfigAttributes" value="false"/>
-    <property name="authenticationManager" ref="authenticationManager"/>
-    <property name="accessDecisionManager" ref="accessDecisionManager"/>
-    <property name="securityMetadataSource" ref="securityMetadataSource"/>
-  </bean>
+    <bean id="securityMetadataSource"
+          class="org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource"/>
+    <bean id="openlManagerSecurity"
+          class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
+        <property name="validateConfigAttributes" value="false"/>
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="accessDecisionManager" ref="accessDecisionManager"/>
+        <property name="securityMetadataSource" ref="securityMetadataSource"/>
+    </bean>
 
-  <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
-    <constructor-arg value="/"/>
-    <constructor-arg>
-      <list>
-        <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
-      </list>
-    </constructor-arg>
-    <property name="filterProcessesUrl" ref="logoutUrl" />
-  </bean>
+    <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
+        <constructor-arg value="/"/>
+        <constructor-arg>
+            <list>
+                <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
+            </list>
+        </constructor-arg>
+        <property name="filterProcessesUrl" ref="logoutUrl"/>
+    </bean>
 
 </beans>

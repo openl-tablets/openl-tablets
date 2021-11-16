@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
@@ -181,8 +182,8 @@ public class JavaOpenClass extends AOpenClass {
         if (instanceClass.isArray()) {
             openFields.put("length", new JavaArrayLengthField());
         }
-        openFields.put("class", new JavaClassClassField(instanceClass));
-        staticOpenFields.put("class", new JavaClassClassField(instanceClass));
+        openFields.put("class", new JavaClassClassField(instanceClass, this));
+        staticOpenFields.put("class", new JavaClassClassField(instanceClass, this));
         BeanOpenField.collectFields(openFields, instanceClass);
 
         this.staticFields = staticOpenFields;
@@ -408,9 +409,11 @@ public class JavaOpenClass extends AOpenClass {
 
     public static class JavaClassClassField implements IOpenField {
         private final Class<?> instanceClass;
+        private final IOpenClass declaringClass;
 
-        public JavaClassClassField(Class<?> instanceClass) {
+        public JavaClassClassField(Class<?> instanceClass, IOpenClass declaringClass) {
             this.instanceClass = instanceClass;
+            this.declaringClass = Objects.requireNonNull(declaringClass, "declaringClass cannot be null");
         }
 
         @Override
@@ -420,7 +423,7 @@ public class JavaOpenClass extends AOpenClass {
 
         @Override
         public IOpenClass getDeclaringClass() {
-            return null;
+            return declaringClass;
         }
 
         @Override

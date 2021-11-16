@@ -111,13 +111,29 @@ public class S3Repository implements Repository, Closeable {
                 // Possibly don't have permission
                 log.warn("Cannot detect bucket versioning configuration.");
             }
+        } catch (SdkClientException e) {
+            log.warn("Failed to initialize a repository", e);
+        }
 
+        monitor = new ChangesMonitor(new S3RevisionGetter(), listenerTimerPeriod);
+    }
+
+    @Override
+    public void validateConnection() throws IOException {
+        try {
             // Check the connection
             s3.listObjectsV2(bucketName);
-            list("");
-            monitor = new ChangesMonitor(new S3RevisionGetter(), listenerTimerPeriod);
-        } catch (SdkClientException | IOException e) {
-            throw new IllegalStateException("Failed to initialize a repository", e);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+        try {
+            String status = s3.getBucketVersioningConfiguration(bucketName).getStatus();
+            if (!BucketVersioningConfiguration.ENABLED.equals(status)) {
+                throw new IOException("Versioning for the bucket is not enabled");
+            }
+        } catch (SdkClientException e) {
+            // Possibly don't have permission
+            log.warn("Cannot detect bucket versioning configuration.", e);
         }
     }
 

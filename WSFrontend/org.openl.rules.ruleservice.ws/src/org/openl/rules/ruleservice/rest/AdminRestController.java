@@ -108,6 +108,9 @@ public class AdminRestController {
     @Path("/healthcheck/readiness")
     public Response readiness() {
         Collection<ServiceInfo> servicesInfo = serviceManager.getServicesInfo();
+        if (servicesInfo.isEmpty()) {
+            return serviceManager.isReady() ? Response.ok().build() : Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
         boolean anyFailed = servicesInfo.stream()
             .anyMatch(info -> ServiceInfo.ServiceStatus.FAILED.equals(info.getStatus()));
 

@@ -12,6 +12,8 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.module.ModuleSpecificType;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
@@ -90,9 +92,9 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                 this.casts = null;
             } else {
                 Iterator<IOpenClass> itr = types.iterator();
-                IOpenClass t = itr.next();
+                IOpenClass t = useModuleTypeIfNeed(itr.next());
                 while (itr.hasNext()) {
-                    IOpenClass t1 = itr.next();
+                    IOpenClass t1 = useModuleTypeIfNeed(itr.next());
                     CastToWiderType castToWiderType = CastToWiderType
                         .create(getDeclaringClass().getModule().getRulesModuleBindingContext(), t, t1);
                     t = castToWiderType.getWiderType();
@@ -107,6 +109,18 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                 }
             }
         }
+    }
+
+    private IOpenClass useModuleTypeIfNeed(IOpenClass t) {
+        if (t instanceof ModuleSpecificType) {
+            IOpenClass p = getDeclaringClass().getModule()
+                .getRulesModuleBindingContext()
+                .findType(ISyntaxConstants.THIS_NAMESPACE, t.getName());
+            if (p != null) {
+                return p;
+            }
+        }
+        return t;
     }
 
     @Override

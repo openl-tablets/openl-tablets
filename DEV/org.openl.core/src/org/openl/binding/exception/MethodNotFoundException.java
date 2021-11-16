@@ -3,6 +3,7 @@ package org.openl.binding.exception;
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
+import org.openl.types.StaticOpenClass;
 
 /**
  * @author snshor
@@ -22,7 +23,7 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
         this.target = null;
     }
 
-    public MethodNotFoundException(IOpenClass target, String methodName,  IOpenClass... params) {
+    public MethodNotFoundException(IOpenClass target, String methodName, IOpenClass... params) {
         this.methodName = methodName;
         this.params = params;
         this.target = target;
@@ -42,7 +43,10 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
         sb.append("' is not found");
 
         if (target != null) {
-            sb.append(" in type '").append(target.getName()).append("'");
+            sb.append(" in type '")
+                .append(target instanceof StaticOpenClass ? ((StaticOpenClass) target).getDelegate().getName()
+                                                          : target.getName())
+                .append("'");
         }
 
         sb.append(".");

@@ -1,21 +1,21 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans   http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="processEngineConfiguration"
-		class="org.activiti.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration">
+    <bean id="processEngineConfiguration"
+          class="org.activiti.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration">
 
-		<property name="eventListeners">
-			<list>
-				<bean class="org.openl.rules.activiti.spring.OpenLResourcesHandleListener" />
-			</list>
-		</property>
-	</bean>
-	
-	<bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
-		<property name="processEngineConfiguration" ref="processEngineConfiguration" />
-	</bean>
+        <property name="eventListeners">
+            <list>
+                <bean class="org.openl.rules.activiti.spring.OpenLResourcesHandleListener"/>
+            </list>
+        </property>
+    </bean>
 
-	<import resource="classpath:openl-activiti-beans.xml" />
+    <bean id="processEngine" class="org.activiti.spring.ProcessEngineFactoryBean">
+        <property name="processEngineConfiguration" ref="processEngineConfiguration"/>
+    </bean>
+
+    <import resource="classpath:openl-activiti-beans.xml"/>
 
 </beans>

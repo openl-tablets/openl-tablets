@@ -3,6 +3,7 @@ package org.openl.binding.impl.module;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.AmbiguousFieldException;
@@ -48,9 +49,9 @@ public class RootDictionaryContext implements VariableInContextFinder {
         public String getDisplayName(int mode) {
             if (mode == INamedThing.LONG) {
                 if (parent != null) {
-                    return parent.getDisplayName(mode) + "." + field.getDisplayName(mode);
+                    return parent.getDisplayName(mode) + "." + delegate.getDisplayName(mode);
                 }
-                return field.getDisplayName(mode);
+                return delegate.getDisplayName(mode);
             }
             return super.getDisplayName(mode);
         }
@@ -76,7 +77,8 @@ public class RootDictionaryContext implements VariableInContextFinder {
 
     protected final int maxDepthLevel;
 
-    protected final HashMap<String, List<IOpenField>> fields = new HashMap<>();
+    protected final Map<String, List<IOpenField>> fields = new HashMap<>();
+    protected final Map<String, List<IOpenField>> lowerCaseFields = new HashMap<>();
 
     public RootDictionaryContext(IOpenField[] roots, int maxDepthLevel) {
         this.roots = roots;
@@ -85,34 +87,42 @@ public class RootDictionaryContext implements VariableInContextFinder {
     }
 
     private void add(ContextField contextField) {
-        String name = contextField.getName().toLowerCase();
-        List<IOpenField> ff = fields.get(name);
+        addToMap(contextField.getName(), contextField, fields);
+        addToMap(contextField.getName().toLowerCase().replace(" ", ""), contextField, lowerCaseFields);
+    }
+
+    private void addToMap(String fieldName, ContextField contextField, Map<String, List<IOpenField>> fields) {
+        List<IOpenField> ff = fields.get(fieldName);
         if (ff == null) {
             ff = new ArrayList<>();
             ff.add(contextField);
-            fields.put(name, ff);
-            return;
+            fields.put(fieldName, ff);
+        } else {
+            if (!ff.contains(contextField)) {
+                ff.add(contextField);
+            }
         }
-
-        if (ff.contains(contextField)) {
-            return;
-        }
-        ff.add(contextField);
     }
 
     @Override
-    public IOpenField findVariable(String name) throws AmbiguousFieldException {
-        return findField(name);
+    public IOpenField findVariable(String fieldName, boolean strictMatch) throws AmbiguousFieldException {
+        return findField(fieldName, strictMatch);
     }
 
-    public IOpenField findField(String name) throws AmbiguousFieldException {
-        name = name.toLowerCase();
-        List<IOpenField> ff = fields.get(name);
+    public IOpenField findField(String fieldName, boolean strictMatch) throws AmbiguousFieldException {
+        if (strictMatch) {
+            return findFieldInMap(fields, fieldName);
+        }
+        return findFieldInMap(lowerCaseFields, fieldName.toLowerCase());
+    }
+
+    private IOpenField findFieldInMap(Map<String, List<IOpenField>> fields, String fieldName) {
+        List<IOpenField> ff = fields.get(fieldName);
         if (ff == null) {
             return null;
         }
         if (ff.size() > 1) {
-            throw new AmbiguousFieldException(name, ff);
+            throw new AmbiguousFieldException(fieldName, ff);
         }
         return ff.get(0);
     }
@@ -122,11 +132,21 @@ public class RootDictionaryContext implements VariableInContextFinder {
             return;
         }
         add(new ContextField(parent, field));
-
         if (level + 1 <= maxDepthLevel) {
             IOpenClass fieldType = field.getType();
             if (fieldType.isSimple()) {
                 return;
+            }
+            if (fieldType.isArray()) {
+                int dimension = 0;
+                IOpenClass type = field.getType();
+                while (type.isArray()) {
+                    type = type.getComponentClass();
+                    dimension++;
+                }
+                for (IOpenField f : type.getFields()) {
+                    initializeField(field, new ArrayOpenField(f, dimension), level + 1);
+                }
             }
             for (IOpenField openField : fieldType.getFields()) {
                 initializeField(field, openField, level + 1);

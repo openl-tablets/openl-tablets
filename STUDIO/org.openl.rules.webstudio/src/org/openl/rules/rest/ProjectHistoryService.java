@@ -27,6 +27,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.rest.exception.LockedException;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.WebStudioFormats;
@@ -90,13 +91,8 @@ public class ProjectHistoryService {
             try {
                 FileUtils.copy(fileToRestore, currentSourceFile);
             } catch (FileNotFoundException e) {
-                String msg;
-                if (e.getMessage().contains(".xls")) {
-                    msg = "Restoring changes was failed. Please close module Excel file and try again.";
-                } else {
-                    msg = "Restoring changes was failed because some resources are used.";
-                }
-                throw new IOException(msg);
+                throw new LockedException(
+                    e.getMessage().contains(".xls") ? "restore.xls-file.message" : "restore.file.message");
             }
             model.reset(ReloadType.SINGLE);
             fileToRestore.renameTo(new File(fileToRestore.getPath() + CURRENT_VERSION));

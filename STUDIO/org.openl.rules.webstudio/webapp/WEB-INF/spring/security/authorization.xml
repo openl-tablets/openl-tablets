@@ -2,23 +2,21 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:security="http://www.springframework.org/schema/security"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-          http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
-          http://www.springframework.org/schema/security
-          https://www.springframework.org/schema/security/spring-security-5.4.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
     <!-- Note the order that entries are placed against the objectDefinitionSource is critical.
       The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
       Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
     <bean id="filterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
-        <property name="authenticationManager" ref="authenticationManager" />
-        <property name="accessDecisionManager" ref="accessDecisionManager" />
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="accessDecisionManager" ref="accessDecisionManager"/>
         <property name="securityMetadataSource">
             <security:filter-security-metadata-source request-matcher="ant" use-expressions="false">
-                <security:intercept-url pattern="/faces/pages/modules/administration/**" access="ADMIN" />
+                <security:intercept-url pattern="/faces/pages/modules/administration/**" access="ADMIN"/>
                 <!-- Don't allow unprivileged users to run install wizard by manually entering install wizard url when studio is configured already -->
-                <security:intercept-url pattern="/faces/pages/modules/install/**" access="ADMIN" />
-                <security:intercept-url pattern="/**" access="VIEW_PROJECTS" />
+                <security:intercept-url pattern="/faces/pages/modules/install/**" access="ADMIN"/>
+                <security:intercept-url pattern="/**" access="VIEW_PROJECTS"/>
             </security:filter-security-metadata-source>
         </property>
     </bean>
@@ -48,6 +46,5 @@
         <property name="accessDecisionManager" ref="accessDecisionManager"/>
         <property name="securityMetadataSource" ref="securityMetadataSource"/>
     </bean>
-
 
 </beans>

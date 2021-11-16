@@ -15,7 +15,7 @@ import org.openl.types.NullOpenClass;
 
 public class SpreadsheetContext extends ComponentBindingContext {
 
-    public SpreadsheetContext(IBindingContext delegate, ComponentOpenClass type) {
+    public SpreadsheetContext(IBindingContext delegate, SpreadsheetOpenClass type) {
         super(delegate, type);
     }
 

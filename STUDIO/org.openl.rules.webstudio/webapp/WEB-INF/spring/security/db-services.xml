@@ -1,43 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-          http://www.springframework.org/schema/beans/spring-beans-4.1.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml" />
+    <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml"/>
 
     <!-- ======================== DB Services ========================== -->
 
     <bean id="userManagementService" class="org.openl.rules.webstudio.service.UserManagementService">
-        <constructor-arg name="userDao" ref="openlUserDao" />
-        <constructor-arg name="groupDao" ref="groupDao" />
+        <constructor-arg name="userDao" ref="openlUserDao"/>
+        <constructor-arg name="groupDao" ref="groupDao"/>
     </bean>
 
     <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementService">
-        <constructor-arg name="groupDao" ref="groupDao" />
+        <constructor-arg name="groupDao" ref="groupDao"/>
     </bean>
 
     <bean id="tagTypeService" class="org.openl.rules.webstudio.service.TagTypeService">
-        <constructor-arg name="tagTypeDao" ref="openlTagTypeDao" />
-        <constructor-arg name="tagDao" ref="openlTagDao" />
+        <constructor-arg name="tagTypeDao" ref="openlTagTypeDao"/>
+        <constructor-arg name="tagDao" ref="openlTagDao"/>
     </bean>
 
     <bean id="tagService" class="org.openl.rules.webstudio.service.TagService">
-        <property name="tagDao" ref="openlTagDao" />
+        <property name="tagDao" ref="openlTagDao"/>
     </bean>
 
     <bean id="projectService" class="org.openl.rules.webstudio.service.OpenLProjectService">
-        <property name="projectDao" ref="openLProjectDao" />
+        <property name="projectDao" ref="openLProjectDao"/>
     </bean>
 
     <bean id="projectGroupingService" class="org.openl.rules.webstudio.service.ProjectGroupingService">
-        <property name="userSettingManagementService" ref="userSettingManagementService" />
+        <property name="userSettingManagementService" ref="userSettingManagementService"/>
     </bean>
 
     <bean id="tagTemplateService" class="org.openl.rules.webstudio.service.TagTemplateService">
-        <property name="tagTemplateDao" ref="tagTemplateDao" />
-        <property name="tagTypeDao" ref="openlTagTypeDao" />
-        <property name="tagDao" ref="openlTagDao" />
+        <property name="tagTemplateDao" ref="tagTemplateDao"/>
+        <property name="tagTypeDao" ref="openlTagTypeDao"/>
+        <property name="tagDao" ref="openlTagDao"/>
     </bean>
 
     <bean id="userSettingManagementService" class="org.openl.rules.webstudio.service.UserSettingManagementService">

@@ -13,12 +13,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.DuplicatedFieldException;
-import org.openl.rules.lang.xls.XlsBinder;
+import org.openl.binding.impl.module.WrapModuleSpecificTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -42,7 +41,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author snshor
  */
-public class DatatypeOpenClass extends ADynamicClass {
+public class DatatypeOpenClass extends ADynamicClass implements WrapModuleSpecificTypes {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatatypeOpenClass.class);
 
@@ -136,7 +135,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         return Collections.unmodifiableCollection(this.fields.values());
     }
 
-    private void ensureFieldsInitialized(){
+    private void ensureFieldsInitialized() {
         if (this.fields == null || this.staticFields == null) {
             synchronized (this) {
                 if (this.fields == null || this.staticFields == null) {
@@ -156,12 +155,10 @@ public class DatatypeOpenClass extends ADynamicClass {
             }
         }
         fieldMap().forEach(fields::putIfAbsent);
-        staticFields.put("class", new JavaOpenClass.JavaClassClassField(instanceClass));
+        staticFields.put("class", new JavaOpenClass.JavaClassClassField(instanceClass, this));
         this.fields = fields;
         this.staticFields = staticFields;
-        Optional.ofNullable(superClass)
-                .map(IOpenClass::getIndexField)
-                .ifPresent(this::setIndexField);
+        Optional.ofNullable(superClass).map(IOpenClass::getIndexField).ifPresent(this::setIndexField);
     }
 
     @Override
@@ -190,39 +187,6 @@ public class DatatypeOpenClass extends ADynamicClass {
     @Override
     public IOpenClass getComponentClass() {
         return null;
-    }
-
-    /**
-     * Override super class implementation to provide possibility to compare datatypes with info about their fields
-     *
-     * @author DLiauchuk
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(superClass, javaName);
-    }
-
-    /**
-     * Override super class implementation to provide possibility to compare datatypes with info about their fields Is
-     * used in {@link XlsBinder} (method filterDependencyTypes)
-     *
-     * @author DLiauchuk
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!super.equals(obj)) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        DatatypeOpenClass other = (DatatypeOpenClass) obj;
-
-        return Objects.equals(superClass, other.getSuperClass()) && Objects.equals(getMetaInfo(),
-            other.getMetaInfo()) && Objects.equals(javaName, other.getJavaName());
     }
 
     @Override
