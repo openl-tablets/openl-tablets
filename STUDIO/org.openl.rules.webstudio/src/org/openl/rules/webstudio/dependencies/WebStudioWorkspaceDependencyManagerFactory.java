@@ -1,8 +1,7 @@
 package org.openl.rules.webstudio.dependencies;
 
-import java.util.ArrayDeque;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,30 +30,36 @@ public class WebStudioWorkspaceDependencyManagerFactory {
     }
 
     public Set<ProjectDescriptor> resolveWorkspace(ProjectDescriptor project) {
-        Set<ProjectDescriptor> projectsInWorkspace = new LinkedHashSet<>();
-        Queue<ProjectDescriptor> queue = new ArrayDeque<>();
-        queue.add(project);
-        while (!queue.isEmpty()) {
-            ProjectDescriptor p = queue.poll();
-            projectsInWorkspace.add(p);
-            if (p.getDependencies() != null && !p.getDependencies().isEmpty()) {
-                Set<String> projectDependencyNames = p.getDependencies()
-                    .stream()
-                    .map(ProjectDependencyDescriptor::getName)
-                    .collect(Collectors.toSet());
-                for (ProjectDescriptor pd : studio.getAllProjects()) {
-                    if (projectDependencyNames.contains(pd.getName())) {
-                        queue.add(pd);
-                        projectDependencyNames.remove(pd.getName());
+        Set<ProjectDescriptor> workspace = new LinkedHashSet<>();
+        Set<ProjectDescriptor> breadcrumbs = new HashSet<>();
+        workspace.add(project);
+        breadcrumbs.add(project);
+        resolveWorkspaceRec(project, workspace, breadcrumbs);
+        return workspace;
+    }
+
+    private void resolveWorkspaceRec(ProjectDescriptor p, Set<ProjectDescriptor> workspace, Set<ProjectDescriptor> breadcrumbs) {
+        if (p.getDependencies() != null && !p.getDependencies().isEmpty()) {
+            Set<String> projectDependencyNames = p.getDependencies()
+                .stream()
+                .map(ProjectDependencyDescriptor::getName)
+                .collect(Collectors.toSet());
+            for (ProjectDescriptor pd : studio.getAllProjects()) {
+                if (projectDependencyNames.contains(pd.getName())) {
+                    if (!breadcrumbs.contains(pd)) {
+                        workspace.add(pd);
+                        breadcrumbs.add(pd);
+                        resolveWorkspaceRec(pd, workspace, breadcrumbs);
+                        breadcrumbs.remove(pd);
                     }
-                }
-                for (String notFoundProjectDependencyName : projectDependencyNames) {
-                    log.warn("Dependency '{}' for project '{}' is not found.",
-                        p.getName(),
-                        notFoundProjectDependencyName);
+                    projectDependencyNames.remove(pd.getName());
                 }
             }
+            for (String notFoundProjectDependencyName : projectDependencyNames) {
+                log.warn("Dependency '{}' for project '{}' is not found.",
+                    p.getName(),
+                    notFoundProjectDependencyName);
+            }
         }
-        return projectsInWorkspace;
     }
 }
