@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	   xmlns:util="http://www.springframework.org/schema/util"
-	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
 	                       http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
 
-	<!-- Provide information about modules that can be used as dependencies. -->
-	<!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/> -->
+    <!-- Provide information about modules that can be used as dependencies. -->
+    <!-- <bean id="dependencyManager" class="org.openl.rules.project.dependencies.RulesProjectDependencyManager"/> -->
 
-	<!-- Simple front end to access all services. -->
-	<bean id="frontend" class="org.openl.rules.ruleservice.simple.RulesFrontendImpl"/>
+    <!-- Simple front end to access all services. -->
+    <bean id="frontend" class="org.openl.rules.ruleservice.simple.RulesFrontendImpl"/>
 
-	<!-- Initializes OpenL Engine instances according to Rule Services configuration
-		description and calls DeploymentAdmin to expose corresponding web service. -->
-	<bean id="javaClassRuleServicePublisher" class="org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher">
-		<property name="frontend" ref="frontend"/>
-	</bean>
+    <!-- Initializes OpenL Engine instances according to Rule Services configuration
+        description and calls DeploymentAdmin to expose corresponding web service. -->
+    <bean id="javaClassRuleServicePublisher" class="org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher">
+        <property name="frontend" ref="frontend"/>
+    </bean>
 
-	<util:map id="ruleServicePublishers">
-		<entry key="JAVA" value-ref="javaClassRuleServicePublisher"/>
-	</util:map>
+    <util:map id="ruleServicePublishers">
+        <entry key="JAVA" value-ref="javaClassRuleServicePublisher"/>
+    </util:map>
 </beans>

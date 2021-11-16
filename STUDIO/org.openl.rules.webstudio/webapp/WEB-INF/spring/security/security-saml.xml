@@ -4,9 +4,10 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-              http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-5.4.xsd
-              http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <import resource="common-authentication.xml"/>
     <import resource="authorization.xml"/>
@@ -28,7 +29,7 @@
             <security:filter-chain pattern="/javascript/**" filters="none"/>
             <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
             <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
-            <security:filter-chain pattern="/org.richfaces.resources/**" filters="none" />
+            <security:filter-chain pattern="/org.richfaces.resources/**" filters="none"/>
             <security:filter-chain pattern="/faces/tableEditor/css/**" filters="none"/>
             <security:filter-chain pattern="/faces/tableEditor/img/**" filters="none"/>
             <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none"/>
@@ -151,7 +152,8 @@
         <constructor-arg>
             <bean class="org.springframework.security.saml.metadata.MetadataGenerator">
                 <property name="entityBaseURL" value="#{environment.getProperty('security.saml.app-url')}"/>
-                <property name="entityId" value="#{T(org.openl.util.StringUtils).trimToNull(environment.getProperty('security.saml.entity-id'))}" />
+                <property name="entityId"
+                          value="#{T(org.openl.util.StringUtils).trimToNull(environment.getProperty('security.saml.entity-id'))}"/>
             </bean>
         </constructor-arg>
     </bean>
