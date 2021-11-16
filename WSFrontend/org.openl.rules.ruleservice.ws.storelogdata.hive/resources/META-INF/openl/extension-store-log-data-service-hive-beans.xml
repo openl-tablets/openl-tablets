@@ -1,14 +1,15 @@
 <?xml version='1.0'?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:component-scan base-package="org.openl.rules.ruleservice.storelogdata.hive"/>
 
     <bean id="hiveDriverRegister" class="org.openl.rules.ruleservice.storelogdata.hive.HiveDriverRegister"
           init-method="init" lazy-init="true"/>
 
-    <bean id="hiveHikariConfig" class="com.zaxxer.hikari.HikariConfig" depends-on="hiveDriverRegister" lazy-init="true" >
+    <bean id="hiveHikariConfig" class="com.zaxxer.hikari.HikariConfig" depends-on="hiveDriverRegister" lazy-init="true">
         <property name="jdbcUrl" value="${hive.connection.url}"/>
         <property name="username" value="${hive.connection.username}"/>
         <property name="password" value="${hive.connection.password}"/>
