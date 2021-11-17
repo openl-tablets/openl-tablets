@@ -561,7 +561,6 @@ public class XlsBinder implements IOpenBinder {
     private void registerNewCustomSpreadsheetResultTypes(TableSyntaxNode[] tableSyntaxNodes,
             RulesModuleBindingContext rulesModuleBindingContext) {
         if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(rulesModuleBindingContext.getExternalParams())) {
-            Collection<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = new ArrayList<>();
             for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
                 String sprResTypeName = getSprResTypeNameIfCustomSpreadsheetResultTableSyntaxNode(tableSyntaxNode);
                 if (sprResTypeName != null) {
@@ -576,12 +575,9 @@ public class XlsBinder implements IOpenBinder {
                             customSpreadsheetResultOpenClass = new CombinedSpreadsheetResultOpenClass(sprResTypeName,
                                 rulesModuleBindingContext.getModule());
                         }
-                        customSpreadsheetResultOpenClasses.add(customSpreadsheetResultOpenClass);
+                        rulesModuleBindingContext.getModule().addType(customSpreadsheetResultOpenClass);
                     }
                 }
-            }
-            for (CustomSpreadsheetResultOpenClass customClasses : customSpreadsheetResultOpenClasses) {
-                rulesModuleBindingContext.getModule().addType(customClasses);
             }
         }
     }
