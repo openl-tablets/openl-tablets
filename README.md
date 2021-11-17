@@ -21,18 +21,22 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 
 #### Requirements:
 
-* JDK 8
-* Maven 3.8.1
+* JDK 11
+* Maven 3.8.3
 * 512 MiB RAM free
 * 2 GiB Disk space free
 
-#### Build command:
+#### Build Maven artifacts:
 
 `mvn`
 
-Estimated build time: ~15 minutes
+Estimated build time: ~25 minutes
 
-#### Build artifacts:
-* **WebStudio** - STUDIO\org.openl.rules.webstudio\target\*.war
-* **RuleService WS** - WSFrontend\org.openl.rules.ruleservice.ws\target\*.war
-* **DEMO App** - DEMO\org.openl.rules.demo\target\*.zip
+Artifacts:
+* **WebStudio** - STUDIO\org.openl.rules.webstudio\target\webapp.war
+* **RuleService WS** - WSFrontend\org.openl.rules.ruleservice.ws\target\webapp.war
+* **DEMO App** - DEMO\org.openl.rules.demo\target\openl-tablets-demo.zip
+
+#### Build Docker images:
+
+`docker-compose -f Dockerfiles\docker-compose.yaml build`

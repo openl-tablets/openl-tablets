@@ -73,8 +73,6 @@
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.target.version>1.8</java.target.version>
-        <java.source.version>1.8</java.source.version>
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
@@ -223,8 +221,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.1</version>
                     <configuration>
-                        <source>${java.source.version}</source>
-                        <target>${java.target.version}</target>
+                        <release>11</release>
                     </configuration>
                 </plugin>
                 <plugin>
