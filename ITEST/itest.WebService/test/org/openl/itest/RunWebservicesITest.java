@@ -652,4 +652,10 @@ public class RunWebservicesITest {
     public void EPBDS_12057() {
         client.send("EPBDS-12057/openapi.json.get");
     }
+
+    @Test
+    public void EPBDS_12225() {
+        client.send("EPBDS-12225/mainSpr.json.get");
+    }
+
 }

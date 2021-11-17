@@ -57,7 +57,7 @@ public final class WrapperLogic {
         return (SimpleRulesRuntimeEnv) env1;
     }
 
-    public static IOpenMethod extractMethod(IOpenMethod method) {
+    public static IOpenMethod extractNonLazyMethod(IOpenMethod method) {
         if (method instanceof IRulesMethodWrapper) {
             IRulesMethodWrapper rulesMethodWrapper = (IRulesMethodWrapper) method;
             if (rulesMethodWrapper.getDelegate() instanceof ILazyMethod) {
@@ -119,7 +119,7 @@ public final class WrapperLogic {
 
     public static IOpenMethod wrapOpenMethod(IOpenMethod openMethod,
             final XlsModuleOpenClass xlsModuleOpenClass,
-            boolean inlinedMethodCall) {
+            boolean externalMethodCall) {
         openMethod = unwrapOpenMethod(openMethod);
 
         if (openMethod instanceof TestSuiteMethod) {
@@ -136,55 +136,55 @@ public final class WrapperLogic {
             return new OverloadedMethodsDispatcherTableWrapper(xlsModuleOpenClass,
                 (OverloadedMethodsDispatcherTable) openMethod,
                 contextPropertiesInjector,
-                inlinedMethodCall);
+                externalMethodCall);
         }
         if (openMethod instanceof MatchingOpenMethodDispatcher) {
             return new MatchingOpenMethodDispatcherWrapper(xlsModuleOpenClass,
                 (MatchingOpenMethodDispatcher) openMethod,
                 contextPropertiesInjector,
-                inlinedMethodCall);
+                externalMethodCall);
         }
         if (openMethod instanceof Algorithm) {
             return new AlgorithmWrapper(xlsModuleOpenClass,
                 (Algorithm) openMethod,
                 contextPropertiesInjector,
-                inlinedMethodCall);
+                externalMethodCall);
         }
         if (openMethod instanceof AlgorithmSubroutineMethod) {
             return new AlgorithmSubroutineMethodWrapper(xlsModuleOpenClass,
                 (AlgorithmSubroutineMethod) openMethod,
                 contextPropertiesInjector,
-                inlinedMethodCall);
+                externalMethodCall);
         }
         if (openMethod instanceof DecisionTable) {
             return new DecisionTableWrapper(xlsModuleOpenClass,
                 (DecisionTable) openMethod,
                 contextPropertiesInjector,
-                inlinedMethodCall);
+                externalMethodCall);
         }
         if (openMethod instanceof ColumnMatch) {
             return new ColumnMatchWrapper(xlsModuleOpenClass,
                 (ColumnMatch) openMethod,
                 contextPropertiesInjector,
-                inlinedMethodCall);
+                externalMethodCall);
         }
         if (openMethod instanceof Spreadsheet) {
             return new SpreadsheetWrapper(xlsModuleOpenClass,
                 (Spreadsheet) openMethod,
                 contextPropertiesInjector,
-                inlinedMethodCall);
+                externalMethodCall);
         }
         if (openMethod instanceof TableMethod) {
             return new TableMethodWrapper(xlsModuleOpenClass,
                 (TableMethod) openMethod,
                 contextPropertiesInjector,
-                inlinedMethodCall);
+                externalMethodCall);
         }
 
         return openMethod;
     }
 
-    private static Object invokeInlinedMethod(IRulesMethodWrapper wrapper,
+    private static Object invokeExternalMethod(IRulesMethodWrapper wrapper,
             Object target,
             Object[] params,
             IRuntimeEnv env) {
@@ -242,7 +242,7 @@ public final class WrapperLogic {
             if (topClass != wrapper.getXlsModuleOpenClass()) {
                 IOpenMethod method = wrapper.getTopOpenClassMethod(topClass);
                 if (method != null) {
-                    method = extractMethod(method);
+                    method = extractNonLazyMethod(method);
                     if (method != wrapper) {
                         return method.invoke(target, params, env);
                     }
@@ -256,17 +256,14 @@ public final class WrapperLogic {
             Object target,
             Object[] params,
             IRuntimeEnv env,
-            IOpenClass type,
-            boolean inlinedMethodCall) {
-        Object ret;
-        if (inlinedMethodCall) {
-            ret = WrapperLogic.invokeInlinedMethod(wrapper, target, params, env);
-        } else {
-            ret = WrapperLogic.invoke(wrapper, target, params, env);
-        }
-        // Fix custom spreadsheet type to work in the correct classloader with spreadsheet result been types
-        if (type instanceof CustomSpreadsheetResultOpenClass) {
-            ((SpreadsheetResult) ret).setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) type);
+            boolean externalMethodCall) {
+        Object ret = externalMethodCall ? WrapperLogic.invokeExternalMethod(wrapper, target, params, env)
+                                        : WrapperLogic.invoke(wrapper, target, params, env);
+        // Set custom spreadsheet type to work in the correct classloader with spreadsheet result been types
+        if (wrapper.getType() instanceof CustomSpreadsheetResultOpenClass && ((SpreadsheetResult) ret)
+            .getCustomSpreadsheetResultOpenClass() == null) {
+            ((SpreadsheetResult) ret)
+                .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) wrapper.getType());
         }
         return ret;
     }

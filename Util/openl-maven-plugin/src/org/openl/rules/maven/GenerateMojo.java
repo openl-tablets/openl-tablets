@@ -11,10 +11,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -30,12 +31,14 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
@@ -188,16 +191,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
             writeJavaBeans(compiledOpenClass.getTypes());
 
             if (generateSpreadsheetResultBeans) {
-                writeCustomSpreadsheetResultBeans(compiledOpenClass.getTypes());
                 if (compiledOpenClass.getOpenClass() instanceof XlsModuleOpenClass) {
-                    XlsModuleOpenClass module = (XlsModuleOpenClass) compiledOpenClass.getOpenClass();
-                    // Check: custom spreadsheet is enabled
-                    if (module.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
-                        CustomSpreadsheetResultOpenClass spreadsheetResultOpenClass = (module)
-                            .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                            .toCustomSpreadsheetResultOpenClass();
-                        writeCustomSpreadsheetResultBeans(Collections.singleton(spreadsheetResultOpenClass));
-                    }
+                    writeCustomSpreadsheetResultBeans((XlsModuleOpenClass) compiledOpenClass.getOpenClass());
                 }
             }
 
@@ -272,18 +267,48 @@ public final class GenerateMojo extends BaseOpenLMojo {
         }
     }
 
-    private void writeCustomSpreadsheetResultBeans(Collection<IOpenClass> types) throws IOException {
-        if (CollectionUtils.isNotEmpty(types)) {
-            for (IOpenClass openClass : types) {
+    private void writeCustomSpreadsheetResultBeans(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
+            Set<IOpenClass> writtenSpreadsheetResultOpenClasses) throws IOException {
+        if (customSpreadsheetResultOpenClass
+            .isGenerateBeanClass() && !writtenSpreadsheetResultOpenClasses.contains(customSpreadsheetResultOpenClass)) {
+            Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
+            info("Java Bean for Spreadsheet Result: " + cls.getName());
+            Path filePath = Paths.get(classesDirectory, cls.getName().replace('.', '/') + ".class");
+            Files.createDirectories(filePath.getParent());
+            Files.write(filePath, customSpreadsheetResultOpenClass.getBeanClassByteCode());
+            writtenSpreadsheetResultOpenClasses.add(customSpreadsheetResultOpenClass);
+            for (IOpenField openField : customSpreadsheetResultOpenClass.getFields()) {
+                if (openField.getType() instanceof CustomSpreadsheetResultOpenClass) {
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass1 = (CustomSpreadsheetResultOpenClass) openField
+                        .getType();
+                    writeCustomSpreadsheetResultBeans(customSpreadsheetResultOpenClass1,
+                        writtenSpreadsheetResultOpenClasses);
+                } else if (openField.getType() instanceof SpreadsheetResultOpenClass) {
+                    SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) openField
+                        .getType();
+                    writeCustomSpreadsheetResultBeans(spreadsheetResultOpenClass.toCustomSpreadsheetResultOpenClass(),
+                        writtenSpreadsheetResultOpenClasses);
+                }
+            }
+        }
+    }
+
+    private void writeCustomSpreadsheetResultBeans(XlsModuleOpenClass xlsModuleOpenClass) throws IOException {
+        if (xlsModuleOpenClass != null) {
+            Set<IOpenClass> writtenSpreadsheetResultOpenClasses = new HashSet<>();
+            for (IOpenClass openClass : xlsModuleOpenClass.getTypes()) {
                 // Skip java code generation for other types
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
-                    Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
-                    info("Java Bean for Spreadsheet Result: " + cls.getName());
-                    Path filePath = Paths.get(classesDirectory, cls.getName().replace('.', '/') + ".class");
-                    Files.createDirectories(filePath.getParent());
-                    Files.write(filePath, ((CustomSpreadsheetResultOpenClass) openClass).getBeanClassByteCode());
+                    writeCustomSpreadsheetResultBeans(customSpreadsheetResultOpenClass,
+                        writtenSpreadsheetResultOpenClasses);
                 }
+            }
+            if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                writeCustomSpreadsheetResultBeans(
+                    xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass(),
+                    writtenSpreadsheetResultOpenClasses);
             }
         }
     }

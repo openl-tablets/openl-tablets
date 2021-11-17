@@ -147,4 +147,8 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
         }
         return resultArray;
     }
+
+    public IRuntimeEnv getEnv() {
+        return env;
+    }
 }

@@ -192,7 +192,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             throw new OpenLRuntimeException(message);
         }
 
-        method = WrapperLogic.extractMethod(method);
+        method = WrapperLogic.extractNonLazyMethod(method);
 
         if (method instanceof IRulesMethodWrapper) {
             method = ((IRulesMethodWrapper) method).getDelegate();

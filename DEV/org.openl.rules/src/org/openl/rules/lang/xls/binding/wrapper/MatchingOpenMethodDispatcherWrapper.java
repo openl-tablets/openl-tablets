@@ -18,18 +18,18 @@ public final class MatchingOpenMethodDispatcherWrapper extends AbstractMatchingO
     private final IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
         this);
-    private final boolean inlinedMethodCall;
+    private final boolean externalMethodCall;
 
     public MatchingOpenMethodDispatcherWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             MatchingOpenMethodDispatcher delegate,
             ContextPropertiesInjector contextPropertiesInjector,
-            boolean inlinedMethodCall) {
+            boolean externalMethodCall) {
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;
         this.type = WrapperLogic.buildMethodReturnType(delegate, xlsModuleOpenClass);
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
-        this.inlinedMethodCall = inlinedMethodCall;
+        this.externalMethodCall = externalMethodCall;
     }
 
     @Override
@@ -39,7 +39,7 @@ public final class MatchingOpenMethodDispatcherWrapper extends AbstractMatchingO
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return WrapperLogic.invoke(this, target, params, env, type, inlinedMethodCall);
+        return WrapperLogic.invoke(this, target, params, env, externalMethodCall);
     }
 
     @Override
