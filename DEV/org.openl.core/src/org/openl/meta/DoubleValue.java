@@ -2,6 +2,7 @@ package org.openl.meta;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -717,60 +718,44 @@ public class DoubleValue extends ExplanationNumberValue<DoubleValue> implements 
         return BigDecimal.valueOf(x.doubleValue());
     }
 
-    public static DoubleValue round(DoubleValue value) {
+    public static Integer round(DoubleValue value) {
         if (value == null) {
             return null;
         }
 
-        double rounded = Round.round(value.value, 0);
-        return new DoubleValue(rounded, NumberOperations.ROUND, value);
+        return Round.round(value.value);
     }
 
-    public static DoubleValue round(DoubleValue value, int scale) {
+    public static Integer round(DoubleValue value, RoundingMode roundingMode) {
+        if (value == null) {
+            return null;
+        }
+        return Round.round(value.value, roundingMode);
+    }
+
+    public static Double round(DoubleValue value, int scale) {
         if (value == null) {
             return null;
         }
 
-        double rounded = Round.round(value.value, scale);
-        return new DoubleValue(rounded, NumberOperations.ROUND, value, new DoubleValue(scale));
+        return Round.round(value.value, scale);
     }
 
-    public static DoubleValue round(DoubleValue value, int scale, int roundingMethod) {
+
+    public static Double round(DoubleValue value, int scale, int roundingMode) {
         if (value == null) {
             return null;
         }
 
-        double rounded = Round.round(value.value, scale, roundingMethod);
-        return new DoubleValue(rounded, NumberOperations.ROUND, value, new DoubleValue(scale));
+        return Round.round(value.value, scale, roundingMode);
     }
 
-    /**
-     *
-     * @deprecated This method is obsolete. Use {@link #round(DoubleValue, int)} instead
-     * @see #round(DoubleValue, int)
-     */
-    @Deprecated
-    public static DoubleValue round(DoubleValue d, DoubleValue p) {
-        if (d == null || p == null) {
-            throw new OpenLRuntimeException("None of the arguments for 'round' operation can be null");
+    public static Double round(DoubleValue value, int scale, RoundingMode roundingMode) {
+        if (value == null) {
+            return null;
         }
 
-        int scale;
-        double preRoundedValue;
-
-        if (p.doubleValue() == 0) {
-            scale = 0;
-            preRoundedValue = d.doubleValue();
-        } else {
-            scale = (int) Round.round(-Math.log10(p.doubleValue()), 0, Round.HALF_UP);
-            preRoundedValue = d.doubleValue();
-            // preRoundedValue = Math.round(d.doubleValue() / p.doubleValue()) *
-            // p.doubleValue();
-        }
-
-        double roundedValue = Round.round(preRoundedValue, scale, Round.HALF_UP);
-
-        return new DoubleValue(roundedValue, NumberOperations.ROUND, new DoubleValue[] { d, p });
+        return Round.round(value.value, scale, roundingMode);
     }
 
     public DoubleValue(String valueString) {

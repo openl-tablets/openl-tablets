@@ -320,9 +320,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // TotalAssets2012
         usedNodes = getMetaInfo(assetsCompareMetaReader, assetsCompare.getGridTable().getCell(1, 3)).getUsedNodes();
         assertEquals(3, usedNodes.size());
-        assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
+        assertEquals("Cell type: Integer", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResultTotalAssets $AssetsCalc2012", usedNodes.get(1).getDescription()); // $AssetsCalc2012
-        assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+        assertEquals("Spreadsheet TotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
         // (other
         // spreadsheet)
 
@@ -334,7 +334,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         usedNodes = getMetaInfo(assetsCompareMetaReader, assetsCompare.getGridTable().getCell(1, 5)).getUsedNodes();
         assertEquals(4, usedNodes.size());
         assertEquals("Cell type: Double", usedNodes.get(0).getDescription()); // =
-        assertEquals("Long $TotalAssets2012", usedNodes.get(1).getDescription()); // $TotalAssets2012
+        assertEquals("Integer $TotalAssets2012", usedNodes.get(1).getDescription()); // $TotalAssets2012
         assertEquals("Double $TotalAssets2011", usedNodes.get(2).getDescription()); // $TotalAssets2011
         assertEquals("Double $Value$TotalAssets2011", usedNodes.get(3).getDescription()); // $Value$TotalAssets2011
     }
@@ -354,7 +354,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         usedNodes = getMetaInfo(totalAssets.getMetaInfoReader(), totalAssets.getGridTable().getCell(3, 2))
             .getUsedNodes();
         assertEquals(3, usedNodes.size());
-        assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
+        assertEquals("Cell type: Integer", usedNodes.get(0).getDescription()); // =
         assertEquals("Double $Amount", usedNodes.get(1).getDescription()); // Amount
         assertEquals("Double $Exchange Rate", usedNodes.get(2).getDescription()); // $Exchange Rate
 
@@ -362,8 +362,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         usedNodes = getMetaInfo(totalAssets.getMetaInfoReader(), totalAssets.getGridTable().getCell(3, 7))
             .getUsedNodes();
         assertEquals(2, usedNodes.size());
-        assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
-        assertEquals("Long[] $USD:$GLD", usedNodes.get(1).getDescription()); // $USD:$GLD (cell range)
+        assertEquals("Cell type: Integer", usedNodes.get(0).getDescription()); // =
+        assertEquals("Integer[] $USD:$GLD", usedNodes.get(1).getDescription()); // $USD:$GLD (cell range)
     }
 
     /**
@@ -380,12 +380,12 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // TotalAssets1
         usedNodes = getMetaInfo(miscAssets.getMetaInfoReader(), miscAssets.getGridTable().getCell(1, 2)).getUsedNodes();
         assertEquals(3, usedNodes.size());
-        assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
+        assertEquals("Cell type: Integer", usedNodes.get(0).getDescription()); // =
         assertNull(usedNodes.get(0).getUri());
         assertEquals("SpreadsheetResultTotalAssets totalAssets1", usedNodes.get(1).getDescription()); // $AssetsCalc2012
         assertEquals(totalAssets.getUri(),
             usedNodes.stream().filter(e -> e.getUri() != null).findFirst().get().getUri());
-        assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+        assertEquals("Spreadsheet TotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
         // (other
         // spreadsheet)
         assertEquals(totalAssets.getUri(), usedNodes.get(2).getUri());
@@ -393,9 +393,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // TotalAssets2
         usedNodes = getMetaInfo(miscAssets.getMetaInfoReader(), miscAssets.getGridTable().getCell(1, 3)).getUsedNodes();
         assertEquals(3, usedNodes.size());
-        assertEquals("Cell type: Long", usedNodes.get(0).getDescription()); // =
+        assertEquals("Cell type: Integer", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResult totalAssets2", usedNodes.get(1).getDescription()); // totalAssets2
-        assertEquals("Spreadsheet TotalAssets\nLong $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+        assertEquals("Spreadsheet TotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
         // (other spreadsheet)
     }
 

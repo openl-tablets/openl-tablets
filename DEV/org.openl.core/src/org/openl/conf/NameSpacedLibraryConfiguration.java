@@ -31,13 +31,19 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
     public IOpenField getField(String name,
             IConfigurableResourceContext cxt,
             boolean strictMatch) throws AmbiguousFieldException {
+        List<IOpenField> fields = new ArrayList<>();
         for (IMethodFactoryConfigurationElement factory : factories) {
             IOpenField field = factory.getLibrary(cxt).getVar(name, strictMatch);
             if (field != null) {
-                return field;
+                fields.add(field);
             }
         }
-        return null;
+        if (fields.isEmpty()) {
+            return null;
+        } else if (fields.size() == 1) {
+            return fields.iterator().next();
+        }
+        throw new AmbiguousFieldException(name, fields);
     }
 
     public IOpenMethod[] getMethods(String name, IConfigurableResourceContext cxt) {

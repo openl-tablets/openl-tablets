@@ -45,7 +45,10 @@ public class StaticClassLibrary implements IOpenLibrary {
 
     @Override
     public IOpenField getVar(String name, boolean strictMatch) {
-        // This method must return null! See EPBDS-6799.
+        IOpenField field = openClass.getField(name, true);
+        if (field != null && field.isStatic()) {
+            return field;
+        }
         return null;
     }
 

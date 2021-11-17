@@ -2,6 +2,7 @@ package org.openl.meta;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Arrays;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -673,31 +674,44 @@ public class FloatValue extends ExplanationNumberValue<FloatValue> implements Co
         return new BigDecimal(String.valueOf(x.floatValue()));
     }
 
-    public static FloatValue round(FloatValue value) {
+    public static Integer round(FloatValue value) {
         if (value == null) {
             return null;
         }
 
-        float rounded = Round.round(value.value, 0);
-        return new FloatValue(rounded, NumberOperations.ROUND, value);
+        return Round.round(value.value);
     }
 
-    public static FloatValue round(FloatValue value, int scale) {
+    public static Integer round(FloatValue value, RoundingMode roundingMode) {
         if (value == null) {
             return null;
         }
 
-        float rounded = Round.round(value.value, scale);
-        return new FloatValue(rounded, NumberOperations.ROUND, value, new FloatValue(scale));
+        return Round.round(value.value, roundingMode);
     }
 
-    public static FloatValue round(FloatValue value, int scale, int roundingMethod) {
+    public static Float round(FloatValue value, int scale) {
         if (value == null) {
             return null;
         }
 
-        float rounded = Round.round(value.value, scale, roundingMethod);
-        return new FloatValue(rounded, NumberOperations.ROUND, value, new FloatValue(scale));
+        return Round.round(value.value, scale);
+    }
+
+    public static Float round(FloatValue value, int scale, int roundingMode) {
+        if (value == null) {
+            return null;
+        }
+
+        return Round.round(value.value, scale, roundingMode);
+    }
+
+    public static Float round(FloatValue value, int scale, RoundingMode roundingMode) {
+        if (value == null) {
+            return null;
+        }
+
+        return Round.round(value.value, scale, roundingMode);
     }
 
     public FloatValue(String valueString) {
