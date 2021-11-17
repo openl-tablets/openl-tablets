@@ -659,7 +659,7 @@ public final class DecisionTableHelper {
         return Pair.of(fieldsChainSb.toString(), type);
     }
 
-    private static String getTypeNameToUseInOpenLCode(IOpenClass type, IBindingContext bindingContext) {
+    private static String getTypeNameForCode(IOpenClass type, IBindingContext bindingContext) {
         IOpenClass g = type;
         int dim = 0;
         while (g.isArray()) {
@@ -710,7 +710,7 @@ public final class DecisionTableHelper {
                         if (param != null) {
                             String paramName = declaredReturn.getMatchedDefinition().getParameter(param.getName());
                             parameterNames.add(paramName);
-                            String value = getTypeNameToUseInOpenLCode(param.getType(),
+                            String value = getTypeNameForCode(param.getType(),
                                 bindingContext) + (paramName != null ? " " + paramName : "");
                             grid.setCellValue(c, 2, value);
                             paramType = param.getType();
@@ -805,11 +805,11 @@ public final class DecisionTableHelper {
                         var = RandomStringUtils.random(8, true, false);
                     }
                     generatedNames.add(var);
-                    sb.append(getTypeNameToUseInOpenLCode(type, bindingContext))
+                    sb.append(getTypeNameForCode(type, bindingContext))
                         .append(" ")
                         .append(var)
                         .append("=new ")
-                        .append(getTypeNameToUseInOpenLCode(type, bindingContext))
+                        .append(getTypeNameForCode(type, bindingContext))
                         .append("();");
                     sb.append("int ").append(var).append("_").append("=0;");
                     vm = variables.computeIfAbsent(currentVariable, e -> new HashMap<>());
@@ -962,7 +962,7 @@ public final class DecisionTableHelper {
                             variableAssignments,
                             sb,
                             bindingContext);
-                        final String statementInReturn = getTypeNameToUseInOpenLCode(fuzzyContext.getFuzzyReturnType(),
+                        final String statementInReturn = getTypeNameForCode(fuzzyContext.getFuzzyReturnType(),
                             bindingContext) + "." + buildStatementByFieldsChain(fuzzyContext.getFuzzyReturnType(),
                                 fieldsChain).getKey();
                         Set<String> matchedStatements = ambiguousReturnStatementMatching
@@ -1008,11 +1008,11 @@ public final class DecisionTableHelper {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append(getTypeNameToUseInOpenLCode(compoundReturnType, bindingContext))
+        sb.append(getTypeNameForCode(compoundReturnType, bindingContext))
             .append(" ")
             .append(FUZZY_RET_VARIABLE_NAME)
             .append(" = new ")
-            .append(getTypeNameToUseInOpenLCode(compoundReturnType, bindingContext))
+            .append(getTypeNameForCode(compoundReturnType, bindingContext))
             .append("();");
         sb.append("int ").append(FUZZY_RET_VARIABLE_NAME).append("_").append(" = 0;");
 
@@ -1046,7 +1046,7 @@ public final class DecisionTableHelper {
 
             grid.setCellValue(fuzzyDTHeader.getColumn(),
                 2,
-                getTypeNameToUseInOpenLCode(type, bindingContext) + " " + compoundColumnParamNames[i]);
+                getTypeNameForCode(type, bindingContext) + " " + compoundColumnParamNames[i]);
 
             if (fuzzyDTHeader.getWidth() > 1) {
                 grid.addMergedRegion(new GridRegion(2,
@@ -1270,7 +1270,7 @@ public final class DecisionTableHelper {
                     parameterNames.add(paramName);
                     grid.setCellValue(column,
                         2,
-                        getTypeNameToUseInOpenLCode(param.getType(),
+                        getTypeNameForCode(param.getType(),
                             bindingContext) + (paramName != null ? " " + paramName : ""));
                     typeOfColumns.add(param.getType());
                 } else {
@@ -1580,14 +1580,14 @@ public final class DecisionTableHelper {
                     grid.setCellValue(column, 1, statement);
                     grid.setCellValue(column,
                         2,
-                        getTypeNameToUseInOpenLCode(type, bindingContext) + " " + (minMaxOrder ? "min" : "max"));
+                        getTypeNameForCode(type, bindingContext) + " " + (minMaxOrder ? "min" : "max"));
                     int w1 = numberOfColumnsUnderTitleCounter.getWidth(column, 0);
                     if (w1 > 1) {
                         grid.addMergedRegion(new GridRegion(2, column, 2, column + w1 - 1));
                     }
                     grid.setCellValue(column + w1,
                         2,
-                        getTypeNameToUseInOpenLCode(type, bindingContext) + " " + (minMaxOrder ? "max" : "min"));
+                        getTypeNameForCode(type, bindingContext) + " " + (minMaxOrder ? "max" : "min"));
                     int w2 = numberOfColumnsUnderTitleCounter.getWidth(column, 1);
                     if (w2 > 1) {
                         grid.addMergedRegion(new GridRegion(2, column + w1, 2, column + w1 + w2 - 1));
@@ -2641,9 +2641,7 @@ public final class DecisionTableHelper {
                     break;
                 }
             }
-            if (i == m1.length || i == m2.length) {
-                return true;
-            }
+            return i == m1.length || i == m2.length;
         }
         return false;
     }
@@ -4064,8 +4062,7 @@ public final class DecisionTableHelper {
             boolean isMoreThanOneColumnIsUsed,
             IBindingContext bindingContext) {
         if (type.isArray() && type.getComponentClass().isArray()) {
-            return Triple
-                .of(new String[] { getTypeNameToUseInOpenLCode(type, bindingContext) }, type, condition.getStatement());
+            return Triple.of(new String[] { getTypeNameForCode(type, bindingContext) }, type, condition.getStatement());
         }
         int v;
         if (isArray) {
@@ -4075,14 +4072,13 @@ public final class DecisionTableHelper {
         }
 
         if (v == 0) {
-            return Triple
-                .of(new String[] { getTypeNameToUseInOpenLCode(type, bindingContext) }, type, condition.getStatement());
+            return Triple.of(new String[] { getTypeNameForCode(type, bindingContext) }, type, condition.getStatement());
         } else if (v == 1) {
-            return Triple.of(new String[] { getTypeNameToUseInOpenLCode(type, bindingContext) + "[]" },
+            return Triple.of(new String[] { getTypeNameForCode(type, bindingContext) + "[]" },
                 AOpenClass.getArrayType(type, 1),
                 condition.getStatement());
         } else {
-            return Triple.of(new String[] { getTypeNameToUseInOpenLCode(type, bindingContext) + "[][]" },
+            return Triple.of(new String[] { getTypeNameForCode(type, bindingContext) + "[][]" },
                 AOpenClass.getArrayType(type, 2),
                 condition.getStatement());
         }

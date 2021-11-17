@@ -80,7 +80,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             spreadsheet.getRowTitles(),
             spreadsheet.getColumnTitles(),
             getModule(),
-            spreadsheet.isTableStructureDetails());
+            spreadsheet.isTableStructureDetails(),
+            true);
 
         customSpreadsheetResultOpenClass
             .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
@@ -170,11 +171,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                     while (t.isArray()) {
                         t = t.getComponentClass();
                     }
-                    boolean f = true;
-                    if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
-                        .equals(t)) {
-                        f = false; // IGNORE VOID TYPES
-                    }
+                    boolean f = !JavaOpenClass.VOID.equals(t) && !JavaOpenClass.CLS_VOID.equals(t) && !NullOpenClass.the
+                        .equals(t);
+                    // IGNORE VOID TYPES
 
                     if (f) {
                         String refName;
@@ -199,9 +198,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                         if (StringUtils.isBlank(fName)) {
                             fName = "_";
                         }
-                        String key = fName.length() > 1
-                                ? (Character.toLowerCase(fName.charAt(0)) + fName.substring(1))
-                                : fName.toLowerCase();
+                        String key = fName.length() > 1 ? (Character.toLowerCase(fName.charAt(0)) + fName.substring(1))
+                                                        : fName.toLowerCase();
                         String v = fNames.put(key, refName);
                         if (v != null) {
                             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(

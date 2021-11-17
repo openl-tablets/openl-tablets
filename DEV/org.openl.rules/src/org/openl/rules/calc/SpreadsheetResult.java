@@ -17,7 +17,6 @@ import org.openl.binding.impl.AllowOnlyStrictFieldMatchType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.util.ClassUtils;
@@ -52,7 +51,7 @@ public class SpreadsheetResult implements Serializable {
     private transient ILogicalTable logicalTable;
 
     /**
-     * Spreadsheet open class. This filed is used for output bean generation.
+     * Spreadsheet open class. This field is used for output bean generation.
      */
     private transient CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
 
@@ -358,29 +357,15 @@ public class SpreadsheetResult implements Serializable {
         this.customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass;
     }
 
-    public Map<String, Object> toMap() {
-        return toMap(null);
-    }
-
-    private Object toPlain(XlsModuleOpenClass module) {
-        if (module == null) {
-            return toMap(null);
-        }
+    public Object toPlain() {
         if (getCustomSpreadsheetResultOpenClass() != null) {
-            IOpenClass openClass = module.findType(getCustomSpreadsheetResultOpenClass().getName());
-            if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                return ((CustomSpreadsheetResultOpenClass) openClass).createBean(this);
-            } else {
-                throw new IllegalStateException(
-                    String.format("Custom spreadsheet type '%s' is not found in the module.",
-                        getCustomSpreadsheetResultOpenClass().getName()));
-            }
+            return getCustomSpreadsheetResultOpenClass().createBean(this);
         } else {
-            return toMap(module);
+            return toMap();
         }
     }
 
-    private Map<String, Object> toMap(XlsModuleOpenClass module) {
+    public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
@@ -391,22 +376,16 @@ public class SpreadsheetResult implements Serializable {
             String[][] TableDetails = isTableStructureDetailsPresented ? new String[rowNames.length][columnNames.length]
                                                                        : null;
             if (customSpreadsheetResultOpenClass != null) {
-                CustomSpreadsheetResultOpenClass csrt;
-                if (module != null) {
-                    csrt = (CustomSpreadsheetResultOpenClass) module
-                        .findType(customSpreadsheetResultOpenClass.getName());
-                } else {
-                    csrt = customSpreadsheetResultOpenClass;
-                }
-                Map<String, String> xmlNamesMap = csrt.getXmlNamesMap();
-                for (Map.Entry<String, List<IOpenField>> e : csrt.getBeanFieldsMap().entrySet()) {
+                Map<String, String> xmlNamesMap = customSpreadsheetResultOpenClass.getXmlNamesMap();
+                for (Map.Entry<String, List<IOpenField>> e : customSpreadsheetResultOpenClass.getBeanFieldsMap()
+                    .entrySet()) {
                     List<IOpenField> openFields = e.getValue();
                     for (IOpenField openField : openFields) {
                         Point p = fieldsCoordinates.get(openField.getName());
                         if (p != null && columnNamesForResultModel[p.getColumn()] != null && rowNamesForResultModel[p
                             .getRow()] != null) {
                             values.put(xmlNamesMap.get(e.getKey()),
-                                convertSpreadsheetResult(module, getValue(p.getRow(), p.getColumn())));
+                                convertSpreadsheetResult(getValue(p.getRow(), p.getColumn()), true));
                             if (isTableStructureDetailsPresented) {
                                 TableDetails[p.getRow()][p.getColumn()] = xmlNamesMap.get(e.getKey());
                             }
@@ -433,7 +412,7 @@ public class SpreadsheetResult implements Serializable {
                                 fNewName = fName + k;
                                 k++;
                             }
-                            values.put(fNewName, convertSpreadsheetResult(module, getValue(i, j)));
+                            values.put(fNewName, convertSpreadsheetResult(getValue(i, j), true));
                             if (isTableStructureDetailsPresented) {
                                 TableDetails[i][j] = fNewName;
                             }
@@ -453,24 +432,30 @@ public class SpreadsheetResult implements Serializable {
         return values;
     }
 
-    private static Object convertSpreadsheetResult(XlsModuleOpenClass module, Object v) {
+    private static Object convertSpreadsheetResult(Object v, boolean toMap) {
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
             if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
-                return convertSpreadsheetResult(module,
-                    v,
-                    module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                return convertSpreadsheetResult(v,
+                    spreadsheetResult.getCustomSpreadsheetResultOpenClass()
+                        .getModule()
+                        .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                         .toCustomSpreadsheetResultOpenClass()
-                        .getBeanClass());
+                        .getBeanClass(),
+                    toMap);
             } else {
-                return convertSpreadsheetResult(module, v, null);
+                return convertSpreadsheetResult(v, null, toMap);
             }
         }
-        return convertSpreadsheetResult(module, v, null);
+        return convertSpreadsheetResult(v, null, toMap);
+    }
+
+    public static Object convertSpreadsheetResult(Object v, Class<?> toType) {
+        return convertSpreadsheetResult(v, toType, false);
     }
 
     @SuppressWarnings("unchecked")
-    public static Object convertSpreadsheetResult(XlsModuleOpenClass module, Object v, Class<?> toType) {
+    private static Object convertSpreadsheetResult(Object v, Class<?> toType, boolean spreadsheetResultsToMap) {
         if (v == null) {
             return null;
         }
@@ -483,7 +468,7 @@ public class SpreadsheetResult implements Serializable {
                 return v;
             }
             for (Object o : collection) {
-                newCollection.add(convertSpreadsheetResult(module, o));
+                newCollection.add(convertSpreadsheetResult(o, spreadsheetResultsToMap));
             }
             return newCollection;
         }
@@ -496,8 +481,8 @@ public class SpreadsheetResult implements Serializable {
                 return v;
             }
             for (Entry<Object, Object> e : map.entrySet()) {
-                newMap.put(convertSpreadsheetResult(module, e.getKey()),
-                    convertSpreadsheetResult(module, e.getValue()));
+                newMap.put(convertSpreadsheetResult(e.getKey(), spreadsheetResultsToMap),
+                    convertSpreadsheetResult(e.getValue(), spreadsheetResultsToMap));
             }
             return newMap;
         }
@@ -515,13 +500,13 @@ public class SpreadsheetResult implements Serializable {
                     try {
                         Array.set(tmpArray,
                             i,
-                            convertSpreadsheetResult(module,
-                                Array.get(v, i),
-                                toType != null && toType.isArray() ? toType.getComponentType() : null));
+                            convertSpreadsheetResult(Array.get(v, i),
+                                toType != null && toType.isArray() ? toType.getComponentType() : null,
+                                spreadsheetResultsToMap));
                     } catch (Exception e) {
-                        convertSpreadsheetResult(module,
-                            Array.get(v, i),
-                            toType != null && toType.isArray() ? toType.getComponentType() : null);
+                        convertSpreadsheetResult(Array.get(v, i),
+                            toType != null && toType.isArray() ? toType.getComponentType() : null,
+                            spreadsheetResultsToMap);
                     }
                 }
                 if (toType != null && toType.isArray() && Object.class != toType.getComponentType()) {
@@ -553,7 +538,9 @@ public class SpreadsheetResult implements Serializable {
                 Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
                 Object newArray = Array.newInstance(componentType, len);
                 for (int i = 0; i < len; i++) {
-                    Array.set(newArray, i, convertSpreadsheetResult(module, Array.get(v, i), componentType));
+                    Array.set(newArray,
+                        i,
+                        convertSpreadsheetResult(Array.get(v, i), componentType, spreadsheetResultsToMap));
                 }
                 return newArray;
             } else {
@@ -562,18 +549,22 @@ public class SpreadsheetResult implements Serializable {
         }
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
-            if (Map.class == toType) {
-                return spreadsheetResult.toMap(module);
+            if (Map.class == toType || spreadsheetResultsToMap) {
+                return spreadsheetResult.toMap();
             } else if (toType == null && spreadsheetResult
-                .getCustomSpreadsheetResultOpenClass() == null || toType != null && toType == module
+                .getCustomSpreadsheetResultOpenClass() == null || toType != null && toType == spreadsheetResult
+                    .getCustomSpreadsheetResultOpenClass()
+                    .getModule()
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
                     .getBeanClass()) {
-                return module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                return spreadsheetResult.getCustomSpreadsheetResultOpenClass()
+                    .getModule()
+                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
                     .createBean(spreadsheetResult);
             } else {
-                return spreadsheetResult.toPlain(module);
+                return spreadsheetResult.toPlain();
             }
         }
         return v;

@@ -1,6 +1,5 @@
 package org.openl.rules.calc.result;
 
-import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultCalculator;
@@ -26,11 +25,6 @@ public class SpreadsheetResultBuilder implements IResultBuilder {
             spreadsheet.getFieldsCoordinates());
 
         spreadsheetResult.setTableStructureDetails(spreadsheet.isTableStructureDetails());
-
-        if (spreadsheet.isCustomSpreadsheet()) {
-            spreadsheetResult
-                .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) spreadsheet.getType());
-        }
 
         TableSyntaxNode tsn = spreadsheet.getSyntaxNode();
         if (tsn != null) {

@@ -4,17 +4,6 @@ Content-Type: application/json
 {
     "components": {
         "schemas": {
-            "AnySpreadsheetResult": {
-                "properties": {
-                    "someStep": {
-                        "$ref": "#/components/schemas/AnySpreadsheetResult"
-                    },
-                    "someStep3": {
-                        "$ref": "#/components/schemas/MyDatatype"
-                    }
-                },
-                "type": "object"
-            },
             "DefaultRulesRuntimeContext": {
                 "properties": {
                     "caProvince": {
@@ -386,7 +375,7 @@ Content-Type: application/json
             "MainSpr": {
                 "properties": {
                     "someStep": {
-                        "$ref": "#/components/schemas/AnySpreadsheetResult"
+                        "$ref": "#/components/schemas/MySpr"
                     },
                     "someStep3": {
                         "$ref": "#/components/schemas/MyDatatype"
@@ -410,6 +399,18 @@ Content-Type: application/json
                 "properties": {
                     "strField": {
                         "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "MySpr": {
+                "properties": {
+                    "Step1": {
+                        "format": "int32",
+                        "type": "integer"
+                    },
+                    "Step2": {
+                        "$ref": "#/components/schemas/MyDatatype"
                     }
                 },
                 "type": "object"

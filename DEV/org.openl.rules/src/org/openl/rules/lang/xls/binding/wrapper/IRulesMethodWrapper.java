@@ -27,4 +27,5 @@ public interface IRulesMethodWrapper extends IOpenMethodWrapper {
 
     IOpenMethod getTopOpenClassMethod(IOpenClass openClass);
 
+    IOpenClass getType();
 }
