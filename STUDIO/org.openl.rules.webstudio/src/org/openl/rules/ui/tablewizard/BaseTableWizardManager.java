@@ -1,6 +1,5 @@
 package org.openl.rules.ui.tablewizard;
 
-import org.apache.commons.lang.StringUtils;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.ui.BaseWizard;
@@ -9,6 +8,7 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringUtils;
 
 public abstract class BaseTableWizardManager {
     private String tableUri;
