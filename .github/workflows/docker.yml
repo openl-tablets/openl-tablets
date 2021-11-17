@@ -49,16 +49,16 @@ jobs:
         echo $latest
         echo $latestMajor
         tags_11="-t openltablets/\$appName:$version"
-        tags_8="-t openltablets/\$appName:$version-jre8"
+        tags_17="-t openltablets/\$appName:$version-jre17"
         if [ "$latestMajor" = "$version" ]; then
           tags_11+=" -t openltablets/\$appName:$major.x"
-          tags_8+=" -t openltablets/\$appName:$major.x-jre8"
+          tags_17+=" -t openltablets/\$appName:$major.x-jre17"
         fi
         if [ "$latest" = "$version" ]; then
           tags_11+=" -t openltablets/\$appName:latest"
         fi
         echo "tags_11=$tags_11" >> $GITHUB_ENV
-        echo "tags_8=$tags_8" >> $GITHUB_ENV
+        echo "tags_17=$tags_17" >> $GITHUB_ENV
         echo "version=$version" >> $GITHUB_ENV
 
     - name: Download WebStudio
@@ -122,27 +122,11 @@ jobs:
         eval docker build $tags_11
         -f ./Dockerfiles/Demo .
 
-    - name: Rule Services (All) JDK 8
-      run: >
-        docker build -t openltablets/ws:$version-jre8-all
-        --build-arg APP=webservice-all
-        --build-arg JDK=$JAVA8
-        -f ./Dockerfiles/WebApp .
-
     - name: Rule Services (All) JDK 11
       run: >
         docker build -t openltablets/ws:$version-all
         --build-arg APP=webservice-all
         --build-arg JDK=$JAVA11
-        -f ./Dockerfiles/WebApp .
-
-    - name: Rule Services JDK 8
-      env:
-        appName : ws
-      run: >
-        eval docker build $tags_8
-        --build-arg APP=webservice
-        --build-arg JDK=$JAVA8
         -f ./Dockerfiles/WebApp .
 
     - name: Rule Services JDK 11
@@ -152,15 +136,6 @@ jobs:
         eval docker build $tags_11
         --build-arg APP=webservice
         --build-arg JDK=$JAVA11
-        -f ./Dockerfiles/WebApp .
-
-    - name: WebStudio JDK 8
-      env:
-        appName : webstudio
-      run: >
-        eval docker build $tags_8
-        --build-arg APP=webstudio
-        --build-arg JDK=$JAVA8
         -f ./Dockerfiles/WebApp .
 
     - name: WebStudio JDK 11
