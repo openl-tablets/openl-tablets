@@ -58,7 +58,7 @@ public class HttpDataTest {
             HttpData.readFile("/wrong-header.resp");
             fail("Non reachable");
         } catch (IOException er) {
-            assertEquals("Unexpected end of the stream.", er.getMessage());
+            assertEquals("Unexpected end of the stream. Expected CRLF in the end of the line.", er.getMessage());
         }
     }
 

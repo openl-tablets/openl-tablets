@@ -384,7 +384,7 @@ class HttpData {
             }
         }
         if (!eol) {
-            throw new IOException("Unexpected end of the stream.");
+            throw new IOException("Unexpected end of the stream. Expected CRLF in the end of the line.");
         }
         return line.toString();
     }
