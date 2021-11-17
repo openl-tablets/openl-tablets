@@ -21,12 +21,19 @@
             <artifactId>org.openl.security</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security.extensions</groupId>
-            <artifactId>spring-security-saml2-core</artifactId>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-saml2-service-provider</artifactId>
+        </dependency>
+        <!--Is no longer part of the saml spring library, it is necessary for the correct SAML work-->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opensaml</groupId>
-            <artifactId>xmltooling</artifactId>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

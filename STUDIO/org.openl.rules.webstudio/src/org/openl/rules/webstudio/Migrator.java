@@ -79,6 +79,18 @@ public class Migrator {
                     props.put(propertyName, newDefaultCommentTemplate);
                 }
             });
+        //removing unnecessary SAML properties
+        props.put("security.saml.authentication-contexts", null);
+        props.put("security.saml.local-logout", null);
+        props.put("security.saml.is-app-after-balancer", null);
+        props.put("security.saml.scheme", null);
+        props.put("security.saml.server-name", null);
+        props.put("security.saml.server-port", null);
+        props.put("security.saml.include-server-port-in-request-url", null);
+        props.put("security.saml.context-path", null);
+        props.put("security.saml.max-authentication-age", null);
+        props.put("security.saml.metadata-trust-check", null);
+        props.put("security.saml.request-timeout", null);
     }
 
     // 5.24

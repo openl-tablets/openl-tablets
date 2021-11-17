@@ -6,10 +6,13 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCT
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.security.KeyPair;
+import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -246,7 +249,6 @@ public class InstallWizard implements Serializable {
         samlSettings = new SAMLSettings(propertyResolver.getProperty("security.saml.app-url"),
             propertyResolver.getProperty("security.saml.entity-id"),
             propertyResolver.getProperty("security.saml.saml-server-metadata-url"),
-            propertyResolver.getRequiredProperty("security.saml.request-timeout", Integer.class),
             propertyResolver.getProperty("security.saml.keystore-file-path"),
             propertyResolver.getProperty("security.saml.keystore-password"),
             propertyResolver.getProperty("security.saml.keystore-sp-alias"),
@@ -257,16 +259,6 @@ public class InstallWizard implements Serializable {
             propertyResolver.getProperty("security.saml.attribute.display-name"),
             propertyResolver.getProperty("security.saml.attribute.email"),
             propertyResolver.getProperty("security.saml.attribute.groups"),
-            propertyResolver.getProperty("security.saml.authentication-contexts"),
-            propertyResolver.getRequiredProperty("security.saml.local-logout", Boolean.class),
-            propertyResolver.getProperty("security.saml.scheme"),
-            propertyResolver.getProperty("security.saml.server-name"),
-            propertyResolver.getRequiredProperty("security.saml.server-port", Integer.class),
-            propertyResolver.getRequiredProperty("security.saml.include-server-port-in-request-url", Boolean.class),
-            propertyResolver.getProperty("security.saml.context-path"),
-            propertyResolver.getRequiredProperty("security.saml.max-authentication-age", Integer.class),
-            propertyResolver.getRequiredProperty("security.saml.metadata-trust-check", Boolean.class),
-            propertyResolver.getRequiredProperty("security.saml.is-app-after-balancer", Boolean.class),
             propertyResolver.getProperty("security.saml.server-certificate"));
     }
 
@@ -296,7 +288,6 @@ public class InstallWizard implements Serializable {
                     }
                     properties.setProperty("security.saml.saml-server-metadata-url",
                         samlSettings.getSamlServerMetadataUrl());
-                    properties.setProperty("security.saml.request-timeout", samlSettings.getRequestTimeout());
                     properties.setProperty("security.saml.keystore-file-path", samlSettings.getKeystoreFilePath());
                     properties.setProperty("security.saml.keystore-password", samlSettings.getKeystorePassword());
                     properties.setProperty("security.saml.keystore-sp-alias", samlSettings.getKeystoreSpAlias());
@@ -307,21 +298,25 @@ public class InstallWizard implements Serializable {
                     properties.setProperty("security.saml.attribute.display-name", samlSettings.getDisplayNameAttribute());
                     properties.setProperty("security.saml.attribute.email", samlSettings.getEmailAttribute());
                     properties.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());
-                    properties.setProperty("security.saml.authentication-contexts",
-                        samlSettings.getAuthenticationContexts());
-                    properties.setProperty("security.saml.local-logout", samlSettings.isLocalLogout());
-
-                    properties.setProperty("security.saml.scheme", samlSettings.getSamlScheme());
-                    properties.setProperty("security.saml.server-name", samlSettings.getSamlServerName());
-                    properties.setProperty("security.saml.server-port", samlSettings.getServerPort());
-                    properties.setProperty("security.saml.include-server-port-in-request-url",
-                        samlSettings.isIncludeServerPortInRequestUrl());
-                    properties.setProperty("security.saml.context-path", samlSettings.getContextPath());
-                    properties.setProperty("security.saml.max-authentication-age",
-                        samlSettings.getMaxAuthenticationAge());
-                    properties.setProperty("security.saml.metadata-trust-check", samlSettings.isMetadataTrustCheck());
-                    properties.setProperty("security.saml.is-app-after-balancer", samlSettings.isAppAfterBalancer());
                     properties.setProperty("security.saml.server-certificate", samlSettings.getServerCertificate());
+
+                    String rsaKey = propertyResolver.getProperty("security.saml.local_key");
+                    String cert = propertyResolver.getProperty("security.saml.local-certificate");
+
+                    //Generating default keys and certificate.
+                    if (rsaKey == null || cert == null) {
+                        try {
+                            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+                            KeyPair keyPair = KeyPairCertUtils.createKeyPair("RSA", 4096);
+                            X509Certificate certificate = KeyPairCertUtils.generate(keyPair, "SHA256withRSA", "webstudio", 3650);
+                            String privateKeyBase64 = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
+                            String certBase64 = Base64.getEncoder().encodeToString(certificate.getEncoded());
+                            properties.setProperty("security.saml.local-certificate", certBase64);
+                            properties.setProperty("security.saml.local_key", privateKeyBase64);
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        }
+                    }
                 }
             }
 
@@ -490,22 +485,9 @@ public class InstallWizard implements Serializable {
         String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlWebStudioUrl"))
             .getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getSubmittedValue();
-        String requestTimeout = (String) ((UIInput) viewRoot.findComponent("step3Form:samlRequestTimeout"))
-            .getSubmittedValue();
-        String maxAuthenticationAge = (String) ((UIInput) viewRoot.findComponent("step3Form:samlMaxAuthenticationAge"))
-            .getSubmittedValue();
         String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:samlGroupsAttribute"))
             .getSubmittedValue();
         String publicServerCert = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerCertificate"))
-            .getSubmittedValue();
-        boolean isAppAfterBalancer = (boolean) ((UIInput) viewRoot.findComponent("step3Form:samlIsAppAfterBalancer"))
-            .getSubmittedValue();
-        String samlScheme = (String) ((UIInput) viewRoot.findComponent("step3Form:samlScheme")).getSubmittedValue();
-        String samlServerName = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerName"))
-            .getSubmittedValue();
-        String samlServerPort = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerPort"))
-            .getSubmittedValue();
-        String samlContextPath = (String) ((UIInput) viewRoot.findComponent("step3Form:samlContextPath"))
             .getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
@@ -514,14 +496,6 @@ public class InstallWizard implements Serializable {
 
         if (StringUtils.isBlank(serverUrl)) {
             throw new ValidatorException(createErrorMessage("SAML server metadata URL cannot be blank."));
-        }
-
-        if (StringUtils.isBlank(requestTimeout)) {
-            throw new ValidatorException(createErrorMessage("Request timeout cannot be blank."));
-        }
-
-        if (StringUtils.isBlank(maxAuthenticationAge)) {
-            throw new ValidatorException(createErrorMessage("SAML max authentication age cannot be blank."));
         }
 
         if (StringUtils.isBlank(publicServerCert)) {
@@ -540,22 +514,6 @@ public class InstallWizard implements Serializable {
                 "Attribute for Groups cannot be blank or Internal User Management must be selected."));
         }
 
-        if (isAppAfterBalancer) {
-            if (StringUtils.isBlank(samlScheme)) {
-                throw new ValidatorException(createErrorMessage("SAML scheme cannot be blank."));
-            }
-            if (StringUtils.isBlank(samlServerName)) {
-                throw new ValidatorException(createErrorMessage("SAML server name cannot be blank."));
-            }
-
-            if (StringUtils.isBlank(samlServerPort)) {
-                throw new ValidatorException(createErrorMessage("SAML server port cannot be blank."));
-            }
-
-            if (StringUtils.isBlank(samlContextPath)) {
-                throw new ValidatorException(createErrorMessage("SAML context path cannot be blank."));
-            }
-        }
     }
 
     public void externalAdminsValidator(FacesContext context, UIComponent toValidate, Object value) {

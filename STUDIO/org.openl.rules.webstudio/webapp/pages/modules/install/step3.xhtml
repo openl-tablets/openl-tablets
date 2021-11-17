@@ -288,22 +288,6 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><label>Metadata trust check:</label></td>
-                                    <td>
-                                        <h:selectBooleanCheckbox id="samlMetadataTrustCheck"
-                                                                 value="#{installWizard.samlSettings.metadataTrustCheck}"
-                                                                 size="40"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label class="required">Max authentication age in seconds:</label></td>
-                                    <td>
-                                        <h:inputText id="samlMaxAuthenticationAge"
-                                                     value="#{installWizard.samlSettings.maxAuthenticationAge}"
-                                                     size="40"/>
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td><label class="required">SAML server metadata URL:</label></td>
                                     <td>
                                         <h:inputText id="samlServerUrl"
@@ -312,34 +296,11 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><label class="required">Request timeout:</label></td>
-                                    <td>
-                                        <h:inputText id="samlRequestTimeout"
-                                                     value="#{installWizard.samlSettings.requestTimeout}" size="40"/>
-                                    </td>
-                                </tr>
-                                <tr>
                                     <td><label
                                             class="required">SAML remote server X509 certificate (PEM base64 encoded format, begin/end tags are NOT needed):</label>
                                     </td>
                                     <td><h:inputTextarea style="width:225px; height: 200px;" id="samlServerCertificate"
                                                          value="#{installWizard.samlSettings.serverCertificate}"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label>Authentication Contexts:</label></td>
-                                    <td>
-                                        <h:inputText id="samlAuthenticationContexts"
-                                                     value="#{installWizard.samlSettings.authenticationContexts}"
-                                                     size="40"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label>Local logout:</label></td>
-                                    <td>
-                                        <h:selectBooleanCheckbox id="samlLocalLogout"
-                                                                 value="#{installWizard.samlSettings.localLogout}"
-                                                                 size="40"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -386,61 +347,6 @@
                                     <td>
                                         <h:inputText id="samlGroupsAttribute"
                                                      value="#{installWizard.samlSettings.groupsAttribute}" size="40"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <label>Is load-balancer or reverse-proxy in front of the local application:</label>
-                                    </td>
-                                    <td>
-                                        <h:selectBooleanCheckbox id="samlIsAppAfterBalancer"
-                                                                 value="#{installWizard.samlSettings.appAfterBalancer}"
-                                                                 size="40">
-                                        </h:selectBooleanCheckbox>
-                                    </td>
-                                </tr>
-                                <tr class="samlSchemeTd">
-                                    <td><label class="required">Scheme of load balancer server(http or https):</label>
-                                    </td>
-                                    <td>
-                                        <h:inputText id="samlScheme"
-                                                     value="#{installWizard.samlSettings.samlScheme}" size="40"/>
-                                    </td>
-                                </tr>
-                                <tr class="samlServerNameTd">
-                                    <td><label
-                                            class="required">Server name of load balancer server(e.g. app.abcd.com):</label>
-                                    </td>
-                                    <td>
-                                        <h:inputText id="samlServerName"
-                                                     value="#{installWizard.samlSettings.samlServerName}"
-                                                     size="40"/>
-                                    </td>
-                                </tr>
-                                <tr class="samlServerPortTd">
-                                    <td><label class="required">Port of the load balancer server(e.g. 443):</label></td>
-                                    <td>
-                                        <h:inputText id="samlServerPort"
-                                                     value="#{installWizard.samlSettings.serverPort}" size="40"/>
-                                    </td>
-                                </tr>
-                                <tr class="samlMetadataIncludeServerPortInRequestUrlTd">
-                                    <td>
-                                        <label>When true serverPort will be used in construction of LB requestURL:</label>
-                                    </td>
-                                    <td>
-                                        <h:selectBooleanCheckbox id="samlMetadataIncludeServerPortInRequestUrl"
-                                                                 value="#{installWizard.samlSettings.includeServerPortInRequestUrl}"
-                                                                 size="40"/>
-                                    </td>
-                                </tr>
-                                <tr class="samlContextPathTd">
-                                    <td>
-                                        <label class="required">Context path of the Load Balancer(must be starting with slash, e.g. /):</label>
-                                    </td>
-                                    <td>
-                                        <h:inputText id="samlContextPath"
-                                                     value="#{installWizard.samlSettings.contextPath}" size="40"/>
                                     </td>
                                 </tr>
                             </table>
@@ -586,30 +492,6 @@
                     $j("#step3Form\\:adConnectionCheck").prop('disabled', isBlank);
                 };
 
-                var showSamlAppAfterBalancer = function () {
-                    let $ = jQuery;
-                    let isAfterBalancer = $("#step3Form\\:samlIsAppAfterBalancer").is(":checked");
-                    let samlScheme = $(".samlSchemeTd");
-                    let samlServerName = $(".samlServerNameTd");
-                    let samlServerPort = $(".samlServerPortTd");
-                    let samlMetadataIncludePort = $(".samlMetadataIncludeServerPortInRequestUrlTd");
-                    let samlContextPath = $(".samlContextPathTd");
-                    if (isAfterBalancer) {
-                        samlScheme.show();
-                        samlServerName.show();
-                        samlServerPort.show();
-                        samlMetadataIncludePort.show();
-                        samlContextPath.show();
-                    } else {
-                        samlScheme.hide();
-                        samlServerName.hide();
-                        samlServerPort.hide();
-                        samlMetadataIncludePort.hide();
-                        samlContextPath.hide();
-                    }
-                };
-
-
                 toggleVisibleBlocks();
                 updateCheckConnectionButton();
 
@@ -622,11 +504,6 @@
                 });
                 $j("#step3Form\\:adPassword").on("change keyup cut paste", function () {
                     updateCheckConnectionButton();
-                });
-
-                showSamlAppAfterBalancer();
-                $j("#step3Form\\:samlIsAppAfterBalancer").on("change", function () {
-                    showSamlAppAfterBalancer();
                 });
 
                 //remove all whitespaces and new lines from input

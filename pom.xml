@@ -843,11 +843,6 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-web</artifactId>
-                <version>${org.springsecurity.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-ldap</artifactId>
                 <version>${org.springsecurity.version}</version>
             </dependency>
@@ -856,45 +851,10 @@
                 <artifactId>spring-security-cas</artifactId>
                 <version>${org.springsecurity.version}</version>
             </dependency>
-            <!-- There is a workaround for issue with spring saml
-                https://github.com/spring-projects/spring-security-saml/issues/144
-                updating the xml-tooling library gives an opportunity to use the higher version
-                of bouncy-castle
-
-                Why it is still old version, but not 1.0.10.RELEASE :
-                https://github.com/spring-projects/spring-security-saml/issues/237
-                https://github.com/spring-projects/spring-security-saml/pull/454
-             -->
             <dependency>
-                <groupId>org.springframework.security.extensions</groupId>
-                <artifactId>spring-security-saml2-core</artifactId>
-                <version>1.0.3.RELEASE</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.opensaml</groupId>
-                        <artifactId>xmltooling</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xml-apis</groupId>
-                        <artifactId>xml-apis</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xalan</groupId>
-                        <artifactId>xalan</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xalan</groupId>
-                        <artifactId>serializer</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-saml2-service-provider</artifactId>
+                <version>${org.springsecurity.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
@@ -1916,6 +1876,16 @@
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy</artifactId>
                 <version>${groovy.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>30.1.1-jre</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${org.springsecurity.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
