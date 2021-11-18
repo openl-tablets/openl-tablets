@@ -10,7 +10,7 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.binding.RulesModuleBindingContextHelper;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
-import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
@@ -46,9 +46,8 @@ public class DecisionTableBoundNode extends AMethodBasedNode {
             type = type.getComponentClass();
             dim++;
         }
-        boolean isTypeCustomSpreadsheetResult = SpreadsheetResult.class == type
-            .getInstanceClass() && !(type instanceof CustomSpreadsheetResultOpenClass) && OpenLSystemProperties
-                .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams());
+        boolean isTypeCustomSpreadsheetResult = type instanceof SpreadsheetResultOpenClass && OpenLSystemProperties
+            .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams());
         DecisionTable decisionTable = new DecisionTable(getHeader(), this, isTypeCustomSpreadsheetResult);
         if (decisionTable.isTypeCustomSpreadsheetResult()) {
             decisionTable.setDim(dim);

@@ -39,10 +39,6 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
         this.module = Objects.requireNonNull(module, "module cannot be null");
     }
 
-    public XlsModuleOpenClass getModule() {
-        return module;
-    }
-
     @Override
     public IOpenField getField(String fieldName, boolean strictMatch) {
         IOpenField openField = null;
@@ -161,6 +157,10 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             }
         }
         return this.customSpreadsheetResultOpenClass;
+    }
+
+    public XlsModuleOpenClass getModule() {
+        return module;
     }
 
     @Override

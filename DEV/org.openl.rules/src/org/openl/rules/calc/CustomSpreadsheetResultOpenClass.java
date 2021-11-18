@@ -322,6 +322,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             throw new IllegalStateException(
                 "Java bean class for custom spreadsheet result is loaded to classloader. " + "Custom spreadsheet result cannot be extended.");
         }
+        if (openClass instanceof SpreadsheetResultOpenClass) {
+            this.updateWithType(((SpreadsheetResultOpenClass) openClass).toCustomSpreadsheetResultOpenClass());
+            return;
+        }
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
         if (customSpreadsheetResultOpenClass.getModule() != getModule()) {
             customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass.convertToModuleType(getModule(), false);

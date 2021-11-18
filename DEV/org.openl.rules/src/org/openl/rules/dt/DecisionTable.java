@@ -11,6 +11,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
+import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.dt.algorithm.DecisionTableAlgorithmBuilder;
 import org.openl.rules.dt.algorithm.IAlgorithmBuilder;
@@ -66,6 +67,7 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     private int dim = 0;
 
     private boolean typeCustomSpreadsheetResult;
+    private boolean typeAnySpreadsheetResult;
 
     public DecisionTable() {
         super(null, null);
@@ -79,6 +81,18 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
 
     public boolean isTypeCustomSpreadsheetResult() {
         return typeCustomSpreadsheetResult;
+    }
+
+    public void setTypeCustomSpreadsheetResult(boolean typeCustomSpreadsheetResult) {
+        this.typeCustomSpreadsheetResult = typeCustomSpreadsheetResult;
+    }
+
+    public boolean isTypeAnySpreadsheetResult() {
+        return typeAnySpreadsheetResult;
+    }
+
+    public void setTypeAnySpreadsheetResult(boolean typeAnySpreadsheetResult) {
+        this.typeAnySpreadsheetResult = typeAnySpreadsheetResult;
     }
 
     public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
@@ -100,6 +114,11 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
                 return customSpreadsheetResultType.getArrayType(dim);
             }
             return customSpreadsheetResultType;
+        } else if (isTypeAnySpreadsheetResult()) {
+            if (dim > 0) {
+                return AnySpreadsheetResultOpenClass.INSTANCE.getArrayType(dim);
+            }
+            return AnySpreadsheetResultOpenClass.INSTANCE;
         } else {
             return super.getType();
         }

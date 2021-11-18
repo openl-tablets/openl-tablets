@@ -17,8 +17,10 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContextHelper;
+import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IDecisionTableConstants;
@@ -336,6 +338,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             if (paramType.getInstanceClass() == SpreadsheetResult.class && OpenLSystemProperties
                 .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
                 Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = new HashSet<>();
+                boolean anySpreadsheetResult = false;
                 for (int j = 0; j < storage[i].size(); j++) {
                     if (storage[i].getValue(j) instanceof CompositeMethod) {
                         CompositeMethod compositeMethod = (CompositeMethod) storage[i].getValue(j);
@@ -345,12 +348,26 @@ public abstract class FunctionalRow implements IDecisionRow {
                             methodBodyType = methodBodyType.getComponentClass();
                             methodTypeDim++;
                         }
-                        if (paramDim == methodTypeDim && methodBodyType instanceof CustomSpreadsheetResultOpenClass) {
-                            customSpreadsheetResultOpenClasses.add((CustomSpreadsheetResultOpenClass) methodBodyType);
+                        if (paramDim == methodTypeDim) {
+                            if (methodBodyType instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) methodBodyType)
+                                .getModule() != null) {
+                                customSpreadsheetResultOpenClasses.add(
+                                    ((SpreadsheetResultOpenClass) methodBodyType).toCustomSpreadsheetResultOpenClass());
+                            } else if (methodBodyType instanceof CustomSpreadsheetResultOpenClass) {
+                                customSpreadsheetResultOpenClasses
+                                    .add((CustomSpreadsheetResultOpenClass) methodBodyType);
+                            } else if (methodBodyType instanceof AnySpreadsheetResultOpenClass || methodBodyType instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) methodBodyType)
+                                .getModule() == null) {
+                                anySpreadsheetResult = true;
+                                break;
+                            }
                         }
                     }
                 }
-                if (!customSpreadsheetResultOpenClasses.isEmpty()) {
+                IOpenClass newType = null;
+                if (anySpreadsheetResult) {
+                    newType = AnySpreadsheetResultOpenClass.INSTANCE;
+                } else if (!customSpreadsheetResultOpenClasses.isEmpty()) {
                     CustomSpreadsheetResultOpenClass columnCustomSpreadsheetResultOpenClass;
                     if (customSpreadsheetResultOpenClasses.size() == 1) {
                         columnCustomSpreadsheetResultOpenClass = customSpreadsheetResultOpenClasses.iterator().next();
@@ -359,9 +376,10 @@ public abstract class FunctionalRow implements IDecisionRow {
                             .buildOrGetCombinedSpreadsheetResult(
                                 customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
                     }
-                    params[i] = new ParameterDeclaration(columnCustomSpreadsheetResultOpenClass,
-                        params[i].getName(),
-                        params[i].getModule());
+                    newType = columnCustomSpreadsheetResultOpenClass;
+                }
+                if (newType != null) {
+                    params[i] = new ParameterDeclaration(newType, params[i].getName(), params[i].getModule());
                 }
             }
         }

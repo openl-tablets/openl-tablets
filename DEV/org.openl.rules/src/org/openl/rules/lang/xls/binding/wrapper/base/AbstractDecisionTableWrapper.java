@@ -271,6 +271,21 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
     }
 
     @Override
+    public void setTypeCustomSpreadsheetResult(boolean typeCustomSpreadsheetResult) {
+        delegate.setTypeCustomSpreadsheetResult(typeCustomSpreadsheetResult);
+    }
+
+    @Override
+    public boolean isTypeAnySpreadsheetResult() {
+        return delegate.isTypeAnySpreadsheetResult();
+    }
+
+    @Override
+    public void setTypeAnySpreadsheetResult(boolean typeAnySpreadsheetResult) {
+        delegate.setTypeAnySpreadsheetResult(typeAnySpreadsheetResult);
+    }
+
+    @Override
     public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
         return delegate.getCustomSpreadsheetResultType();
     }
