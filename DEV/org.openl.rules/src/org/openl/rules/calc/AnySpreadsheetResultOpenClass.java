@@ -6,8 +6,21 @@ import org.openl.vm.IRuntimeEnv;
 
 public class AnySpreadsheetResultOpenClass extends JavaOpenClass {
 
+    public static final AnySpreadsheetResultOpenClass INSTANCE = new AnySpreadsheetResultOpenClass(null);
+
+    // Do not remove parameter
     public AnySpreadsheetResultOpenClass(Class<?> type) {
         super(SpreadsheetResult.class);
+    }
+
+    @Override
+    public String getName() {
+        return AnySpreadsheetResult.class.getName();
+    }
+
+    @Override
+    public String getPackageName() {
+        return AnySpreadsheetResult.class.getPackage().getName();
     }
 
     @Override
