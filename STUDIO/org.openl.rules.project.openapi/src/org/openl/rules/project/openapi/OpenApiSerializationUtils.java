@@ -14,6 +14,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.parser.ObjectMapperFactory;
 
+/**
+ * Serializes {@link OpenAPI} model into YAML or JSON formats using pretty-print configuration
+ *
+ * @author Vladyslav Pikus
+ */
 public final class OpenApiSerializationUtils {
 
     private static final ObjectMapper JSON_MAPPER;
@@ -30,6 +35,13 @@ public final class OpenApiSerializationUtils {
     private OpenApiSerializationUtils() {
     }
 
+    /**
+     * Serializes {@link OpenAPI} model into pretty-printed JSON format
+     *
+     * @param api target {@link OpenAPI} model
+     * @return serialized JSON as string
+     * @throws JsonProcessingException in case of serialization errors
+     */
     public static String toJson(OpenAPI api) throws JsonProcessingException {
         if (api == null) {
             return null;
@@ -50,6 +62,13 @@ public final class OpenApiSerializationUtils {
         return JSON_MAPPER.writer(prettyPrinter).writeValueAsString(api).replace(": { }", ": {}");
     }
 
+    /**
+     * Serializes {@link OpenAPI} model into pretty-printed YAML format
+     *
+     * @param api target {@link OpenAPI} model
+     * @return serialized JSON as string
+     * @throws JsonProcessingException in case of serialization errors
+     */
     public static String toYaml(OpenAPI api) throws JsonProcessingException {
         return api != null ? YAML_MAPPER.writeValueAsString(api) : null;
     }

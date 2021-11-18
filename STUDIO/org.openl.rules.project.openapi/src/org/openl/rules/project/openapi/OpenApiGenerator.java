@@ -40,6 +40,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.OpenAPI;
 
+/**
+ * This class generates {@link OpenAPI} model from given OpenL Project.
+ *
+ * @author Vladyslav Pikus
+ */
 public class OpenApiGenerator {
 
     private static final Logger LOG = LoggerFactory.getLogger(OpenApiGenerator.class);
@@ -72,6 +77,12 @@ public class OpenApiGenerator {
         this.provideVariations = provideVariations;
     }
 
+    /**
+     * Invokes compilation and generates new instance of {@link OpenAPI} model for given OpenL Project
+     *
+     * @return new instance of OpenAPI model
+     * @throws RulesInstantiationException in case of compilation errors or if project has now public rules tables
+     */
     public OpenAPI generate() throws RulesInstantiationException {
         final ClassLoader serviceClassLoader = resolveServiceClassLoader(instantiationStrategy);
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -149,7 +160,7 @@ public class OpenApiGenerator {
         return classLoader;
     }
 
-    protected Class<?> resolveInterface(
+    private Class<?> resolveInterface(
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
         final RulesDeploy rulesDeployValue = getRulesDeploy();
         final Optional<String> serviceClassName = Optional.ofNullable(rulesDeployValue)
@@ -296,16 +307,36 @@ public class OpenApiGenerator {
             this.instantiationStrategy = instantiationStrategy;
         }
 
+        /**
+         * If runtime context must be included to OpenAPI schema or not by default. Takes effect only
+         * if {@code  isProvideRuntimeContext} is not provided in rules-deploy.xml
+         *
+         * @param provideRuntimeContext include runtime context to OpenAPI or not
+         * @return current builder instance
+         */
         public Builder withDefaultProvideRuntimeContext(boolean provideRuntimeContext) {
             this.provideRuntimeContext = provideRuntimeContext;
             return this;
         }
 
+        /**
+         * If variations endpoints must be included to OpenAPI schema or not by default. Takes effect only
+         * if {@code isProvideVariations} is not provided in rules-deploy.xml
+         *
+         * @param provideVariations include variations endpoints to OpenAPI or not
+         * @return current builder instance
+         */
         public Builder withDefaultProvideVariations(boolean provideVariations) {
             this.provideVariations = provideVariations;
             return this;
         }
 
+        /**
+         * Creates new instance of {@link OpenApiGenerator}
+         * 
+         * @return new instance of {@link OpenApiGenerator}
+         * @throws RulesInstantiationException in case of compilation errors
+         */
         public OpenApiGenerator generator() throws RulesInstantiationException {
             return new OpenApiGenerator(projectDescriptor,
                 instantiationStrategy,
@@ -314,8 +345,15 @@ public class OpenApiGenerator {
         }
     }
 
+    /**
+     * Creates builder class
+     * 
+     * @param projectDescriptor project descriptor of current OpenL Project
+     * @param instantiationStrategy compilation factory of current OpenL Project
+     * @return builder instance
+     */
     public static Builder builder(ProjectDescriptor projectDescriptor,
-            RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
+            RulesInstantiationStrategy instantiationStrategy) {
         return new Builder(projectDescriptor, instantiationStrategy);
     }
 
