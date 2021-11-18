@@ -26,6 +26,7 @@
         <module>org.openl.rules.jackson</module>
         <module>org.openl.rules.variation</module>
         <module>org.openl.rules.project</module>
+        <module>org.openl.rules.project.openapi</module>
         <module>org.openl.rules.project.validation</module>
         <module>org.openl.rules.project.validation.openapi</module>
         <module>org.openl.rules.webstudio.web</module>

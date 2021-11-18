@@ -1,0 +1,57 @@
+openapi: "3.0.1"
+info:
+  title: "Book API"
+  description: "Some description"
+  contact:
+    name: "John Doe"
+    email: "jdoe@localhost"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+  version: "1.0.0"
+tags:
+- name: "book"
+  description: "Operations about book"
+- name: "foo"
+  description: "Some other tag"
+paths:
+  /books/{id}:
+    get:
+      summary: "Get a book by its id"
+      operationId: "findById"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "id of book to be searched"
+        required: true
+        schema:
+          type: "integer"
+          format: "int64"
+      responses:
+        "200":
+          description: "Found the book"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dto"
+        "400":
+          description: "Invalid id supplied"
+          content:
+            '*/*': {}
+        "404":
+          description: "Book not found"
+          content:
+            '*/*': {}
+components:
+  schemas:
+    Dto:
+      type: "object"
+      properties:
+        field1:
+          type: "string"
+        field2:
+          type: "number"
+          format: "double"
+        field3:
+          type: "string"
+          format: "date-time"
