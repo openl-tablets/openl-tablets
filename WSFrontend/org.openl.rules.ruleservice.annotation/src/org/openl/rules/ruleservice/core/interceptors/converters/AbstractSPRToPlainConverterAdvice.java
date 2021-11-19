@@ -10,9 +10,7 @@ import org.openl.rules.ruleservice.core.interceptors.IOpenMemberAware;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 
-public abstract class AbstractSPRToPlainConverterAdvice<T>
-        extends AbstractServiceMethodAfterReturningAdvice<T>
-        implements IOpenClassAware, IOpenMemberAware {
+public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServiceMethodAfterReturningAdvice<T> implements IOpenClassAware, IOpenMemberAware {
 
     private XlsModuleOpenClass module;
     private IOpenMember openMember;
@@ -49,10 +47,12 @@ public abstract class AbstractSPRToPlainConverterAdvice<T>
                         dim++;
                     }
                     if (openClass instanceof SpreadsheetResultOpenClass) {
+                        SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) openClass;
                         Class<?> t;
-                        //Check: custom spreadsheet is enabled
-                        if (module.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
-                            t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        // Check: custom spreadsheet is enabled
+                        if (spreadsheetResultOpenClass.getModule() != null) {
+                            t = spreadsheetResultOpenClass.getModule()
+                                .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                 .toCustomSpreadsheetResultOpenClass()
                                 .getBeanClass();
                         } else {

@@ -14,7 +14,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.openl.binding.impl.AllowOnlyStrictFieldMatchType;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
 import org.openl.types.IOpenField;
@@ -450,6 +449,10 @@ public class SpreadsheetResult implements Serializable {
         return convertSpreadsheetResult(v, null, toMap);
     }
 
+    public static Object convertSpreadsheetResult(Object v) {
+        return convertSpreadsheetResult(v, null, false);
+    }
+
     public static Object convertSpreadsheetResult(Object v, Class<?> toType) {
         return convertSpreadsheetResult(v, toType, false);
     }
@@ -551,13 +554,11 @@ public class SpreadsheetResult implements Serializable {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
             if (Map.class == toType || spreadsheetResultsToMap) {
                 return spreadsheetResult.toMap();
-            } else if (toType == null && spreadsheetResult
-                .getCustomSpreadsheetResultOpenClass() == null || toType != null && toType == spreadsheetResult
-                    .getCustomSpreadsheetResultOpenClass()
-                    .getModule()
-                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                    .toCustomSpreadsheetResultOpenClass()
-                    .getBeanClass()) {
+            } else if (toType == spreadsheetResult.getCustomSpreadsheetResultOpenClass()
+                .getModule()
+                .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                .toCustomSpreadsheetResultOpenClass()
+                .getBeanClass()) {
                 return spreadsheetResult.getCustomSpreadsheetResultOpenClass()
                     .getModule()
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()

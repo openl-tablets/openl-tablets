@@ -84,13 +84,19 @@ public final class WrapperLogic {
     }
 
     public static IOpenClass buildMethodReturnType(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
-        if (openMethod.getType() instanceof ModuleSpecificType) {
-            IOpenClass type = xlsModuleOpenClass.findType(openMethod.getType().getName());
-            return type != null ? type : openMethod.getType();
-        } else if (openMethod.getType() instanceof SpreadsheetResultOpenClass && xlsModuleOpenClass
-            .getRulesModuleBindingContext() != null && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(
-                xlsModuleOpenClass.getRulesModuleBindingContext().getExternalParams())) {
-            return xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+        IOpenClass type = openMethod.getType();
+        int dim = 0;
+        while (type.isArray()) {
+            type = type.getComponentClass();
+            dim++;
+        }
+        if (type instanceof ModuleSpecificType) {
+            IOpenClass t = xlsModuleOpenClass.findType(type.getName());
+            return t != null ? (dim > 0 ? t.getArrayType(dim) : t) : openMethod.getType();
+        } else if (type instanceof SpreadsheetResultOpenClass && xlsModuleOpenClass
+            .getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+            IOpenClass t = xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+            return t != null ? (dim > 0 ? t.getArrayType(dim) : t) : openMethod.getType();
         } else {
             return openMethod.getType();
         }
@@ -260,10 +266,18 @@ public final class WrapperLogic {
         Object ret = externalMethodCall ? WrapperLogic.invokeExternalMethod(wrapper, target, params, env)
                                         : WrapperLogic.invoke(wrapper, target, params, env);
         // Set custom spreadsheet type to work in the correct classloader with spreadsheet result been types
-        if (wrapper.getType() instanceof CustomSpreadsheetResultOpenClass && ((SpreadsheetResult) ret)
-            .getCustomSpreadsheetResultOpenClass() == null) {
-            ((SpreadsheetResult) ret)
-                .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) wrapper.getType());
+        if (wrapper.getType() instanceof CustomSpreadsheetResultOpenClass) {
+            if (((SpreadsheetResult) ret).getCustomSpreadsheetResultOpenClass() == null) {
+                ((SpreadsheetResult) ret)
+                    .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) wrapper.getType());
+            }
+        } else if (wrapper
+            .getType() instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) wrapper.getType())
+                .getModule() != null) {
+            if (((SpreadsheetResult) ret).getCustomSpreadsheetResultOpenClass() == null) {
+                ((SpreadsheetResult) ret).setCustomSpreadsheetResultOpenClass(
+                    ((SpreadsheetResultOpenClass) wrapper.getType()).toCustomSpreadsheetResultOpenClass());
+            }
         }
         return ret;
     }
