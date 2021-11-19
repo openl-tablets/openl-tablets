@@ -245,16 +245,13 @@ public class ADeploymentProject extends UserWorkspaceProject {
     private List<ProjectDescriptor> getDescriptors() {
         synchronized (this) {
             try {
-                AProjectArtefact descriptorFile = getArtefactsInternal().get(ArtefactProperties.DESCRIPTORS_FILE);
-                if (descriptorFile != null) {
-                    //Determine whether the file has been modified by other WebStudio instances or manually, if so, then refresh it
-                    Date modifiedAt = getRepository().read(descriptorFile.getArtefactPath().getStringValue()).getData().getModifiedAt();
-                    if (!modifiedAt.equals(getFileData().getModifiedAt())) {
-                        super.refresh();
-                        setHistoryVersion(null);
-                        descriptors = null;
-                        createInternalArtefacts();
-                    }
+                //Determine whether the deployment project has been modified by other WebStudio instances or manually, if so, then refresh it.
+                Date modifiedAt = getRepository().read(getFolderPath()).getData().getModifiedAt();
+                if (!modifiedAt.equals(getFileData().getModifiedAt())) {
+                    super.refresh();
+                    setHistoryVersion(null);
+                    descriptors = null;
+                    createInternalArtefacts();
                 }
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
