@@ -2,7 +2,16 @@ package org.openl.binding.impl.cast;
 
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -10,6 +19,7 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
+import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.cache.GenericKey;
 import org.openl.domain.IDomain;
 import org.openl.ie.constrainer.ConstrainerObject;
@@ -213,9 +223,15 @@ public class CastFactory implements ICastFactory {
         IOpenClass ret = chooseClosest(casts, openClass1Candidates);
 
         if (ret == null) {
-            IOpenClass c = casts.findParentClass(openClass1, openClass2);
-            if (c == null) {
+            IOpenClass c;
+            if (openClass1 instanceof ModuleSpecificType && openClass2 instanceof ModuleSpecificType && ((ModuleSpecificType) openClass1)
+                .getModule() != ((ModuleSpecificType) openClass2).getModule()) {
                 c = JavaOpenClass.OBJECT;
+            } else {
+                c = casts.findParentClass(openClass1, openClass2);
+                if (c == null) {
+                    c = JavaOpenClass.OBJECT;
+                }
             }
             return dim > 0 ? ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(c, dim) : c;
         }

@@ -27,7 +27,6 @@ import org.objectweb.asm.Type;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.binding.impl.module.ModuleSpecificType;
-import org.openl.dependency.CompiledDependency;
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -171,7 +170,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     public boolean isAssignableFrom(IOpenClass ioc) {
         if (ioc instanceof CustomSpreadsheetResultOpenClass) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) ioc;
-            return this.getName().equals(customSpreadsheetResultOpenClass.getName());
+            return !getModule().isExternalModule(customSpreadsheetResultOpenClass.getModule(),
+                new IdentityHashMap<>()) && this.getName().equals(customSpreadsheetResultOpenClass.getName());
         }
         return false;
     }
@@ -353,24 +353,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 type = type.getComponentClass();
                 dim++;
             }
-            IOpenClass t = null;
-            if (type instanceof SpreadsheetResultOpenClass) {
-                SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) type;
-                if (!externalSpreadsheetResultOpenClass(spreadsheetResultOpenClass, cache)) {
-                    t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
-                }
-            } else if (type instanceof ModuleSpecificType) {
-                if (!isExternalModule((XlsModuleOpenClass) ((ModuleSpecificType) type).getModule(), cache)) {
-                    t = module.findType(type.getName());
-                }
-            }
-            if (t != null) {
-                IOpenClass declaringClass = openField.getDeclaringClass();
-                if (declaringClass instanceof SpreadsheetResultOpenClass) {
-                    declaringClass = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
-                } else if (declaringClass instanceof ModuleSpecificType) {
-                    declaringClass = module.findType(declaringClass.getName());
-                }
+            IOpenClass t = toModuleType(type);
+            if (t != type) {
+                IOpenClass declaringClass = toModuleType(openField.getDeclaringClass());
                 if (dim > 0) {
                     t = t.getArrayType(dim);
                 }
@@ -590,45 +575,37 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private static final Comparator<Pair<Point, IOpenField>> COMP = Comparator.comparing(Pair::getLeft,
         Comparator.nullsLast(Comparator.comparingInt(Point::getRow).thenComparingInt(Point::getColumn)));
 
-    private boolean isExternalModule(XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
-        return isExternalModuleRec(module, getModule(), cache);
-    }
-
-    public static boolean isExternalModuleRec(XlsModuleOpenClass module,
-            XlsModuleOpenClass inModule,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
-        IdentityHashMap<XlsModuleOpenClass, Boolean> c = cache.computeIfAbsent(inModule, e -> new IdentityHashMap<>());
-        Boolean t = c.get(module);
-        if (t != null) {
-            return t;
-        }
-        if (module != inModule) {
-            t = true;
-            for (CompiledDependency compiledDependency : inModule.getDependencies()) {
-                if (!isExternalModuleRec(module,
-                    (XlsModuleOpenClass) compiledDependency.getCompiledOpenClass().getOpenClassWithErrors(),
-                    cache)) {
-                    t = false;
-                    break;
-                }
-            }
-        } else {
-            t = false;
-        }
-        c.put(module, t);
-        return t;
-    }
-
-    private boolean externalCustomSpreadsheetResultOpenClass(
+    public boolean isExternalCustomSpreadsheetResultOpenClass(
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
-        return isExternalModule(customSpreadsheetResultOpenClass.getModule(), cache);
+        return getModule().isExternalModule(customSpreadsheetResultOpenClass.getModule(), cache);
     }
 
-    private boolean externalSpreadsheetResultOpenClass(SpreadsheetResultOpenClass spreadsheetResultOpenClass,
+    public boolean isExternalSpreadsheetResultOpenClass(SpreadsheetResultOpenClass spreadsheetResultOpenClass,
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
-        return isExternalModule(spreadsheetResultOpenClass.getModule(), cache);
+        return getModule().isExternalModule(spreadsheetResultOpenClass.getModule(), cache);
+    }
+
+    public IOpenClass toModuleType(IOpenClass type) {
+        IOpenClass p = null;
+        if (type instanceof SpreadsheetResultOpenClass) {
+            SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) type;
+            if (!isExternalSpreadsheetResultOpenClass(spreadsheetResultOpenClass, new IdentityHashMap<>())) {
+                p = getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+            }
+        } else if (type instanceof ModuleSpecificType) {
+            if (!getModule().isExternalModule((XlsModuleOpenClass) ((ModuleSpecificType) type).getModule(),
+                new IdentityHashMap<>())) {
+                p = getModule().findType(type.getName());
+                if (p == null) {
+                    type = ((ModuleSpecificType) type).makeCopyForModule(getModule());
+                }
+            }
+        }
+        if (p != null) {
+            return p;
+        }
+        return type;
     }
 
     private void addFieldsToJavaClassBuilder(JavaBeanClassBuilder beanClassBuilder,
@@ -694,7 +671,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         XlsModuleOpenClass additionalClassGenerationClassloaderModule = null;
                         if (t instanceof CustomSpreadsheetResultOpenClass) {
                             CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) t;
-                            boolean externalCustomSpreadsheetResultOpenClass = externalCustomSpreadsheetResultOpenClass(
+                            boolean externalCustomSpreadsheetResultOpenClass = isExternalCustomSpreadsheetResultOpenClass(
                                 csroc,
                                 cache);
                             if (externalCustomSpreadsheetResultOpenClass) {
@@ -714,7 +691,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             }
                         } else {
                             SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) t;
-                            final boolean externalSpreadsheetResultOpenClass = externalSpreadsheetResultOpenClass(
+                            final boolean externalSpreadsheetResultOpenClass = isExternalSpreadsheetResultOpenClass(
                                 spreadsheetResultOpenClass,
                                 cache);
                             XlsModuleOpenClass m = externalSpreadsheetResultOpenClass ? spreadsheetResultOpenClass

@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -441,6 +442,36 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
         fields.put(openField.getName(), openField);
         addFieldToLowerCaseMap(openField);
+    }
+
+    public boolean isExternalModule(XlsModuleOpenClass module,
+            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+        return isExternalModuleRec(module, this, cache);
+    }
+
+    private static boolean isExternalModuleRec(XlsModuleOpenClass module,
+            XlsModuleOpenClass inModule,
+            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+        IdentityHashMap<XlsModuleOpenClass, Boolean> c = cache.computeIfAbsent(inModule, e -> new IdentityHashMap<>());
+        Boolean t = c.get(module);
+        if (t != null) {
+            return t;
+        }
+        if (module != inModule) {
+            t = true;
+            for (CompiledDependency compiledDependency : inModule.getDependencies()) {
+                if (!isExternalModuleRec(module,
+                    (XlsModuleOpenClass) compiledDependency.getCompiledOpenClass().getOpenClassWithErrors(),
+                    cache)) {
+                    t = false;
+                    break;
+                }
+            }
+        } else {
+            t = false;
+        }
+        c.put(module, t);
+        return t;
     }
 
     /**
