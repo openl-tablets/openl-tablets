@@ -15,7 +15,8 @@ import org.openl.types.IOpenClass;
 public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
     private final CompiledOpenClass delegate;
     private final Collection<OpenLMessage> validationMessages = new LinkedHashSet<>();
-    private boolean hasErrors;
+    private final boolean hasCompilationErrors;
+    private boolean hasValidationErrors;
 
     public static ValidatedCompiledOpenClass instanceOf(CompiledOpenClass compiledOpenClass) {
         if (compiledOpenClass instanceof ValidatedCompiledOpenClass) {
@@ -28,7 +29,7 @@ public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
     private ValidatedCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
         super(compiledOpenClass.getOpenClassWithErrors(), compiledOpenClass.getAllMessages());
         this.delegate = Objects.requireNonNull(compiledOpenClass, "compiledOpenClass cannot be null");
-        this.hasErrors = compiledOpenClass.hasErrors();
+        this.hasCompilationErrors = compiledOpenClass.hasErrors();
     }
 
     @Override
@@ -43,7 +44,7 @@ public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
 
     @Override
     public boolean hasErrors() {
-        return hasErrors;
+        return hasCompilationErrors || hasValidationErrors;
     }
 
     @Override
@@ -69,8 +70,12 @@ public final class ValidatedCompiledOpenClass extends CompiledOpenClass {
     public void addMessage(OpenLMessage message) {
         this.validationMessages.add(message);
         if (message.getSeverity() == Severity.ERROR) {
-            hasErrors = true;
+            hasValidationErrors = true;
         }
+    }
+
+    public boolean hasOnlyValidationErrors() {
+        return !hasCompilationErrors && hasValidationErrors;
     }
 
     @Override

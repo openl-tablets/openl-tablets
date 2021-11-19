@@ -25,6 +25,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
+import org.openl.CompiledOpenClass;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.model.scaffolding.ProjectModel;
@@ -66,7 +67,6 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.table.formatters.Formats;
 import org.openl.rules.ui.Message;
-import org.openl.rules.ui.ProjectCompilationStatus;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
 import org.openl.rules.webstudio.WebStudioFormats;
@@ -82,6 +82,7 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.FileNameFormatter;
+import org.openl.validation.ValidatedCompiledOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -845,13 +846,9 @@ public class ProjectBean {
         studio.init(currentProject.getDesignRepository().getId(),
             currentProject.getBranch(),
             currentProject.getName(),
-                modules.iterator().next().getName());
+            modules.iterator().next().getName());
         org.openl.rules.ui.ProjectModel projectModel = studio.getModel();
         while (!isCompilationCompleted(projectModel)) {
-            ProjectCompilationStatus compilationStatus = projectModel.getCompilationStatus();
-            if (compilationStatus.getErrorsCount() > 0) {
-                break;
-            }
             try {
                 TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
@@ -861,7 +858,15 @@ public class ProjectBean {
         }
         final String existedOpenAPIFilePath = getExistedOpenAPIFilePath();
         final boolean update = existedOpenAPIFilePath != null;
-        if (projectModel.getCompilationStatus().getErrorsCount() > 0) {
+        CompiledOpenClass compiledOpenClass = projectModel.getCompiledOpenClass();
+        final boolean hasCompilationErrors;
+        if (compiledOpenClass instanceof ValidatedCompiledOpenClass) {
+            ValidatedCompiledOpenClass validated = (ValidatedCompiledOpenClass) compiledOpenClass;
+            hasCompilationErrors = validated.hasErrors() && !validated.hasOnlyValidationErrors();
+        } else {
+            hasCompilationErrors = compiledOpenClass.hasErrors();
+        }
+        if (hasCompilationErrors) {
             throw new Message(
                 String.format("Cannot %s OpenAPI file. Project has compilation error.", update ? "update" : "create"));
         }
@@ -895,7 +900,9 @@ public class ProjectBean {
             }
             save(newProjectDescriptor);
         } catch (Exception e) {
-            throw new Message(String.format("Failed to %s OpenAPI file. Details: %s", update ? "update" : "create", e.getMessage()), e);
+            throw new Message(
+                String.format("Failed to %s OpenAPI file. Please check compilation.", update ? "update" : "create"),
+                e);
         }
     }
 
@@ -926,8 +933,8 @@ public class ProjectBean {
         ProjectDescriptor currentDescriptor = studio.getCurrentProjectDescriptor();
         RulesProject currentProject = studio.getCurrentProject();
         Optional<String> openApiPath = Optional.ofNullable(currentDescriptor.getOpenapi())
-                .map(OpenAPI::getPath)
-                .filter(StringUtils::isNotBlank);
+            .map(OpenAPI::getPath)
+            .filter(StringUtils::isNotBlank);
         if (openApiPath.isPresent() && currentProject.hasArtefact(openApiPath.get())) {
             return openApiPath.get();
         }
