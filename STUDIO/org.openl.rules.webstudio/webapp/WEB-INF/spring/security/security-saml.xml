@@ -142,11 +142,6 @@
           factory-bean="openLSamlBuilder" factory-method="authenticationRequestContextResolver">
     </bean>
 
-    <bean id="authenticationRequestFactory"
-          class="org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory"
-          factory-bean="openLSamlBuilder" factory-method="authenticationRequestFactory">
-    </bean>
-
     <bean id="relyingPartyRegistrationResolver"
           class="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration"
           factory-bean="openLSamlBuilder" factory-method="relyingPartyRegistrationResolver">
@@ -179,6 +174,8 @@
         <property name="authenticationSuccessHandler" ref="successRedirectHandler"/>
     </bean>
 
+    <!-- In order not to use deprecated classes, you need to update to the opensaml library to version 4.1.1,
+    which is now only in the repository https://build.shibboleth.net/nexus/content/repositories/releases -->
     <bean id="samlAuthenticationProvider"
           class="org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider">
         <property name="responseAuthenticationConverter" ref="responseAuthenticationConverter"/>

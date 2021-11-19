@@ -857,6 +857,11 @@
                 <version>${org.springsecurity.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${org.springsecurity.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.opensaml</groupId>
                 <artifactId>xmltooling</artifactId>
                 <version>1.4.4</version>
@@ -1876,16 +1881,6 @@
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy</artifactId>
                 <version>${groovy.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>30.1.1-jre</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-web</artifactId>
-                <version>${org.springsecurity.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
