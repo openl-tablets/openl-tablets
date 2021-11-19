@@ -42,6 +42,8 @@ RUN set -eux ; \
         -i //Valve -t attr -n "className" -v "org.apache.catalina.valves.RemoteIpValve" \
         -i //Valve -t attr -n "internalProxies" -v ".*" \
         -i //Valve -t attr -n "protocolHeader" -v "X-Forwarded-Proto" \
+        -i //Valve -t attr -n "hostHeader" -v "X-Forwarded-Host" \
+        -i //Valve -t attr -n "portHeader" -v "X-Forwarded-Port" \
         conf/server.xml ; \
     \
 # Fix SEVERE error while running image via non-root user
