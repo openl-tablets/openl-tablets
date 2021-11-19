@@ -60,14 +60,14 @@
                         <tr>
                             <td><label class="required">Mode:</label></td>
                             <td>
-                                <table>
+                                <table style="width: 170px">
                                     <tr>
                                         <td style="text-align: left; vertical-align: middle;">
                                             <input type="radio" name="mode" id="reconciliation"
                                                    value="reconciliation"
                                                    checked="checked">Reconciliation</input>
                                         </td>
-                                        <td style="text-align: center; vertical-align: middle;">
+                                        <td style="text-align: center; vertical-align: middle; width: 35px;">
                                             <a class="imageButton"
                                                onclick="showOpenAPIModeInfo('openAPIReconciliation');return false;"
                                                style="background:url('webresource/images/info.png');"/>
@@ -75,9 +75,9 @@
                                     </tr>
                                     <tr>
                                         <td style="text-align: left; vertical-align: middle;"><input type="radio" name="mode" id="generation"
-                                                                                                     value="generation">Generation</input>
+                                                                                                     value="generation">Tables generation</input>
                                         </td>
-                                        <td style="text-align: center; vertical-align: middle;">
+                                        <td style="text-align: center; vertical-align: middle; width: 35px;">
                                             <a class="imageButton"
                                                onclick="showOpenAPIModeInfo('openAPIGeneration'); return false;"
                                                style="background:url('webresource/images/info.png');"/>
@@ -129,13 +129,16 @@
                                    action="#{projectBean.getModulesInfo}"
                                    data="#{projectBean.modulesInfoList}"
                                    oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('importOpenAPIPopup'); openSettings(event.data);}"/>
-                <a4j:commandButton id="createOrUpdateOpenAPISchemaBtn" value="#{projectBean.existedOpenAPIFilePath != null ? 'Update OpenAPI' : 'Create OpenAPI'}"
+                <a4j:commandButton id="createOrUpdateOpenAPISchemaBtn" value="Import"
                                    styleClass="button-primary"
                                    style="display: none;"
-                                   action="#{projectBean.createOrUpdateOpenAPISchema}"
-                                   oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('importOpenAPIPopup'); ws.ui.success('OpenAPI file was #{projectBean.existedOpenAPIFilePath != null ? 'updated' : 'created'} successfully!'); editOpenAPIDone();}"/>
+                                   onclick="return confirmToUpdateOpenAPI(#{projectBean.existedOpenAPIFilePath != null})"/>
                 <input type="button" value="Cancel" onclick="ws.ui.hide('importOpenAPIPopup'); ws.nav.reload(true);"/>
             </footer>
+
+            <a4j:jsFunction name="createOrUpdateOpenAPISchema"
+                            action="#{projectBean.createOrUpdateOpenAPISchema}"
+                            oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('importOpenAPIPopup'); ws.ui.success('OpenAPI file was #{projectBean.existedOpenAPIFilePath != null ? 'updated' : 'created'} successfully!'); editOpenAPIDone();}"/>
 
             <a4j:jsFunction name="rerenderOpenAPIImportDialog"
                             render="openAPIPath modelModuleName algorithmModuleName"
@@ -358,6 +361,18 @@
             })
         }
 
+        function confirmToUpdateOpenAPI(requiresConfirmation) {
+            if (!requiresConfirmation) {
+                createOrUpdateOpenAPISchema();
+            } else {
+                ws.ui.confirm({
+                    title: 'Confirm import',
+                    message: 'OpenAPI file already exists. Are you sure you want to update it by newly generated file?',
+                    okButton: 'Update and Import',
+                    onOK: createOrUpdateOpenAPISchema
+                });
+            }
+        }
 
     </script>
 
