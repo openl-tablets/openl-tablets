@@ -197,4 +197,15 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
         return new StubSpreadSheetResult();
     }
 
+    @Override
+    public boolean isAssignableFrom(IOpenClass ioc) {
+        if (getModule() != null) {
+            if (ioc instanceof SpreadsheetResultOpenClass) {
+                return ((SpreadsheetResultOpenClass) ioc).getModule() == getModule();
+            } else if (ioc instanceof CustomSpreadsheetResultOpenClass) {
+                return ((CustomSpreadsheetResultOpenClass) ioc).getModule() == getModule();
+            }
+        }
+        return super.isAssignableFrom(ioc);
+    }
 }
