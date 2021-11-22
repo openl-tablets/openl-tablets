@@ -5,16 +5,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Stack;
 
+import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
+import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-//Dont extend this class
+// Do not extend this class
 public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     private final IOpenField RESOLVING_IN_PROGRESS = new SpreadsheetResultField(this,
         "IN_PROGRESS",
@@ -26,6 +29,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     private volatile CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
     private final Map<String, IOpenField> strictBlankCache = new HashMap<>();
     private final Map<String, IOpenField> noStrictBlankCache = new HashMap<>();
+    private final Map<MethodKey, IOpenMethod> constructorMap = new HashMap<>();
 
     public SpreadsheetResultOpenClass(Class<?> type) {
         super(type);
@@ -207,5 +211,54 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             }
         }
         return super.isAssignableFrom(ioc);
+    }
+
+    @Override
+    public boolean isInstance(Object instance) {
+        if (instance instanceof SpreadsheetResult) {
+            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) instance;
+            if (getModule() == null) {
+                return spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null;
+            } else {
+                return spreadsheetResult.getCustomSpreadsheetResultOpenClass() == toCustomSpreadsheetResultOpenClass();
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public IOpenMethod getConstructor(IOpenClass[] params) {
+        MethodKey methodKey = new MethodKey(params);
+        IOpenMethod m = constructorMap.get(methodKey);
+        if (m != null) {
+            return m;
+        }
+        IOpenMethod c = super.getConstructor(params);
+        if (c != null) {
+            m = new ModuleSpecificOpenMethod(c, this);
+            constructorMap.put(methodKey, m);
+        }
+        return m;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
+
+        SpreadsheetResultOpenClass that = (SpreadsheetResultOpenClass) o;
+
+        return Objects.equals(module, that.module);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (module != null ? module.hashCode() : 0);
+        return result;
     }
 }

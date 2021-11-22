@@ -183,7 +183,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams())) {
             // We found some type which can be CSR
             // So there additional action is required for CSR
-            if (openClass instanceof SpreadsheetResultOpenClass) {
+            if (openClass instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) openClass)
+                .getModule() == null) {
                 return getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes();
             } else if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                 CustomSpreadsheetResultOpenClass csrOpenClass = (CustomSpreadsheetResultOpenClass) openClass;

@@ -106,22 +106,11 @@ public class JavaOpenClass extends AOpenClass {
         Class<? extends JavaOpenClass> type = annotation.type();
         try {
             return type.getConstructor(Class.class).newInstance(c);
-        } catch (NoSuchMethodException e) {
-            throw new IllegalStateException(String.format(
-                "Cannot find constructor with signature 'public MyCustomJavaOpenClass(Class<?> c)' in type %s",
-                type.getTypeName()), e);
-        } catch (InstantiationException e) {
-            throw new IllegalStateException(
-                String.format("Error while creating a custom JavaOpenClass of type '%s'", type.getTypeName()),
-                e);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(
-                String.format("Constructor of a custom JavaOpenClass of type '%s' is inaccessible", type.getTypeName()),
-                e);
-        } catch (InvocationTargetException e) {
-            throw new IllegalStateException(
-                String.format("Constructor of a class '%s' threw and exception", type.getTypeName()),
-                e);
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException
+                | InvocationTargetException e) {
+            throw new IllegalStateException(String.format("Failed to instantiate '%s' class to support @%s annotation",
+                type.getTypeName(),
+                CustomJavaOpenClass.class.getSimpleName()), e);
         }
     }
 

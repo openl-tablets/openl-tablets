@@ -27,4 +27,6 @@ public @interface CustomJavaOpenClass {
      * 'MyVariableInContextFinder(IOpenField localVar, int maxDepthLevel)'
      */
     Class<? extends VariableInContextFinder> variableInContextFinder();
+
+    boolean normalize() default false;
 }

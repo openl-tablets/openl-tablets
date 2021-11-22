@@ -7,6 +7,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.ADynamicClass;
 import org.openl.util.ClassUtils;
 
 public final class OpenClassHelper {
@@ -21,7 +22,8 @@ public final class OpenClassHelper {
         for (int i = 0; i < methodArgs.length; i++) {
             args[i] = JavaOpenClass.getOpenClass(methodArgs[i]);
         }
-        return openClass.getMethod(methodName, args);
+        return openClass instanceof ADynamicClass ? ((ADynamicClass) openClass).getMethod(methodName, args, false)
+                                                  : openClass.getMethod(methodName, args);
     }
 
     public static IOpenField findRulesField(IOpenClass openClass, String methodName) {
