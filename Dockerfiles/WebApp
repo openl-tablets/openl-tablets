@@ -20,39 +20,8 @@ ENV PATH $CATALINA_HOME/bin:$JAVA_HOME/bin:$PATH
 
 WORKDIR $CATALINA_HOME
 
-RUN set -eux ; \
-    \
-# Prepare environment. Install required utils for Docker image building.
-    savedAptMark="$(apt-mark showmanual)"; \
-    \
-    apt-get update ; \
-    apt-get install -y --no-install-recommends xmlstarlet ; \
-    \
-# Clean up temporaries
-    rm -rf /var/lib/apt/lists/* ; \
-    \
-# Update server.xml If app is used under load balancer or reverse proxy with ssl certificate,
-# but from Tomcat's image perspective it's running an http server. So feature of this valve is
-# to replace the apparent scheme (http/https) and server port with the scheme presented by a proxy
-# or a load balancer. If the proxy passes some header variables, Tomcat will start to think that
-# it is running https.
-# <Valve className="org.apache.catalina.valves.RemoteIpValve" internalProxies=".*" protocolHeader="X-Forwarded-Proto"/>
-    xmlstarlet ed -P -S \
-        -s /Server/Service/Engine/Host -t elem -n Valve -v "" \
-        -i //Valve -t attr -n "className" -v "org.apache.catalina.valves.RemoteIpValve" \
-        -i //Valve -t attr -n "internalProxies" -v ".*" \
-        -i //Valve -t attr -n "protocolHeader" -v "X-Forwarded-Proto" \
-        -i //Valve -t attr -n "hostHeader" -v "X-Forwarded-Host" \
-        -i //Valve -t attr -n "portHeader" -v "X-Forwarded-Port" \
-        conf/server.xml ; \
-    \
 # Fix SEVERE error while running image via non-root user
-    mkdir -p conf/Catalina/localhost ; \
-    \
-# Cleanup apt-get installations
-    apt-mark auto '.*' > /dev/null ; \
-    [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null ; \
-    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
+RUN mkdir -p conf/Catalina/localhost
 
 # Install fonts required for Apache POI (export into Excel with autowidth of columns)
 RUN set -eux ; \
