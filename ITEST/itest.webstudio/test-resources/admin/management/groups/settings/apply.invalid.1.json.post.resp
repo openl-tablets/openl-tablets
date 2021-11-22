@@ -1,0 +1,14 @@
+HTTP/1.1 400 No Content
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.Size",
+      "field": "defaultGroup",
+      "rejectedValue": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus.",
+      "message": "Size must be between 0 and 50"
+    }
+  ]
+}

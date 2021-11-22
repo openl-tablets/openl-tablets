@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import javax.annotation.PostConstruct;
 
+import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -47,6 +48,11 @@ public class MockConfiguration {
     @PostConstruct
     public void postConstruct() {
         Props.setEnvironment(environment);
+    }
+
+    @Bean
+    public GroupManagementService groupManagementService() {
+        return mock(GroupManagementService.class);
     }
 
 }

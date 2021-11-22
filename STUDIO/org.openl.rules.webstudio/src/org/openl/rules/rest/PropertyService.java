@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 @Path("/property")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+// TODO Think about using of {@link org.openl.config.PropertiesHolder} and {@link org.openl.config.InMemoryProperties}
+// TODO instead of custom one {@link PropertyBean}
+// TODO Refactor this API
 public class PropertyService {
 
     @Autowired

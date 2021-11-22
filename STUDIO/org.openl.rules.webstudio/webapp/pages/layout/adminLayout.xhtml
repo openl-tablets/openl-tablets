@@ -123,8 +123,143 @@
                 }
             }
 
+          const ajaxFormHandler = function () {
+
+              const submitDefaults = Object.freeze({
+                  methodURL: undefined,
+                  methodType: "POST",
+                  dataType: "form",
+                  $form: undefined,
+                  onSuccess: () => {},
+                  onFail: () => {}
+              });
+
+              const fetchDefaults = Object.freeze({
+                  methodURL: undefined,
+                  methodType: "GET",
+                  dataType: "json",
+                  $form: undefined,
+              });
+
+              const serializeJSON = function($form, exclude) {
+                  exclude || (exclude = []);
+                  return $form.serializeArray().reduce(function (hash, pair) {
+                      pair.value && !(pair.name in exclude) && (hash[pair.name] = pair.value);
+                      return hash;
+                  }, {});
+              };
+
+              const fieldSelector = function(fieldName) {
+                  return "input[name='" + fieldName + "']";
+              }
+
+              const fieldErrorSelector = function(fieldName) {
+                  return fieldSelector(fieldName) + " + span.error";
+              }
+
+              const cleanUpForm = function($form) {
+                  $form.find("span.error").each(function () {
+                      $j(this).text("");
+                  });
+              }
+
+              return {
+                  fetchFormData(options) {
+                      options = $j.extend({}, fetchDefaults, options);
+
+                      const $targetForm = options.$form;
+                      if ($targetForm == null) {
+                          throw new Error("Form must be defined.");
+                      }
+                      if (options.methodURL == null) {
+                          throw new Error("Method URL must be defined.");
+                      }
+                      cleanUpForm($targetForm);
+                      $j.ajax({
+                          url: options.methodURL,
+                          datatype: options.dataType
+                      }).done(function (data) {
+                          $j.each(data, function (name, item) {
+                              const field = $targetForm.find(fieldSelector(name));
+                              if (field.length > 0) {
+                                  field.val(ws.utils.escapeHtml(item));
+                              }
+                          });
+                      }).fail(function (data) {
+                          ws.ui.error("#{msg['ws.common.error.500']}");
+                      });
+                  },
+                  registerSubmitFormHandler(options) {
+                      options = $j.extend({}, submitDefaults, options);
+                      const $targetForm = options.$form;
+                      if ($targetForm == null) {
+                          throw new Error("Form must be defined.");
+                      }
+                      if (options.methodURL == null) {
+                          throw new Error("Method URL must be defined.");
+                      }
+                      if (options.methodType == null) {
+                          throw new Error("Method Type must be defined.");
+                      }
+
+                      $targetForm.on("submit", function (e) {
+                          e.preventDefault();
+                          let requestData = serializeJSON($targetForm);
+                          let ajaxSettings = {
+                              type: options.methodType,
+                              url: options.methodURL,
+                              beforeSend: showLoader
+                          }
+                          if (options.dataType === "json") {
+                              ajaxSettings = $j.extend({}, ajaxSettings, {
+                                  contentType: 'application/json',
+                                  data: JSON.stringify(requestData),
+                              });
+                          } else {
+                              ajaxSettings = $j.extend({}, ajaxSettings, {
+                                  data: $form.serialize(),
+                              });
+                          }
+                          $j.ajax(ajaxSettings).done(function (data) {
+                              cleanUpForm($targetForm);
+                              options.onSuccess(data);
+                          }).fail(function (data) {
+                              if (data.status === 399) { // Session Timeout
+                                  location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                                  return;
+                              } else if (data.readyState === 4) {
+                                  let json = (function (rawJson) {
+                                      try {
+                                          return JSON.parse(rawJson);
+                                      } catch (e) {
+                                          return null;
+                                      }
+                                  })(data.responseText);
+                                  if (json?.fields != null && json.fields.length > 0) {
+                                      json.fields.forEach(item => {
+                                          const error = $targetForm.find(fieldErrorSelector(item.field));
+                                          if (error.length > 0) {
+                                              error.text(ws.utils.escapeHtml(item.message));
+                                          }
+                                      });
+                                  } else if (json?.message != null) {
+                                      ws.ui.error(ws.utils.escapeHtml(json.message));
+                                  } else {
+                                      ws.ui.error("#{msg['ws.common.error.500']}");
+                                  }
+                              } else {
+                                  ws.ui.error("#{msg['ws.common.error.500']}");
+                              }
+                              options.onFail(data);
+                          }).always(hideLoader);
+                      });
+                  }
+              }
+          }();
+
             var ws = {
                 ui: {
+                    loaderOpened: 0,
                     success: function(content) {
                         message(content, 4000, true, "success");
                     },
@@ -133,6 +268,14 @@
                     },
                     info: function(content) {
                         message(content, 8000, true);
+                    }
+                },
+                form: {
+                    registerSubmitFormHandler: function (options) {
+                        ajaxFormHandler.registerSubmitFormHandler(options)
+                    },
+                    fetchFormData: function (options) {
+                        ajaxFormHandler.fetchFormData(options)
                     }
                 },
                 utils: {
@@ -149,14 +292,18 @@
             });
 
             function showLoader() {
-                if (loadingPanel.is(":hidden")) {
+                if (ws.ui.loaderOpened++ === 0) {
                     showAnimatedPanel(loadingPanel);
                 }
             }
 
             function hideLoader() {
-                if (loadingPanel.is(":visible")) {
+                if (ws.ui.loaderOpened-- === 1) {
                     loadingPanel.hide();
+                }
+                if (ws.ui.loaderOpened < 0) {
+                    ws.ui.loaderOpened = 0;
+                    console.warn('hideLoader() without showLoader() is called.');
                 }
             }
 

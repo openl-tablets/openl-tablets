@@ -13,4 +13,8 @@
         <constructor-arg name="defaultVersion" value="${openl.compatibility.version}"/>
     </bean>
 
+    <bean id="inMemoryProperties" class="org.openl.config.InMemoryProperties">
+        <constructor-arg name="propertyResolver" ref="environment"/>
+    </bean>
+
 </beans>

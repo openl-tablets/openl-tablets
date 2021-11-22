@@ -15,7 +15,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.openl.config.InMemoryProperties;
 import org.openl.rules.rest.exception.ConflictException;
+import org.openl.rules.rest.model.GroupSettingsModel;
+import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.dao.GroupDao;
@@ -37,14 +40,22 @@ import org.springframework.stereotype.Service;
 @Produces(MediaType.APPLICATION_JSON)
 public class ManagementService {
 
-    private final GroupDao groupDao;
+    private static final String SECURITY_DEF_GROUP_PROP = "security.default-group";
 
+    private final GroupDao groupDao;
     private final GroupManagementService groupManagementService;
+    private final InMemoryProperties properties;
+    private final BeanValidationProvider validationProvider;
 
     @Autowired
-    public ManagementService(GroupDao groupDao, GroupManagementService groupManagementService) {
+    public ManagementService(GroupDao groupDao,
+            GroupManagementService groupManagementService,
+            InMemoryProperties properties,
+            BeanValidationProvider validationProvider) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
+        this.properties = properties;
+        this.validationProvider = validationProvider;
     }
 
     @GET
@@ -80,6 +91,23 @@ public class ManagementService {
             groupManagementService.updateGroup(oldName, name, description);
         }
         groupManagementService.updateGroup(name, roles, privileges);
+    }
+
+    @POST
+    @Path("/groups/settings")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void saveSettings(GroupSettingsModel request) {
+        SecurityChecker.allow(Privileges.ADMIN);
+        validationProvider.validate(request);
+        properties.setProperty(SECURITY_DEF_GROUP_PROP, request.getDefaultGroup());
+    }
+
+    @GET
+    @Path("/groups/settings")
+    public GroupSettingsModel getSettings() {
+        GroupSettingsModel model = new GroupSettingsModel();
+        model.setDefaultGroup(properties.getProperty(SECURITY_DEF_GROUP_PROP));
+        return model;
     }
 
     @GET
