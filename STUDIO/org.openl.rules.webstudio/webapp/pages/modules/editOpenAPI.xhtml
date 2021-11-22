@@ -16,7 +16,7 @@
     <rich:popupPanel id="importOpenAPIPopup" minwidth="470" autosized="true">
 
         <f:facet name="header">
-            <h:outputText value="Import OpenAPI File"/>
+            <h:outputText value="OpenAPI File Configuration"/>
         </f:facet>
         <f:facet name="controls">
             <h:graphicImage value="/images/close.gif" class="close"
@@ -29,22 +29,22 @@
                     <table id="openapi-file-path" class="properties properties-form">
                         <tr>
                             <td>
-                                <label class="required"> OpenAPI File:</label>
+                                <label class="required">OpenAPI File Source:</label>
                             </td>
                             <td>
-                                <table style="width: 300px">
+                                <table style="width: 270px">
                                     <tr><td>
                                         <input type="radio" name="openApiImportType"
                                                id="openApiImportType1"
                                                value="GENERATE"
                                                checked="checked"/>
-                                        <label for="openApiImportType1">Auto generate from Rules and Datatype tables</label>
+                                        <label for="openApiImportType1">Generate from Rules ana Datatype tables</label>
                                     </td></tr>
                                     <tr><td>
                                         <input type="radio" name="openApiImportType"
                                                id="openApiImportType2"
                                                value="IMPORT"/>
-                                        <label for="openApiImportType2">Upload in the Repository</label>
+                                        <label for="openApiImportType2">Uploaded in the Repository</label>
                                     </td></tr>
                                     <tr><td>
                                         <h:inputText id="openAPIPath" size="35" maxlength="70" styleClass="shortInput"
@@ -366,14 +366,13 @@
                 createOrUpdateOpenAPISchema();
             } else {
                 ws.ui.confirm({
-                    title: 'Confirm import',
-                    message: 'OpenAPI file already exists. Are you sure you want to update it by newly generated file?',
-                    okButton: 'Update and Import',
+                    title: 'Confirm Action',
+                    message: 'OpenAPI file already exists. Are you sure you want to replace it?',
+                    okButton: 'Replace',
                     onOK: createOrUpdateOpenAPISchema
                 });
             }
         }
-
     </script>
 
 </ui:composition>
