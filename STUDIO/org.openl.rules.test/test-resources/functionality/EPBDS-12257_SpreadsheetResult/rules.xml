@@ -1,0 +1,19 @@
+<project>
+    <name>EPBDS-12257_SpreadsheetResult</name>
+    <comment></comment>
+    <modules>
+        <module>
+            <name>myProject-AL</name>
+            <rules-root path="myProject-AL.xlsx"/>
+        </module>
+        <module>
+            <name>myProject-NY</name>
+            <rules-root path="myProject-NY.xlsx"/>
+        </module>
+        <module>
+            <name>mainModule</name>
+            <rules-root path="mainModule.xlsx"/>
+        </module>
+    </modules>
+    <properties-file-name-pattern>myProject-%state%</properties-file-name-pattern>
+</project>
