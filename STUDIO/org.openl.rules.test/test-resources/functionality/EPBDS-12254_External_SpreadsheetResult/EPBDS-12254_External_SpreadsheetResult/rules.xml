@@ -1,0 +1,15 @@
+<project>
+    <name>EPBDS-12254_External_SpreadsheetResult</name>
+    <modules>
+        <module>
+            <name>testMeth</name>
+            <rules-root path="testMeth.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>PR1</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>

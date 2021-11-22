@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * Serializable bean that handles result of spreadsheet calculation.
  */
 @XmlRootElement
-@CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class, variableInContextFinder = SpreadsheetResultRootDictionaryContext.class)
+@CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class, variableInContextFinder = SpreadsheetResultRootDictionaryContext.class, normalize = true)
 @AllowOnlyStrictFieldMatchType
 public class SpreadsheetResult implements Serializable {
 

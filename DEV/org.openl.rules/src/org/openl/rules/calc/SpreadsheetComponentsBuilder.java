@@ -43,6 +43,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IAggregateInfo;
@@ -423,8 +424,8 @@ public class SpreadsheetComponentsBuilder {
     private void buildReturnCells(IOpenClass spreadsheetHeaderType) {
         SpreadsheetHeaderDefinition headerDefinition = headerDefinitions.get(SpreadsheetSymbols.RETURN_NAME.toString());
 
-        if (spreadsheetHeaderType
-            .equals(JavaOpenClass.getOpenClass(SpreadsheetResult.class)) && headerDefinition == null) {
+        if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, SpreadsheetResult.class.getSimpleName())
+            .equals(spreadsheetHeaderType) && headerDefinition == null) {
             return;
         }
 
@@ -516,9 +517,9 @@ public class SpreadsheetComponentsBuilder {
             symbolicTypeDefinition = returnHeaderDefinition.findDefinition(key);
         }
 
-        if (!isExistsReturnHeader() && spreadsheet.getHeader()
-            .getType()
-            .equals(JavaOpenClass.getOpenClass(SpreadsheetResult.class))) {
+        if (!isExistsReturnHeader() && bindingContext
+            .findType(ISyntaxConstants.THIS_NAMESPACE, SpreadsheetResult.class.getSimpleName())
+            .equals(spreadsheet.getHeader().getType())) {
             resultBuilder = new SpreadsheetResultBuilder();
         } else {
             // real return type

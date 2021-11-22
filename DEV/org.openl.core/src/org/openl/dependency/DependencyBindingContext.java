@@ -21,6 +21,8 @@ import org.openl.types.java.JavaOpenClass;
 
 public class DependencyBindingContext extends BindingContextDelegator {
 
+    public static AdditionalSearchTypesInModule additionalSearchTypesInModule;
+
     private final IDependencyManager dependencyManager;
 
     private final Set<String> loadedDependencies = new HashSet<>();
@@ -55,6 +57,11 @@ public class DependencyBindingContext extends BindingContextDelegator {
                 }
                 String tName = typeName.substring(typeName.indexOf(".") + 1);
                 IOpenClass t = buildDependencyVar(compiledDependency).getType().findType(tName);
+                if (t != null) {
+                    return t;
+                }
+                t = additionalSearchTypesInModule.getType(tName,
+                    compiledDependency.getCompiledOpenClass().getOpenClassWithErrors());
                 if (t != null) {
                     return t;
                 }

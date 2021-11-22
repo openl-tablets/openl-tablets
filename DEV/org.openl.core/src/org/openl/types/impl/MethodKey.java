@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -54,7 +55,11 @@ public final class MethodKey {
         int firstParamToConvert = -1;
         for (int i = 0; i < originalParams.length; i++) {
             if (originalParams[i] instanceof JavaOpenClass) {
-                continue;
+                CustomJavaOpenClass customJavaOpenClass = originalParams[i].getInstanceClass()
+                    .getAnnotation(CustomJavaOpenClass.class);
+                if (customJavaOpenClass == null || !customJavaOpenClass.normalize()) {
+                    continue;
+                }
             }
             firstParamToConvert = i;
             break;
@@ -75,6 +80,14 @@ public final class MethodKey {
 
             if (!(param instanceof JavaOpenClass) && param.getInstanceClass() != null) {
                 normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
+            } else {
+                if (param instanceof JavaOpenClass) {
+                    CustomJavaOpenClass customJavaOpenClass = originalParams[i].getInstanceClass()
+                        .getAnnotation(CustomJavaOpenClass.class);
+                    if (customJavaOpenClass != null && customJavaOpenClass.normalize()) {
+                        normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
+                    }
+                }
             }
 
             normalizedParams[i] = normParam;

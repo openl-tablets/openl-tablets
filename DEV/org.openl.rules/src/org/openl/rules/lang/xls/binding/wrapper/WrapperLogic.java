@@ -3,8 +3,8 @@ package org.openl.rules.lang.xls.binding.wrapper;
 import java.util.IdentityHashMap;
 
 import org.openl.binding.impl.module.ModuleSpecificType;
+import org.openl.dependency.DependencyBindingContext;
 import org.openl.dependency.DependencyOpenClass;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -41,6 +41,15 @@ public final class WrapperLogic {
             openMethod,
             (XlsModuleOpenClass) dependencyOpenClass.getDelegate(),
             true);
+        // Can be refactored by returning the SpreadsheetResultOpenClass by XlsModuleOpenClass, but may introduce
+        // another problems.
+        DependencyBindingContext.additionalSearchTypesInModule = (name, module) -> {
+            if (SpreadsheetResult.class.getName().equals(name) || SpreadsheetResult.class.getSimpleName()
+                .equals(name)) {
+                return ((XlsModuleOpenClass) module).getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+            }
+            return null;
+        };
     }
 
     private WrapperLogic() {
@@ -85,43 +94,42 @@ public final class WrapperLogic {
         return method;
     }
 
-    public static IOpenClass buildMethodReturnType(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
-        IOpenClass type = openMethod.getType();
+    private static IOpenClass toModuleType(IOpenClass type,
+            XlsModuleOpenClass xlsModuleOpenClass,
+            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
         int dim = 0;
-        while (type.isArray()) {
-            type = type.getComponentClass();
+        IOpenClass g = type;
+        while (g.isArray()) {
+            g = g.getComponentClass();
             dim++;
         }
-        if (type instanceof ModuleSpecificType && !xlsModuleOpenClass
-            .isExternalModule((XlsModuleOpenClass) ((ModuleSpecificType) type).getModule(), new IdentityHashMap<>())) {
-            IOpenClass t = xlsModuleOpenClass.findType(type.getName());
-            return t != null ? (dim > 0 ? t.getArrayType(dim) : t) : openMethod.getType();
-        } else if (type instanceof SpreadsheetResultOpenClass && xlsModuleOpenClass
+        if (g instanceof ModuleSpecificType && !xlsModuleOpenClass
+            .isExternalModule((XlsModuleOpenClass) ((ModuleSpecificType) g).getModule(), cache)) {
+            IOpenClass t = xlsModuleOpenClass.findType(g.getName());
+            return t != null ? (dim > 0 ? t.getArrayType(dim) : t) : g;
+        } else if (g instanceof SpreadsheetResultOpenClass && xlsModuleOpenClass
             .getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null && !xlsModuleOpenClass
-                .isExternalModule(((SpreadsheetResultOpenClass) type).getModule(), new IdentityHashMap<>())) {
+                .isExternalModule(((SpreadsheetResultOpenClass) g).getModule(), cache)) {
             IOpenClass t = xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
-            return t != null ? (dim > 0 ? t.getArrayType(dim) : t) : openMethod.getType();
+            return t != null ? (dim > 0 ? t.getArrayType(dim) : t) : g;
         } else {
-            return openMethod.getType();
+            return type;
         }
+    }
+
+    public static IOpenClass buildMethodReturnType(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
+        return toModuleType(openMethod.getType(), xlsModuleOpenClass, new IdentityHashMap<>());
     }
 
     public static IMethodSignature buildMethodSignature(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
         IOpenClass[] parameterTypes = openMethod.getSignature().getParameterTypes();
         IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[parameterTypes.length];
-        final boolean isCustomSpreadsheetTypesSupported = xlsModuleOpenClass
-            .getRulesModuleBindingContext() != null && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(
-                xlsModuleOpenClass.getRulesModuleBindingContext().getExternalParams());
+        IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache = null;
         for (int i = 0; i < parameterTypes.length; i++) {
-            IOpenClass t;
-            if (parameterTypes[i] instanceof ModuleSpecificType) {
-                t = xlsModuleOpenClass.findType(parameterTypes[i].getName());
-                t = t != null ? t : parameterTypes[i];
-            } else if (isCustomSpreadsheetTypesSupported && parameterTypes[i] instanceof SpreadsheetResultOpenClass) {
-                t = xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
-            } else {
-                t = parameterTypes[i];
+            if (cache == null) {
+                cache = new IdentityHashMap<>();
             }
+            IOpenClass t = toModuleType(parameterTypes[i], xlsModuleOpenClass, cache);
             parameterDeclarations[i] = new ParameterDeclaration(t, openMethod.getSignature().getParameterName(i));
         }
         return new MethodSignature(parameterDeclarations);
