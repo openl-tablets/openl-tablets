@@ -97,11 +97,7 @@ class TableSyntaxNodeDispatcherBuilder {
      * Exclude those methods, that are not used as context variables.
      */
     private static boolean belongsToExcluded(String methodName) {
-        boolean result = false;
-        if ("getValue".equals(methodName)) {
-            result = true;
-        }
-        return result;
+        return "getValue".equals(methodName);
     }
 
     /**

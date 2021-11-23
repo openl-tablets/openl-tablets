@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 
 import org.openl.exception.OpenLRuntimeException;
@@ -19,7 +18,6 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IMemberMetaInfo;
-import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -37,8 +35,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     private static final DefaultTablePropertiesSorter prioritySorter = new DefaultTablePropertiesSorter();
     private static final DefaultPropertiesIntersectionFinder intersectionMatcher = new DefaultPropertiesIntersectionFinder();
 
-    private XlsModuleOpenClass moduleOpenClass;
-
     private List<IOpenMethod> candidatesSorted;
 
     private IOpenMethod decisionTableOpenMethod;
@@ -54,14 +50,8 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     public MatchingOpenMethodDispatcher() {
     }
 
-    public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
-        super(method);
-        this.moduleOpenClass = Objects.requireNonNull(moduleOpenClass, "moduleOpenClass cannot be null");
-    }
-
-    @Override
-    public IOpenClass getDeclaringClass() {
-        return moduleOpenClass;
+    public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass xlsModuleOpenClass) {
+        super(method, xlsModuleOpenClass);
     }
 
     @Override
@@ -101,8 +91,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     @Override
     public TableSyntaxNode getDispatcherTable() {
         if (decisionTableOpenMethod == null) {
-            DispatcherTablesBuilder dispatcherTablesBuilder = new DispatcherTablesBuilder(moduleOpenClass,
-                moduleOpenClass.getRulesModuleBindingContext());
+            DispatcherTablesBuilder dispatcherTablesBuilder = new DispatcherTablesBuilder(getDeclaringClass());
             dispatcherTablesBuilder.build(this);
         }
         if (decisionTableOpenMethod != null) {
@@ -151,7 +140,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                 }
             }
 
-            selected.removeAll(notPriorMethods);
+            notPriorMethods.forEach(selected::remove);
             if (selected.size() > 1) {
                 notPriorMethods.clear();
                 mostPriority.clear();
@@ -233,7 +222,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     }
                 }
             }
-            selected.removeAll(notPriorMethods);
+            notPriorMethods.forEach(selected::remove);
         }
     }
 
@@ -265,7 +254,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             }
         }
 
-        selected.removeAll(nomatched);
+        nomatched.forEach(selected::remove);
     }
 
     private String toString(Collection<IOpenMethod> methods) {

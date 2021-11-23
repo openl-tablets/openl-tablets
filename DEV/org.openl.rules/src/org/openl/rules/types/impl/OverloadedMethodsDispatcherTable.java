@@ -20,8 +20,8 @@ public class OverloadedMethodsDispatcherTable extends MatchingOpenMethodDispatch
     protected OverloadedMethodsDispatcherTable() {
     }
 
-    public OverloadedMethodsDispatcherTable(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
-        super(method, moduleOpenClass);
+    public OverloadedMethodsDispatcherTable(IOpenMethod method, XlsModuleOpenClass xlsModuleOpenClass) {
+        super(method, xlsModuleOpenClass);
     }
 
     @Override

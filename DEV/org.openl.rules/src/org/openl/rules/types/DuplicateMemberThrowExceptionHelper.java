@@ -45,7 +45,7 @@ public final class DuplicateMemberThrowExceptionHelper {
                 throw new IllegalStateException("Method signatures are not the same");
             }
         }
-        String message;// Modules to which methods belongs to
+        String message;// Modules to which methods belong to
         Set<String> modules = new HashSet<>();
         if (extractModuleName(newOpenMethod) != null) {
             modules.add(extractModuleName(newOpenMethod));

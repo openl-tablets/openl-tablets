@@ -3,6 +3,7 @@ package org.openl.rules.lang.xls.binding.wrapper.base;
 import java.util.List;
 import java.util.Objects;
 
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IMemberMetaInfo;
@@ -34,7 +35,7 @@ public abstract class AbstractMatchingOpenMethodDispatcherWrapper extends Matchi
     }
 
     @Override
-    public IOpenClass getDeclaringClass() {
+    public XlsModuleOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
     }
 

@@ -334,8 +334,7 @@ public class XlsBinder implements IOpenBinder {
 
             if (moduleOpenClass.isUseDecisionTableDispatcher()) {
                 DispatcherTablesBuilder dispatcherTablesBuilder = new DispatcherTablesBuilder(
-                    (XlsModuleOpenClass) topNode.getType(),
-                    rulesModuleBindingContext);
+                    (XlsModuleOpenClass) topNode.getType());
                 dispatcherTablesBuilder.build();
             }
 

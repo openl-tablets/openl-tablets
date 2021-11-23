@@ -38,9 +38,8 @@ public class DispatcherTablesBuilder {
     private final XlsModuleOpenClass moduleOpenClass;
     private final RulesModuleBindingContext rulesModuleBindingContext;
 
-    public DispatcherTablesBuilder(XlsModuleOpenClass moduleOpenClass,
-            RulesModuleBindingContext rulesModuleBindingContext) {
-        this.rulesModuleBindingContext = rulesModuleBindingContext;
+    public DispatcherTablesBuilder(XlsModuleOpenClass moduleOpenClass) {
+        this.rulesModuleBindingContext = moduleOpenClass.getRulesModuleBindingContext();
         this.moduleOpenClass = moduleOpenClass;
     }
 

@@ -14,8 +14,8 @@ public final class MatchingOpenMethodDispatcherWrapper extends AbstractMatchingO
 
     private final XlsModuleOpenClass xlsModuleOpenClass;
     private final ContextPropertiesInjector contextPropertiesInjector;
-    private final IOpenClass type;
-    private final IMethodSignature methodSignature;
+    private IOpenClass type;
+    private IMethodSignature methodSignature;
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
         this);
     private final boolean externalMethodCall;
@@ -40,6 +40,13 @@ public final class MatchingOpenMethodDispatcherWrapper extends AbstractMatchingO
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return WrapperLogic.invoke(this, target, params, env, externalMethodCall);
+    }
+
+    @Override
+    public void addMethod(IOpenMethod candidate) {
+        delegate.addMethod(candidate);
+        this.type = WrapperLogic.buildMethodReturnType(delegate, xlsModuleOpenClass);
+        this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
     @Override

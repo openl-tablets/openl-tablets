@@ -90,7 +90,7 @@ public abstract class ADynamicClass extends AOpenClass {
         if (method != null && strict) {
             IMethodSignature signature = method.getSignature();
             for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-                if (!params[i].equals(signature.getParameterType(i))) {
+                if (!signature.getParameterType(i).isAssignableFrom(params[i])) {
                     return null;
                 }
             }
