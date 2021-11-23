@@ -29,15 +29,15 @@ public class RunHealthchecksITest {
 
     @Test
     public void testReadiness() {
-        client.send("healthcheck/readiness_success.get");
+        client.send("healthcheck/readiness_empty.get");
 
         client.post("/admin/deploy", "/rules-to-deploy.zip", 201);
-        client.send("healthcheck/readiness_success.get");
+        client.send("healthcheck/readiness_ready.get");
 
         client.post("/admin/deploy", "/rules-to-deploy-failed.zip", 201);
         client.send("healthcheck/readiness_failure.get");
 
         client.post("/admin/deploy", "/rules-to-deploy_v2.zip", 201);
-        client.send("healthcheck/readiness_success.get");
+        client.send("healthcheck/readiness_ready.get");
     }
 }
