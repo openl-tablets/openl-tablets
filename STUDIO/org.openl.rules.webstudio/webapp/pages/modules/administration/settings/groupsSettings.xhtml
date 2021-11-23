@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:a4j="http://richfaces.org/a4j"
+>
+
+    <form id="generalGroupSettingsForm">
+        <table cellspacing="5">
+            <tr>
+                <td>
+                    <label for="generalGroupSettingsForm:defaultGroup">Default group for all users:</label>
+                </td>
+                <td style="display: grid;">
+                    <input id="generalGroupSettingsForm:defaultGroup" name="defaultGroup" type="text"/>
+                    <span class="error"/>
+                </td>
+            </tr>
+        </table>
+        <h:panelGroup styleClass="button-panel" layout="block">
+            <a4j:commandButton value="Apply and Restart"
+                               render="commonProps repositoryProps javaProps restartMessage"
+                               onclick="submitGeneralGroupSettingsForm();"
+                               styleClass="button-primary" title="Apply all changes and restart WebStudio"/>
+        </h:panelGroup>
+    </form>
+    <a4j:jsFunction name="applyChangesAndRestart"
+                    oncomplete="location.reload();"
+                    action="#{systemSettingsBean.applyChanges}"/>
+
+    <script>
+        //<![CDATA[
+        ws.form.fetchFormData({
+            methodURL: "#{contextPath}/web/admin/management/groups/settings",
+            $form: $j("#generalGroupSettingsForm")
+        });
+        ws.form.registerSubmitFormHandler({
+            methodURL: "#{contextPath}/web/admin/management/groups/settings",
+            $form: $j("#generalGroupSettingsForm"),
+            dataType: "json",
+            onSuccess: () => {
+                showLoader();
+                applyChangesAndRestart();
+            }
+        });
+
+        function submitGeneralGroupSettingsForm() {
+            if (confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?')) {
+                $j('#generalGroupSettingsForm').submit()
+            }
+        }
+        //]]>
+    </script>
+</ui:composition>

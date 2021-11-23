@@ -1,6 +1,12 @@
 package org.openl.rules.webstudio.web.admin;
 
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.AUTO_COMPILE;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DATE_PATTERN;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PROJECT_HISTORY_COUNT;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.TIME_PATTERN;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.UPDATE_SYSTEM_PROPERTIES;
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.USER_WORKSPACE_HOME;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -26,7 +32,6 @@ import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,7 +52,7 @@ public class SystemSettingsBean {
 
     private final RepositoryTreeState repositoryTreeState;
 
-    private final PropertiesHolder properties;
+    private final InMemoryProperties properties;
 
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
 
@@ -56,18 +61,18 @@ public class SystemSettingsBean {
     private SystemSettingsValidator validator;
 
     public SystemSettingsBean(ProductionRepositoriesTreeController productionRepositoriesTreeController,
-        RepositoryFactoryProxy designRepositoryFactoryProxy,
-        RepositoryFactoryProxy productionRepositoryFactoryProxy,
+            RepositoryFactoryProxy designRepositoryFactoryProxy,
+            RepositoryFactoryProxy productionRepositoryFactoryProxy,
             DeploymentManager deploymentManager,
             DesignTimeRepository designTimeRepository,
             RepositoryTreeState repositoryTreeState,
-            PropertyResolver propertyResolver) {
+            InMemoryProperties properties) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
         this.deploymentManager = deploymentManager;
         this.designTimeRepository = designTimeRepository;
         this.repositoryTreeState = repositoryTreeState;
 
-        properties = new InMemoryProperties(propertyResolver);
+        this.properties = properties;
 
         try {
             deployConfigRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DEPLOY_CONFIG.getId(), properties);
@@ -279,7 +284,7 @@ public class SystemSettingsBean {
             WebStudioUtils.addErrorMessage(e.getMessage());
         }
     }
-    
+
     public void addDesignRepository() {
         designRepositoryEditor.addRepository(createRepositoryConfiguration(RepositoryMode.DESIGN));
     }
@@ -292,7 +297,7 @@ public class SystemSettingsBean {
             WebStudioUtils.addErrorMessage(e.getMessage());
         }
     }
-    
+
     public void addProductionRepository() {
         productionRepositoryEditor.addRepository(createRepositoryConfiguration(RepositoryMode.PRODUCTION));
     }
