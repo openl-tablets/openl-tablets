@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
        xmlns:util="http://www.springframework.org/schema/util"
        xmlns:cxf="http://cxf.apache.org/core"
        xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
        xmlns:jaxrs="http://cxf.apache.org/jaxrs"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
                            http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
                            http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
@@ -15,6 +17,10 @@
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
     <import resource="classpath:openl-ruleservice-beans.xml"/>
     <import resource="classpath*:META-INF/openl/extension-*.xml"/>
+
+    <!-- Extension point -->
+    <context:component-scan base-package="org.openl.rules.ruleservice.spring" />
+
 
     <http-conf:conduit name="*.http-conduit">
         <http-conf:client ConnectionTimeout="${ruleservice.http.connectionTimeout}"
