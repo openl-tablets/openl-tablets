@@ -2,10 +2,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:cxf="http://cxf.apache.org/core"
        xmlns:http-conf="http://cxf.apache.org/transports/http/configuration"
        xmlns:jaxrs="http://cxf.apache.org/jaxrs"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+                           http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
                            http://cxf.apache.org/transports/http/configuration http://cxf.apache.org/schemas/configuration/http-conf.xsd
                            http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
 
@@ -18,6 +20,14 @@
         <http-conf:client ConnectionTimeout="${ruleservice.http.connectionTimeout}"
                           ReceiveTimeout="${ruleservice.http.receiveTimeout}"/>
     </http-conf:conduit>
+
+    <cxf:bus>
+        <cxf:features>
+            <bean class="org.apache.cxf.transport.common.gzip.GZIPFeature">
+                <property name="threshold" value="${ruleservice.gzip.threshold}"/>
+            </bean>
+        </cxf:features>
+    </cxf:bus>
 
     <util:map id="uiConfig" key-type="java.lang.String">
         <entry key="deployerEnabled" value="${ruleservice.deployer.enabled}" value-type="java.lang.Boolean"/>

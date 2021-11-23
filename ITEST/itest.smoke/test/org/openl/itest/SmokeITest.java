@@ -73,6 +73,12 @@ public class SmokeITest {
     }
 
     @Test
+    public void testGZIP() {
+        client.send("simple_mul.json.gzip.post");
+        client.send("multiproject.findCarByVIN.gzip.post");
+    }
+
+    @Test
     public void testMultimodule() {
         client.send("multiproject.findCarByVIN.post");
     }
