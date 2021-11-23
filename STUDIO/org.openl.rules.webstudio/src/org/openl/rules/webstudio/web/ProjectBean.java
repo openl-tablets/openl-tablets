@@ -53,6 +53,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.rules.project.model.validation.ValidationException;
+import org.openl.rules.project.openapi.OpenApiGenerationException;
 import org.openl.rules.project.openapi.OpenApiGenerator;
 import org.openl.rules.project.openapi.OpenApiSerializationUtils;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
@@ -899,6 +900,8 @@ public class ProjectBean {
                 newProjectDescriptor.setOpenapi(openAPI);
             }
             save(newProjectDescriptor);
+        } catch (OpenApiGenerationException e) {
+            throw new Message(e.getMessage(), e);
         } catch (Exception e) {
             throw new Message(
                 String.format("Failed to %s OpenAPI file. Please check compilation.", update ? "update" : "create"),
@@ -921,6 +924,7 @@ public class ProjectBean {
                 generatedOpenAPISchema = OpenApiSerializationUtils.toJson(generator.generate());
                 break;
             case YAML:
+            case YML:
                 generatedOpenAPISchema = OpenApiSerializationUtils.toYaml(generator.generate());
                 break;
             default:

@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -32,6 +31,7 @@ import org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapp
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory;
 import org.openl.types.IOpenClass;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +93,7 @@ public class OpenApiGenerator {
             Class<?> enhancedServiceClass = enhanceWithJAXRS(serviceClass, serviceClassLoader, objectMapper);
             Map<Method, Method> methodMap = buildMethodMapWithJAXRS(serviceClass, enhancedServiceClass);
             if (methodMap.isEmpty()) {
-                throw new RulesInstantiationException(
+                throw new OpenApiGenerationException(
                     "There are no public methods. Check the provided rules, annotation template class, and included/excluded methods in module settings.");
             }
             synchronized (OpenApiRulesCacheWorkaround.class) {
@@ -104,10 +104,10 @@ public class OpenApiGenerator {
                     return reader.read(enhancedServiceClass);
                 } catch (Exception e) {
                     StringBuilder message = new StringBuilder("Failed to build OpenAPI for the current project.");
-                    if (org.openl.util.StringUtils.isNotBlank(e.getMessage())) {
+                    if (StringUtils.isNotBlank(e.getMessage())) {
                         message.append(" ").append(e.getMessage());
                     }
-                    throw new RulesInstantiationException(message.toString());
+                    throw new OpenApiGenerationException(message.toString());
                 } finally {
                     OpenApiRulesCacheWorkaround.reset();
                     openApiObjectMapperHack.revert();
@@ -173,11 +173,11 @@ public class OpenApiGenerator {
                 if (serviceClass.isInterface()) {
                     return serviceClass;
                 } else {
-                    throw new RulesInstantiationException(String
+                    throw new OpenApiGenerationException(String
                         .format("Interface is expected for service class '%s', but class is found.", serviceClassName));
                 }
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                throw new RulesInstantiationException(
+                throw new OpenApiGenerationException(
                     String.format("An error is occurred during loading a service class '%s'.%s",
                         serviceClassName,
                         StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
@@ -210,14 +210,14 @@ public class OpenApiGenerator {
                         instantiationStrategy.compile().getOpenClass(),
                         resolveServiceClassLoader);
                 } else {
-                    throw new RulesInstantiationException(String.format(
+                    throw new OpenApiGenerationException(String.format(
                         "Interface or abstract class is expected for annotation template class '%s', but class is found.",
                         templateClassName));
                 }
             } catch (RulesInstantiationException e) {
                 throw e;
             } catch (Exception | NoClassDefFoundError e) {
-                throw new RulesInstantiationException(
+                throw new OpenApiGenerationException(
                     String.format("An error is occurred during loading or applying annotation template class '%s'.%s",
                         templateClassName,
                         StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
@@ -281,7 +281,7 @@ public class OpenApiGenerator {
                 null,
                 objectMapper);
         } catch (Exception e) {
-            throw new RulesInstantiationException("Failed to build an interface for the project.", e);
+            throw new OpenApiGenerationException("Failed to build an interface for the project.", e);
         }
     }
 
@@ -290,7 +290,7 @@ public class OpenApiGenerator {
         try {
             return JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass, enhancedServiceClass);
         } catch (Exception e) {
-            throw new RulesInstantiationException("Failed to build an interface for the project.", e);
+            throw new OpenApiGenerationException("Failed to build an interface for the project.", e);
         }
     }
 
@@ -308,8 +308,8 @@ public class OpenApiGenerator {
         }
 
         /**
-         * If runtime context must be included to OpenAPI schema or not by default. Takes effect only
-         * if {@code  isProvideRuntimeContext} is not provided in rules-deploy.xml
+         * If runtime context must be included to OpenAPI schema or not by default. Takes effect only if
+         * {@code  isProvideRuntimeContext} is not provided in rules-deploy.xml
          *
          * @param provideRuntimeContext include runtime context to OpenAPI or not
          * @return current builder instance
@@ -320,8 +320,8 @@ public class OpenApiGenerator {
         }
 
         /**
-         * If variations endpoints must be included to OpenAPI schema or not by default. Takes effect only
-         * if {@code isProvideVariations} is not provided in rules-deploy.xml
+         * If variations endpoints must be included to OpenAPI schema or not by default. Takes effect only if
+         * {@code isProvideVariations} is not provided in rules-deploy.xml
          *
          * @param provideVariations include variations endpoints to OpenAPI or not
          * @return current builder instance
