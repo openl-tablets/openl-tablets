@@ -1,16 +1,17 @@
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-[{
-        "startedTime": "#####",
-        "name": "deployed-rules",
-        "servicePath": "rules-to-deploy/rules-to-deploy",
-        "urls": {
-            "WEBSERVICE": "deployed-rules",
-            "RESTFUL": "REST/deployed-rules"
-        },
-        "hasManifest": false,
-        "deploymentName": "rules-to-deploy",
-        "status": "DEPLOYED"
-    }
+[
+  {
+    "startedTime": "#####",
+    "name": "deployed-rules",
+    "servicePath": "rules-to-deploy/rules-to-deploy",
+    "urls": {
+      "WEBSERVICE": "deployed-rules",
+      "RESTFUL": "REST/deployed-rules"
+    },
+    "hasManifest": false,
+    "deploymentName": "rules-to-deploy",
+    "status": "DEPLOYED"
+  }
 ]

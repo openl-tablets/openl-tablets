@@ -1,4 +1,7 @@
 HTTP/1.1 409
 Content-Type: application/json
 
-{"code":"openl.error.409.duplicated.tag-type.message","message":"Tag type with name \"*\" already exists."}
+{
+  "code": "openl.error.409.duplicated.tag-type.message",
+  "message": "Tag type with name \"*\" already exists."
+}

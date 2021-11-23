@@ -1,4 +1,20 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[{"AmountRangeStart":0,"AmountRangeEnd":1000,"dollarCharge":0.55,"band":100.0},{"AmountRangeStart":1000,"AmountRangeEnd":5000,"dollarCharge":0.3,"band":100.0},{"AmountRangeStart":5000,"dollarCharge":0.2,"band":100.0}]
+[
+  {
+    "AmountRangeStart": 0,
+    "AmountRangeEnd": 1000,
+    "dollarCharge": 0.55,
+    "band": 100.0
+  }, {
+    "AmountRangeStart": 1000,
+    "AmountRangeEnd": 5000,
+    "dollarCharge": 0.3,
+    "band": 100.0
+  }, {
+    "AmountRangeStart": 5000,
+    "dollarCharge": 0.2,
+    "band": 100.0
+  }
+]

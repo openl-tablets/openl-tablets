@@ -2,6 +2,6 @@ HTTP/1.1 409
 Content-Type: application/json
 
 {
-    "code": "openl.error.409.duplicated.project.1.message",
-    "message": "Cannot create the project because a project with such path already exists. Try to import that project from repository or create new project with another path or name."
+  "code": "openl.error.409.duplicated.project.1.message",
+  "message": "Cannot create the project because a project with such path already exists. Try to import that project from repository or create new project with another path or name."
 }

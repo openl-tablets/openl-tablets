@@ -2,18 +2,17 @@ HTTP/1.1 200
 Content-Type: application/json
 
 [
-    {
-        "id": "design-flat",
-        "name": "Git Flat"
-    }, {
-        "id": "design-non-flat",
-        "name": "Git Non Flat"
-    }, {
-        "id": "design-protected-flat",
-        "name": "Git Protected Branch Flat"
-    }, {
-        "id": "design",
-        "name": "H2"
-    }
+  {
+    "id": "design-flat",
+    "name": "Git Flat"
+  }, {
+    "id": "design-non-flat",
+    "name": "Git Non Flat"
+  }, {
+    "id": "design-protected-flat",
+    "name": "Git Protected Branch Flat"
+  }, {
+    "id": "design",
+    "name": "H2"
+  }
 ]
-

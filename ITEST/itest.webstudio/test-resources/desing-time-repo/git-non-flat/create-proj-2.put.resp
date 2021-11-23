@@ -2,12 +2,13 @@ HTTP/1.1 400
 Content-Type: application/json
 
 {
-    "message": "Bad Request",
-    "fields": [{
-            "code": "openl.error.repo.invalid.comment.message",
-            "field": "comment",
-            "rejectedValue": "Project Project2 is created.",
-            "message": "'Invalid comment: Comment must be started with ticket number like EPBDS-0000'."
-        }
-    ]
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.repo.invalid.comment.message",
+      "field": "comment",
+      "rejectedValue": "Project Project2 is created.",
+      "message": "'Invalid comment: Comment must be started with ticket number like EPBDS-0000'."
+    }
+  ]
 }

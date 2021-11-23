@@ -2,6 +2,6 @@ HTTP/1.1 404
 Content-Type: application/json
 
 {
-    "code": "openl.error.404.project.message",
-    "message": "Project 'Project4' is not found."
+  "code": "openl.error.404.project.message",
+  "message": "Project 'Project4' is not found."
 }
