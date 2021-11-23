@@ -10,9 +10,7 @@
         <property name="defaultEncoding" value="UTF-8"/>
     </bean>
 
-    <bean id="validatorFactory" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
-        <property name="validationMessageSource" ref="validationMessageSource"/>
-    </bean>
+    <bean id="validatorFactory" class="org.openl.rules.rest.validation.ValidatorFactoryBean"/>
 
     <bean id="beanValidationService" class="org.openl.rules.rest.validation.BeanValidationProvider">
         <constructor-arg name="commonValidators">
