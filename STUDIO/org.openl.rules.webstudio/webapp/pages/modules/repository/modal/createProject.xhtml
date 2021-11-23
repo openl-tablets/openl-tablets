@@ -182,7 +182,7 @@
                     <footer>
                         <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
                                 Now errors are shown after dialog is closed. -->
-                        <h:commandButton value="Create" styleClass="button-primary"
+                        <h:commandButton id="sbtTemplatesBtn" value="Create" styleClass="button-primary"
                                          onclick="createProjectWithRequiredInfo(() => $j('#createProjectFormTempl\\:sbtTemplates').click(), $j('#createProjectFormTempl\\:repositoryTemplate option:selected').val(), $j('#createProjectFormTempl\\:projectName').val()); return false;"/>
                         <h:commandButton id="sbtTemplates" styleClass="hidden" action="#{repositoryTreeController.createNewRulesProject}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
@@ -252,7 +252,7 @@
                         </script>
                     </h:panelGrid>
                     <footer>
-                        <h:commandButton value="Create" styleClass="button-primary"
+                        <h:commandButton id="sbtFilesBtn" value="Create" styleClass="button-primary"
                                          onclick="createProjectWithRequiredInfo(() => $j('#createProjectFormFiles\\:sbtFiles').click(), $j('#createProjectFormFiles\\:repositoryExcel option:selected').val(), $j('#createProjectFormFiles\\:projectName').val()); return false;"/>
                         <h:commandButton id="sbtFiles" styleClass="hidden" action="#{repositoryTreeController.createProjectWithFiles}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
@@ -322,7 +322,7 @@
                         </script>
                     </h:panelGrid>
                     <footer>
-                        <h:commandButton value="Create" styleClass="button-primary"
+                        <h:commandButton id="sbtZipsBtn" value="Create" styleClass="button-primary"
                                          onclick="createProjectWithRequiredInfo(() => $j('#uploadProjectForm\\:sbtZips').click(), $j('#uploadProjectForm\\:repositoryZip option:selected').val(), $j('#uploadProjectForm\\:projectName').val()); return false;"/>
                         <h:commandButton id="sbtZips" styleClass="hidden" action="#{repositoryTreeController.upload}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
@@ -463,7 +463,7 @@
                         </script>
                     </h:panelGrid>
                     <footer>
-                        <h:commandButton value="Create" styleClass="button-primary"
+                        <h:commandButton id="submitOpenAPIFileBtn" value="Create" styleClass="button-primary"
                                          onclick="createProjectWithRequiredInfo(() => $j('#openAPIProjectForm\\:submitOpenAPIFile').click(), $j('#openAPIProjectForm\\:repositoryOpenAPI option:selected').val(), $j('#openAPIProjectForm\\:projectName').val()); return false;"/>
                         <h:commandButton id="submitOpenAPIFile" styleClass="hidden" action="#{repositoryTreeController.upload}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
@@ -555,7 +555,7 @@
 
                     <h:panelGroup id="localUploadButtonPanel">
                         <footer>
-                            <a4j:commandButton value="Create" styleClass="button-primary"
+                            <a4j:commandButton id="sbtWorkspaceBtn" value="Create" styleClass="button-primary"
                                              rendered="#{not empty localUpload.projects4Upload}"
                                              onclick="createProjectWithRequiredInfo(() => $j('#sbtWorkspace').click(), $j('#repositoryLocal option:selected').val(), ''); return false;"/>
                             <a4j:commandButton id="sbtWorkspace" styleClass="hidden" action="#{localUpload.upload}"
@@ -662,7 +662,7 @@
         function initNewProjectDialogUIWorkspace() {
             initNewProjectDialogUI();
             let checkedCount = $j("#uploadWorkspaceProjectForm INPUT[type='checkbox']:checked").not("INPUT[id='uploadPrjFromLocalTable:selectAll']").size();
-            enableCreateButton(checkedCount !== 0, #{rich:element('sbtWorkspace')});
+            enableCreateButton(checkedCount !== 0, #{rich:element('sbtWorkspaceBtn')});
         }
 
         function clearFields() {
@@ -788,25 +788,25 @@
 
         function checkCreateOnTemplatePanel() {
             if ($j("#createProjectFormTempl\\:projectName").val() && $j("#createProjectFormTempl\\:repositoryTemplate").val() !== "none") {
-                enableCreateButton(true, #{rich:element("sbtTemplates")});
+                enableCreateButton(true, #{rich:element("sbtTemplatesBtn")});
             } else {
-                enableCreateButton(false, #{rich:element("sbtTemplates")});
+                enableCreateButton(false, #{rich:element("sbtTemplatesBtn")});
             }
         }
 
         function checkCreateOnExcelPanel() {
             if (excelFileUploaded && $j("#createProjectFormFiles\\:projectName").val() && $j("#createProjectFormFiles\\:repositoryExcel").val() !== "none") {
-                enableCreateButton(true, #{rich:element("sbtFiles")});
+                enableCreateButton(true, #{rich:element("sbtFilesBtn")});
             } else {
-                enableCreateButton(false, #{rich:element("sbtFiles")});
+                enableCreateButton(false, #{rich:element("sbtFilesBtn")});
             }
         }
 
         function checkCreateOnZipPanel() {
             if (zipFileUploaded && $j("#uploadProjectForm\\:projectName").val() && $j("#uploadProjectForm\\:repositoryZip").val() !== "none") {
-                enableCreateButton(true, #{rich:element("sbtZips")});
+                enableCreateButton(true, #{rich:element("sbtZipsBtn")});
             } else {
-                enableCreateButton(false, #{rich:element("sbtZips")});
+                enableCreateButton(false, #{rich:element("sbtZipsBtn")});
             }
         }
 
@@ -860,17 +860,17 @@
             }
             let pathsDefined = modelsPathDefined && algorithmsPathDefined;
             if (openApiFileUploaded && getOpenAPIProjectName().val() && moduleNamesAreDefined && pathsDefined && getOpenAPIRepository().val() !== "none") {
-                enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
+                enableCreateButton(true, #{rich:element("submitOpenAPIFileBtn")});
             } else {
-                enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
+                enableCreateButton(false, #{rich:element("submitOpenAPIFileBtn")});
             }
         }
 
         function checkCreateWorkspacePanel() {
             if (checkedCount !== 0 && $j("#repositoryLocal").val() !== "none") {
-                enableCreateButton(true, #{rich:element("sbtWorkspace")});
+                enableCreateButton(true, #{rich:element("sbtWorkspaceBtn")});
             } else {
-                enableCreateButton(false, #{rich:element("sbtWorkspace")});
+                enableCreateButton(false, #{rich:element("sbtWorkspaceBtn")});
             }
         }
 
