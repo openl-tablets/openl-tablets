@@ -140,6 +140,12 @@ class HttpData {
             if (expected.body == null) {
                 return; // No body expected
             }
+            String contentEncoding = headers.get("Content-Encoding");
+            if (contentEncoding != null) {
+                // Binary encoding
+                assertArrayEquals("Body: ", expected.body, this.body);
+                return;
+            }
             String contentType = headers.get("Content-Type");
             contentType = contentType == null ? "null" : contentType;
             int sep = contentType.indexOf(';');
@@ -243,6 +249,7 @@ class HttpData {
         String cl = headers.get("Content-Length");
         String te = headers.get("Transfer-Encoding");
         String ct = headers.get("Content-Type");
+        String ce = headers.get("Content-Encoding");
 
         if (ct != null && ct.startsWith("multipart/form-data") && ct.contains("boundary=")) {
             String boundary = ct.substring(ct.indexOf("boundary=") + "boundary=".length());
@@ -273,7 +280,7 @@ class HttpData {
                 writer.print("\r\n");
             }
             body = os.toByteArray();
-        } else if (BLOB_TYPES.contains(ct)) {
+        } else if (BLOB_TYPES.contains(ct) || ce != null) {
             String line = readLine(input);
             if (isFileRef(line)) {
                 String fileRes = resolveFileRef(Paths.get(resource).getParent(), line);
