@@ -1,10 +1,18 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-[{
-    "id":1,
-    "name":"Domain1",
+[
+  {
+    "id": 1,
+    "name": "Domain1",
     "extensible": true,
     "nullable": true,
-    "tags": [{"id": 1, "name": "Policy", "tagTypeId": 1}]
-}]
+    "tags": [
+      {
+        "id": 1,
+        "name": "Policy",
+        "tagTypeId": 1
+      }
+    ]
+  }
+]

@@ -2,28 +2,27 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-    "startedMilli": "#####",
-    "noWadlServices": [],
-    "deployerEnabled": true,
-    "startedAt": "####-##-##T##:##:##.###*****",
-    "buildDate": "####-##-##",
-    "services": [{
-            "startedTime": "#####",
-            "name": "deployed-rules",
-            "servicePath": "rules-to-deploy/rules-to-deploy",
-            "urls": {
-                "WEBSERVICE": "deployed-rules",
-                "RESTFUL": "REST/deployed-rules"
-            },
-            "hasManifest": false,
-            "deploymentName": "rules-to-deploy",
-            "status": "DEPLOYED"
-        }
-    ],
-    "version": "#.##.#*",
-    "buildNumber": "*****",
-    "url": "https://openl-tablets.org",
-    "email": "*"
+  "startedMilli": "#####",
+  "noWadlServices": [],
+  "deployerEnabled": true,
+  "startedAt": "####-##-##T##:##:##.###*****",
+  "buildDate": "####-##-##",
+  "services": [
+    {
+      "startedTime": "#####",
+      "name": "deployed-rules",
+      "servicePath": "rules-to-deploy/rules-to-deploy",
+      "urls": {
+        "WEBSERVICE": "deployed-rules",
+        "RESTFUL": "REST/deployed-rules"
+      },
+      "hasManifest": false,
+      "deploymentName": "rules-to-deploy",
+      "status": "DEPLOYED"
+    }
+  ],
+  "version": "#.##.#*",
+  "buildNumber": "*****",
+  "url": "https://openl-tablets.org",
+  "email": "*"
 }
-
-

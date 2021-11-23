@@ -2,18 +2,17 @@ HTTP/1.1 200
 Content-Type: application/json
 
 [
-    {
-        "name": "Project",
-        "modifiedBy": "Admin",
-        "modifiedAt": "*",
-        "branch":"master",
-        "rev": "*"
-    }, {
-        "name": "Project2",
-        "modifiedBy": "Admin",
-        "modifiedAt": "*",
-        "branch":"master",
-        "rev": "*"
-    }
+  {
+    "name": "Project",
+    "modifiedBy": "Admin",
+    "modifiedAt": "*",
+    "branch": "master",
+    "rev": "*"
+  }, {
+    "name": "Project2",
+    "modifiedBy": "Admin",
+    "modifiedAt": "*",
+    "branch": "master",
+    "rev": "*"
+  }
 ]
-

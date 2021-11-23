@@ -2,13 +2,13 @@ HTTP/1.1 400
 Content-Type: application/json
 
 {
-    "message": "Bad Request",
-    "fields": [{
-            "code": "openl.error.repo.not-supported.path.message",
-            "field": "path",
-            "rejectedValue": "foo",
-            "message": "Design Repository doesn't support folders. Path must be empty."
-        }
-    ]
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.repo.not-supported.path.message",
+      "field": "path",
+      "rejectedValue": "foo",
+      "message": "Design Repository doesn't support folders. Path must be empty."
+    }
+  ]
 }
-

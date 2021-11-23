@@ -1,25 +1,26 @@
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-[{
-        "startedTime": "#####",
-        "name": "yaml_project_Project1",
-        "servicePath": "yaml_project/Project1",
-        "urls": {
-            "RESTFUL": "REST/yaml_project/Project1"
-        },
-        "hasManifest": false,
-        "deploymentName": "yaml_project",
-        "status": "DEPLOYED"
-    }, {
-        "startedTime": "#####",
-        "name": "yaml_project_Project2",
-        "servicePath": "yaml_project/Project2",
-        "urls": {
-            "RESTFUL": "REST/yaml_project/Project2"
-        },
-        "hasManifest": false,
-        "deploymentName": "yaml_project",
-        "status": "DEPLOYED"
-    }
+[
+  {
+    "startedTime": "#####",
+    "name": "yaml_project_Project1",
+    "servicePath": "yaml_project/Project1",
+    "urls": {
+      "RESTFUL": "REST/yaml_project/Project1"
+    },
+    "hasManifest": false,
+    "deploymentName": "yaml_project",
+    "status": "DEPLOYED"
+  }, {
+    "startedTime": "#####",
+    "name": "yaml_project_Project2",
+    "servicePath": "yaml_project/Project2",
+    "urls": {
+      "RESTFUL": "REST/yaml_project/Project2"
+    },
+    "hasManifest": false,
+    "deploymentName": "yaml_project",
+    "status": "DEPLOYED"
+  }
 ]

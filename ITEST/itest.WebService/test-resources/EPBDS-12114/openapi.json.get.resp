@@ -2,129 +2,130 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-    "openapi": "3.0.1",
-    "info": {
-        "title": "EPBDS-12114_EPBDS-12114",
-        "version": "1.0.0"
-    },
-    "servers": [{
-            "url": "/EPBDS-12114/EPBDS-12114",
-            "variables": {}
-        }
-    ],
-    "paths": {
-        "/doPing": {
-            "post": {
-                "summary": "Pong doPing(Ping)",
-                "description": "Rules method: SpreadsheetResultdoPing doPing(org.openl.generated.beans.Ping ping)",
-                "operationId": "doPing",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/Ping"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "422": {
-                        "description": "Custom user errors in rules or validation errors in input parameters",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Cannot parse 'bar' to JSON",
-                                    "type": "BAD_REQUEST"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Failed to load lazy method.",
-                                    "type": "COMPILATION"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "Successful operation"
-                    },
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Pong"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "components": {
-        "schemas": {
-            "JAXRSErrorResponse": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string",
-                        "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
-                    },
-                    "details": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "Pong": {
-                "type": "object",
-                "properties": {
-                    "field1": {
-                        "type": "string",
-                        "default": "Pong"
-                    }
-                }
-            },
-            "Ping": {
-                "type": "object",
-                "properties": {
-                    "field1": {
-                        "type": "string",
-                        "default": "Ping"
-                    }
-                }
-            }
-        }
+  "openapi": "3.0.1",
+  "info": {
+    "title": "EPBDS-12114_EPBDS-12114",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/EPBDS-12114/EPBDS-12114",
+      "variables": {}
     }
+  ],
+  "paths": {
+    "/doPing": {
+      "post": {
+        "summary": "Pong doPing(Ping)",
+        "description": "Rules method: SpreadsheetResultdoPing doPing(org.openl.generated.beans.Ping ping)",
+        "operationId": "doPing",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Ping"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pong"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Pong": {
+        "type": "object",
+        "properties": {
+          "field1": {
+            "type": "string",
+            "default": "Pong"
+          }
+        }
+      },
+      "Ping": {
+        "type": "object",
+        "properties": {
+          "field1": {
+            "type": "string",
+            "default": "Ping"
+          }
+        }
+      }
+    }
+  }
 }

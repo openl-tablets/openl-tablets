@@ -2,584 +2,586 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-    "openapi": "3.0.1",
-    "info": {
-        "title": "simple6",
-        "version": "1.0.0"
-    },
-    "servers": [{
-            "url": "/deployment6/simple6",
-            "variables": {}
-        }
-    ],
-    "paths": {
-        "/test": {
-            "post": {
-                "summary": "Test test(Integer)",
-                "description": "Rules method: SpreadsheetResulttest test(java.lang.Integer hour)",
-                "operationId": "test",
-                "requestBody": {
-                    "content": {
-                        "text/plain": {
-                            "schema": {
-                                "type": "integer",
-                                "format": "int32"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "422": {
-                        "description": "Custom user errors in rules or validation errors in input parameters",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Cannot parse 'bar' to JSON",
-                                    "type": "BAD_REQUEST"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Failed to load lazy method.",
-                                    "type": "COMPILATION"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "Successful operation"
-                    },
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Test"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/Hello": {
-            "post": {
-                "summary": "String Hello(Integer)",
-                "description": "Rules method: java.lang.String Hello(java.lang.Integer hour)",
-                "operationId": "Hello",
-                "requestBody": {
-                    "content": {
-                        "text/plain": {
-                            "schema": {
-                                "type": "integer",
-                                "format": "int32"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "422": {
-                        "description": "Custom user errors in rules or validation errors in input parameters",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Cannot parse 'bar' to JSON",
-                                    "type": "BAD_REQUEST"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Failed to load lazy method.",
-                                    "type": "COMPILATION"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "Successful operation"
-                    },
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "text/plain": {
-                                "schema": {
-                                    "type": "string"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/DoSomething": {
-            "get": {
-                "summary": "DoSomething DoSomething()",
-                "description": "Rules method: SpreadsheetResultDoSomething DoSomething()",
-                "operationId": "DoSomething",
-                "responses": {
-                    "422": {
-                        "description": "Custom user errors in rules or validation errors in input parameters",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Cannot parse 'bar' to JSON",
-                                    "type": "BAD_REQUEST"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Failed to load lazy method.",
-                                    "type": "COMPILATION"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "Successful operation"
-                    },
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/DoSomething"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/response/{id}": {
-            "get": {
-                "summary": "Simple6ResponseDTO getResponseById(String)",
-                "description": "Method: org.openl.itest.serviceclass.Simple6ResponseDTO getResponseById(java.lang.String)",
-                "operationId": "getResponseById",
-                "parameters": [{
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "422": {
-                        "description": "Custom user errors in rules or validation errors in input parameters",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Cannot parse 'bar' to JSON",
-                                    "type": "BAD_REQUEST"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Failed to load lazy method.",
-                                    "type": "COMPILATION"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "Successful operation"
-                    },
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Simple6ResponseDTO"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/DoSomethingExtra": {
-            "get": {
-                "summary": "DoSomething DoSomethingExtra()",
-                "description": "Method: org.openl.generated.spreadsheetresults.DoSomething DoSomethingExtra()",
-                "operationId": "DoSomethingExtra",
-                "responses": {
-                    "422": {
-                        "description": "Custom user errors in rules or validation errors in input parameters",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Cannot parse 'bar' to JSON",
-                                    "type": "BAD_REQUEST"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Failed to load lazy method.",
-                                    "type": "COMPILATION"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "Successful operation"
-                    },
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/DoSomething"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/AlwaysThrowExceptionAfterCall": {
-            "get": {
-                "summary": "Simple6ResponseDTO AlwaysThrowExceptionAfterCall()",
-                "description": "Method: org.openl.itest.serviceclass.Simple6ResponseDTO AlwaysThrowExceptionAfterCall()",
-                "operationId": "AlwaysThrowExceptionAfterCall",
-                "responses": {
-                    "422": {
-                        "description": "Custom user errors in rules or validation errors in input parameters",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Cannot parse 'bar' to JSON",
-                                    "type": "BAD_REQUEST"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Failed to load lazy method.",
-                                    "type": "COMPILATION"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "Successful operation"
-                    },
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Simple6ResponseDTO"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/AlwaysThrowExceptionBeforeCall": {
-            "get": {
-                "summary": "Simple6ResponseDTO AlwaysThrowExceptionBeforeCall()",
-                "description": "Method: org.openl.itest.serviceclass.Simple6ResponseDTO AlwaysThrowExceptionBeforeCall()",
-                "operationId": "AlwaysThrowExceptionBeforeCall",
-                "responses": {
-                    "422": {
-                        "description": "Custom user errors in rules or validation errors in input parameters",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Cannot parse 'bar' to JSON",
-                                    "type": "BAD_REQUEST"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                },
-                                "example": {
-                                    "message": "Failed to load lazy method.",
-                                    "type": "COMPILATION"
-                                }
-                            }
-                        }
-                    },
-                    "204": {
-                        "description": "Successful operation"
-                    },
-                    "200": {
-                        "description": "Successful operation",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/Simple6ResponseDTO"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "components": {
-        "schemas": {
-            "JAXRSErrorResponse": {
-                "type": "object",
-                "properties": {
-                    "message": {
-                        "type": "string"
-                    },
-                    "type": {
-                        "type": "string",
-                        "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
-                    },
-                    "details": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                }
-            },
-            "Test": {
-                "type": "object",
-                "properties": {
-                    "Value_R10": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "Value1_R10": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "Value2_R10": {
-                        "type": "string"
-                    },
-                    "Value_R20": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "Value1_R20": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "Value2_R20": {
-                        "type": "string"
-                    },
-                    "Value_R30": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "Value1_R30": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "Value2_R30": {
-                        "type": "string"
-                    },
-                    "Value_R40": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "Value1_R40": {
-                        "type": "number",
-                        "format": "double"
-                    },
-                    "Value2_R40": {
-                        "type": "string"
-                    }
-                }
-            },
-            "DoSomething": {
-                "type": "object",
-                "properties": {
-                    "Foo1": {
-                        "type": "integer",
-                        "format": "int32"
-                    },
-                    "Foo2": {
-                        "$ref": "#/components/schemas/Test"
-                    }
-                }
-            },
-            "Simple6ResponseDTO": {
-                "type": "object",
-                "properties": {
-                    "response": {
-                        "type": "string"
-                    }
-                }
-            }
-        }
+  "openapi": "3.0.1",
+  "info": {
+    "title": "simple6",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/deployment6/simple6",
+      "variables": {}
     }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Test test(Integer)",
+        "description": "Rules method: SpreadsheetResulttest test(java.lang.Integer hour)",
+        "operationId": "test",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Test"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Hello": {
+      "post": {
+        "summary": "String Hello(Integer)",
+        "description": "Rules method: java.lang.String Hello(java.lang.Integer hour)",
+        "operationId": "Hello",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/DoSomething": {
+      "get": {
+        "summary": "DoSomething DoSomething()",
+        "description": "Rules method: SpreadsheetResultDoSomething DoSomething()",
+        "operationId": "DoSomething",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoSomething"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/response/{id}": {
+      "get": {
+        "summary": "Simple6ResponseDTO getResponseById(String)",
+        "description": "Method: org.openl.itest.serviceclass.Simple6ResponseDTO getResponseById(java.lang.String)",
+        "operationId": "getResponseById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Simple6ResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/DoSomethingExtra": {
+      "get": {
+        "summary": "DoSomething DoSomethingExtra()",
+        "description": "Method: org.openl.generated.spreadsheetresults.DoSomething DoSomethingExtra()",
+        "operationId": "DoSomethingExtra",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DoSomething"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AlwaysThrowExceptionAfterCall": {
+      "get": {
+        "summary": "Simple6ResponseDTO AlwaysThrowExceptionAfterCall()",
+        "description": "Method: org.openl.itest.serviceclass.Simple6ResponseDTO AlwaysThrowExceptionAfterCall()",
+        "operationId": "AlwaysThrowExceptionAfterCall",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Simple6ResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/AlwaysThrowExceptionBeforeCall": {
+      "get": {
+        "summary": "Simple6ResponseDTO AlwaysThrowExceptionBeforeCall()",
+        "description": "Method: org.openl.itest.serviceclass.Simple6ResponseDTO AlwaysThrowExceptionBeforeCall()",
+        "operationId": "AlwaysThrowExceptionBeforeCall",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful operation"
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Simple6ResponseDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Test": {
+        "type": "object",
+        "properties": {
+          "Value_R10": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value1_R10": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value2_R10": {
+            "type": "string"
+          },
+          "Value_R20": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value1_R20": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value2_R20": {
+            "type": "string"
+          },
+          "Value_R30": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value1_R30": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value2_R30": {
+            "type": "string"
+          },
+          "Value_R40": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value1_R40": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value2_R40": {
+            "type": "string"
+          }
+        }
+      },
+      "DoSomething": {
+        "type": "object",
+        "properties": {
+          "Foo1": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Foo2": {
+            "$ref": "#/components/schemas/Test"
+          }
+        }
+      },
+      "Simple6ResponseDTO": {
+        "type": "object",
+        "properties": {
+          "response": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
 }

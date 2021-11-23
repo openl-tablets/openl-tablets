@@ -2,5 +2,5 @@ POST /REST/EPBDS-11682/EPBDS-11682/GetOptionalResponse HTTP/1.1
 Content-Type: application/json
 
 {
-    "cond": false
+  "cond": false
 }

@@ -109,18 +109,18 @@ public class AdminRestController {
     public Response readiness() {
         Collection<ServiceInfo> servicesInfo = serviceManager.getServicesInfo();
         if (servicesInfo.isEmpty()) {
-            return serviceManager.isReady() ? Response.ok().build() : Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+            return serviceManager.isReady() ? Response.ok("EMPTY", MediaType.TEXT_PLAIN_TYPE).build() : Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
         }
         boolean anyFailed = servicesInfo.stream()
             .anyMatch(info -> ServiceInfo.ServiceStatus.FAILED.equals(info.getStatus()));
 
-        return anyFailed ? Response.status(Response.Status.SERVICE_UNAVAILABLE).build() : Response.ok().build();
+        return anyFailed ? Response.status(Response.Status.SERVICE_UNAVAILABLE).build() : Response.ok("READY", MediaType.TEXT_PLAIN_TYPE).build();
     }
 
     @GET
     @Path("/healthcheck/startup")
     public Response startup() {
-        return Response.ok().build();
+        return Response.ok("UP", MediaType.TEXT_PLAIN_TYPE).build();
     }
 
     private static Response okOrNotFound(Object entity) {

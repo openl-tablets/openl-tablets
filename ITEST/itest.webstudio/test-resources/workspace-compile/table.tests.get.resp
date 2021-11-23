@@ -2,17 +2,17 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-   "compiled":true,
-   "allTests":[
-      {
-         "uri":"#local/Sample/Main/table",
-         "id":"c1af650ae61ff58aa262f77e51e06f1f",
-         "name":"HelloTest (1 test case)"
-      },
-      {
-         "uri":"#local/Sample/Main/table",
-         "id":"bb7899212a651584123555cfe8f07050",
-         "name":"HelloTest3 (1 test case)"
-      }
-   ]
+  "compiled": true,
+  "allTests": [
+    {
+      "uri": "#local/Sample/Main/table",
+      "id": "c1af650ae61ff58aa262f77e51e06f1f",
+      "name": "HelloTest (1 test case)"
+    },
+    {
+      "uri": "#local/Sample/Main/table",
+      "id": "bb7899212a651584123555cfe8f07050",
+      "name": "HelloTest3 (1 test case)"
+    }
+  ]
 }
