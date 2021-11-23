@@ -66,13 +66,13 @@
                     if (status === "success") {
                         RichFaces.$('exportModule').hide();
                     } else {
-                        ws.ui.info(status);
+                        ws.ui.alert(status);
                     }
                 },
                 onTimeout: function(){
                     ws.ui.hideLoader();
                     RichFaces.$('exportModule').hide();
-                    ws.ui.info('File generation is too long');
+                    ws.ui.alert('File generation is too long');
                 }
             };
             ResponseMonitor.register($j('#exportModuleForm').get(), options);

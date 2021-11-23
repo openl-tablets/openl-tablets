@@ -306,12 +306,12 @@
                                     api.ui.hideLoader();
                                 }
                                 if (status !== "success") {
-                                    api.ui.info(status);
+                                    api.ui.alert(status);
                                 }
                             },
                             onTimeout: function () {
                                 api.ui.hideLoader();
-                                api.ui.info('File generation was aborted');
+                                api.ui.alert('File generation was aborted');
                                 if (downloadPage.isOpened()) {
                                     downloadPage.close();
                                 }
@@ -464,7 +464,10 @@
                         message(content, -1, true, "error");
                     },
                     info: function(content) {
-                        message(content, 8000, true);
+                        message(content, 8000, true, "info");
+                    },
+                    alert: function(content) {
+                        message(content, 8000, true, "alert");
                     },
 
                     problems: {
@@ -604,11 +607,11 @@
                     if (errorMessage) {
                         // TODO Create mechanism to disable editing in UI when Excel file is opened.
                         if (errorMessage.indexOf(".xls") > -1) {
-                            api.ui.info("#{msg['ws.common.error.save']}");
+                            api.ui.alert("#{msg['ws.common.error.save']}");
                         } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
                             api.nav.reload(true);
                         } else {
-                            api.ui.info(errorMessage);
+                            api.ui.alert(errorMessage);
                         }
                         return;
                     }
@@ -774,12 +777,12 @@
                             }
                         })(error);
                         if (json?.message != null) {
-                            api.ui.info(json.message);
+                            api.ui.alert(json.message);
                         } else {
-                            api.ui.info("#{msg['ws.common.error.500']}");
+                            api.ui.alert("#{msg['ws.common.error.500']}");
                         }
                     } else {
-                        api.ui.info("#{msg['ws.common.error.500']}");
+                        api.ui.alert("#{msg['ws.common.error.500']}");
                     }
                 }
             };

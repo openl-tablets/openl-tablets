@@ -45,7 +45,10 @@
                         message(content, -1, true, "error");
                     },
                     info: function(content) {
-                        message(content, 8000, true);
+                        message(content, 8000, true, "info");
+                    },
+                    alert: function(content) {
+                        message(content, 8000, true, "alert");
                     },
                     showLoader: function () {
                         if (loadingPanel.is(":hidden")) {

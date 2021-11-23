@@ -112,17 +112,6 @@
                     handleError(data.responseCode);
                 }
             });
-
-            function handleError(code) {
-                if (code == 399) { // Session Timeout
-                    location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
-                } else if (code == 404) { // File Not Found
-                    message("#{msg['ws.common.error.404']}", 7000);
-                } else {
-                    message("#{msg['ws.common.error.500']}", 7000);
-                }
-            }
-
             var ws = {
                 ui: {
                     success: function(content) {
@@ -132,7 +121,10 @@
                         message(content, -1, true, "error");
                     },
                     info: function(content) {
-                        message(content, 8000, true);
+                        message(content, 8000, true, "info");
+                    },
+                    alert: function (content) {
+                        message(content, 8000, true, "alert");
                     }
                 },
                 utils: {
@@ -141,6 +133,17 @@
                     }
                 }
             };
+
+
+            function handleError(code) {
+                if (code == 399) { // Session Timeout
+                    location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                } else if (code == 404) { // File Not Found
+                    ws.ui.alert("#{msg['ws.common.error.404']}");
+                } else {
+                    ws.ui.alert("#{msg['ws.common.error.500']}");
+                }
+            }
 
             $j(function () {
                 loadingPanel = $j("#loadingPanel");

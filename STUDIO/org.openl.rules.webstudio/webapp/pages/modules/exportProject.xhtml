@@ -70,13 +70,13 @@
                     if (status === "success") {
                         closeExportProjectDialog();
                     } else {
-                        ws.ui.info(status);
+                        ws.ui.alert(status);
                     }
                 },
                 onTimeout: function(){
                     ws.ui.hideLoader();
                     closeExportProjectDialog();
-                    ws.ui.info('File generation is too long');
+                    ws.ui.alert('File generation is too long');
                 }
             };
             ResponseMonitor.register($j('#exportProjectForm').get(), options);

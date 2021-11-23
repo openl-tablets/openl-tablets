@@ -873,7 +873,7 @@
 
         function onError(data) {
             ws.ui.hideLoader();
-            ws.ui.info(data.message);
+            ws.ui.alert(data.message);
         }
 
         function onRun(skipSelectionCheck) {

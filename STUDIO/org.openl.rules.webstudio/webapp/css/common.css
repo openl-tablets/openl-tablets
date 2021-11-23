@@ -775,6 +775,12 @@ table.properties-form.wide .error {
 .message.error {
     background-color: #c33;
 }
+.message.info {
+    background-color: #38c;
+}
+.message.alert {
+    background-color: #333;
+}
 .message.closable {
     cursor: pointer;
 }
