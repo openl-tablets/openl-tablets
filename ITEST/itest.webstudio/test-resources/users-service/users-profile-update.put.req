@@ -3,22 +3,21 @@ Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
 {
-    "changePassword":{
-        "newPassword":"admin2",
-        "currentPassword":"admin",
-        "confirmPassword":"admin2",
-        "username":"admin"
-    },
-    "firstName": "Mike",
-    "lastName": "Johnson",
-    "displayName": "MJ",
-    "showHeader": false,
-    "showFormulas": true,
-    "testsPerPage": 20,
-    "testsFailuresOnly": true,
-    "testsFailuresPerTest": 20,
-    "showComplexResult": true,
-    "showRealNumbers": true,
-    "email": "mjohnson@email"
+  "changePassword": {
+    "newPassword": "admin2",
+    "currentPassword": "admin",
+    "confirmPassword": "admin2",
+    "username": "admin"
+  },
+  "firstName": "Mike",
+  "lastName": "Johnson",
+  "displayName": "MJ",
+  "showHeader": false,
+  "showFormulas": true,
+  "testsPerPage": 20,
+  "testsFailuresOnly": true,
+  "testsFailuresPerTest": 20,
+  "showComplexResult": true,
+  "showRealNumbers": true,
+  "email": "mjohnson@email"
 }
-

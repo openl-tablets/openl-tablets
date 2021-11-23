@@ -2,18 +2,17 @@ HTTP/1.1 200
 Content-Type: application/json
 
 [
-    {
-        "displayName":"Admin",
-        "groups":["Administrators"],
-        "username":"admin",
-        "internalUser":true,
-        "email":"admin@email",
-        "firstName":"Ad",
-        "lastName":"Min",
-        "currentUser":true,
-        "superUser":true,
-        "unsafePassword":true,
-        "externalFlags":{}
-    }
+  {
+    "displayName": "Admin",
+    "groups": ["Administrators"],
+    "username": "admin",
+    "internalUser": true,
+    "email": "admin@email",
+    "firstName": "Ad",
+    "lastName": "Min",
+    "currentUser": true,
+    "superUser": true,
+    "unsafePassword": true,
+    "externalFlags": {}
+  }
 ]
-

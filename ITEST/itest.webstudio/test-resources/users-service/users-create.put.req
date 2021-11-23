@@ -3,15 +3,14 @@ Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
 {
-    "displayName":"John Smith",
-    "groups":["Administrators"],
-    "username":"jsmith",
-    "internalPassword": {
-        "internalUser": true,
-        "password": "pass"
-    },
-    "firstName": "John",
-    "lastName": "Smith",
-    "email": "jsmith@email"
+  "displayName": "John Smith",
+  "groups": ["Administrators"],
+  "username": "jsmith",
+  "internalPassword": {
+    "internalUser": true,
+    "password": "pass"
+  },
+  "firstName": "John",
+  "lastName": "Smith",
+  "email": "jsmith@email"
 }
-

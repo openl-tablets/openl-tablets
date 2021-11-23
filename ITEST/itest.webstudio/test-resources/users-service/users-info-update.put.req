@@ -3,9 +3,8 @@ Authorization: Basic YWRtaW46YWRtaW4=
 Content-Type: application/json
 
 {
-    "displayName":"Admin",
-    "firstName": "Ad",
-    "lastName": "Min",
-    "email": "admin@email"
+  "displayName": "Admin",
+  "firstName": "Ad",
+  "lastName": "Min",
+  "email": "admin@email"
 }
-

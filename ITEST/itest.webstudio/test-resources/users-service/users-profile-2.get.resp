@@ -2,18 +2,17 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-    "displayName":"MJ",
-    "firstName": "Mike",
-    "lastName": "Johnson",
-    "showFormulas": true,
-    "testsPerPage": 20,
-    "testsFailuresOnly": true,
-    "testsFailuresPerTest": 20,
-    "showComplexResult": true,
-    "showRealNumbers": true,
-    "email": "mjohnson@email",
-    "username":"admin",
-    "internalUser":true,
-    "externalFlags":{}
+  "displayName": "MJ",
+  "firstName": "Mike",
+  "lastName": "Johnson",
+  "showFormulas": true,
+  "testsPerPage": 20,
+  "testsFailuresOnly": true,
+  "testsFailuresPerTest": 20,
+  "showComplexResult": true,
+  "showRealNumbers": true,
+  "email": "mjohnson@email",
+  "username": "admin",
+  "internalUser": true,
+  "externalFlags": {}
 }
-

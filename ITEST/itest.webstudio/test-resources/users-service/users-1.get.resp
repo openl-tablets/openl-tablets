@@ -2,14 +2,13 @@ HTTP/1.1 200
 Content-Type: application/json
 
 [
-    {
-        "groups":["Administrators"],
-        "username":"admin",
-        "internalUser":true,
-        "currentUser":true,
-        "superUser":true,
-        "unsafePassword":true,
-        "externalFlags":{}
-    }
+  {
+    "groups": ["Administrators"],
+    "username": "admin",
+    "internalUser": true,
+    "currentUser": true,
+    "superUser": true,
+    "unsafePassword": true,
+    "externalFlags": {}
+  }
 ]
-
