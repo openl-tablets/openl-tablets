@@ -149,7 +149,7 @@
                     if (!data.compilationCompleted && data.modulesCompiled === data.modulesCount) {
                         percent--;
                     }
-                    $jq('#progress-info-panel').text("Compiled " + percent + "% (" + data.modulesCompiled + "/" + data.modulesCount + ")");
+                    $jq('#progress-info-panel').text("Loaded " + percent + "% (" + data.modulesCompiled + "/" + data.modulesCount + ")");
                     $jq('#errors-info-panel').toggle(data.errorsCount !== 0);
                     $jq('#errors-count').text(data.errorsCount);
 
