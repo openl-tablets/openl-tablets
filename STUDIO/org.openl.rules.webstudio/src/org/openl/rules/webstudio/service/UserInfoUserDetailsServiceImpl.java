@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.function.Function;
 
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.User;
 import org.springframework.dao.DataAccessException;
@@ -40,8 +41,17 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException(String.format("Unknown user: '%s'", name));
         }
 
-        SimpleUser simpleUser = new SimpleUser(user
-            .getFirstName(), user.getSurname(), user.getLoginName(), user.getPasswordHash(), Collections.emptySet());
+        SimpleUser simpleUser = new SimpleUser(user.getFirstName(),
+            user.getSurname(),
+            user.getLoginName(),
+            user.getPasswordHash(),
+            Collections.emptySet(),
+            user.getEmail(),
+            user.getDisplayName(),
+            new UserExternalFlags(user.isFirstNameExternal(),
+                user.isLastNameExternal(),
+                user.isEmailExternal(),
+                user.isDisplayNameExternal()));
         return authoritiesMapper.apply(simpleUser);
     }
 }

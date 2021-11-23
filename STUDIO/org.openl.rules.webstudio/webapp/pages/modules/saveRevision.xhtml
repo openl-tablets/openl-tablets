@@ -43,7 +43,13 @@
       </h:panelGroup>
 
       <footer>
-        <a4j:commandButton value="Save" action="#{mainBean.saveProject}" render="@form" styleClass="button-primary"
+        <a4j:commandButton value="Save"
+                           styleClass="button-primary"
+                           onclick="withCommitInfoRequired('#{studio.currentUsername}', isSaveRevisionGitRepository, () => $j('#saveForm\\:saveRevisionButton').click()); return false;"/>
+        <a4j:commandButton id="saveRevisionButton"
+                           action="#{mainBean.saveProject}"
+                           render="@form"
+                           styleClass="hidden"
                            data="#{studio.mergeConflict}"
                            oncomplete="onSaveComplete(event.data, #{!facesContext.validationFailed});"/>
         <input type="button" value="Cancel" onclick="RichFaces.$('modalSave').hide();" />
@@ -54,9 +60,15 @@
 
   <script>
       //<![CDATA[
-      function openSaveDialog() {
-          RichFaces.$("modalSave").show();
-          focusElement('saveForm:comment');
+      let saveRevisionRepositoryType = undefined;
+      function isSaveRevisionGitRepository (){
+        return  saveRevisionRepositoryType === 'repo-git';
+      }
+
+      function openSaveDialog(repositoryType) {
+        saveRevisionRepositoryType = repositoryType;
+        RichFaces.$("modalSave").show();
+        focusElement('saveForm:comment');
       }
 
       function onSaveComplete(mergeConflict, successful) {

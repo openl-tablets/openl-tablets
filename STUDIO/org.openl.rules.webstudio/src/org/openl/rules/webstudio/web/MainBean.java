@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.faces.component.UIComponent;
@@ -8,6 +9,7 @@ import javax.faces.context.FacesContext;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ParameterRegistry;
 import org.openl.rules.ui.WebStudio;
@@ -78,7 +80,8 @@ public class MainBean {
 
         if (project.isOpenedOtherVersion()) {
             FileData fileData = project.getFileData();
-            return designRepoComments.restoredFrom(fileData.getVersion(), fileData.getAuthor(), fileData.getModifiedAt());
+            String name = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
+            return designRepoComments.restoredFrom(fileData.getVersion(), name, fileData.getModifiedAt());
         }
 
         return designRepoComments.saveProject(project.getName());

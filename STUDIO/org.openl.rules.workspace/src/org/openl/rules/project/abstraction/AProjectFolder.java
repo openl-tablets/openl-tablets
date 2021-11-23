@@ -266,7 +266,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                 }
 
                 FileData fileData = getFileData();
-                fileData.setAuthor(user == null ? null : user.getUserName());
+                fileData.setAuthor(user == null ? null : user.getUserInfo());
                 setFileData(((FolderRepository) getRepository()).save(fileData, changes, changesetType));
             } catch (IOException e) {
                 throw new ProjectException(e.getMessage(), e);

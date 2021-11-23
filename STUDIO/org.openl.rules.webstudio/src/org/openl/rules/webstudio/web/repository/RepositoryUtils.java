@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -17,6 +18,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentOutputStream;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -158,6 +160,7 @@ public final class RepositoryUtils {
             return null;
         }
         String modifiedOnStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(fileData.getModifiedAt());
-        return fileData.getAuthor() + "-" + modifiedOnStr;
+        String name = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
+        return name + "-" + modifiedOnStr;
     }
 }

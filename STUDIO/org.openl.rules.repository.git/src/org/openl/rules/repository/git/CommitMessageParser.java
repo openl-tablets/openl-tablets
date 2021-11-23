@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Parses {@code {commit-type}}, {@code {user-message}}
- * and {@code {username}} from git commit messages by given template
- *
+ * Parses {@code {commit-type}}, {@code {user-message}} and {@code {username}} from git commit messages by given
+ * template
+ * 
  * @author Vladyslav Pikus
  */
 class CommitMessageParser {
@@ -21,10 +21,10 @@ class CommitMessageParser {
     private static final String COMMIT_TYPE_TOKEN = "{commit-type}";
     private static final String USER_MESSAGE_TOKEN = "{user-message}";
     private static final String USERNAME_TOKEN = "{username}";
-    private static final String[] TOKENS = {COMMIT_TYPE_TOKEN, USER_MESSAGE_TOKEN, USERNAME_TOKEN};
+    private static final String[] TOKENS = { COMMIT_TYPE_TOKEN, USER_MESSAGE_TOKEN, USERNAME_TOKEN };
     private static final String COMMIT_TYPES = Stream.of(CommitType.values())
-                                                .map(Enum::name)
-                                                .collect(Collectors.joining("|"));
+        .map(Enum::name)
+        .collect(Collectors.joining("|"));
 
     private final Pattern pattern;
 
@@ -50,7 +50,7 @@ class CommitMessageParser {
                 final int tokenLen = token.length();
                 int tokenPos = 0;
                 boolean matched = true;
-                //start token matching
+                // start token matching
                 while (tokenPos < tokenLen && pos < len) {
                     if (token.charAt(tokenPos++) != template.charAt(pos++)) {
                         matched = false;
@@ -59,47 +59,47 @@ class CommitMessageParser {
                 }
                 if (matched) {
                     if (start < end) {
-                        //quote plain text
+                        // quote plain text
                         builder.append("\\Q").append(template, start, end).append("\\E");
                     }
                     start = pos;
                     final boolean firstTokenOccurrence = tokenCounter[tokenIdx] == 0;
                     tokenCounter[tokenIdx]++;
-                    //open group
+                    // open group
                     builder.append("(?");
                     if (!firstTokenOccurrence) {
-                        //make non-capturing group
+                        // make non-capturing group
                         builder.append(':');
                     }
                     switch (token) {
                         case COMMIT_TYPE_TOKEN:
                             if (firstTokenOccurrence) {
-                                //set group name
+                                // set group name
                                 builder.append("<commitType>");
                             }
                             builder.append(COMMIT_TYPES);
                             break;
                         case USER_MESSAGE_TOKEN:
                             if (firstTokenOccurrence) {
-                                //set group name
+                                // set group name
                                 builder.append("<message>");
                             }
                             builder.append(".*");
                             break;
                         case USERNAME_TOKEN:
                             if (firstTokenOccurrence) {
-                                //set group name
+                                // set group name
                                 builder.append("<author>");
                             }
                             builder.append(".+");
                             break;
                     }
-                    //close group
+                    // close group
                     builder.append(')');
                     break;
                 } else {
                     if (tokenIdx < TOKENS.length - 1) {
-                        //reset position if current token is not the last one
+                        // reset position if current token is not the last one
                         pos = end;
                     }
                 }

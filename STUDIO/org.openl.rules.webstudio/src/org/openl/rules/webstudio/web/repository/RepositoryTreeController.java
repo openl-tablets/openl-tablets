@@ -1,12 +1,5 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
-import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
-import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,6 +17,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -70,6 +64,7 @@ import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.TagTypeService;
@@ -77,6 +72,7 @@ import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
 import org.openl.rules.webstudio.web.admin.ProjectTagsBean;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
@@ -119,8 +115,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.StreamException;
+
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
+import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
+import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and performing repository actions.
@@ -604,13 +609,31 @@ public class RepositoryTreeController {
         return null;
     }
 
+    public String getCurrentDeployConfigRepositoryType() {
+        return Optional.ofNullable(userWorkspace)
+            .map(UserWorkspace::getDesignTimeRepository)
+            .map(DesignTimeRepository::getDeployConfigRepository)
+            .map(Repository::getId)
+            .map(repositoryId -> new RepositoryConfiguration(repositoryId, propertyResolver))
+            .map(RepositoryConfiguration::getType)
+            .orElse(null);
+    }
+
     public List<Repository> getCreateAllowedRepositories() {
         DesignTimeRepository designRepo = userWorkspace.getDesignTimeRepository();
         return designRepo.getRepositories()
             .stream()
-            .filter(repo -> !repo.supports()
-                .branches() || !((BranchRepository) repo).isBranchProtected(((BranchRepository) repo).getBranch()))
+            .filter(repo -> !repo.supports().branches() || !((BranchRepository) repo)
+                .isBranchProtected(((BranchRepository) repo).getBranch()))
             .collect(Collectors.toList());
+    }
+
+    public String getCreateAllowedRepositoriesTypes() throws JsonProcessingException {
+        Map<String, String> types = getCreateAllowedRepositories().stream()
+            .map(Repository::getId)
+            .map(repositoryId -> new RepositoryConfiguration(repositoryId, propertyResolver))
+            .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
+        return new ObjectMapper().writeValueAsString(types);
     }
 
     public boolean getCanCreateNewProject() {
@@ -687,7 +710,8 @@ public class RepositoryTreeController {
     }
 
     private String validateCreateProjectParams(String comment) {
-        return Stream.<Supplier<String>> of(this::validateRepositoryId,
+        return Stream
+            .<Supplier<String>> of(this::validateRepositoryId,
                 this::validateProjectName,
                 this::validateProjectFolder,
                 () -> validateCreateProjectComment(comment))
@@ -937,6 +961,22 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage("Error deleting.", e.getMessage());
         }
         return null;
+    }
+
+    public String getCurrentNodeRepositoryType() {
+        return Optional.ofNullable(getSelectedNode().getData())
+            .map(AProjectArtefact::getProject)
+            .map(AProjectArtefact::getRepository)
+            .map(Repository::getId)
+            .map(repositoryId -> new RepositoryConfiguration(repositoryId, propertyResolver))
+            .map(RepositoryConfiguration::getType)
+            .orElse(null);
+    }
+
+    public String getRepositoryType(String repositoryId) {
+        return Optional.ofNullable(new RepositoryConfiguration(repositoryId, propertyResolver))
+            .map(RepositoryConfiguration::getType)
+            .orElse(null);
     }
 
     public String deleteNode() {
@@ -1472,7 +1512,8 @@ public class RepositoryTreeController {
 
         if (project != null && project.isOpenedOtherVersion()) {
             FileData fileData = project.getFileData();
-            return comments.restoredFrom(fileData.getVersion(), fileData.getAuthor(), fileData.getModifiedAt());
+            String name = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
+            return comments.restoredFrom(fileData.getVersion(), name, fileData.getModifiedAt());
         }
 
         return project == null ? StringUtils.EMPTY : comments.saveProject(project.getBusinessName());

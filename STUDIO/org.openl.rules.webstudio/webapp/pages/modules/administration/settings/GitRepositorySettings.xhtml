@@ -16,14 +16,6 @@
         Remote URL or local path to Git repository.<br/><br/>
         <b>For example: </b>https://github.com/git-repo/git-repo.git or /var/local-git-repo
     </div>
-    <div id="#{prependId}userDisplayNameShowInfo" class="hidden">
-        Git commits are associated with specified user name if value is not empty.<br/><br/>
-        <b>NOTE: </b>Git server must permit to use specified user name for used login. If user name is not specified, Webstudio username is used for Git commits.        
-    </div>
-    <div id="#{prependId}userEmailShowInfo" class="hidden">
-        Git commits are associated with specified email if value is not empty.<br/><br/>
-        <b>NOTE: </b>Git server must permit to use specified email for used login.        
-    </div>
     <div id="#{prependId}localPathShowInfo" class="hidden">
         A local path to directory for Git repository. Webstudio uses this specified path to upload Git repository from the server and works with it.<br/><br/> 
         <b>NOTE: </b>Read/Write rights for specified directory is mandatory for Webstudio.         
@@ -88,19 +80,6 @@
         <h:inputText value="#{settings.localRepositoryPath}" title="Local path to directory for Git repository."
                      id="#{prependId}gitLocalRepositoryPath" validator="#{validators.localRepositoryPath}"/>
         <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}localPathShowInfo');return false;" title="Details"/>
-
-        <h:outputText value="User display name:"/>
-        <h:inputText value="#{settings.userDisplayName}" title="Git commits are associated with specified user name if value is not empty, otherwise WebStudio username is used."/>
-        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}userDisplayNameShowInfo');return false;" title="Details"/>
-        
-        <h:outputText value="User email:"/>
-        <h:inputText value="#{settings.userEmail}" title="Git commits are associated with specified user email."
-                     id="#{prependId}gitUserEmail" validator="#{validators.userEmail}"/>
-        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}userEmailShowInfo');return false;" title="Details"/>                     
-        
-        <h:outputText value=""/>
-        <h:message for="#{prependId}gitUserEmail" styleClass="error"/>
-        <h:outputText value=""/>
         
         <h:outputText value=""/>
         <h:message for="#{prependId}gitLocalRepositoryPath" styleClass="error"/>

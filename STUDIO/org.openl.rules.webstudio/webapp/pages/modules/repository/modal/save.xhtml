@@ -47,7 +47,13 @@
       </h:panelGroup>
 
       <footer>
-        <a4j:commandButton value="Save" action="#{repositoryTreeController.saveProject}" render="projectTree nodeView @form" styleClass="button-primary"
+        <a4j:commandButton value="Save"
+                           styleClass="button-primary"
+                           onclick="withCommitInfoRequired('#{studio.currentUsername}', () => saveRepositoryType === 'repo-git', () => $j('#saveForm\\:saveButton').click()); return false;"/>
+        <a4j:commandButton id="saveButton"
+                           action="#{repositoryTreeController.saveProject}"
+                           styleClass="hidden"
+                           render="projectTree nodeView @form"
                            data="#{studio.mergeConflict}"
                            oncomplete="onSaveComplete(event.data, #{!facesContext.validationFailed});" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalSave')}.hide();" />
@@ -63,7 +69,9 @@
   </rich:popupPanel>
 
   <script>
-    function openSaveDialog() {
+    let saveRepositoryType = undefined;
+    function openSaveDialog(repositoryType) {
+      saveRepositoryType = repositoryType;
       initSaveDialog();
     }
 

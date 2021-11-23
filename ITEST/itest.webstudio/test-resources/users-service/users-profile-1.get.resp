@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "displayName": "Admin",
+  "firstName": "Ad",
+  "email": "admin@email",
+  "lastName": "Min",
+  "showHeader": true,
+  "testsPerPage": 5,
+  "testsFailuresPerTest": 5,
+  "username": "admin",
+  "internalUser": true,
+  "externalFlags": {}
+}

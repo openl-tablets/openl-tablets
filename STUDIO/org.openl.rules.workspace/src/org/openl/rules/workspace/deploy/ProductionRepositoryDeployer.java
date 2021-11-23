@@ -30,6 +30,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -240,7 +241,7 @@ public class ProductionRepositoryDeployer {
         String target = fileNameBuilder.toString();
         FileData dest = new FileData();
         dest.setName(target);
-        dest.setAuthor("OpenL_Deployer");
+        dest.setAuthor(new UserInfo("OpenL_Deployer"));
         return dest;
     }
 

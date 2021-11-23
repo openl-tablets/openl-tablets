@@ -1,19 +1,5 @@
 package org.openl.rules.ruleservice.deployer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,6 +29,20 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.IOUtils;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @Ignore
 public class RulesDeployerServiceTest {
@@ -159,7 +159,7 @@ public class RulesDeployerServiceTest {
         verify(mockedDeployRepo, times(1)).save(fileDataCaptor.capture(), streamCaptor.capture());
         final FileData actualFileData = fileDataCaptor.getValue();
         assertNotNull(actualFileData);
-        assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor());
+        assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor().getUsername());
         assertTrue("Content size must be greater thar 0", actualFileData.getSize() > 0);
         assertEquals(expectedName, actualFileData.getName());
     }
@@ -309,7 +309,7 @@ public class RulesDeployerServiceTest {
         for (FileItem actualFileItem : actualFileDatas) {
             final FileData actualFileData = actualFileItem.getData();
             assertNotNull(actualFileData);
-            assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor());
+            assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor().getUsername());
             assertTrue("Content size must be greater than 0", actualFileData.getSize() > 0);
             if (namesToVerify.contains(actualFileData.getName())) {
                 namesToVerify.remove(actualFileData.getName());

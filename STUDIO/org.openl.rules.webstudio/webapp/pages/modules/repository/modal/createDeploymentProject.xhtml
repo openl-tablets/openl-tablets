@@ -21,7 +21,12 @@
       </h:panelGrid>
 
       <footer>
-        <h:commandButton id="create" value="Create" action="#{repositoryTreeController.createDeploymentConfiguration}" styleClass="button-primary" />
+        <h:commandButton value="Create"
+                         onclick="withCommitInfoRequired('#{studio.currentUsername}', () => '#{repositoryTreeController.currentDeployConfigRepositoryType}' === 'repo-git', () => $j('#newDProjectForm\\:create').click()); return false;"
+                         styleClass="button-primary" />
+        <h:commandButton id="create"
+                         action="#{repositoryTreeController.createDeploymentConfiguration}"
+                         styleClass="hidden" />
         <input type="button" value="Cancel" onclick="clearNewDProjectFormProjName(); #{rich:component('modalNewDProject')}.hide();" />
       </footer>
     </h:form>

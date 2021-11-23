@@ -1,67 +1,140 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:a4j="http://richfaces.org/a4j">
+        xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <h:form>
+    <style>
+        #users-form>tbody>tr:nth-child(1) {
+            display: none;
+        }
+        #users-groups>span:nth-child(1) {
+            display: none;
+        }
+        .white-space-pre {
+            white-space: pre;
+        }
+        .users-group {
+            display: inline-block;
+            margin-bottom: 1.5px;
+            margin-top: 1.5px;
+        }
+        .user-delete-link {
+            cursor: pointer;
+        }
 
-    <h:dataTable id="userList" value="#{usersBean.users}" var="user" styleClass="table">
-        <h:column>
-            <f:facet name="header">
-                Username
-            </f:facet>
-            <span onclick="editUser('#{utils.toJSText(user.username)}', '#{utils.toJSText(user.firstName)}', '#{utils.toJSText(user.lastName)}', #{user.internalUser}, #{usersBean.getGroups(user)}, #{usersBean.getOnlyAdminGroups()}, #{usersBean.isSuperuser(user)}, #{usersBean.isCurrentUser(user)})"
-               style="white-space: pre;" class="clickable" title="Edit">#{user.username}</span>
-            <span class="warning-icon" style="#{usersBean.isUnsafePassword(user) ? '' : 'display: none'}" title="Unsafe default password"/>
-        </h:column>
+    </style>
 
-        <h:column>
-            <f:facet name="header">
-                First Name
-            </f:facet>
-            #{user.firstName}
-        </h:column>
+    <table class="table" id="users-form">
+        <thead>
+        <tr>
+            <th scope="col">Username</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Display Name</th>
+            <th scope="col">Groups</th>
+            <th class="users-internal-user" scope="col">Local user</th>
+            <th scope="col"/>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span onclick="showEditUserForm({usersEditUserParams})"
+                      class="clickable white-space-pre users-username-box" title="Edit">{usersUsername}</span>
+                <span class="warning-icon" style="{usersUnsafeDefaultPasswordStyle}" title="Unsafe default password"/>
+            </td>
+            <td>{usersFirstname}</td>
+            <td>{usersLastname}</td>
+            <td>{usersEmail}</td>
+            <td>{usersDisplayName}</td>
+            <td id="users-groups">
+                    <span>
+                        <span class="{usersGroupClass}">{usersGroup}</span>
+                    </span>
+                {usersGroups}
+            </td>
+            <td class="users-internal-user">{usersInternalUser}</td>
+            <td><a onclick="{usersDeleteOnClick}" class="{usersDeleteClass}" title="Delete"/></td>
+        </tr>
+        </tbody>
+    </table>
+    <br/>
+    <br/>
+    <a href="javascript:void(0)" onclick="RichFaces.$('modalAddUser').show()" id="users-add">Add New User</a>
 
-        <h:column>
-            <f:facet name="header">
-                Last Name
-            </f:facet>
-            #{user.lastName}
-        </h:column>
+    <ui:include src="/pages/modules/administration/users/addUser.xhtml"/>
+    <ui:include src="/pages/modules/administration/users/editUser.xhtml"/>
 
-        <h:column>
-            <f:facet name="header">
-                Groups
-            </f:facet>
-            <ui:repeat var="authority" value="#{user.authorities}">
-            <h:panelGroup class="badge #{(authority.hasPrivilege('ADMIN')) ? 'badge-error' : 'badge-info'}" style="margin-right: 2px">#{authority.displayName}</h:panelGroup>
-            </ui:repeat>
-        </h:column>
+    <script src="#{contextPath}/javascript/userDisplayNameSelectInitializer.js"></script>
+    <script>//<![CDATA[
 
-            <h:column rendered="#{environment.getProperty('user.mode') == 'ad'}">
-                <f:facet name="header">
-                    Local user
-                </f:facet>
-                #{user.internalUser ? 'Yes' : 'No'}
-            </h:column>
+        function showUsersForm() {
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/users",
+                datatype: "json"
+            })
+            .done(function (data) {
+                const rowTemplate = $j('#users-form>tbody>tr:nth-child(1)');
+                const htmlTemplate = $j('<tr/>').append(rowTemplate.clone()).html();
+                let users = "";
+                data.forEach(user => {
+                    let userGroups = '';
+                    if (typeof user.groups !== "undefined") {
+                        const userGroupRowTemplate = $j('#users-groups>span:nth-child(1)');
+                        const userGroupHtmlTemplate = userGroupRowTemplate.clone().html();
+                        user.groups.forEach(group => {
+                            userGroups += userGroupHtmlTemplate.replace(/{usersGroupClass}/g, "badge users-group" + (group === "Administrators" ? ' badge-error' : ' badge-info'))
+                                .replace(/{usersGroup}/g, ws.utils.escapeHtml(group))
+                        });
+                    }
+                    users += htmlTemplate.replace(/{usersEditUserParams}/g, '\'' + ws.utils.escapeHtml(user.username) + '\',\'' + ws.utils.escapeHtml(user.firstName) + '\',\'' + ws.utils.escapeHtml(user.lastName) + '\',\'' + ws.utils.escapeHtml(user.email) + '\',\'' + ws.utils.escapeHtml(user.displayName) + '\',' + user.internalUser + ',\'' + user.groups + '\',' + user.superUser + ',' + user.currentUser + ',' + user.externalFlags.firstNameExternal + ',' + user.externalFlags.lastNameExternal + ',' + user.externalFlags.emailExternal + ',' + user.externalFlags.displayNameExternal)
+                        .replace(/{usersUsername}/g, ws.utils.escapeHtml(user.username))
+                        .replace(/{usersUnsafeDefaultPasswordStyle}/g, !user.unsafePassword ? " display: none; " : '')
+                        .replace(/{usersFirstname}/g, ws.utils.escapeHtml(user.firstName))
+                        .replace(/{usersLastname}/g, ws.utils.escapeHtml(user.lastName))
+                        .replace(/{usersGroups}/g, userGroups)
+                        .replace(/{usersInternalUser}/g, user.internalUser ? 'Yes' : 'No')
+                        .replace(/{usersEmail}/g, ws.utils.escapeHtml(user.email))
+                        .replace(/{usersDisplayName}/g, ws.utils.escapeHtml(user.displayName))
+                        .replace(/{usersDeleteOnClick}/g, 'deleteUser(\'' + user.username + '\')')
+                        .replace(/{usersDeleteClass}/g, 'delete-icon user-delete-link ' + (user.superUser || user.currentUser ? ' disabled ' : ' '));
+                });
+                $j("#users-form tbody").html(htmlTemplate + users);
 
-        <h:column>
-            <a4j:commandLink execute="@this" render="@form"
-                action="#{usersBean.deleteUser(user.username)}"
-                onclick="if(!window.confirm('Are you sure you want to delete the user?')) {return false;}"
-                             title="Delete" styleClass="delete-icon #{usersBean.isSuperuser(user) or usersBean.isCurrentUser(user) ? 'disabled' : ''}"/>
-        </h:column>
-    </h:dataTable>
-    </h:form>
+                $j.ajax({
+                    type: "GET",
+                    url: "#{contextPath}/web/users/options",
+                    datatype: "json"
+                })
+                .done(function (data) {
+                    if (data.userMode !== 'ad') {
+                        $j(".users-internal-user").hide();
+                    }
+                    if (!(data.canCreateInternalUsers || data.canCreateExternalUsers)) {
+                        $j(".users-username-box").prop("onclick", null).off("click")
+                    }
+                    $j("#users-add").toggle(data.canCreateInternalUsers || data.canCreateExternalUsers);
+                });
+            });
+        }
 
-    <br />
-    <br />
+        showUsersForm();
 
-    <a href="javascript:void(0)" onclick="RichFaces.$('modalAddUser').show()" style="#{usersBean.canCreateUsers ? '' : 'display: none'}">Add New User</a>
+        function deleteUser(userName) {
+            if (confirm('Are you sure you want to delete the user?')) {
+                $j.ajax({
+                    type: "DELETE",
+                    url: "#{contextPath}/web/users/" + userName,
+                    contentType: 'application/json',
+                    dataType: 'json'
+                })
+                .done(function () {
+                    showUsersForm();
+                });
+            }
+        }
 
-    <ui:include src="/pages/modules/administration/users/addUser.xhtml" />
-    <ui:include src="/pages/modules/administration/users/editUser.xhtml" />
+    //]]></script>
 
 </ui:composition>

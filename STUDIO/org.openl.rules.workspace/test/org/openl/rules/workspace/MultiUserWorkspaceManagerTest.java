@@ -1,15 +1,16 @@
 package org.openl.rules.workspace;
 
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
+
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
 public class MultiUserWorkspaceManagerTest {
     @Rule
@@ -29,7 +30,8 @@ public class MultiUserWorkspaceManagerTest {
 
     @Test
     public void removeWorkspaceOnSessionTimeout() {
-        WorkspaceUserImpl user = new WorkspaceUserImpl("user1");
+        WorkspaceUserImpl user = new WorkspaceUserImpl("user1",
+            (username) -> new UserInfo("user1", "user1@email", "User1"));
         UserWorkspace workspace1 = manager.getUserWorkspace(user);
 
         // Must return cached version

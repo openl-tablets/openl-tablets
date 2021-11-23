@@ -1,15 +1,14 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
@@ -33,6 +32,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
+import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -41,7 +41,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.xstream.XStreamException;
+
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
 
 public abstract class AbstractSmartRedeployController {
 
@@ -541,6 +547,23 @@ public abstract class AbstractSmartRedeployController {
         repos.sort(RepositoryConfiguration.COMPARATOR);
 
         return repos;
+    }
+
+    public String getRepositoryTypes() throws JsonProcessingException {
+        Map<String, String> types = deploymentManager.getRepositoryConfigNames()
+            .stream()
+            .map(repositoryConfigName -> new RepositoryConfiguration(repositoryConfigName, propertyResolver))
+            .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
+        return new ObjectMapper().writeValueAsString(types);
+    }
+
+    public String getDeployConfigRepositoryType() {
+        return Optional.ofNullable(userWorkspace.getDesignTimeRepository())
+            .map(DesignTimeRepository::getDeployConfigRepository)
+            .map(Repository::getId)
+            .map(deployConfigRepositoryId -> new RepositoryConfiguration(deployConfigRepositoryId, propertyResolver))
+            .map(RepositoryConfiguration::getType)
+            .orElse(null);
     }
 
     public boolean isSelectAll4SmartRedeploy() {

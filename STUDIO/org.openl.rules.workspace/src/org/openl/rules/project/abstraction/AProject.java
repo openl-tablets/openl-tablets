@@ -232,7 +232,7 @@ public class AProject extends AProjectFolder implements IProject {
         FileData data = new FileData();
         data.setName(fileData.getName());
         data.setVersion(fileData.getVersion());
-        data.setAuthor(user.getUserName());
+        data.setAuthor(user.getUserInfo());
         data.setComment(comment);
         try {
             getRepository().delete(data);
@@ -252,7 +252,7 @@ public class AProject extends AProjectFolder implements IProject {
         FileData data = new FileData();
         data.setName(fileData.getName());
         data.setVersion(null);
-        data.setAuthor(user.getUserName());
+        data.setAuthor(user.getUserInfo());
         data.setComment(comment);
         try {
             getRepository().deleteHistory(data);
@@ -283,7 +283,7 @@ public class AProject extends AProjectFolder implements IProject {
                 FileData data = new FileData();
                 data.setName(fileData.getName());
                 data.setVersion(fileData.getVersion());
-                data.setAuthor(user.getUserName());
+                data.setAuthor(user.getUserInfo());
                 data.setComment(comment);
                 repository.deleteHistory(data);
                 FileData actual = repository.check(fileData.getName());
@@ -337,8 +337,7 @@ public class AProject extends AProjectFolder implements IProject {
         if (fileItem == null) {
             return internalArtefacts;
         }
-        try (InputStream stream = fileItem.getStream();
-             ZipInputStream zipInputStream = new ZipInputStream(stream)) {
+        try (InputStream stream = fileItem.getStream(); ZipInputStream zipInputStream = new ZipInputStream(stream)) {
             ZipEntry entry;
             while ((entry = zipInputStream.getNextEntry()) != null) {
                 if (entry.isDirectory()) {
@@ -417,7 +416,7 @@ public class AProject extends AProjectFolder implements IProject {
                         }
                         fileData.setSize(fileItem.getData().getSize());
                         stream = fileItem.getStream();
-                        fileData.setAuthor(user == null ? null : user.getUserName());
+                        fileData.setAuthor(user == null ? null : user.getUserInfo());
                         setFileData(repositoryTo.save(fileData, stream));
                     } catch (IOException ex) {
                         throw new ProjectException(ex.getMessage(), ex);
@@ -444,7 +443,7 @@ public class AProject extends AProjectFolder implements IProject {
             }
             zipOutputStream.finish();
 
-            fileData.setAuthor(user == null ? null : user.getUserName());
+            fileData.setAuthor(user == null ? null : user.getUserInfo());
             fileData.setSize(out.size());
             setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
         } catch (IOException e) {
@@ -472,7 +471,7 @@ public class AProject extends AProjectFolder implements IProject {
             }
             stream = new ZipInputStream(fileItem.getStream());
             FileData fileData = getFileData();
-            fileData.setAuthor(user == null ? null : user.getUserName());
+            fileData.setAuthor(user == null ? null : user.getUserInfo());
             return ((FolderRepository) repositoryTo)
                 .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
         } catch (IOException e) {

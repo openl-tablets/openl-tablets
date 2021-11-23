@@ -1,0 +1,13 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "displayName": "js",
+  "email": "js@email",
+  "firstName": "J",
+  "lastName": "S",
+  "groups": ["Developers"],
+  "username": "jsmith",
+  "internalUser": true,
+  "externalFlags": {}
+}

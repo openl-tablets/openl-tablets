@@ -1,0 +1,148 @@
+<ui:composition
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:ui="http://java.sun.com/jsf/facelets">
+
+  <rich:popupPanel id="modalConfigureCommitInfo" minWidth="530" autosized="true" zindex="5000">
+    <f:facet name="header">
+      <h:outputText value="Configure commit info"/>
+    </f:facet>
+
+    <f:facet name="controls">
+      <h:graphicImage value="/images/close.gif" class="close" onclick="closeConfigureCommitInfoForm()" alt="Close"/>
+    </f:facet>
+
+    <h:form id="configureCommitInfoForm">
+      <div class="fields">
+        <table id="commit-user-display-name-row">
+          <tbody>
+          <tr>
+            <td class="titleColumn"><label>First name <span class="font-size-80pct">(Given Name)</span>:</label>
+            </td>
+            <td><input id="commit-user-firstname" type="text"/></td>
+            <td><span id="commit-user-firstname-error" class="error"/></td>
+          </tr>
+          <tr>
+            <td class="titleColumn"><label>Last name <span class="font-size-80pct">(Family Name)</span>:</label>
+            </td>
+            <td><input id="commit-user-lastname" type="text"/></td>
+            <td><span id="commit-user-lastname-error" class="error"/></td>
+          </tr>
+          <tr>
+            <td class="titleColumn"><label class="required">Display name:</label></td>
+            <td>
+              <div id="commit-user-display-name-select-box"></div>
+            </td>
+          </tr>
+          <tr>
+            <td/>
+            <td><input id="commit-user-display-name" type="text"/></td>
+            <td><span id="commit-user-display-name-error" class="error"/></td>
+          </tr>
+          </tbody>
+        </table>
+        <table id="commit-user-email-row">
+          <tbody>
+          <tr>
+            <td class="titleColumn"><label class="required">Email:</label></td>
+            <td>
+              <input id="commit-user-email" type="text"/>
+            </td>
+            <td><span id="commit-user-email-error" class="error"/></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <footer>
+        <input value="Save" id="save-commit-info" type="button" title="Save commit info" class="button-primary" disabled="disabled" onclick="saveConfigureCommitInfoForm()"/>
+        <input type="button" value="Cancel" onclick="closeConfigureCommitInfoForm()"/>
+      </footer>
+    </h:form>
+  </rich:popupPanel>
+
+  <script>//<![CDATA[
+
+    let afterConfigureCommitInfo = () => {};
+
+    function withCommitInfoRequired(username, predicate, afterAction) {
+      if (predicate()) {
+        $j.ajax({
+          type: "GET",
+          url: "#{contextPath}/web/users/" + username,
+          datatype: "json"
+        })
+        .done(function (user) {
+          if (user.email && user.displayName && user.email.trim() !== '' && user.displayName.trim() !== '') {
+            afterAction();
+          } else {
+            afterConfigureCommitInfo = afterAction;
+            showConfigureCommitInfoForm(user);
+          }
+        });
+      } else {
+        afterAction();
+      }
+    }
+
+    function showConfigureCommitInfoForm(user) {
+        $j("#commit-user-firstname").val(user.firstName);
+        $j("#commit-user-display-name").val(user.displayName);
+        $j("#commit-user-lastname").val(user.lastName);
+        $j("#commit-user-email").val(user.email);
+        initUserDisplayNameSelect($j("#commit-user-display-name-select-box"), $j("#commit-user-firstname"), $j("#commit-user-lastname"), $j("#commit-user-display-name"))
+        $j("#commit-user-email-row").toggle(!user.email || user.email.trim() === '');
+        $j("#commit-user-display-name-row").toggle(!user.displayName || user.displayName.trim() === '');
+
+        $j("#configureCommitInfoForm").change(processRequiredCommitInfoFields);
+        $j("#configureCommitInfoForm").keyup(processRequiredCommitInfoFields);
+
+        RichFaces.$('modalConfigureCommitInfo').show();
+    }
+
+    function processRequiredCommitInfoFields() {
+      if ($j("#commit-user-display-name").val().trim() === "" || $j("#commit-user-email").val().trim() === "") {
+        $j("#save-commit-info").attr("disabled", true);
+      } else {
+        $j("#save-commit-info").attr("disabled", false);
+      }
+    }
+
+    function saveConfigureCommitInfoForm() {
+      $j.ajax({
+          type: "PUT",
+          url: "#{contextPath}/web/users/info",
+          data: JSON.stringify({
+              firstName : $j("#commit-user-firstname").val(),
+              displayName : $j("#commit-user-display-name").val(),
+              lastName : $j("#commit-user-lastname").val(),
+              email : $j("#commit-user-email").val()
+          }),
+          contentType: 'application/json',
+          dataType: 'json',
+          error: function(jqXHR, textStatus, errorThrown) {
+            $j("#commit-user-display-name-error, #commit-user-email-error, #commit-user-firstname-error, #commit-user-lastname-error").text("");
+            var errorsMap = new Map(JSON.parse(jqXHR.responseText).fields.map(item => [item.field, item.message]));
+            $j("#commit-user-email-error").text(errorsMap.get("email"));
+            $j("#commit-user-firstname-error").text(errorsMap.get("firstName"));
+            $j("#commit-user-lastname-error").text(errorsMap.get("lastName"));
+            $j("#commit-user-display-name-error").text(errorsMap.get("displayName"));
+          }
+      })
+      .done(function () {
+          closeConfigureCommitInfoForm();
+          window.ws && ws.ui && ws.ui.success("User commit info was saved successfully!");
+          afterConfigureCommitInfo();
+      });
+    }
+
+    function closeConfigureCommitInfoForm() {
+        $j("#commit-user-firstname, #commit-user-display-name, #commit-user-lastname, #commit-user-email").val("");
+        $j("#commit-user-display-name-error, #commit-user-email-error, #commit-user-firstname-error, #commit-user-lastname-error").text("");
+        $j("#save-commit-info").attr("disabled", true);
+        RichFaces.$('modalConfigureCommitInfo').hide();
+    }
+
+//]]></script>
+<script src="#{contextPath}/javascript/userDisplayNameSelectInitializer.js"></script>
+</ui:composition>

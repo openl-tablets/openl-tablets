@@ -113,7 +113,9 @@
                         <h:panelGroup rendered="#{!empty projectData.version.versionInfo}">
                             <tr>
                                 <td>Modified By:</td>
-                                <td>#{projectData.version.versionInfo.createdBy}</td>
+                                <td>
+                                    <h:outputText title="#{projectData.version.versionInfo.emailCreatedBy}" value="#{projectData.version.versionInfo.createdBy}"/>
+                                </td>
                             </tr>
                             <tr>
                                 <td>Modified At:</td>

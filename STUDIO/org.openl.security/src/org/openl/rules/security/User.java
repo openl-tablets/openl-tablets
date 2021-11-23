@@ -14,7 +14,13 @@ public interface User extends UserDetails {
 
     String getLastName();
 
+    String getDisplayName();
+
+    String getEmail();
+
     boolean hasPrivilege(String privilege);
 
     boolean isInternalUser();
+
+    UserExternalFlags getExternalFlags();
 }

@@ -4,13 +4,13 @@ Content-Type: application/json
 [
   {
     "name": "Project",
-    "modifiedBy": "admin",
+    "modifiedBy": "Admin",
     "modifiedAt": "*",
     "branch": "master",
     "rev": "*"
   }, {
     "name": "Project2",
-    "modifiedBy": "admin",
+    "modifiedBy": "Admin",
     "modifiedAt": "*",
     "branch": "master",
     "rev": "*"

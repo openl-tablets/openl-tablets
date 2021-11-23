@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository.tree;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.common.ProjectVersion;
@@ -32,24 +33,18 @@ public class TreeProductProject extends TreeProductFolder {
     }
 
     public Date getModifiedAt() {
-        ProjectVersion projectVersion = this.getData().getVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedAt() : null;
+        return getVersionInfo().map(VersionInfo::getCreatedAt).orElse(null);
     }
 
     public String getModifiedBy() {
-        ProjectVersion projectVersion = this.getData().getVersion();
-        /* zero */
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedBy() : null;
+        return getVersionInfo().map(VersionInfo::getCreatedBy).orElse(null);
     }
 
+    public String getEmailModifiedBy() {
+        return getVersionInfo().map(VersionInfo::getEmailCreatedBy).orElse(null);
+    }
+
+    private Optional<VersionInfo> getVersionInfo() {
+        return Optional.ofNullable(this.getData().getVersion()).map(ProjectVersion::getVersionInfo);
+    }
 }

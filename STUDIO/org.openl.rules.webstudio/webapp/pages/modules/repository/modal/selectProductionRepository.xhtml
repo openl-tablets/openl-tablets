@@ -15,7 +15,7 @@
 
     <h:form id="selectRepositoryForm">
       <h:panelGroup layout="block" style="margin: 0 7px">
-        <h:selectOneMenu value="#{deploymentController.repositoryConfigName}">
+        <h:selectOneMenu id="redeployRepository" value="#{deploymentController.repositoryConfigName}">
           <f:selectItems value="#{deploymentController.repositories}" var="repository" itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
           <f:ajax event="change" render="@form" execute="@this"/>
         </h:selectOneMenu>
@@ -26,10 +26,13 @@
                 style="margin: 25px 0"/>
       </h:panelGroup>
       <footer>
-        <h:commandButton id="deployBtn" value="Deploy"
+        <h:commandButton value="Deploy"
                          disabled="#{deploymentController.protectedDeployRepository}"
+                         onclick="withCommitInfoRequired('#{studio.currentUsername}', () => JSON.parse('#{deploymentController.repositoryTypes}')[$j('#selectRepositoryForm\\:redeployRepository option:selected').val()] === 'repo-git',  () => $j('#selectRepositoryForm\\:deployBtn').click()); return false;"
+                         styleClass="button-primary"/>
+        <h:commandButton id="deployBtn"
                          action="#{deploymentController.deploy}"
-                         styleClass="button-primary" />
+                         styleClass="hidden"/>
         <input id="cancelBtn" type="button" value="Cancel" onclick="closeSelectRepository();" />
       </footer>
     </h:form>

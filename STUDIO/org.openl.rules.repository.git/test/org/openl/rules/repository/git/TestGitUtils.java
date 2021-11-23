@@ -1,7 +1,5 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,6 +9,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.UserInfo;
+
+import static org.junit.Assert.assertTrue;
 
 final class TestGitUtils {
     private TestGitUtils() {
@@ -25,7 +26,7 @@ final class TestGitUtils {
         fileData.setName(path);
         fileData.setSize(text.length());
         fileData.setComment(comment);
-        fileData.setAuthor("John Smith");
+        fileData.setAuthor(new UserInfo("jsmith", "jsmith@email", "John Smith"));
         return fileData;
     }
 

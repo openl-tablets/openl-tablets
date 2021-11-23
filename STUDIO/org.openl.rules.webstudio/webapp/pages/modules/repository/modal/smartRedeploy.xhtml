@@ -18,7 +18,7 @@
             <h:panelGroup style="width:380px; height:180px; overflow:auto;" id="modalSmartRedeployData">
                 <h:panelGroup layout="block" style="margin: 0 7px">
                     <h:outputText value="Repository: "/>
-                    <h:selectOneMenu value="#{smartRedeployController.repositoryConfigName}">
+                    <h:selectOneMenu id="redeploySmartRepository" value="#{smartRedeployController.repositoryConfigName}">
                         <f:selectItems value="#{smartRedeployController.repositories}" var="repository"
                                        itemValue="#{repository.configName}" itemLabel="#{repository.name}"/>
                         <f:ajax event="change" render="@form" execute="@this"/>
@@ -78,10 +78,13 @@
             </h:panelGrid>
 
             <footer>
-                <h:commandButton id="smartRedeployBtn" value="Deploy" onclick="return startSmartRedeploy();"
-                                 action="#{smartRedeployController.redeploy}"
+                <h:commandButton value="Deploy"
+                                 onclick="withCommitInfoRequired('#{studio.currentUsername}', () => JSON.parse('#{smartRedeployController.repositoryTypes}')[$j('#smartRedeployForm\\:redeploySmartRepository option:selected').val()] === 'repo-git' || '#{smartRedeployController.deployConfigRepositoryType}' === 'repo-git', () => $j('#smartRedeployForm\\:smartRedeployBtn').click()); return false;"
                                  disabled="#{!smartRedeployController.projectHasSelectedItems or smartRedeployController.protectedDeployRepository}"
                                  styleClass="button-primary"/>
+                <h:commandButton id="smartRedeployBtn" onclick="return startSmartRedeploy();"
+                                 action="#{smartRedeployController.redeploy}"
+                                 styleClass="hidden"/>
                 <h:commandButton id="cancelBtn" value="Cancel" action="#{smartRedeployController.reset}"/>
             </footer>
 

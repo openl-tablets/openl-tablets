@@ -1,17 +1,5 @@
 package org.openl.rules.rest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,6 +30,8 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
+import org.openl.rules.security.standalone.persistence.User;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
@@ -50,12 +40,25 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 public class ZipProjectSaveStrategyTest {
 
     private static final String BASE_RULES_LOCATION = "DESIGN/";
 
     private ZipProjectSaveStrategy saveStrategy;
     private DesignTimeRepository designTimeRepositoryMock;
+    private UserManagementService userManagementService;
     private ArgumentCaptor<FileData> fileDataCaptor;
     private XmlProjectDescriptorSerializer projectDescriptorSerializer;
 
@@ -65,7 +68,12 @@ public class ZipProjectSaveStrategyTest {
         this.fileDataCaptor = ArgumentCaptor.forClass(FileData.class);
 
         this.designTimeRepositoryMock = mock(DesignTimeRepository.class);
+        this.userManagementService = mock(UserManagementService.class);
         when(designTimeRepositoryMock.getRulesLocation()).thenReturn(BASE_RULES_LOCATION);
+        User user = new User();
+        user.setDisplayName("John Smith");
+        user.setEmail("jsmith@email");
+        when(userManagementService.getUser(anyString())).thenReturn(user);
 
         ZipCharsetDetector zipCharsetDetectorMock = mock(ZipCharsetDetector.class);
         when(zipCharsetDetectorMock.detectCharset(any())).thenReturn(StandardCharsets.UTF_8);
@@ -73,14 +81,17 @@ public class ZipProjectSaveStrategyTest {
         PathFilter zipFilterMock = mock(PathFilter.class);
         when(zipFilterMock.accept(anyString())).thenReturn(Boolean.TRUE);
 
-        saveStrategy = new ZipProjectSaveStrategy(designTimeRepositoryMock, zipFilterMock, zipCharsetDetectorMock);
+        saveStrategy = new ZipProjectSaveStrategy(designTimeRepositoryMock,
+            zipFilterMock,
+            zipCharsetDetectorMock,
+            userManagementService);
     }
 
     @Test
     public void testSaveMappedRepo() throws IOException {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
-            "John Smith",
+            "jsmith",
             "Project 1",
             "foo/Project 1",
             "Bar",
@@ -96,7 +107,8 @@ public class ZipProjectSaveStrategyTest {
         FileData actualData = fileDataCaptor.getValue();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("Bar", actualData.getComment());
-        assertEquals("John Smith", actualData.getAuthor());
+        assertEquals("jsmith@email", actualData.getAuthor().getEmail());
+        assertEquals("John Smith", actualData.getAuthor().getDisplayName());
         assertEquals(1, actualData.getAdditionalData().size());
         FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualAddData.getExternalPath());
@@ -107,7 +119,7 @@ public class ZipProjectSaveStrategyTest {
     public void testSaveMappedRepo2() throws IOException {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
-            "John Smith",
+            "jsmith",
             "Project 1",
             null,
             "Bar",
@@ -123,7 +135,8 @@ public class ZipProjectSaveStrategyTest {
         FileData actualData = fileDataCaptor.getValue();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("Bar", actualData.getComment());
-        assertEquals("John Smith", actualData.getAuthor());
+        assertEquals("jsmith@email", actualData.getAuthor().getEmail());
+        assertEquals("John Smith", actualData.getAuthor().getDisplayName());
         assertEquals(1, actualData.getAdditionalData().size());
         FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualAddData.getExternalPath());
@@ -134,7 +147,7 @@ public class ZipProjectSaveStrategyTest {
     public void testSaveNotFolderRepo() throws IOException {
         mockDesignRepository(Repository.class, "design2", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design2",
-            "John Smith",
+            "jsmith",
             "Project 1",
             null,
             null,
@@ -150,7 +163,8 @@ public class ZipProjectSaveStrategyTest {
         FileData actualData = fileDataCaptor.getValue();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("", actualData.getComment());
-        assertEquals("John Smith", actualData.getAuthor());
+        assertEquals("jsmith@email", actualData.getAuthor().getEmail());
+        assertEquals("John Smith", actualData.getAuthor().getDisplayName());
         assertEquals(0, actualData.getAdditionalData().size());
     }
 
@@ -158,11 +172,11 @@ public class ZipProjectSaveStrategyTest {
     public void testSaveMappedRepoCustomPath() throws IOException {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
-                "John Smith",
-                "Project 1",
-                "custom-name",
-                "Bar",
-                false);
+            "jsmith",
+            "Project 1",
+            "custom-name",
+            "Bar",
+            false);
         FolderRepository repo = (FolderRepository) designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
@@ -175,13 +189,15 @@ public class ZipProjectSaveStrategyTest {
         FileData actualData = fileDataCaptor.getValue();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualData.getName());
         assertEquals("Bar", actualData.getComment());
-        assertEquals("John Smith", actualData.getAuthor());
+        assertEquals("jsmith@email", actualData.getAuthor().getEmail());
+        assertEquals("John Smith", actualData.getAuthor().getDisplayName());
         assertEquals(1, actualData.getAdditionalData().size());
         FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 1", actualAddData.getExternalPath());
         assertEquals("custom-name", actualAddData.getInternalPath());
 
-        FileItem descriptor = actualFileItems.get(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        FileItem descriptor = actualFileItems
+            .get(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         ((ByteArrayInputStream) descriptor.getStream()).reset();
         assertProjectDescriptor(expectedRootFolder, "Project 1", descriptor);
     }
@@ -190,11 +206,11 @@ public class ZipProjectSaveStrategyTest {
     public void testSaveMappedRepoCustomPathExtraProjectDescriptor() throws IOException {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
-                "John Smith",
-                "Project 2",
-                "custom-name",
-                "Bar",
-                false);
+            "jsmith",
+            "Project 2",
+            "custom-name",
+            "Bar",
+            false);
         FolderRepository repo = (FolderRepository) designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
@@ -203,7 +219,8 @@ public class ZipProjectSaveStrategyTest {
         verify(repo, times(1)).save(fileDataCaptor.capture(), any(), eq(ChangesetType.FULL));
 
         final String expectedRootFolder = BASE_RULES_LOCATION + "Project 2/";
-        FileItem descriptor = actualFileItems.remove(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+        FileItem descriptor = actualFileItems
+            .remove(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
         assertProjectDescriptor(expectedRootFolder, "Project 2", descriptor);
 
         assertSame(expected, expectedRootFolder, actualFileItems);
@@ -211,7 +228,8 @@ public class ZipProjectSaveStrategyTest {
         FileData actualData = fileDataCaptor.getValue();
         assertEquals(BASE_RULES_LOCATION + "Project 2", actualData.getName());
         assertEquals("Bar", actualData.getComment());
-        assertEquals("John Smith", actualData.getAuthor());
+        assertEquals("jsmith@email", actualData.getAuthor().getEmail());
+        assertEquals("John Smith", actualData.getAuthor().getDisplayName());
         assertEquals(1, actualData.getAdditionalData().size());
         FileMappingData actualAddData = (FileMappingData) actualData.getAdditionalData().values().iterator().next();
         assertEquals(BASE_RULES_LOCATION + "Project 2", actualAddData.getExternalPath());
@@ -220,7 +238,8 @@ public class ZipProjectSaveStrategyTest {
 
     private void assertProjectDescriptor(String expectedRootFolder, String expectedName, FileItem descriptor) {
         assertNotNull(descriptor);
-        assertEquals(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, descriptor.getData().getName());
+        assertEquals(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
+            descriptor.getData().getName());
         assertEquals(expectedName, projectDescriptorSerializer.deserialize(descriptor.getStream()).getName());
     }
 

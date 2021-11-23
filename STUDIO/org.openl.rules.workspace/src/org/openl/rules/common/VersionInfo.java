@@ -7,4 +7,6 @@ public interface VersionInfo extends Serializable {
     Date getCreatedAt();
 
     String getCreatedBy();
+
+    String getEmailCreatedBy();
 }

@@ -9,10 +9,12 @@ public class RepositoryVersionInfoImpl implements VersionInfo {
 
     private final Date createdAt;
     private final String createdBy;
+    private final String emailCreatedBy;
 
-    public RepositoryVersionInfoImpl(Date createdAt, String createdBy) {
+    public RepositoryVersionInfoImpl(Date createdAt, String createdBy, String emailCreatedBy) {
         this.createdAt = createdAt;
         this.createdBy = createdBy;
+        this.emailCreatedBy = emailCreatedBy;
     }
 
     @Override
@@ -23,6 +25,11 @@ public class RepositoryVersionInfoImpl implements VersionInfo {
     @Override
     public String getCreatedBy() {
         return createdBy;
+    }
+
+    @Override
+    public String getEmailCreatedBy() {
+        return emailCreatedBy;
     }
 
 }

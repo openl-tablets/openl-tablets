@@ -18,6 +18,8 @@
     <bean class="org.openl.rules.webstudio.service.SingleUserModeInit" lazy-init="false">
         <constructor-arg name="userDao" ref="openlUserDao"/>
         <constructor-arg name="userName" value="DEFAULT"/>
+        <constructor-arg name="email" value="default@example.com"/>
+        <constructor-arg name="displayName" value="DEFAULT"/>
     </bean>
 
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">

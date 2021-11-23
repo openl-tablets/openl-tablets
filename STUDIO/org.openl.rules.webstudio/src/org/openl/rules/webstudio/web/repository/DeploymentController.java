@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Deployment controller.
@@ -507,6 +511,14 @@ public class DeploymentController {
 
         repos.sort(RepositoryConfiguration.COMPARATOR);
         return repos;
+    }
+
+    public String getRepositoryTypes() throws JsonProcessingException {
+        Map<String, String> types = deploymentManager.getRepositoryConfigNames()
+                .stream()
+                .map(repositoryConfigName -> new RepositoryConfiguration(repositoryConfigName, propertyResolver))
+                .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
+        return new ObjectMapper().writeValueAsString(types);
     }
 
     public void initAddDeployItemDialog() {

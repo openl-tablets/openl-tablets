@@ -1,91 +1,257 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:rich="http://richfaces.org/rich">
 
-    <rich:popupPanel id="modalAddUser" minWidth="530" autosized="true">
+    <style>
+        #user-groups>span:nth-child(1) {
+            display: none;
+        }
+        #user-groups {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        #user-groups-row {
+            display: none;
+        }
+        #user-internal-user-row {
+            display: none;
+        }
+        #user-password-row {
+            display: none;
+        }
+        #user-form {
+            max-height: 550px;
+            overflow: auto;
+        }
+        .font-size-80pct {
+            font-size: 80%;
+        }
+        .width-100pct {
+            width: 100%;
+        }
+        .width-33pct {
+            width: 33.3%;
+        }
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        .display-flex-center {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+
+    <rich:popupPanel id="modalAddUser" width="530" minWidth="530" maxWidth="710" maxHeight="700" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Add New User" />
+            <h:outputText value="Add New User"/>
         </f:facet>
 
         <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close"
-                onclick="hideAddUser()" alt="Close" />
+            <h:graphicImage value="/images/close.gif" class="close" onclick="hideAddUserForm()" alt="Close"/>
         </f:facet>
 
-        <h:form id="addUserForm">
-        <div style="max-height: 370px; overflow: auto;">
-            <h:panelGrid columns="3" cellspacing="5">
-                <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"><label>Local user</label></h:panelGroup>
-                <h:selectBooleanCheckbox id="internalUser" rendered="#{usersBean.canSelectInternalOrExternal}" value="#{usersBean.internalUser}"/>
-                <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"> </h:panelGroup>
+        <div id="user-form" class="fields">
+            <section>
+                <h3>Account</h3>
+                <div>
+                    <table>
+                        <tbody>
+                        <tr id="user-internal-user-row">
+                            <td class="titleColumn"><label>Local user:</label></td>
+                            <td><input id="user-internal-user" type="checkbox" checked="checked"/></td>
+                        </tr>
+                        <tr>
+                            <td class="titleColumn"><label class="required">Username:</label></td>
+                            <td><input id="user-username" type="text"/></td>
+                            <td><span id="user-username-error" class="error"/></td>
+                        </tr>
+                        <tr>
+                            <td class="titleColumn"><label>Email:</label></td>
+                            <td><input id="user-email" type="text"/></td>
+                            <td><span id="user-email-error" class="error"/></td>
+                        </tr>
+                        <tr id="user-password-row">
+                            <td class="titleColumn"><label class="required">Password:</label></td>
+                            <td><input id="user-password" type="password"/></td>
+                            <td><span id="user-password-error" class="error"/></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section>
+                <h3>Name</h3>
+                <div>
+                    <table>
+                        <tbody>
+                        <tr>
+                            <td class="titleColumn"><label>First name <span class="font-size-80pct">(Given Name)</span>:</label>
+                            </td>
+                            <td><input id="user-firstname" type="text"/></td>
+                            <td><span id="user-firstname-error" class="error"/></td>
+                        </tr>
+                        <tr>
+                            <td class="titleColumn"><label>Last name <span class="font-size-80pct">(Family Name)</span>:</label>
+                            </td>
+                            <td><input id="user-lastname" type="text"/></td>
+                            <td><span id="user-lastname-error" class="error"/></td>
+                        </tr>
+                        <tr>
+                            <td class="titleColumn"><label>Display name:</label></td>
+                            <td>
+                                <div id="user-display-name-select-box"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td/>
+                            <td><input id="user-display-name" type="text"/></td>
+                            <td><span id="user-display-name-error" class="error"/></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section id="user-groups-row">
+                <h3 class="required titleColumn">Group</h3>
+                <div>
+                    <table class="width-100pct">
+                        <tbody>
+                        <tr>
+                            <td id="user-groups">
+                                <span class="width-33pct">
+                                    <label class="cursor-pointer display-flex-center">
+                                        <input value="{userGroupValue}" type="checkbox"/>
+                                        {userGroupName}
+                                    </label>
+                                </span>
+                            </td>
+                            <td><span id="user-groups-error" class="error"/></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
 
-                <label class="required">Username:</label>
-                <h:inputText id="username" value="#{usersBean.username}"
-                    validator="#{usersBean.validateUsername}" />
-                <a4j:outputPanel ajaxRendered="true" id="nameError">
-                    <h:message for="username" styleClass="error" />
-                </a4j:outputPanel>
-
-                <h:panelGroup rendered="#{usersBean.canCreateInternalUsers}"><label class="required">Password:</label></h:panelGroup>
-                <h:inputSecret id="password" value="#{usersBean.password}" rendered="#{usersBean.canCreateInternalUsers}"/>
-                <a4j:outputPanel ajaxRendered="true" id="passwordError" rendered="#{usersBean.canCreateInternalUsers}">
-                    <h:message for="password" styleClass="error" />
-                </a4j:outputPanel>
-
-                <label>First Name:</label>
-                <h:inputText id="firstName" value="#{usersBean.firstName}" />
-                <a4j:outputPanel ajaxRendered="true" id="firstNameError">
-                    <h:message for="firstName" styleClass="error" />
-                </a4j:outputPanel>
-
-                <label>Last Name:</label>
-                <h:inputText id="lastName" value="#{usersBean.lastName}" />
-                <a4j:outputPanel ajaxRendered="true" id="lastNameError">
-                    <h:message for="lastName" styleClass="error" />
-                </a4j:outputPanel>
-
-                <label>Groups:</label>
-                <h:selectManyCheckbox id="addUserGroups" value="#{usersBean.groups}" layout="pageDirection">
-                    <f:selectItems value="#{usersBean.groupItems}" />
-                </h:selectManyCheckbox>
-            </h:panelGrid>
-            </div>
-
-            <footer>
-                <a4j:commandButton value="Save" action="#{usersBean.addUser}" data="#{facesContext.maximumSeverity}"
-                    oncomplete="if(!event.data) hideAddUser()" render=":userList" styleClass="button-primary" />
-                <input type="button" value="Cancel" onclick="hideAddUser()" />
-            </footer>
-        </h:form>
+        <footer>
+            <input id="user-add" type="button" title="Save" value="Save" class="button-primary" disabled="disabled"/>
+            <input type="button" value="Cancel" onclick="hideAddUserForm()"/>
+        </footer>
 
     </rich:popupPanel>
 
-    <script>
-        function hideAddUser() {
-            RichFaces.$("modalAddUser").hide();
+    <script>//<![CDATA[
 
-            $j("#addUserForm\\:nameError,#addUserForm\\:passwordError,#addUserForm\\:firstNameError,#addUserForm\\:lastNameError,#addUserForm\\:groupsError").text("");
+        $j("#user-form").change(processRequiredAddUserFields);
+        $j("#user-form").keyup(processRequiredAddUserFields);
 
-            // Reset form
-            $j("#addUserForm")[0].reset();
-            $j("#addUserForm\\:internalUser").change();
+        $j("#user-internal-user").change(function () {
+            $j("#user-password-row").toggle($j(this).attr("checked") === 'checked' || $j(this).parent().is(':hidden'));
+        });
+
+        function processRequiredAddUserFields() {
+            if ($j("#user-username").val().trim() === "" || ($j("#user-internal-user").prop("checked") === true && $j("#user-password").val().trim() === "") || $j("#user-groups-row input:checkbox:checked").length === 0) {
+                $j("#user-add").prop("disabled", true);
+            } else {
+                $j("#user-add").prop("disabled", false);
+            }
         }
 
-        (function () {
-            $j("#addUserForm\\:internalUser").change(function () {
-                // Disable and hide the password field if user isn't Internal (enable and show otherwise)
-                var internalUser = $j(this).attr("checked") === 'checked';
-                $j("#addUserForm\\:password").prop('disabled', !internalUser);
-                $j("#addUserForm\\:password").closest('tr').toggle(internalUser);
+        $j("#user-add").click(function (e) {
+            e.preventDefault();
+
+            let groupValues = [];
+            $j("#user-groups-row input:checkbox").each(function() {
+                if ($j(this).is(":checked")) {
+                    groupValues.push($j(this).val());
+                }
             });
 
-            // internalUser can be absent. jQuery in this case does nothing. Don't replace with direct function invocation.
-            $j("#addUserForm\\:internalUser").change();
-        })();
+            const internalPassword = {
+                password : $j("#user-password").val(),
+                internalUser : $j("#user-internal-user").is(":checked")
+            }
+
+            $j.ajax({
+                type: "PUT",
+                url: "#{contextPath}/web/users",
+                data: JSON.stringify({
+                    username : $j("#user-username").val().trim(),
+                    firstName : $j("#user-firstname").val().trim(),
+                    lastName : $j("#user-lastname").val().trim(),
+                    email : $j("#user-email").val().trim(),
+                    displayName : $j("#user-display-name").val().trim(),
+                    groups : groupValues,
+                    internalPassword : internalPassword
+                }),
+                contentType: 'application/json',
+                dataType: 'json'
+            })
+            .done(function () {
+                location.reload();
+                hideAddUserForm();
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                $j("#user-username-error, #user-password-error, #user-firstname-error, #user-display-name-error, #user-lastname-error, #user-email-error, #user-groups-error").text("");
+                const errorsMap = new Map(JSON.parse(jqXHR.responseText).fields.map(item => [item.field, item.message]));
+                $j("#user-username-error").text(errorsMap.get("username"));
+                $j("#user-email-error").text(errorsMap.get("email"));
+                $j("#user-password-error").text(errorsMap.get("internalPassword"));
+                $j("#user-firstname-error").text(errorsMap.get("firstName"));
+                $j("#user-display-name-error").text(errorsMap.get("displayName"));
+                $j("#user-lastname-error").text(errorsMap.get("lastName"));
+                $j("#user-groups-error").text(errorsMap.get("groups"));
+            });
+        });
+
+        $j.ajax({
+            type: "GET",
+            url: "#{contextPath}/web/admin/management/groups",
+            datatype: "json"
+        })
+        .done(function (data) {
+            const rowTemplate = $j('#user-groups>span:nth-child(1)');
+            const htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
+            let groups = "";
+            $j.map(data, function (val, i) {
+                $j("#user-groups-row").show();
+                groups += htmlTemplate.replace(/{userGroupValue}/g, i).replace(/{userGroupName}/g, i);
+            });
+
+            $j("#user-groups").html(htmlTemplate + groups);
+        });
+
+        $j.ajax({
+            type: "GET",
+            url: "#{contextPath}/web/users/options",
+            datatype: "json"
+        })
+        .done(function (data) {
+            $j("#user-password-row").toggle(data.canCreateInternalUsers);
+            $j("#user-internal-user-row").toggle(data.canCreateInternalUsers && data.canCreateExternalUsers);
+            $j("#user-internal-user").change();
+        });
+
+        function hideAddUserForm() {
+            RichFaces.$("modalAddUser").hide();
+            $j("#user-internal-user").change();
+            clearAddUserForm();
+        }
+
+        function clearAddUserForm() {
+            $j("#user-username-error, #user-password-error, #user-firstname-error, #user-display-name-error, #user-lastname-error, #user-email-error, #user-groups-error").text("");
+            $j("#user-username, #user-password, #user-firstname, #user-display-name, #user-lastname, #user-email").val("");
+            $j("#user-groups input").removeAttr("checked");
+            $j("#user-internal-user").attr("checked", "checked");
+            $j("#user-add").prop("disabled", true);
+        }
+
+        initUserDisplayNameSelect($j("#user-display-name-select-box"), $j("#user-firstname"), $j("#user-lastname"), $j("#user-display-name"))
+
+    //]]>
     </script>
 
 </ui:composition>

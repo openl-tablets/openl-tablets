@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.jar.Manifest;
 
+import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -72,7 +73,7 @@ public class DeploymentManager implements InitializingBean {
             throw new IllegalArgumentException(String.format("No such repository '%s'", repositoryConfigName));
         }
 
-        String userName = WebStudioUtils.getRulesUserSession().getUserName();
+        CommonUser user = WebStudioUtils.getRulesUserSession().getUserWorkspace().getUser();
 
         @SuppressWarnings("rawtypes")
         Collection<ProjectDescriptor> projectDescriptors = project.getProjectDescriptors();
@@ -101,10 +102,10 @@ public class DeploymentManager implements InitializingBean {
                     designRepository,
                     rulesPath,
                     deploymentPath,
-                    userName)) {
+                    user.getUserName())) {
                     FileData deploymentData = new FileData();
                     deploymentData.setName(deploymentName);
-                    deploymentData.setAuthor(userName);
+                    deploymentData.setAuthor(user.getUserInfo());
                     deploymentData.setComment(project.getFileData().getComment());
                     folderRepo.save(deploymentData, changes, ChangesetType.FULL);
                 }
@@ -112,7 +113,7 @@ public class DeploymentManager implements InitializingBean {
                 List<FileData> existingProjects = deployRepo.list(deploymentPath);
                 List<FileData> projectsToDelete = findProjectsToDelete(existingProjects, projectDescriptors);
                 for (FileData fileData : projectsToDelete) {
-                    fileData.setAuthor(userName);
+                    fileData.setAuthor(user.getUserInfo());
                     deployRepo.delete(fileData);
                 }
 
@@ -129,11 +130,12 @@ public class DeploymentManager implements InitializingBean {
 
                     FileData dest = new FileData();
                     dest.setName(deploymentPath + projectName);
-                    dest.setAuthor(userName);
+                    dest.setAuthor(user.getUserInfo());
                     dest.setComment(project.getFileData().getComment());
 
                     final FileData historyData = designRepo.checkHistory(rulesPath + projectName, version);
-                    DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder().setBuiltBy(userName)
+                    DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
+                        .setBuiltBy(user.getUserName())
                         .setBuildNumber(pd.getProjectVersion().getRevision())
                         .setImplementationTitle(projectName)
                         .setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));

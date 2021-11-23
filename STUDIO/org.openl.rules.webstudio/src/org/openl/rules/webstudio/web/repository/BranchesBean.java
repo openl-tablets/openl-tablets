@@ -141,8 +141,8 @@ public class BranchesBean {
                 String nameAfterMerge = nameBeforeMerge;
 
                 studio.freezeProject(nameBeforeMerge);
-                String author = getUserWorkspace().getUser().getUserName();
-                ((BranchRepository) designRepository).forBranch(branchToMergeTo).merge(branchToMergeFrom, author, null);
+                ((BranchRepository) designRepository).forBranch(branchToMergeTo)
+                    .merge(branchToMergeFrom, getUserWorkspace().getUser().getUserInfo(), null);
 
                 if (opened) {
                     if (project.isDeleted()) {
@@ -281,7 +281,7 @@ public class BranchesBean {
                 Repository repository = project.getDesignRepository();
                 if (repository.supports().branches()) {
                     try {
-                        ((BranchRepository) repository).pull(getUserWorkspace().getUser().getUserName());
+                        ((BranchRepository) repository).pull(getUserWorkspace().getUser().getUserInfo());
                     } catch (Exception e) {
                         // Report error and continue with local copy of git repository.
                         LOG.error(e.getMessage(), e);

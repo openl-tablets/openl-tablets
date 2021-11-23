@@ -237,6 +237,8 @@ public class InstallWizard implements Serializable {
             propertyResolver.getProperty("security.cas.cas-server-url-prefix"),
             propertyResolver.getProperty("security.cas.attribute.first-name"),
             propertyResolver.getProperty("security.cas.attribute.last-name"),
+            propertyResolver.getProperty("security.cas.attribute.display-name"),
+            propertyResolver.getProperty("security.cas.attribute.email"),
             propertyResolver.getProperty("security.cas.attribute.groups"));
     }
 
@@ -252,6 +254,8 @@ public class InstallWizard implements Serializable {
             propertyResolver.getProperty("security.saml.attribute.username"),
             propertyResolver.getProperty("security.saml.attribute.first-name"),
             propertyResolver.getProperty("security.saml.attribute.last-name"),
+            propertyResolver.getProperty("security.saml.attribute.display-name"),
+            propertyResolver.getProperty("security.saml.attribute.email"),
             propertyResolver.getProperty("security.saml.attribute.groups"),
             propertyResolver.getProperty("security.saml.authentication-contexts"),
             propertyResolver.getRequiredProperty("security.saml.local-logout", Boolean.class),
@@ -281,6 +285,8 @@ public class InstallWizard implements Serializable {
                     properties.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
                     properties.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
                     properties.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
+                    properties.setProperty("security.cas.attribute.display-name", casSettings.getDisplayNameAttribute());
+                    properties.setProperty("security.cas.attribute.email", casSettings.getEmailAttribute());
                     properties.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
                     properties.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
                 } else if (SAML_USER_MODE.equals(userMode)) {
@@ -298,6 +304,8 @@ public class InstallWizard implements Serializable {
                     properties.setProperty("security.saml.attribute.username", samlSettings.getUsernameAttribute());
                     properties.setProperty("security.saml.attribute.first-name", samlSettings.getFirstNameAttribute());
                     properties.setProperty("security.saml.attribute.last-name", samlSettings.getSecondNameAttribute());
+                    properties.setProperty("security.saml.attribute.display-name", samlSettings.getDisplayNameAttribute());
+                    properties.setProperty("security.saml.attribute.email", samlSettings.getEmailAttribute());
                     properties.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());
                     properties.setProperty("security.saml.authentication-contexts",
                         samlSettings.getAuthenticationContexts());

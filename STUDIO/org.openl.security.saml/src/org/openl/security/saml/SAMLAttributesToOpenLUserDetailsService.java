@@ -7,6 +7,7 @@ import java.util.function.Function;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.UserExternalFlags;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,6 +19,8 @@ public class SAMLAttributesToOpenLUserDetailsService implements SAMLUserDetailsS
     private final String firstNameAttribute;
     private final String lastNameAttribute;
     private final String groupsAttribute;
+    private final String emailAttribute;
+    private final String displayNameAttribute;
     /**
      * Must map to {@link org.openl.rules.security.Privilege}
      */
@@ -28,7 +31,9 @@ public class SAMLAttributesToOpenLUserDetailsService implements SAMLUserDetailsS
         this.usernameAttribute = propertyResolver.getProperty("security.saml.attribute.username");
         this.firstNameAttribute = propertyResolver.getProperty("security.saml.attribute.first-name");
         this.lastNameAttribute = propertyResolver.getProperty("security.saml.attribute.last-name");
+        this.emailAttribute = propertyResolver.getProperty("security.saml.attribute.email");
         this.groupsAttribute = propertyResolver.getProperty("security.saml.attribute.groups");
+        this.displayNameAttribute = propertyResolver.getProperty("security.saml.attribute.display-name");
         this.authoritiesMapper = authoritiesMapper;
     }
 
@@ -38,6 +43,8 @@ public class SAMLAttributesToOpenLUserDetailsService implements SAMLUserDetailsS
         String username = credential.getNameID().getValue();
         String firstName = null;
         String lastName = null;
+        String email = null;
+        String displayName = null;
 
         if (StringUtils.isNotBlank(usernameAttribute)) {
             username = credential.getAttributeAsString(usernameAttribute);
@@ -60,7 +67,25 @@ public class SAMLAttributesToOpenLUserDetailsService implements SAMLUserDetailsS
             }
         }
 
-        SimpleUser simpleUser = new SimpleUser(firstName, lastName, username, null, grantedAuthorities);
+        if (StringUtils.isNotBlank(emailAttribute)) {
+            email = credential.getAttributeAsString(emailAttribute);
+
+        }
+        if (StringUtils.isNotBlank(displayNameAttribute)) {
+            displayName = credential.getAttributeAsString(displayNameAttribute);
+        }
+
+        SimpleUser simpleUser = new SimpleUser(firstName,
+            lastName,
+            username,
+            null,
+            grantedAuthorities,
+            email,
+            displayName,
+            new UserExternalFlags(StringUtils.isNotBlank(firstName),
+                StringUtils.isNotBlank(lastName),
+                StringUtils.isNotBlank(email),
+                StringUtils.isNotBlank(displayName)));
         return authoritiesMapper.apply(simpleUser);
     }
 }

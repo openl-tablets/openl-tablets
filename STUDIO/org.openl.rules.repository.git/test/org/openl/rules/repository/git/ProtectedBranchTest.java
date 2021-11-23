@@ -1,13 +1,5 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
-import static org.openl.rules.repository.git.TestGitUtils.createFileData;
-import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
-import static org.openl.rules.repository.git.TestGitUtils.writeText;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,9 +19,18 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
+import static org.openl.rules.repository.git.TestGitUtils.createFileData;
+import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
+import static org.openl.rules.repository.git.TestGitUtils.writeText;
 
 public class ProtectedBranchTest {
     private static final String BRANCH1 = "branch1";
@@ -118,7 +119,7 @@ public class ProtectedBranchTest {
         repoBranch1.save(createFileData(path2, path2), IOUtils.toInputStream(path2));
 
         try {
-            repo.merge(BRANCH1, "John", null);
+            repo.merge(BRANCH1, new UserInfo("john", "john@email", "John"), null);
             fail("Merge must be unavailable because of pre-push hook");
         } catch (IOException e) {
             // After merge failure must rollback both commits from 'branch1'.

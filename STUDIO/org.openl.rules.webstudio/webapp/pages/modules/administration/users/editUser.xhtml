@@ -3,116 +3,286 @@
         xmlns:ui="http://java.sun.com/jsf/facelets"
         xmlns:h="http://java.sun.com/jsf/html"
         xmlns:f="http://java.sun.com/jsf/core"
-        xmlns:a4j="http://richfaces.org/a4j"
         xmlns:rich="http://richfaces.org/rich">
 
-    <rich:popupPanel id="modalEditUser" width="530" autosized="true">
+    <style>
+        #edit-user-groups>span:nth-child(1) {
+            display: none;
+        }
+        #edit-user-groups {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        #edit-user-form {
+            max-height: 550px;
+            overflow: auto;
+        }
+        .font-weight-bold {
+            font-weight: bold;
+        }
+        .font-size-80pct {
+            font-size: 80%;
+        }
+        .cursor-pointer {
+            cursor: pointer;
+        }
+        .width-100pct {
+            width: 100%;
+        }
+        .width-33pct {
+            width: 33.3%;
+        }
+        .display-inline {
+            display: inline;
+        }
+        .display-flex-center {
+            display: flex;
+            align-items: center;
+        }
+    </style>
+
+    <rich:popupPanel id="modalEditUser" width="530" minWidth="530" maxWidth="710" maxHeight="700" autosized="true">
         <f:facet name="header">
             <h:outputText value="Edit User"/>
         </f:facet>
 
         <f:facet name="controls">
-            <h:graphicImage value="/images/close.gif" class="close"
-                            onclick="hideEditUser()" alt="Close"/>
+            <h:graphicImage value="/images/close.gif" class="close" onclick="hideEditUserForm()" alt="Close"/>
         </f:facet>
 
-        <h:form id="editUserForm">
-            <div style="max-height: 370px; overflow: auto;">
-                <div class="problem-warning superuser">This user cannot be deleted and Administrator privilege cannot be revoked<br/>because the user is defined in
-                    <b>security.administrators</b> property.
-                </div>
-                <div class="problem-warning currentuser">It is your account. You cannot delete yourself or revoke Administrator privilege.</div>
-                <h:panelGrid columns="3" cellspacing="5">
-                    <label>Username:</label>
-                    <h:outputText id="username" style="font-weight: bold"/>
-                    <h:inputHidden id="usernameHidden" value="#{usersBean.username}"/>
-
-                    <label>Password:</label>
-                    <h:inputSecret id="password" value="#{usersBean.changedPassword}" styleClass="internal-user"/>
-                    <a4j:outputPanel ajaxRendered="true" id="passwordError">
-                        <h:message for="password" styleClass="error"/>
-                    </a4j:outputPanel>
-
-                    <label>First Name:</label>
-                    <h:inputText id="firstName" value="#{usersBean.firstName}" styleClass="internal-user"/>
-                    <a4j:outputPanel ajaxRendered="true" id="firstNameError">
-                        <h:message for="firstName" styleClass="error"/>
-                    </a4j:outputPanel>
-
-                    <label>Last Name:</label>
-                    <h:inputText id="lastName" value="#{usersBean.lastName}" styleClass="internal-user"/>
-                    <a4j:outputPanel ajaxRendered="true" id="lastNameError">
-                        <h:message for="lastName" styleClass="error"/>
-                    </a4j:outputPanel>
-
-                    <label>Groups:</label>
-                    <h:selectManyCheckbox id="editUserGroups" value="#{usersBean.groups}" layout="pageDirection">
-                        <f:selectItems value="#{usersBean.groupItems}"/>
-                    </h:selectManyCheckbox>
-                </h:panelGrid>
+        <div id="edit-user-form" class="fields">
+            <div class="problem-warning edit-user-super-user">
+                This user cannot be deleted and Administrator privilege cannot be revoked
+                <br/>
+                because the user is defined in <b>security.administrators</b> property.
             </div>
+            <div class="problem-warning edit-user-current-user">
+                It is your account. You cannot delete yourself or revoke Administrator privilege.
+            </div>
+            <section>
+                <h3>Account</h3>
+                <div>
+                    <table>
+                        <tbody>
+                        <tr>
+                            <td class="titleColumn"><label>Username:</label></td>
+                            <td><span id="edit-user-username" class="font-weight-bold"/></td>
+                        </tr>
+                        <tr>
+                            <td class="titleColumn"><label>Email:</label></td>
+                            <td>
+                                <input id="edit-user-email" name="edit-user-email" type="text"/>
+                                <span id="edit-user-email-span" class="font-weight-bold"/>
+                            </td>
+                            <td><span id="edit-user-email-error" class="error"/></td>
+                        </tr>
+                        <tr class="edit-user-password-row">
+                            <td class="titleColumn"><label>Password:</label></td>
+                            <td><input id="edit-user-password" name="edit-user-password" type="password"/></td>
+                            <td><span id="edit-user-password-error" class="error"/></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section>
+                <h3>Name</h3>
+                <div>
+                    <table>
+                        <tbody>
+                        <tr>
+                            <td class="titleColumn"><label>First Name <span class="font-size-80pct">(Given Name)</span>:</label>
+                            </td>
+                            <td>
+                                <input id="edit-user-firstname" name="edit-user-firstname" type="text"/>
+                                <span id="edit-user-firstname-span" class="font-weight-bold"/>
+                            </td>
+                            <td><span id="edit-user-firstname-error" class="error"/></td>
+                        </tr>
+                        <tr>
+                            <td class="titleColumn"><label>Last Name <span class="font-size-80pct">(Family Name)</span>:</label>
+                            </td>
+                            <td>
+                                <input id="edit-user-lastname" name="edit-user-lastname" type="text"/>
+                                <span id="edit-user-lastname-span" class="font-weight-bold"/>
+                            </td>
+                            <td><span id="edit-user-lastname-error" class="error"/></td>
+                        </tr>
+                        <tr>
+                            <td class="titleColumn"><label>Display name:</label></td>
+                            <td>
+                                <div id="edit-user-display-name-select-box"></div>
+                                <span id="edit-user-display-name-span"
+                                      class="font-weight-bold"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td/>
+                            <td><input id="edit-user-display-name" name="edit-user-display-name" type="text"/></td>
+                            <td><span id="edit-user-display-name-error" class="error"/></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section id="edit-user-groups-row">
+                <div>
+                    <h3 class="titleColumn required display-inline">Group</h3>
+                    <span id="edit-user-groups-error" class="error"/>
+                </div>
+                <div>
+                    <table class="width-100pct">
+                        <tbody>
+                        <tr>
+                            <td id="edit-user-groups">
+                                <span class="width-33pct" style="{editUserGroupStyle}">
+                                    <label class="cursor-pointer display-flex-center">
+                                        <input value="{editUserGroupValue}" name="{editUserGroupName}" type="checkbox" class="{editUserGroupClass}"/>
+                                        {editUserGroupName}
+                                    </label>
+                                </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
 
-            <footer>
-                <a4j:commandButton value="Save" action="#{usersBean.editUser}" data="#{facesContext.maximumSeverity}"
-                                   oncomplete="if(!event.data) hideEditUser()" render=":userList"
-                                   styleClass="button-primary"/>
-                <input type="button" value="Cancel" onclick="hideEditUser()"/>
-            </footer>
-        </h:form>
+        <footer>
+            <input id="user-edit" type="button" title="Save" value="Save" class="button-primary" disabled="disabled"/>
+            <input type="button" value="Cancel" onclick="hideEditUserForm()"/>
+        </footer>
 
     </rich:popupPanel>
 
-    <script>
-        //<![CDATA[
-        function editUser(username, firstName, lastName, internalUser, groups, onlyAdminGroups, isSuperuser, isCurrentUser) {
-            if (#{!usersBean.canCreateUsers}) {
-                return;
-            }
-            $j("#editUserForm .superuser").toggle(isSuperuser);
-            $j("#editUserForm .currentuser").toggle(!isSuperuser && isCurrentUser);
+    <script>//<![CDATA[
 
-            $j("#editUserForm\\:username").text(username);
-            $j("#editUserForm\\:usernameHidden").val(username);
-            $j("#editUserForm\\:firstName").val(firstName);
-            $j("#editUserForm\\:lastName").val(lastName);
+        function showEditUserForm(username, firstName, lastName, email, displayName, internalUser, userGroups, isSuperuser, isCurrentUser, firstNameExternal, lastNameExternal, emailExternal, displayNameExternal) {
+            $j("#edit-user-username").text(username);
+            $j("#edit-user-firstname").val(firstName);
+            $j("#edit-user-display-name").val(displayName);
+            $j("#edit-user-lastname").val(lastName);
+            $j("#edit-user-email").val(email);
+            $j("#edit-user-email-span").text(email);
+            $j("#edit-user-firstname-span").text(firstName);
+            $j("#edit-user-display-name-span").text(displayName);
+            $j("#edit-user-lastname-span").text(lastName);
 
-            $j("input[id^='editUserForm\\:editUserGroups']").each(function () {
-                let box = $j(this);
-                let group = box.val();
-                let checked = $j.inArray(group, groups) !== -1;
-                box.attr("checked", checked);
-                let isAdminGroup = $j.inArray(group, onlyAdminGroups) !== -1;
-                box.parent().css("color", isAdminGroup ? "red" : "");
-                let shouldBeDisabled = isAdminGroup && (isSuperuser || isCurrentUser);
-                box.prop('disabled', shouldBeDisabled)
-            });
+            $j(".edit-user-super-user").toggle(isSuperuser === true);
+            $j(".edit-user-current-user").toggle(!(isSuperuser === true) && isCurrentUser === true);
+            $j(".edit-user-password-row").toggle(internalUser === true);
 
-            $j(".external-user").remove();
-            $j(".internal-user").toggle(internalUser);
-            $j("#editUserForm\\:password").closest('tr').toggle(internalUser);
-            if (!internalUser) {
-                $j(".internal-user").each(function () {
-                    let $elem = $j(this);
-                    $elem.parent().append($j('<span/>').addClass('external-user').html($elem.val()));
+            $j("#edit-user-firstname").toggle(!(firstNameExternal === true));
+            $j("#edit-user-firstname-span").toggle(firstNameExternal === true);
+            $j("#edit-user-lastname").toggle(!(lastNameExternal === true));
+            $j("#edit-user-lastname-span").toggle(lastNameExternal === true);
+            $j("#edit-user-email").toggle(!(emailExternal === true));
+            $j("#edit-user-email-span").toggle(emailExternal === true);
+            $j("#edit-user-display-name").toggle(!(displayNameExternal === true));
+            $j("#edit-user-display-name-select-box").toggle(!(displayNameExternal === true));
+            $j("#edit-user-display-name-span").toggle(displayNameExternal === true);
+
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/admin/management/groups",
+                datatype: "json"
+            })
+            .done(function (data) {
+                const rowTemplate = $j('#edit-user-groups>span:nth-child(1)');
+                const htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
+                const userGroupsList = userGroups.split(',');
+                let groups = "";
+                $j.map(data, function (val, i) {
+                    const isAdminGroup = val.privileges && val.privileges.includes("ADMIN");
+                    $j("#edit-user-groups-row").show();
+                    let groupClass = "";
+                    groupClass += userGroupsList.includes(i) ? ' check ' : ''
+                    groupClass += isAdminGroup && (isSuperuser === true || isCurrentUser === true) ? ' disable ' : '';
+                    groups += htmlTemplate.replace(/{editUserGroupValue}/g, i)
+                        .replaceAll(/{editUserGroupName}/g, i)
+                        .replace(/{editUserGroupClass}/g, groupClass)
+                        .replace(/{editUserGroupStyle}/g, isAdminGroup ? "color: red;" : "");
                 });
-            }
-
-            RichFaces.$("modalEditUser").show();
+                $j("#edit-user-groups").html(htmlTemplate + groups);
+                $j("#edit-user-groups-row input:checkbox").each(function() {
+                    if ($j(this).hasClass("check")) {
+                        $j(this).prop("checked", true);
+                    }
+                    if ($j(this).hasClass("disable")) {
+                        $j(this).prop("disabled", true);
+                    }
+                });
+                initEditUserAreYouSure();
+                initUserDisplayNameSelect($j("#edit-user-display-name-select-box"), $j("#edit-user-firstname"), $j("#edit-user-lastname"), $j("#edit-user-display-name"));
+                RichFaces.$("modalEditUser").show();
+            });
         }
 
-        function hideEditUser() {
+        function initEditUserAreYouSure() {
+            $j("#edit-user-form").bind('dirty.areYouSure', function () {
+                $j("#user-edit").prop("disabled", false);
+            });
+            $j("#edit-user-form").bind('clean.areYouSure', function () {
+                $j("#user-edit").prop("disabled", true);
+            });
+            $j("#edit-user-form").areYouSure();
+        }
+
+        $j("#user-edit").click(function (e) {
+            e.preventDefault();
+
+            let groupValues = [];
+            $j("#edit-user-groups-row input:checkbox").each(function() {
+                if ($j(this).is(":checked")) {
+                    groupValues.push($j(this).val());
+                }
+            });
+            $j.ajax({
+                type: "PUT",
+                url: "#{contextPath}/web/users/" + $j("#edit-user-username").html(),
+                data: JSON.stringify({
+                    firstName : $j("#edit-user-firstname").val().trim(),
+                    displayName : $j("#edit-user-display-name").val().trim(),
+                    lastName : $j("#edit-user-lastname").val().trim(),
+                    email : $j("#edit-user-email").val().trim(),
+                    password : $j("#edit-user-password").val(),
+                    groups : groupValues
+                }),
+                contentType: 'application/json',
+                dataType: 'json'
+            })
+            .done(function () {
+                location.reload();
+                hideEditUserForm();
+            })
+            .fail(function(jqXHR, textStatus, errorThrown) {
+                $j("#edit-user-firstname-error, #edit-user-display-name-error, #edit-user-password-error, #edit-user-lastname-error, #edit-user-email-error, #edit-user-groups-error").text("");
+                const errorsMap = new Map(JSON.parse(jqXHR.responseText).fields.map(item => [item.field, item.message]));
+                $j("#edit-user-email-error").text(errorsMap.get("email"));
+                $j("#edit-user-password-error").text(errorsMap.get("password"));
+                $j("#edit-user-firstname-error").text(errorsMap.get("firstName"));
+                $j("#edit-user-display-name-error").text(errorsMap.get("displayName"));
+                $j("#edit-user-lastname-error").text(errorsMap.get("lastName"));
+                $j("#edit-user-groups-error").text(errorsMap.get("groups"));
+            });
+        });
+
+        function hideEditUserForm() {
             RichFaces.$("modalEditUser").hide();
-
-            $j("#editUserForm\\:firstNameError,#editUserForm\\:lastNameError,#editUserForm\\:groupsError").text("");
-
-            $j("input[id$='_hidden_admin']").remove();
-            $j("input[id^='editUserForm\\:editUserGroups']").attr("disabled", false);
-
-            // Reset form
-            $j("#editUserForm")[0].reset();
+            clearEditUserForm();
+            $j("#edit-user-form").trigger('reinitialize.areYouSure');
         }
 
-        //]]>
+        function clearEditUserForm() {
+            $j("#edit-user-firstname-error, #edit-user-display-name-error, #edit-user-email-error, #edit-user-password-error, #edit-user-lastname-error, #edit-user-groups-error").text("");
+            $j("#edit-user-password, #edit-user-firstname, #edit-user-display-name, #edit-user-lastname, #edit-user-email").val("");
+            $j("#edit-user-username, #edit-user-firstname-span, #edit-user-display-name-span, #edit-user-lastname-span, #edit-user-email-span").text("");
+            $j("#edit-user-groups input").removeAttr("checked");
+        }
+
+    //]]>
+
     </script>
 
 </ui:composition>

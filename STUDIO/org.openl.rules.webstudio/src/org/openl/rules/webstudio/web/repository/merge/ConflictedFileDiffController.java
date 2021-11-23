@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
@@ -11,6 +12,8 @@ import javax.validation.ValidationException;
 
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.diff.ExcelDiffController;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -34,9 +37,12 @@ public class ConflictedFileDiffController extends ExcelDiffController {
 
     private final MultiUserWorkspaceManager workspaceManager;
     private String conflictedFile;
+    private UserManagementService userManagementService;
 
-    public ConflictedFileDiffController(MultiUserWorkspaceManager workspaceManager) {
+    public ConflictedFileDiffController(MultiUserWorkspaceManager workspaceManager,
+            UserManagementService userManagementService) {
         this.workspaceManager = workspaceManager;
+        this.userManagementService = userManagementService;
     }
 
     public void setConflictedFile(String conflictedFile) {
@@ -58,9 +64,12 @@ public class ConflictedFileDiffController extends ExcelDiffController {
             MergeConflictInfo mergeConflict = ConflictUtils.getMergeConflict();
             if (mergeConflict != null) {
                 MergeConflictException exception = mergeConflict.getException();
+                String userName = SecurityContextHolder.getContext().getAuthentication().getName();
+                WorkspaceUser user = new WorkspaceUserImpl(userName,
+                    (username) -> Optional.ofNullable(userManagementService.getUser(username))
+                        .map(usr -> new UserInfo(usr.getLoginName(), usr.getEmail(), usr.getDisplayName()))
+                        .orElse(null));
 
-                WorkspaceUser user = new WorkspaceUserImpl(
-                    SecurityContextHolder.getContext().getAuthentication().getName());
                 UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
 
                 String repositoryId = mergeConflict.getRepositoryId();

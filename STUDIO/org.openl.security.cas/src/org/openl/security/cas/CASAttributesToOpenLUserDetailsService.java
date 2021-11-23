@@ -8,6 +8,7 @@ import org.jasig.cas.client.validation.Assertion;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.UserExternalFlags;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
@@ -18,12 +19,16 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
     private final String lastNameAttribute;
     private final String groupsAttribute;
     private final Function<SimpleUser, SimpleUser> authoritiesMapper;
+    private final String emailAttribute;
+    private final String displayNameAttribute;
 
     public CASAttributesToOpenLUserDetailsService(PropertyResolver propertyResolver,
             Function<SimpleUser, SimpleUser> authoritiesMapper) {
         this.firstNameAttribute = propertyResolver.getProperty("security.cas.attribute.first-name");
         this.lastNameAttribute = propertyResolver.getProperty("security.cas.attribute.last-name");
         this.groupsAttribute = propertyResolver.getProperty("security.cas.attribute.groups");
+        this.emailAttribute = propertyResolver.getProperty("security.cas.attribute.email");
+        this.displayNameAttribute = propertyResolver.getProperty("security.cas.attribute.display-name");
         this.authoritiesMapper = authoritiesMapper;
     }
 
@@ -32,6 +37,8 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
         final List<Privilege> grantedAuthorities = new ArrayList<>();
         String firstName = null;
         String lastName = null;
+        String email = null;
+        String displayName = null;
 
         if (StringUtils.isNotBlank(firstNameAttribute)) {
             final Object value = assertion.getPrincipal().getAttributes().get(firstNameAttribute);
@@ -44,6 +51,20 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
             final Object value = assertion.getPrincipal().getAttributes().get(lastNameAttribute);
             if (value != null) {
                 lastName = value.toString();
+            }
+        }
+
+        if (StringUtils.isNotBlank(emailAttribute)) {
+            final Object value = assertion.getPrincipal().getAttributes().get(emailAttribute);
+            if (value != null) {
+                email = value.toString();
+            }
+        }
+
+        if (StringUtils.isNotBlank(displayNameAttribute)) {
+            final Object value = assertion.getPrincipal().getAttributes().get(displayNameAttribute);
+            if (value != null) {
+                displayName = value.toString();
             }
         }
 
@@ -69,7 +90,13 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
             lastName,
             assertion.getPrincipal().getName(),
             null,
-            grantedAuthorities);
+            grantedAuthorities,
+            email,
+            displayName,
+            new UserExternalFlags(StringUtils.isNotBlank(firstName),
+                StringUtils.isNotBlank(lastName),
+                StringUtils.isNotBlank(email),
+                StringUtils.isNotBlank(displayName)));
 
         return authoritiesMapper.apply(simpleUser);
     }

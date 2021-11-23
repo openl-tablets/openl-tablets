@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -14,6 +15,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.util.StringUtils;
@@ -268,8 +270,9 @@ public class S3Repository implements Repository, Closeable {
         if (data.getSize() != FileData.UNDEFINED_SIZE) {
             metaData.setContentLength(data.getSize());
         }
-        if (!StringUtils.isBlank(data.getAuthor())) {
-            metaData.addUserMetadata(LazyFileData.METADATA_AUTHOR, LazyFileData.encode(data.getAuthor()));
+        String username = Optional.ofNullable(data.getAuthor()).map(UserInfo::getUsername).orElse(null);
+        if (!StringUtils.isBlank(username)) {
+            metaData.addUserMetadata(LazyFileData.METADATA_AUTHOR, LazyFileData.encode(username));
         }
         if (!StringUtils.isBlank(data.getComment())) {
             metaData.addUserMetadata(LazyFileData.METADATA_COMMENT, LazyFileData.encode(data.getComment()));

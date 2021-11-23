@@ -230,6 +230,20 @@
                                                      size="40"/>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td><label>Attribute for Display Name:</label></td>
+                                    <td>
+                                        <h:inputText id="casDisplayNameAttribute"
+                                                     value="#{installWizard.casSettings.displayNameAttribute}" size="64"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Attribute for Email:</label></td>
+                                    <td>
+                                        <h:inputText id="casEmailAttribute"
+                                                     value="#{installWizard.casSettings.emailAttribute}" size="254"/>
+                                    </td>
+                                </tr>
                                 <tr id="cas-group-field">
                                     <td><label class="required">Attribute for Groups:</label></td>
                                     <td>
@@ -349,6 +363,22 @@
                                         <h:inputText id="samlSecondNameAttribute"
                                                      value="#{installWizard.samlSettings.secondNameAttribute}"
                                                      size="40"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Attribute for Display Name:</label></td>
+                                    <td>
+                                        <h:inputText id="samlDisplayNameAttribute"
+                                                     value="#{installWizard.samlSettings.displayNameAttribute}"
+                                                     size="64"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><label>Attribute for Email:</label></td>
+                                    <td>
+                                        <h:inputText id="samlEmailAttribute"
+                                                     value="#{installWizard.samlSettings.emailAttribute}"
+                                                     size="254"/>
                                     </td>
                                 </tr>
                                 <tr id="saml-group-field">

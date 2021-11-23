@@ -67,7 +67,8 @@ public class RulesProject extends UserWorkspaceProject {
                 }
                 setFileData(fullLocalFileData);
             } else {
-                if (localFileData.getAuthor() == null || localFileData.getModifiedAt() == null) {
+                if (localFileData.getAuthor() == null || localFileData.getAuthor().getName() == null || localFileData
+                    .getModifiedAt() == null) {
                     // Lazy load properties
                     setFileData(null);
                 } else {
@@ -124,7 +125,7 @@ public class RulesProject extends UserWorkspaceProject {
         setHistoryVersion(version);
 
         refresh();
-        
+
         // If oldVersion is null, then the project was absent before, no need to update workspace. Otherwise update
         // workspace.
         if (oldVersion != null) {
@@ -219,7 +220,7 @@ public class RulesProject extends UserWorkspaceProject {
                 FileData data = new FileData();
                 data.setName(designFolderName);
                 data.setVersion(null);
-                data.setAuthor(getUser().getUserName());
+                data.setAuthor(getUser().getUserInfo());
                 data.setComment(comment);
                 designRepository.deleteHistory(data);
             } else {
@@ -254,7 +255,7 @@ public class RulesProject extends UserWorkspaceProject {
         lockEngine.unlock(getDesignRepository().getId(), getBranch(), getRealPath());
     }
 
-    //for ability to unlock project if something went wrong
+    // for ability to unlock project if something went wrong
     public void forceUnlock() {
         lockEngine.forceUnlock(getDesignRepository().getId(), getBranch(), getRealPath());
     }

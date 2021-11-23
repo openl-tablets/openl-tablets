@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web.repository.cache;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,9 +10,13 @@ import org.junit.Test;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class ProjectVersionCacheMonitorTest {
 
@@ -84,7 +85,7 @@ public class ProjectVersionCacheMonitorTest {
         fileData.setName(path);
         fileData.setSize(text.length());
         fileData.setComment(text + "-comment");
-        fileData.setAuthor("DEFAULT");
+        fileData.setAuthor(new UserInfo("DEFAULT", "DEFAULT@email", "Default"));
         return fileData;
     }
 }

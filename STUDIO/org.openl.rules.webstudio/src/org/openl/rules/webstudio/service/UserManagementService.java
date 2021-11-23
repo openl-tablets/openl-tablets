@@ -1,15 +1,14 @@
 package org.openl.rules.webstudio.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
@@ -28,42 +27,51 @@ public class UserManagementService {
         this.groupDao = groupDao;
     }
 
-    public org.openl.rules.security.User loadUserByUsername(String name) {
-        User user = userDao.getUserByName(name);
-
-        if (user == null) {
-            return null;
-        }
-
-        Collection<Privilege> privileges = PrivilegesEvaluator.createPrivileges(user);
-        String firstName = user.getFirstName();
-        String lastName = user.getSurname();
-        String username = user.getLoginName();
-        String passwordHash = user.getPasswordHash();
-
-        return new SimpleUser(firstName, lastName, username, passwordHash, privileges);
-    }
-
-    public List<org.openl.rules.security.User> getAllUsers() {
-        List<User> users = userDao.getAllUsers();
-        List<org.openl.rules.security.User> resultUsers = new ArrayList<>();
-        for (User user : users) {
-            org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(),
+    public org.openl.rules.security.User getApplicationUser(String name) {
+        return Optional.ofNullable(userDao.getUserByName(name))
+            .map(user -> new SimpleUser(user.getFirstName(),
                 user.getSurname(),
                 user.getLoginName(),
                 user.getPasswordHash(),
-                PrivilegesEvaluator.createPrivileges(user));
-            resultUsers.add(resultUser);
-        }
-        return resultUsers;
+                PrivilegesEvaluator.createPrivileges(user),
+                user.getEmail(),
+                user.getDisplayName(),
+                new UserExternalFlags(user.isFirstNameExternal(),
+                    user.isLastNameExternal(),
+                    user.isEmailExternal(),
+                    user.isDisplayNameExternal())))
+            .orElse(null);
     }
 
-    public void addUser(String user, String firstName, String lastName, String passwordHash) {
+    public List<User> getAllUsers() {
+        return userDao.getAllUsers();
+    }
+
+    public User getUser(String username) {
+        return userDao.getUserByName(username);
+    }
+
+    public void addUser(String user,
+            String firstName,
+            String lastName,
+            String passwordHash,
+            String email,
+            String displayName,
+            UserExternalFlags externalFlags) {
         User persistUser = new User();
         persistUser.setLoginName(user);
         persistUser.setPasswordHash(passwordHash);
         persistUser.setFirstName(firstName);
         persistUser.setSurname(lastName);
+        persistUser.setEmail(email);
+        persistUser.setDisplayName(displayName);
+        persistUser.setFirstNameExternal(externalFlags.isFirstNameExternal());
+        persistUser.setLastNameExternal(externalFlags.isLastNameExternal());
+        persistUser.setEmailExternal(externalFlags.isEmailExternal());
+        persistUser.setDisplayNameExternal(externalFlags.isDisplayNameExternal());
+
+        // TODO Implement flag below in a proper way according to EPBDS-11277
+        persistUser.setEmailVerified(true);
 
         userDao.save(persistUser);
     }
@@ -72,10 +80,37 @@ public class UserManagementService {
             String firstName,
             String lastName,
             String passwordHash,
-            boolean updatePassword) {
+            boolean updatePassword,
+            String email,
+            String displayName,
+            UserExternalFlags externalFlags) {
         User persistUser = userDao.getUserByName(user);
         persistUser.setFirstName(firstName);
         persistUser.setSurname(lastName);
+        persistUser.setEmail(email);
+        persistUser.setDisplayName(displayName);
+        persistUser.setFirstNameExternal(externalFlags.isFirstNameExternal());
+        persistUser.setLastNameExternal(externalFlags.isLastNameExternal());
+        persistUser.setEmailExternal(externalFlags.isEmailExternal());
+        persistUser.setDisplayNameExternal(externalFlags.isDisplayNameExternal());
+        if (updatePassword) {
+            persistUser.setPasswordHash(passwordHash);
+        }
+        userDao.update(persistUser);
+    }
+
+    public void updateUserData(String user,
+            String firstName,
+            String lastName,
+            String passwordHash,
+            boolean updatePassword,
+            String email,
+            String displayName) {
+        User persistUser = userDao.getUserByName(user);
+        persistUser.setFirstName(firstName);
+        persistUser.setSurname(lastName);
+        persistUser.setEmail(email);
+        persistUser.setDisplayName(displayName);
         if (updatePassword) {
             persistUser.setPasswordHash(passwordHash);
         }
