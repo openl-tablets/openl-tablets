@@ -1,6 +1,5 @@
 <project>
   <name>EPBDS-10158_incorrectDate</name>
-  <comment></comment>
   <modules>
     <module>
       <name>Module-01092018-010092018</name>

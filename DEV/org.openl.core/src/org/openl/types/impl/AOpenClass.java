@@ -319,21 +319,19 @@ public abstract class AOpenClass implements IOpenClass {
         return methodMap.put(key, method);
     }
 
+    protected void removeMethod(IOpenMethod method) {
+        if (methodMap != null) {
+            MethodKey key = new MethodKey(method);
+            methodMap.remove(key);
+            invalidateInternalData();
+        }
+    }
+
     public void addMethod(IOpenMethod method) throws DuplicatedMethodException {
         final IOpenMethod existMethod = putMethod(method);
         if (existMethod != null) {
             throw new DuplicatedMethodException(String
                 .format("Method '%s' is already defined in class '%s'", method, getName()), existMethod, method);
-        }
-        invalidateInternalData();
-    }
-
-    protected void overrideMethod(IOpenMethod method) {
-        MethodKey key = new MethodKey(method);
-        final IOpenMethod existMethod = putMethod(method);
-        if (existMethod == null) {
-            throw new IllegalStateException(
-                String.format("Method '%s' is absent to override in class '%s'", key, getName()));
         }
         invalidateInternalData();
     }

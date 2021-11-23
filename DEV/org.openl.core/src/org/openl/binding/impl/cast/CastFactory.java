@@ -828,9 +828,8 @@ public class CastFactory implements ICastFactory {
                 DomainOpenClass toDomainOpenClass = (DomainOpenClass) to;
                 IOpenCast openCast = getCast(fromDomainOpenClass.getBaseClass(), toDomainOpenClass.getBaseClass());
                 if (openCast != null) {
-                    if (openCast.isImplicit() && isFromValuesIncludedToValues(fromDomainOpenClass,
-                        toDomainOpenClass,
-                        openCast)) {
+                    if (openCast.isImplicit() && DomainOpenClass
+                        .isFromValuesIncludedToValues(fromDomainOpenClass, toDomainOpenClass, openCast)) {
                         return new AliasToAliasOpenCast(openCast);
                     }
                     if (isFromValuesIntersectedWithToValues(fromDomainOpenClass, toDomainOpenClass, openCast)) {
@@ -871,22 +870,6 @@ public class CastFactory implements ICastFactory {
         }
 
         return null;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static boolean isFromValuesIncludedToValues(DomainOpenClass from, DomainOpenClass to, IOpenCast openCast) {
-        IDomain<Object> fromDomain = (IDomain<Object>) from.getDomain();
-        IDomain<Object> toDomain = (IDomain<Object>) to.getDomain();
-        try {
-            for (Object value : fromDomain) {
-                if (!toDomain.selectObject(openCast.convert(value))) {
-                    return false;
-                }
-            }
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 
     @SuppressWarnings("unchecked")

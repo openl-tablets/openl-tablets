@@ -5,6 +5,7 @@ import java.util.Collections;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
@@ -148,9 +149,33 @@ public class DomainOpenClass implements IOpenClass, ModuleOpenClass {
         return baseClass.isAbstract();
     }
 
+    @SuppressWarnings("unchecked")
+    public static boolean isFromValuesIncludedToValues(DomainOpenClass from, DomainOpenClass to, IOpenCast openCast) {
+        IDomain<Object> fromDomain = (IDomain<Object>) from.getDomain();
+        IDomain<Object> toDomain = (IDomain<Object>) to.getDomain();
+        try {
+            for (Object value : fromDomain) {
+                if (!toDomain.selectObject(openCast != null ? openCast.convert(value) : value)) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        return baseClass.isAssignableFrom(ioc);
+        if (baseClass.isAssignableFrom(ioc)) {
+            if (ioc instanceof DomainOpenClass) {
+                DomainOpenClass domainOpenClass = (DomainOpenClass) ioc;
+                if (domainOpenClass.baseClass == baseClass) {
+                    return isFromValuesIncludedToValues(domainOpenClass, this, null);
+                }
+            }
+        }
+        return false;
     }
 
     @Override

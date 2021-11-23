@@ -12,6 +12,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContextOptimizationForOpenMethodDispatcher;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -22,7 +23,10 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.MethodKey;
+import org.openl.types.impl.MethodSignature;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -51,14 +55,26 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     private final List<IOpenMethod> candidates = new ArrayList<>();
     private final Map<Integer, DimensionPropertiesMethodKey> candidatesToDimensionKey = new HashMap<>();
 
+    private XlsModuleOpenClass xlsModuleOpenClass;
+    private final List<IMethodSignature> signatures = new ArrayList<>();
+    private final List<IOpenClass> types = new ArrayList<>();
+    private IMethodSignature signature;
+    private IOpenClass type;
+
     protected OpenMethodDispatcher() {
     }
 
-    public OpenMethodDispatcher(IOpenMethod delegate) {
+    public OpenMethodDispatcher(IOpenMethod delegate, XlsModuleOpenClass xlsModuleOpenClass) {
         // Save method as delegate. It used by decorator to delegate requests
         // about method info such as signature, name, etc.
         //
-        this.delegate = Objects.requireNonNull(delegate, "Method cannot be null");
+        this.delegate = WrapperLogic.unwrapOpenMethod(Objects.requireNonNull(delegate, "Method cannot be null"));
+        this.signature = delegate.getSignature();
+        this.signatures.add(this.signature);
+        this.type = delegate.getType();
+        this.types.add(this.type);
+
+        this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
 
         // Evaluate method key.
         //
@@ -66,10 +82,10 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         // First method candidate is himself.
         //
-        this.candidates.add(delegate);
-        if (delegate instanceof ITablePropertiesMethod) {
+        this.candidates.add(this.delegate);
+        if (this.delegate instanceof ITablePropertiesMethod) {
             int idx = this.candidates.size() - 1;
-            this.candidatesToDimensionKey.put(idx, new DimensionPropertiesMethodKey(delegate));
+            this.candidatesToDimensionKey.put(idx, new DimensionPropertiesMethodKey(this.delegate));
         }
     }
 
@@ -78,15 +94,15 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      */
     @Override
     public IMethodSignature getSignature() {
-        return delegate.getSignature();
+        return signature;
     }
 
     /**
      * Gets the declaring class.
      */
     @Override
-    public IOpenClass getDeclaringClass() {
-        return delegate.getDeclaringClass();
+    public XlsModuleOpenClass getDeclaringClass() {
+        return xlsModuleOpenClass;
     }
 
     /**
@@ -102,7 +118,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      */
     @Override
     public IOpenClass getType() {
-        return delegate.getType();
+        return type;
     }
 
     @Override
@@ -120,7 +136,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      */
     @Override
     public String getDisplayName(int mode) {
-        return delegate.getDisplayName(mode);
+        return MethodUtil.printSignature(this, mode);
     }
 
     /**
@@ -185,9 +201,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             sb.append("Context: ");
             sb.append(context.toString());
 
-            String message = String.format("Appropriate overloaded method for '%1$s' is not found. Details: \n%2$s",
-                getName(),
-                sb.toString());
+            String message = String
+                .format("Appropriate overloaded method for '%1$s' is not found. Details: \n%2$s", getName(), sb);
 
             throw new OpenLRuntimeException(message);
         }
@@ -241,13 +256,13 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Try to add method as overloaded version of decorated method.
      *
-     * @param candidate method to add
+     * @param method method to add
      */
-    public void addMethod(IOpenMethod candidate) {
+    public void addMethod(IOpenMethod method) {
         // Evaluate the candidate method key.
         //
-
-        MethodKey candidateKey = new MethodKey(candidate);
+        MethodKey candidateKey = new MethodKey(method);
+        IOpenMethod candidate = WrapperLogic.unwrapOpenMethod(method);
 
         // Check that candidate has the same method signature and list of
         // parameters as a delegate. If they different then is two different
@@ -262,20 +277,48 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             }
             if (i < 0) {
                 candidates.add(candidate);
+                signatures.add(method.getSignature());
+                types.add(method.getType());
                 if (dimensionMethodKey != null) {
                     int idx = candidates.size() - 1;
                     candidatesToDimensionKey.put(idx, dimensionMethodKey);
                 }
+                type = getDeclaringClass().getRulesModuleBindingContext().findClosestClass(type, method.getType());
+                signature = mergeMethodSignature(signature, method.getSignature());
             } else {
                 IOpenMethod existedMethod = candidates.get(i);
                 candidate = useActiveOrNewerVersion(existedMethod, candidate);
                 candidates.set(i, candidate);
                 candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
+                signatures.set(i, method.getSignature());
+                types.set(i, method.getType());
+
+                IOpenClass t = types.get(0);
+                for (int j = 1; j < types.size(); j++) {
+                    t = getDeclaringClass().getRulesModuleBindingContext().findClosestClass(t, types.get(j));
+                }
+                type = t;
+                IMethodSignature s = signatures.get(0);
+                for (int j = 1; j < types.size(); j++) {
+                    s = mergeMethodSignature(s, signatures.get(j));
+                }
+                signature = s;
             }
         } else {
             throw new IllegalStateException(String.format("Unexpected signature '%s' is found.",
                 MethodUtil.printSignature(this, INamedThing.REGULAR)));
         }
+    }
+
+    private IMethodSignature mergeMethodSignature(IMethodSignature signature1, IMethodSignature signature2) {
+        IOpenClass[] parameterTypes = signature1.getParameterTypes();
+        IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            IOpenClass t = getDeclaringClass().getRulesModuleBindingContext()
+                .findClosestClass(signature1.getParameterType(i), signature2.getParameterType(i));
+            parameterDeclarations[i] = new ParameterDeclaration(t, signature1.getParameterName(i));
+        }
+        return new MethodSignature(parameterDeclarations);
     }
 
     /**
@@ -288,7 +331,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     protected abstract IOpenMethod findMatchingMethod(List<IOpenMethod> candidates, IRuntimeContext context);
 
     public IOpenMethod getTargetMethod() {
-        return this.delegate;
+        return this.candidates.iterator().next();
     }
 
     public abstract TableSyntaxNode getDispatcherTable();

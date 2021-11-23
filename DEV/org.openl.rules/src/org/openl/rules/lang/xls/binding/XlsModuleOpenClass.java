@@ -524,19 +524,23 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // of OpenMethodDecorator for existed method and add new one.
             //
             if (existedMethod instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
-                decorator.addMethod(WrapperLogic.unwrapOpenMethod(m));
+                super.removeMethod(existedMethod);
+                try {
+                    OpenMethodDispatcher dispatcher = (OpenMethodDispatcher) existedMethod;
+                    dispatcher.addMethod(m);
+                } finally {
+                    super.addMethod(existedMethod);
+                }
             } else {
                 if (!m.equals(existedMethod)) {
                     // Create decorator for existed method.
                     //
                     OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existedMethod);
-
-                    IOpenMethod openMethod = WrapperLogic.wrapOpenMethod(dispatcher, this, false);
-
-                    overrideMethod(openMethod);
-
-                    dispatcher.addMethod(WrapperLogic.unwrapOpenMethod(m));
+                    OpenMethodDispatcher wrappedDispatcher = (OpenMethodDispatcher) WrapperLogic
+                        .wrapOpenMethod(dispatcher, this, false);
+                    wrappedDispatcher.addMethod(m);
+                    super.removeMethod(existedMethod);
+                    super.addMethod(wrappedDispatcher);
                 }
             }
         } else {
@@ -573,11 +577,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private OpenMethodDispatcher getOpenMethodDispatcher(IOpenMethod method) {
         OpenMethodDispatcher decorator;
-        IOpenMethod decorated = WrapperLogic.unwrapOpenMethod(method);
         if (useDecisionTableDispatcher) {
-            decorator = new OverloadedMethodsDispatcherTable(decorated, this);
+            decorator = new OverloadedMethodsDispatcherTable(method, this);
         } else {
-            decorator = new MatchingOpenMethodDispatcher(decorated, this);
+            decorator = new MatchingOpenMethodDispatcher(method, this);
         }
         return decorator;
     }
