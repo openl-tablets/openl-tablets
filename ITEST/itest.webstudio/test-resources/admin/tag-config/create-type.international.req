@@ -2,5 +2,5 @@ POST /web/admin/tag-config/types HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "生活周ЙЦУ~!@#$^&()_-+=.,"
+  "name": "生活周ЙЦУ~!@#$^&()_-+=.,"
 }

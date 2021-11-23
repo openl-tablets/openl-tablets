@@ -1,28 +1,29 @@
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-[{
-        "startedTime": "#####",
-        "name": "simple1-tracing",
-        "servicePath": "deployment1/simple1",
-        "urls": {
-            "KAFKA":null,
-            "WEBSERVICE":"deployment1/simple1",
-            "RESTFUL":"REST/deployment1/simple1"
-        },
-        "hasManifest": false,
-        "deploymentName": "deployment1",
-        "status": "DEPLOYED"
+[
+  {
+    "startedTime": "#####",
+    "name": "simple1-tracing",
+    "servicePath": "deployment1/simple1",
+    "urls": {
+      "KAFKA": null,
+      "WEBSERVICE": "deployment1/simple1",
+      "RESTFUL": "REST/deployment1/simple1"
     },
-    {
-            "startedTime": "#####",
-            "name": "simple2-tracing",
-            "servicePath": "deployment1/simple2",
-            "urls": {
-                "WEBSERVICE":"deployment1/simple2"
-            },
-            "hasManifest": false,
-            "deploymentName": "deployment1",
-            "status": "DEPLOYED"
-        }
+    "hasManifest": false,
+    "deploymentName": "deployment1",
+    "status": "DEPLOYED"
+  },
+  {
+    "startedTime": "#####",
+    "name": "simple2-tracing",
+    "servicePath": "deployment1/simple2",
+    "urls": {
+      "WEBSERVICE": "deployment1/simple2"
+    },
+    "hasManifest": false,
+    "deploymentName": "deployment1",
+    "status": "DEPLOYED"
+  }
 ]

@@ -2,20 +2,18 @@ HTTP/1.1 400
 Content-Type: application/json
 
 {
-    "message": "Bad Request",
-    "fields": [
-        {
-            "code": "openl.error.PathConstraint",
-            "field": "path",
-            "rejectedValue": "/foo?s/Project2&*",
-            "message": "Path in repository cannot start with '/'."
-        }, {
-            "code": "openl.error.ProjectNameConstraint",
-            "field": "projectName",
-            "rejectedValue": "Project2&*",
-            "message": "Specified name is not a valid project name. Name cannot contain forbidden characters (\\, /, :, ;, <, >, ?, *, %, ', [, ], |, \"), start with space, end with space or dot."
-        }
-    ]
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.PathConstraint",
+      "field": "path",
+      "rejectedValue": "/foo?s/Project2&*",
+      "message": "Path in repository cannot start with '/'."
+    }, {
+      "code": "openl.error.ProjectNameConstraint",
+      "field": "projectName",
+      "rejectedValue": "Project2&*",
+      "message": "Specified name is not a valid project name. Name cannot contain forbidden characters (\\, /, :, ;, <, >, ?, *, %, ', [, ], |, \"), start with space, end with space or dot."
+    }
+  ]
 }
-
-

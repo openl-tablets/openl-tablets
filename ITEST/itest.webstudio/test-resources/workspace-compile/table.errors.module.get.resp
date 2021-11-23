@@ -2,15 +2,20 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-   "tableUrl":"#local/Sample/Main/table",
-   "warnings":[
-
-   ],
-   "errors":[
-        {"id":"*","summary":"There can be only one active table.","hasStacktrace":true,"tableId":"*","errorCell":"B3","severity":"ERROR"}
-   ],
-   "targetTables":[
-
-   ],
-   "tableRunState":"CAN_RUN_MODULE"
+  "tableUrl": "#local/Sample/Main/table",
+  "warnings": [
+  ],
+  "errors": [
+    {
+      "id": "*",
+      "summary": "There can be only one active table.",
+      "hasStacktrace": true,
+      "tableId": "*",
+      "errorCell": "B3",
+      "severity": "ERROR"
+    }
+  ],
+  "targetTables": [
+  ],
+  "tableRunState": "CAN_RUN_MODULE"
 }

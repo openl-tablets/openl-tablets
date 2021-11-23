@@ -1,13 +1,14 @@
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-[{
-        "startedTime": "#####",
-        "name": "deployed-rules",
-        "servicePath": "rules-to-deploy/rules-to-deploy",
-        "urls": {},
-        "hasManifest": false,
-        "deploymentName": "rules-to-deploy",
-        "status": "FAILED"
-    }
+[
+  {
+    "startedTime": "#####",
+    "name": "deployed-rules",
+    "servicePath": "rules-to-deploy/rules-to-deploy",
+    "urls": {},
+    "hasManifest": false,
+    "deploymentName": "rules-to-deploy",
+    "status": "FAILED"
+  }
 ]

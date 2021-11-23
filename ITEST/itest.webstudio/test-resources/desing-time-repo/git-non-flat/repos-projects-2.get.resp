@@ -2,34 +2,33 @@ HTTP/1.1 200
 Content-Type: application/json
 
 [
-    {
-        "name": "Project",
-        "modifiedBy": "admin",
-        "modifiedAt": "*",
-        "branch":"master",
-        "path": "Project",
-        "rev": "*"
-    }, {
-        "name": "Project2",
-        "modifiedBy": "admin",
-        "modifiedAt": "*",
-        "branch":"master",
-        "path":"Project2",
-        "rev": "*"
-    }, {
-       "name": "Project4",
-       "modifiedBy": "admin",
-       "modifiedAt": "*",
-       "rev": "*",
-       "branch": "master",
-       "path": "foo/bar/Project4"
-   }, {
-       "name": "Project7",
-       "modifiedBy": "admin",
-       "modifiedAt": "*",
-       "rev": "*",
-       "branch": "master",
-       "path": "foo/bar/project-custom-name"
-   }
+  {
+    "name": "Project",
+    "modifiedBy": "admin",
+    "modifiedAt": "*",
+    "branch": "master",
+    "path": "Project",
+    "rev": "*"
+  }, {
+    "name": "Project2",
+    "modifiedBy": "admin",
+    "modifiedAt": "*",
+    "branch": "master",
+    "path": "Project2",
+    "rev": "*"
+  }, {
+    "name": "Project4",
+    "modifiedBy": "admin",
+    "modifiedAt": "*",
+    "rev": "*",
+    "branch": "master",
+    "path": "foo/bar/Project4"
+  }, {
+    "name": "Project7",
+    "modifiedBy": "admin",
+    "modifiedAt": "*",
+    "rev": "*",
+    "branch": "master",
+    "path": "foo/bar/project-custom-name"
+  }
 ]
-
