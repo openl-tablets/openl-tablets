@@ -906,6 +906,10 @@ public class ProjectBean {
             throw new Message(
                 String.format("Failed to %s OpenAPI file. Please check compilation.", update ? "update" : "create"),
                 e);
+        } finally {
+            if (!currentProject.isModified()) {
+                currentProject.unlock();
+            }
         }
     }
 

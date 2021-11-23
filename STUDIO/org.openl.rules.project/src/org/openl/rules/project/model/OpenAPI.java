@@ -4,18 +4,8 @@ import java.util.Objects;
 
 public final class OpenAPI {
     public enum Mode {
-        RECONCILIATION("Reconciliation"),
-        GENERATION("Tables generation");
-
-        private final String displayName;
-
-        Mode(String displayName) {
-            this.displayName = displayName;
-        }
-
-        public String getDisplayName() {
-            return displayName;
-        }
+        RECONCILIATION,
+        GENERATION
     }
 
     public enum Type {
