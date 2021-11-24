@@ -268,6 +268,7 @@
                 <xs:restriction base="xs:string">
                     <xs:enumeration value="AL"/>
                     <xs:enumeration value="AK"/>
+                    <xs:enumeration value="AS"/>
                     <xs:enumeration value="AZ"/>
                     <xs:enumeration value="AR"/>
                     <xs:enumeration value="CA"/>
@@ -277,6 +278,7 @@
                     <xs:enumeration value="DE"/>
                     <xs:enumeration value="FL"/>
                     <xs:enumeration value="GA"/>
+                    <xs:enumeration value="GU"/>
                     <xs:enumeration value="HI"/>
                     <xs:enumeration value="ID"/>
                     <xs:enumeration value="IL"/>
@@ -301,6 +303,7 @@
                     <xs:enumeration value="NY"/>
                     <xs:enumeration value="NC"/>
                     <xs:enumeration value="ND"/>
+                    <xs:enumeration value="MP"/>
                     <xs:enumeration value="OH"/>
                     <xs:enumeration value="OK"/>
                     <xs:enumeration value="OR"/>
@@ -313,6 +316,7 @@
                     <xs:enumeration value="TX"/>
                     <xs:enumeration value="UT"/>
                     <xs:enumeration value="VT"/>
+                    <xs:enumeration value="VI"/>
                     <xs:enumeration value="VA"/>
                     <xs:enumeration value="WA"/>
                     <xs:enumeration value="WV"/>

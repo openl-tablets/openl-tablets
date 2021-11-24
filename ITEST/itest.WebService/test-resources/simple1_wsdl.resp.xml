@@ -495,6 +495,7 @@
                 <xsd:restriction base="xsd:string">
                     <xsd:enumeration value="AL"/>
                     <xsd:enumeration value="AK"/>
+                    <xsd:enumeration value="AS"/>
                     <xsd:enumeration value="AZ"/>
                     <xsd:enumeration value="AR"/>
                     <xsd:enumeration value="CA"/>
@@ -504,6 +505,7 @@
                     <xsd:enumeration value="DE"/>
                     <xsd:enumeration value="FL"/>
                     <xsd:enumeration value="GA"/>
+                    <xsd:enumeration value="GU"/>
                     <xsd:enumeration value="HI"/>
                     <xsd:enumeration value="ID"/>
                     <xsd:enumeration value="IL"/>
@@ -528,6 +530,7 @@
                     <xsd:enumeration value="NY"/>
                     <xsd:enumeration value="NC"/>
                     <xsd:enumeration value="ND"/>
+                    <xsd:enumeration value="MP"/>
                     <xsd:enumeration value="OH"/>
                     <xsd:enumeration value="OK"/>
                     <xsd:enumeration value="OR"/>
@@ -540,6 +543,7 @@
                     <xsd:enumeration value="TX"/>
                     <xsd:enumeration value="UT"/>
                     <xsd:enumeration value="VT"/>
+                    <xsd:enumeration value="VI"/>
                     <xsd:enumeration value="VA"/>
                     <xsd:enumeration value="WA"/>
                     <xsd:enumeration value="WV"/>
