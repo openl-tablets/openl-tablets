@@ -1,5 +1,6 @@
 AL,Alabama
 AK,Alaska
+AS,American Samoa
 AZ,Arizona
 AR,Arkansas
 CA,California
@@ -9,6 +10,7 @@ DC,District of Columbia
 DE,Delaware
 FL,Florida
 GA,Georgia
+GU,Guam
 HI,Hawaii
 ID,Idaho
 IL,Illinois
@@ -33,6 +35,7 @@ NM,New Mexico
 NY,New York
 NC,North California
 ND,North Dakota
+MP,Northern Mariana Islands
 OH,Ohio
 OK,Oklahoma
 OR,Oregon
@@ -45,6 +48,7 @@ TN,Tennessee
 TX,Texas
 UT,Utah
 VT,Vermont
+VI,Virgin Islands
 VA,Virginia
 WA,Washington
 WV,West Virginia
