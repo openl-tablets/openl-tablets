@@ -1,5 +1,7 @@
 package org.openl.rules.calc;
 
+import java.util.IdentityHashMap;
+
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.FieldNotFoundException;
 import org.openl.binding.impl.CastToWiderType;
@@ -7,16 +9,23 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.element.SpreadsheetCellField;
 import org.openl.rules.calc.element.SpreadsheetRangeField;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.NullOpenClass;
 
 public class SpreadsheetContext extends ComponentBindingContext {
 
-    public SpreadsheetContext(IBindingContext delegate, SpreadsheetOpenClass type) {
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+
+    public SpreadsheetContext(IBindingContext delegate,
+            SpreadsheetOpenClass type,
+            XlsModuleOpenClass xlsModuleOpenClass) {
         super(delegate, type);
+        this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
 
     @Override
@@ -93,10 +102,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
                     int columnInRange = field.getCell().getColumnIndex() - startColumn;
                     int rowInRange = field.getCell().getRowIndex() - startRow;
 
-                    if (columnInRange >= 0
-                            && columnInRange < columnsInRange
-                            && rowInRange >= 0
-                            && rowInRange < rowsInRange) {
+                    if (columnInRange >= 0 && columnInRange < columnsInRange && rowInRange >= 0 && rowInRange < rowsInRange) {
                         collector.collect(columnInRange, rowInRange, field);
                     }
                 }
@@ -163,7 +169,10 @@ public class SpreadsheetContext extends ComponentBindingContext {
         }
     }
 
+    private final IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
+
     protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
-        return componentOpenClass instanceof CustomSpreadsheetResultOpenClass || componentOpenClass instanceof SpreadsheetResultOpenClass;
+        return RulesModuleBindingContext
+            .isComponentSpecificOpenClass(this, componentOpenClass, xlsModuleOpenClass, cache);
     }
 }

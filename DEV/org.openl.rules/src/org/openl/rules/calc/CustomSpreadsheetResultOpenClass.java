@@ -24,6 +24,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Type;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.binding.impl.module.ModuleSpecificType;
@@ -176,8 +177,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return false;
     }
 
-    private Collection<IOpenClass> superClasses;
-
     @Override
     public IAggregateInfo getAggregateInfo() {
         return DynamicArrayAggregateInfo.aggregateInfo;
@@ -188,16 +187,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     @Override
-    public synchronized Collection<IOpenClass> superClasses() {
-        if (superClasses == null) {
-            Class<?>[] interfaces = SpreadsheetResult.class.getInterfaces();
-            List<IOpenClass> superClasses = new ArrayList<>(interfaces.length + 1);
-            for (Class<?> c : interfaces) {
-                superClasses.add(JavaOpenClass.getOpenClass(c));
-            }
-            this.superClasses = superClasses;
-        }
-        return superClasses;
+    public Collection<IOpenClass> superClasses() {
+        return Collections.singleton(getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes());
+    }
+
+    protected IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousFieldException {
+        return null;
     }
 
     public XlsModuleOpenClass getModule() {
@@ -337,6 +332,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             customSpreadsheetResultOpenClass.simpleRefByRow,
             customSpreadsheetResultOpenClass.simpleRefByColumn,
             customSpreadsheetResultOpenClass.tableStructureDetails);
+    }
+
+    @Override
+    public Collection<IOpenField> getFields() {
+        return new ArrayList<>(fieldMap().values());
     }
 
     public void fixModuleFieldTypes() {

@@ -225,7 +225,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
         componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
         componentsBuilder.buildHeaders(header.getType());
-        structureBuilder = new SpreadsheetStructureBuilder(componentsBuilder, header);
+        structureBuilder = new SpreadsheetStructureBuilder(componentsBuilder, header, getModule());
         String headerType = header.getName() + "Type";
         OpenL openL = bindingContext.getOpenL();
         spreadsheetOpenClass = new SpreadsheetOpenClass(headerType, openL);
