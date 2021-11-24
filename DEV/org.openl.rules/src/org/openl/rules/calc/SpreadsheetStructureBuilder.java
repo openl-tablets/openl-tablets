@@ -25,6 +25,7 @@ import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
 import org.openl.rules.calc.element.SpreadsheetStructureBuilderHolder;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -55,6 +56,8 @@ public class SpreadsheetStructureBuilder {
 
     private final IOpenMethodHeader spreadsheetHeader;
 
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+
     private final SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(
         this);
 
@@ -63,9 +66,11 @@ public class SpreadsheetStructureBuilder {
     }
 
     public SpreadsheetStructureBuilder(SpreadsheetComponentsBuilder componentsBuilder,
-            IOpenMethodHeader spreadsheetHeader) {
+            IOpenMethodHeader spreadsheetHeader,
+            XlsModuleOpenClass xlsModuleOpenClass) {
         this.componentsBuilder = componentsBuilder;
         this.spreadsheetHeader = spreadsheetHeader;
+        this.xlsModuleOpenClass = xlsModuleOpenClass;
     }
 
     private final Map<Integer, IBindingContext> rowContexts = new HashMap<>();
@@ -116,7 +121,7 @@ public class SpreadsheetStructureBuilder {
         cells = new SpreadsheetCell[rowsCount][columnsCount];
 
         // create the binding context for the spreadsheet level
-        spreadsheetBindingContext = new SpreadsheetContext(generalBindingContext, spreadsheetType);
+        spreadsheetBindingContext = new SpreadsheetContext(generalBindingContext, spreadsheetType, xlsModuleOpenClass);
 
         for (int rowIndex = 0; rowIndex < rowsCount; rowIndex++) {
             for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++) {
@@ -486,7 +491,7 @@ public class SpreadsheetStructureBuilder {
     private SpreadsheetContext makeSpreadsheetResultContext(int columnIndex, IBindingContext rowBindingContext) {
         SpreadsheetOpenClass columnOpenClass = colComponentOpenClasses.computeIfAbsent(columnIndex,
             e -> makeColumnComponentOpenClass(columnIndex));
-        return new SpreadsheetContext(rowBindingContext, columnOpenClass);
+        return new SpreadsheetContext(rowBindingContext, columnOpenClass, xlsModuleOpenClass);
     }
 
     private SpreadsheetOpenClass makeColumnComponentOpenClass(int columnIndex) {
@@ -535,7 +540,7 @@ public class SpreadsheetStructureBuilder {
         }
 
         /* create row binding context */
-        return new SpreadsheetContext(spreadsheetBindingContext, rowOpenClass);
+        return new SpreadsheetContext(spreadsheetBindingContext, rowOpenClass, xlsModuleOpenClass);
     }
 
     private void proc(int rowIndex,

@@ -335,9 +335,6 @@ public class CastFactory implements ICastFactory {
         }
         Set<IOpenClass> superClasses = new HashSet<>();
         superClasses.add(openClass1);
-        if (!openClass1.equals(JavaOpenClass.getOpenClass(openClass1.getInstanceClass()))) {
-            superClasses.add(JavaOpenClass.getOpenClass(openClass1.getInstanceClass()));
-        }
         IOpenClass openClass = openClass1;
         Set<IOpenClass> interfaces = new LinkedHashSet<>();
         if (openClass.isInterface()) {
@@ -357,9 +354,6 @@ public class CastFactory implements ICastFactory {
         }
         if (superClasses.contains(openClass2)) {
             return openClass2;
-        }
-        if (superClasses.contains(JavaOpenClass.getOpenClass(openClass2.getInstanceClass()))) {
-            return JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
         }
         openClass = openClass2;
         while (openClass != null && !JavaOpenClass.OBJECT.equals(openClass)) {

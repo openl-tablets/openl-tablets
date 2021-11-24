@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -582,8 +583,26 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         this.ignoreCustomSpreadsheetResultCompilation = ignoreCustomSpreadsheetResultCompilation;
     }
 
+    private final IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
+
     protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
-        return componentOpenClass instanceof CustomSpreadsheetResultOpenClass || componentOpenClass instanceof SpreadsheetResultOpenClass;
+        return isComponentSpecificOpenClass(this, componentOpenClass, getModule(), cache);
+    }
+
+    public static boolean isComponentSpecificOpenClass(IBindingContext bindingContext,
+            IOpenClass componentOpenClass,
+            XlsModuleOpenClass xlsModuleOpenClass,
+            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+        if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
+            if (componentOpenClass instanceof CustomSpreadsheetResultOpenClass) {
+                return !xlsModuleOpenClass
+                    .isExternalModule(((CustomSpreadsheetResultOpenClass) componentOpenClass).getModule(), cache);
+            } else if (componentOpenClass instanceof SpreadsheetResultOpenClass) {
+                return !xlsModuleOpenClass
+                    .isExternalModule(((SpreadsheetResultOpenClass) componentOpenClass).getModule(), cache);
+            }
+        }
+        return false;
     }
 
 }

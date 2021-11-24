@@ -159,7 +159,7 @@ public abstract class AOpenClass implements IOpenClass {
         return searchFieldFromSuperClass(fname, strictMatch);
     }
 
-    private IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousFieldException {
+    protected IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField f;
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
