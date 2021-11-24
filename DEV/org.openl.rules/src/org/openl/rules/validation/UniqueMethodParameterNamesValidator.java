@@ -24,7 +24,7 @@ import org.openl.validation.ValidationResult;
 
 public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
 
-    private static final String MSG_FOR_TYPES = "Method '%s' conflicts with another method '%s', because of parameter types are different.";
+    private static final String MSG_FOR_TYPES = "Method '%s' conflicts with another method '%s', because of parameter types are treated by Java as identical.";
     private static final String MSG_FOR_NAMES = "Method '%s' conflicts with another method '%s', because of parameter names are different.";
 
     private interface ParameterKey {
