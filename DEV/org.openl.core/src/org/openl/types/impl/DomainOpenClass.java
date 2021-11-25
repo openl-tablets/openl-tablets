@@ -6,6 +6,7 @@ import java.util.Collections;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
@@ -21,7 +22,7 @@ import org.openl.vm.IRuntimeEnv;
  * {@link IOpenClass} implementation, that adds restriction for instances of this class by {@link IDomain}
  *
  */
-public class DomainOpenClass implements IOpenClass, ModuleOpenClass {
+public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
     private volatile StaticOpenClass staticOpenClass;
 
     private IDomain<?> domain;
@@ -30,32 +31,32 @@ public class DomainOpenClass implements IOpenClass, ModuleOpenClass {
     private final IOpenClass baseClass;
     private final String name;
     private IMetaInfo metaInfo;
-    private final String moduleName;
+    private final ModuleOpenClass module;
 
     public DomainOpenClass(String name,
             IOpenClass baseClass,
             IDomain<?> domain,
-            String moduleName,
+            ModuleOpenClass module,
             IMetaInfo metaInfo) {
         assert name != null;
         this.baseClass = baseClass;
         this.name = name;
         this.metaInfo = metaInfo;
         this.domain = domain;
-        this.moduleName = moduleName;
+        this.module = module;
     }
 
     @Override
-    public String getNameWithModuleName() {
-        if (moduleName == null) {
+    public String getExternalRefName() {
+        if (module == null) {
             throw new IllegalStateException("moduleName is not defined");
         }
-        return "`" + moduleName + "`." + getName();
+        return "`" + module.getModuleName() + "`." + getName();
     }
 
     @Override
-    public String getModuleName() {
-        return moduleName;
+    public ModuleOpenClass getModule() {
+        return module;
     }
 
     @Override

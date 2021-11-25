@@ -26,6 +26,7 @@ import org.openl.rules.dt.element.ActionType;
 import org.openl.rules.dt.element.Condition;
 import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
 import org.openl.rules.table.IGridTable;
@@ -93,7 +94,11 @@ public class DecisionTableLoader {
             ModuleOpenClass module,
             boolean transpose,
             IBindingContext bindingContext) throws Exception {
-        TableStructure tableStructure = loadTableStructure(tableSyntaxNode, decisionTable, transpose, bindingContext);
+        TableStructure tableStructure = loadTableStructure(tableSyntaxNode,
+            decisionTable,
+            transpose,
+            (XlsModuleOpenClass) module,
+            bindingContext);
         IBaseCondition[] conditionsArray = tableStructure.conditions.toArray(IBaseCondition.EMPTY);
         IBaseAction[] actionsArray = tableStructure.actions.toArray(IBaseAction.EMPTY);
         decisionTable.bindTable(conditionsArray,
@@ -407,6 +412,7 @@ public class DecisionTableLoader {
     private TableStructure loadTableStructure(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             boolean transpose,
+            XlsModuleOpenClass module,
             IBindingContext bindingContext) throws SyntaxNodeException {
 
         if (DecisionTableHelper.isCollect(tableSyntaxNode)) {
@@ -429,7 +435,11 @@ public class DecisionTableLoader {
                 .isSimpleLookupTable(tableSyntaxNode) || DecisionTableHelper.isSmartLookupTable(tableSyntaxNode)) {
             try {
                 tableBody = DecisionTableHelper
-                    .preprocessDecisionTableWithoutHeaders(tableSyntaxNode, decisionTable, tableBody, bindingContext);
+                    .preprocessDecisionTableWithoutHeaders(tableSyntaxNode,
+                        decisionTable,
+                        tableBody,
+                        module,
+                        bindingContext);
             } catch (OpenLCompilationException e) {
                 throw SyntaxNodeExceptionUtils.createError(
                     "Cannot create a header for a Simple Rules, Lookup Table or Smart Table.",

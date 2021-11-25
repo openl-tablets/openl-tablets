@@ -128,7 +128,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             DomainOpenClass tableType = new DomainOpenClass(typeName,
                 baseOpenClass,
                 domain,
-                module.getName(),
+                module,
                 new DatatypeMetaInfo(tableSource.getCode(), tsn.getUri()));
 
             // Add domain class definition to biding context as internal type.
@@ -148,7 +148,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             }
 
             DatatypeOpenClass tableType = new DatatypeOpenClass(typeName, packageName);
-            tableType.setModuleName(module.getName());
+            tableType.setModule(module);
 
             if (!bindingContext.isExecutionMode()) {
                 tableType.setTableSyntaxNode(tsn);

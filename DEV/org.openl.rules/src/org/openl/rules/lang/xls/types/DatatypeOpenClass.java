@@ -20,6 +20,7 @@ import org.openl.base.INamedThing;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
 import org.openl.rules.lang.xls.XlsBinder;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -27,9 +28,9 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass;
+import org.openl.types.impl.BelongsToModuleOpenClass;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.impl.MethodKey;
-import org.openl.types.impl.ModuleOpenClass;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenConstructor;
@@ -44,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author snshor
  */
-public class DatatypeOpenClass extends ADynamicClass implements ModuleOpenClass, WrapModuleSpecificTypes {
+public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleOpenClass, WrapModuleSpecificTypes {
 
     private static final Logger LOG = LoggerFactory.getLogger(DatatypeOpenClass.class);
 
@@ -58,7 +59,7 @@ public class DatatypeOpenClass extends ADynamicClass implements ModuleOpenClass,
 
     private byte[] bytecode;
 
-    private String moduleName;
+    private XlsModuleOpenClass module;
 
     /**
      * User has a possibility to set the package (by table properties mechanism) where he wants to generate datatype
@@ -84,20 +85,20 @@ public class DatatypeOpenClass extends ADynamicClass implements ModuleOpenClass,
     }
 
     @Override
-    public String getNameWithModuleName() {
-        if (moduleName == null) {
+    public String getExternalRefName() {
+        if (module == null) {
             throw new IllegalStateException("moduleName is not defined");
         }
-        return "`" + moduleName + "`." + getName();
+        return "`" + module.getModuleName() + "`." + getName();
     }
 
-    public void setModuleName(String moduleName) {
-        this.moduleName = moduleName;
+    public void setModule(XlsModuleOpenClass module) {
+        this.module = module;
     }
 
     @Override
-    public String getModuleName() {
-        return moduleName;
+    public XlsModuleOpenClass getModule() {
+        return module;
     }
 
     @Override
