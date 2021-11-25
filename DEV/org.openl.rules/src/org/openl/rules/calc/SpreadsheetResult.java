@@ -500,17 +500,11 @@ public class SpreadsheetResult implements Serializable {
                 Object tmpArray = Array
                     .newInstance(toType != null && toType.isArray() ? toType.getComponentType() : Object.class, len);
                 for (int i = 0; i < len; i++) {
-                    try {
-                        Array.set(tmpArray,
-                            i,
-                            convertSpreadsheetResult(Array.get(v, i),
-                                toType != null && toType.isArray() ? toType.getComponentType() : null,
-                                spreadsheetResultsToMap));
-                    } catch (Exception e) {
+                    Array.set(tmpArray,
+                        i,
                         convertSpreadsheetResult(Array.get(v, i),
                             toType != null && toType.isArray() ? toType.getComponentType() : null,
-                            spreadsheetResultsToMap);
-                    }
+                            spreadsheetResultsToMap));
                 }
                 if (toType != null && toType.isArray() && Object.class != toType.getComponentType()) {
                     return tmpArray;
