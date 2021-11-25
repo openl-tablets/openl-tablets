@@ -204,7 +204,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 existingModuleRelatedType.updateWithType(type);
                 return existingType;
             } else {
-                return ((ModuleSpecificType) type).makeCopyForModule(this);
+                return ((ModuleSpecificType) type).convertToModuleTypeAndRegister(this);
             }
         }
         return super.processDependencyTypeBeforeAdding(type);
@@ -241,12 +241,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
         addDataTablesFromDependencies(dataTables);
         addFieldsFromDependencies(fields);
-
-        for (IOpenClass type : getTypes()) {
-            if (type instanceof CustomSpreadsheetResultOpenClass) {
-                ((CustomSpreadsheetResultOpenClass) type).fixModuleFieldTypes();
-            }
-        }
     }
 
     @Override

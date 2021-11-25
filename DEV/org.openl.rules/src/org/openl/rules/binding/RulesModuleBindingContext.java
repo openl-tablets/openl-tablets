@@ -165,9 +165,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 return openClass;
             }
             if (openClass == null) {
-                IOpenClass copyOfType = moduleRelatedType.makeCopyForModule(getModule());
-                getModule().addType(copyOfType);
-                return copyOfType;
+                return moduleRelatedType.convertToModuleTypeAndRegister(getModule());
             } else {
                 ModuleSpecificType existingModuleRelatedOpenClass = (ModuleSpecificType) openClass;
                 existingModuleRelatedOpenClass.updateWithType(type);

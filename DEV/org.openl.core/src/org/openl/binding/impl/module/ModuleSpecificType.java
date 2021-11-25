@@ -6,7 +6,7 @@ public interface ModuleSpecificType {
 
     ModuleOpenClass getModule();
 
-    IOpenClass makeCopyForModule(ModuleOpenClass module);
+    IOpenClass convertToModuleTypeAndRegister(ModuleOpenClass module);
 
     void updateWithType(IOpenClass openClass);
 }

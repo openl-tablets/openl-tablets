@@ -47,7 +47,6 @@ import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
-import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
@@ -332,6 +331,21 @@ public class XlsBinder implements IOpenBinder {
             TableSyntaxNode[] testTables = selectNodes(moduleNode, testMethodSelector);
             topNode = bindInternal(moduleNode, moduleOpenClass, testTables, openl, rulesModuleBindingContext);
 
+            // After recursive compilation non initialized fields need to be initialized for CSR type in compile time
+            // and meta info initialized.
+            if (OpenLSystemProperties
+                .isCustomSpreadsheetTypesSupported(rulesModuleBindingContext.getExternalParams())) {
+                for (IOpenClass type : moduleOpenClass.getTypes()) {
+                    if (type instanceof CustomSpreadsheetResultOpenClass) {
+                        type.getFields().forEach(IOpenField::getType);
+                    }
+                }
+                moduleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass()
+                    .getFields()
+                    .forEach(IOpenField::getType);
+            }
+
             if (moduleOpenClass.isUseDecisionTableDispatcher()) {
                 DispatcherTablesBuilder dispatcherTablesBuilder = new DispatcherTablesBuilder(
                     (XlsModuleOpenClass) topNode.getType());
@@ -590,34 +604,6 @@ public class XlsBinder implements IOpenBinder {
         }
 
         syntaxNodeExceptionHolder.processBindingContextErrors(rulesModuleBindingContext);
-
-        // After recursive compilation non initialized fields need to be initialized for CSR type in compile time
-        // and
-        // meta info initialized.
-        if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(rulesModuleBindingContext.getExternalParams())) {
-            for (IMemberBoundNode child : childrens) {
-                if (child instanceof SpreadsheetBoundNode) {
-                    SpreadsheetBoundNode spreadsheetBoundNode = (SpreadsheetBoundNode) child;
-                    if (spreadsheetBoundNode.getSpreadsheet() != null) {
-                        spreadsheetBoundNode.getSpreadsheet()
-                            .getSpreadsheetType()
-                            .getFields()
-                            .forEach(IOpenField::getType);
-                        if (spreadsheetBoundNode.getSpreadsheet()
-                            .getType() instanceof CustomSpreadsheetResultOpenClass) {
-                            spreadsheetBoundNode.getSpreadsheet().getType().getFields().forEach(IOpenField::getType);
-                            module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                                .toCustomSpreadsheetResultOpenClass()
-                                .updateWithType(spreadsheetBoundNode.getSpreadsheet().getType());
-                        }
-                    }
-                }
-            }
-            module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                .toCustomSpreadsheetResultOpenClass()
-                .getFields()
-                .forEach(IOpenField::getType);
-        }
 
         if (rulesModuleBindingContext.isExecutionMode()) {
             removeDebugInformation(childrens, tableSyntaxNodes, rulesModuleBindingContext);

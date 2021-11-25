@@ -10,11 +10,9 @@ import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CustomSpreadsheetResultField extends ASpreadsheetField implements IOriginalDeclaredClassesOpenField {
-    private static final Logger LOG = LoggerFactory.getLogger(CustomSpreadsheetResultField.class);
+
     protected IOpenField field;
     private final IOpenClass[] declaringClasses;
 
