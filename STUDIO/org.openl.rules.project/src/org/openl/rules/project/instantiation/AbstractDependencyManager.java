@@ -233,6 +233,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         Collection<IDependencyLoader> dependencyLoadersForProject = new HashSet<>();
         Deque<ProjectDescriptor> queue = new ArrayDeque<>();
         queue.add(project);
+        Set<ProjectDescriptor> projectDescriptors = new HashSet<>();
         while (!queue.isEmpty()) {
             ProjectDescriptor projectDescriptor = queue.poll();
             getDependencyLoaders().stream()
@@ -241,8 +242,9 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             if (projectDescriptor.getDependencies() != null) {
                 for (ProjectDependencyDescriptor pdd : projectDescriptor.getDependencies()) {
                     IDependencyLoader dl = this.findDependencyLoader(buildResolvedDependency(pdd.getName()));
-                    if (dl != null && dl.isProjectLoader()) {
+                    if (dl != null && dl.isProjectLoader() && !projectDescriptors.contains(dl.getProject())) {
                         queue.add(dl.getProject());
+                        projectDescriptors.add(dl.getProject());
                     }
                 }
             }
@@ -387,7 +389,8 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         return getExternalJarsClassLoaderRec(project, breadcrumbs);
     }
 
-    public synchronized ClassLoader getExternalJarsClassLoaderRec(ProjectDescriptor project, Set<ProjectDescriptor> breadcrumbs) {
+    public synchronized ClassLoader getExternalJarsClassLoaderRec(ProjectDescriptor project,
+            Set<ProjectDescriptor> breadcrumbs) {
         getDependencyLoaders(); // Init dependency loaders
         if (externalJarsClassloaders.get(project) != null) {
             return externalJarsClassloaders.get(project);
@@ -397,14 +400,15 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         // To load classes from dependency jars first
         if (project.getDependencies() != null) {
             Collection<IDependencyLoader> projectDependencyLoaders = getDependencyLoaders().stream()
-                    .filter(IDependencyLoader::isProjectLoader)
-                    .collect(Collectors.toCollection(ArrayList::new));
+                .filter(IDependencyLoader::isProjectLoader)
+                .collect(Collectors.toCollection(ArrayList::new));
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
                 for (IDependencyLoader dl : projectDependencyLoaders) {
                     if (Objects.equals(projectDependencyDescriptor.getName(), dl.getProject().getName())) {
                         if (!breadcrumbs.contains(dl.getProject())) {
                             breadcrumbs.add(dl.getProject());
-                            externalJarsClassloader.addClassLoader(getExternalJarsClassLoaderRec(dl.getProject(), breadcrumbs));
+                            externalJarsClassloader
+                                .addClassLoader(getExternalJarsClassLoaderRec(dl.getProject(), breadcrumbs));
                             breadcrumbs.remove(dl.getProject());
                         }
                         break;
