@@ -2,11 +2,8 @@ package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.module.ModuleBindingContext;
-import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
-import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 
@@ -25,21 +22,12 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
 
         final CustomSpreadsheetResultOpenClass mergedCustomSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
             typeName,
-            extractModule(bindingContext),
+            type1.getModule(),
             type1.getLogicalTable(),
             false);
         mergedCustomSpreadsheetResultOpenClass.updateWithType(type1);
         mergedCustomSpreadsheetResultOpenClass.updateWithType(type2);
         return mergedCustomSpreadsheetResultOpenClass;
-    }
-
-    private static XlsModuleOpenClass extractModule(IBindingContext bindingContext) {
-        if (bindingContext instanceof ModuleBindingContext) {
-            return ((RulesModuleBindingContext) bindingContext).getModule();
-        } else if (bindingContext instanceof BindingContextDelegator) {
-            return extractModule(((BindingContextDelegator) bindingContext).getDelegate());
-        }
-        return null;
     }
 
     @Override
@@ -53,7 +41,7 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
         if (type instanceof CustomSpreadsheetResultOpenClass && elseType instanceof CustomSpreadsheetResultOpenClass) {
             CustomSpreadsheetResultOpenClass type1 = (CustomSpreadsheetResultOpenClass) type;
             CustomSpreadsheetResultOpenClass type2 = (CustomSpreadsheetResultOpenClass) elseType;
-            if (!type1.equals(type2)) {
+            if (!type1.equals(type2) && type1.getModule() == type2.getModule()) {
                 return new IfNode(node,
                     conditionNode,
                     thenNode,

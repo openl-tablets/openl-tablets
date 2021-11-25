@@ -1,0 +1,15 @@
+<project>
+    <name>EPBDS-12286_Dependency_Rules</name>
+    <modules>
+        <module>
+            <name>localSpr</name>
+            <rules-root path="localSpr.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>ExternalProject</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>
