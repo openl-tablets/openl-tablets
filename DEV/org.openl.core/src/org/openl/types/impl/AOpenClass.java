@@ -98,7 +98,8 @@ public abstract class AOpenClass implements IOpenClass {
                 return new DomainOpenClass(domainOpenClassName.toString(),
                     arrayType,
                     openClass.getDomain(),
-                    openClass instanceof ModuleOpenClass ? ((ModuleOpenClass) openClass).getModuleName() : null,
+                    openClass instanceof BelongsToModuleOpenClass ? ((BelongsToModuleOpenClass) openClass).getModule()
+                                                                  : null,
                     null);
             } else {
                 return arrayType;
