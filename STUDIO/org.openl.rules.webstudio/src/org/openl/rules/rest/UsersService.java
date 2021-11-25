@@ -1,13 +1,5 @@
 package org.openl.rules.rest;
 
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TABLE_FORMULAS_SHOW;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TABLE_VIEW;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_FAILURES_ONLY;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_FAILURES_PERTEST;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_RESULT_COMPLEX_SHOW;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_TESTS_PERPAGE;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TRACE_REALNUMBERS_SHOW;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +42,14 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TABLE_FORMULAS_SHOW;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TABLE_VIEW;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_FAILURES_ONLY;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_FAILURES_PERTEST;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_RESULT_COMPLEX_SHOW;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_TESTS_PERPAGE;
+import static org.openl.rules.webstudio.service.UserSettingManagementService.TRACE_REALNUMBERS_SHOW;
 
 @Service
 @Path("/users")
@@ -210,8 +210,10 @@ public class UsersService {
         Optional.ofNullable(currentUserInfo.getAuthentication()).map(authentication -> {
             if (authentication.getPrincipal() instanceof SimpleUser) {
                 return (SimpleUser) authentication.getPrincipal();
-            } else {
+            } else if (authentication.getDetails() instanceof SimpleUser){
                 return (SimpleUser) authentication.getDetails();
+            } else {
+                return null;
             }
         }).ifPresent(simpleUser -> {
             simpleUser.setFirstName(firstname);
