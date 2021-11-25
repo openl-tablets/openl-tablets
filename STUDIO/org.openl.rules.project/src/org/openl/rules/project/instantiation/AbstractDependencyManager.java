@@ -255,7 +255,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     @Override
     public Collection<ResolvedDependency> resolveDependency(IDependency dependency,
             boolean withWildcardSupport) throws AmbiguousDependencyException, DependencyNotFoundException {
-        String value = dependency.getNode().getIdentifier().trim();
+        String value = dependency.getNode().getIdentifier();
         boolean withWildcard;
         if (withWildcardSupport) {
             withWildcard = ASTERISK_SIGN.matcher(value).find() || QUESTION_SIGN.matcher(value).find();

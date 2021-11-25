@@ -1,0 +1,15 @@
+<project>
+    <name>EPBDS-12287_Dependency_Rules</name>
+    <modules>
+        <module>
+            <name>testMeth</name>
+            <rules-root path="testMeth.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>Product Model</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>
