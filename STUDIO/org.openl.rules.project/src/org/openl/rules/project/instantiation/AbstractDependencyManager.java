@@ -318,8 +318,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
         if (!withWildcard && ret.size() != 1) {
             if (ret.isEmpty()) {
-                throw new DependencyNotFoundException(String.format("Dependency '%s' is not found.",
-                    dependency.getNode().getIdentifier()), null, dependency.getNode().getSourceLocation(), null);
+                throw new DependencyNotFoundException(
+                    String.format("Dependency '%s' is not found.", dependency.getNode().getIdentifier()),
+                    null,
+                    dependency.getNode().getSourceLocation(),
+                    dependency.getNode().getModule());
             } else {
                 throw new AmbiguousDependencyException(
                     String.format("Multiple dependencies '%s' are found.", dependency.getNode().getIdentifier()),
