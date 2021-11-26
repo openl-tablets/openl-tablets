@@ -343,7 +343,7 @@
                 if (!compiled) {
                     ws.ui.confirm({
                         title: 'Tests',
-                        message: 'Tests can be run within current module only because the project is not compiled yet.',
+                        message: 'Tests can be run within current module only because the project is not loaded yet.',
                         onOK: () => ws.nav.go("#{studio.url('test/test')}?currentOpenedModule=true", true)
                     });
                 } else {
