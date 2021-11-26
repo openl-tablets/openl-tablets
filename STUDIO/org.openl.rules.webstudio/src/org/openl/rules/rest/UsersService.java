@@ -145,7 +145,6 @@ public class UsersService {
                 userModel.getDisplayName(),
                 userModel.getPassword());
         }
-
     }
 
     @PUT
@@ -199,7 +198,6 @@ public class UsersService {
             userModel.getEmail(),
             userModel.getDisplayName(),
             userModel.getChangePassword().getNewPassword());
-
     }
 
     private void updateCurrentApplicationUser(String firstname,
@@ -210,7 +208,7 @@ public class UsersService {
         Optional.ofNullable(currentUserInfo.getAuthentication()).map(authentication -> {
             if (authentication.getPrincipal() instanceof SimpleUser) {
                 return (SimpleUser) authentication.getPrincipal();
-            } else if (authentication.getDetails() instanceof SimpleUser){
+            } else if (authentication.getDetails() instanceof SimpleUser) {
                 return (SimpleUser) authentication.getDetails();
             } else {
                 return null;

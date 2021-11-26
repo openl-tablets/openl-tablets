@@ -85,10 +85,10 @@ public class UserManagementService {
             String displayName,
             UserExternalFlags externalFlags) {
         User persistUser = userDao.getUserByName(user);
-        persistUser.setFirstName(firstName);
-        persistUser.setSurname(lastName);
-        persistUser.setEmail(email);
-        persistUser.setDisplayName(displayName);
+        persistUser.setFirstName(persistUser.isFirstNameExternal() ? persistUser.getFirstName() : firstName);
+        persistUser.setSurname(persistUser.isLastNameExternal() ? persistUser.getSurname() : lastName);
+        persistUser.setEmail(persistUser.isEmailExternal() ? persistUser.getEmail() : email);
+        persistUser.setDisplayName(persistUser.isDisplayNameExternal() ? persistUser.getDisplayName() : displayName);
         persistUser.setFirstNameExternal(externalFlags.isFirstNameExternal());
         persistUser.setLastNameExternal(externalFlags.isLastNameExternal());
         persistUser.setEmailExternal(externalFlags.isEmailExternal());
@@ -107,10 +107,10 @@ public class UserManagementService {
             String email,
             String displayName) {
         User persistUser = userDao.getUserByName(user);
-        persistUser.setFirstName(firstName);
-        persistUser.setSurname(lastName);
-        persistUser.setEmail(email);
-        persistUser.setDisplayName(displayName);
+        persistUser.setFirstName(persistUser.isFirstNameExternal() ? persistUser.getFirstName() : firstName);
+        persistUser.setSurname(persistUser.isLastNameExternal() ? persistUser.getSurname() : lastName);
+        persistUser.setEmail(persistUser.isEmailExternal() ? persistUser.getEmail() : email);
+        persistUser.setDisplayName(persistUser.isDisplayNameExternal() ? persistUser.getDisplayName() : displayName);
         if (updatePassword) {
             persistUser.setPasswordHash(passwordHash);
         }
