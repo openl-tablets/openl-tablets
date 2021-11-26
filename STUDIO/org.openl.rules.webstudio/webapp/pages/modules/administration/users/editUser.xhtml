@@ -158,7 +158,17 @@
 
     <script>//<![CDATA[
 
+        let editUserIsEmailExternal;
+        let editUserIsFirstNameExternal;
+        let editUserIsLastNameExternal;
+        let editUserIsDisplayNameExternal;
+
         function showEditUserForm(username, firstName, lastName, email, displayName, internalUser, userGroups, isSuperuser, isCurrentUser, firstNameExternal, lastNameExternal, emailExternal, displayNameExternal) {
+            editUserIsEmailExternal = emailExternal === true;
+            editUserIsFirstNameExternal = firstNameExternal === true;
+            editUserIsLastNameExternal = lastNameExternal === true;
+            editUserIsDisplayNameExternal = displayNameExternal === true;
+
             $j("#edit-user-username").text(username);
             $j("#edit-user-firstname").val(firstName);
             $j("#edit-user-display-name").val(displayName);
@@ -173,15 +183,15 @@
             $j(".edit-user-current-user").toggle(!(isSuperuser === true) && isCurrentUser === true);
             $j(".edit-user-password-row").toggle(internalUser === true);
 
-            $j("#edit-user-firstname").toggle(!(firstNameExternal === true));
-            $j("#edit-user-firstname-span").toggle(firstNameExternal === true);
-            $j("#edit-user-lastname").toggle(!(lastNameExternal === true));
-            $j("#edit-user-lastname-span").toggle(lastNameExternal === true);
-            $j("#edit-user-email").toggle(!(emailExternal === true));
-            $j("#edit-user-email-span").toggle(emailExternal === true);
-            $j("#edit-user-display-name").toggle(!(displayNameExternal === true));
-            $j("#edit-user-display-name-select-box").toggle(!(displayNameExternal === true));
-            $j("#edit-user-display-name-span").toggle(displayNameExternal === true);
+            $j("#edit-user-firstname").toggle(!editUserIsFirstNameExternal);
+            $j("#edit-user-firstname-span").toggle(editUserIsFirstNameExternal);
+            $j("#edit-user-lastname").toggle(!editUserIsLastNameExternal);
+            $j("#edit-user-lastname-span").toggle(editUserIsLastNameExternal);
+            $j("#edit-user-email").toggle(!editUserIsEmailExternal);
+            $j("#edit-user-email-span").toggle(editUserIsEmailExternal);
+            $j("#edit-user-display-name").toggle(!editUserIsDisplayNameExternal);
+            $j("#edit-user-display-name-select-box").toggle(!editUserIsDisplayNameExternal);
+            $j("#edit-user-display-name-span").toggle(editUserIsDisplayNameExternal);
 
             $j.ajax({
                 type: "GET",
@@ -242,10 +252,10 @@
                 type: "PUT",
                 url: "#{contextPath}/web/users/" + $j("#edit-user-username").html(),
                 data: JSON.stringify({
-                    firstName : $j("#edit-user-firstname").val().trim(),
-                    displayName : $j("#edit-user-display-name").val().trim(),
-                    lastName : $j("#edit-user-lastname").val().trim(),
-                    email : $j("#edit-user-email").val().trim(),
+                    firstName : editUserIsFirstNameExternal ? null : $j("#edit-user-firstname").val().trim(),
+                    displayName : editUserIsDisplayNameExternal ? null : $j("#edit-user-display-name").val().trim(),
+                    lastName : editUserIsLastNameExternal ? null : $j("#edit-user-lastname").val().trim(),
+                    email : editUserIsEmailExternal ? null : $j("#edit-user-email").val().trim(),
                     password : $j("#edit-user-password").val(),
                     groups : groupValues
                 }),

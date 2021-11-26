@@ -250,7 +250,6 @@
                     <input id="user-account" type="button" value="Save" title="Save"
                            class="button-primary save-button"/>
                     <input class="restore-changed-state" type="button" value="Cancel" onclick="hideAccountUserForm();"/>
-                    <input type="hidden" id="account-user-mode-hidden"/>
                 </footer>
 
             </h:form>
@@ -260,12 +259,19 @@
     <script src="#{contextPath}/javascript/userDisplayNameSelectInitializer.js"></script>
     <script>//<![CDATA[
 
+        let userMode;
+
+        let accountUserIsEmailExternal;
+        let accountUserIsFirstNameExternal;
+        let accountUserIsLastNameExternal;
+        let accountUserIsDisplayNameExternal;
+
         $j("#user-account").click(function (e) {
             e.preventDefault();
 
-            if ($j("#account-user-mode-hidden").val() !== 'single') {
+            if (userMode !== 'single') {
                 let changePassword = {username: $j("#account-user-username").text()};
-                if ($j("#account-user-mode-hidden").val() === 'multi') {
+                if (userMode === 'multi') {
                     changePassword.newPassword = $j("#account-user-new-password").val();
                     changePassword.currentPassword = $j("#account-user-current-password").val();
                     changePassword.confirmPassword = $j("#account-user-confirm-password").val();
@@ -275,10 +281,10 @@
                     url: "#{contextPath}/web/users/profile/",
                     data: JSON.stringify({
                         changePassword: changePassword,
-                        firstName : $j("#account-user-firstname").val().trim(),
-                        displayName : $j("#account-user-display-name").val().trim(),
-                        email : $j("#account-user-email").val().trim(),
-                        lastName : $j("#account-user-lastname").val().trim(),
+                        firstName : accountUserIsFirstNameExternal ? null : $j("#account-user-firstname").val().trim(),
+                        displayName : accountUserIsDisplayNameExternal ? null : $j("#account-user-display-name").val().trim(),
+                        email : accountUserIsEmailExternal ? null : $j("#account-user-email").val().trim(),
+                        lastName : accountUserIsLastNameExternal ? null : $j("#account-user-lastname").val().trim(),
                         showHeader : $j("#account-user-show-header").prop("checked"),
                         showFormulas : $j("#account-user-show-formulas").prop("checked"),
                         testsPerPage : $j("#account-user-tests-per-page").val(),
@@ -313,15 +319,20 @@
                 datatype: "json"
             })
             .done(function (data) {
-                $j("#account-user-firstname").toggle(!(data.externalFlags.firstNameExternal === true));
-                $j("#account-user-firstname-span").toggle(data.externalFlags.firstNameExternal === true);
-                $j("#account-user-lastname").toggle(!(data.externalFlags.lastNameExternal === true));
-                $j("#account-user-lastname-span").toggle(data.externalFlags.lastNameExternal === true);
-                $j("#account-user-email").toggle(!(data.externalFlags.emailExternal === true));
-                $j("#account-user-email-span").toggle(data.externalFlags.emailExternal === true);
-                $j("#account-user-display-name").toggle(!(data.externalFlags.displayNameExternal === true));
-                $j("#account-user-display-name-select-box").toggle(!(data.externalFlags.displayNameExternal === true));
-                $j("#account-user-display-name-span").toggle(data.externalFlags.displayNameExternal === true);
+                accountUserIsEmailExternal = data.externalFlags.emailExternal === true;
+                accountUserIsFirstNameExternal = data.externalFlags.firstNameExternal === true;
+                accountUserIsLastNameExternal = data.externalFlags.lastNameExternal === true;
+                accountUserIsDisplayNameExternal = data.externalFlags.displayNameExternal === true;
+
+                $j("#account-user-firstname").toggle(!accountUserIsFirstNameExternal);
+                $j("#account-user-firstname-span").toggle(accountUserIsFirstNameExternal);
+                $j("#account-user-lastname").toggle(!accountUserIsLastNameExternal);
+                $j("#account-user-lastname-span").toggle(accountUserIsLastNameExternal);
+                $j("#account-user-email").toggle(!accountUserIsEmailExternal);
+                $j("#account-user-email-span").toggle(accountUserIsEmailExternal);
+                $j("#account-user-display-name").toggle(!accountUserIsDisplayNameExternal);
+                $j("#account-user-display-name-select-box").toggle(!accountUserIsDisplayNameExternal);
+                $j("#account-user-display-name-span").toggle(accountUserIsDisplayNameExternal);
 
                 $j("#account-user-failures-only").prop("checked", data.testsFailuresOnly);
                 $j("#account-user-show-formulas").prop("checked", data.showFormulas);
@@ -347,10 +358,11 @@
                     datatype: "json"
                 })
                 .done(function (options) {
-                    $j("#account-user-name-row").toggle(options.userMode !== 'single');
-                    $j("#account-user-email-row").toggle(options.userMode !== 'single');
-                    $j("#account-user-password-row").toggle(options.userMode === 'multi' && data.internalUser === true);
-                    $j("#account-user-mode-hidden").val(options.userMode);
+                    userMode = options.userMode;
+                    $j("#account-user-name-row").toggle(userMode !== 'single');
+                    $j("#account-user-email-row").toggle(userMode !== 'single');
+                    $j("#account-user-password-row").toggle(userMode === 'multi' && data.internalUser === true);
+
                 });
                 initAccountUserAreYouSure();
                 initUserDisplayNameSelect($j("#account-user-display-name-select-box"), $j("#account-user-firstname"), $j("#account-user-lastname"), $j("#account-user-display-name"));

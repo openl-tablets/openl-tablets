@@ -15,41 +15,49 @@
 
     <h:form id="configureCommitInfoForm">
       <div class="fields">
-        <table id="commit-user-display-name-row">
-          <tbody>
-          <tr>
-            <td class="titleColumn"><label>First name <span class="font-size-80pct">(Given Name)</span>:</label>
-            </td>
-            <td><input id="commit-user-firstname" type="text"/></td>
-            <td><span id="commit-user-firstname-error" class="error"/></td>
-          </tr>
-          <tr>
-            <td class="titleColumn"><label>Last name <span class="font-size-80pct">(Family Name)</span>:</label>
-            </td>
-            <td><input id="commit-user-lastname" type="text"/></td>
-            <td><span id="commit-user-lastname-error" class="error"/></td>
-          </tr>
-          <tr>
-            <td class="titleColumn"><label class="required">Display name:</label></td>
-            <td>
-              <div id="commit-user-display-name-select-box"></div>
-            </td>
-          </tr>
-          <tr>
-            <td/>
-            <td><input id="commit-user-display-name" type="text"/></td>
-            <td><span id="commit-user-display-name-error" class="error"/></td>
-          </tr>
-          </tbody>
-        </table>
         <table id="commit-user-email-row">
           <tbody>
           <tr>
             <td class="titleColumn"><label class="required">Email:</label></td>
             <td>
               <input id="commit-user-email" type="text"/>
+              <span id="commit-user-email-span" class="font-weight-bold"/>
             </td>
             <td><span id="commit-user-email-error" class="error"/></td>
+          </tr>
+          </tbody>
+        </table>
+        <table id="commit-user-display-name-row">
+          <tbody>
+          <tr>
+            <td class="titleColumn"><label>First name <span class="font-size-80pct">(Given Name)</span>:</label>
+            </td>
+            <td>
+              <input id="commit-user-firstname" type="text"/>
+              <span id="commit-user-firstname-span" class="font-weight-bold"/>
+            </td>
+            <td><span id="commit-user-firstname-error" class="error"/></td>
+          </tr>
+          <tr>
+            <td class="titleColumn"><label>Last name <span class="font-size-80pct">(Family Name)</span>:</label>
+            </td>
+            <td>
+              <input id="commit-user-lastname" type="text"/>
+              <span id="commit-user-lastname-span" class="font-weight-bold"/>
+            </td>
+            <td><span id="commit-user-lastname-error" class="error"/></td>
+          </tr>
+          <tr>
+            <td class="titleColumn"><label class="required">Display name:</label></td>
+            <td>
+              <div id="commit-user-display-name-select-box"></div>
+              <span id="commit-user-display-name-span" class="font-weight-bold"/>
+            </td>
+          </tr>
+          <tr>
+            <td/>
+            <td><input id="commit-user-display-name" type="text"/></td>
+            <td><span id="commit-user-display-name-error" class="error"/></td>
           </tr>
           </tbody>
         </table>
@@ -64,6 +72,11 @@
   <script>//<![CDATA[
 
     let afterConfigureCommitInfo = () => {};
+
+    let commitUserIsEmailExternal;
+    let commitUserIsFirstNameExternal;
+    let commitUserIsLastNameExternal;
+    let commitUserIsDisplayNameExternal;
 
     function withCommitInfoRequired(username, predicate, afterAction) {
       if (predicate()) {
@@ -86,10 +99,30 @@
     }
 
     function showConfigureCommitInfoForm(user) {
+        commitUserIsEmailExternal = user.externalFlags.emailExternal === true;
+        commitUserIsFirstNameExternal = user.externalFlags.firstNameExternal === true;
+        commitUserIsLastNameExternal = user.externalFlags.lastNameExternal === true;
+        commitUserIsDisplayNameExternal = user.externalFlags.displayNameExternal === true;
+
+        $j("#commit-user-firstname-span").text(user.firstName);
+        $j("#commit-user-display-name-span").text(user.displayName);
+        $j("#commit-user-lastname-span").text(user.lastName);
+        $j("#commit-user-email-span").text(user.email);
         $j("#commit-user-firstname").val(user.firstName);
         $j("#commit-user-display-name").val(user.displayName);
-        $j("#commit-user-lastname").val(user.lastName);
         $j("#commit-user-email").val(user.email);
+        $j("#commit-user-lastname").val(user.lastName);
+
+        $j("#commit-user-firstname").toggle(!commitUserIsFirstNameExternal);
+        $j("#commit-user-firstname-span").toggle(commitUserIsFirstNameExternal);
+        $j("#commit-user-lastname").toggle(!commitUserIsLastNameExternal);
+        $j("#commit-user-lastname-span").toggle(commitUserIsLastNameExternal);
+        $j("#commit-user-email").toggle(!commitUserIsEmailExternal);
+        $j("#commit-user-email-span").toggle(commitUserIsEmailExternal);
+        $j("#commit-user-display-name").toggle(!commitUserIsDisplayNameExternal);
+        $j("#commit-user-display-name-select-box").toggle(!commitUserIsDisplayNameExternal);
+        $j("#commit-user-display-name-span").toggle(commitUserIsDisplayNameExternal);
+
         initUserDisplayNameSelect($j("#commit-user-display-name-select-box"), $j("#commit-user-firstname"), $j("#commit-user-lastname"), $j("#commit-user-display-name"))
         $j("#commit-user-email-row").toggle(!user.email || user.email.trim() === '');
         $j("#commit-user-display-name-row").toggle(!user.displayName || user.displayName.trim() === '');
@@ -113,10 +146,10 @@
           type: "PUT",
           url: "#{contextPath}/web/users/info",
           data: JSON.stringify({
-              firstName : $j("#commit-user-firstname").val(),
-              displayName : $j("#commit-user-display-name").val(),
-              lastName : $j("#commit-user-lastname").val(),
-              email : $j("#commit-user-email").val()
+              firstName : commitUserIsFirstNameExternal ? null : $j("#commit-user-firstname").val().trim(),
+              displayName : commitUserIsDisplayNameExternal ? null : $j("#commit-user-display-name").val().trim(),
+              lastName : commitUserIsLastNameExternal ? null : $j("#commit-user-lastname").val().trim(),
+              email : commitUserIsEmailExternal ? null : $j("#commit-user-email").val().trim()
           }),
           contentType: 'application/json',
           dataType: 'json',
@@ -138,7 +171,7 @@
 
     function closeConfigureCommitInfoForm() {
         $j("#commit-user-firstname, #commit-user-display-name, #commit-user-lastname, #commit-user-email").val("");
-        $j("#commit-user-display-name-error, #commit-user-email-error, #commit-user-firstname-error, #commit-user-lastname-error").text("");
+        $j("#commit-user-display-name-span, #commit-user-display-name-error, #commit-user-email-error, #commit-user-email-span, #commit-user-firstname-error, #commit-user-firstname-span, #commit-user-lastname-error, #commit-user-lastname-span").text("");
         $j("#save-commit-info").attr("disabled", true);
         RichFaces.$('modalConfigureCommitInfo').hide();
     }
