@@ -49,40 +49,45 @@ public class DependencyBindingContext extends BindingContextDelegator {
             if (resolvedDependency == null) {
                 return null;
             }
+            CompiledDependency compiledDependency;
             try {
-                CompiledDependency compiledDependency = dependencyManager.loadDependency(resolvedDependency);
+                compiledDependency = dependencyManager.loadDependency(resolvedDependency);
                 if (!loadedDependencies.contains(dependencyName)) {
                     loadedDependencies.add(dependencyName);
                     addMessages(compiledDependency.getCompiledOpenClass().getMessages());
-                }
-                String tName = typeName.substring(typeName.indexOf(".") + 1);
-                IOpenClass t = buildDependencyVar(compiledDependency).getType().findType(tName);
-                if (t != null) {
-                    return t;
-                }
-                t = additionalSearchTypesInModule.getType(tName,
-                    compiledDependency.getCompiledOpenClass().getOpenClassWithErrors());
-                if (t != null) {
-                    return t;
-                }
-                try {
-                    t = JavaOpenClass.getOpenClass(compiledDependency.getClassLoader().loadClass(tName));
-                    IOpenClass x = compiledDependency.getCompiledOpenClass()
-                        .getOpenClassWithErrors()
-                        .findType(t.getInstanceClass().getSimpleName());
-                    if (x != null && x.getInstanceClass() == t.getInstanceClass()) {
-                        return x;
-                    }
-                    return t;
-                } catch (ClassNotFoundException e) {
-                    return null;
                 }
             } catch (Exception e) {
                 if (!loadedDependencies.contains(dependencyName)) {
                     addMessages(OpenLMessagesUtils.newErrorMessages(e));
                     loadedDependencies.add(dependencyName);
                 }
+                return null;
             }
+            String tName = typeName.substring(typeName.indexOf(".") + 1);
+            IOpenClass t = buildDependencyVar(compiledDependency).getType().findType(tName);
+            if (t != null) {
+                return t;
+            }
+            if (additionalSearchTypesInModule != null) {
+                t = additionalSearchTypesInModule.getType(tName,
+                    compiledDependency.getCompiledOpenClass().getOpenClassWithErrors());
+            }
+            if (t != null) {
+                return t;
+            }
+            try {
+                t = JavaOpenClass.getOpenClass(compiledDependency.getClassLoader().loadClass(tName));
+                IOpenClass x = compiledDependency.getCompiledOpenClass()
+                    .getOpenClassWithErrors()
+                    .findType(t.getInstanceClass().getSimpleName());
+                if (x != null && x.getInstanceClass() == t.getInstanceClass()) {
+                    return x;
+                }
+                return t;
+            } catch (ClassNotFoundException e) {
+                return null;
+            }
+
         }
         return null;
     }
