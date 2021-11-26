@@ -1,0 +1,15 @@
+<project>
+    <name>EPBDS-12294_Dependency_Rules_FullClassNameSupport</name>
+    <modules>
+        <module>
+            <name>theProject</name>
+            <rules-root path="theProject.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>Product Model</name>
+            <autoIncluded>false</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>
