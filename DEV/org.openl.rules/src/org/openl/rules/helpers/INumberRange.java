@@ -9,6 +9,6 @@ package org.openl.rules.helpers;
  */
 public interface INumberRange {
 
-    boolean containsNumber(Number num);
+    boolean contains(Number num);
 
 }

@@ -48,7 +48,7 @@ public class NumberMatchMatcher implements IMatcher {
 
         if (checkValue instanceof INumberRange) {
             INumberRange range = (INumberRange) checkValue;
-            return range.containsNumber((Number) var);
+            return range.contains((Number) var);
         } else {
             return checkValue.equals(var);
         }
