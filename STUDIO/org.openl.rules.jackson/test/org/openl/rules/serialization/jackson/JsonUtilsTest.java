@@ -12,12 +12,6 @@ import java.lang.reflect.Method;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.serialization.JsonUtils;
 
@@ -68,23 +62,6 @@ public class JsonUtilsTest {
         Assert.assertArrayEquals(spreadsheetResult.getRowNames(), spResult.getRowNames());
         Assert.assertArrayEquals(spreadsheetResult.getResults(), spResult.getResults());
 
-    }
-
-    @Test
-    public void openLValueTypesTest() throws Exception {
-        assertEquals("25", JsonUtils.toJSON(new ByteValue((byte) 25)));
-        assertEquals("25", JsonUtils.toJSON(new ShortValue((short) 25)));
-        assertEquals("25", JsonUtils.toJSON(new IntValue(25)));
-        assertEquals("25", JsonUtils.toJSON(new LongValue(25)));
-        assertEquals("2.5", JsonUtils.toJSON(new FloatValue(2.5f)));
-        assertEquals("2.5", JsonUtils.toJSON(new DoubleValue(2.5d)));
-
-        assertEquals(new ByteValue((byte) 25), JsonUtils.fromJSON("25", ByteValue.class));
-        assertEquals(new ShortValue((short) 25), JsonUtils.fromJSON("25", ShortValue.class));
-        assertEquals(new IntValue(25), JsonUtils.fromJSON("25", IntValue.class));
-        assertEquals(new LongValue(25), JsonUtils.fromJSON("25", LongValue.class));
-        assertEquals(new FloatValue(2.5f), JsonUtils.fromJSON("2.5", FloatValue.class));
-        assertEquals(new DoubleValue(2.5d), JsonUtils.fromJSON("2.5", DoubleValue.class));
     }
 
     @Test
