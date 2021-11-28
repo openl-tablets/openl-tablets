@@ -121,10 +121,7 @@ public class DoubleRange implements INumberRange {
         return 1;
     }
 
-    public boolean contains(Double x) {
-        if (x == null) {
-            return false;
-        }
+    public boolean contains(double x) {
         if (lowerBound < x && x < upperBound) {
             return true;
         } else if (x == lowerBound && lowerBoundType == BoundType.INCLUDING) {
@@ -135,26 +132,16 @@ public class DoubleRange implements INumberRange {
         return false;
     }
 
-    public boolean contains(DoubleValue value) {
-        if (value == null) {
-            return false;
-        }
-        return contains(value.doubleValue());
-    }
-
     public boolean contains(DoubleRange range) {
         return compareLowerBound(range) <= 0 && compareUpperBound(range) >= 0;
     }
 
-    public boolean contains(BigDecimalValue value) {
-        if (value == null) {
-            return false;
-        }
-        return contains(value.getValue().doubleValue());
-    }
-
     @Override
-    public boolean containsNumber(Number n) {
+    public boolean contains(Number n) {
+        if (n instanceof Float || n instanceof FloatValue) {
+            // prevent precision loosing in decimal numeral system
+            return contains(Double.parseDouble(n.toString()));
+        }
         return n != null && contains(n.doubleValue());
     }
 

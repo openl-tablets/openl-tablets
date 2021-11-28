@@ -43,19 +43,17 @@ public class IntRange implements INumberRange {
         this(0, 0);
     }
 
-    public boolean contains(LongValue value) {
-        if (value == null) {
-            return false;
-        }
-        return contains(value.longValue());
-    }
 
     public boolean contains(BigIntegerValue value) {
+        return value != null && contains(value.getValue());
+    }
+
+    public boolean contains(BigInteger value) {
         if (value == null) {
             return false;
         }
         try {
-            return contains(value.getValue().longValueExact());
+            return contains(value.longValueExact());
         } catch (ArithmeticException e) {
             return false;
         }
@@ -65,17 +63,7 @@ public class IntRange implements INumberRange {
         return this.min <= range.min && this.max >= range.max;
     }
 
-    public boolean contains(Integer value) {
-        if (value == null) {
-            return false;
-        }
-        return contains(value.longValue());
-    }
-
-    public boolean contains(Long value) {
-        if (value == null) {
-            return false;
-        }
+    public boolean contains(long value) {
         return min <= value && value <= max;
     }
 
@@ -88,7 +76,7 @@ public class IntRange implements INumberRange {
     }
 
     @Override
-    public boolean containsNumber(Number n) {
+    public boolean contains(Number n) {
         return n != null && contains(n.longValue());
     }
 
