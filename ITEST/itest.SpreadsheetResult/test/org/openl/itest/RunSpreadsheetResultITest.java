@@ -23,12 +23,6 @@ public class RunSpreadsheetResultITest {
     }
 
     @Test
-    public void SpreadsheetResult_Wadl() {
-        client.get("/REST/spreadsheetresult?_wadl", "/spreadsheetresult_wadl.resp.xml");
-        client.get("/REST/EPBDS-9437?_wadl", "/EPBDS-9437_wadl.resp.xml");
-    }
-
-    @Test
     public void SpreadsheetResult_Swagger() {
         client.get("/REST/spreadsheetresult/swagger.json", "/spreadsheetresult_swagger.resp.json");
         client.get("/REST/spreadsheetresult/openapi.json", "/spreadsheetresult_openapi.resp.json");

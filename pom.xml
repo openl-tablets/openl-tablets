@@ -1052,11 +1052,6 @@
                 <version>${jakarta.ws.rs-api.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-service-description</artifactId>
-                <version>${org.apache.cxf.version}</version>
-            </dependency>
-            <dependency>
                 <!-- for CXF to resolve duplicated dependencies of javax.activation:activation -->
                 <groupId>org.jvnet.staxex</groupId>
                 <artifactId>stax-ex</artifactId>

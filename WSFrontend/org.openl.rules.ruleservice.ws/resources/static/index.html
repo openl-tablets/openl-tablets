@@ -225,25 +225,15 @@
         })
     }
 
-    function isNoWadlService(noWadlServices, service) {
-        for (var i = 0; i < noWadlServices.length; i++) {
-            if (noWadlServices[i] === service.servicePath) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     function renderServices(servicesResponse) {
         // The block for rendering of the available services
         var mainBlock = document.getElementById("main");
         var services = servicesResponse.services;
-        var noWadlServices = servicesResponse.noWadlServices;
         var deployerEnabled = servicesResponse.deployerEnabled;
         if (Array.isArray(services) && services.length > 0) {
             mainBlock.innerHTML = "<h2>Available services:</h2>";
             services.forEach(function (service) {
-                var html = createServiceHtml(service, isNoWadlService(noWadlServices, service), deployerEnabled);
+                var html = createServiceHtml(service, deployerEnabled);
                 var el = document.createElement("DIV");
                 el.dataset.serviceName = service.servicePath;
                 el.dataset.serviceStatus = service.status;
@@ -315,7 +305,7 @@
     }
 
     // Creating innerHTML of one service
-    function createServiceHtml(service, noWadl, deployerEnabled) {
+    function createServiceHtml(service, deployerEnabled) {
         var html = "";
         // Name
         html += "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + service.servicePath + "</h3>";
@@ -332,9 +322,6 @@
             if (name === "WEBSERVICE") {
                 html += "<a href='" + url + "?wsdl'\>WSDL</a>";
             } else if (name === "RESTFUL") {
-                if (!noWadl) {
-                    html += "<a href='" + url + "?_wadl'\>WADL</a>";
-                }
                 html += "<a href='" + url + "/api-docs?url=openapi.json'\>Swagger UI</a>";
                 html += "<a href='" + url + "/openapi.json'\>OpenAPI.JSON</a>";
                 html += "<a href='" + url + "/openapi.yaml'\>OpenAPI.YAML</a>";
