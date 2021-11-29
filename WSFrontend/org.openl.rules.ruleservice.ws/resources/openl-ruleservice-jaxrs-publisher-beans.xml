@@ -114,7 +114,6 @@
                 <ref bean="jaxrsJSONProvider"/>
                 <ref bean="jaxrsTextPlainDateMessageBodyWriter"/>
                 <ref bean="jaxrsWebApplicationExceptionMapper"/>
-                <bean class="org.openl.rules.ruleservice.databinding.TextPlainStringMessageProvider"/>
             </list>
         </property>
         <property name="bus" ref="cxf"/>
