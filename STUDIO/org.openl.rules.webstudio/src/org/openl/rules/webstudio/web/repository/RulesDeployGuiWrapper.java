@@ -133,7 +133,11 @@ public class RulesDeployGuiWrapper {
             return new PublisherType[] { PublisherType.WEBSERVICE, PublisherType.RESTFUL, PublisherType.RMI };
         }
 
-        return PublisherType.values();
+        if (version.compareTo(SupportedVersion.V5_25) <= 0) {
+            return new PublisherType[] { PublisherType.WEBSERVICE, PublisherType.RESTFUL, PublisherType.RMI, PublisherType.KAFKA };
+        }
+
+        return new PublisherType[] { PublisherType.RESTFUL, PublisherType.RMI, PublisherType.KAFKA };
     }
 
 }
