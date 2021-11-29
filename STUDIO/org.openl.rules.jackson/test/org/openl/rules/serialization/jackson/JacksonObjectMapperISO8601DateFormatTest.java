@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.ws.databinding;
+package org.openl.rules.serialization.jackson;
 
 import static org.junit.Assert.assertEquals;
 
