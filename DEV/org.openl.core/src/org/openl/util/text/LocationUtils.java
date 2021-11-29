@@ -1,7 +1,5 @@
 package org.openl.util.text;
 
-import org.openl.meta.StringValue;
-
 public final class LocationUtils {
     private LocationUtils() {
     }
@@ -11,10 +9,6 @@ public final class LocationUtils {
     }
 
     public static TextInterval createTextInterval(String text) {
-        return createTextInterval(0, text.length());
-    }
-
-    public static TextInterval createTextInterval(StringValue text) {
         return createTextInterval(0, text.length());
     }
 }

@@ -3,6 +3,7 @@ package org.openl.rules.calculation.result.convertor2;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
 
@@ -47,14 +48,14 @@ public class SpreadsheetColumnExtractorTest {
 
     @Test
     public void testColumnExtractor() {
-        String testedValue = "valueToExtract";
+        String testedValue = "DOWN";
         ColumnToExtract columnToExtract = new ColumnToExtract("Code", String.class);
         SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<>(columnToExtract,
             getConfiguration());
 
         CodeStep instanceToPopulate = new CodeStep();
         // storing with converting
-        extractor.convertAndStoreData(new org.openl.meta.StringValue(testedValue), instanceToPopulate);
+        extractor.convertAndStoreData(RoundingMode.DOWN, instanceToPopulate);
         assertEquals(testedValue, instanceToPopulate.getCode());
 
         CodeStep instanceToPopulate1 = new CodeStep();
@@ -66,14 +67,14 @@ public class SpreadsheetColumnExtractorTest {
 
     @Test
     public void testNotExistingColumn() {
-        String testedValue = "valueToExtract";
+        String testedValue = "DOWN";
         ColumnToExtract columnToExtract = new ColumnToExtract("Not_Existing_Column", String.class);
         SpreadsheetColumnExtractor<CodeStep> extractor = new SpreadsheetColumnExtractor<>(columnToExtract,
             getConfiguration());
 
         CodeStep instanceToPopulate = new CodeStep();
         // storing with converting
-        extractor.convertAndStoreData(new org.openl.meta.StringValue(testedValue), instanceToPopulate);
+        extractor.convertAndStoreData(RoundingMode.DOWN, instanceToPopulate);
         assertNull(instanceToPopulate.getCode());
     }
 
