@@ -160,22 +160,8 @@ public class RunAnnotationsITest {
     }
 
     @Test
-    public void test_doSomething_SOAP() {
-        client.post("/ws-serviceclass-positive",
-            "/serviceclass-positive_doSomething.req.xml",
-            "/serviceclass-positive_doSomething.resp.xml");
-    }
-
-    @Test
     public void test_doArray_REST() {
         client.get("/REST/ws-serviceclass-positive/doArray", "/serviceclass-positive_doArray.resp.txt");
-    }
-
-    @Test
-    public void test_doArray_SOAP() {
-        client.post("/ws-serviceclass-positive",
-            "/serviceclass-positive_doArray.req.xml",
-            "/serviceclass-positive_doArray.resp.xml");
     }
 
     @Test
@@ -184,23 +170,9 @@ public class RunAnnotationsITest {
     }
 
     @Test
-    public void test_voidMethod_SOAP() {
-        client.post("/ws-serviceclass-positive",
-            "/serviceclass-positive_voidMethod.req.xml",
-            "/serviceclass-positive_voidMethod.resp.xml");
-    }
-
-    @Test
     public void test_voidMethodWithAfterReturnInterceptor_REST() {
         client.get("/REST/ws-serviceclass-positive/voidMethodWithAfterReturnInterceptor",
             "/serviceclass-positive_voidMethodWithAfterReturnInterceptor.resp.json");
-    }
-
-    @Test
-    public void test_voidMethodWithAfterReturnInterceptor_SOAP() {
-        client.post("/ws-serviceclass-positive",
-            "/serviceclass-positive_voidMethodWithAfterReturnInterceptor.req.xml",
-            "/serviceclass-positive_voidMethodWithAfterReturnInterceptor.resp.xml");
     }
 
     @Test
@@ -211,24 +183,10 @@ public class RunAnnotationsITest {
     }
 
     @Test
-    public void test_longMethodWithAfterReturnInterceptor_SOAP() {
-        client.post("/ws-serviceclass-positive",
-            "/serviceclass-positive_longMethodWithAfterReturnInterceptor.req.xml",
-            "/serviceclass-positive_longMethodWithAfterReturnInterceptor.resp.xml");
-    }
-
-    @Test
     public void test_longMethodWithUpcast_REST() {
         client.post("/REST/ws-serviceclass-positive/longMethodWithUpcast",
             "/serviceclass-positive_longMethodWithUpcast.req.txt",
             "/serviceclass-positive_longMethodWithUpcast.resp.txt");
-    }
-
-    @Test
-    public void test_longMethodWithUpcast_SOAP() {
-        client.post("/ws-serviceclass-positive",
-            "/serviceclass-positive_longMethodWithUpcast.req.xml",
-            "/serviceclass-positive_longMethodWithUpcast.resp.xml");
     }
 
     @Test
@@ -239,23 +197,9 @@ public class RunAnnotationsITest {
     }
 
     @Test
-    public void test_aroundLongMethod_SOAP() {
-        client.post("/ws-serviceclass-positive",
-            "/serviceclass-positive_aroundLongMethod.req.xml",
-            "/serviceclass-positive_aroundLongMethod.resp.xml");
-    }
-
-    @Test
     public void test_aroundVoidMethod_REST() {
         client.get("/REST/ws-serviceclass-positive/aroundVoidMethod",
             "/serviceclass-positive_aroundVoidMethod.resp.json");
-    }
-
-    @Test
-    public void test_aroundVoidMethod_SOAP() {
-        client.post("/ws-serviceclass-positive",
-            "/serviceclass-positive_aroundVoidMethod.req.xml",
-            "/serviceclass-positive_aroundVoidMethod.resp.xml");
     }
 
     @Test
@@ -299,11 +243,6 @@ public class RunAnnotationsITest {
     @Test
     public void test_runTestTables_calculatePremiumRun_REST() {
         client.post("/REST/rules-tests-and-run-tables/calculatePremiumRun", "/404.req.txt", 404, "/404.resp.txt");
-    }
-
-    @Test
-    public void typeChangingTypeFromAnnotationTemplateInterfaceTest() {
-        client.get("/v1/string/toNumber?wsdl", "/stringToNumber_wsdl.resp.xml");
     }
 
     @Test

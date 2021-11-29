@@ -53,23 +53,6 @@ public class RunITest {
     }
 
     @Test
-    public void testCalVehicleYear_SOAP() {
-        client.post("/EPBDS-6437", "/localTime-calc.req.xml", "/localTime-calc.resp.xml");
-        client.post("/EPBDS-6437", "/UTCTimezone-calc.req.xml", "/UTCTimezone-calc.resp.xml");
-    }
-
-    @Test
-    public void testCheckRulesModule_SOAP() {
-        client.post("/EPBDS-6437", "/localTime.req.xml", "/localTime.resp.xml");
-        client.post("/EPBDS-6437", "/UTCTimezone.req.xml", "/UTCTimezone.resp.xml");
-    }
-
-    @Test
-    public void testCalVehicleYearVariationsPack_SOAP() {
-        client.post("/EPBDS-6437", "/variation.req.xml", "/variation.resp.xml");
-    }
-
-    @Test
     public void testFromDifferentDateFormats_JSON() {
         client.post("/REST/EPBDS-9201/spr", "/milliseconds.req.json", "/milliseconds.resp.json");
         client.post("/REST/EPBDS-9201/spr", "/defaultDateFormat.req.json", "/defaultDateFormat.resp.json");

@@ -52,30 +52,6 @@ public class RunWebservicesLazyITest {
         client.get("/REST/http-statuses-test/throwNPE", 500, "/EPBDS-7757/rest_NPE_response.json");
         client.get("/REST/http-statuses-test/throwNFE", 500, "/EPBDS-7757/rest_NFE_response.json");
         client.get("/REST/http-statuses-test/hKllo", 404, "/EPBDS-7757/statuses-404.resp.txt");
-        client.post("/http-statuses-test",
-            "/EPBDS-7757/statuses-userError.req.xml",
-            500,
-            "/EPBDS-7757/statuses-userError.resp.xml");
-        client.post("/http-statuses-test",
-            "/EPBDS-7757/statuses-validation.req.xml",
-            500,
-            "/EPBDS-7757/statuses-validation.resp.xml");
-        client.post("/http-statuses-test",
-            "/EPBDS-7757/statuses-rulesRuntime.req.xml",
-            500,
-            "/EPBDS-7757/statuses-rulesRuntime.resp.xml");
-        client.post("/http-statuses-test",
-            "/EPBDS-7757/statuses-validation.req.xml",
-            500,
-            "/EPBDS-7757/statuses-validation.resp.xml");
-        client.post("/http-statuses-lazycompilation-test",
-            "/EPBDS-7757/statuses-lazycompilation.req.xml",
-            500,
-            "/EPBDS-7757/statuses-lazycompilation.resp.xml");
-        client
-            .post("/http-statuses-test", "/EPBDS-7757/statuses-npe.req.xml", 500, "/EPBDS-7757/statuses-npe.resp.xml");
-        client
-            .post("/http-statuses-test", "/EPBDS-7757/statuses-nfe.req.xml", 500, "/EPBDS-7757/statuses-nfe.resp.xml");
     }
 
     @Test

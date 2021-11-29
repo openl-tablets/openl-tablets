@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -28,19 +27,9 @@ public class RunWebservicesITest {
     }
 
     @Test
-    public void testWsdlSchemaSimple1() {
-        client.get("/deployment1/simple1?wsdl", "/simple1_wsdl.resp.xml");
-    }
-
-    @Test
     public void testSimple1_invoke_with_Variations() {
         client
             .post("/REST/deployment1/simple1/test1", "/simple1_invoke_test.req.json", "/simple1_invoke_test.resp.json");
-    }
-
-    @Test
-    public void testWsdlSchemaSimple2() {
-        client.get("/deployment2/simple2?wsdl", "/simple2_wsdl.resp.xml");
     }
 
     @Test
@@ -53,19 +42,6 @@ public class RunWebservicesITest {
     public void EPBDS_10026() {
         client.send("EPBDS-10026/EPBDS-10026_swagger.get");
         client.send("EPBDS-10026/EPBDS-10026_openapi.get");
-    }
-
-    @Test
-    @Ignore("EPBDS-9728 Ignored because of unstable WSDL schema generation for ArrayOfAnyType.")
-    /**
-     * NOTE The result of
-     * {@link org.apache.cxf.aegis.type.collection.CollectionType#getComponentType()#isNillable()}always {@code true}.
-     * But it's {@code false} for {@link org.apache.cxf.aegis.type.basic.ArrayType#getComponentType()}.</br>
-     * It may give a different result that depends on position of it in
-     * {@link org.apache.cxf.aegis.databinding.AegisDatabinding#createSchemas(...)} in local HashMap {@code tns2Type}.
-     */
-    public void testWSDLSchemaSimple3() {
-        client.get("/deployment3/simple3?wsdl", "/simple3_wsdl.resp.xml");
     }
 
     @Test
@@ -94,11 +70,6 @@ public class RunWebservicesITest {
     }
 
     @Test
-    public void testSimple3_CSPR_Convert_2() {
-        client.post("/deployment3/simple3", "/simple3_main.req.xml", "/simple3_main.resp.xml");
-    }
-
-    @Test
     public void testSwaggerSchemaSimple5() {
         client.get("/deployment5/simple5/swagger.json", "/simple5_swagger.resp.json");
         client.get("/deployment5/simple5/openapi.json", "/simple5_openapi.resp.json");
@@ -108,7 +79,6 @@ public class RunWebservicesITest {
     public void EPBDS_9422() {
         client.get("/REST/EPBDS-9422/EPBDS-9422/swagger.json", "/EPBDS-9422/EPBDS-9422_swagger.resp.json");
         client.get("/REST/EPBDS-9422/EPBDS-9422/openapi.json", "/EPBDS-9422/EPBDS-9422_openapi.resp.json");
-        client.get("/EPBDS-9422/EPBDS-9422?wsdl", "/EPBDS-9422/EPBDS-9422_wsdl.resp.xml");
     }
 
     @Test
@@ -188,7 +158,6 @@ public class RunWebservicesITest {
             "/EPBDS-9576/EPBDS-9576_mySpr.resp.json");
         client.get("/REST/EPBDS-9576/swagger.json", "/EPBDS-9576/EPBDS-9576_swagger.resp.json");
         client.get("/REST/EPBDS-9576/openapi.json", "/EPBDS-9576/EPBDS-9576_openapi.resp.json");
-        client.get("/EPBDS-9576?wsdl", "/EPBDS-9576/EPBDS-9576_wsdl.resp.xml");
     }
 
     @Test
@@ -219,11 +188,6 @@ public class RunWebservicesITest {
     }
 
     @Test
-    public void EPBDS_9764_2() {
-        client.get("/EPBDS-9764/EPBDS-9764?wsdl", "/EPBDS-9764/EPBDS-9764_wsdl.resp.xml");
-    }
-
-    @Test
     public void EPBDS_9928() {
         client.get("/EPBDS-9928-rs/swagger.json", "/EPBDS-9928/EPBDS-9928_swagger.resp.json");
         client.get("/EPBDS-9928-rs/openapi.json", "/EPBDS-9928/EPBDS-9928_openapi.resp.json");
@@ -233,7 +197,6 @@ public class RunWebservicesITest {
     public void EPBDS_10027() {
         client.get("/REST/EPBDS-10027/EPBDS-10027/swagger.json", "/EPBDS-10027/EPBDS-10027_swagger.resp.json");
         client.get("/REST/EPBDS-10027/EPBDS-10027/openapi.json", "/EPBDS-10027/EPBDS-10027_openapi.resp.json");
-        client.get("/EPBDS-10027/EPBDS-10027?wsdl", "/EPBDS-10027/EPBDS-10027_wsdl.resp.xml");
         client.post("/REST/EPBDS-10027/EPBDS-10027/nonEnglishLangs",
             "/EPBDS-10027/EPBDS-10027.req.json",
             "/EPBDS-10027/EPBDS-10027.resp.json");
@@ -243,7 +206,6 @@ public class RunWebservicesITest {
     public void EPBDS_10118() {
         client.get("/REST/EPBDS-10118/EPBDS-10118/swagger.json", "/EPBDS-10118/EPBDS-10118_swagger.resp.json");
         client.get("/REST/EPBDS-10118/EPBDS-10118/openapi.json", "/EPBDS-10118/EPBDS-10118_openapi.resp.json");
-        client.get("/EPBDS-10118/EPBDS-10118?wsdl", "/EPBDS-10118/EPBDS-10118_wsdl.resp.xml");
     }
 
     @Test
@@ -268,10 +230,6 @@ public class RunWebservicesITest {
         client.post("/REST/EPBDS-6555/Calc",
             "/EPBDS-6555/EPBDS-6555_Calc.req.json",
             "/EPBDS-6555/EPBDS-6555_Calc.resp.txt");
-        client.post("/EPBDS-6555/Greeting",
-            "/EPBDS-6555/EPBDS-6555_Greeting.req.xml",
-            "/EPBDS-6555/EPBDS-6555_Greeting.resp.xml");
-        client.post("/EPBDS-6555/Calc", "/EPBDS-6555/EPBDS-6555_Calc.req.xml", "/EPBDS-6555/EPBDS-6555_Calc.resp.xml");
     }
 
     @Test
@@ -350,16 +308,6 @@ public class RunWebservicesITest {
         client.post("/REST/parent-datatype-validation/getGender",
             "/EPBDS-7947/validation_shouldBeOK_gender.req.txt",
             "/EPBDS-7947/validation_shouldBeOK_gender.resp.txt");
-
-        client.post("/parent-datatype-validation",
-            "/EPBDS-7947/validation_policy.req.xml",
-            "/EPBDS-7947/validation_policy.resp.xml");
-        client.post("/parent-datatype-validation",
-            "/EPBDS-7947/validation_shouldBeOK_policies.req.xml",
-            "/EPBDS-7947/validation_shouldBeOK_policies.resp.xml");
-        client.post("/parent-datatype-validation",
-            "/EPBDS-7947/validation_shouldBeOK_gender.req.xml",
-            "/EPBDS-7947/validation_shouldBeOK_gender.resp.xml");
     }
 
     @Test
@@ -368,11 +316,6 @@ public class RunWebservicesITest {
             "/EPBDS-7947/validation_onPolicy_shouldBeFailed.req.json",
             422,
             "/EPBDS-7947/validation_onPolicy_shouldBeFailed.resp.json");
-
-        client.post("/parent-datatype-validation",
-            "/EPBDS-7947/validation_onPolicy_shouldBeFailed.req.xml",
-            500,
-            "/EPBDS-7947/validation_onPolicy_shouldBeFailed.resp.xml");
     }
 
     @Test
@@ -389,11 +332,6 @@ public class RunWebservicesITest {
             "/EPBDS-7947/validation_onCoverage_shouldBeFailed.req.json",
             422,
             "/EPBDS-7947/validation_onCoverage_shouldBeFailed.resp.json");
-
-        client.post("/parent-datatype-validation",
-            "/EPBDS-7947/validation_onCoverage_shouldBeFailed.req.xml",
-            500,
-            "/EPBDS-7947/validation_onCoverage_shouldBeFailed.resp.xml");
     }
 
     @Test
@@ -402,11 +340,6 @@ public class RunWebservicesITest {
             "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.req.json",
             422,
             "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.resp.json");
-
-        client.post("/parent-datatype-validation",
-            "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.req.xml",
-            500,
-            "/EPBDS-7947/validation_onBrandCode_shouldBeFailed.resp.xml");
     }
 
     @Test
@@ -415,10 +348,6 @@ public class RunWebservicesITest {
             "/EPBDS-7947/validation_getGender_shouldBeFailed.req.txt",
             422,
             "/EPBDS-7947/validation_getGender_shouldBeFailed.resp.json");
-        client.post("/parent-datatype-validation",
-            "/EPBDS-7947/validation_getGender_shouldBeFailed.req.xml",
-            500,
-            "/EPBDS-7947/validation_getGender_shouldBeFailed.resp.xml");
     }
 
     @Test
@@ -431,16 +360,6 @@ public class RunWebservicesITest {
             "/EPBDS-7947/validation_onArrays_shouldBeFailed.req.json",
             422,
             "/EPBDS-7947/validation_onArrays_shouldBeFailed.resp.json");
-
-        client.post("/parent-datatype-validation",
-            "/EPBDS-7947/validation_onArrays_shouldBeFailed.req.xml",
-            500,
-            "/EPBDS-7947/validation_onArrays_shouldBeFailed.resp.xml");
-
-        client.post("/parent-datatype-validation",
-            "/EPBDS-7947/validation_onArraysFromParent_shouldBeFailed.req.xml",
-            500,
-            "/EPBDS-7947/validation_onArrays_shouldBeFailed.resp.xml");
     }
 
     @Test
@@ -449,11 +368,6 @@ public class RunWebservicesITest {
             "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.req.json",
             400,
             "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.resp.json");
-
-        client.post("/parent-datatype-validation",
-            "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.req.xml",
-            500,
-            "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.resp.xml");
     }
 
     @Test
@@ -464,12 +378,6 @@ public class RunWebservicesITest {
         client.post("/REST/EPBDS-8076/EPBDS-8076/s2", "/EPBDS-8076/empty.req.json", "/EPBDS-8076/const2.resp.txt");
         client.post("/REST/EPBDS-8076/EPBDS-8076/t1", "/EPBDS-8076/empty.req.json", "/EPBDS-8076/const1.resp.txt");
         client.post("/REST/EPBDS-8076/EPBDS-8076/t2", "/EPBDS-8076/empty.req.json", "/EPBDS-8076/const2.resp.txt");
-        client.post("/EPBDS-8076/EPBDS-8076", "/EPBDS-8076/m1.req.xml", "/EPBDS-8076/m1.resp.xml");
-        client.post("/EPBDS-8076/EPBDS-8076", "/EPBDS-8076/m2.req.xml", "/EPBDS-8076/m2.resp.xml");
-        client.post("/EPBDS-8076/EPBDS-8076", "/EPBDS-8076/s1.req.xml", "/EPBDS-8076/s1.resp.xml");
-        client.post("/EPBDS-8076/EPBDS-8076", "/EPBDS-8076/s2.req.xml", "/EPBDS-8076/s2.resp.xml");
-        client.post("/EPBDS-8076/EPBDS-8076", "/EPBDS-8076/t1.req.xml", "/EPBDS-8076/t1.resp.xml");
-        client.post("/EPBDS-8076/EPBDS-8076", "/EPBDS-8076/t2.req.xml", "/EPBDS-8076/t2.resp.xml");
     }
 
     @Test
@@ -498,26 +406,6 @@ public class RunWebservicesITest {
         client.get("/REST/http-statuses-test/throwNPE", 500, "/EPBDS-7757/rest_NPE_response.json");
         client.get("/REST/http-statuses-test/throwNFE", 500, "/EPBDS-7757/rest_NFE_response.json");
         client.get("/REST/http-statuses-test/hKllo", 404, "/EPBDS-7757/statuses-404.resp.txt");
-        client.post("/http-statuses-test",
-            "/EPBDS-7757/statuses-userError.req.xml",
-            500,
-            "/EPBDS-7757/statuses-userError.resp.xml");
-        client.post("/http-statuses-test",
-            "/EPBDS-7757/statuses-validation.req.xml",
-            500,
-            "/EPBDS-7757/statuses-validation.resp.xml");
-        client.post("/http-statuses-test",
-            "/EPBDS-7757/statuses-rulesRuntime.req.xml",
-            500,
-            "/EPBDS-7757/statuses-rulesRuntime.resp.xml");
-        client.post("/http-statuses-test",
-            "/EPBDS-7757/statuses-validation.req.xml",
-            500,
-            "/EPBDS-7757/statuses-validation.resp.xml");
-        client
-            .post("/http-statuses-test", "/EPBDS-7757/statuses-npe.req.xml", 500, "/EPBDS-7757/statuses-npe.resp.xml");
-        client
-            .post("/http-statuses-test", "/EPBDS-7757/statuses-nfe.req.xml", 500, "/EPBDS-7757/statuses-nfe.resp.xml");
     }
 
     @Test

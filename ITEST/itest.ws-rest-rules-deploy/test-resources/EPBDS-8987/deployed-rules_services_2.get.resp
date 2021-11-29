@@ -7,7 +7,6 @@ Content-Type: application/json
     "name": "Hello_Rule",
     "servicePath": "yaml_project/Hello_Rule",
     "urls": {
-      "WEBSERVICE": "yaml_project/Hello_Rule",
       "RESTFUL": "REST/yaml_project/Hello_Rule"
     },
     "hasManifest": false,
@@ -18,7 +17,6 @@ Content-Type: application/json
     "name": "project1",
     "servicePath": "yaml_project/project1",
     "urls": {
-      "WEBSERVICE": "project1",
       "RESTFUL": "REST/project1"
     },
     "hasManifest": false,
