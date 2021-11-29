@@ -323,14 +323,8 @@ public class RunWebservicesITest {
 
     @Test
     public void EPBDS_7654() {
-        client.post("/REST/EPBDS-7654/getDayDiff",
-            "/EPBDS-7654/EPBDS-7654_dayDiff.req.txt",
-            "/EPBDS-7654/EPBDS-7654_dayDiff.resp.txt");
-        client.post("/EPBDS-7654", "/EPBDS-7654/EPBDS-7654_dayDiff.req.xml", "/EPBDS-7654/EPBDS-7654_dayDiff.resp.xml");
-        client.post("/EPBDS-7654",
-            "/EPBDS-7654/EPBDS-7654_dayDiff-wrong.req.xml",
-            500,
-            "/EPBDS-7654/EPBDS-7654_dayDiff-wrong.resp.xml");
+        client.send("EPBDS-7654/EPBDS-7654_dayDiff");
+        client.send("EPBDS-7654/EPBDS-7654_dayDiff-wrong");
     }
 
     @Test

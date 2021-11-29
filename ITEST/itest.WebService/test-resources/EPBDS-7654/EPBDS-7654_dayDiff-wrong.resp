@@ -1,0 +1,8 @@
+HTTP/1.1 500
+Content-Type: application/json
+
+{
+  "message": "Failure in the method 'java.text.DateFormat.parse(java.lang.String)'. Cause: Unparseable date: \"123\"",
+  "type": "RULES_RUNTIME",
+  "details": "***"
+}
