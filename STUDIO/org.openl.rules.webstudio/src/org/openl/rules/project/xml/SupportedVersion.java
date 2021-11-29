@@ -13,7 +13,10 @@ public enum SupportedVersion {
     V5_20,
     V5_21,
     V5_22,
-    V5_23;
+    V5_23,
+    V5_24,
+    V5_25,
+    V5_26;
 
     public String getVersion() {
         return name().substring(1).replace("_", ".");
