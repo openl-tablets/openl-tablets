@@ -102,7 +102,6 @@ public class MapParameterTreeNode extends CollectionParameterTreeNode {
             JavaOpenClass.getOpenClass(element.getClass()),
             element).keyField(config.getKeyField())
                 .parent(this)
-                .hasExplainLinks(config.isHasExplainLinks())
                 .requestId(config.getRequestId())
                 .build();
 

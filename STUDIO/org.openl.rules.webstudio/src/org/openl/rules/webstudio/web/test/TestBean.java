@@ -23,7 +23,6 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.web.MainBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
@@ -45,8 +44,6 @@ public class TestBean {
         .nullsLast(Comparator.comparingInt(TestUnitsResults::getNumberOfFailures)
             .reversed()
             .thenComparing(TestUnitsResults::getName));
-
-    private final MainBean mainBean;
 
     private final WebStudio studio;
     private TestUnitsResults[] ranResults;
@@ -73,7 +70,7 @@ public class TestBean {
      */
     private String uri;
 
-    public TestBean(MainBean mainBean) {
+    public TestBean() {
         studio = WebStudioUtils.getWebStudio();
         String id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
         IOpenLTable table = studio.getModel().getTableById(id);
@@ -88,8 +85,6 @@ public class TestBean {
         initPagination();
         initFailures();
         initComplexResult();
-
-        this.mainBean = mainBean;
     }
 
     private static int getRequestIntParameter(String name, int defaultValue) {
@@ -242,8 +237,8 @@ public class TestBean {
 
     public String getFormattedSpreadsheetResult(SpreadsheetResult spreadsheetResult) {
         return spreadsheetResult == null ? ""
-                                         : ObjectViewer.displaySpreadsheetResult(spreadsheetResult,
-                                             mainBean.getRequestId());
+                                         : ObjectViewer.displaySpreadsheetResult(spreadsheetResult
+        );
     }
 
     public String getFormattedSpreadsheetResultFromTestUnit(ITestUnit objTestUnit) {
@@ -254,7 +249,7 @@ public class TestBean {
                 SpreadsheetResult spreadsheetResult = (SpreadsheetResult) actualResultInternal;
                 Map<Point, ComparedResult> fieldsCoordinates = getFieldsCoordinates(objTestUnit, spreadsheetResult);
                 return ObjectViewer
-                    .displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates, mainBean.getRequestId());
+                    .displaySpreadsheetResult(spreadsheetResult, fieldsCoordinates);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

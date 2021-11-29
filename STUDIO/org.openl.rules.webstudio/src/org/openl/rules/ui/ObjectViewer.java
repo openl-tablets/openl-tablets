@@ -31,33 +31,29 @@ public final class ObjectViewer {
 
     /** Display SpreadsheetResult with added filter for given fields as expected result and passed/failed icon **/
     public static String displaySpreadsheetResult(final SpreadsheetResult res,
-            Map<Point, ComparedResult> spreadsheetCellsForTest,
-            String requestId) {
-        return display(res, spreadsheetCellsForTest, true, requestId, false);
+                                                  Map<Point, ComparedResult> spreadsheetCellsForTest) {
+        return display(res, spreadsheetCellsForTest, true, false);
     }
 
     /** Display SpreadsheetResult with filter for links to explanation for values */
-    public static String displaySpreadsheetResult(final SpreadsheetResult res, String requestId) {
-        return display(res, null, true, requestId, false);
+    public static String displaySpreadsheetResult(final SpreadsheetResult res) {
+        return display(res, null, true, false);
     }
 
     /** Display SpreadsheetResult without any filters in the table **/
     public static String displaySpreadsheetResultNoFilters(final SpreadsheetResult res, boolean smartNumbers) {
-        return display(res, null, false, null, smartNumbers);
+        return display(res, null, false, smartNumbers);
     }
 
     private static String display(final SpreadsheetResult res,
-            Map<Point, ComparedResult> spreadsheetCellsForTest,
-            boolean filter,
-            String requestId,
-            boolean smartNumbers) {
+                                  Map<Point, ComparedResult> spreadsheetCellsForTest,
+                                  boolean filter,
+                                  boolean smartNumbers) {
         List<IGridFilter> filters = new ArrayList<>();
         filters.add(new TableValueFilter(res));
         filters.add(CollectionCellFilter.INSTANCE);
 
         if (filter) {
-            filters.add(new LinkMaker(requestId));
-
             // Check if the cells for test are initialized,
             // Means Spreadsheet should be displayed with expected values for tests
             //

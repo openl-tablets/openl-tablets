@@ -10,7 +10,6 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.ui.Explanator;
 import org.openl.rules.ui.ParameterRegistry;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.WebContext;
@@ -129,7 +128,6 @@ public class MainBean {
     public void onPageUnload() {
         if (StringUtils.isNotEmpty(requestId)) {
             log.debug("Page unload for request id: {}", requestId);
-            Explanator.remove(requestId);
             ParameterRegistry.remove(requestId);
             TableBean.tryUnlock(requestId);
         }

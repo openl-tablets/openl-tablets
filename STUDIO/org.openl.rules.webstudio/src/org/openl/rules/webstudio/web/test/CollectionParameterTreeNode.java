@@ -52,7 +52,6 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
                     .keyField(
                         config.getKeyField() != null ? config.getKeyField() : collectionElementType.getIndexField())
                     .parent(this)
-                    .hasExplainLinks(config.isHasExplainLinks())
                     .requestId(config.getRequestId())
                     .build();
 
@@ -164,7 +163,6 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(getType().getComponentClass(), value)
             .keyField(config.getKeyField())
             .parent(this)
-            .hasExplainLinks(config.isHasExplainLinks())
             .requestId(config.getRequestId())
             .build();
 
