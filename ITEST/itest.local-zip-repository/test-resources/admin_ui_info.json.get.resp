@@ -6,7 +6,6 @@ Content-Type: application/json
   "buildNumber": "*",
   "deployerEnabled": true,
   "email": "*",
-  "noWadlServices": [],
   "services": [
     {
       "hasManifest": true,

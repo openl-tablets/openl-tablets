@@ -90,22 +90,6 @@
         <property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}"/>
     </bean>
 
-    <bean id="wadlGenerator" class="org.apache.cxf.jaxrs.model.wadl.WadlGenerator" scope="prototype">
-        <property name="linkAnyMediaTypeToXmlSchema" value="true"/>
-        <property name="supportCollections" value="false"/>
-        <property name="extraClasses">
-            <bean class="org.openl.rules.ruleservice.databinding.SetToListOfClassesFactoryBean">
-                <property name="setOfClassNames">
-                    <bean class="org.openl.rules.ruleservice.databinding.ServiceRootClassNamesBindingFactoryBean">
-                        <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
-                        <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
-                        <property name="openLService" ref="openLServiceInProcess"/>
-                    </bean>
-                </property>
-            </bean>
-        </property>
-    </bean>
-
     <bean id="jaxrsExceptionMapper" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSExceptionMapper"/>
 
     <bean id="jaxrsServiceServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" scope="prototype">
@@ -127,7 +111,6 @@
         <property name="providers">
             <list>
                 <ref bean="jaxrsExceptionMapper"/>
-                <ref bean="wadlGenerator"/>
                 <ref bean="jaxrsJSONProvider"/>
                 <ref bean="jaxrsTextPlainDateMessageBodyWriter"/>
                 <ref bean="jaxrsWebApplicationExceptionMapper"/>

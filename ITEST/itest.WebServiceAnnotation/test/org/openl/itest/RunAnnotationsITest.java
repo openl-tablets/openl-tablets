@@ -304,7 +304,6 @@ public class RunAnnotationsITest {
     @Test
     public void typeChangingTypeFromAnnotationTemplateInterfaceTest() {
         client.get("/v1/string/toNumber?wsdl", "/stringToNumber_wsdl.resp.xml");
-        client.get("/REST/v1/string/toNumber?_wadl", "/stringToNumber_wadl.resp.xml");
     }
 
     @Test

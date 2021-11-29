@@ -3,7 +3,6 @@ Content-Type: application/json
 
 {
   "startedMilli": "#####",
-  "noWadlServices": [],
   "deployerEnabled": true,
   "startedAt": "####-##-##T##:##:##.###*****",
   "buildDate": "####-##-##",
