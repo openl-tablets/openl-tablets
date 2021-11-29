@@ -50,14 +50,14 @@ public class SAXReader implements ExcelReader {
     @Override
     public List<SAXSheetDescriptor> getSheets() {
         if (sheets == null) {
-            try (OPCPackage pkg = OPCPackage.open(fileName, PackageAccess.READ)) {
+            try (ReadOnlyOPCPackage pkg = ReadOnlyOPCPackage.open(fileName)) {
 
                 XMLReader parser = XMLHelper.newXMLReader();
                 WorkbookHandler handler = new WorkbookHandler();
                 parser.setContentHandler(handler);
 
                 // process the first sheet
-                XSSFReader r = new XSSFReader(pkg);
+                XSSFReader r = new XSSFReader(pkg.pck);
                 try (InputStream workbookData = r.getWorkbookData()) {
                     parser.parse(new InputSource(workbookData));
                 }
@@ -76,10 +76,10 @@ public class SAXReader implements ExcelReader {
     @Override
     public Object[][] getCells(SheetDescriptor sheet) {
         SAXSheetDescriptor saxSheet = (SAXSheetDescriptor) sheet;
-        try (OPCPackage pkg = OPCPackage.open(fileName, PackageAccess.READ)) {
-            XSSFReader r = new XSSFReader(pkg);
+        try (ReadOnlyOPCPackage pkg = ReadOnlyOPCPackage.open(fileName)) {
+            XSSFReader r = new XSSFReader(pkg.pck);
 
-            initializeNeededData(r, pkg);
+            initializeNeededData(r, pkg.pck);
 
             XMLReader parser = XMLHelper.newXMLReader();
             SheetHandler handler = new SheetHandler(r.getSharedStringsTable(),
@@ -115,11 +115,11 @@ public class SAXReader implements ExcelReader {
     @Override
     public TableStyles getTableStyles(SheetDescriptor sheet, IGridRegion tableRegion) {
         SAXSheetDescriptor saxSheet = (SAXSheetDescriptor) sheet;
-        try (OPCPackage pkg = OPCPackage.open(fileName, PackageAccess.READ)) {
+        try (ReadOnlyOPCPackage pkg = ReadOnlyOPCPackage.open(fileName)) {
 
-            XSSFReader r = new XSSFReader(pkg);
+            XSSFReader r = new XSSFReader(pkg.pck);
 
-            initializeNeededData(r, pkg);
+            initializeNeededData(r, pkg.pck);
 
             XMLReader parser = XMLHelper.newXMLReader();
             StyleIndexHandler styleIndexHandler = new StyleIndexHandler(tableRegion, saxSheet.getIndex());
@@ -132,7 +132,7 @@ public class SAXReader implements ExcelReader {
             return new SAXTableStyles(tableRegion,
                 styleIndexHandler.getCellIndexes(),
                 r.getStylesTable(),
-                getSheetComments(pkg, saxSheet),
+                getSheetComments(pkg.pck, saxSheet),
                 styleIndexHandler.getFormulas());
         } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
             throw new ExcelParseException(e);
@@ -202,6 +202,28 @@ public class SAXReader implements ExcelReader {
             return null;
         } catch (InvalidFormatException | IOException e) {
             return null;
+        }
+    }
+
+    private static class ReadOnlyOPCPackage implements AutoCloseable {
+        final OPCPackage pck;
+
+        static ReadOnlyOPCPackage open(String fileName) throws InvalidFormatException {
+            OPCPackage pck = OPCPackage.open(fileName, PackageAccess.READ);
+            return new ReadOnlyOPCPackage(pck);
+        }
+
+        private ReadOnlyOPCPackage(OPCPackage pck) {
+            this.pck = pck;
+        }
+
+        @Override
+        public void close() {
+            // OPCPackage implementation makes SAVE on close() method. It is unacceptable for the READ only package.
+            // Instead, it is required to call revert() for the READ only package.
+            // On the other side it is easy to use try-with-resource to close a stream.
+            // So to achieve it we wrap OPCPackage to call revert() on close().
+            pck.revert();
         }
     }
 }
