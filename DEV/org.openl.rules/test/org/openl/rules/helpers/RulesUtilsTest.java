@@ -17,8 +17,7 @@ import org.openl.rules.TestUtils;
 import org.openl.util.ArrayTool;
 
 /**
- * Test to check that methods from {@link RulesUtils} and children of
- * {@link org.openl.meta.explanation.ExplanationNumberValue} are visible and executed from excel.
+ * Test to check that methods from {@link RulesUtils}
  *
  * @author DLiauchuk
  *         <p/>

@@ -103,7 +103,6 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                     ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(fieldType, fieldValue)
                         .fieldNameInParent(fieldName)
                         .parent(this)
-                        .hasExplainLinks(config.isHasExplainLinks())
                         .requestId(config.getRequestId())
                         .build();
 

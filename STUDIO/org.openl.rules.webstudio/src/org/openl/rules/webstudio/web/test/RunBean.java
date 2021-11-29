@@ -10,7 +10,6 @@ import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ObjectViewer;
-import org.openl.rules.webstudio.web.MainBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
@@ -26,8 +25,6 @@ public class RunBean {
 
     private final RunTestHelper runTestHelper;
 
-    private final MainBean mainBean;
-
     private TestSuite testSuite;
 
     private TestUnitsResults results;
@@ -37,9 +34,8 @@ public class RunBean {
      */
     private String id;
 
-    public RunBean(RunTestHelper runTestHelper, MainBean mainBean) {
+    public RunBean(RunTestHelper runTestHelper) {
         this.runTestHelper = runTestHelper;
-        this.mainBean = mainBean;
     }
 
     @PostConstruct
@@ -72,7 +68,7 @@ public class RunBean {
     public String getFormattedSpreadsheetResult(ITestUnit unit) {
         Object result = unit.getActualResult();
         if (result instanceof SpreadsheetResult) {
-            return ObjectViewer.displaySpreadsheetResult((SpreadsheetResult) result, mainBean.getRequestId());
+            return ObjectViewer.displaySpreadsheetResult((SpreadsheetResult) result);
         }
         return StringUtils.EMPTY;
     }

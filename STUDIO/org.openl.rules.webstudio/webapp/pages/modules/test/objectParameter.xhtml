@@ -8,7 +8,7 @@
     <!-- Each rich:tree for every parameter must have unique ID -->
     <ui:param name="paramTreeId" value="loadedObjectParam#{param.paramRootId}"/>
 
-    <rich:tree id="#{paramTreeId}" value="#{parameterTreeBuilder.getTree(param.requestId, parameterTreeBuilder.getParam(param.requestId, param.paramRootId), param.hasExplainLinks)}" var="node"
+    <rich:tree id="#{paramTreeId}" value="#{parameterTreeBuilder.getTree(param.requestId, parameterTreeBuilder.getParam(param.requestId, param.paramRootId))}" var="node"
                rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter"
                toggleType="client" selectionType="client"
                styleClass="param-tree loaded-param-description" toggleNodeEvent="click">

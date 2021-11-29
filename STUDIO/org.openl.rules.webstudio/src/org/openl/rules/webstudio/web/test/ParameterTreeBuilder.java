@@ -152,13 +152,12 @@ public class ParameterTreeBuilder {
         return "null";
     }
 
-    public TreeNode getTree(String requestId, ParameterWithValueDeclaration param, boolean hasExplainLinks) {
+    public TreeNode getTree(String requestId, ParameterWithValueDeclaration param) {
         TreeNodeImpl root = new TreeNodeImpl();
 
         if (param != null) {
             ParameterRenderConfig config = new ParameterRenderConfig.Builder(param.getType(), param.getValue())
                 .keyField(param.getKeyField())
-                .hasExplainLinks(hasExplainLinks)
                 .requestId(requestId)
                 .build();
             ParameterDeclarationTreeNode treeNode = createNode(config);

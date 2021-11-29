@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.Objects;
 
-import org.openl.meta.explanation.ExplanationNumberValue;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
@@ -15,7 +14,6 @@ public class ParameterRenderConfig {
     private final IOpenField keyField;
     private final ParameterDeclarationTreeNode parent;
     private final String fieldNameInParent;
-    private final boolean hasExplainLinks;
     private final String requestId;
 
     private ParameterRenderConfig(Builder builder) {
@@ -24,7 +22,6 @@ public class ParameterRenderConfig {
         this.keyField = builder.keyField;
         this.parent = builder.parent;
         this.fieldNameInParent = builder.fieldNameInParent;
-        this.hasExplainLinks = builder.hasExplainLinks;
         this.requestId = builder.requestId;
     }
 
@@ -73,21 +70,10 @@ public class ParameterRenderConfig {
     }
 
     /**
-     * Returns if current object should display explain links?
-     *
-     * @see SpreadsheetResultTreeNode#getDisplayedValue()
-     */
-    public boolean isHasExplainLinks() {
-        return hasExplainLinks;
-    }
-
-    /**
      * Returns unique request id associated with specific test execution. Every test execution stores explanation info
      * in session. We must be able to retrieve and remove that explanation info from session.
      *
      * @see SpreadsheetResultTreeNode#getDisplayedValue()
-     * @see org.openl.rules.ui.Explanator#getUniqueId(String, ExplanationNumberValue)
-     * @see org.openl.rules.ui.Explanator#remove(String)
      */
     public String getRequestId() {
         return requestId;
@@ -99,7 +85,6 @@ public class ParameterRenderConfig {
         private IOpenField keyField;
         private ParameterDeclarationTreeNode parent;
         private String fieldNameInParent;
-        private boolean hasExplainLinks;
         private String requestId;
 
         /**
@@ -136,14 +121,6 @@ public class ParameterRenderConfig {
          */
         public Builder fieldNameInParent(String fieldName) {
             this.fieldNameInParent = fieldName;
-            return this;
-        }
-
-        /**
-         * @see #isHasExplainLinks()
-         */
-        public Builder hasExplainLinks(boolean hasExplainLinks) {
-            this.hasExplainLinks = hasExplainLinks;
             return this;
         }
 
