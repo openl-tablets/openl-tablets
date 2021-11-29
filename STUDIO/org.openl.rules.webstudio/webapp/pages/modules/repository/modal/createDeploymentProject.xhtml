@@ -17,11 +17,11 @@
     <h:form id="newDProjectForm">
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="projectName" styleClass="required" value="Name:" />
-        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}" onkeyup="$j('#newDProjectForm\\:create').prop('disabled', this.value.trim().length === 0)" />
+        <h:inputText id="projectName" size="30" maxlength="50" value="#{repositoryTreeController.projectName}" onkeyup="$j('#newDProjectForm\\:createBtn').prop('disabled', this.value.trim().length === 0)" />
       </h:panelGrid>
 
       <footer>
-        <h:commandButton value="Create"
+        <h:commandButton id="createBtn" value="Create"
                          onclick="withCommitInfoRequired('#{studio.currentUsername}', () => '#{repositoryTreeController.currentDeployConfigRepositoryType}' === 'repo-git', () => $j('#newDProjectForm\\:create').click()); return false;"
                          styleClass="button-primary" />
         <h:commandButton id="create"
@@ -40,7 +40,7 @@
     
     function clearNewDProjectFormProjName() {
         $j("#newDProjectForm\\:projectName").val("");
-        $j("#newDProjectForm\\:create").prop("disabled", true);
+        $j("#newDProjectForm\\:createBtn").prop("disabled", true);
     }
 
     $j(function () {
