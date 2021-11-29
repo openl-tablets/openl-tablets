@@ -5,7 +5,6 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
 
-    <import resource="classpath:openl-ruleservice-webservices-publisher-beans.xml"/>
     <import resource="classpath:openl-ruleservice-jaxrs-publisher-beans.xml"/>
     <import resource="classpath:openl-ruleservice-kafka-publisher-beans.xml"/>
 
@@ -16,7 +15,6 @@
     </bean>
 
     <util:map id="ruleServicePublishers">
-        <entry key="WEBSERVICE" value-ref="jaxwsServiceRuleServicePublisher"/>
         <entry key="RESTFUL" value-ref="jaxrsServicesRuleServicePublisher"/>
         <entry key="RMI" value-ref="rmiServicesRuleServicePublisher"/>
         <entry key="KAFKA" value-ref="kafkaServicesRuleServicePublisher"/>
