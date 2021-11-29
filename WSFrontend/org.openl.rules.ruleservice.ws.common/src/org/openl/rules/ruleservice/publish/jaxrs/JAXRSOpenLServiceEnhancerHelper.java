@@ -47,7 +47,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
-import org.openl.meta.StringValue;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
@@ -94,7 +93,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
         TEXT_MEDIA_TYPE_SET.add(LocalDate.class);
         TEXT_MEDIA_TYPE_SET.add(LocalTime.class);
         TEXT_MEDIA_TYPE_SET.add(Character.class);
-        TEXT_MEDIA_TYPE_SET.add(StringValue.class);
         TEXT_MEDIA_TYPE_SET.add(Boolean.class);
     }
 
