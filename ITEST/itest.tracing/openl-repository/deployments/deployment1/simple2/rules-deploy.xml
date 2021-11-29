@@ -1,7 +1,7 @@
 <rules-deploy>
     <serviceName>simple2-tracing</serviceName>
     <publishers>
-        <publisher>WEBSERVICE</publisher>
+        <publisher>RESTFUL</publisher>
     </publishers>
     <configuration>
         <entry>

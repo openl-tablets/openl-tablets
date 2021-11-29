@@ -1,14 +1,6 @@
-POST /deployment1/simple2 HTTP/1.1
-Content-Type: application/xml
-Accept: application/xml;q=1.0, */*;q=0.1
+POST /deployment1/simple2/Hello HTTP/1.1
+Content-Type: application/json
 
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:def="http://DefaultNamespace" xmlns:con="http://context.rules.openl.org">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <def:Hello>
-         <def:runtimeContext>
-         </def:runtimeContext>
-         <def:hour>5</def:hour>
-      </def:Hello>
-   </soapenv:Body>
-</soapenv:Envelope>
+{
+  "hour": 5
+}

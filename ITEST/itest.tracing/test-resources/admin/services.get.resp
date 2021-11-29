@@ -8,7 +8,6 @@ Content-Type: application/json
     "servicePath": "deployment1/simple1",
     "urls": {
       "KAFKA": null,
-      "WEBSERVICE": "deployment1/simple1",
       "RESTFUL": "REST/deployment1/simple1"
     },
     "hasManifest": false,
@@ -20,7 +19,7 @@ Content-Type: application/json
     "name": "simple2-tracing",
     "servicePath": "deployment1/simple2",
     "urls": {
-      "WEBSERVICE": "deployment1/simple2"
+      "RESTFUL": "deployment1/simple2"
     },
     "hasManifest": false,
     "deploymentName": "deployment1",

@@ -7,7 +7,6 @@ Content-Type: application/json
     "name": "project1",
     "servicePath": "yaml_project/project1",
     "urls": {
-      "WEBSERVICE": "project1",
       "RESTFUL": "REST/project1"
     },
     "hasManifest": false,

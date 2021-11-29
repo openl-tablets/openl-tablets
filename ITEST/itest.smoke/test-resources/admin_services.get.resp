@@ -25,7 +25,6 @@ Content-Type: application/json
     "name": "simple_simple",
     "servicePath": "simple/simple",
     "urls": {
-      "WEBSERVICE": "simple",
       "RESTFUL": "REST/simple"
     },
     "hasManifest": false,

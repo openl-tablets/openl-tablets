@@ -34,7 +34,6 @@ public class RunTracingITest {
     private static final Logger log = Logger.getLogger(RunTracingITest.class);
     public static final int AWAIT_TIMEOUT = 1;
 
-    final String TEST_WS_URL = "/deployment1/simple1";
     final String TEST_REST_URL = "/REST/deployment1/simple1/Hello";
 
     private static JettyServer server;
@@ -89,27 +88,6 @@ public class RunTracingITest {
             assertEquals(200, span.tags().get(Tags.HTTP_STATUS.getKey()));
             String url = (String) span.tags().get(Tags.HTTP_URL.getKey());
             assertTrue(url.contains(TEST_REST_URL));
-            return true;
-        });
-    }
-
-    @Test
-    public void testWSServiceSpans() {
-        client.send("simple1.tracing.ws.post");
-        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
-            List<MockSpan> mockSpans = tracer.finishedSpans();
-            Optional<MockSpan> wsSpan = findSpanByURL(tracer.finishedSpans(), TEST_WS_URL);
-            if (!wsSpan.isPresent()) {
-                return false;
-            }
-            final MockSpan span = wsSpan.get();
-            assertEquals(Tags.SPAN_KIND_SERVER, span.tags().get(Tags.SPAN_KIND.getKey()));
-            assertEquals("POST", span.operationName());
-            assertEquals(5, span.tags().size());
-            assertEquals("java-web-servlet", span.tags().get(Tags.COMPONENT.getKey()));
-            assertEquals(200, span.tags().get(Tags.HTTP_STATUS.getKey()));
-            String url = (String) span.tags().get(Tags.HTTP_URL.getKey());
-            assertTrue(url.contains(TEST_WS_URL));
             return true;
         });
     }

@@ -48,26 +48,6 @@ public class SmokeITest {
     }
 
     @Test
-    public void testPingSoap() {
-        client.send("simple_ping.post");
-    }
-
-    @Test
-    public void testTwiceSoap() {
-        client.send("simple_twice.xml.post");
-    }
-
-    @Test
-    public void testMulSoap() {
-        client.send("simple_mul.xml.post");
-    }
-
-    @Test
-    public void test404Soap() {
-        client.send("simple_absent.xml.post");
-    }
-
-    @Test
     public void testCors() {
         client.send("cors.enabled.options");
     }

@@ -7,7 +7,6 @@ Content-Type: application/json
     "name": "name",
     "servicePath": "rules-to-deploy/rules-to-deploy",
     "urls": {
-      "WEBSERVICE": "rules-to-deploy/rules-to-deploy",
       "RESTFUL": "REST/rules-to-deploy/rules-to-deploy"
     },
     "hasManifest": false,
@@ -18,7 +17,6 @@ Content-Type: application/json
     "name": "name",
     "servicePath": "rules-to-deploy2/rules-to-deploy2",
     "urls": {
-      "WEBSERVICE": "rules-to-deploy2/rules-to-deploy2",
       "RESTFUL": "REST/rules-to-deploy2/rules-to-deploy2"
     },
     "hasManifest": false,
@@ -29,7 +27,6 @@ Content-Type: application/json
     "name": "rules-to-deploy3_rules-to-deploy3",
     "servicePath": "rules-to-deploy3/rules-to-deploy3",
     "urls": {
-      "WEBSERVICE": "url",
       "RESTFUL": "REST/url"
     },
     "hasManifest": false,
