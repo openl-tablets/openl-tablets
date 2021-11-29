@@ -2986,22 +2986,10 @@ public final class DecisionTableHelper {
                     if (StringUtils.isNotBlank(part1) && StringUtils.isNotBlank(part2)) {
                         return Pair.of(i + originalTable.getSource().getCell(i, 0).getWidth(),
                             WithVerticalTitles.SLASH_IN_TITLE);
+                    } else if (StringUtils.isBlank(part1) && StringUtils.isNotBlank(part2)) {
+                        return Pair.of(i + originalTable.getSource().getCell(i, 0).getWidth(),
+                            WithVerticalTitles.EMPTY_COLUMN);
                     }
-                }
-                int h = firstColumnHeight;
-                boolean allEmpty = i > 0 && firstColumnHeight < originalTable.getSource()
-                    .getHeight() && calculateRowsCount(originalTable, i, firstColumnHeight) == numberOfHConditions;
-                while (allEmpty && h < originalTable.getSource().getHeight()) {
-                    String v = originalTable.getSource().getCell(i, h).getStringValue();
-                    if (StringUtils.isNotBlank(v)) {
-                        allEmpty = false;
-                        break;
-                    }
-                    h = h + originalTable.getSource().getCell(i, h).getHeight();
-                }
-                if (allEmpty) {
-                    return Pair.of(i + originalTable.getSource().getCell(i, 0).getWidth(),
-                        WithVerticalTitles.EMPTY_COLUMN);
                 }
                 if (i > 0) {
                     int w1 = originalTable.getSource().getCell(i - 1, firstColumnHeight).getWidth();
