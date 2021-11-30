@@ -4,15 +4,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
-
 public final class NumberUtils {
 
     private NumberUtils() {
@@ -26,52 +17,32 @@ public final class NumberUtils {
     }
 
     public static boolean isFloatPointType(Class<?> cls) {
-        return cls != null && (float.class == cls || double.class == cls || Float.class == cls || FloatValue.class
-            .isAssignableFrom(cls) || Double.class == cls || DoubleValue.class.isAssignableFrom(cls) || BigDecimal.class
-                .isAssignableFrom(cls) || BigDecimalValue.class.isAssignableFrom(cls));
+        return cls != null && (float.class == cls || double.class == cls || Float.class == cls || Double.class == cls
+                || BigDecimal.class.isAssignableFrom(cls));
     }
 
     public static boolean isNonFloatPointType(Class<?> cls) {
-        return cls != null && (byte.class == cls || short.class == cls || int.class == cls || long.class == cls || Byte.class == cls || ByteValue.class
-            .isAssignableFrom(cls) || Short.class == cls || ShortValue.class
-                .isAssignableFrom(cls) || Integer.class == cls || IntValue.class
-                    .isAssignableFrom(cls) || Long.class == cls || LongValue.class.isAssignableFrom(
-                        cls) || BigInteger.class == cls || BigIntegerValue.class.isAssignableFrom(cls));
+        return cls != null && (byte.class == cls || short.class == cls || int.class == cls || long.class == cls
+                || Byte.class == cls || Short.class == cls || Integer.class == cls || Long.class == cls || BigInteger.class == cls);
     }
 
     public static Double convertToDouble(Object object) {
         if (object instanceof Float) {
             return Double.parseDouble(object.toString());
-        } else if (object instanceof FloatValue) {
-            return Double.parseDouble(object.toString());
         } else if (object instanceof Double) {
             return (Double) object;
-        } else if (object instanceof DoubleValue) {
-            return ((DoubleValue) object).doubleValue();
         } else if (object instanceof BigDecimal) {
             return ((BigDecimal) object).doubleValue();
-        } else if (object instanceof BigDecimalValue) {
-            return ((BigDecimalValue) object).doubleValue();
         } else if (object instanceof Byte) {
             return ((Byte) object).doubleValue();
-        } else if (object instanceof ByteValue) {
-            return ((ByteValue) object).doubleValue();
         } else if (object instanceof Short) {
             return ((Short) object).doubleValue();
-        } else if (object instanceof ShortValue) {
-            return ((ShortValue) object).doubleValue();
         } else if (object instanceof Integer) {
             return ((Integer) object).doubleValue();
-        } else if (object instanceof IntValue) {
-            return ((IntValue) object).doubleValue();
         } else if (object instanceof Long) {
             return ((Long) object).doubleValue();
-        } else if (object instanceof LongValue) {
-            return ((LongValue) object).doubleValue();
         } else if (object instanceof BigInteger) {
             return ((BigInteger) object).doubleValue();
-        } else if (object instanceof BigIntegerValue) {
-            return ((BigIntegerValue) object).doubleValue();
         } else {
             return null;
         }
@@ -93,7 +64,7 @@ public final class NumberUtils {
     }
 
     /**
-     * Gets the scale of the income value. Note that if the value will be of type {@link Float} or {@link FloatValue},
+     * Gets the scale of the income value. Note that if the value will be of type {@link Float},
      * the scale will be defined via value.doubleValue() method call. And the scale will differ from the income.
      *
      * @param value
@@ -111,13 +82,6 @@ public final class NumberUtils {
              * If BigDecimal the scale can be taken directly
              */
             return ((BigDecimal) value).scale();
-        }
-
-        if (value instanceof BigDecimalValue) {
-            /**
-             * If BigDecimalValue the scale can be taken directly
-             */
-            return ((BigDecimalValue) value).getValue().scale();
         }
 
         if (isObjectFloatPointNumber(value)) {

@@ -1,7 +1,6 @@
 package org.openl.rules.activiti;
 
 import org.activiti.engine.delegate.DelegateExecution;
-import org.openl.meta.DoubleValue;
 
 public class SimpleOpenLServiceWithInterfaceTask extends AbstractOpenLResourceServiceTask<RulesInterface> {
 
@@ -12,7 +11,7 @@ public class SimpleOpenLServiceWithInterfaceTask extends AbstractOpenLResourceSe
         String driverMatrialStatus = (String) execution.getVariable("driverMaritalStatus");
         RulesInterface instance = getInstance(execution);
 
-        DoubleValue result = instance.DriverPremium1(driverAge, driverMatrialStatus);
+        Double result = instance.DriverPremium1(driverAge, driverMatrialStatus);
 
         execution.setVariable("resultVariable", result);
     }

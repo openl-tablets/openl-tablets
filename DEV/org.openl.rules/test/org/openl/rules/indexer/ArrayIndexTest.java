@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.meta.IntValue;
-import org.openl.meta.ShortValue;
 import org.openl.rules.TestUtils;
 
 public class ArrayIndexTest {
@@ -18,12 +16,12 @@ public class ArrayIndexTest {
 
     @Test
     public void testArray1() {// ShortValue
-        assertEquals(new ShortValue((short) -10), TestUtils.invoke(instance, "isWork1"));
+        assertEquals(new Short((short) -10), TestUtils.invoke(instance, "isWork1"));
     }
 
     @Test
     public void testArray2() {// IntValue
-        assertEquals(new IntValue(-10), TestUtils.invoke(instance, "isWork2"));
+        assertEquals(new Integer(-10), TestUtils.invoke(instance, "isWork2"));
     }
 
     @Test

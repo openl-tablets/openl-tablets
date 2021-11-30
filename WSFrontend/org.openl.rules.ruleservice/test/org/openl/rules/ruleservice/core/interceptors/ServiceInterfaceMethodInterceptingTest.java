@@ -18,8 +18,6 @@ import java.util.Objects;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.IntValue;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -49,21 +47,21 @@ public class ServiceInterfaceMethodInterceptingTest {
     public static class ResultConverter extends AbstractServiceMethodAfterReturningAdvice<Double> {
         @Override
         public Double afterReturning(Method method, Object result, Object... args) {
-            return ((IntValue) result).doubleValue();
+            return ((Integer) result).doubleValue();
         }
     }
 
     public static class ResultConverter1 extends AbstractServiceMethodAfterReturningAdvice<Double> {
         @Override
         public Double afterReturning(Method method, Object result, Object... args) {
-            return ((DoubleValue) result).doubleValue();
+            return ((Double) result).doubleValue();
         }
     }
 
-    public static class AroundInterceptor implements ServiceMethodAroundAdvice<IntValue> {
+    public static class AroundInterceptor implements ServiceMethodAroundAdvice<Integer> {
         @Override
-        public IntValue around(Method interfaceMethod, Method beanMethod, Object proxy, Object... args) {
-            return new IntValue(-1);
+        public Integer around(Method interfaceMethod, Method beanMethod, Object proxy, Object... args) {
+            return new Integer(-1);
         }
 
     }

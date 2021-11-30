@@ -12,7 +12,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.gen.FieldDescription;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
@@ -34,7 +33,7 @@ public class SimpleBeanByteCodeGeneratorTest {
 
     @Test
     public void testDoubleValue() {
-        Map<String, FieldDescription> fields = getFields(new FieldDescription(DoubleValue.class.getName()));
+        Map<String, FieldDescription> fields = getFields(new FieldDescription(Double.class.getName()));
         assertNotNull(getBeanClass("my.test.DoubleValueBean", fields));
     }
 

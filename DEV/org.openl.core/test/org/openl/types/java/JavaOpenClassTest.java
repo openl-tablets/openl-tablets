@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.StringValue;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -38,22 +36,22 @@ public class JavaOpenClassTest {
 
     @Test
     public void testIsSimple() {
-        IOpenClass clazz = JavaOpenClass.getOpenClass(StringValue.class);
+        IOpenClass clazz = JavaOpenClass.getOpenClass(String.class);
         assertTrue(clazz.isSimple());
     }
 
     @Test
-    public void testResetClassLoader() throws Exception {
-        IOpenClass doubleValue = JavaOpenClass.getOpenClass(DoubleValue.class);
+    public void testResetClassLoader() {
+        IOpenClass doubleValue = JavaOpenClass.getOpenClass(Double.class);
         IOpenClass myType = JavaOpenClass.getOpenClass(MyType.class);
 
-        assertSame(doubleValue, JavaOpenClass.getOpenClass(DoubleValue.class));
+        assertSame(doubleValue, JavaOpenClass.getOpenClass(Double.class));
         assertSame(myType, JavaOpenClass.getOpenClass(MyType.class));
 
-        JavaOpenClassCache.getInstance().resetClassloader(DoubleValue.class.getClassLoader());
-        JavaOpenClassCache.getInstance().resetClassloader(Exception.class.getClassLoader());
+        JavaOpenClassCache.getInstance().resetClassloader(Double.class.getClassLoader());
+        JavaOpenClassCache.getInstance().resetClassloader(MyType.class.getClassLoader());
 
-        assertSame(doubleValue, JavaOpenClass.getOpenClass(DoubleValue.class));
+        assertSame(doubleValue, JavaOpenClass.getOpenClass(Double.class));
         assertNotSame(myType, JavaOpenClass.getOpenClass(MyType.class));
     }
 

@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
-import org.openl.meta.*;
 import org.openl.types.java.JavaOpenClass;
 
 /**
@@ -64,41 +63,6 @@ public class StringCastsTest {
     @Test
     public void testStringToBigDecimal() {
         javaCastTest(String.class, BigDecimal.class);
-    }
-
-    @Test
-    public void testStringToByteValue() {
-        javaCastTest(String.class, ByteValue.class);
-    }
-
-    @Test
-    public void testStringToShortValue() {
-        javaCastTest(String.class, ShortValue.class);
-    }
-
-    @Test
-    public void testStringToIntValue() {
-        javaCastTest(String.class, IntValue.class);
-    }
-
-    @Test
-    public void testStringToFloatValue() {
-        javaCastTest(String.class, FloatValue.class);
-    }
-
-    @Test
-    public void testStringToDoubleValue() {
-        javaCastTest(String.class, DoubleValue.class);
-    }
-
-    @Test
-    public void testStringToBigIntValue() {
-        javaCastTest(String.class, BigIntegerValue.class);
-    }
-
-    @Test
-    public void testStringToBigDecimalValue() {
-        javaCastTest(String.class, BigDecimalValue.class);
     }
 
     void javaCastTest(Class<?> from, Class<?> to) {

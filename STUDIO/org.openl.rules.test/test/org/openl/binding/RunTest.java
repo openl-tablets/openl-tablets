@@ -13,7 +13,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
-import org.openl.meta.DoubleValue;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.CompositeOpenlException;
 
@@ -109,7 +108,7 @@ public class RunTest {
 
         assertEquals("int x = 5; x += 4", 9);
         assertEquals(
-            "DoubleValue d1 = new DoubleValue(5); DoubleValue d2 = new DoubleValue(4); d1 += d2; d1.getValue()", 9.0);
+            "DoubleValue d1 = new DoubleValue(5); DoubleValue d2 = new DoubleValue(4); d1 += d2; d1", 9.0);
         assertEquals("int i=0; for(int j=0; j < 10; ) {i += j;j++;} i", 45);
 
         // Testing new implementation of s1 == s2 for Strings. To achieve old
@@ -143,7 +142,7 @@ public class RunTest {
         assertEquals("10% of    the  50", 5.0);
 
         assertEquals("5.0 ** 7.0 ", Math.pow(5, 7));
-        assertEquals("DoubleValue x = 5.0; x ** 7 ", new DoubleValue(Math.pow(5, 7)));
+        assertEquals("DoubleValue x = 5.0; x ** 7 ", Math.pow(5, 7));
         assertEquals("BigDecimal x = 5.0; x ** 7 ", new BigDecimal("78125.0000000"));
 
         assertEquals("1 == 1", true);

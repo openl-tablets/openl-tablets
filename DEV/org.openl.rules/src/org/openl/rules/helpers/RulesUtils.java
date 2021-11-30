@@ -14,6 +14,8 @@ import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -29,10 +31,6 @@ import org.openl.binding.impl.cast.DefaultAutoCastFactory.ReturnType;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.LongValue;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.types.impl.StaticDomainOpenClass;
@@ -56,6 +54,27 @@ public final class RulesUtils {
 
     public static final double E = Math.E;
     public static final double PI = Math.PI;
+
+
+    /**
+     * Sorts the array <b>values</b>
+     *
+     * @param values array of Objects
+     * @return the sorted array
+     */
+    public static Object[] sort(Object[] values) {
+        Object[] sortedArray = null;
+        if (values != null) {
+            sortedArray = new Object[values.length];
+            Object[] notNullArray = ArrayTool.removeNulls(values);
+            Arrays.sort(notNullArray);
+
+            /* Filling sortedArray by sorted and null values */
+            System.arraycopy(notNullArray, 0, sortedArray, 0, notNullArray.length);
+
+        }
+        return sortedArray;
+    }
 
     // SMALL
 
@@ -1304,11 +1323,7 @@ public final class RulesUtils {
         return range != null && range.contains(x);
     }
 
-    public static boolean contains(IntRange range, LongValue x) {
-        return range != null && range.contains(x);
-    }
-
-    public static boolean contains(IntRange range, BigIntegerValue x) {
+    public static boolean contains(IntRange range, BigInteger x) {
         return range != null && range.contains(x);
     }
 
@@ -1316,11 +1331,7 @@ public final class RulesUtils {
         return range != null && range.contains(x);
     }
 
-    public static boolean contains(DoubleRange range, DoubleValue x) {
-        return range != null && range.contains(x);
-    }
-
-    public static boolean contains(DoubleRange range, BigDecimalValue x) {
+    public static boolean contains(DoubleRange range, BigDecimal x) {
         return range != null && range.contains(x);
     }
 

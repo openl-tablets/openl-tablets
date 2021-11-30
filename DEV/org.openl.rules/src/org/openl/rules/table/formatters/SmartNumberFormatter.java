@@ -3,7 +3,6 @@ package org.openl.rules.table.formatters;
 import java.math.BigDecimal;
 import java.util.Locale;
 
-import org.openl.meta.BigDecimalValue;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.formatters.NumberFormatter;
@@ -43,10 +42,6 @@ public class SmartNumberFormatter implements IFormatter {
         }
 
         if (value instanceof BigDecimal) {
-            return value;
-        }
-
-        if (value instanceof BigDecimalValue) {
             return value;
         }
 
@@ -94,13 +89,6 @@ public class SmartNumberFormatter implements IFormatter {
              * If BigDecimal the scale can be taken directly
              */
             return ((BigDecimal) value).scale();
-        }
-
-        if (value instanceof BigDecimalValue) {
-            /**
-             * If BigDecimalValue the scale can be taken directly
-             */
-            return ((BigDecimalValue) value).getValue().scale();
         }
 
         if (NumberUtils.isObjectFloatPointNumber(value)) {

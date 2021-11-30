@@ -1,6 +1,5 @@
 package org.openl.rules.dt;
 
-import org.openl.meta.DoubleValue;
 import org.openl.rules.runtime.RulesEngineFactory;
 
 import junit.framework.TestCase;
@@ -29,7 +28,7 @@ public class LocalParametersDeclarationTest extends TestCase {
 
         int test10(int age);
 
-        DoubleValue test11(int age);
+        Double test11(int age);
 
         void test12(int age);
 
@@ -134,11 +133,11 @@ public class LocalParametersDeclarationTest extends TestCase {
 
     public void testSimplifiedReturnParamsDeclaration3() {
 
-        DoubleValue result = instance.test11(10);
-        assertEquals(1.0, result.doubleValue());
+        Double result = instance.test11(10);
+        assertEquals(1.0, result);
 
         result = instance.test11(40);
-        assertEquals(2.0, result.doubleValue());
+        assertEquals(2.0, result);
     }
 
     public void testSimplifiedReturnParamsDeclaration4() {

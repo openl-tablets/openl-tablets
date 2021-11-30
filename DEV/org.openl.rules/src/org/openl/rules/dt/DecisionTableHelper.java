@@ -46,12 +46,6 @@ import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.StringValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.constants.ConstantOpenField;
@@ -119,23 +113,14 @@ public final class DecisionTableHelper {
         java.lang.Short.class,
         java.lang.Integer.class,
         java.lang.Long.class,
-        org.openl.meta.ByteValue.class,
-        org.openl.meta.ShortValue.class,
-        org.openl.meta.IntValue.class,
-        org.openl.meta.LongValue.class,
-        java.math.BigInteger.class,
-        org.openl.meta.BigIntegerValue.class);
+        java.math.BigInteger.class);
     private static final List<Class<?>> DOUBLE_TYPES = Arrays.asList(float.class,
         double.class,
         java.lang.Float.class,
         java.lang.Double.class,
-        org.openl.meta.FloatValue.class,
-        org.openl.meta.DoubleValue.class,
-        java.math.BigDecimal.class,
-        org.openl.meta.BigDecimalValue.class);
+        java.math.BigDecimal.class);
     private static final List<Class<?>> CHAR_TYPES = Arrays.asList(char.class, java.lang.Character.class);
-    private static final List<Class<?>> STRING_TYPES = Arrays.asList(java.lang.String.class,
-        org.openl.meta.StringValue.class);
+    private static final List<Class<?>> STRING_TYPES = Arrays.asList(java.lang.String.class);
     private static final List<Class<?>> DATE_TYPES = Collections.singletonList(Date.class);
     private static final List<Class<?>> RANGE_TYPES = Arrays
         .asList(IntRange.class, DoubleRange.class, CharRange.class, StringRange.class, DateRange.class);
@@ -165,15 +150,6 @@ public final class DecisionTableHelper {
         CharRange.class,
         StringRange.class,
         DateRange.class,
-        org.openl.meta.ByteValue.class,
-        org.openl.meta.ShortValue.class,
-        org.openl.meta.IntValue.class,
-        LongValue.class,
-        FloatValue.class,
-        DoubleValue.class,
-        BigIntegerValue.class,
-        BigDecimalValue.class,
-        StringValue.class,
         Object.class,
         Map.class,
         SortedMap.class,

@@ -6,8 +6,6 @@ import static org.junit.Assert.assertNull;
 import java.math.BigDecimal;
 
 import org.junit.Test;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.DoubleValue;
 
 public class NumberUtilsTest {
 
@@ -53,18 +51,8 @@ public class NumberUtilsTest {
     }
 
     @Test
-    public void testDoubleValue() {
-        assertEquals(4, NumberUtils.getScale(new DoubleValue(1234.5553)));
-        assertEquals(0, NumberUtils.getScale(new DoubleValue(Double.NaN)));
-        assertEquals(0, NumberUtils.getScale(new DoubleValue(Double.NEGATIVE_INFINITY)));
-        assertEquals(0, NumberUtils.getScale(new DoubleValue(Double.POSITIVE_INFINITY)));
-    }
-
-    @Test
     public void testBigDecimal() {
         assertEquals(36, NumberUtils.getScale(new BigDecimal("12.123456789123456789123456789123456789")));
-        assertEquals(35,
-            NumberUtils.getScale(new BigDecimalValue(new BigDecimal("12.12345678912345678912345678912345678"))));
     }
 
     @Test

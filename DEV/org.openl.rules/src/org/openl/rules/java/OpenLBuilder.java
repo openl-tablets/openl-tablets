@@ -3,7 +3,6 @@ package org.openl.rules.java;
 import org.openl.OpenL;
 import org.openl.conf.*;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
-import org.openl.meta.*;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.enumeration.CaProvincesEnum;
 import org.openl.rules.enumeration.CaRegionsEnum;
@@ -37,42 +36,13 @@ public class OpenLBuilder extends AOpenLBuilder {
             org.openl.rules.util.Avg.class.getName(),
             org.openl.rules.util.Miscs.class.getName(),
             org.openl.rules.helpers.RulesUtils.class.getName(),
-            org.openl.rules.dt.algorithm.evaluator.CtrUtils.class.getName(),
-            org.openl.meta.ByteValue.class.getName(),
-            org.openl.meta.ShortValue.class.getName(),
-            org.openl.meta.IntValue.class.getName(),
-            org.openl.meta.LongValue.class.getName(),
-            org.openl.meta.FloatValue.class.getName(),
-            org.openl.meta.DoubleValue.class.getName(),
-            org.openl.meta.StringValue.class.getName(),
-            org.openl.meta.ObjectValue.class.getName(),
-            org.openl.meta.BigIntegerValue.class.getName(),
-            org.openl.meta.BigDecimalValue.class.getName() };
+            org.openl.rules.dt.algorithm.evaluator.CtrUtils.class.getName()};
 
     private static final String[] JAVA_OPERATORS_CLASSES = new String[] {
             org.openl.binding.impl.Operators.class.getName(),
-            org.openl.binding.impl.operator.Comparison.class.getName(),
-            org.openl.meta.ByteValue.class.getName(),
-            org.openl.meta.ShortValue.class.getName(),
-            org.openl.meta.IntValue.class.getName(),
-            org.openl.meta.LongValue.class.getName(),
-            org.openl.meta.FloatValue.class.getName(),
-            org.openl.meta.DoubleValue.class.getName(),
-            org.openl.meta.BigIntegerValue.class.getName(),
-            org.openl.meta.StringValue.class.getName(),
-            org.openl.meta.ObjectValue.class.getName(),
-            org.openl.meta.BigDecimalValue.class.getName() };
+            org.openl.binding.impl.operator.Comparison.class.getName()};
 
-    private static final String[] JAVA_TYPE_CAST_CLASSES = new String[] { org.openl.meta.ByteValue.class.getName(),
-            org.openl.meta.ShortValue.class.getName(),
-            org.openl.meta.IntValue.class.getName(),
-            org.openl.meta.LongValue.class.getName(),
-            org.openl.meta.FloatValue.class.getName(),
-            org.openl.meta.DoubleValue.class.getName(),
-            org.openl.meta.BigIntegerValue.class.getName(),
-            org.openl.meta.StringValue.class.getName(),
-            org.openl.meta.ObjectValue.class.getName(),
-            org.openl.meta.BigDecimalValue.class.getName(),
+    private static final String[] JAVA_TYPE_CAST_CLASSES = new String[] {
             org.openl.rules.helpers.IntRange.class.getName(),
             org.openl.rules.helpers.DoubleRange.class.getName(),
             org.openl.rules.helpers.CharRange.class.getName(),
@@ -157,17 +127,6 @@ public class OpenLBuilder extends AOpenLBuilder {
         javaImport1.addClassImport(StringRange.class.getName());
         javaImport1.addClassImport(DoubleRange.class.getName());
         javaImport1.addClassImport(InOrNotIn.class.getName());
-
-        javaImport1.addClassImport(ByteValue.class.getName());
-        javaImport1.addClassImport(ShortValue.class.getName());
-        javaImport1.addClassImport(IntValue.class.getName());
-        javaImport1.addClassImport(LongValue.class.getName());
-        javaImport1.addClassImport(FloatValue.class.getName());
-        javaImport1.addClassImport(DoubleValue.class.getName());
-        javaImport1.addClassImport(StringValue.class.getName());
-        javaImport1.addClassImport(BigIntegerValue.class.getName());
-        javaImport1.addClassImport(BigDecimalValue.class.getName());
-        javaImport1.addClassImport(ObjectValue.class.getName());
 
         javaImport1.addClassImport(SpreadsheetResult.class.getName());
 

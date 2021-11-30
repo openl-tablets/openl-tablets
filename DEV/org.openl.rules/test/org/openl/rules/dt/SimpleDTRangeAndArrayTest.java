@@ -4,10 +4,9 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.TestUtils;
 
-public class SimpleDTRangeAndArray {
+public class SimpleDTRangeAndArrayTest {
     private static Object instance;
 
     @BeforeClass
@@ -53,31 +52,31 @@ public class SimpleDTRangeAndArray {
 
     @Test
     public void simpleLookup2Range() {
-        assertEquals(DoubleValue.ZERO, TestUtils.invoke(instance, "SimpleLookup2Range", "DE", 150.005));
-        assertEquals(DoubleValue.ONE, TestUtils.invoke(instance, "SimpleLookup2Range", "", 150.005));
-        assertEquals(DoubleValue.ONE, TestUtils.invoke(instance, "SimpleLookup2Range", "DE", 2000.0));
+        assertEquals(Double.valueOf(0.0), TestUtils.invoke(instance, "SimpleLookup2Range", "DE", 150.005));
+        assertEquals(Double.valueOf(1.0), TestUtils.invoke(instance, "SimpleLookup2Range", "", 150.005));
+        assertEquals(Double.valueOf(1.0), TestUtils.invoke(instance, "SimpleLookup2Range", "DE", 2000.0));
     }
 
     @Test
     public void simpleLookupRange1() {
-        assertEquals(new DoubleValue(0.9), TestUtils.invoke(instance, "SimpleLookupRange1", "DE", 25.0));
-        assertEquals(DoubleValue.ONE, TestUtils.invoke(instance, "SimpleLookupRange1", "", 4.0));
-        assertEquals(DoubleValue.ZERO, TestUtils.invoke(instance, "SimpleLookupRange1", "DE", 3.0));
+        assertEquals(Double.valueOf(0.9), TestUtils.invoke(instance, "SimpleLookupRange1", "DE", 25.0));
+        assertEquals(Double.valueOf(1.0), TestUtils.invoke(instance, "SimpleLookupRange1", "", 4.0));
+        assertEquals(Double.valueOf(0.0), TestUtils.invoke(instance, "SimpleLookupRange1", "DE", 3.0));
     }
 
     @Test
     public void simpleLookup3paramRangeArray() {
-        assertEquals(DoubleValue.ZERO,
+        assertEquals(Double.valueOf(0.0),
             TestUtils.invoke(instance,
                 "SimpleLookup3paramRangeArray",
                 new Class[] { String.class, Double.class, int.class },
                 new Object[] { "DE", 5d, 5 }));
-        assertEquals(new DoubleValue(0.9),
+        assertEquals(Double.valueOf(0.9),
             TestUtils.invoke(instance,
                 "SimpleLookup3paramRangeArray",
                 new Class[] { String.class, Double.class, int.class },
                 new Object[] { "DE", 7d, 3 }));
-        assertEquals(DoubleValue.ONE,
+        assertEquals(Double.valueOf(1.0),
             TestUtils.invoke(instance,
                 "SimpleLookup3paramRangeArray",
                 new Class[] { String.class, Double.class, int.class },
@@ -86,17 +85,17 @@ public class SimpleDTRangeAndArray {
 
     @Test
     public void simpleLookup4paramTitleRange() {
-        assertEquals(new DoubleValue(0.9),
+        assertEquals(Double.valueOf(0.9),
             TestUtils.invoke(instance,
                 "SimpleLookup4paramTitleRange",
                 new Class[] { String.class, Double.class, int.class, int.class },
                 new Object[] { "DE", 0d, 7, 3 }));
-        assertEquals(DoubleValue.ONE,
+        assertEquals(Double.valueOf(1.0),
             TestUtils.invoke(instance,
                 "SimpleLookup4paramTitleRange",
                 new Class[] { String.class, Double.class, int.class, int.class },
                 new Object[] { "DE", 0d, 10, 4 }));
-        assertEquals(new DoubleValue(56),
+        assertEquals(Double.valueOf(56),
             TestUtils.invoke(instance,
                 "SimpleLookup4paramTitleRange",
                 new Class[] { String.class, Double.class, int.class, int.class },
@@ -105,17 +104,17 @@ public class SimpleDTRangeAndArray {
 
     @Test
     public void simpleLookup4paramNotEnoughValues() {
-        assertEquals(new DoubleValue(0.9),
+        assertEquals(Double.valueOf(0.9),
             TestUtils.invoke(instance,
                 "SimpleLookup4paramNotEnoughValues",
                 new Class[] { String.class, Double.class, int.class, int.class },
                 new Object[] { "DE", 0d, 7, 3 }));
-        assertEquals(DoubleValue.ONE,
+        assertEquals(Double.valueOf(1.0),
             TestUtils.invoke(instance,
                 "SimpleLookup4paramNotEnoughValues",
                 new Class[] { String.class, Double.class, int.class, int.class },
                 new Object[] { "DE", 0d, 10, 4 }));
-        assertEquals(new DoubleValue(56),
+        assertEquals(Double.valueOf(56),
             TestUtils.invoke(instance,
                 "SimpleLookup4paramNotEnoughValues",
                 new Class[] { String.class, Double.class, int.class, int.class },

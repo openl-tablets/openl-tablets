@@ -6,7 +6,6 @@ import java.util.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.TestUtils;
 
 public class DTTest {
@@ -638,15 +637,15 @@ public class DTTest {
     @Test
     public void driverPremium1() {
         Object result = TestUtils.invoke(instance, "DriverPremium1", "Young Driver", "Married");
-        assertEquals(new DoubleValue(700), result);
+        assertEquals(new Double(700), result);
         result = TestUtils.invoke(instance, "DriverPremium1", "Young Driver", "Single");
-        assertEquals(new DoubleValue(720), result);
+        assertEquals(new Double(720), result);
         result = TestUtils.invoke(instance, "DriverPremium1", "Senior Driver", "Married");
-        assertEquals(new DoubleValue(300), result);
+        assertEquals(new Double(300), result);
         result = TestUtils.invoke(instance, "DriverPremium1", "Senior Driver", "Single");
-        assertEquals(new DoubleValue(350), result);
+        assertEquals(new Double(350), result);
         result = TestUtils.invoke(instance, "DriverPremium1", "Standard Driver", "");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium1", "", "");
         assertNull(result);
     }
@@ -654,15 +653,15 @@ public class DTTest {
     @Test
     public void driverPremiumTwoRet1() {
         Object result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "Young Driver", "Married");
-        assertEquals(new DoubleValue(700), result);
+        assertEquals(new Double(700), result);
         result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "Young Driver", "Single");
-        assertEquals(new DoubleValue(720), result);
+        assertEquals(new Double(720), result);
         result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "Senior Driver", "Married");
-        assertEquals(new DoubleValue(300), result);
+        assertEquals(new Double(300), result);
         result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "Senior Driver", "Single");
-        assertEquals(new DoubleValue(350), result);
+        assertEquals(new Double(350), result);
         result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "Standard Driver", "");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremiumTwoRet1", "", "");
         assertNull(result);
     }
@@ -670,15 +669,15 @@ public class DTTest {
     @Test
     public void driverPremium2() {
         Object result = TestUtils.invoke(instance, "DriverPremium2", "Young Driver", "Married");
-        assertEquals(new DoubleValue(700), result);
+        assertEquals(new Double(700), result);
         result = TestUtils.invoke(instance, "DriverPremium2", "Young Driver", "Single");
-        assertEquals(new DoubleValue(720), result);
+        assertEquals(new Double(720), result);
         result = TestUtils.invoke(instance, "DriverPremium2", "Senior Driver", "Married");
-        assertEquals(new DoubleValue(300), result);
+        assertEquals(new Double(300), result);
         result = TestUtils.invoke(instance, "DriverPremium2", "Senior Driver", "Single");
-        assertEquals(new DoubleValue(350), result);
+        assertEquals(new Double(350), result);
         result = TestUtils.invoke(instance, "DriverPremium2", "Standard Driver", "");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium2", "", "");
         assertNull(result);
     }
@@ -702,15 +701,15 @@ public class DTTest {
     @Test
     public void driverPremium3() {
         Object result = TestUtils.invoke(instance, "DriverPremium3", "Young Driver", "Married");
-        assertEquals(new DoubleValue(700), result);
+        assertEquals(new Double(700), result);
         result = TestUtils.invoke(instance, "DriverPremium3", "Young Driver", "Single");
-        assertEquals(new DoubleValue(720), result);
+        assertEquals(new Double(720), result);
         result = TestUtils.invoke(instance, "DriverPremium3", "Senior Driver", "Married");
-        assertEquals(new DoubleValue(300), result);
+        assertEquals(new Double(300), result);
         result = TestUtils.invoke(instance, "DriverPremium3", "Senior Driver", "Single");
-        assertEquals(new DoubleValue(350), result);
+        assertEquals(new Double(350), result);
         result = TestUtils.invoke(instance, "DriverPremium3", "Standard Driver", "");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium3", "", "");
         assertNull(result);
     }
@@ -718,15 +717,15 @@ public class DTTest {
     @Test
     public void driverPremium7() {
         Object result = TestUtils.invoke(instance, "DriverPremium7", "Married", "Young Driver");
-        assertEquals(new DoubleValue(700), result);
+        assertEquals(new Double(700), result);
         result = TestUtils.invoke(instance, "DriverPremium7", "Single", "Young Driver");
-        assertEquals(new DoubleValue(720), result);
+        assertEquals(new Double(720), result);
         result = TestUtils.invoke(instance, "DriverPremium7", "Married", "Senior Driver");
-        assertEquals(new DoubleValue(300), result);
+        assertEquals(new Double(300), result);
         result = TestUtils.invoke(instance, "DriverPremium7", "Single", "Senior Driver");
-        assertEquals(new DoubleValue(350), result);
+        assertEquals(new Double(350), result);
         result = TestUtils.invoke(instance, "DriverPremium7", "", "Standard Driver");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium7", "", "");
         assertNull(result);
     }
@@ -734,17 +733,17 @@ public class DTTest {
     @Test
     public void driverPremium4() {
         Object result = TestUtils.invoke(instance, "DriverPremium4", "Young Driver", "Married");
-        assertEquals(new DoubleValue(700), result);
+        assertEquals(new Double(700), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "Young Driver", "Single");
-        assertEquals(new DoubleValue(720), result);
+        assertEquals(new Double(720), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "Senior Driver", "Married");
-        assertEquals(new DoubleValue(300), result);
+        assertEquals(new Double(300), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "Senior Driver", "Single");
-        assertEquals(new DoubleValue(350), result);
+        assertEquals(new Double(350), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "Standard Driver", "Single");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "Standard Driver", "Married");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium4", "", "");
         assertNull(result);
     }
@@ -752,17 +751,17 @@ public class DTTest {
     @Test
     public void driverPremium5() {
         Object result = TestUtils.invoke(instance, "DriverPremium5", "Young Driver", "Married");
-        assertEquals(new DoubleValue(700), result);
+        assertEquals(new Double(700), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "Young Driver", "Single");
-        assertEquals(new DoubleValue(720), result);
+        assertEquals(new Double(720), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "Senior Driver", "Married");
-        assertEquals(new DoubleValue(300), result);
+        assertEquals(new Double(300), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "Senior Driver", "Single");
-        assertEquals(new DoubleValue(350), result);
+        assertEquals(new Double(350), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "Standard Driver", "Single");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "Standard Driver", "Married");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium5", "", "");
         assertNull(result);
     }
@@ -770,17 +769,17 @@ public class DTTest {
     @Test
     public void driverPremium6() {
         Object result = TestUtils.invoke(instance, "DriverPremium6", "Young Driver", "Married", "");
-        assertEquals(new DoubleValue(700), result);
+        assertEquals(new Double(700), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "Young Driver", "Single", "");
-        assertEquals(new DoubleValue(720), result);
+        assertEquals(new Double(720), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "Senior Driver", "Married", "");
-        assertEquals(new DoubleValue(300), result);
+        assertEquals(new Double(300), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "Senior Driver", "Single", "");
-        assertEquals(new DoubleValue(350), result);
+        assertEquals(new Double(350), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "Standard Driver", "Single", "");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "Standard Driver", "Married", "");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium6", "", "", "");
         assertNull(result);
     }
@@ -788,17 +787,17 @@ public class DTTest {
     @Test
     public void driverPremium8() {
         Object result = TestUtils.invoke(instance, "DriverPremium8", "Married", "Young Driver", "");
-        assertEquals(new DoubleValue(700), result);
+        assertEquals(new Double(700), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "Single", "Young Driver", "");
-        assertEquals(new DoubleValue(720), result);
+        assertEquals(new Double(720), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "Married", "Senior Driver", "");
-        assertEquals(new DoubleValue(300), result);
+        assertEquals(new Double(300), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "Single", "Senior Driver", "");
-        assertEquals(new DoubleValue(350), result);
+        assertEquals(new Double(350), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "Single", "Standard Driver", "");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "Married", "Standard Driver", "");
-        assertEquals(new DoubleValue(500), result);
+        assertEquals(new Double(500), result);
         result = TestUtils.invoke(instance, "DriverPremium8", "", "", "");
         assertNull(result);
     }
@@ -806,9 +805,9 @@ public class DTTest {
     @Test
     public void carPrice() {
         Object result = TestUtils.invoke(instance, "CarPrice", "USA", "BMW", "Z4 sDRIVE35i");
-        assertEquals(new DoubleValue(55150), result);
+        assertEquals(new Double(55150), result);
         result = TestUtils.invoke(instance, "CarPrice", "Belarus", "Porche", "911 Carrera 4");
-        assertEquals(new DoubleValue(130030), result);
+        assertEquals(new Double(130030), result);
         result = TestUtils.invoke(instance, "CarPrice", "", "", "");
         assertNull(result);
     }
@@ -816,9 +815,9 @@ public class DTTest {
     @Test
     public void carPrice2() {
         Object result = TestUtils.invoke(instance, "CarPrice2", "USA", "BMW", "Z4 sDRIVE35i", "");
-        assertEquals(new DoubleValue(55150), result);
+        assertEquals(new Double(55150), result);
         result = TestUtils.invoke(instance, "CarPrice2", "Belarus", "Porche", "911 Carrera 4", "");
-        assertEquals(new DoubleValue(130030), result);
+        assertEquals(new Double(130030), result);
         result = TestUtils.invoke(instance, "CarPrice2", "", "", "", "");
         assertNull(result);
     }
@@ -826,9 +825,9 @@ public class DTTest {
     @Test
     public void carPrice3() {
         Object result = TestUtils.invoke(instance, "CarPrice3", "BMW", "Z4 sDRIVE35i", "USA", "");
-        assertEquals(new DoubleValue(55150), result);
+        assertEquals(new Double(55150), result);
         result = TestUtils.invoke(instance, "CarPrice3", "Porche", "911 Carrera 4", "Belarus", "");
-        assertEquals(new DoubleValue(130030), result);
+        assertEquals(new Double(130030), result);
         result = TestUtils.invoke(instance, "CarPrice3", "", "", "", "");
         assertNull(result);
     }

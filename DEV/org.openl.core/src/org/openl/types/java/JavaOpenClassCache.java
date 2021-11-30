@@ -10,7 +10,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.collections4.map.AbstractReferenceMap;
 import org.apache.commons.collections4.map.ReferenceMap;
 import org.openl.classloader.OpenLClassLoader;
-import org.openl.meta.*;
 
 public final class JavaOpenClassCache {
 
@@ -57,15 +56,6 @@ public final class JavaOpenClassCache {
         javaClassCache.put(Date.class, new JavaOpenClass(Date.class, true));
         javaClassCache.put(BigInteger.class, new JavaOpenClass(BigInteger.class, true));
         javaClassCache.put(BigDecimal.class, new JavaOpenClass(BigDecimal.class, true));
-        javaClassCache.put(BigDecimalValue.class, new JavaOpenClass(BigDecimalValue.class, true));
-        javaClassCache.put(BigIntegerValue.class, new JavaOpenClass(BigIntegerValue.class, true));
-        javaClassCache.put(ByteValue.class, new JavaOpenClass(ByteValue.class, true));
-        javaClassCache.put(DoubleValue.class, new JavaOpenClass(DoubleValue.class, true));
-        javaClassCache.put(FloatValue.class, new JavaOpenClass(FloatValue.class, true));
-        javaClassCache.put(IntValue.class, new JavaOpenClass(IntValue.class, true));
-        javaClassCache.put(LongValue.class, new JavaOpenClass(LongValue.class, true));
-        javaClassCache.put(ShortValue.class, new JavaOpenClass(ShortValue.class, true));
-        javaClassCache.put(org.openl.meta.StringValue.class, new JavaOpenClass(org.openl.meta.StringValue.class, true));
         return javaClassCache;
     }
 

@@ -11,10 +11,8 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLManager;
-import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
-import org.openl.meta.StringValue;
 import org.openl.meta.ValueMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
@@ -454,16 +452,12 @@ public class SpreadsheetStructureBuilder {
                     }
                 } else {
                     if (!SpreadsheetExpressionMarker.isFormula(cellCode)) {
-                        String2DataConvertorFactory.getConvertor(DoubleValue.class).parse(cellCode, null);
+                        String2DataConvertorFactory.getConvertor(Double.class).parse(cellCode, null);
                     }
-                    cellType = JavaOpenClass.getOpenClass(DoubleValue.class);
+                    cellType = JavaOpenClass.getOpenClass(Double.class);
                 }
             } catch (Exception t) {
-                if (autoType) {
-                    cellType = JavaOpenClass.getOpenClass(String.class);
-                } else {
-                    cellType = JavaOpenClass.getOpenClass(StringValue.class);
-                }
+                cellType = JavaOpenClass.getOpenClass(String.class);
             }
         }
         spreadsheetCell.setType(cellType);

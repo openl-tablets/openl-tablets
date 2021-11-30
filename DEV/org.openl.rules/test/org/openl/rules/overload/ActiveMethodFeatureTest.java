@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.Calendar;
 
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -28,14 +27,14 @@ public class ActiveMethodFeatureTest {
 
         context.setCurrentDate(calendar.getTime());
 
-        DoubleValue res1 = instance.driverRiskScoreOverloadTest1("High Risk Driver");
-        assertEquals(120.0, res1.doubleValue(), 1e-8);
+        Double res1 = instance.driverRiskScoreOverloadTest1("High Risk Driver");
+        assertEquals(120.0, res1, 1e-8);
 
         calendar.set(2008, 5, 15);
         context.setCurrentDate(calendar.getTime());
 
-        DoubleValue res2 = instance.driverRiskScoreOverloadTest1("High Risk Driver");
-        assertEquals(100.0, res2.doubleValue(), 1e-8);
+        Double res2 = instance.driverRiskScoreOverloadTest1("High Risk Driver");
+        assertEquals(100.0, res2, 1e-8);
     }
 
     @Test
@@ -61,8 +60,8 @@ public class ActiveMethodFeatureTest {
     }
 
     public interface ITestI {
-        DoubleValue driverRiskScoreOverloadTest1(String driverRisk);
+        Double driverRiskScoreOverloadTest1(String driverRisk);
 
-        DoubleValue driverRiskScoreOverloadTest2(String driverRisk);
+        Double driverRiskScoreOverloadTest2(String driverRisk);
     }
 }

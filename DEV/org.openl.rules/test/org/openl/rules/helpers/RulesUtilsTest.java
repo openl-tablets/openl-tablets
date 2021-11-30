@@ -13,7 +13,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.meta.*;
 import org.openl.rules.TestUtils;
 import org.openl.util.ArrayTool;
 
@@ -34,63 +33,63 @@ public class RulesUtilsTest {
     private static final String str = "Testing string value";
 
     public interface TestInterf {
-        LongValue testQuaotientByteValue(ByteValue number, ByteValue divisor);
+        Long testQuaotientByteValue(Byte number, Byte divisor);
 
-        LongValue testQuaotientShortValue(ShortValue number, ShortValue divisor);
+        Long testQuaotientShortValue(Short number, Short divisor);
 
-        LongValue testQuaotientIntegerValue(IntValue number, IntValue divisor);
+        Long testQuaotientIntegerValue(Integer number, Integer divisor);
 
-        LongValue testQuaotientLongValue(LongValue number, LongValue divisor);
+        Long testQuaotientLongValue(Long number, Long divisor);
 
-        LongValue testQuaotientFloatValue(FloatValue number, FloatValue divisor);
+        Long testQuaotientFloatValue(Float number, Float divisor);
 
-        LongValue testQuaotientDoubleValue(DoubleValue number, DoubleValue divisor);
+        Long testQuaotientDoubleValue(Double number, Double divisor);
 
-        LongValue testQuaotientBigIntegerValue(BigIntegerValue number, BigIntegerValue divisor);
+        Long testQuaotientBigIntegerValue(BigInteger number, BigInteger divisor);
 
-        LongValue testQuaotientBigDecimalValue(BigDecimalValue number, BigDecimalValue divisor);
+        Long testQuaotientBigDecimalValue(BigDecimal number, BigDecimal divisor);
 
-        LongValue testQuaotientByte(Byte number, Byte divisor);
+        Long testQuaotientByte(Byte number, Byte divisor);
 
-        LongValue testQuaotientShort(Short number, Short divisor);
+        Long testQuaotientShort(Short number, Short divisor);
 
-        LongValue testQuaotientInteger(Integer number, Integer divisor);
+        Long testQuaotientInteger(Integer number, Integer divisor);
 
-        LongValue testQuaotientLong(Long number, Long divisor);
+        Long testQuaotientLong(Long number, Long divisor);
 
-        LongValue testQuaotientFloat(Float number, Float divisor);
+        Long testQuaotientFloat(Float number, Float divisor);
 
-        LongValue testQuaotientDouble(Double number, Double divisor);
+        Long testQuaotientDouble(Double number, Double divisor);
 
-        LongValue testQuaotientBigInteger(BigInteger number, BigInteger divisor);
+        Long testQuaotientBigInteger(BigInteger number, BigInteger divisor);
 
-        LongValue testQuaotientBigDecimal(BigDecimal number, BigDecimal divisor);
+        Long testQuaotientBigDecimal(BigDecimal number, BigDecimal divisor);
 
-        LongValue testQuaotientByteType(byte number, byte divisor);
+        Long testQuaotientByteType(byte number, byte divisor);
 
-        LongValue testQuaotientShortType(short number, short divisor);
+        Long testQuaotientShortType(short number, short divisor);
 
-        LongValue testQuaotientIntegerType(int number, int divisor);
+        Long testQuaotientIntegerType(int number, int divisor);
 
-        LongValue testQuaotientLongType(long number, long divisor);
+        Long testQuaotientLongType(long number, long divisor);
 
-        LongValue testQuaotientFloatType(float number, float divisor);
+        Long testQuaotientFloatType(float number, float divisor);
 
-        LongValue testQuaotientDoubleType(double number, double divisor);
+        Long testQuaotientDoubleType(double number, double divisor);
 
-        ByteValue testModByteValue(ByteValue byteValue, ByteValue byteValue2);
+        Byte testModByteValue(Byte byteValue, Byte byteValue2);
 
-        ShortValue testModShortValue(ShortValue shortValue, ShortValue shortValue2);
+        Short testModShortValue(Short shortValue, Short shortValue2);
 
-        IntValue testModIntegerValue(IntValue intValue, IntValue intValue2);
+        Integer testModIntegerValue(Integer intValue, Integer intValue2);
 
-        LongValue testModLongValue(LongValue longValue, LongValue longValue2);
+        Long testModLongValue(Long longValue, Long longValue2);
 
-        FloatValue testModFloatValue(FloatValue floatValue, FloatValue floatValue2);
+        Float testModFloatValue(Float floatValue, Float floatValue2);
 
-        BigDecimalValue testModBigDecimalValue(BigDecimalValue bigDecimalValue, BigDecimalValue bigDecimalValue2);
+        BigDecimal testModBigDecimalValue(BigDecimal bigDecimalValue, BigDecimal bigDecimalValue2);
 
-        BigIntegerValue testModBigIntegerValue(BigIntegerValue bigIntegerValue, BigIntegerValue bigIntegerValue2);
+        BigInteger testModBigIntegerValue(BigInteger bigIntegerValue, BigInteger bigIntegerValue2);
 
         Byte testModByte(Byte byte1, Byte byte2);
 
@@ -174,33 +173,33 @@ public class RulesUtilsTest {
 
         double[] testSliceDoubleType(double[] ds, int i, int j);
 
-        ObjectValue[] testSortObjectValue(ObjectValue[] strValueArray);
+        Object[] testSortObjectValue(Object[] strValueArray);
 
         Date[] testSortDate(Date[] nullDateArrayValue);
 
-        StringValue[] testSortStringValue(StringValue[] strValueArray);
+        String[] testSortStringValue(String[] strValueArray);
 
         String[] testSortString(String[] strValueArray);
 
-        BigDecimalValue[] testSortBigDecimalValue(BigDecimalValue[] inputArray);
+        BigDecimal[] testSortBigDecimalValue(BigDecimal[] inputArray);
 
-        BigIntegerValue[] testSortBigIntegerValue(BigIntegerValue[] inputArray);
+        BigInteger[] testSortBigIntegerValue(BigInteger[] inputArray);
 
         BigDecimal[] testSortBigDecimal(BigDecimal[] inputArray);
 
         BigInteger[] testSortBigInteger(BigInteger[] inputArray);
 
-        DoubleValue[] testSortDoubleValue(DoubleValue[] inputArray);
+        Double[] testSortDoubleValue(Double[] inputArray);
 
-        FloatValue[] testSortFloatValue(FloatValue[] inputArray);
+        Float[] testSortFloatValue(Float[] inputArray);
 
-        LongValue[] testSortLongValue(LongValue[] inputArray);
+        Long[] testSortLongValue(Long[] inputArray);
 
-        IntValue[] testSortIntegerValue(IntValue[] inputArray);
+        Integer[] testSortIntegerValue(Integer[] inputArray);
 
-        ShortValue[] testSortShortValue(ShortValue[] inputArray);
+        Short[] testSortShortValue(Short[] inputArray);
 
-        ByteValue[] testSortByteValue(ByteValue[] inputArray);
+        Byte[] testSortByteValue(Byte[] inputArray);
 
         Double[] testSortDouble(Double[] inputArray);
 
@@ -502,9 +501,9 @@ public class RulesUtilsTest {
 
         Short[] testShortAdd(Short[] inputArray, Short i);
 
-        Object[] testObjectTypeAdd(Object[] inputArray, int i, ObjectValue objectValue);
+        Object[] testObjectTypeAdd(Object[] inputArray, int i, Object objectValue);
 
-        Object[] testObjectTypeAdd(Object[] inputArray, ObjectValue i);
+        Object[] testObjectTypeAdd(Object[] inputArray, Object i);
 
         long[] testLongTypeAdd(long[] inputArray, int i, long j);
 
@@ -546,9 +545,9 @@ public class RulesUtilsTest {
 
         Byte[] testByteAdd(Byte[] inputArray, Byte i);
 
-        Object[] testObjectTypeAddIgnoreNulls(Object[] inputArray, ObjectValue objectValue);
+        Object[] testObjectTypeAddIgnoreNulls(Object[] inputArray, Object objectValue);
 
-        Object[] testObjectTypeAddIgnoreNulls(Object[] inputArray, int i, ObjectValue objectValue);
+        Object[] testObjectTypeAddIgnoreNulls(Object[] inputArray, int i, Object objectValue);
 
         Object[] testObjectAddIgnoreNulls(Object[] inputArray, Object objectValue);
 
@@ -1128,163 +1127,156 @@ public class RulesUtilsTest {
 
     @Test
     public void testByteValueQuaotient() {
-        assertEquals(new LongValue(2),
-            instance.testQuaotientByteValue(new ByteValue((byte) 25), new ByteValue((byte) 12)));
+        assertEquals(new Long(2),
+            instance.testQuaotientByteValue(new Byte((byte) 25), new Byte((byte) 12)));
     }
 
     @Test
     public void testShortValueQuaotient() {
-        assertEquals(new LongValue(2),
-            instance.testQuaotientShortValue(new ShortValue((short) 25), new ShortValue((short) 12)));
+        assertEquals(new Long(2),
+            instance.testQuaotientShortValue(new Short((short) 25), new Short((short) 12)));
     }
 
     @Test
     public void testIntegerValueQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientIntegerValue(new IntValue(25), new IntValue(12)));
+        assertEquals(new Long(2), instance.testQuaotientIntegerValue(new Integer(25), new Integer(12)));
     }
 
     @Test
     public void testLongValueQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientLongValue(new LongValue(25), new LongValue(12)));
+        assertEquals(new Long(2), instance.testQuaotientLongValue(new Long(25), new Long(12)));
     }
 
     @Test
     public void testFloatValueQuaotient() {
-        assertEquals(new LongValue(2),
-            instance.testQuaotientFloatValue(new FloatValue((float) 25.4), new FloatValue((float) 12.2)));
+        assertEquals(new Long(2),
+            instance.testQuaotientFloatValue(new Float((float) 25.4), new Float((float) 12.2)));
     }
 
     @Test
     public void testDoubleValueQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientDoubleValue(new DoubleValue(25.4), new DoubleValue(12.2)));
+        assertEquals(new Long(2), instance.testQuaotientDoubleValue(new Double(25.4), new Double(12.2)));
     }
 
     @Test
     public void testBigIntegerValueQuaotient() {
-        assertEquals(new LongValue(2),
-            instance.testQuaotientBigIntegerValue(new BigIntegerValue(BigInteger.valueOf(25)),
-                new BigIntegerValue(BigInteger.valueOf(12))));
+        assertEquals(new Long(2),
+            instance.testQuaotientBigIntegerValue(BigInteger.valueOf(25), BigInteger.valueOf(12)));
     }
 
     @Test
     public void testBigDecimalValueQuaotient() {
-        assertEquals(new LongValue(2),
-            instance.testQuaotientBigDecimalValue(new BigDecimalValue(BigDecimal.valueOf(25.4)),
-                new BigDecimalValue(BigDecimal.valueOf(12.2))));
+        assertEquals(new Long(2),
+            instance.testQuaotientBigDecimalValue(BigDecimal.valueOf(25.4), BigDecimal.valueOf(12.2)));
     }
 
     @Test
     public void testByteTypeQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientByteType((byte) 25, (byte) 12));
+        assertEquals(new Long(2), instance.testQuaotientByteType((byte) 25, (byte) 12));
     }
 
     @Test
     public void testShortTypeQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientShortType((short) 25, (short) 12));
+        assertEquals(new Long(2), instance.testQuaotientShortType((short) 25, (short) 12));
     }
 
     @Test
     public void testIntegerTypeQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientIntegerType(25, 12));
+        assertEquals(new Long(2), instance.testQuaotientIntegerType(25, 12));
     }
 
     @Test
     public void testLongTypeQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientLongType(25, 12));
+        assertEquals(new Long(2), instance.testQuaotientLongType(25, 12));
     }
 
     @Test
     public void testFloatTypeQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientFloatType((float) 25.5, (float) 12.2));
+        assertEquals(new Long(2), instance.testQuaotientFloatType((float) 25.5, (float) 12.2));
     }
 
     @Test
     public void testDoubleTypeQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientDoubleType(25.4, 12.2));
+        assertEquals(new Long(2), instance.testQuaotientDoubleType(25.4, 12.2));
     }
 
     @Test
     public void testBigIntegerQuaotient() {
-        assertEquals(new LongValue(2),
+        assertEquals(new Long(2),
             instance.testQuaotientBigInteger(BigInteger.valueOf(25), BigInteger.valueOf(12)));
     }
 
     @Test
     public void testBigDecimalQuaotient() {
-        assertEquals(new LongValue(2),
+        assertEquals(new Long(2),
             instance.testQuaotientBigDecimal(BigDecimal.valueOf(25.4), BigDecimal.valueOf(12.2)));
     }
 
     @Test
     public void testByteQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientByte((byte) 25, (byte) 12));
+        assertEquals(new Long(2), instance.testQuaotientByte((byte) 25, (byte) 12));
     }
 
     @Test
     public void testShortQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientShort((short) 25, (short) 12));
+        assertEquals(new Long(2), instance.testQuaotientShort((short) 25, (short) 12));
     }
 
     @Test
     public void testIntegerQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientInteger(25, 12));
+        assertEquals(new Long(2), instance.testQuaotientInteger(25, 12));
     }
 
     @Test
     public void testLongQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientLong((long) 25, (long) 12));
+        assertEquals(new Long(2), instance.testQuaotientLong((long) 25, (long) 12));
     }
 
     @Test
     public void testFloatQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientFloat((float) 25.4, (float) 12.2));
+        assertEquals(new Long(2), instance.testQuaotientFloat((float) 25.4, (float) 12.2));
     }
 
     @Test
     public void testDoubleQuaotient() {
-        assertEquals(new LongValue(2), instance.testQuaotientDouble(25.4, 12.2));
+        assertEquals(new Long(2), instance.testQuaotientDouble(25.4, 12.2));
     }
 
     @Test
     public void testByteValueMod() {
-        assertEquals(new ByteValue((byte) 1),
-            instance.testModByteValue(new ByteValue((byte) 10), new ByteValue((byte) 3)));
+        assertEquals(new Byte((byte) 1),
+            instance.testModByteValue((byte) 10, (byte) 3));
     }
 
     @Test
     public void testShortValueMod() {
-        assertEquals(new ShortValue((short) 1),
-            instance.testModShortValue(new ShortValue((short) 10), new ShortValue((short) 3)));
+        assertEquals(new Short((short) 1),
+            instance.testModShortValue((short) 10, (short) 3));
     }
 
     @Test
     public void testIntegerValueMod() {
-        assertEquals(new IntValue(1), instance.testModIntegerValue(new IntValue(10), new IntValue(3)));
+        assertEquals(new Integer(1), instance.testModIntegerValue(10, 3));
     }
 
     @Test
     public void testLongValueMod() {
-        assertEquals(new LongValue(1), instance.testModLongValue(new LongValue(10), new LongValue(3)));
+        assertEquals(new Long(1), instance.testModLongValue(10L, 3L));
     }
 
     @Test
     public void testFloatValueMod() {
-        assertEquals(new FloatValue((float) 0.5),
-            instance.testModFloatValue(new FloatValue((float) 10.1), new FloatValue((float) 3.2)));
+        assertEquals(new Float(0.5F), instance.testModFloatValue(10.1F, 3.2F));
     }
 
     @Test
     public void testBigDecimalValueMod() {
-        assertEquals(new BigDecimalValue(BigDecimal.valueOf(0.5)),
-            instance.testModBigDecimalValue(new BigDecimalValue(BigDecimal.valueOf(10.1)),
-                new BigDecimalValue(BigDecimal.valueOf(3.2))));
+        assertEquals(BigDecimal.valueOf(0.5), instance.testModBigDecimalValue(BigDecimal.valueOf(10.1), BigDecimal.valueOf(3.2)));
     }
 
     @Test
     public void testBigIntegerValueMod() {
-        assertEquals(new BigIntegerValue(BigInteger.valueOf(1)),
-            instance.testModBigIntegerValue(new BigIntegerValue(BigInteger.valueOf(10)),
-                new BigIntegerValue(BigInteger.valueOf(3))));
+        assertEquals(BigInteger.valueOf(1), instance.testModBigIntegerValue(BigInteger.valueOf(10), BigInteger.valueOf(3)));
     }
 
     @Test
@@ -1761,61 +1753,49 @@ public class RulesUtilsTest {
 
     @Test
     public void testByteValueSort() {
-        ByteValue[] inputArray = { new ByteValue("2"), new ByteValue("1"), new ByteValue("0") };
-        ByteValue[] nullArray = null;
-        ByteValue[] expectedArray = { new ByteValue("0"), new ByteValue("1"), new ByteValue("2") };
+        Byte[] inputArray = { new Byte("2"), new Byte("1"), new Byte("0") };
+        Byte[] expectedArray = { new Byte("0"), new Byte("1"), new Byte("2") };
 
-        assertNull(ByteValue.sort(nullArray));
         assertArrayEquals(expectedArray, instance.testSortByteValue(inputArray));
     }
 
     @Test
     public void testShortValueSort() {
-        ShortValue[] inputArray = { new ShortValue((short) 2), new ShortValue("1"), new ShortValue("0") };
-        ShortValue[] nullArray = null;
-        ShortValue[] expectedArray = { new ShortValue("0"), new ShortValue("1"), new ShortValue("2") };
+        Short[] inputArray = {(short) 2, new Short("1"), new Short("0") };
+        Short[] expectedArray = { new Short("0"), new Short("1"), new Short("2") };
 
-        assertNull(ShortValue.sort(nullArray));
         assertArrayEquals(expectedArray, instance.testSortShortValue(inputArray));
     }
 
     @Test
     public void testIntegerValueSort() {
-        IntValue[] inputArray = { new IntValue(2), new IntValue(1), new IntValue(0) };
-        IntValue[] nullArray = null;
-        IntValue[] expectedArray = { new IntValue(0), new IntValue(1), new IntValue(2) };
+        Integer[] inputArray = {2, 1, 0};
+        Integer[] expectedArray = {0, 1, 2};
 
-        assertNull(IntValue.sort(nullArray));
         assertArrayEquals(expectedArray, instance.testSortIntegerValue(inputArray));
     }
 
     @Test
     public void testLongValueSort() {
-        LongValue[] inputArray = { new LongValue(2L), new LongValue(1L), new LongValue(0L) };
-        LongValue[] nullArray = null;
-        LongValue[] expectedArray = { new LongValue(0L), new LongValue(1L), new LongValue(2L) };
+        Long[] inputArray = {2L, 1L, 0L};
+        Long[] expectedArray = {0L, 1L, 2L};
 
-        assertNull(LongValue.sort(nullArray));
         assertArrayEquals(expectedArray, instance.testSortLongValue(inputArray));
     }
 
     @Test
     public void testFloatValueSort() {
-        FloatValue[] inputArray = { new FloatValue(2.1f), new FloatValue(1.1f), new FloatValue(-0.4f) };
-        FloatValue[] nullArray = null;
-        FloatValue[] expectedArray = { new FloatValue(-0.4f), new FloatValue(1.1f), new FloatValue(2.1f) };
+        Float[] inputArray = {2.1f, 1.1f, -0.4f};
+        Float[] expectedArray = {-0.4f, 1.1f, 2.1f};
 
-        assertNull(FloatValue.sort(nullArray));
         assertArrayEquals(expectedArray, instance.testSortFloatValue(inputArray));
     }
 
     @Test
     public void testDoubleValueSort() {
-        DoubleValue[] inputArray = { new DoubleValue(2.1), new DoubleValue(1.1), new DoubleValue(-0.4) };
-        DoubleValue[] nullArray = null;
-        DoubleValue[] expectedArray = { new DoubleValue(-0.4), new DoubleValue(1.1), new DoubleValue(2.1) };
+        Double[] inputArray = {2.1, 1.1, -0.4};
+        Double[] expectedArray = {-0.4, 1.1, 2.1};
 
-        assertNull(DoubleValue.sort(nullArray));
         assertArrayEquals(expectedArray, instance.testSortDoubleValue(inputArray));
     }
 
@@ -1841,29 +1821,17 @@ public class RulesUtilsTest {
 
     @Test
     public void testBigIntegerValueSort() {
-        BigIntegerValue[] inputArray = { new BigIntegerValue("2"),
-                new BigIntegerValue("1"),
-                new BigIntegerValue("-0") };
-        BigIntegerValue[] nullArray = null;
-        BigIntegerValue[] expectedArray = { new BigIntegerValue("-0"),
-                new BigIntegerValue("1"),
-                new BigIntegerValue("2") };
+        BigInteger[] inputArray = { new BigInteger("2"), new BigInteger("1"), new BigInteger("-0") };
+        BigInteger[] expectedArray = { new BigInteger("-0"), new BigInteger("1"), new BigInteger("2") };
 
-        assertNull(BigIntegerValue.sort(nullArray));
         assertArrayEquals(expectedArray, instance.testSortBigIntegerValue(inputArray));
     }
 
     @Test
     public void testBigDecimalValueSort() {
-        BigDecimalValue[] inputArray = { new BigDecimalValue("2.3"),
-                new BigDecimalValue("1.9"),
-                new BigDecimalValue("-0.1") };
-        BigDecimalValue[] nullArray = null;
-        BigDecimalValue[] expectedArray = { new BigDecimalValue("-0.1"),
-                new BigDecimalValue("1.9"),
-                new BigDecimalValue("2.3") };
+        BigDecimal[] inputArray = { new BigDecimal("2.3"), new BigDecimal("1.9"), new BigDecimal("-0.1") };
+        BigDecimal[] expectedArray = { new BigDecimal("-0.1"), new BigDecimal("1.9"), new BigDecimal("2.3") };
 
-        assertNull(BigDecimalValue.sort(nullArray));
         assertArrayEquals(expectedArray, instance.testSortBigDecimalValue(inputArray));
     }
 
@@ -1882,9 +1850,9 @@ public class RulesUtilsTest {
 
     @Test
     public void testStringValueSort() {
-        StringValue[] strValueArray = { null, new StringValue("asd"), new StringValue("ac"), null, null };
-        StringValue[] expecteds = { new StringValue("ac"), new StringValue("asd"), null, null, null };
-        StringValue[] actuals = instance.testSortStringValue(strValueArray);
+        String[] strValueArray = { null, "asd", "ac", null, null };
+        String[] expecteds = {"ac", "asd", null, null, null };
+        String[] actuals = instance.testSortStringValue(strValueArray);
 
         assertArrayEquals(expecteds, actuals);
 
@@ -1914,19 +1882,18 @@ public class RulesUtilsTest {
 
     @Test
     public void testObjectValueSort() {
-        ObjectValue[] strValueArray = { null, new ObjectValue("asd"), new ObjectValue("ac"), null, null };
-        ObjectValue[] expecteds = { new ObjectValue("ac"), new ObjectValue("asd"), null, null, null };
-        ObjectValue[] actuals = instance.testSortObjectValue(strValueArray);
+        Object[] strValueArray = { null, "asd", "ac", null, null };
+        Object[] expecteds = { "ac", "asd", null, null, null };
+        Object[] actuals = instance.testSortObjectValue(strValueArray);
 
         assertArrayEquals(expecteds, actuals);
     }
 
     @Test
     public void testObjectInObjectArrContains() {
-        Object searchFor = new ObjectValue("5");
-        Object searchForFailed = new ObjectValue("666");
-        Object[] searchIn = { new ObjectValue(
-            "1"), new ObjectValue("4"), new ObjectValue("5"), new ObjectValue("7"), new ObjectValue("10") };
+        Object searchFor = "5";
+        Object searchForFailed = "666";
+        Object[] searchIn = { "1", "4", "5", "7", "10" };
 
         assertFalse(instance.testContainsObjectInObjectArr(null, searchFor));
         assertFalse(instance.testContainsObjectInObjectArr(searchIn, searchForFailed));
@@ -2239,10 +2206,9 @@ public class RulesUtilsTest {
 
     @Test
     public void testObjectArrInObjectArrContains() {
-        Object[] searchFor = { new ObjectValue("5"), new ObjectValue("1") };
-        Object[] searchForFailed = { new ObjectValue("666") };
-        Object[] searchIn = { new ObjectValue(
-            "1"), new ObjectValue("4"), new ObjectValue("5"), new ObjectValue("7"), new ObjectValue("10") };
+        Object[] searchFor = { "5", "1" };
+        Object[] searchForFailed = { "666" };
+        Object[] searchIn = { "1", "4", "5", "7", "10" };
 
         assertFalse(instance.testContainsObjectArrInObjectArr(searchIn, null));
         assertFalse(instance.testContainsObjectArrInObjectArr(searchIn, searchForFailed));
@@ -3498,19 +3464,19 @@ public class RulesUtilsTest {
     @Test
     public void testAddObject() {
         Object[] inputArray = { 0, 1, 2 };
-        Object[] outputArray = instance.testObjectTypeAdd(inputArray, new ObjectValue(4));
-        assertEquals(new ObjectValue(4), outputArray[3]);
-        outputArray = instance.testObjectTypeAdd(null, new ObjectValue(4));
-        assertEquals(new ObjectValue(4), outputArray[0]);
+        Object[] outputArray = instance.testObjectTypeAdd(inputArray, 4);
+        assertEquals(4, outputArray[3]);
+        outputArray = instance.testObjectTypeAdd(null, 4);
+        assertEquals(4, outputArray[0]);
     }
 
     @Test
     public void testAddObjectInPosition() {
         Object[] inputArray = { 0, 2, 3 };
-        Object[] outputArray = instance.testObjectTypeAdd(inputArray, 2, new ObjectValue(1));
-        assertEquals(new ObjectValue(1), outputArray[2]);
-        outputArray = instance.testObjectTypeAdd(null, 0, new ObjectValue(4));
-        assertEquals(new ObjectValue(4), outputArray[0]);
+        Object[] outputArray = instance.testObjectTypeAdd(inputArray, 2, 1);
+        assertEquals(1, outputArray[2]);
+        outputArray = instance.testObjectTypeAdd(null, 0, 4);
+        assertEquals(4, outputArray[0]);
     }
 
     @Test
@@ -3552,49 +3518,49 @@ public class RulesUtilsTest {
     @Test
     public void testAddIgnoreNullsInPosition() {
         Object[] inputArray = { 0, 2, 3 };
-        Object[] outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, 2, new ObjectValue(1));
-        assertEquals(new ObjectValue(1), outputArray[2]);
+        Object[] outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, 2, 1);
+        assertEquals(1, outputArray[2]);
         inputArray = new Object[] { 0, 2, 3 };
         outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, 2, null);
         assertArrayEquals(inputArray, outputArray);
-        outputArray = instance.testObjectTypeAddIgnoreNulls(null, 0, new ObjectValue(4));
-        assertEquals(new ObjectValue(4), outputArray[0]);
+        outputArray = instance.testObjectTypeAddIgnoreNulls(null, 0, 4);
+        assertEquals(4, outputArray[0]);
     }
 
     @Test
     public void testAddIgnoreNullsObject() {
         Object[] inputArray = { 0, 1, 2 };
-        Object[] outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, new ObjectValue(4));
-        assertEquals(new ObjectValue(4), outputArray[3]);
+        Object[] outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, 4);
+        assertEquals(4, outputArray[3]);
         inputArray = new Object[] { 0, 1, 2 };
         outputArray = instance.testObjectTypeAddIgnoreNulls(inputArray, null);
         assertArrayEquals(inputArray, outputArray);
-        outputArray = instance.testObjectTypeAddIgnoreNulls(null, new ObjectValue(4));
-        assertEquals(new ObjectValue(4), outputArray[0]);
+        outputArray = instance.testObjectTypeAddIgnoreNulls(null, 4);
+        assertEquals(4, outputArray[0]);
     }
 
     @Test
     public void testObjectAddIgnoreNullsInPosition() {
         Object[] inputArray = { 0, 2, 3 };
-        Object[] outputArray = instance.testObjectAddIgnoreNulls(inputArray, 2, new ObjectValue(1));
-        assertEquals(new ObjectValue(1), outputArray[2]);
+        Object[] outputArray = instance.testObjectAddIgnoreNulls(inputArray, 2, 1);
+        assertEquals(1, outputArray[2]);
         inputArray = new Object[] { 0, 2, 3 };
         outputArray = instance.testObjectAddIgnoreNulls(inputArray, 2, null);
         assertArrayEquals(inputArray, outputArray);
-        outputArray = instance.testObjectAddIgnoreNulls(null, 0, new ObjectValue(4));
-        assertEquals(new ObjectValue(4), outputArray[0]);
+        outputArray = instance.testObjectAddIgnoreNulls(null, 0, 4);
+        assertEquals(4, outputArray[0]);
     }
 
     @Test
     public void testObjectAddIgnoreNullsObject() {
         Object[] inputArray = { 0, 1, 2 };
-        Object[] outputArray = instance.testObjectAddIgnoreNulls(inputArray, new ObjectValue(4));
-        assertEquals(new ObjectValue(4), outputArray[3]);
+        Object[] outputArray = instance.testObjectAddIgnoreNulls(inputArray, 4);
+        assertEquals(4, outputArray[3]);
         inputArray = new Object[] { 0, 1, 2 };
         outputArray = instance.testObjectAddIgnoreNulls(inputArray, null);
         assertArrayEquals(inputArray, outputArray);
-        outputArray = instance.testObjectAddIgnoreNulls(null, new ObjectValue(4));
-        assertEquals(new ObjectValue(4), outputArray[0]);
+        outputArray = instance.testObjectAddIgnoreNulls(null, 4);
+        assertEquals(4, outputArray[0]);
     }
 
     @Test

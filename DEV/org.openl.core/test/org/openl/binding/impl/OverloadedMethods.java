@@ -7,8 +7,6 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
 
-import org.openl.meta.*;
-
 public class OverloadedMethods {
     public static String _byte(byte arg) {
         return "byte";
@@ -80,38 +78,6 @@ public class OverloadedMethods {
 
     public static String _Character(Character arg) {
         return "Character";
-    }
-
-    public static String _ByteValue(ByteValue arg) {
-        return "ByteValue";
-    }
-
-    public static String _ShortValue(ShortValue arg) {
-        return "ShortValue";
-    }
-
-    public static String _IntValue(IntValue arg) {
-        return "IntValue";
-    }
-
-    public static String _LongValue(LongValue arg) {
-        return "LongValue";
-    }
-
-    public static String _FloatValue(FloatValue arg) {
-        return "FloatValue";
-    }
-
-    public static String _DoubleValue(DoubleValue arg) {
-        return "DoubleValue";
-    }
-
-    public static String _BigIntegerValue(BigIntegerValue arg) {
-        return "BigIntegerValue";
-    }
-
-    public static String _BigDecimalValue(BigDecimalValue arg) {
-        return "BigDecimalValue";
     }
 
     public static String m0_prim(int arg) {
@@ -230,38 +196,6 @@ public class OverloadedMethods {
         return "Character";
     }
 
-    public static String m1(ByteValue arg) {
-        return "ByteValue";
-    }
-
-    public static String m1(ShortValue arg) {
-        return "ShortValue";
-    }
-
-    public static String m1(IntValue arg) {
-        return "IntValue";
-    }
-
-    public static String m1(LongValue arg) {
-        return "LongValue";
-    }
-
-    public static String m1(FloatValue arg) {
-        return "FloatValue";
-    }
-
-    public static String m1(DoubleValue arg) {
-        return "DoubleValue";
-    }
-
-    public static String m1(BigIntegerValue arg) {
-        return "BigIntegerValue";
-    }
-
-    public static String m1(BigDecimalValue arg) {
-        return "BigDecimalValue";
-    }
-
     public static <T> String m2(T arg1, T arg2) {
         return "Generic" + (arg1 != null ? arg1.getClass().getSimpleName() : "");
     }
@@ -342,8 +276,8 @@ public class OverloadedMethods {
         return "Generic_Comparable..." + args.getClass().getSimpleName();
     }
 
-    public static String vararg4(DoubleValue... args) {
-        return "DoubleValue..." + args.getClass().getSimpleName();
+    public static String vararg4(BigDecimal... args) {
+        return "BigDecimal..." + args.getClass().getSimpleName();
     }
 
     public static String vararg4(Long... args) {

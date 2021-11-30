@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.openl.dependency.IDependencyManager;
 import org.openl.generated.test.beans.Driver;
 import org.openl.generated.test.beans.Policy;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancer;
 import org.openl.rules.project.instantiation.variation.VariationInstantiationStrategyEnhancerHelper;
@@ -111,12 +110,12 @@ public class VariationsTest {
         assertEquals(3, resultsPolicies.getAllProcessedVariationIDs().length);
         assertTrue(resultsPolicies.getVariationFailures().isEmpty());
         assertEquals(resultsPolicies.getResultForVariation("young").getFieldValue("$Value$Premium"),
-            new DoubleValue(1390));
+            1390.0);
         assertEquals(resultsPolicies.getResultForVariation("senior").getFieldValue("$Value$Premium"),
-            new DoubleValue(1290));
+            1290.0);
         assertEquals(
             resultsPolicies.getResultForVariation(NoVariation.ORIGINAL_CALCULATION).getFieldValue("$Value$Premium"),
-            new DoubleValue(1090));
+            1090.0);
     }
 
     @Test

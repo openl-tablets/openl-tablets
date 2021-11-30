@@ -17,15 +17,6 @@ import org.openl.binding.impl.BlockNode;
 import org.openl.binding.impl.FieldBoundNode;
 import org.openl.binding.impl.IndexNode;
 import org.openl.binding.impl.LiteralBoundNode;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
-import org.openl.meta.StringValue;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.AConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
@@ -175,72 +166,36 @@ class DependentParametersOptimizedAlgorithm {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.STRING, conditionCasts);
         }
 
-        if (typeClass == StringValue.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.STRING_VALUE, conditionCasts);
-        }
-
         if (typeClass == byte.class || typeClass == Byte.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BYTE, conditionCasts);
-        }
-
-        if (typeClass == ByteValue.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BYTE_VALUE, conditionCasts);
         }
 
         if (typeClass == short.class || typeClass == Short.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.SHORT, conditionCasts);
         }
 
-        if (typeClass == ShortValue.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.SHORT_VALUE, conditionCasts);
-        }
-
         if (typeClass == int.class || typeClass == Integer.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.INT, conditionCasts);
-        }
-
-        if (typeClass == IntValue.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.INT_VALUE, conditionCasts);
         }
 
         if (typeClass == long.class || typeClass == Long.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.LONG, conditionCasts);
         }
 
-        if (typeClass == LongValue.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.LONG_VALUE, conditionCasts);
-        }
-
         if (typeClass == float.class || typeClass == Float.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.FLOAT, conditionCasts);
-        }
-
-        if (typeClass == FloatValue.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.FLOAT_VALUE, conditionCasts);
         }
 
         if (typeClass == double.class || typeClass == Double.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DOUBLE, conditionCasts);
         }
 
-        if (typeClass == DoubleValue.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.DOUBLE_VALUE, conditionCasts);
-        }
-
         if (typeClass == BigInteger.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGINTEGER, conditionCasts);
         }
 
-        if (typeClass == BigIntegerValue.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGINTEGER_VALUE, conditionCasts);
-        }
-
         if (typeClass == BigDecimal.class) {
             return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL, conditionCasts);
-        }
-
-        if (typeClass == BigDecimalValue.class) {
-            return new RelationRangeAdaptor<>(evaluatorFactory, ITypeAdaptor.BIGDECIMAL_VALUE, conditionCasts);
         }
 
         if (typeClass == Date.class) {

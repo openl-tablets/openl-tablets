@@ -17,7 +17,6 @@ import java.util.GregorianCalendar;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
@@ -103,7 +102,7 @@ public class DispatchingTest {
             Date requestDate = df.parse((String) data[1]);
             context.setCurrentDate(currentDate);
             context.setRequestDate(requestDate);
-            DoubleValue res = instance.driverRiskScoreOverloadTest2("High Risk Driver");
+            Double res = instance.driverRiskScoreOverloadTest2("High Risk Driver");
             assertEquals("testData index = " + i, (Double) data[2], res.doubleValue(), 0);
         }
     }
@@ -228,7 +227,7 @@ public class DispatchingTest {
 
         int getAmbiguousPriority1();
 
-        DoubleValue driverRiskScoreOverloadTest2(String driverRisk);
+        Double driverRiskScoreOverloadTest2(String driverRisk);
     }
 
     public interface MyRule {

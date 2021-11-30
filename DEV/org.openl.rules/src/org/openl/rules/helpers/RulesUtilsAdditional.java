@@ -9,7 +9,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import org.apache.commons.lang3.StringUtils;
-import org.openl.meta.*;
 
 public final class RulesUtilsAdditional {
 
@@ -97,22 +96,6 @@ public final class RulesUtilsAdditional {
                 return BigInteger.ZERO;
             } else if (fieldType == BigDecimal.class) {
                 return BigDecimal.ZERO;
-            } else if (fieldType == ByteValue.class) {
-                return new ByteValue((byte) 0);
-            } else if (fieldType == ShortValue.class) {
-                return new ShortValue((short) 0);
-            } else if (fieldType == IntValue.class) {
-                return new IntValue(0);
-            } else if (fieldType == LongValue.class) {
-                return new LongValue(0);
-            } else if (fieldType == FloatValue.class) {
-                return new FloatValue(0f);
-            } else if (fieldType == DoubleValue.class) {
-                return new DoubleValue(0d);
-            } else if (fieldType == BigIntegerValue.class) {
-                return BigIntegerValue.ZERO;
-            } else if (fieldType == BigDecimalValue.class) {
-                return BigDecimalValue.ZERO;
             }
         }
         return fieldType.newInstance();

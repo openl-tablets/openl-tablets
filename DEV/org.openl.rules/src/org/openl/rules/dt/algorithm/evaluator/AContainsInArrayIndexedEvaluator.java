@@ -11,7 +11,6 @@ import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
-import org.openl.meta.BigDecimalValue;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
@@ -82,7 +81,7 @@ public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluat
                 val = conditionCasts.castToInputType(val);
                 if (uniqueVals == null) {
                     if (NumberUtils.isObjectFloatPointNumber(val)) {
-                        if (val instanceof BigDecimal || val instanceof BigDecimalValue) {
+                        if (val instanceof BigDecimal) {
                             uniqueVals = new HashSet<>();
                         } else {
                             uniqueVals = new TreeSet<>(FloatTypeComparator.getInstance());

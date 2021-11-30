@@ -10,7 +10,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openl.meta.DoubleValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -46,9 +45,9 @@ public class SimpleZipOpenLServiceTaskTest {
 
         Task task = processEngine.getTaskService().createTaskQuery().singleResult();
 
-        DoubleValue result = (DoubleValue) processEngine.getRuntimeService()
+        Double result = (Double) processEngine.getRuntimeService()
             .getVariable(task.getExecutionId(), "resultVariable");
 
-        Assert.assertEquals(500.0d, result.doubleValue(), 1e-3);
+        Assert.assertEquals(500.0d, result, 1e-3);
     }
 }
