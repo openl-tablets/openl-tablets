@@ -3,7 +3,12 @@ Content-Type: application/json
 
 [
   {
-    "groups": ["Administrators"],
+    "userGroups":[
+      {
+        "name":"Administrators",
+        "type":"ADMIN"
+      }
+    ],
     "username": "admin",
     "internalUser": true,
     "currentUser": true,
@@ -16,7 +21,12 @@ Content-Type: application/json
     "email": "jsmith@email",
     "firstName": "John",
     "lastName": "Smith",
-    "groups": ["Administrators"],
+    "userGroups":[
+      {
+        "name":"Administrators",
+        "type":"ADMIN"
+      }
+    ],
     "username": "jsmith",
     "internalUser": true,
     "externalFlags": {}
