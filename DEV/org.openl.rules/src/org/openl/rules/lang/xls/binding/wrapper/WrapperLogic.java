@@ -278,17 +278,19 @@ public final class WrapperLogic {
         Object ret = externalMethodCall ? WrapperLogic.invokeExternalMethod(wrapper, target, params, env)
                                         : WrapperLogic.invoke(wrapper, target, params, env);
         // Set custom spreadsheet type to work in the correct classloader with spreadsheet result been types
-        if (wrapper.getType() instanceof CustomSpreadsheetResultOpenClass) {
-            if (((SpreadsheetResult) ret).getCustomSpreadsheetResultOpenClass() == null) {
-                ((SpreadsheetResult) ret)
-                    .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) wrapper.getType());
-            }
-        } else if (wrapper
-            .getType() instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) wrapper.getType())
-                .getModule() != null) {
-            if (((SpreadsheetResult) ret).getCustomSpreadsheetResultOpenClass() == null) {
-                ((SpreadsheetResult) ret).setCustomSpreadsheetResultOpenClass(
-                    ((SpreadsheetResultOpenClass) wrapper.getType()).toCustomSpreadsheetResultOpenClass());
+        if (ret != null) {
+            if (wrapper.getType() instanceof CustomSpreadsheetResultOpenClass) {
+                if (((SpreadsheetResult) ret).getCustomSpreadsheetResultOpenClass() == null) {
+                    ((SpreadsheetResult) ret)
+                        .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) wrapper.getType());
+                }
+            } else if (wrapper
+                .getType() instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) wrapper.getType())
+                    .getModule() != null) {
+                if (((SpreadsheetResult) ret).getCustomSpreadsheetResultOpenClass() == null) {
+                    ((SpreadsheetResult) ret).setCustomSpreadsheetResultOpenClass(
+                        ((SpreadsheetResultOpenClass) wrapper.getType()).toCustomSpreadsheetResultOpenClass());
+                }
             }
         }
         return ret;
