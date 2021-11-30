@@ -80,15 +80,15 @@
                 let users = "";
                 data.forEach(user => {
                     let userGroups = '';
-                    if (typeof user.groups !== "undefined") {
+                    if (typeof user.userGroups !== "undefined") {
                         const userGroupRowTemplate = $j('#users-groups>span:nth-child(1)');
                         const userGroupHtmlTemplate = userGroupRowTemplate.clone().html();
-                        user.groups.forEach(group => {
-                            userGroups += userGroupHtmlTemplate.replace(/{usersGroupClass}/g, "badge users-group" + (group === "Administrators" ? ' badge-error' : ' badge-info'))
-                                .replace(/{usersGroup}/g, ws.utils.escapeHtml(group))
+                        user.userGroups.forEach(group => {
+                            userGroups += userGroupHtmlTemplate.replace(/{usersGroupClass}/g, "badge users-group" + (group.type === "ADMIN" ? ' badge-error' : ' badge-info'))
+                                .replace(/{usersGroup}/g, ws.utils.escapeHtml(group.name))
                         });
                     }
-                    users += htmlTemplate.replace(/{usersEditUserParams}/g, '\'' + ws.utils.escapeHtml(user.username) + '\',\'' + ws.utils.escapeHtml(user.firstName) + '\',\'' + ws.utils.escapeHtml(user.lastName) + '\',\'' + ws.utils.escapeHtml(user.email) + '\',\'' + ws.utils.escapeHtml(user.displayName) + '\',' + user.internalUser + ',\'' + user.groups + '\',' + user.superUser + ',' + user.currentUser + ',' + user.externalFlags.firstNameExternal + ',' + user.externalFlags.lastNameExternal + ',' + user.externalFlags.emailExternal + ',' + user.externalFlags.displayNameExternal)
+                    users += htmlTemplate.replace(/{usersEditUserParams}/g, '\'' + ws.utils.escapeHtml(user.username) + '\',\'' + ws.utils.escapeHtml(user.firstName) + '\',\'' + ws.utils.escapeHtml(user.lastName) + '\',\'' + ws.utils.escapeHtml(user.email) + '\',\'' + ws.utils.escapeHtml(user.displayName) + '\',' + user.internalUser + ',\'' + user.userGroups.map(p => p.name) + '\',' + user.superUser + ',' + user.currentUser + ',' + user.externalFlags.firstNameExternal + ',' + user.externalFlags.lastNameExternal + ',' + user.externalFlags.emailExternal + ',' + user.externalFlags.displayNameExternal)
                         .replace(/{usersUsername}/g, ws.utils.escapeHtml(user.username))
                         .replace(/{usersUnsafeDefaultPasswordStyle}/g, !user.unsafePassword ? " display: none; " : '')
                         .replace(/{usersFirstname}/g, ws.utils.escapeHtml(user.firstName))
