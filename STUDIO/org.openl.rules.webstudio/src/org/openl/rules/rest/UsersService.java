@@ -32,24 +32,26 @@ import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.security.UserExternalFlags;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.PrivilegesEvaluator;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TABLE_FORMULAS_SHOW;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TABLE_VIEW;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_FAILURES_ONLY;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_FAILURES_PERTEST;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_RESULT_COMPLEX_SHOW;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TEST_TESTS_PERPAGE;
-import static org.openl.rules.webstudio.service.UserSettingManagementService.TRACE_REALNUMBERS_SHOW;
+import static org.openl.rules.ui.WebStudio.TABLE_FORMULAS_SHOW;
+import static org.openl.rules.ui.WebStudio.TABLE_VIEW;
+import static org.openl.rules.ui.WebStudio.TEST_FAILURES_ONLY;
+import static org.openl.rules.ui.WebStudio.TEST_FAILURES_PERTEST;
+import static org.openl.rules.ui.WebStudio.TEST_RESULT_COMPLEX_SHOW;
+import static org.openl.rules.ui.WebStudio.TEST_TESTS_PERPAGE;
+import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
 
 @Service
 @Path("/users")
@@ -167,37 +169,62 @@ public class UsersService {
     @PUT
     @Path("/profile")
     public void editUserProfile(@RequestBody UserProfileEditModel userModel) {
-        String username = userModel.getChangePassword().getUsername();
-        if (!currentUserInfo.getUserName().equals(username)) {
-            SecurityChecker.allow(Privileges.ADMIN);
-        }
         validationProvider.validate(userModel);
         boolean updatePassword = Optional.ofNullable(userModel.getChangePassword())
             .map(ChangePasswordModel::getNewPassword)
             .map(StringUtils::isNotBlank)
             .orElse(false);
-        userManagementService.updateUserData(username,
+        userManagementService.updateUserData(currentUserInfo.getUserName(),
             userModel.getFirstName(),
             userModel.getLastName(),
             updatePassword ? passwordEncoder.encode(userModel.getChangePassword().getNewPassword()) : null,
             updatePassword,
             userModel.getEmail(),
             userModel.getDisplayName());
-        userSettingsManager.setProperty(username, TRACE_REALNUMBERS_SHOW, userModel.isShowRealNumbers());
-        userSettingsManager.setProperty(username, TEST_FAILURES_PERTEST, userModel.getTestsFailuresPerTest());
-        userSettingsManager.setProperty(username, TEST_RESULT_COMPLEX_SHOW, userModel.isShowComplexResult());
-        userSettingsManager.setProperty(username, TEST_TESTS_PERPAGE, userModel.getTestsPerPage());
-        userSettingsManager.setProperty(username, TABLE_FORMULAS_SHOW, userModel.isShowFormulas());
-        userSettingsManager.setProperty(username,
-            TABLE_VIEW,
-            userModel.isShowHeader() ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
-        userSettingsManager.setProperty(username, TEST_FAILURES_ONLY, userModel.isTestsFailuresOnly());
+
+        updateUserSettings(userModel.isShowFormulas(),
+            userModel.isShowHeader(),
+            userModel.isShowRealNumbers(),
+            userModel.getTestsFailuresPerTest(),
+            userModel.isShowComplexResult(),
+            userModel.getTestsPerPage(),
+            userModel.isTestsFailuresOnly());
 
         updateCurrentApplicationUser(userModel.getFirstName(),
             userModel.getLastName(),
             userModel.getEmail(),
             userModel.getDisplayName(),
             userModel.getChangePassword().getNewPassword());
+    }
+
+    private void updateUserSettings(boolean showFormulas,
+            boolean showHeader,
+            boolean showRealNumbers,
+            int testsFailuresPerTest,
+            boolean showComplexResult,
+            int testsPerPage,
+            boolean testsFailuresOnly) {
+        WebStudio studio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
+        String username = currentUserInfo.getUserName();
+        if (studio != null) {
+            studio.setShowFormulas(showFormulas);
+            studio.setShowHeader(showHeader);
+            studio.setShowRealNumbers(showRealNumbers);
+            studio.setTestsFailuresPerTest(testsFailuresPerTest);
+            studio.setShowComplexResult(showComplexResult);
+            studio.setTestsPerPage(testsPerPage);
+            studio.setTestsFailuresOnly(testsFailuresOnly);
+        } else {
+            userSettingsManager.setProperty(username, TRACE_REALNUMBERS_SHOW, showRealNumbers);
+            userSettingsManager.setProperty(username, TEST_FAILURES_PERTEST, testsFailuresPerTest);
+            userSettingsManager.setProperty(username, TEST_RESULT_COMPLEX_SHOW, showComplexResult);
+            userSettingsManager.setProperty(username, TEST_TESTS_PERPAGE, testsPerPage);
+            userSettingsManager.setProperty(username, TABLE_FORMULAS_SHOW, showFormulas);
+            userSettingsManager.setProperty(username,
+                TABLE_VIEW,
+                showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
+            userSettingsManager.setProperty(username, TEST_FAILURES_ONLY, testsFailuresOnly);
+        }
     }
 
     private void updateCurrentApplicationUser(String firstname,

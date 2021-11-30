@@ -6,8 +6,7 @@ Content-Type: application/json
   "changePassword": {
     "newPassword": "admin2",
     "currentPassword": "admin",
-    "confirmPassword": "admin2",
-    "username": "admin"
+    "confirmPassword": "admin2"
   },
   "firstName": "Mike",
   "lastName": "Johnson",

@@ -270,11 +270,13 @@
             e.preventDefault();
 
             if (userMode !== 'single') {
-                let changePassword = {username: $j("#account-user-username").text()};
+                let changePassword;
                 if (userMode === 'multi') {
-                    changePassword.newPassword = $j("#account-user-new-password").val();
-                    changePassword.currentPassword = $j("#account-user-current-password").val();
-                    changePassword.confirmPassword = $j("#account-user-confirm-password").val();
+                    changePassword = {
+                        newPassword : $j("#account-user-new-password").val(),
+                        currentPassword : $j("#account-user-current-password").val(),
+                        confirmPassword : $j("#account-user-confirm-password").val()
+                    }
                 }
                 $j.ajax({
                     type: "PUT",

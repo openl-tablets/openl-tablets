@@ -15,6 +15,7 @@ import org.openl.rules.rest.model.UserEditModel;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,12 +40,16 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     private UserManagementService userManagementService;
 
     @Autowired
+    private CurrentUserInfo currentUserInfo;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     @After
     public void reset_mocks() {
         Mockito.reset(userManagementService);
         Mockito.reset(passwordEncoder);
+        Mockito.reset(currentUserInfo);
     }
 
     @Test
@@ -270,6 +275,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     @Test
     public void testEditUserProfile_valid() {
         UserProfileEditModel userProfileEditModel = getValidUserProfileEditModel();
+        when(currentUserInfo.getUserName()).thenReturn("jsmith");
         when(passwordEncoder.matches("pass", "passHash")).thenReturn(true);
         SimpleUser existedUser = new SimpleUser();
         existedUser.setPassword("passHash");
@@ -277,19 +283,19 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
         assertNull(validateAndGetResult(userProfileEditModel));
 
-        userProfileEditModel.setChangePassword(new ChangePasswordModel().setUsername("jsmith"));
+        userProfileEditModel.setChangePassword(new ChangePasswordModel());
         assertNull(validateAndGetResult(userProfileEditModel));
     }
 
     @Test
     public void testEditUserProfile_password_notValid() {
         when(passwordEncoder.matches("pass", "passHash")).thenReturn(true);
+        when(currentUserInfo.getUserName()).thenReturn("jsmith");
         SimpleUser existedUser = new SimpleUser();
         existedUser.setPassword("passHash");
         UserProfileEditModel userProfileEditModel = getValidUserProfileEditModel();
 
-        ChangePasswordModel changePasswordModel = new ChangePasswordModel().setUsername("jsmith")
-            .setNewPassword("pass2");
+        ChangePasswordModel changePasswordModel = new ChangePasswordModel().setNewPassword("pass2");
         userProfileEditModel.setChangePassword(changePasswordModel);
         when(userManagementService.getApplicationUser(anyString())).thenReturn(existedUser);
         BindingResult bindingResult = validateAndGetResult(userProfileEditModel);
@@ -298,8 +304,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
             changePasswordModel,
             bindingResult.getFieldError("changePassword"));
 
-        changePasswordModel = new ChangePasswordModel().setUsername("jsmith")
-            .setNewPassword("pass2")
+        changePasswordModel = new ChangePasswordModel().setNewPassword("pass2")
             .setCurrentPassword("pass")
             .setConfirmPassword("pass1");
         userProfileEditModel.setChangePassword(changePasswordModel);
@@ -311,8 +316,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
         when(passwordEncoder.matches("pass", "passHash")).thenReturn(true);
         when(passwordEncoder.matches("pass1", "passHash1")).thenReturn(true);
-        changePasswordModel = new ChangePasswordModel().setUsername("jsmith")
-            .setNewPassword("pass2")
+        changePasswordModel = new ChangePasswordModel().setNewPassword("pass2")
             .setCurrentPassword("pass1")
             .setConfirmPassword("pass2");
         userProfileEditModel.setChangePassword(changePasswordModel);
@@ -354,11 +358,8 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     private UserProfileEditModel getValidUserProfileEditModel() {
-        return new UserProfileEditModel()
-            .setChangePassword(new ChangePasswordModel().setConfirmPassword("pass2")
-                .setNewPassword("pass2")
-                .setCurrentPassword("pass")
-                .setUsername("jsmith"))
+        return new UserProfileEditModel().setChangePassword(
+            new ChangePasswordModel().setConfirmPassword("pass2").setNewPassword("pass2").setCurrentPassword("pass"))
             .setShowComplexResult(true)
             .setShowFormulas(true)
             .setShowRealNumbers(true)

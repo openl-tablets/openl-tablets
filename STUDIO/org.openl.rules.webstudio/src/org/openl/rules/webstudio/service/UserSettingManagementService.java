@@ -5,14 +5,6 @@ import org.openl.rules.security.standalone.persistence.UserSetting;
 import org.springframework.core.env.PropertyResolver;
 
 public class UserSettingManagementService {
-    public static final String RULES_TREE_VIEW = "rules.tree.view";
-    public static final String TABLE_VIEW = "table.view";
-    public static final String TABLE_FORMULAS_SHOW = "table.formulas.show";
-    public static final String TEST_TESTS_PERPAGE = "test.tests.perpage";
-    public static final String TEST_FAILURES_ONLY = "test.failures.only";
-    public static final String TEST_FAILURES_PERTEST = "test.failures.pertest";
-    public static final String TEST_RESULT_COMPLEX_SHOW = "test.result.complex.show";
-    public static final String TRACE_REALNUMBERS_SHOW = "trace.realNumbers.show";
 
     private final UserSettingDao userSettingDao;
 
