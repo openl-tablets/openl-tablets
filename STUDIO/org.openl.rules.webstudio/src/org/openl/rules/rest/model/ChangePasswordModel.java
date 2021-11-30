@@ -2,22 +2,11 @@ package org.openl.rules.rest.model;
 
 public class ChangePasswordModel {
 
-    private String username;
-
     private String newPassword;
 
     private String confirmPassword;
 
     private String currentPassword;
-
-    public String getUsername() {
-        return username;
-    }
-
-    public ChangePasswordModel setUsername(String username) {
-        this.username = username;
-        return this;
-    }
 
     public String getNewPassword() {
         return newPassword;

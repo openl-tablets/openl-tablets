@@ -4,6 +4,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.openl.rules.rest.model.ChangePasswordModel;
+import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,9 @@ public class ChangePasswordConstraintValidator implements ConstraintValidator<Ch
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private CurrentUserInfo currentUserInfo;
+
     @Override
     public void initialize(ChangePasswordConstraint constraintAnnotation) {
     }
@@ -26,7 +30,8 @@ public class ChangePasswordConstraintValidator implements ConstraintValidator<Ch
         context.disableDefaultConstraintViolation();
         if (StringUtils.isNotEmpty(value.getNewPassword()) || StringUtils
             .isNotEmpty(value.getCurrentPassword()) || StringUtils.isNotEmpty(value.getConfirmPassword())) {
-            String userPasswordHash = userManagementService.getApplicationUser(value.getUsername()).getPassword();
+            String userPasswordHash = userManagementService.getApplicationUser(currentUserInfo.getUserName())
+                .getPassword();
 
             if (StringUtils.isEmpty(value.getCurrentPassword())) {
                 context.buildConstraintViolationWithTemplate("{openl.constraints.password.empty.message}")
