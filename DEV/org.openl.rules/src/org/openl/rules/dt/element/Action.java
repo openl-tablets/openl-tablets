@@ -9,6 +9,8 @@ import java.util.Optional;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.engine.OpenLSystemProperties;
+import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.dt.DTScale;
@@ -184,18 +186,12 @@ public class Action extends FunctionalRow implements IAction {
             IOpenClass ruleExecutionType,
             TableSyntaxNode tableSyntaxNode) throws Exception {
 
-        this.returnType = decisionTable.getType();
-
         IOpenClass methodType = JavaOpenClass.VOID;
         if (isReturnAction()) {
             methodType = header.getType();
-            this.singleActionReturnType = decisionTable.getType();
         } else {
             if (isCollectReturnAction()) {
                 methodType = extractMethodTypeForCollectReturnAction(tableSyntaxNode, header.getType(), bindingContext);
-                this.singleActionReturnType = extractMethodTypeForCollectReturnAction(tableSyntaxNode,
-                    decisionTable.getType(),
-                    bindingContext);
             } else {
                 if (isCollectReturnKeyAction()) {
                     methodType = extractMethodTypeForCollectReturnKeyAction(tableSyntaxNode, bindingContext);
@@ -223,6 +219,29 @@ public class Action extends FunctionalRow implements IAction {
         isSingleReturnParam = params.length == 1 && !NullParameterDeclaration.isAnyNull(params[0]) && params[0]
             .getName()
             .equals(code);
+
+        if ((isReturnAction() || isCollectReturnAction()) && decisionTable
+            .isTypeCustomSpreadsheetResult() && OpenLSystemProperties
+                .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
+            if (method.getBodyType() instanceof AnySpreadsheetResultOpenClass) {
+                decisionTable.setTypeCustomSpreadsheetResult(false);
+                decisionTable.setCustomSpreadsheetResultType(null);
+                decisionTable.setTypeAnySpreadsheetResult(true);
+            } else if (decisionTable.isTypeCustomSpreadsheetResult()) {
+                decisionTable.getCustomSpreadsheetResultType().updateWithType(method.getBodyType());
+            }
+        }
+
+        this.returnType = decisionTable.getType();
+        if (isReturnAction()) {
+            this.singleActionReturnType = decisionTable.getType();
+        } else {
+            if (isCollectReturnAction()) {
+                this.singleActionReturnType = extractMethodTypeForCollectReturnAction(tableSyntaxNode,
+                    decisionTable.getType(),
+                    bindingContext);
+            }
+        }
     }
 
     @Override
