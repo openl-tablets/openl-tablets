@@ -4,6 +4,7 @@ public enum RepositoryType {
     DB("repo-jdbc"),
     JNDI("repo-jndi"),
     AWS_S3("repo-aws-s3"),
+    AZURE("repo-azure-blob"),
     GIT("repo-git"),
     LOCAL("repo-file");
 

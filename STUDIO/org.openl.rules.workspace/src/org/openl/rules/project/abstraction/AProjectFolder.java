@@ -179,6 +179,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
             List<FileItem> changes = new ArrayList<>();
             try {
                 ChangesetType changesetType;
+                String fromProjectVersion = null;
 
                 FolderRepository fromRepository = (FolderRepository) from.getRepository();
                 FolderRepository toRepository = (FolderRepository) getRepository();
@@ -187,7 +188,6 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
                     String fromFilePath = from.getFolderPath() + "/";
                     List<FileData> fromList;
-                    String fromProjectVersion;
                     if (fromRepository.supports().versions()) {
                         if (from.isHistoric()) {
                             fromProjectVersion = from.getHistoryVersion();
@@ -195,7 +195,6 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                         } else {
                             FileData fileData = fromRepository.check(from.getFolderPath());
                             if (fileData == null) {
-                                fromProjectVersion = null;
                                 fromList = Collections.emptyList();
                             } else {
                                 fromProjectVersion = fileData.getVersion();
@@ -203,7 +202,6 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                             }
                         }
                     } else {
-                        fromProjectVersion = null;
                         fromList = fromRepository.list(fromFilePath);
                     }
 
@@ -267,6 +265,9 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
                 FileData fileData = getFileData();
                 fileData.setAuthor(user == null ? null : user.getUserInfo());
+                if (fromProjectVersion != null) {
+                    fileData.setVersion(fromProjectVersion);
+                }
                 setFileData(((FolderRepository) getRepository()).save(fileData, changes, changesetType));
             } catch (IOException e) {
                 throw new ProjectException(e.getMessage(), e);
