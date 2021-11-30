@@ -16,9 +16,7 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.TypeBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.binding.RulesBindingDependencies;
-import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.DecisionTableUtils;
@@ -186,18 +184,6 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         for (int i = 0; i < nActions; i++) {
             IAction action = table.getAction(i);
             prepareAction(action, actionBindingContext, ruleExecutionType);
-            if ((action.isReturnAction() || action.isCollectReturnAction()) && table
-                .isTypeCustomSpreadsheetResult() && OpenLSystemProperties
-                    .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
-                CompositeMethod compositeMethod = (CompositeMethod) action.getMethod();
-                if (compositeMethod.getBodyType() instanceof AnySpreadsheetResultOpenClass) {
-                    table.setTypeCustomSpreadsheetResult(false);
-                    table.setCustomSpreadsheetResultType(null);
-                    table.setTypeAnySpreadsheetResult(true);
-                } else if (table.isTypeCustomSpreadsheetResult()) {
-                    table.getCustomSpreadsheetResultType().updateWithType(compositeMethod.getBodyType());
-                }
-            }
         }
     }
 

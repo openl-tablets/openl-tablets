@@ -199,8 +199,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return module;
     }
 
-    private void extendSpreadsheetResult(String name,
-            String[] rowNames,
+    private void extendSpreadsheetResult(String[] rowNames,
             String[] columnNames,
             String[] rowNamesForResultModel,
             String[] columnNamesForResultModel,
@@ -330,8 +329,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         if (customSpreadsheetResultOpenClass.getModule() != getModule()) {
             customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass.convertToModuleType(getModule(), false);
         }
-        this.extendSpreadsheetResult(customSpreadsheetResultOpenClass.getName(),
-                customSpreadsheetResultOpenClass.rowNames,
+        this.extendSpreadsheetResult(customSpreadsheetResultOpenClass.rowNames,
             customSpreadsheetResultOpenClass.columnNames,
             customSpreadsheetResultOpenClass.rowNamesForResultModel,
             customSpreadsheetResultOpenClass.columnNamesForResultModel,
