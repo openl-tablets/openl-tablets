@@ -65,7 +65,7 @@ public class AdminUsers {
                 passwordEncoder.encode(username),
                 null,
                 null,
-                new UserExternalFlags());
+                UserExternalFlags.builder().build());
             userService.updateAuthorities(username, Collections.singleton(adminGroup));
         } else if (!user.hasPrivilege(ADMIN)) {
             Set<String> groups = new HashSet<>();

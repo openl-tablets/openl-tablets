@@ -97,6 +97,7 @@
                         <constructor-arg name="groupManagementService" ref="groupManagementService"/>
                         <constructor-arg name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
                         <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+                        <constructor-arg name="externalGroupService" ref="externalGroupService"/>
                     </bean>
                 </constructor-arg>
             </bean>

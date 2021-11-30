@@ -77,7 +77,6 @@ public class User implements Serializable {
         return surname;
     }
 
-
     @Column(name = "email", length = 254)
     public String getEmail() {
         return email;

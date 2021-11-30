@@ -7,14 +7,12 @@ import org.openl.rules.security.UserExternalFlags;
 public class UserModel extends UserCreateModel {
 
     private boolean currentUser;
-
     private boolean superUser;
-
     private boolean unsafePassword;
-
     private UserExternalFlags externalFlags;
-
     private boolean internalUser;
+    private Set<String> externalGroups;
+    private Long notMatchedExternalGroupsCount;
 
     private Set<GroupModel> userGroups;
 
@@ -152,4 +150,21 @@ public class UserModel extends UserCreateModel {
         return (UserModel) super.setGroups(groups);
     }
 
+    public Set<String> getExternalGroups() {
+        return externalGroups;
+    }
+
+    public UserModel setExternalGroups(Set<String> externalGroups) {
+        this.externalGroups = externalGroups;
+        return this;
+    }
+
+    public long getNotMatchedExternalGroupsCount() {
+        return notMatchedExternalGroupsCount;
+    }
+
+    public UserModel setNotMatchedExternalGroupsCount(Long notMatchedExternalGroupsCount) {
+        this.notMatchedExternalGroupsCount = notMatchedExternalGroupsCount;
+        return this;
+    }
 }

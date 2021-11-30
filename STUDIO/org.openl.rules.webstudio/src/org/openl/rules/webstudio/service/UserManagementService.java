@@ -9,14 +9,18 @@ import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.UserExternalFlags;
+import org.openl.rules.security.UserExternalFlags.Feature;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Andrei Astrouski
  */
+@Service("userManagementService")
 public class UserManagementService {
 
     private final UserDao userDao;
@@ -36,10 +40,12 @@ public class UserManagementService {
                 PrivilegesEvaluator.createPrivileges(user),
                 user.getEmail(),
                 user.getDisplayName(),
-                new UserExternalFlags(user.isFirstNameExternal(),
-                    user.isLastNameExternal(),
-                    user.isEmailExternal(),
-                    user.isDisplayNameExternal())))
+                UserExternalFlags.builder()
+                    .applyFeature(Feature.EXTERNAL_FIRST_NAME, user.isFirstNameExternal())
+                    .applyFeature(Feature.EXTERNAL_LAST_NAME, user.isLastNameExternal())
+                    .applyFeature(Feature.EXTERNAL_EMAIL, user.isEmailExternal())
+                    .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, user.isDisplayNameExternal())
+                    .build()))
             .orElse(null);
     }
 
@@ -49,6 +55,11 @@ public class UserManagementService {
 
     public User getUser(String username) {
         return userDao.getUserByName(username);
+    }
+
+    @Transactional
+    public boolean existsByName(String name) {
+        return userDao.existsByName(name);
     }
 
     public void addUser(String user,

@@ -3,8 +3,10 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:p="http://www.springframework.org/schema/p"
        xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd"
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd"
        default-autowire="no">
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
@@ -19,16 +21,14 @@
     </bean>
 
     <bean id="openlSessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"
+          p:packagesToScan="org.openl.rules.security.standalone.persistence"
           depends-on="dbMigration">
         <property name="dataSource" ref="openlDataSource"/>
-        <property name="configLocation"
-                  value="classpath:/org/openl/rules/security/standalone/persistence/hibernate.cfg.xml"/>
         <property name="hibernateProperties">
             <props>
                 <prop key="hibernate.show_sql">false</prop>
                 <prop key="hibernate.format_sql">false</prop>
                 <prop key="hibernate.use_sql_comments">false</prop>
-                <prop key="hibernate.jdbc.batch_size">0</prop>
                 <prop key="hibernate.id.new_generator_mappings">false</prop>
                 <prop key="hibernate.connection.pool_size">100</prop>
                 <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
@@ -37,12 +37,20 @@
                 <!-- Fix incompatibility of hibernate libs in JBoss AS -->
                 <prop key="hibernate.validator.apply_to_ddl">false</prop>
                 <prop key="hibernate.validator.autoregister_listeners">false</prop>
+
+                <!-- Enable support of batch insert/updates queries -->
+                <prop key="hibernate.jdbc.batch_size">50</prop>
+                <prop key="hibernate.order_updates">true</prop>
+                <prop key="hibernate.order_inserts">true</prop>
+                <prop key="hibernate.batch_versioned_data">true</prop>
             </props>
         </property>
     </bean>
 
     <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager"
           p:sessionFactory-ref="openlSessionFactory"/>
+
+    <context:component-scan base-package="org.openl.rules.security.standalone.dao"/>
 
     <bean id="openlUserDao" class="org.openl.rules.security.standalone.dao.HibernateUserDao">
         <property name="sessionFactory" ref="openlSessionFactory"/>

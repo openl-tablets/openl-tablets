@@ -44,7 +44,7 @@ public class SimpleUser implements User {
         this.passwordHash = null;
         this.email = null;
         this.displayName = null;
-        this.externalFlags = new UserExternalFlags();
+        this.externalFlags = UserExternalFlags.builder().build();
     }
 
     @Override

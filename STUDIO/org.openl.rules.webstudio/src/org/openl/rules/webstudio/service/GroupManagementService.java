@@ -7,10 +7,12 @@ import java.util.Set;
 
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Andrei Astrouski
  */
+@Service("groupManagementService")
 public class GroupManagementService {
 
     private final GroupDao groupDao;

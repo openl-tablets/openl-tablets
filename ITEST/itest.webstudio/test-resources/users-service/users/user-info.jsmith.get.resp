@@ -1,0 +1,15 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "email": "jsmith@email",
+  "displayName": "John Smith",
+  "firstName": "John",
+  "lastName": "Smith",
+  "groups": ["Administrators"],
+  "username": "jsmith",
+  "externalFlags": {},
+  "internalUser": true,
+  "externalGroups": ["Analysts"],
+  "notMatchedExternalGroupsCount": 3
+}

@@ -5,6 +5,7 @@ import java.util.function.Function;
 
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.UserExternalFlags;
+import org.openl.rules.security.UserExternalFlags.Feature;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.User;
 import org.springframework.dao.DataAccessException;
@@ -41,6 +42,13 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException(String.format("Unknown user: '%s'", name));
         }
 
+        UserExternalFlags externalFlags = UserExternalFlags.builder()
+            .applyFeature(Feature.EXTERNAL_FIRST_NAME, user.isFirstNameExternal())
+            .applyFeature(Feature.EXTERNAL_LAST_NAME, user.isLastNameExternal())
+            .applyFeature(Feature.EXTERNAL_EMAIL, user.isEmailExternal())
+            .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, user.isDisplayNameExternal())
+            .build();
+
         SimpleUser simpleUser = new SimpleUser(user.getFirstName(),
             user.getSurname(),
             user.getLoginName(),
@@ -48,10 +56,7 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
             Collections.emptySet(),
             user.getEmail(),
             user.getDisplayName(),
-            new UserExternalFlags(user.isFirstNameExternal(),
-                user.isLastNameExternal(),
-                user.isEmailExternal(),
-                user.isDisplayNameExternal()));
+            externalFlags);
         return authoritiesMapper.apply(simpleUser);
     }
 }

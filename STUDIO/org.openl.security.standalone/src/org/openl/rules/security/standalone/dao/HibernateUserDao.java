@@ -29,6 +29,17 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     }
 
     @Override
+    public boolean existsByName(String name) {
+        CriteriaBuilder cb = getSession().getCriteriaBuilder();
+        CriteriaQuery<Long> query = cb.createQuery(Long.class);
+        Root<User> u = query.from(User.class);
+
+        query.select(cb.count(u)).where(cb.equal(u.get("loginName"), name)).distinct(true);
+
+        return getSession().createQuery(query).getSingleResult() > 0;
+    }
+
+    @Override
     @Transactional
     public void deleteUserByName(final String name) {
         getSession().createNativeQuery("delete from OpenL_Users where loginName = :name")

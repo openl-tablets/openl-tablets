@@ -1,20 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
     <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml"/>
 
     <!-- ======================== DB Services ========================== -->
 
-    <bean id="userManagementService" class="org.openl.rules.webstudio.service.UserManagementService">
-        <constructor-arg name="userDao" ref="openlUserDao"/>
-        <constructor-arg name="groupDao" ref="groupDao"/>
-    </bean>
-
-    <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementService">
-        <constructor-arg name="groupDao" ref="groupDao"/>
-    </bean>
+    <context:component-scan base-package="org.openl.rules.webstudio.service"/>
 
     <bean id="tagTypeService" class="org.openl.rules.webstudio.service.TagTypeService">
         <constructor-arg name="tagTypeDao" ref="openlTagTypeDao"/>
@@ -64,6 +59,7 @@
                         <constructor-arg name="groupManagementService" ref="groupManagementService"/>
                         <constructor-arg name="groupsAreManagedInStudio" value="true"/>
                         <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+                        <constructor-arg name="externalGroupService" ref="externalGroupService"/>
                     </bean>
                 </constructor-arg>
             </bean>

@@ -20,6 +20,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.UserExternalFlags;
+import org.openl.rules.security.UserExternalFlags.Feature;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,10 +75,13 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         if (StringUtils.isBlank(displayName)) {
             displayName = ctx.getStringAttribute("cn");
         }
-        UserExternalFlags externalFlags = new UserExternalFlags(StringUtils.isNotBlank(firstName),
-            StringUtils.isNotBlank(lastName),
-            StringUtils.isNotBlank(email),
-            StringUtils.isNotBlank(displayName));
+        UserExternalFlags externalFlags = UserExternalFlags.builder()
+            .applyFeature(Feature.EXTERNAL_FIRST_NAME, StringUtils.isNotBlank(firstName))
+            .applyFeature(Feature.EXTERNAL_LAST_NAME, StringUtils.isNotBlank(lastName))
+            .applyFeature(Feature.EXTERNAL_EMAIL, StringUtils.isNotBlank(email))
+            .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, StringUtils.isNotBlank(displayName))
+            .withFeature(Feature.SYNC_EXTERNAL_GROUPS)
+            .build();
 
         Collection<? extends GrantedAuthority> userAuthorities = getAuthorities(ctx,
             username,

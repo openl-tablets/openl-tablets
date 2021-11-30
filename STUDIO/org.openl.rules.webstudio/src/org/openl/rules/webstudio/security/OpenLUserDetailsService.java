@@ -14,6 +14,7 @@ import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.webstudio.service.AdminUsers;
+import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
@@ -25,16 +26,19 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
     private final String defaultGroup;
     private final boolean groupsAreManagedInStudio;
     private final AdminUsers adminUsersInitializer;
+    private final ExternalGroupService externalGroupService;
 
     public OpenLUserDetailsService(UserManagementService userManagementService,
             GroupManagementService groupManagementService,
             boolean groupsAreManagedInStudio,
-            AdminUsers adminUsersInitializer) {
+            AdminUsers adminUsersInitializer,
+            ExternalGroupService externalGroupService) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
         this.groupsAreManagedInStudio = groupsAreManagedInStudio;
         this.adminUsersInitializer = adminUsersInitializer;
         this.defaultGroup = Props.text("security.default-group");
+        this.externalGroupService = externalGroupService;
     }
 
     public SimpleUser apply(SimpleUser user) {
@@ -60,12 +64,12 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
             user.getDisplayName(),
             user.getExternalFlags());
 
-        syncUserWithDB(simpleUser);
+        syncUserWithDB(simpleUser, user.getAuthorities());
 
         return simpleUser;
     }
 
-    private User syncUserWithDB(SimpleUser simpleUser) {
+    private User syncUserWithDB(SimpleUser simpleUser, Collection<Privilege> externalGroups) {
         adminUsersInitializer.initIfSuperuser(simpleUser.getUsername());
         User userDetails = userManagementService.getApplicationUser(simpleUser.getUsername());
         if (userDetails == null) {
@@ -88,6 +92,11 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
                 simpleUser.getEmail(),
                 simpleUser.getDisplayName(),
                 simpleUser.getExternalFlags());
+        }
+        if (groupsAreManagedInStudio) {
+            externalGroupService.deleteAllForUser(simpleUser.getUsername());
+        } else if (simpleUser.getExternalFlags().isSyncExternalGroups()) {
+            externalGroupService.mergeAllForUser(simpleUser.getUsername(), externalGroups);
         }
         return userDetails;
     }
