@@ -78,6 +78,8 @@ public abstract class AbstractSmartRedeployController {
     @Autowired
     private PropertyResolver propertyResolver;
 
+    private List<RepositoryConfiguration> repositories;
+
     volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
     List<DeploymentProjectItem> items;
@@ -537,6 +539,9 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
+        if (repositories != null) {
+            return repositories;
+        }
         List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
@@ -545,6 +550,7 @@ public abstract class AbstractSmartRedeployController {
         }
 
         repos.sort(RepositoryConfiguration.COMPARATOR);
+        repositories = repos;
 
         return repos;
     }
