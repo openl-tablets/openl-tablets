@@ -20,6 +20,7 @@
         <module>org.openl.rules.tableeditor</module>
         <module>org.openl.rules.repository</module>
         <module>org.openl.rules.repository.aws</module>
+        <module>org.openl.rules.repository.azure</module>
         <module>org.openl.rules.repository.git</module>
         <module>org.openl.rules.workspace</module>
         <module>org.openl.rules.jackson.configuration</module>
