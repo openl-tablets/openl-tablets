@@ -16,6 +16,17 @@ public class UserModel extends UserCreateModel {
 
     private boolean internalUser;
 
+    private Set<GroupModel> userGroups;
+
+    public Set<GroupModel> getUserGroups() {
+        return userGroups;
+    }
+
+    public UserModel setUserGroups(Set<GroupModel> userGroups) {
+        this.userGroups = userGroups;
+        return this;
+    }
+
     public boolean isInternalUser() {
         return internalUser;
     }

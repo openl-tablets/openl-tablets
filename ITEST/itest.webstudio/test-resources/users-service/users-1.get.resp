@@ -3,7 +3,12 @@ Content-Type: application/json
 
 [
   {
-    "groups": ["Administrators"],
+    "userGroups":[
+      {
+        "name":"Administrators",
+        "type":"ADMIN"
+      }
+    ],
     "username": "admin",
     "internalUser": true,
     "currentUser": true,

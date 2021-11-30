@@ -4,7 +4,12 @@ Content-Type: application/json
 [
   {
     "displayName": "Admin",
-    "groups": ["Administrators"],
+    "userGroups":[
+      {
+        "name":"Administrators",
+        "type":"ADMIN"
+      }
+    ],
     "username": "admin",
     "internalUser": true,
     "email": "admin@email",

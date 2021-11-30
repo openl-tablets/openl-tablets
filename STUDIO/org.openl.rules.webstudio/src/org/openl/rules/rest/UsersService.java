@@ -20,6 +20,8 @@ import javax.ws.rs.core.MediaType;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.ChangePasswordModel;
+import org.openl.rules.rest.model.GroupModel;
+import org.openl.rules.rest.model.GroupType;
 import org.openl.rules.rest.model.UserCreateModel;
 import org.openl.rules.rest.model.UserEditModel;
 import org.openl.rules.rest.model.UserInfoModel;
@@ -27,7 +29,6 @@ import org.openl.rules.rest.model.UserModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.rest.model.UserProfileModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
@@ -280,8 +281,14 @@ public class UsersService {
             .setLastName(user.getSurname())
             .setEmail(user.getEmail())
             .setInternalUser(StringUtils.isNotBlank(user.getPasswordHash()))
-            .setGroups(
-                PrivilegesEvaluator.createPrivileges(user).stream().map(Privilege::getName).collect(Collectors.toSet()))
+            .setUserGroups(
+                user.getGroups()
+                    .stream()
+                    .map(PrivilegesEvaluator::wrap)
+                    .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
+                        .setType(simpleGroup.getPrivileges().contains(Privileges.ADMIN) ? GroupType.ADMIN
+                                                                                        : GroupType.DEFAULT))
+                    .collect(Collectors.toSet()))
             .setUsername(user.getLoginName())
             .setCurrentUser(currentUserInfo.getUserName().equals(user.getLoginName()))
             .setSuperUser(adminUsersInitializer.isSuperuser(user.getLoginName()))
