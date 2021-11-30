@@ -8,7 +8,6 @@ import java.util.Date;
 import java.util.Objects;
 
 import org.openl.binding.impl.cast.CastFactory;
-import org.openl.meta.LongValue;
 import org.openl.rules.helpers.ARangeParser.ParseStruct;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
@@ -174,14 +173,4 @@ public class DateRange {
     }
 
     // END
-    // CAST METHODS
-    public static DateRange cast(LongValue x, DateRange y) {
-        return new DateRange(new Date(x.longValue()));
-    }
-
-    public static int distance(LongValue x, DateRange y) {
-        return TO_DATE_RANGE_CAST_DISTANCE;
-    }
-    // END
-
 }

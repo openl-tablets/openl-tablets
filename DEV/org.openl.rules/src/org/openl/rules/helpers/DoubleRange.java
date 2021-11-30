@@ -7,7 +7,6 @@ import java.util.Objects;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.openl.binding.impl.cast.CastFactory;
-import org.openl.meta.*;
 import org.openl.util.RangeWithBounds;
 import org.openl.util.RangeWithBounds.BoundType;
 
@@ -138,7 +137,7 @@ public class DoubleRange implements INumberRange {
 
     @Override
     public boolean contains(Number n) {
-        if (n instanceof Float || n instanceof FloatValue) {
+        if (n instanceof Float) {
             // prevent precision loosing in decimal numeral system
             return contains(Double.parseDouble(n.toString()));
         }
@@ -302,70 +301,6 @@ public class DoubleRange implements INumberRange {
     }
 
     public static int distance(BigDecimal x, DoubleRange y) {
-        return TO_DOUBLE_RANGE_CAST_DISTANCE;
-    }
-
-    public static DoubleRange cast(ByteValue x, DoubleRange y) {
-        return new DoubleRange(x.intValue());
-    }
-
-    public static int distance(ByteValue x, DoubleRange y) {
-        return TO_DOUBLE_RANGE_CAST_DISTANCE;
-    }
-
-    public static DoubleRange cast(ShortValue x, DoubleRange y) {
-        return new DoubleRange(x.intValue());
-    }
-
-    public static int distance(ShortValue x, DoubleRange y) {
-        return TO_DOUBLE_RANGE_CAST_DISTANCE;
-    }
-
-    public static DoubleRange cast(IntValue x, DoubleRange y) {
-        return new DoubleRange(x.intValue());
-    }
-
-    public static int distance(IntValue x, DoubleRange y) {
-        return TO_DOUBLE_RANGE_CAST_DISTANCE;
-    }
-
-    public static DoubleRange cast(LongValue x, DoubleRange y) {
-        return new DoubleRange(x.longValue());
-    }
-
-    public static int distance(LongValue x, DoubleRange y) {
-        return TO_DOUBLE_RANGE_CAST_DISTANCE;
-    }
-
-    public static DoubleRange cast(FloatValue x, DoubleRange y) {
-        return new DoubleRange(new BigDecimal(String.valueOf(x.floatValue())).doubleValue());
-    }
-
-    public static int distance(FloatValue x, DoubleRange y) {
-        return TO_DOUBLE_RANGE_CAST_DISTANCE;
-    }
-
-    public static DoubleRange cast(DoubleValue x, DoubleRange y) {
-        return new DoubleRange(x.doubleValue());
-    }
-
-    public static int distance(DoubleValue x, DoubleRange y) {
-        return TO_DOUBLE_RANGE_CAST_DISTANCE;
-    }
-
-    public static DoubleRange cast(BigIntegerValue x, DoubleRange y) {
-        return new DoubleRange(x.doubleValue());
-    }
-
-    public static int distance(BigIntegerValue x, DoubleRange y) {
-        return TO_DOUBLE_RANGE_CAST_DISTANCE;
-    }
-
-    public static DoubleRange cast(BigDecimalValue x, DoubleRange y) {
-        return new DoubleRange(x.intValue());
-    }
-
-    public static int distance(BigDecimalValue x, DoubleRange y) {
         return TO_DOUBLE_RANGE_CAST_DISTANCE;
     }
 

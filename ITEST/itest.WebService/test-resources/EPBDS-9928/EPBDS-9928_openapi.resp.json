@@ -13,8 +13,8 @@
   "paths": {
     "/proxyFloatValueArray": {
       "post": {
-        "summary": "FloatValue[] proxyFloatValueArray(FloatValue[])",
-        "description": "Rules method: org.openl.meta.FloatValue[] proxyFloatValueArray(org.openl.meta.FloatValue[] x)",
+        "summary": "Float[] proxyFloatValueArray(Float[])",
+        "description": "Rules method: java.lang.Float[] proxyFloatValueArray(java.lang.Float[] x)",
         "operationId": "proxyFloatValueArray",
         "requestBody": {
           "content": {
@@ -94,8 +94,8 @@
     },
     "/proxyShortValueArray": {
       "post": {
-        "summary": "ShortValue[] proxyShortValueArray(ShortValue[])",
-        "description": "Rules method: org.openl.meta.ShortValue[] proxyShortValueArray(org.openl.meta.ShortValue[] x)",
+        "summary": "Short[] proxyShortValueArray(Short[])",
+        "description": "Rules method: java.lang.Short[] proxyShortValueArray(java.lang.Short[] x)",
         "operationId": "proxyShortValueArray",
         "requestBody": {
           "content": {
@@ -175,8 +175,8 @@
     },
     "/proxyLongValueArray": {
       "post": {
-        "summary": "LongValue[] proxyLongValueArray(LongValue[])",
-        "description": "Rules method: org.openl.meta.LongValue[] proxyLongValueArray(org.openl.meta.LongValue[] x)",
+        "summary": "Long[] proxyLongValueArray(Long[])",
+        "description": "Rules method: java.lang.Long[] proxyLongValueArray(java.lang.Long[] x)",
         "operationId": "proxyLongValueArray",
         "requestBody": {
           "content": {
@@ -416,8 +416,8 @@
     },
     "/proxyStringValueArray": {
       "post": {
-        "summary": "StringValue[] proxyStringValueArray(StringValue[])",
-        "description": "Rules method: org.openl.meta.StringValue[] proxyStringValueArray(org.openl.meta.StringValue[] x)",
+        "summary": "String[] proxyStringValueArray(String[])",
+        "description": "Rules method: java.lang.String[] proxyStringValueArray(java.lang.String[] x)",
         "operationId": "proxyStringValueArray",
         "requestBody": {
           "content": {
@@ -495,8 +495,8 @@
     },
     "/proxyIntValueArray": {
       "post": {
-        "summary": "IntValue[] proxyIntValueArray(IntValue[])",
-        "description": "Rules method: org.openl.meta.IntValue[] proxyIntValueArray(org.openl.meta.IntValue[] x)",
+        "summary": "Integer[] proxyIntValueArray(Integer[])",
+        "description": "Rules method: java.lang.Integer[] proxyIntValueArray(java.lang.Integer[] x)",
         "operationId": "proxyIntValueArray",
         "requestBody": {
           "content": {
@@ -657,8 +657,8 @@
     },
     "/proxyDoubleValueArray": {
       "post": {
-        "summary": "DoubleValue[] proxyDoubleValueArray(DoubleValue[])",
-        "description": "Rules method: org.openl.meta.DoubleValue[] proxyDoubleValueArray(org.openl.meta.DoubleValue[] x)",
+        "summary": "Double[] proxyDoubleValueArray(Double[])",
+        "description": "Rules method: java.lang.Double[] proxyDoubleValueArray(java.lang.Double[] x)",
         "operationId": "proxyDoubleValueArray",
         "requestBody": {
           "content": {
@@ -738,8 +738,8 @@
     },
     "/proxyBigIntegerValue": {
       "post": {
-        "summary": "BigIntegerValue proxyBigIntegerValue(BigIntegerValue)",
-        "description": "Rules method: org.openl.meta.BigIntegerValue proxyBigIntegerValue(org.openl.meta.BigIntegerValue x)",
+        "summary": "BigInteger proxyBigIntegerValue(BigInteger)",
+        "description": "Rules method: java.math.BigInteger proxyBigIntegerValue(java.math.BigInteger x)",
         "operationId": "proxyBigIntegerValue",
         "requestBody": {
           "content": {
@@ -811,8 +811,8 @@
     },
     "/proxyBigIntegerValueArray": {
       "post": {
-        "summary": "BigIntegerValue[] proxyBigIntegerValueArray(BigIntegerValue[])",
-        "description": "Rules method: org.openl.meta.BigIntegerValue[] proxyBigIntegerValueArray(org.openl.meta.BigIntegerValue[] x)",
+        "summary": "BigInteger[] proxyBigIntegerValueArray(BigInteger[])",
+        "description": "Rules method: java.math.BigInteger[] proxyBigIntegerValueArray(java.math.BigInteger[] x)",
         "operationId": "proxyBigIntegerValueArray",
         "requestBody": {
           "content": {
@@ -890,8 +890,8 @@
     },
     "/proxyBigDecimalValueArray": {
       "post": {
-        "summary": "BigDecimalValue[] proxyBigDecimalValueArray(BigDecimalValue[])",
-        "description": "Rules method: org.openl.meta.BigDecimalValue[] proxyBigDecimalValueArray(org.openl.meta.BigDecimalValue[] x)",
+        "summary": "BigDecimal[] proxyBigDecimalValueArray(BigDecimal[])",
+        "description": "Rules method: java.math.BigDecimal[] proxyBigDecimalValueArray(java.math.BigDecimal[] x)",
         "operationId": "proxyBigDecimalValueArray",
         "requestBody": {
           "content": {
@@ -1127,8 +1127,8 @@
     },
     "/proxyBigDecimalValue": {
       "post": {
-        "summary": "BigDecimalValue proxyBigDecimalValue(BigDecimalValue)",
-        "description": "Rules method: org.openl.meta.BigDecimalValue proxyBigDecimalValue(org.openl.meta.BigDecimalValue x)",
+        "summary": "BigDecimal proxyBigDecimalValue(BigDecimal)",
+        "description": "Rules method: java.math.BigDecimal proxyBigDecimalValue(java.math.BigDecimal x)",
         "operationId": "proxyBigDecimalValue",
         "requestBody": {
           "content": {
@@ -1593,8 +1593,8 @@
     },
     "/proxyLongValue": {
       "post": {
-        "summary": "LongValue proxyLongValue(LongValue)",
-        "description": "Rules method: org.openl.meta.LongValue proxyLongValue(org.openl.meta.LongValue x)",
+        "summary": "Long proxyLongValue(Long)",
+        "description": "Rules method: java.lang.Long proxyLongValue(java.lang.Long x)",
         "operationId": "proxyLongValue",
         "requestBody": {
           "content": {
@@ -2047,8 +2047,8 @@
     },
     "/proxyIntValue": {
       "post": {
-        "summary": "IntValue proxyIntValue(IntValue)",
-        "description": "Rules method: org.openl.meta.IntValue proxyIntValue(org.openl.meta.IntValue x)",
+        "summary": "Integer proxyIntValue(Integer)",
+        "description": "Rules method: java.lang.Integer proxyIntValue(java.lang.Integer x)",
         "operationId": "proxyIntValue",
         "requestBody": {
           "content": {
@@ -2122,8 +2122,8 @@
     },
     "/proxyShortValue": {
       "post": {
-        "summary": "ShortValue proxyShortValue(ShortValue)",
-        "description": "Rules method: org.openl.meta.ShortValue proxyShortValue(org.openl.meta.ShortValue x)",
+        "summary": "Short proxyShortValue(Short)",
+        "description": "Rules method: java.lang.Short proxyShortValue(java.lang.Short x)",
         "operationId": "proxyShortValue",
         "requestBody": {
           "content": {
@@ -2939,8 +2939,8 @@
     },
     "/proxyFloatValue": {
       "post": {
-        "summary": "FloatValue proxyFloatValue(FloatValue)",
-        "description": "Rules method: org.openl.meta.FloatValue proxyFloatValue(org.openl.meta.FloatValue x)",
+        "summary": "Float proxyFloatValue(Float)",
+        "description": "Rules method: java.lang.Float proxyFloatValue(java.lang.Float x)",
         "operationId": "proxyFloatValue",
         "requestBody": {
           "content": {
@@ -3089,8 +3089,8 @@
     },
     "/proxyStringValue": {
       "post": {
-        "summary": "StringValue proxyStringValue(StringValue)",
-        "description": "Rules method: org.openl.meta.StringValue proxyStringValue(org.openl.meta.StringValue x)",
+        "summary": "String proxyStringValue(String)",
+        "description": "Rules method: java.lang.String proxyStringValue(java.lang.String x)",
         "operationId": "proxyStringValue",
         "requestBody": {
           "content": {
@@ -3162,8 +3162,8 @@
     },
     "/proxyDoubleValue": {
       "post": {
-        "summary": "DoubleValue proxyDoubleValue(DoubleValue)",
-        "description": "Rules method: org.openl.meta.DoubleValue proxyDoubleValue(org.openl.meta.DoubleValue x)",
+        "summary": "Double proxyDoubleValue(Double)",
+        "description": "Rules method: java.lang.Double proxyDoubleValue(java.lang.Double x)",
         "operationId": "proxyDoubleValue",
         "requestBody": {
           "content": {

@@ -6,7 +6,6 @@ import org.openl.OpenL;
 import org.openl.conf.OpenLConfigurationException;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.meta.DoubleValue;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -86,7 +85,7 @@ public class BinderTest extends TestCase {
     }
 
     public void testMeta() {
-        _testNoError("DoubleValue d1, d2; d1 + d2", DoubleValue.class, OpenL.OPENL_JAVA_NAME);
+        _testNoError("DoubleValue d1, d2; d1 + d2", Double.class, OpenL.OPENL_JAVA_NAME);
     }
 
     public void testMethodHeader() throws OpenLCompilationException {

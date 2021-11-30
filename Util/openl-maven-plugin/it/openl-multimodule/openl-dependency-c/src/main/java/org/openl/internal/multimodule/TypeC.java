@@ -1,15 +1,13 @@
 package org.openl.internal.multimodule;
 
-import org.openl.meta.DoubleValue;
-
 public class TypeC {
-    private DoubleValue value;
+    private Double value;
 
-    public DoubleValue getValue() {
+    public Double getValue() {
         return value;
     }
 
-    public void setValue(DoubleValue value) {
+    public void setValue(Double value) {
         this.value = value;
     }
 }

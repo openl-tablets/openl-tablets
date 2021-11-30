@@ -6,7 +6,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.TestUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
@@ -27,21 +26,21 @@ public class IdentifiedMethodTest {
 
         context.setCurrentDate(calendar.getTime());
 
-        DoubleValue res1 = instance.driverRiskScoreOverloadTest("High Risk Driver");
-        assertEquals(120.0, res1.doubleValue(), 1e-8);
+        Double res1 = instance.driverRiskScoreOverloadTest("High Risk Driver");
+        assertEquals(120.0, res1, 1e-8);
 
         calendar.set(2008, 5, 15);
         context.setCurrentDate(calendar.getTime());
 
-        DoubleValue res2 = instance.driverRiskScoreOverloadTest("High Risk Driver");
-        assertEquals(100.0, res2.doubleValue(), 1e-8);
+        Double res2 = instance.driverRiskScoreOverloadTest("High Risk Driver");
+        assertEquals(100.0, res2, 1e-8);
 
         // direct call to particular method avoiding method dispatcher
         calendar.set(2003, 5, 15);
 
         context.setCurrentDate(calendar.getTime());
-        DoubleValue res2_2 = instance.driverRiskEarlier("High Risk Driver");
-        assertEquals(120.0, res2_2.doubleValue(), 1e-8);
+        Double res2_2 = instance.driverRiskEarlier("High Risk Driver");
+        assertEquals(120.0, res2_2, 1e-8);
     }
 
     @Test
@@ -77,10 +76,10 @@ public class IdentifiedMethodTest {
     }
 
     public interface ITestI extends IRulesRuntimeContextProvider {
-        DoubleValue driverRiskScoreOverloadTest(String driverRisk);
+        Double driverRiskScoreOverloadTest(String driverRisk);
 
-        DoubleValue driverRiskScoreNoOverloadTest(String driverRisk);
+        Double driverRiskScoreNoOverloadTest(String driverRisk);
 
-        DoubleValue driverRiskEarlier(String driverRisk);
+        Double driverRiskEarlier(String driverRisk);
     }
 }

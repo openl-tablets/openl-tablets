@@ -13,8 +13,8 @@
   "paths": {
     "/mySpr": {
       "post": {
-        "summary": "StringValue mySpr(IRulesRuntimeContext, Integer)",
-        "description": "Method: org.openl.meta.StringValue mySpr(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
+        "summary": "String mySpr(IRulesRuntimeContext, Integer)",
+        "description": "Method: java.lang.String mySpr(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
         "operationId": "mySpr",
         "requestBody": {
           "content": {

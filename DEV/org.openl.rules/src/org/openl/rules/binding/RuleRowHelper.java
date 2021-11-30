@@ -20,7 +20,6 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.meta.BigDecimalValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
@@ -285,8 +284,7 @@ public final class RuleRowHelper {
                     .convert(cell.getNativeDate()) : null;
             }
 
-            if (ClassUtils.isAssignable(expectedType, BigDecimal.class) || ClassUtils.isAssignable(expectedType,
-                BigDecimalValue.class)) {
+            if (ClassUtils.isAssignable(expectedType, BigDecimal.class)) {
                 // Convert String -> BigDecimal instead of double ->BigDecimal,
                 // otherwise we lose in precision (part of EPBDS-5879)
                 res = String2DataConvertorFactory.parse(expectedType, cell.getStringValue(), null);

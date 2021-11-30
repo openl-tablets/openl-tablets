@@ -31,9 +31,8 @@ public class ZipSpringConfigurationServiceManagerTest {
         Object object = frontend.execute("org.openl.tablets_org.openl.tablets",
                 "vehicleEligibilityScore",
                 RulesRuntimeContextFactory.buildRulesRuntimeContext(), "Provisional");
-        assertTrue(object instanceof org.openl.meta.DoubleValue);
-        org.openl.meta.DoubleValue value = (org.openl.meta.DoubleValue) object;
-        assertEquals(50.0, value.getValue(), 0.01);
+        assertTrue(object instanceof Double);
+        assertEquals(50.0, (Double) object, 0.01);
     }
 
     @Test(expected = MethodInvocationException.class)

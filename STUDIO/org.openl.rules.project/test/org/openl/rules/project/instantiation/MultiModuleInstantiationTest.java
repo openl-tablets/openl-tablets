@@ -11,7 +11,6 @@ import java.util.List;
 
 import org.junit.Test;
 import org.openl.dependency.IDependencyManager;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.model.Module;
@@ -49,7 +48,7 @@ public class MultiModuleInstantiationTest {
         Method method = serviceClass.getMethod("driverRiskPremium", IRulesRuntimeContext.class, String.class);
         Object result = method.invoke(instance, context, "High Risk Driver");
 
-        assertEquals(new DoubleValue(400), result);
+        assertEquals(400.0, result);
     }
 
     private List<ProjectDescriptor> listProjectsInFolder(File root) {

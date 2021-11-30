@@ -4,20 +4,19 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.runtime.RulesEngineFactory;
 
 public class LookupTableTest {
 
     public interface ILookupTableTest {
 
-        DoubleValue getCarPrice(String country, String region, String brand, String model);
+        Double getCarPrice(String country, String region, String brand, String model);
 
-        DoubleValue getCarPriceMergedHorizontalCond(String country, String region, String brand, String model);
+        Double getCarPriceMergedHorizontalCond(String country, String region, String brand, String model);
 
-        DoubleValue getCarPriceMergedVerticalCondWithRuleCol(String country, String region, String brand, String model);
+        Double getCarPriceMergedVerticalCondWithRuleCol(String country, String region, String brand, String model);
 
-        DoubleValue getCarPriceMergedVerticalCond(String country, String region, String brand, String model);
+        Double getCarPriceMergedVerticalCond(String country, String region, String brand, String model);
 
     }
 
@@ -34,19 +33,19 @@ public class LookupTableTest {
 
     @Test
     public void testNotMergerdLookupTable() {
-        DoubleValue result = instance.getCarPrice("Belarus,UK", "Minsk", "Porche", "911 Carrera 4S");
+        Double result = instance.getCarPrice("Belarus,UK", "Minsk", "Porche", "911 Carrera 4S");
         assertEquals(93200, result.intValue());
     }
 
     @Test
     public void testMergedHorizontalCond() {
-        DoubleValue result = instance.getCarPriceMergedHorizontalCond("Belarus", "Minsk", "Porche", "911 Targa 4");
+        Double result = instance.getCarPriceMergedHorizontalCond("Belarus", "Minsk", "Porche", "911 Targa 4");
         assertEquals(90400, result.intValue());
     }
 
     @Test
     public void testMergedVerticalCondWithRuleCol() {
-        DoubleValue result = instance
+        Double result = instance
             .getCarPriceMergedVerticalCondWithRuleCol("Belarus", "Minsk", "Porche", "911 Targa 4");
         assertEquals(90401, result.intValue());
         result = instance.getCarPriceMergedVerticalCondWithRuleCol("Belarus", "Vitebsk", "Porche", "911 Targa 4");
@@ -62,7 +61,7 @@ public class LookupTableTest {
 
     @Test
     public void testMergedVerticalCond() {
-        DoubleValue result = instance.getCarPriceMergedVerticalCond("Belarus", "Minsk", "Porche", "911 Targa 4");
+        Double result = instance.getCarPriceMergedVerticalCond("Belarus", "Minsk", "Porche", "911 Targa 4");
         assertEquals(90401, result.intValue());
         result = instance.getCarPriceMergedVerticalCond("Belarus", "Vitebsk", "Porche", "911 Targa 4");
         assertEquals(90402, result.intValue());

@@ -24,17 +24,7 @@ public abstract class AbstractMethodSearchTest {
     static final String AMB = "AMBIGUOUS";
     static final String NF = "NOT FOUND";
     private static final String[] CAST_LIBRARY_NAMES = new String[] {
-            org.openl.binding.impl.cast.CastOperators.class.getName(),
-            org.openl.meta.ByteValue.class.getName(),
-            org.openl.meta.ShortValue.class.getName(),
-            org.openl.meta.IntValue.class.getName(),
-            org.openl.meta.LongValue.class.getName(),
-            org.openl.meta.FloatValue.class.getName(),
-            org.openl.meta.DoubleValue.class.getName(),
-            org.openl.meta.StringValue.class.getName(),
-            org.openl.meta.ObjectValue.class.getName(),
-            org.openl.meta.BigIntegerValue.class.getName(),
-            org.openl.meta.BigDecimalValue.class.getName() };
+            org.openl.binding.impl.cast.CastOperators.class.getName()};
     static ICastFactory castFactory;
 
     @BeforeClass

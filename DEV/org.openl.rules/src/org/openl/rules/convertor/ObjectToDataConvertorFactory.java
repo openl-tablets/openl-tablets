@@ -2,23 +2,12 @@ package org.openl.rules.convertor;
 
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.BigIntegerValue;
-import org.openl.meta.ByteValue;
-import org.openl.meta.DoubleValue;
-import org.openl.meta.FloatValue;
-import org.openl.meta.IntValue;
-import org.openl.meta.LongValue;
-import org.openl.meta.ShortValue;
-import org.openl.meta.StringValue;
 import org.openl.rules.helpers.IntRange;
 import org.openl.util.RuntimeExceptionWrapper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -122,33 +111,6 @@ public class ObjectToDataConvertorFactory {
         public static final CopyConvertor the = new CopyConvertor();
     }
 
-    /**
-     * Convertor that looks for the instance method 'getValue' for conversion to the appropriate type.
-     *
-     * @author DLiauchuk
-     */
-    public static class GetValueConvertor implements IObjectToDataConvertor {
-        @Override
-        public Object convert(Object data) {
-            if (data != null) {
-                Method getValueMethod;
-                try {
-                    getValueMethod = data.getClass().getMethod("getValue");
-                } catch (Exception e) {
-                    throw RuntimeExceptionWrapper.wrap(e);
-                }
-                Object value;
-                try {
-                    value = getValueMethod.invoke(data);
-                } catch (Exception e) {
-                    throw RuntimeExceptionWrapper.wrap(e);
-                }
-                return value;
-            }
-            return null;
-        }
-    }
-
     private static final Map<ClassCastPair, IObjectToDataConvertor> converters = new ConcurrentHashMap<>();
 
     static {
@@ -157,13 +119,11 @@ public class ObjectToDataConvertorFactory {
 
             converters.put(new ClassCastPair(int.class, IntRange.class), e -> new IntRange((Integer) e));
 
-            converters.put(new ClassCastPair(Double.class, DoubleValue.class), e -> new DoubleValue((Double) e));
             converters.put(new ClassCastPair(Double.class, double.class), CopyConvertor.the);
             converters.put(new ClassCastPair(double.class, Double.class), CopyConvertor.the);
             converters.put(new ClassCastPair(int.class, Integer.class), CopyConvertor.the);
             converters.put(new ClassCastPair(Integer.class, int.class), CopyConvertor.the);
 
-            converters.put(new ClassCastPair(double.class, DoubleValue.class), e -> new DoubleValue((Double) e));
             converters.put(new ClassCastPair(Date.class, Calendar.class), e -> {
                 Calendar cal = Calendar.getInstance(LocaleDependConvertor.getLocale());
                 cal.setTime((Date) e);
@@ -186,19 +146,6 @@ public class ObjectToDataConvertorFactory {
             converters.put(new ClassCastPair(Date.class, LocalDateTime.class), e -> Instant.ofEpochMilli(((Date) e).getTime())
                 .atZone(ZoneId.systemDefault())
                 .toLocalDateTime());
-
-            /*
-             * convertors from Openl types with meta info to common java types
-             */
-            converters.put(new ClassCastPair(ByteValue.class, Byte.class), new GetValueConvertor());
-            converters.put(new ClassCastPair(ShortValue.class, Short.class), new GetValueConvertor());
-            converters.put(new ClassCastPair(IntValue.class, Integer.class), new GetValueConvertor());
-            converters.put(new ClassCastPair(LongValue.class, Long.class), new GetValueConvertor());
-            converters.put(new ClassCastPair(FloatValue.class, Float.class), new GetValueConvertor());
-            converters.put(new ClassCastPair(DoubleValue.class, Double.class), new GetValueConvertor());
-            converters.put(new ClassCastPair(BigIntegerValue.class, BigInteger.class), new GetValueConvertor());
-            converters.put(new ClassCastPair(BigDecimalValue.class, BigDecimal.class), new GetValueConvertor());
-            converters.put(new ClassCastPair(StringValue.class, String.class), new GetValueConvertor());
 
         } catch (Exception e) {
             e.printStackTrace();

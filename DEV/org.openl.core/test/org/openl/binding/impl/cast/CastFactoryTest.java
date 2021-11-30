@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
 import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
@@ -36,7 +35,6 @@ public class CastFactoryTest {
         javaCastTest(int.class, int[].class);
         javaCastTest(int.class, Integer[].class);
         javaCastTest(Boolean.class, Object[].class);
-        javaCastTest(Double.class, DoubleValue[].class);
     }
 
     @Test

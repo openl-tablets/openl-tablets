@@ -6,6 +6,8 @@
 
 package org.openl.types.java;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -46,6 +48,31 @@ public final class JavaImportTypeLibrary implements ITypeLibrary {
                 }
             }
         }
+
+        // For backward compatibility with old types in rules
+        aliases.put("BigDecimalValue", JavaOpenClass.getOpenClass(BigDecimal.class));
+        aliases.put("DoubleValue", JavaOpenClass.getOpenClass(Double.class));
+        aliases.put("DoubleValuePercent", JavaOpenClass.getOpenClass(Double.class));
+        aliases.put("FloatValue", JavaOpenClass.getOpenClass(Float.class));
+        aliases.put("BigIntegerValue", JavaOpenClass.getOpenClass(BigInteger.class));
+        aliases.put("LongValue", JavaOpenClass.getOpenClass(Long.class));
+        aliases.put("IntValue", JavaOpenClass.getOpenClass(Integer.class));
+        aliases.put("ShortValue", JavaOpenClass.getOpenClass(Short.class));
+        aliases.put("ByteValue", JavaOpenClass.getOpenClass(Byte.class));
+        aliases.put("StringValue", JavaOpenClass.getOpenClass(String.class));
+        aliases.put("ObjectValue", JavaOpenClass.getOpenClass(Object.class));
+
+        aliases.put("org.openl.meta.BigDecimalValue", JavaOpenClass.getOpenClass(BigDecimal.class));
+        aliases.put("org.openl.meta.DoubleValue", JavaOpenClass.getOpenClass(Double.class));
+        aliases.put("org.openl.meta.DoubleValuePercent", JavaOpenClass.getOpenClass(Double.class));
+        aliases.put("org.openl.meta.FloatValue", JavaOpenClass.getOpenClass(Float.class));
+        aliases.put("org.openl.meta.BigIntegerValue", JavaOpenClass.getOpenClass(BigInteger.class));
+        aliases.put("org.openl.meta.LongValue", JavaOpenClass.getOpenClass(Long.class));
+        aliases.put("org.openl.meta.IntValue", JavaOpenClass.getOpenClass(Integer.class));
+        aliases.put("org.openl.meta.ShortValue", JavaOpenClass.getOpenClass(Short.class));
+        aliases.put("org.openl.meta.ByteValue", JavaOpenClass.getOpenClass(Byte.class));
+        aliases.put("org.openl.meta.StringValue", JavaOpenClass.getOpenClass(String.class));
+        aliases.put("org.openl.meta.ObjectValue", JavaOpenClass.getOpenClass(Object.class));
     }
 
     protected ClassLoader getClassLoader() {

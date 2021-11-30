@@ -6,7 +6,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import org.openl.binding.impl.NumericComparableString;
 import org.openl.binding.impl.cast.CastFactory;
-import org.openl.meta.StringValue;
 import org.openl.rules.helpers.ARangeParser.ParseStruct;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
@@ -173,14 +172,6 @@ public class StringRange {
     }
 
     public static int distance(char[] x, StringRange y) {
-        return TO_STRING_RANGE_CAST_DISTANCE;
-    }
-
-    public static StringRange cast(StringValue x, StringRange y) {
-        return new StringRange(x.getValue());
-    }
-
-    public static int distance(StringValue x, StringRange y) {
         return TO_STRING_RANGE_CAST_DISTANCE;
     }
     // END

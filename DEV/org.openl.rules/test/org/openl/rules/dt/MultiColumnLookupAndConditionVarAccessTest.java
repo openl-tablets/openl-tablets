@@ -3,14 +3,13 @@ package org.openl.rules.dt;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.runtime.RulesEngineFactory;
 
 public class MultiColumnLookupAndConditionVarAccessTest {
 
     public interface IMultiColumnLookupTest {
 
-        DoubleValue getBaseRate(int aoi, String deductible);
+        Double getBaseRate(int aoi, String deductible);
 
         int multiColumnTest1(int key1, int key2, int key3);
     }
@@ -30,9 +29,9 @@ public class MultiColumnLookupAndConditionVarAccessTest {
 
     @Test
     public void testCombined() {
-        DoubleValue res = instance.getBaseRate(10000, "$100,000 Deductible");
+        Double res = instance.getBaseRate(10000, "$100,000 Deductible");
 
-        Assert.assertEquals(15048.3021, res.doubleValue(), 0.00005);
+        Assert.assertEquals(15048.3021, res, 0.00005);
 
     }
 

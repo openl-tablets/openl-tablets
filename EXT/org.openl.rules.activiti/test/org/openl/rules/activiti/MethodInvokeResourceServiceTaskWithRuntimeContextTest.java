@@ -10,7 +10,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.enumeration.UsStatesEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -48,10 +47,10 @@ public class MethodInvokeResourceServiceTaskWithRuntimeContextTest {
 
         Task task = processEngine.getTaskService().createTaskQuery().singleResult();
 
-        DoubleValue result = (DoubleValue) processEngine.getRuntimeService()
+        Double result = (Double) processEngine.getRuntimeService()
             .getVariable(task.getExecutionId(), "resultVariable");
 
-        Assert.assertEquals(500.0d, result.doubleValue(), 1e-3);
+        Assert.assertEquals(500.0d, result, 1e-3);
 
         processEngine.getTaskService().complete(task.getId());
 
@@ -65,8 +64,8 @@ public class MethodInvokeResourceServiceTaskWithRuntimeContextTest {
 
         task = processEngine.getTaskService().createTaskQuery().singleResult();
 
-        result = (DoubleValue) processEngine.getRuntimeService().getVariable(task.getExecutionId(), "resultVariable");
+        result = (Double) processEngine.getRuntimeService().getVariable(task.getExecutionId(), "resultVariable");
 
-        Assert.assertEquals(510.0d, result.doubleValue(), 1e-3);
+        Assert.assertEquals(510.0d, result, 1e-3);
     }
 }

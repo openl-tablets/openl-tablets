@@ -5,8 +5,6 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.Objects;
 
-import org.openl.meta.*;
-
 public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     C convert(T param);
@@ -27,24 +25,6 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         @Override
         public String convert(String param) {
             return param;
-        }
-
-        @Override
-        public String increment(String value) {
-            return incrementString(value);
-        }
-
-        @Override
-        public Class<String> getTargetType() {
-            return String.class;
-        }
-
-    };
-
-    ITypeAdaptor<StringValue, String> STRING_VALUE = new ITypeAdaptor<StringValue, String>() {
-
-        public String convert(StringValue param) {
-            return param != null ? param.getValue() : null;
         }
 
         @Override
@@ -98,32 +78,6 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    ITypeAdaptor<ByteValue, Byte> BYTE_VALUE = new NumberTypeAdaptor<ByteValue, Byte>() {
-        @Override
-        public Byte convert(ByteValue param) {
-            if (param == null) {
-                return null;
-            }
-
-            return param.getValue();
-        }
-
-        @Override
-        public Byte increment(Byte value) {
-            Objects.requireNonNull(value, "value cannot be null");
-            if (value.equals(Byte.MAX_VALUE)) {
-                return null;
-            }
-            return (byte) (value + 1);
-        }
-
-        @Override
-        public Class<Byte> getTargetType() {
-            return Byte.class;
-        }
-
-    };
-
     ITypeAdaptor<Short, Short> SHORT = new NumberTypeAdaptor<Short, Short>() {
         @Override
         public Short increment(Short value) {
@@ -141,58 +95,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         }
     };
 
-    ITypeAdaptor<ShortValue, Short> SHORT_VALUE = new NumberTypeAdaptor<ShortValue, Short>() {
-        @Override
-        public Short convert(ShortValue param) {
-            if (param == null) {
-                return null;
-            }
-            return param.shortValue();
-        }
-
-        @Override
-        public Short increment(Short value) {
-            Objects.requireNonNull(value, "value cannot be null");
-            if (value.equals(Short.MAX_VALUE)) {
-                return null;
-            }
-
-            return (short) (value + 1);
-        }
-
-        @Override
-        public Class<Short> getTargetType() {
-            return Short.class;
-        }
-    };
-
     ITypeAdaptor<Integer, Integer> INT = new NumberTypeAdaptor<Integer, Integer>() {
-
-        @Override
-        public Integer increment(Integer value) {
-            Objects.requireNonNull(value, "value cannot be null");
-            if (value.equals(Integer.MAX_VALUE)) {
-                return null;
-            }
-            return value + 1;
-        }
-
-        @Override
-        public Class<Integer> getTargetType() {
-            return Integer.class;
-        }
-
-    };
-
-    ITypeAdaptor<IntValue, Integer> INT_VALUE = new NumberTypeAdaptor<IntValue, Integer>() {
-
-        @Override
-        public Integer convert(IntValue param) {
-            if (param == null) {
-                return null;
-            }
-            return param.intValue();
-        }
 
         @Override
         public Integer increment(Integer value) {
@@ -228,62 +131,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    ITypeAdaptor<LongValue, Long> LONG_VALUE = new NumberTypeAdaptor<LongValue, Long>() {
-
-        @Override
-        public Long convert(LongValue param) {
-            if (param == null) {
-                return null;
-            }
-            return param.longValue();
-        }
-
-        @Override
-        public Long increment(Long value) {
-            Objects.requireNonNull(value, "value cannot be null");
-            if (value.equals(Long.MAX_VALUE)) {
-                return null;
-            }
-
-            return value + 1;
-        }
-
-        @Override
-        public Class<Long> getTargetType() {
-            return Long.class;
-        }
-
-    };
-
     ITypeAdaptor<Double, Double> DOUBLE = new NumberTypeAdaptor<Double, Double>() {
-
-        @Override
-        public Double increment(Double value) {
-            if (value.isNaN()) {
-                return Double.NaN;
-            }
-            if (value.isInfinite()) {
-                return value;
-            }
-            return value + Math.ulp(value);
-        }
-
-        @Override
-        public Class<Double> getTargetType() {
-            return Double.class;
-        }
-
-    };
-
-    ITypeAdaptor<DoubleValue, Double> DOUBLE_VALUE = new NumberTypeAdaptor<DoubleValue, Double>() {
-
-        @Override
-        public Double convert(DoubleValue param) {
-            if (param == null) {
-                return null;
-            }
-            return param.doubleValue();
-        }
 
         @Override
         public Double increment(Double value) {
@@ -323,55 +171,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     };
 
-    ITypeAdaptor<FloatValue, Float> FLOAT_VALUE = new NumberTypeAdaptor<FloatValue, Float>() {
-
-        @Override
-        public Float convert(FloatValue param) {
-            if (param == null) {
-                return null;
-            }
-            return param.floatValue();
-        }
-
-        @Override
-        public Float increment(Float value) {
-            if (value.isNaN()) {
-                return Float.NaN;
-            }
-            if (value.isInfinite()) {
-                return value;
-            }
-            return value + Math.ulp(value);
-        }
-
-        @Override
-        public Class<Float> getTargetType() {
-            return Float.class;
-        }
-
-    };
-
     ITypeAdaptor<BigInteger, BigInteger> BIGINTEGER = new NumberTypeAdaptor<BigInteger, BigInteger>() {
-        @Override
-        public BigInteger increment(BigInteger value) {
-            return value.add(BigInteger.ONE);
-        }
-
-        @Override
-        public Class<BigInteger> getTargetType() {
-            return BigInteger.class;
-        }
-    };
-
-    ITypeAdaptor<BigIntegerValue, BigInteger> BIGINTEGER_VALUE = new NumberTypeAdaptor<BigIntegerValue, BigInteger>() {
-        @Override
-        public BigInteger convert(BigIntegerValue param) {
-            if (param == null) {
-                return null;
-            }
-            return param.getValue();
-        }
-
         @Override
         public BigInteger increment(BigInteger value) {
             return value.add(BigInteger.ONE);
@@ -394,26 +194,6 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
             return BigDecimal.class;
         }
 
-    };
-
-    ITypeAdaptor<BigDecimalValue, BigDecimal> BIGDECIMAL_VALUE = new NumberTypeAdaptor<BigDecimalValue, BigDecimal>() {
-        @Override
-        public BigDecimal convert(BigDecimalValue param) {
-            if (param == null) {
-                return null;
-            }
-            return param.getValue();
-        }
-
-        @Override
-        public BigDecimal increment(BigDecimal value) {
-            return value.add(value.ulp());
-        }
-
-        @Override
-        public Class<BigDecimal> getTargetType() {
-            return BigDecimal.class;
-        }
     };
 
     ITypeAdaptor<Date, Integer> DATE = new ITypeAdaptor<Date, Integer>() {

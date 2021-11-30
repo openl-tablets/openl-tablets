@@ -3,7 +3,6 @@ package org.openl.rules.calc;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.openl.meta.DoubleValue;
 import org.openl.rules.TestUtils;
 
 public class SpreadsheetResultSimpleBeanTest {
@@ -12,12 +11,12 @@ public class SpreadsheetResultSimpleBeanTest {
     @Test
     public void test1() {
         ITestCalc test = TestUtils.create(SCR, ITestCalc.class);
-        DoubleValue result = test.calc();
-        assertEquals(375.0, result.getValue(), 1e-8);
+        Double result = test.calc();
+        assertEquals(375.0, result, 1e-8);
     }
 
     public interface ITestCalc {
-        DoubleValue calc();
+        Double calc();
     }
 
 }
