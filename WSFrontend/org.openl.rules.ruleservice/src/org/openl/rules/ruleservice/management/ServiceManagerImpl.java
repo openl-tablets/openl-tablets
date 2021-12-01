@@ -67,7 +67,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     private final Map<String, Date> startDates = new HashMap<>();
 
     private Map<String, RuleServicePublisher> supportedPublishers;
-    private Collection<String> defaultRuleServicePublishers = Collections.emptyList();
     private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
 
     private ServiceDescription serviceDescriptionInProcess;
@@ -100,10 +99,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     public void setSupportedPublishers(Map<String, RuleServicePublisher> supportedPublishers) {
         this.supportedPublishers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         this.supportedPublishers.putAll(supportedPublishers);
-    }
-
-    public void setDefaultRuleServicePublishers(String[] defaultRuleServicePublishers) {
-        this.defaultRuleServicePublishers = Arrays.asList(defaultRuleServicePublishers);
     }
 
     /**
@@ -384,9 +379,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         Objects.requireNonNull(service, "service cannot be null");
         final String servicePath = service.getDeployPath();
         Collection<String> sp = service.getPublishers();
-        if (CollectionUtils.isEmpty(sp)) {
-            sp = defaultRuleServicePublishers;
-        }
         Collection<RuleServicePublisher> publishers = new ArrayList<>();
         if (supportedPublishers.size() > 1) {
             for (String p : sp) {
@@ -488,14 +480,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     public void afterPropertiesSet() {
         if (CollectionUtils.isEmpty(supportedPublishers)) {
             throw new BeanInitializationException("At least one supported publisher must be registered.");
-        }
-
-        for (String defPublisher : defaultRuleServicePublishers) {
-            if (!supportedPublishers.containsKey(defPublisher)) {
-                throw new BeanInitializationException(
-                    String.format("Default publisher with id '%s' is not found in the map of supported publishers.",
-                        defPublisher));
-            }
         }
     }
 

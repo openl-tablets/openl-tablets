@@ -2,13 +2,17 @@ package org.openl.rules.ruleservice.conf;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
+import java.util.stream.Collectors;
 
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
@@ -24,16 +28,19 @@ import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.ResourceLoader;
 import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.BeanInitializationException;
+import org.springframework.beans.factory.InitializingBean;
 
 /**
  * Selects the latest deployments and deploys each of their projects as single service.
  *
  * @author PUdalau, Marat Kamalov
  */
-public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
+public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, InitializingBean {
 
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
@@ -44,6 +51,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     private boolean supportVariations = false;
     private String supportedGroups = null;
     private DeploymentNameMatcher deploymentMatcher = DeploymentNameMatcher.DEFAULT;
+    private Collection<String> defaultPublishers = Collections.emptyList();
 
     /**
      * {@inheritDoc}
@@ -73,6 +81,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                     ServiceDescription.ServiceDescriptionBuilder serviceDescriptionBuilder = new ServiceDescription.ServiceDescriptionBuilder()
                         .setProvideRuntimeContext(isProvideRuntimeContext())
                         .setProvideVariations(isSupportVariations())
+                        .setPublishers(defaultPublishers)
                         .setDeployment(deploymentDescription);
 
                     serviceDescriptionBuilder.setModules(modulesOfProject);
@@ -107,9 +116,10 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                                             .setProvideVariations(rulesDeploy.isProvideVariations());
                                     }
                                     if (rulesDeploy.getPublishers() != null) {
-                                        for (RulesDeploy.PublisherType publisher : rulesDeploy.getPublishers()) {
-                                            serviceDescriptionBuilder.addPublisher(publisher.toString());
-                                        }
+                                        Set<String> publishers = Arrays.stream(rulesDeploy.getPublishers())
+                                                .map(Enum::toString)
+                                                .collect(Collectors.toSet());
+                                        serviceDescriptionBuilder.setPublishers(publishers);
                                     }
                                     if (rulesDeploy.getConfiguration() != null) {
                                         serviceDescriptionBuilder.setConfiguration(rulesDeploy.getConfiguration());
@@ -284,4 +294,33 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         this.deploymentMatcher = new DeploymentNameMatcher(deploymentPatterns);
     }
 
+    public void setDefaultPublishers(String[] defaultPublishers) {
+        if (defaultPublishers != null) {
+            this.defaultPublishers = new HashSet<>();
+            Collections.addAll(this.defaultPublishers, defaultPublishers);
+        } else {
+            this.defaultPublishers = Collections.emptyList();
+        }
+    }
+
+    /**
+     * For validation
+     */
+    private Map<String, RuleServicePublisher> supportedPublishers;
+
+    public void setSupportedPublishers(Map<String, RuleServicePublisher> supportedPublishers) {
+        this.supportedPublishers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        this.supportedPublishers.putAll(supportedPublishers);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        for (String defPublisher : defaultPublishers) {
+            if (!supportedPublishers.containsKey(defPublisher)) {
+                throw new BeanInitializationException(
+                        String.format("Default publisher with id '%s' is not found in the map of supported publishers.",
+                                defPublisher));
+            }
+        }
+    }
 }

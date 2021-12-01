@@ -7,7 +7,7 @@ Content-Type: application/json
     "name": "EPBDS-10916%20+Whitespaces in Name_EPBDS-10916%20+Whitespaces in Name",
     "servicePath": "EPBDS-10916%20+Whitespaces in Name/EPBDS-10916%20+Whitespaces in Name",
     "urls": {
-      "RESTFUL": "REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name/EPBDS-10916%2520%2BWhitespaces%20in%20Name"
+      "RESTFUL": "EPBDS-10916%2520%2BWhitespaces%20in%20Name/EPBDS-10916%2520%2BWhitespaces%20in%20Name"
     },
     "hasManifest": false,
     "deploymentName": "EPBDS-10916%20+Whitespaces in Name",

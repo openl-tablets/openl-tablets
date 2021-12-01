@@ -276,10 +276,10 @@ public final class ServiceDescription {
             return this;
         }
 
-        public ServiceDescriptionBuilder setPublishers(String[] publishers) {
+        public ServiceDescriptionBuilder setPublishers(Collection<String> publishers) {
             this.publishers = new HashSet<>();
             if (publishers != null) {
-                Collections.addAll(this.publishers, publishers);
+                this.publishers.addAll(publishers);
             }
             return this;
         }
@@ -287,14 +287,6 @@ public final class ServiceDescription {
         public ServiceDescriptionBuilder setRulesDeploy(RulesDeploy rulesDeploy) {
             this.rulesDeploy = rulesDeploy;
             return this;
-        }
-
-        public void addPublisher(String publisher) {
-            Objects.requireNonNull(publisher, "publisher cannot be null");
-            if (this.publishers == null) {
-                this.publishers = new HashSet<>();
-            }
-            this.publishers.add(publisher.toUpperCase());
         }
 
         /**

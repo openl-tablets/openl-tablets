@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "title": "EPBDS-9572_EPBDS-9572"
   },
-  "basePath": "/REST/EPBDS-9572/EPBDS-9572",
+  "basePath": "/EPBDS-9572/EPBDS-9572",
   "paths": {
     "/mySpr": {
       "post": {

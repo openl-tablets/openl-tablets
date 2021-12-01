@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "title": "EPBDS-10708_EPBDS-10708"
   },
-  "basePath": "/REST/EPBDS-10708/EPBDS-10708",
+  "basePath": "/EPBDS-10708/EPBDS-10708",
   "paths": {
     "/mainSpr": {
       "get": {

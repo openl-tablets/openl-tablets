@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "/REST/EPBDS-10393",
+      "url": "/EPBDS-10393",
       "variables": {}
     }
   ],

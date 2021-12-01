@@ -9,7 +9,7 @@ Content-Type: application/json
   },
   "servers": [
     {
-      "url": "/REST/EPBDS-11682/EPBDS-11682",
+      "url": "/EPBDS-11682/EPBDS-11682",
       "variables": {}
     }
   ],

@@ -7,7 +7,7 @@ Content-Type: application/json
     "version": "1.0.0",
     "title": "Tutorial1_Tutorial1"
   },
-  "basePath": "/REST/Tutorial1/Tutorial1",
+  "basePath": "/Tutorial1/Tutorial1",
   "paths": {
     "/Greeting": {
       "post": {

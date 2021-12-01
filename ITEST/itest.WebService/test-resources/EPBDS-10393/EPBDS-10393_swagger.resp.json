@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "title": "EPBDS-10393"
   },
-  "basePath": "/REST/EPBDS-10393",
+  "basePath": "/EPBDS-10393",
   "paths": {
     "/someRule4": {
       "post": {

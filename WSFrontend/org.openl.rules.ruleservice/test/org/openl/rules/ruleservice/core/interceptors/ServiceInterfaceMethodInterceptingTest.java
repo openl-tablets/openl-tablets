@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -314,7 +315,7 @@ public class ServiceInterfaceMethodInterceptingTest {
             OpenLService service = instantiationFactory.createService(serviceDescriptionBuilder()
                     .setServiceClassName(null)
                     .setRmiServiceClassName(ELUSIVE_CLASS_NAME)
-                    .setPublishers(new String[]{"RMI"})
+                    .setPublishers(Collections.singletonList("RMI"))
                     .build());
             service.getServiceClass();
             fail("Everything went different before...");

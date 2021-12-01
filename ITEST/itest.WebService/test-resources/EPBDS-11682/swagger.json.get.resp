@@ -7,7 +7,7 @@ Content-Type: application/json
     "version": "1.0.0",
     "title": "EPBDS-11682_EPBDS-11682"
   },
-  "basePath": "/REST/EPBDS-11682/EPBDS-11682",
+  "basePath": "/EPBDS-11682/EPBDS-11682",
   "paths": {
     "/VoidResponse2": {
       "post": {
