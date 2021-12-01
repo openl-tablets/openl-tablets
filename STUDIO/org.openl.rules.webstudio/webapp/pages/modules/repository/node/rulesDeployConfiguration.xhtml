@@ -43,8 +43,7 @@
 
       <h:outputLabel for="#{prefix}publishers" value="Create services:" rendered="#{repositoryProjectRulesDeployConfig.publishersSupported}"/>
       <h:panelGroup rendered="#{repositoryProjectRulesDeployConfig.publishersSupported}">
-        <h:selectManyCheckbox id="#{prefix}publishers" value="#{rulesDeploy.publishers}" disabled="#{!openedForEditing}"
-                              required="true" layout="lineDirection" requiredMessage="Please, select at least one service">
+        <h:selectManyCheckbox id="#{prefix}publishers" value="#{rulesDeploy.publishers}" disabled="#{!openedForEditing}" layout="lineDirection">
            <f:selectItems value="#{rulesDeploy.availablePublishers}" var="publisher" itemValue="#{publisher}" itemLabel="#{msg['ws.deploy.publisher.'.concat(publisher)]}" />
         </h:selectManyCheckbox>
         <h:message errorStyle="color:red; display:block" for="#{prefix}publishers" />
@@ -127,15 +126,18 @@
                        onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the rules deploy configuration?')) {return false;}"/>
       <script>
           $j(function () {
-              $j('.save-deploy-configuration-button').prop("disabled", true);
-              $j("#rules-deploy-configuration-form").areYouSure();
-              // Enable save button only if the form is dirty - using events.
-              $j("#rules-deploy-configuration-form").bind('dirty.areYouSure', function () {
-                  $j('.save-deploy-configuration-button').prop("disabled", false);
-              });
-              $j("#rules-deploy-configuration-form").bind('clean.areYouSure', function () {
+
+              if (#{!repositoryProjectRulesDeployConfig.created}) {
                   $j('.save-deploy-configuration-button').prop("disabled", true);
-              });
+                  $j("#rules-deploy-configuration-form").areYouSure();
+                  // Enable save button only if the form is dirty - using events.
+                  $j("#rules-deploy-configuration-form").bind('dirty.areYouSure', function () {
+                      $j('.save-deploy-configuration-button').prop("disabled", false);
+                  });
+                  $j("#rules-deploy-configuration-form").bind('clean.areYouSure', function () {
+                      $j('.save-deploy-configuration-button').prop("disabled", true);
+                  });
+              }
           });
       </script>
   </h:panelGroup>

@@ -8,8 +8,6 @@ import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.util.StringUtils;
 
 public class RulesDeployGuiWrapper {
-    private static final PublisherType[] DEFAULT_PUBLISHERS = new PublisherType[] { PublisherType.RESTFUL };
-
     private final RulesDeploy rulesDeploy;
     private String configuration;
     private final SupportedVersion version;
@@ -123,12 +121,7 @@ public class RulesDeployGuiWrapper {
     }
 
     public PublisherType[] getPublishers() {
-        PublisherType[] publishers = rulesDeploy.getPublishers();
-        if (publishers == null || publishers.length == 0) {
-            // Set both services by default
-            publishers = DEFAULT_PUBLISHERS;
-        }
-        return publishers;
+        return rulesDeploy.getPublishers();
     }
 
     public PublisherType[] getAvailablePublishers() {
