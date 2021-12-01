@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 @Component("externalGroupDao")
 public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implements ExternalGroupDao {
 
+    public static final char ESCAPE_CHAR = '\\';
+
     @Override
     public void deleteAllForUser(String loginName) {
         getSession().createQuery("DELETE ExternalGroup ext where ext.loginName = :loginName")
@@ -120,5 +122,26 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
 
         return new Predicate[] { cb.equal(root.get("loginName"), loginName),
                 root.get("groupName").in(sqGroup.select(rootGroup.get("name"))).not() };
+    }
+
+    @Override
+    public List<String> findAllByName(String groupName, int limit) {
+        Session session = getSession();
+        CriteriaBuilder cb = session.getCriteriaBuilder();
+        CriteriaQuery<String> query = cb.createQuery(String.class);
+        Root<ExternalGroup> extGroupRoot = query.from(ExternalGroup.class);
+
+        query.select(extGroupRoot.get("groupName"))
+                .distinct(true)
+                .where(cb.like(cb.lower(extGroupRoot.get("groupName")), "%" + escape(groupName) + "%", cb.literal(ESCAPE_CHAR)));
+        return session.createQuery(query).setMaxResults(limit).getResultList();
+    }
+
+    private static String escape(String searchTerm) {
+        searchTerm = searchTerm.toLowerCase();
+        searchTerm = searchTerm.replace("\\", ESCAPE_CHAR + "\\");
+        searchTerm = searchTerm.replace("[", ESCAPE_CHAR + "[");
+        searchTerm = searchTerm.replace("_", ESCAPE_CHAR + "_");
+        return searchTerm.replace("%", ESCAPE_CHAR + "%");
     }
 }

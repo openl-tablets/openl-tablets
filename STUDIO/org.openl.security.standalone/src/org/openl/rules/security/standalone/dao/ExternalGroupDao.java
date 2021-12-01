@@ -20,4 +20,6 @@ public interface ExternalGroupDao extends Dao<ExternalGroup> {
     List<ExternalGroup> findNotMatchedForUser(String loginName);
 
     long countNotMatchedForUser(String loginName);
+
+    List<String> findAllByName(String groupName, int limit);
 }

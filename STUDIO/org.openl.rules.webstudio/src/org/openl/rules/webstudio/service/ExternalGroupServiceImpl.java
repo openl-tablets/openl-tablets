@@ -83,6 +83,14 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
         return externalGroupDao.countNotMatchedForUser(loginName);
     }
 
+    @Override
+    @Transactional
+    public List<Group> findAllByName(String groupName, int limit) {
+        return externalGroupDao.findAllByName(groupName, limit).stream()
+                .map(ext -> new SimpleGroup(ext, ext, Collections.emptySet()))
+                .collect(Collectors.toList());
+    }
+
     private static class BatchCreateExternalGroupCursor implements Iterable<ExternalGroup> {
 
         private final String loginName;

@@ -1,4 +1,4 @@
 HTTP/1.1 200
 Content-Type: application/json
 
-["GROUP_1", "GROUP_2", "Analysts", "GROUP_3"]
+["Analysts", "GROUP_1", "GROUP_2", "GROUP_3"]

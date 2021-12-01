@@ -239,6 +239,39 @@ public class GroupManagementTest {
         assertEquals(7, queryCount.getTotal());
     }
 
+    @Test
+    public void testSearch() {
+        initOneUser();
+        initSecondUser();
+
+        Set<Privilege> privileges = generatePrivilege(11, "Analysts", "Deployers");
+        externalGroupService.mergeAllForUser("jdoe", privileges);
+        externalGroupService.mergeAllForUser("jsmith", generatePrivilege(13));
+        QueryCount queryCount = QueryCountHolder.getGrandTotal();
+        assertEquals(2, queryCount.getInsert());
+        assertEquals(2, queryCount.getDelete());
+        assertEquals(4, queryCount.getTotal());
+
+        QueryCountHolder.clear();
+        List<Group> extGroups = externalGroupService.findAllByName("GROUP_1", 10);
+        assertCollectionEquals(Stream.of("GROUP_1", "GROUP_10", "GROUP_11", "GROUP_12").collect(Collectors.toList()),
+            extGroups,
+            Group::getName);
+        queryCount = QueryCountHolder.getGrandTotal();
+        assertEquals(1, queryCount.getSelect());
+        assertEquals(1, queryCount.getTotal());
+
+
+        QueryCountHolder.clear();
+        extGroups = externalGroupService.findAllByName("GROUP_1", 2);
+        assertCollectionEquals(Stream.of("GROUP_1", "GROUP_10").collect(Collectors.toList()),
+                extGroups,
+                Group::getName);
+        queryCount = QueryCountHolder.getGrandTotal();
+        assertEquals(1, queryCount.getSelect());
+        assertEquals(1, queryCount.getTotal());
+    }
+
     private static <T, R> void assertCollectionEquals(Collection<R> expected,
             Collection<T> actual,
             Function<T, R> attr) {
@@ -270,7 +303,13 @@ public class GroupManagementTest {
 
     private void initOneUser() {
         userService
-            .addUser("jdoe", "John", "Doe", "qwerty", "jdoe@test", "John Doe", UserExternalFlags.builder().build());
+            .addUser("jdoe", "Joe", "Doe", "qwerty", "jdoe@test", "Joe Doe", UserExternalFlags.builder().build());
+        QueryCountHolder.clear();
+    }
+
+    private void initSecondUser() {
+        userService
+                .addUser("jsmith", "John", "Smith", "qwerty", "jsmith@test", "John Smith", UserExternalFlags.builder().build());
         QueryCountHolder.clear();
     }
 

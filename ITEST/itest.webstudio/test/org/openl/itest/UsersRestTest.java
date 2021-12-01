@@ -103,6 +103,7 @@ public class UsersRestTest {
         client.send("users-service/users/groups/external/allExternal.jsmith.get");
         client.send("users-service/users/groups/external/matchedExternal.jsmith.get");
         client.send("users-service/users/groups/external/notMatchedExternal.jsmith.get");
+        client.send("admin/management/groups/searchExternalGroup.json.get");
         client.send("users-service/users-delete-1.delete");
     }
 

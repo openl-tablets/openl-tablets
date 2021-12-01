@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.openl.rules.security.Privilege;
+import org.openl.rules.security.standalone.persistence.ExternalGroup;
 
 public interface ExternalGroupService {
 
@@ -22,4 +23,6 @@ public interface ExternalGroupService {
     List<org.openl.rules.security.Group> findNotMatchedForUser(String loginName);
 
     long countNotMatchedForUser(String loginName);
+
+    List<org.openl.rules.security.Group> findAllByName(String groupName, int limit);
 }
