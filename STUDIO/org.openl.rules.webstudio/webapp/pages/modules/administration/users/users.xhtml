@@ -82,6 +82,41 @@
             });
         };
 
+        const fetchNotMatchedUserGroups = (username, $notMatchedUserGroups) => {
+            const $userGroups = $notMatchedUserGroups.parent();
+            $j.ajax({
+                type: "GET",
+                url: '#{contextPath}/web/users/' + username + '/groups/external',
+                data: {
+                    matched: false
+                },
+                datatype: "json"
+            }).done(function (data) {
+                $notMatchedUserGroups.remove();
+                data.forEach((extGroup) => {
+                    let $userGroup = $userGroupTemplate.clone();
+                    $userGroup.find('[attr=users-group]')
+                        .text(ws.utils.escapeHtml(extGroup));
+                    $userGroups.append($userGroup);
+                })
+            }).fail(function (data) {
+                handleError(data.status);
+            });
+        };
+
+        const groupsConfig = function () {
+            let result = {};
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/admin/management/groups/settings",
+                datatype: "json",
+                async: false,
+            }).done(function (data) {
+                result = data;
+            });
+            return result;
+        }();
+
         const deleteUser = (userName) => {
             if (confirm('Are you sure you want to delete the user?')) {
                 $j.ajax({
@@ -113,8 +148,8 @@
                     const appendUserGroup = ($userGroup) => {
                         $userRow.find("[attr=users-groups]").append($userGroup);
                     };
-                    const extGroups = user.externalGroups != null ? user.externalGroups : [];
-                    const groups = user.groups != null ? user.groups : [];
+                    const extGroups = user.externalGroups || [];
+                    const groups = user.groups || [];
                     groups.forEach(group => {
                         if (extGroups.includes(group)) {
                             return;
@@ -130,32 +165,35 @@
                         const $userGroup = $userGroupTemplate.clone();
                         $userGroup.find('[attr=users-group]')
                             .addClass('badge-success')
+                            .attr("title", "Matched external group")
                             .text(ws.utils.escapeHtml(extGroup));
                         appendUserGroup($userGroup);
                     });
 
+                    if ((extGroups.length + groups.length) === 0 && groupsConfig?.defaultGroup != null) {
+                        const $userGroup = $userGroupTemplate.clone();
+                        $userGroup.find('[attr=users-group]')
+                            .addClass('badge-info')
+                            .attr("title", "Default group")
+                            .text(ws.utils.escapeHtml(groupsConfig.defaultGroup));
+                        appendUserGroup($userGroup);
+                    }
+
                     if (user.notMatchedExternalGroupsCount > 0) {
                         const $userGroup = $userGroupTemplate.clone();
                         $userGroup.find('[attr=users-group]')
+                            .addClass("clickable")
+                            .attr("title", "Expand not matched external groups")
                             .text(ws.utils.escapeHtml('+' + user.notMatchedExternalGroupsCount));
+                        $userGroup.click(() => {
+                            fetchNotMatchedUserGroups(user.username, $userGroup);
+                        });
                         appendUserGroup($userGroup);
                     }
 
                     const $userName = $userRow.find('[attr=users-username]');
                     $userName.click(() => {
-                        showEditUserForm(ws.utils.escapeHtml(user.username),
-                            ws.utils.escapeHtml(user.firstName),
-                            ws.utils.escapeHtml(user.lastName),
-                            ws.utils.escapeHtml(user.email),
-                            ws.utils.escapeHtml(user.displayName),
-                            user.internalUser,
-                            user.groups,
-                            user.superUser,
-                            user.currentUser,
-                            user.externalFlags.firstNameExternal,
-                            user.externalFlags.lastNameExternal,
-                            user.externalFlags.emailExternal,
-                            user.externalFlags.displayNameExternal);
+                        showEditUserForm(user, groupsConfig);
                     });
                     $userName.text(ws.utils.escapeHtml(user.username));
                     if (!user.unsafePassword) {

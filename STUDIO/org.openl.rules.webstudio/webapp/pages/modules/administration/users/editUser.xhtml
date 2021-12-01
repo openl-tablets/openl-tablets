@@ -160,25 +160,26 @@
         let editUserIsLastNameExternal;
         let editUserIsDisplayNameExternal;
 
-        function showEditUserForm(username, firstName, lastName, email, displayName, internalUser, userGroups, isSuperuser, isCurrentUser, firstNameExternal, lastNameExternal, emailExternal, displayNameExternal) {
-            editUserIsEmailExternal = emailExternal === true;
-            editUserIsFirstNameExternal = firstNameExternal === true;
-            editUserIsLastNameExternal = lastNameExternal === true;
-            editUserIsDisplayNameExternal = displayNameExternal === true;
+        function showEditUserForm(userModel, groupsConfig) {
+            const externalFlags = userModel.externalFlags || {};
+            editUserIsEmailExternal = externalFlags.emailExternal === true;
+            editUserIsFirstNameExternal = externalFlags.firstNameExternal === true;
+            editUserIsLastNameExternal = externalFlags.lastNameExternal === true;
+            editUserIsDisplayNameExternal = externalFlags.displayNameExternal === true;
 
-            $j("#edit-user-username").text(username);
-            $j("#edit-user-firstname").val(firstName);
-            $j("#edit-user-display-name").val(displayName);
-            $j("#edit-user-lastname").val(lastName);
-            $j("#edit-user-email").val(email);
-            $j("#edit-user-email-span").text(email);
-            $j("#edit-user-firstname-span").text(firstName);
-            $j("#edit-user-display-name-span").text(displayName);
-            $j("#edit-user-lastname-span").text(lastName);
+            $j("#edit-user-username").text(ws.utils.escapeHtml(userModel.username));
+            $j("#edit-user-firstname").val(userModel.firstName);
+            $j("#edit-user-display-name").val(userModel.displayName);
+            $j("#edit-user-lastname").val(userModel.lastName);
+            $j("#edit-user-email").val(userModel.email);
+            $j("#edit-user-email-span").text(ws.utils.escapeHtml(userModel.email));
+            $j("#edit-user-firstname-span").text(ws.utils.escapeHtml(userModel.firstName));
+            $j("#edit-user-display-name-span").text(ws.utils.escapeHtml(userModel.displayName));
+            $j("#edit-user-lastname-span").text(ws.utils.escapeHtml(userModel.lastName));
 
-            $j(".edit-user-super-user").toggle(isSuperuser === true);
-            $j(".edit-user-current-user").toggle(!(isSuperuser === true) && isCurrentUser === true);
-            $j(".edit-user-password-row").toggle(internalUser === true);
+            $j(".edit-user-super-user").toggle(userModel.superUser === true);
+            $j(".edit-user-current-user").toggle(!(userModel.superUser === true) && userModel.currentUser === true);
+            $j(".edit-user-password-row").toggle(userModel.internalUser === true);
 
             $j("#edit-user-firstname").toggle(!editUserIsFirstNameExternal);
             $j("#edit-user-firstname-span").toggle(editUserIsFirstNameExternal);
@@ -201,10 +202,12 @@
                 let groups = "";
                 $j.map(data, function (val, i) {
                     const isAdminGroup = val.privileges && val.privileges.includes("ADMIN");
+                    const isExternalGroup = userModel.externalGroups && userModel.externalGroups.includes(i);
+                    const isDefaultGroup = groupsConfig.defaultGroup === i;
                     $j("#edit-user-groups-row").show();
                     let groupClass = "";
-                    groupClass += userGroups.includes(i) ? ' check ' : ''
-                    groupClass += isAdminGroup && (isSuperuser === true || isCurrentUser === true) ? ' disable ' : '';
+                    groupClass += (userModel.groups && userModel.groups.includes(i)) || isExternalGroup || isDefaultGroup ? ' check ' : ''
+                    groupClass += (isAdminGroup && (userModel.superUser === true || userModel.currentUser === true)) || isExternalGroup || isDefaultGroup ? ' disable ' : '';
                     groups += htmlTemplate.replace(/{editUserGroupValue}/g, i)
                         .replaceAll(/{editUserGroupName}/g, i)
                         .replace(/{editUserGroupClass}/g, groupClass)
@@ -239,7 +242,7 @@
             e.preventDefault();
 
             let groupValues = [];
-            $j("#edit-user-groups-row input:checkbox").each(function() {
+            $j("#edit-user-groups-row input:checkbox:not(:disabled)").each(function() {
                 if ($j(this).is(":checked")) {
                     groupValues.push($j(this).val());
                 }

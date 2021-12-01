@@ -1,5 +1,13 @@
 package org.openl.rules.rest;
 
+import static org.openl.rules.ui.WebStudio.TABLE_FORMULAS_SHOW;
+import static org.openl.rules.ui.WebStudio.TABLE_VIEW;
+import static org.openl.rules.ui.WebStudio.TEST_FAILURES_ONLY;
+import static org.openl.rules.ui.WebStudio.TEST_FAILURES_PERTEST;
+import static org.openl.rules.ui.WebStudio.TEST_RESULT_COMPLEX_SHOW;
+import static org.openl.rules.ui.WebStudio.TEST_TESTS_PERPAGE;
+import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,8 +45,8 @@ import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.security.UserExternalFlags;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.security.UserExternalFlags.Feature;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.ExternalGroupService;
@@ -46,19 +54,12 @@ import org.openl.rules.webstudio.service.PrivilegesEvaluator;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import static org.openl.rules.ui.WebStudio.TABLE_FORMULAS_SHOW;
-import static org.openl.rules.ui.WebStudio.TABLE_VIEW;
-import static org.openl.rules.ui.WebStudio.TEST_FAILURES_ONLY;
-import static org.openl.rules.ui.WebStudio.TEST_FAILURES_PERTEST;
-import static org.openl.rules.ui.WebStudio.TEST_RESULT_COMPLEX_SHOW;
-import static org.openl.rules.ui.WebStudio.TEST_TESTS_PERPAGE;
-import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
 
 @Service
 @Path("/users")
@@ -313,7 +314,8 @@ public class UsersService {
 
     @GET
     @Path("/{username}/groups/external")
-    public Set<String> getUserGroupsGroups(@PathParam("username") String username, @QueryParam("matched") Boolean matched) {
+    public Set<String> getUserGroupsGroups(@PathParam("username") String username,
+            @QueryParam("matched") Boolean matched) {
         SecurityChecker.allow(Privileges.ADMIN);
         checkUserExists(username);
         List<Group> extGroups;
@@ -324,7 +326,7 @@ public class UsersService {
         } else {
             extGroups = extGroupService.findMatchedForUser(username);
         }
-        return extGroups.stream().map(Group::getName).collect(Collectors.toSet());
+        return extGroups.stream().map(Group::getName).collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
     }
 
     private UserModel mapUser(org.openl.rules.security.standalone.persistence.User user) {
@@ -347,7 +349,9 @@ public class UsersService {
             .setSuperUser(adminUsersInitializer.isSuperuser(user.getLoginName()))
             .setUnsafePassword(
                 user.getPasswordHash() != null && passwordEncoder.matches(user.getLoginName(), user.getPasswordHash()))
-            .setExternalGroups(matchedExtGroups.stream().map(Group::getName).collect(Collectors.toSet()))
+            .setExternalGroups(matchedExtGroups.stream()
+                .map(Group::getName)
+                .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER)))
             .setNotMatchedExternalGroupsCount(cntNotMatchedExtGroups)
             .setDisplayName(user.getDisplayName())
             .setExternalFlags(UserExternalFlags.builder()
