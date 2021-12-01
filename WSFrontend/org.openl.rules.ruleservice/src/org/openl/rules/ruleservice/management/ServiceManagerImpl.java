@@ -339,6 +339,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             Optional<OpenLService> serviceByName = Optional.ofNullable(getServiceByDeploy(s.getDeployPath()));
             return new ServiceInfo(startDates.get(s.getDeployPath()),
                 s.getName(),
+                serviceByName.map(ServiceManagerImpl::hasError).orElse(true),
                 serviceByName.map(OpenLService::getUrls).orElseGet(Collections::emptyMap),
                 s.getDeployPath(),
                 s.getManifest() != null,
@@ -355,16 +356,27 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     private void setUrls(OpenLService service) {
         HashMap<String, String> result = new HashMap<>();
-        CompiledOpenClass compiledOpenClass = service.getCompiledOpenClass();
-        if (compiledOpenClass != null && service.getException() == null && !compiledOpenClass.hasErrors()) {
-            supportedPublishers.forEach((id, publisher) -> {
-                if (publisher.getServiceByDeploy(service.getDeployPath()) != null) {
-                    String url = publisher.getUrl(service);
-                    result.put(id, url);
-                }
-            });
-        }
+        supportedPublishers.forEach((id, publisher) -> {
+            if (publisher.getServiceByDeploy(service.getDeployPath()) != null) {
+                String url = publisher.getUrl(service);
+                result.put(id, url);
+            }
+        });
         service.setUrls(result);
+    }
+
+    private static boolean hasError(OpenLService service) {
+        if (service.getCompiledOpenClass() == null && service.getException() == null) {
+            // try to instantiate OpenL rules before checking error status
+            try {
+                service.getClassLoader();
+            } catch (Exception e) {
+                Throwable rootCause = ExceptionUtils.getRootCause(e);
+                service.setException(rootCause);
+            }
+        }
+        CompiledOpenClass compiledOpenClass = service.getCompiledOpenClass();
+        return !(compiledOpenClass != null && service.getException() == null && !compiledOpenClass.hasErrors());
     }
 
     @Override
