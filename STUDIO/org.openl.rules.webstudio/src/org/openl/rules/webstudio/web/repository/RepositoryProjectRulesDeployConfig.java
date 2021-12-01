@@ -43,6 +43,7 @@ public class RepositoryProjectRulesDeployConfig {
     private UserWorkspaceProject lastProject;
     private String lastBranch;
     private String version;
+    private boolean created;
 
     public RepositoryProjectRulesDeployConfig(RepositoryTreeState repositoryTreeState,
         RulesDeploySerializerFactory rulesDeploySerializerFactory) {
@@ -67,6 +68,7 @@ public class RepositoryProjectRulesDeployConfig {
         }
         if (rulesDeploy == null) {
             if (hasRulesDeploy(project)) {
+                created = false;
                 rulesDeploy = loadRulesDeploy(project);
             }
         }
@@ -74,10 +76,10 @@ public class RepositoryProjectRulesDeployConfig {
     }
 
     public void createRulesDeploy() {
+        created = true;
         rulesDeploy = new RulesDeployGuiWrapper(new RulesDeploy(), getSupportedVersion());
-
-        // default values
         rulesDeploy.setProvideRuntimeContext(true);
+        rulesDeploy.setPublishers(new RulesDeploy.PublisherType[]{RulesDeploy.PublisherType.RESTFUL});
     }
 
     public void deleteRulesDeploy() {
@@ -93,7 +95,12 @@ public class RepositoryProjectRulesDeployConfig {
             }
         }
 
+        created = false;
         rulesDeploy = null;
+    }
+
+    public boolean isCreated() {
+        return created;
     }
 
     public void saveRulesDeploy() {
@@ -111,6 +118,7 @@ public class RepositoryProjectRulesDeployConfig {
                 repositoryTreeState.refreshSelectedNode();
                 studio.reset();
             }
+            created = false;
         } catch (ProjectException e) {
             WebStudioUtils.addErrorMessage("Failed to save save '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
             log.error(e.getMessage(), e);
