@@ -387,9 +387,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                         service.getDeployPath());
                 }
             }
-            if (publishers.isEmpty()) {
-                publishers.addAll(supportedPublishers.values());
-            }
         } else {
             publishers.addAll(supportedPublishers.values());
         }
