@@ -1219,6 +1219,11 @@ public class ProjectModel {
     }
 
     private CompiledOpenClass validate() throws RulesInstantiationException {
+        OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
+        return openApiProjectValidator.validate(moduleInfo.getProject(), getRulesInstantiationStrategy());
+    }
+
+    public RulesInstantiationStrategy getRulesInstantiationStrategy() {
         List<Module> modules = moduleInfo.getProject().getModules();
         RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
             webStudioWorkspaceDependencyManager,
@@ -1226,8 +1231,7 @@ public class ProjectModel {
         Map<String, Object> externalParameters = ProjectExternalDependenciesHelper
             .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
         instantiationStrategy.setExternalParameters(externalParameters);
-        OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
-        return openApiProjectValidator.validate(moduleInfo.getProject(), instantiationStrategy);
+        return instantiationStrategy;
     }
 
     private void prepareWorkspaceDependencyManager() {

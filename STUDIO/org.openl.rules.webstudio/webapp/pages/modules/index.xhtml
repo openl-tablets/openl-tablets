@@ -425,6 +425,8 @@
                         const defaults = {
                             title: 'Confirm',
                             message: 'Are you sure?',
+                            okButton: 'OK',
+                            cancelButton: 'Cancel',
                             onOK: () => {},
                             onCancel: () => {},
                         };
@@ -432,11 +434,11 @@
 
                         $('#confirmPopupTitle').text(options.title);
                         $('#confirmPopupMessage').text(options.message);
-                        $('#confirmPopupOkButton').off().click(() => {
+                        $('#confirmPopupOkButton').val(options.okButton).off().click(() => {
                             options.onOK();
                             confirmPopup.hide();
                         });
-                        $('#confirmPopupCancelButton').off().click(() => {
+                        $('#confirmPopupCancelButton').val(options.cancelButton).off().click(() => {
                             options.onCancel();
                             confirmPopup.hide();
                         });

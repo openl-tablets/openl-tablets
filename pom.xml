@@ -1758,6 +1758,11 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.project.openapi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.webstudio</artifactId>
                 <type>war</type>
                 <scope>runtime</scope>

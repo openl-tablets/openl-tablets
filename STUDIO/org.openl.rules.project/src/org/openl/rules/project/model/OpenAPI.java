@@ -1,10 +1,38 @@
 package org.openl.rules.project.model;
 
-public final class OpenAPI {
+import java.util.Objects;
 
+public final class OpenAPI {
     public enum Mode {
         RECONCILIATION,
         GENERATION
+    }
+
+    public enum Type {
+        YAML("openapi.yaml"),
+        YML("openapi.yml"),
+        JSON("openapi.json");
+
+        private final String defaultFileName;
+
+        Type(String defaultFileName) {
+            this.defaultFileName = defaultFileName;
+        }
+
+        public String getDefaultFileName() {
+            return defaultFileName;
+        }
+
+        public static Type chooseType(String extension) {
+            if (Objects.equals("json", extension)) {
+                return JSON;
+            } else if (Objects.equals("yaml", extension)) {
+                return YAML;
+            } else if (Objects.equals("yml", extension)) {
+                return YML;
+            }
+            return null;
+        }
     }
 
     private String path;

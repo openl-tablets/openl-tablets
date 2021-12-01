@@ -17,12 +17,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
+import org.openl.CompiledOpenClass;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.model.scaffolding.ProjectModel;
@@ -40,6 +43,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
@@ -49,6 +53,9 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.rules.project.model.validation.ValidationException;
+import org.openl.rules.project.openapi.OpenApiGenerationException;
+import org.openl.rules.project.openapi.OpenApiGenerator;
+import org.openl.rules.project.openapi.OpenApiSerializationUtils;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.NoMatchFileNameException;
@@ -76,11 +83,14 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.FileNameFormatter;
+import org.openl.validation.ValidatedCompiledOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.context.annotation.RequestScope;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 @Service
 @RequestScope
@@ -825,6 +835,122 @@ public class ProjectBean {
                 type);
         }
         return result;
+    }
+
+    public void createOrUpdateOpenAPISchema() {
+        ProjectDescriptor currentDescriptor = studio.getCurrentProjectDescriptor();
+        List<Module> modules = currentDescriptor.getModules();
+        if (modules.isEmpty()) {
+            throw new Message("Project has no modules.");
+        }
+        RulesProject currentProject = studio.getCurrentProject();
+        studio.init(currentProject.getDesignRepository().getId(),
+            currentProject.getBranch(),
+            currentProject.getName(),
+            modules.iterator().next().getName());
+        org.openl.rules.ui.ProjectModel projectModel = studio.getModel();
+        while (!isCompilationCompleted(projectModel)) {
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new Message("Project compilation has been interrupted.", e);
+            }
+        }
+        final String existedOpenAPIFilePath = getExistedOpenAPIFilePath();
+        final boolean update = existedOpenAPIFilePath != null;
+        CompiledOpenClass compiledOpenClass = projectModel.getCompiledOpenClass();
+        final boolean hasCompilationErrors;
+        if (compiledOpenClass instanceof ValidatedCompiledOpenClass) {
+            ValidatedCompiledOpenClass validated = (ValidatedCompiledOpenClass) compiledOpenClass;
+            hasCompilationErrors = validated.hasErrors() && !validated.hasOnlyValidationErrors();
+        } else {
+            hasCompilationErrors = compiledOpenClass.hasErrors();
+        }
+        if (hasCompilationErrors) {
+            throw new Message(
+                String.format("Cannot %s OpenAPI file. Project has compilation error.", update ? "update" : "create"));
+        }
+
+        tryLockProject();
+        try {
+            OpenApiGenerator generator = OpenApiGenerator
+                .builder(projectModel.getModuleInfo().getProject(), projectModel.getRulesInstantiationStrategy())
+                .generator();
+            final OpenAPI.Type openAPIType = Optional.of(OpenAPI.Type.JSON)
+                .map(t -> update ? OpenAPI.Type.chooseType(FileUtils.getExtension(existedOpenAPIFilePath)) : t)
+                .orElse(OpenAPI.Type.JSON);
+            try (InputStream in = serializeOpenApi(generator, openAPIType)) {
+                if (update) {
+                    ((AProjectResource) currentProject.getProject().getArtefact(existedOpenAPIFilePath)).setContent(in);
+                } else {
+                    currentProject.addResource(openAPIType.getDefaultFileName(), in);
+                }
+            }
+            ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentDescriptor);
+            clean(newProjectDescriptor);
+            if (update && newProjectDescriptor.getOpenapi() != null) {
+                OpenAPI openAPI = newProjectDescriptor.getOpenapi();
+                openAPI.setPath(existedOpenAPIFilePath);
+                openAPI.setMode(OpenAPI.Mode.RECONCILIATION);
+            } else {
+                OpenAPI openAPI = new OpenAPI();
+                openAPI.setPath(openAPIType.getDefaultFileName());
+                openAPI.setMode(OpenAPI.Mode.RECONCILIATION);
+                newProjectDescriptor.setOpenapi(openAPI);
+            }
+            save(newProjectDescriptor);
+        } catch (OpenApiGenerationException e) {
+            throw new Message(e.getMessage(), e);
+        } catch (Exception e) {
+            throw new Message(
+                String.format("Failed to %s OpenAPI file. Please check compilation.", update ? "update" : "create"),
+                e);
+        } finally {
+            if (!currentProject.isModified()) {
+                currentProject.unlock();
+            }
+        }
+    }
+
+    private static boolean isCompilationCompleted(org.openl.rules.ui.ProjectModel projectModel) {
+        return projectModel.isProjectCompilationCompleted() || Optional.ofNullable(projectModel.getModuleInfo())
+            .map(Module::getWebstudioConfiguration)
+            .map(WebstudioConfiguration::isCompileThisModuleOnly)
+            .orElse(Boolean.FALSE);
+    }
+
+    private static InputStream serializeOpenApi(OpenApiGenerator generator,
+            OpenAPI.Type openAPIType) throws JsonProcessingException, RulesInstantiationException {
+        String generatedOpenAPISchema;
+        switch (openAPIType) {
+            case JSON:
+                generatedOpenAPISchema = OpenApiSerializationUtils.toJson(generator.generate());
+                break;
+            case YAML:
+            case YML:
+                generatedOpenAPISchema = OpenApiSerializationUtils.toYaml(generator.generate());
+                break;
+            default:
+                throw new IllegalStateException(); // Must newer happened.
+        }
+        return IOUtils.toInputStream(generatedOpenAPISchema);
+    }
+
+    public String getExistedOpenAPIFilePath() {
+        ProjectDescriptor currentDescriptor = studio.getCurrentProjectDescriptor();
+        RulesProject currentProject = studio.getCurrentProject();
+        Optional<String> openApiPath = Optional.ofNullable(currentDescriptor.getOpenapi())
+            .map(OpenAPI::getPath)
+            .filter(StringUtils::isNotBlank);
+        if (openApiPath.isPresent() && currentProject.hasArtefact(openApiPath.get())) {
+            return openApiPath.get();
+        }
+        return Stream.of(OpenAPI.Type.values())
+            .map(OpenAPI.Type::getDefaultFileName)
+            .filter(currentProject::hasArtefact)
+            .findFirst()
+            .orElse(null);
     }
 
     public void regenerateOpenAPI() {
