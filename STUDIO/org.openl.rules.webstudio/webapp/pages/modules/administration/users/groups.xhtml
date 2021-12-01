@@ -188,6 +188,33 @@
 
     <script>
         //<![CDATA[
+        let autocompleteXhr = null;
+
+        ws.form.autocomplete({
+            $input: $j("#addEditGroupForm input[name=name]"),
+            source: (request, response) => {
+                autocompleteXhr = $j.ajax({
+                    type: "GET",
+                    url: "#{contextPath}/web/admin/management/groups/search",
+                    data: {
+                        term: request.term
+                    },
+                    datatype: "json",
+                    beforeSend : function()    {
+                        if(autocompleteXhr != null) {
+                            autocompleteXhr.abort();
+                        }
+                    }
+                }).done(function (data) {
+                    let items = [];
+                    data.forEach((val) => {
+                        items.push({value: val});
+                    });
+                    response(items);
+                })
+            }
+        })
+
         var privileges = {};
         var groups = {};
 

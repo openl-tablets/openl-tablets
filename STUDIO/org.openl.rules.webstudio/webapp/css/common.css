@@ -1716,3 +1716,20 @@ option[value=""]:disabled + option[value=""]:disabled {
 .center-align {
     text-align: center;
 }
+
+.autocomplete-items {
+    position: absolute;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+}
+.autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #fff;
+    border-bottom: 1px solid #d4d4d4;
+}
+.autocomplete-active {
+    background-color: #FAE5C1 !important;
+}
