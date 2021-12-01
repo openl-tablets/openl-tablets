@@ -198,13 +198,12 @@
             .done(function (data) {
                 const rowTemplate = $j('#edit-user-groups>span:nth-child(1)');
                 const htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
-                const userGroupsList = userGroups.split(',');
                 let groups = "";
                 $j.map(data, function (val, i) {
                     const isAdminGroup = val.privileges && val.privileges.includes("ADMIN");
                     $j("#edit-user-groups-row").show();
                     let groupClass = "";
-                    groupClass += userGroupsList.includes(i) ? ' check ' : ''
+                    groupClass += userGroups.includes(i) ? ' check ' : ''
                     groupClass += isAdminGroup && (isSuperuser === true || isCurrentUser === true) ? ' disable ' : '';
                     groups += htmlTemplate.replace(/{editUserGroupValue}/g, i)
                         .replaceAll(/{editUserGroupName}/g, i)

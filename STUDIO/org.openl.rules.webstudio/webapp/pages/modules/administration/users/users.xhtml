@@ -3,12 +3,6 @@
         xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <style>
-        #users-form>tbody>tr:nth-child(1) {
-            display: none;
-        }
-        #users-groups>span:nth-child(1) {
-            display: none;
-        }
         .white-space-pre {
             white-space: pre;
         }
@@ -37,24 +31,22 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
+        <tr style="display: none">
             <td>
-                <span onclick="showEditUserForm({usersEditUserParams})"
-                      class="clickable white-space-pre users-username-box" title="Edit">{usersUsername}</span>
-                <span class="warning-icon" style="{usersUnsafeDefaultPasswordStyle}" title="Unsafe default password"/>
+                <span class="clickable white-space-pre users-username-box" title="Edit" attr="users-username"/>
+                <span class="warning-icon" title="Unsafe default password" attr="users-unsafe-default-password"/>
             </td>
-            <td>{usersFirstname}</td>
-            <td>{usersLastname}</td>
-            <td>{usersEmail}</td>
-            <td>{usersDisplayName}</td>
-            <td id="users-groups">
-                    <span>
-                        <span class="{usersGroupClass}">{usersGroup}</span>
-                    </span>
-                {usersGroups}
+            <td attr="users-firstname"/>
+            <td attr="users-lastname"/>
+            <td attr="users-email"/>
+            <td attr="users-displayname"/>
+            <td attr="users-groups">
+                <span>
+                    <span attr="users-group" class="badge users-group"/>
+                </span>
             </td>
-            <td class="users-internal-user">{usersInternalUser}</td>
-            <td><a onclick="{usersDeleteOnClick}" class="{usersDeleteClass}" title="Delete"/></td>
+            <td class="users-internal-user" attr="users-internal-user"/>
+            <td><a class="delete-icon user-delete-link" title="Delete" attr="users-delete"/></td>
         </tr>
         </tbody>
     </table>
@@ -68,72 +60,137 @@
     <script src="#{contextPath}/javascript/userDisplayNameSelectInitializer.js"></script>
     <script>//<![CDATA[
 
-        function showUsersForm() {
+    const usersTableHandler = function () {
+        console.log("aa");
+        const $userRowTemplate = $j('#users-form>tbody>tr:nth-child(1)').remove();
+        $userRowTemplate.show();
+        const $userGroupTemplate = $userRowTemplate.find('[attr=users-groups]>span:nth-child(1)').remove();
+
+        const fetchUserOptions = () => {
             $j.ajax({
                 type: "GET",
-                url: "#{contextPath}/web/users",
+                url: "#{contextPath}/web/users/options",
                 datatype: "json"
-            })
-            .done(function (data) {
-                const rowTemplate = $j('#users-form>tbody>tr:nth-child(1)');
-                const htmlTemplate = $j('<tr/>').append(rowTemplate.clone()).html();
-                let users = "";
-                data.forEach(user => {
-                    let userGroups = '';
-                    if (typeof user.userGroups !== "undefined") {
-                        const userGroupRowTemplate = $j('#users-groups>span:nth-child(1)');
-                        const userGroupHtmlTemplate = userGroupRowTemplate.clone().html();
-                        user.userGroups.forEach(group => {
-                            userGroups += userGroupHtmlTemplate.replace(/{usersGroupClass}/g, "badge users-group" + (group.type === "ADMIN" ? ' badge-error' : ' badge-info'))
-                                .replace(/{usersGroup}/g, ws.utils.escapeHtml(group.name))
-                        });
-                    }
-                    users += htmlTemplate.replace(/{usersEditUserParams}/g, '\'' + ws.utils.escapeHtml(user.username) + '\',\'' + ws.utils.escapeHtml(user.firstName) + '\',\'' + ws.utils.escapeHtml(user.lastName) + '\',\'' + ws.utils.escapeHtml(user.email) + '\',\'' + ws.utils.escapeHtml(user.displayName) + '\',' + user.internalUser + ',\'' + (user.userGroups ? user.userGroups.map(p => p.name) : []) + '\',' + user.superUser + ',' + user.currentUser + ',' + user.externalFlags.firstNameExternal + ',' + user.externalFlags.lastNameExternal + ',' + user.externalFlags.emailExternal + ',' + user.externalFlags.displayNameExternal)
-                        .replace(/{usersUsername}/g, ws.utils.escapeHtml(user.username))
-                        .replace(/{usersUnsafeDefaultPasswordStyle}/g, !user.unsafePassword ? " display: none; " : '')
-                        .replace(/{usersFirstname}/g, ws.utils.escapeHtml(user.firstName))
-                        .replace(/{usersLastname}/g, ws.utils.escapeHtml(user.lastName))
-                        .replace(/{usersGroups}/g, userGroups)
-                        .replace(/{usersInternalUser}/g, user.internalUser ? 'Yes' : 'No')
-                        .replace(/{usersEmail}/g, ws.utils.escapeHtml(user.email))
-                        .replace(/{usersDisplayName}/g, ws.utils.escapeHtml(user.displayName))
-                        .replace(/{usersDeleteOnClick}/g, 'deleteUser(\'' + user.username + '\')')
-                        .replace(/{usersDeleteClass}/g, 'delete-icon user-delete-link ' + (user.superUser || user.currentUser ? ' disabled ' : ' '));
-                });
-                $j("#users-form tbody").html(htmlTemplate + users);
-
-                $j.ajax({
-                    type: "GET",
-                    url: "#{contextPath}/web/users/options",
-                    datatype: "json"
-                })
-                .done(function (data) {
-                    if (data.userMode !== 'ad') {
-                        $j(".users-internal-user").hide();
-                    }
-                    if (!(data.canCreateInternalUsers || data.canCreateExternalUsers)) {
-                        $j(".users-username-box").prop("onclick", null).off("click")
-                    }
-                    $j("#users-add").toggle(data.canCreateInternalUsers || data.canCreateExternalUsers);
-                });
+            }).done(function (data) {
+                if (data.userMode !== 'ad') {
+                    $j(".users-internal-user").hide();
+                }
+                if (!(data.canCreateInternalUsers || data.canCreateExternalUsers)) {
+                    $j(".users-username-box").prop("onclick", null).off("click")
+                }
+                $j("#users-add").toggle(data.canCreateInternalUsers || data.canCreateExternalUsers);
             });
-        }
+        };
 
-        showUsersForm();
-
-        function deleteUser(userName) {
+        const deleteUser = (userName) => {
             if (confirm('Are you sure you want to delete the user?')) {
                 $j.ajax({
                     type: "DELETE",
                     url: "#{contextPath}/web/users/" + userName,
                     contentType: 'application/json',
                     dataType: 'json'
-                })
-                .done(function () {
-                    showUsersForm();
+                }).done(function () {
+                    rerenderTable();
+                }).fail(function (data) {
+                    handleError(data.status);
                 });
             }
         }
+
+        const rerenderTable = () => {
+            $j('#users-form>tbody>tr').remove();
+            renderTable();
+        };
+
+        const renderTable = () => {
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/users",
+                datatype: "json"
+            }).done(function (data) {
+                data.forEach(user => {
+                    const $userRow = $userRowTemplate.clone();
+                    const appendUserGroup = ($userGroup) => {
+                        $userRow.find("[attr=users-groups]").append($userGroup);
+                    };
+                    const extGroups = user.externalGroups != null ? user.externalGroups : [];
+                    const groups = user.groups != null ? user.groups : [];
+                    groups.forEach(group => {
+                        if (extGroups.includes(group)) {
+                            return;
+                        }
+                        const $userGroup = $userGroupTemplate.clone();
+                        $userGroup.find('[attr=users-group]')
+                            .addClass((group === "Administrators" ? ' badge-error' : ' badge-info'))
+                            .text(ws.utils.escapeHtml(group));
+                        appendUserGroup($userGroup);
+                    });
+
+                    extGroups.forEach(extGroup => {
+                        const $userGroup = $userGroupTemplate.clone();
+                        $userGroup.find('[attr=users-group]')
+                            .addClass('badge-success')
+                            .text(ws.utils.escapeHtml(extGroup));
+                        appendUserGroup($userGroup);
+                    });
+
+                    if (user.notMatchedExternalGroupsCount > 0) {
+                        const $userGroup = $userGroupTemplate.clone();
+                        $userGroup.find('[attr=users-group]')
+                            .text(ws.utils.escapeHtml('+' + user.notMatchedExternalGroupsCount));
+                        appendUserGroup($userGroup);
+                    }
+
+                    const $userName = $userRow.find('[attr=users-username]');
+                    $userName.click(() => {
+                        showEditUserForm(ws.utils.escapeHtml(user.username),
+                            ws.utils.escapeHtml(user.firstName),
+                            ws.utils.escapeHtml(user.lastName),
+                            ws.utils.escapeHtml(user.email),
+                            ws.utils.escapeHtml(user.displayName),
+                            user.internalUser,
+                            user.groups,
+                            user.superUser,
+                            user.currentUser,
+                            user.externalFlags.firstNameExternal,
+                            user.externalFlags.lastNameExternal,
+                            user.externalFlags.emailExternal,
+                            user.externalFlags.displayNameExternal);
+                    });
+                    $userName.text(ws.utils.escapeHtml(user.username));
+                    if (!user.unsafePassword) {
+                        $userRow.find('[attr=users-unsafe-default-password]').remove();
+                    }
+                    $userRow.find('[attr=users-firstname]').text(ws.utils.escapeHtml(user.firstName));
+                    $userRow.find('[attr=users-lastname]').text(ws.utils.escapeHtml(user.lastName));
+                    $userRow.find('[attr=users-internal-user]').text(user.internalUser ? 'Yes' : 'No');
+                    $userRow.find('[attr=users-email]').text(ws.utils.escapeHtml(user.email));
+                    $userRow.find('[attr=users-displayname]').text(ws.utils.escapeHtml(user.displayName));
+
+                    const $userDelete = $userRow.find('[attr=users-delete]');
+                    if (user.superUser || user.currentUser) {
+                        $userDelete.addClass("disabled");
+                    } else {
+                        $userDelete.click(() => {
+                            deleteUser(user.username);
+                        });
+                    }
+
+                    $j('#users-form>tbody').append($userRow);
+                });
+                fetchUserOptions();
+            }).fail(function (data) {
+                handleError(data.status);
+            });
+        };
+
+        return {
+            render: renderTable,
+            rerender: rerenderTable
+        }
+    }();
+
+    usersTableHandler.render();
 
     //]]></script>
 
