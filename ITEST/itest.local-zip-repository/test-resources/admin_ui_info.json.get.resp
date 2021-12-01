@@ -27,7 +27,7 @@ Content-Type: application/json
       "status": "DEPLOYED",
       "deploymentName": "EPBDS-10916%20+Whitespaces in Name #",
       "urls": {
-        "RESTFUL": "REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23"
+        "RESTFUL": "EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23"
       }
     },
     {
@@ -60,7 +60,7 @@ Content-Type: application/json
       "status": "DEPLOYED",
       "deploymentName": "multiple-deployment_v1",
       "urls": {
-        "RESTFUL": "REST/multiple-deployment_v1/project2"
+        "RESTFUL": "multiple-deployment_v1/project2"
       }
     },
     {
@@ -94,7 +94,7 @@ Content-Type: application/json
       "status": "DEPLOYED",
       "deploymentName": "Tutorial1",
       "urls": {
-        "RESTFUL": "REST/Tutorial1/Tutorial1"
+        "RESTFUL": "Tutorial1/Tutorial1"
       }
     },
     {

@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "title": "EPBDS-10483"
   },
-  "basePath": "/REST/EPBDS-10483/EPBDS-10483",
+  "basePath": "/EPBDS-10483/EPBDS-10483",
   "paths": {
     "/test": {
       "get": {

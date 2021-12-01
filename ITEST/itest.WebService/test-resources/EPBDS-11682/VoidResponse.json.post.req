@@ -1,4 +1,4 @@
-POST /REST/EPBDS-11682/EPBDS-11682/VoidResponse HTTP/1.1
+POST /EPBDS-11682/EPBDS-11682/VoidResponse HTTP/1.1
 Content-Type: application/json
 
 {}

@@ -43,7 +43,6 @@
         <property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
         <property name="ruleServiceLoader" ref="ruleServiceLoader"/>
         <property name="supportedPublishers" ref="ruleServicePublishers"/>
-        <property name="defaultRuleServicePublishers" value="${ruleservice.publishers:}"/>
     </bean>
 
     <bean id="openLServiceInProcess" factory-bean="serviceManager" factory-method="getOpenLServiceInProcess"
@@ -61,6 +60,8 @@
         <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
         <property name="supportedGroups" value="${ruleservice.datasource.groups}"/>
         <property name="datasourceDeploymentPatterns" value="${ruleservice.datasource.deployments}"/>
+        <property name="defaultPublishers" value="${ruleservice.publishers:}"/>
+        <property name="supportedPublishers" ref="ruleServicePublishers"/>
     </bean>
 
     <bean id="serviceManagerStarter" class="org.openl.rules.ruleservice.conf.ServiceManagerStarterBean"

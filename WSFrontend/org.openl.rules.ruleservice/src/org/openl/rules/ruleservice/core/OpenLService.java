@@ -362,25 +362,6 @@ public final class OpenLService {
             return this;
         }
 
-        public OpenLServiceBuilder setPublishers(Set<String> publishers) {
-            if (publishers == null) {
-                this.publishers = new HashSet<>(0);
-            } else {
-                this.publishers = publishers;
-            }
-            return this;
-        }
-
-        public OpenLServiceBuilder addPublishers(Set<String> publishers) {
-            if (this.publishers == null) {
-                this.publishers = new HashSet<>();
-            }
-            if (publishers != null) {
-                this.publishers.addAll(publishers);
-            }
-            return this;
-        }
-
         public OpenLServiceBuilder addPublisher(String publisher) {
             if (this.publishers == null) {
                 this.publishers = new HashSet<>();

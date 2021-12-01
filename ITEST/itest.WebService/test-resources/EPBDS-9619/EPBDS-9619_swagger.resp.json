@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "title": "EPBDS-9619_EPBDS-9619"
   },
-  "basePath": "/REST/EPBDS-9619/EPBDS-9619",
+  "basePath": "/EPBDS-9619/EPBDS-9619",
   "paths": {
     "/getMyCalcs6": {
       "post": {

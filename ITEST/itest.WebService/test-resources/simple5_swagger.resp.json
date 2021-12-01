@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "title": "simple5"
   },
-  "basePath": "/REST/deployment5/simple5",
+  "basePath": "/deployment5/simple5",
   "paths": {
     "/calc": {
       "post": {

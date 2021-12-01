@@ -222,7 +222,7 @@ Content-Type: application/json
   },
   "servers": [
     {
-      "url": "/REST/EPBDS-12057/EPBDS-12057",
+      "url": "/EPBDS-12057/EPBDS-12057",
       "variables": {}
     }
   ]
