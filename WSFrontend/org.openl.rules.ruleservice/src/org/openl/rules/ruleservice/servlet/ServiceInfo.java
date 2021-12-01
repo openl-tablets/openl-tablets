@@ -13,6 +13,7 @@ public class ServiceInfo {
     private final Map<String, String> urls = new HashMap<>(1);
     private final boolean hasManifest;
     private final String deploymentName;
+    private final ServiceStatus status;
 
     public enum ServiceStatus {
         DEPLOYED,
@@ -21,12 +22,14 @@ public class ServiceInfo {
 
     public ServiceInfo(Date startedTime,
             String name,
+            boolean failed,
             Map<String, String> urls,
             String servicePath,
             boolean hasManifest,
             String deploymentName) {
         this.startedTime = Objects.requireNonNull(startedTime, "startedTime cannot be null");
         this.name = Objects.requireNonNull(name, "name cannot be null");
+        this.status = failed ? ServiceStatus.FAILED : ServiceStatus.DEPLOYED;
         this.servicePath = servicePath;
         this.urls.putAll(urls);
         this.hasManifest = hasManifest;
@@ -50,7 +53,7 @@ public class ServiceInfo {
     }
 
     public ServiceStatus getStatus() {
-        return urls.isEmpty() ? ServiceStatus.FAILED : ServiceStatus.DEPLOYED;
+        return status;
     }
 
     public boolean getHasManifest() {
