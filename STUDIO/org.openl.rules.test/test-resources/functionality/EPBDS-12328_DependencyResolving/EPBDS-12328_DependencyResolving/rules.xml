@@ -1,0 +1,19 @@
+<project>
+  <name>EPBDS-12328_DependencyResolving</name>
+  <modules>
+    <module>
+      <name>Project4</name>
+      <rules-root path="Project4.xlsx"/>
+    </module>
+    <module>
+      <name>datatypes2</name>
+      <rules-root path="datatypes2.xlsx"/>
+    </module>
+  </modules>
+  <dependencies>
+    <dependency>
+      <name>Project3</name>
+      <autoIncluded>true</autoIncluded>
+    </dependency>
+  </dependencies>
+</project>

@@ -32,13 +32,19 @@ public class Dependency implements IDependency {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
+
         Dependency that = (Dependency) o;
-        return Objects.equals(node.getIdentifier(), that.node.getIdentifier());
+
+        if (type != that.type)
+            return false;
+        return node.getIdentifier().equals(that.node.getIdentifier());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(node.getIdentifier());
+        int result = type.hashCode();
+        result = 31 * result + node.getIdentifier().hashCode();
+        return result;
     }
 
     public DependencyType getType() {

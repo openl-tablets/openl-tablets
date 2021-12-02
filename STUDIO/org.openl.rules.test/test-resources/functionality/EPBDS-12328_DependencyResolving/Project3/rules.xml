@@ -1,0 +1,17 @@
+<project>
+  <name>Project3</name>
+  <modules>
+    <module>
+      <name>Project3</name>
+      <rules-root path="Project3.xlsx"/>
+    </module>
+    <module>
+      <name>datatypes</name>
+      <rules-root path="datatypes.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="."/>
+    <entry path="lib"/>
+  </classpath>
+</project>
