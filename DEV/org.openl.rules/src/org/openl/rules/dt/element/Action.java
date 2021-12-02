@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
@@ -220,15 +219,15 @@ public class Action extends FunctionalRow implements IAction {
             .getName()
             .equals(code);
 
-        if ((isReturnAction() || isCollectReturnAction()) && decisionTable
-            .isTypeCustomSpreadsheetResult() && OpenLSystemProperties
-                .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
+        if ((isReturnAction() || isCollectReturnAction()) && decisionTable.isTypeCustomSpreadsheetResult()) {
             if (method.getBodyType() instanceof AnySpreadsheetResultOpenClass) {
                 decisionTable.setTypeCustomSpreadsheetResult(false);
                 decisionTable.setCustomSpreadsheetResultType(null);
                 decisionTable.setTypeAnySpreadsheetResult(true);
-            } else if (decisionTable.isTypeCustomSpreadsheetResult()) {
-                decisionTable.getCustomSpreadsheetResultType().updateWithType(method.getBodyType());
+            } else {
+                decisionTable.getDeferredChanges().add(() -> {
+                    decisionTable.getCustomSpreadsheetResultType().updateWithType(method.getBodyType());
+                });
             }
         }
 

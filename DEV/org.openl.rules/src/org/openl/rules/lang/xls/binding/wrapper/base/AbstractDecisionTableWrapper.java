@@ -1,5 +1,6 @@
 package org.openl.rules.lang.xls.binding.wrapper.base;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -298,6 +299,11 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
     @Override
     public void setCustomSpreadsheetResultType(CustomSpreadsheetResultOpenClass customSpreadsheetResultType) {
         delegate.setCustomSpreadsheetResultType(customSpreadsheetResultType);
+    }
+
+    @Override
+    public List<DeferredChange> getDeferredChanges() {
+        return super.getDeferredChanges();
     }
 
     @Override

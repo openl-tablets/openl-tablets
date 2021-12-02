@@ -1,5 +1,7 @@
 package org.openl.rules.dt;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -65,6 +67,8 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     private CustomSpreadsheetResultOpenClass customSpreadsheetResultType;
 
     private int dim = 0;
+
+    private final List<DeferredChange> deferredChanges = new ArrayList<>();
 
     private boolean typeCustomSpreadsheetResult;
     private boolean typeAnySpreadsheetResult;
@@ -358,5 +362,20 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
             .orElseGet(Stream::empty);
         Stream.concat(toStream.apply(actionRows), toStream.apply(conditionRows))
             .forEach(IBaseDecisionRow::removeDebugInformation);
+    }
+
+    public List<DeferredChange> getDeferredChanges() {
+        return deferredChanges;
+    }
+
+    public interface DeferredChange {
+        void apply();
+    }
+
+    public interface UpdateCustomSpreadsheetResult extends DeferredChange {
+    }
+
+    public interface UpdateToAnySpreadsheetResult extends DeferredChange {
+
     }
 }
