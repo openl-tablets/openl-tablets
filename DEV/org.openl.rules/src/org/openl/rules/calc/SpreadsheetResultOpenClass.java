@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
+import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
@@ -12,8 +12,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
-import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenConstructor;
 import org.openl.vm.IRuntimeEnv;
 
 // Do not extend this class
@@ -28,7 +28,6 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     private volatile CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
     private final Map<String, IOpenField> strictBlankCache = new HashMap<>();
     private final Map<String, IOpenField> noStrictBlankCache = new HashMap<>();
-    private final Map<MethodKey, IOpenMethod> constructorMap = new HashMap<>();
 
     public SpreadsheetResultOpenClass(Class<?> type) {
         super(SpreadsheetResult.class);
@@ -204,18 +203,14 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     }
 
     @Override
-    public IOpenMethod getConstructor(IOpenClass[] params) {
-        MethodKey methodKey = new MethodKey(params);
-        IOpenMethod m = constructorMap.get(methodKey);
-        if (m != null) {
-            return m;
-        }
-        IOpenMethod c = super.getConstructor(params);
-        if (c != null) {
-            m = new ModuleSpecificOpenMethod(c, this);
-            constructorMap.put(methodKey, m);
-        }
-        return m;
+    protected IOpenMethod processConstructor(JavaOpenConstructor constructor) {
+        return new AOpenMethodDelegator(super.processConstructor(constructor)) {
+            @Override
+            public IOpenClass getType() {
+                return SpreadsheetResultOpenClass.this.getModule() == null ? AnySpreadsheetResultOpenClass.INSTANCE
+                                                                           : SpreadsheetResultOpenClass.this;
+            }
+        };
     }
 
     @Override
