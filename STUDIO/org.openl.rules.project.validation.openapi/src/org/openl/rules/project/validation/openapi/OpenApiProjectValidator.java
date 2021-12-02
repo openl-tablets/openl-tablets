@@ -278,7 +278,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             isResolveMethodParameterNames(),
             provideRuntimeContext,
             provideVariations,
-            null,
             context.getObjectMapper());
     }
 

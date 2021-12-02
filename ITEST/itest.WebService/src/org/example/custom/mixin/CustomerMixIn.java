@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @MixInClass("org.openl.generated.beans.Customer")
 public abstract class CustomerMixIn {
@@ -23,7 +23,7 @@ public abstract class CustomerMixIn {
     protected Date dob;
 
     @JsonProperty("genderCd")
-    @ApiModelProperty(example = "male")
+    @Schema(example = "male")
     protected String gender;
 }
 

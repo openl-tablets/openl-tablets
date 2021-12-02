@@ -6,16 +6,13 @@
         <property name="loggingEnabled" value="${ruleservice.logging.enabled}"/>
     </bean>
 
-    <bean id="swaggerObjectMapperConfiguration"
-          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperConfigurationBean"/>
-
     <bean id="jaxrsOpenApiObjectMapperConfiguration"
           class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationBean"/>
 
     <bean id="jaxrsSwaggerAndOpenApiObjectMapperParent"
           class="org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean"
           scope="prototype" abstract="true"
-          depends-on="swaggerObjectMapperConfiguration,jaxrsOpenApiObjectMapperConfiguration">
+          depends-on="jaxrsOpenApiObjectMapperConfiguration">
         <property name="overrideTypesAsString" value="${ruleservice.databinding.rootClassNames}"/>
         <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
         <property name="defaultTypingMode" value="${ruleservice.jackson.defaultTypingMode}"/>
@@ -49,15 +46,6 @@
         <property name="defaultValue" value="${ruleservice.jaxrs.resolveMethodParameterNames:true}"/>
         <property name="serviceDescription" ref="serviceDescriptionInProcess"/>
     </bean>
-
-    <bean id="jaxrsSwaggerObjectMapperFactory" parent="jaxrsSwaggerAndOpenApiObjectMapperParent" scope="prototype">
-        <property name="objectMapperFactory">
-            <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperFactory"/>
-        </property>
-    </bean>
-
-    <bean id="jaxrsSwaggerObjectMapper" factory-bean="jaxrsSwaggerObjectMapperFactory"
-          factory-method="createJacksonObjectMapper" scope="prototype"/>
 
     <bean id="jaxrsOpenApiObjectMapperFactory" parent="jaxrsSwaggerAndOpenApiObjectMapperParent" scope="prototype">
         <property name="objectMapperFactory">

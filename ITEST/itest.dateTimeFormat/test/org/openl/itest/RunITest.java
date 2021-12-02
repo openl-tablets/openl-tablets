@@ -61,7 +61,6 @@ public class RunITest {
 
     @Test
     public void testEPBDS_10642() {
-        client.get("/EPBDS-10642/swagger.json", "/EPBDS-10642/EPBDS-10642/swagger.resp.json");
         client.get("/EPBDS-10642/openapi.json", "/EPBDS-10642/EPBDS-10642/openapi.resp.json");
         client.post("/EPBDS-10642/localDateProxy", "/EPBDS-10642/EPBDS-10642/localDateProxy.req.txt", "/EPBDS-10642/EPBDS-10642/localDateProxy.resp.txt");
         client.post("/EPBDS-10642/localTimeProxy", "/EPBDS-10642/EPBDS-10642/localTimeProxy.req.txt", "/EPBDS-10642/EPBDS-10642/localTimeProxy.resp.txt");

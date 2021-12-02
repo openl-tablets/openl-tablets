@@ -10,7 +10,6 @@ import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
-import org.apache.cxf.jaxrs.swagger.Swagger2Feature;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
@@ -21,10 +20,6 @@ import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSeria
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerRequestFilter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiHackContainerResponseFilter;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerHackContainerRequestFilter;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerHackContainerResponseFilter;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerObjectMapperHack;
-import org.openl.rules.ruleservice.publish.jaxrs.swagger.SwaggerRulesRedeployWorkaround;
 import org.openl.rules.ruleservice.storelogdata.CollectObjectSerializerInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectOpenLServiceInterceptor;
 import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInterceptor;
@@ -70,10 +65,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private ObjectFactory<StoreLogDataFeature> storeLoggingFeatureObjectFactory;
 
     @Autowired
-    @Qualifier("jaxrsSwaggerObjectMapper")
-    private ObjectFactory<ObjectMapper> jaxrsSwaggerObjectMapper;
-
-    @Autowired
     @Qualifier("jaxrsOpenApiObjectMapper")
     private ObjectFactory<ObjectMapper> jaxrsOpenApiObjectMapper;
 
@@ -98,14 +89,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     public void setServiceDescriptionObjectFactory(ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory) {
         this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
-    }
-
-    public ObjectFactory<ObjectMapper> getJaxrsSwaggerObjectMapper() {
-        return jaxrsSwaggerObjectMapper;
-    }
-
-    public void setJaxrsSwaggerObjectMapper(ObjectFactory<ObjectMapper> jaxrsSwaggerObjectMapper) {
-        this.jaxrsSwaggerObjectMapper = jaxrsSwaggerObjectMapper;
     }
 
     public ObjectFactory<ObjectMapper> getJaxrsOpenApiObjectMapper() {
@@ -155,7 +138,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     public void deploy(final OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        SwaggerObjectMapperHack swaggerObjectMapperHack = null;
         OpenApiObjectMapperHack openApiObjectMapperHack = null;
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
@@ -180,25 +162,17 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             }
 
             // Swagger support
-            ObjectMapper swaggerObjectMapper;
             ObjectMapper openApiObjectMapper;
-            swaggerObjectMapperHack = new SwaggerObjectMapperHack();
-            swaggerObjectMapperHack.apply(swaggerObjectMapper = getJaxrsSwaggerObjectMapper().getObject());
             openApiObjectMapperHack = new OpenApiObjectMapperHack();
             openApiObjectMapperHack.apply(openApiObjectMapper = getJaxrsOpenApiObjectMapper().getObject());
-            ((List) svrFactory.getProviders()).add(new SwaggerHackContainerRequestFilter(swaggerObjectMapper));
-            ((List) svrFactory.getProviders()).add(new SwaggerHackContainerResponseFilter());
             ((List) svrFactory.getProviders()).add(new OpenApiHackContainerRequestFilter(openApiObjectMapper));
             ((List) svrFactory.getProviders()).add(new OpenApiHackContainerResponseFilter());
 
             JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
-            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service, swaggerObjectMapper, openApiObjectMapper, servletContextPath + url);
+            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service,  openApiObjectMapper, servletContextPath + url);
             // The first one is a decorated interface
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
             svrFactory.setResourceClasses(serviceClass);
-
-            Swagger2Feature swagger2Feature = getSwagger2Feature(serviceClass);
-            svrFactory.getFeatures().add(swagger2Feature);
 
             OpenApiFeature openApiFeature = getOpenAPIv3Feature(serviceClass);
             svrFactory.getFeatures().add(openApiFeature);
@@ -217,9 +191,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getDeployPath()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
-            if (swaggerObjectMapperHack != null) {
-                swaggerObjectMapperHack.revert();
-            }
             if (openApiObjectMapperHack != null) {
                 openApiObjectMapperHack.revert();
             }
@@ -238,16 +209,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             }
         }
         return null;
-    }
-
-    private Swagger2Feature getSwagger2Feature(final Class<?> serviceClass) {
-        Swagger2Feature swagger2Feature = new Swagger2Feature();
-        swagger2Feature.setRunAsFilter(true);
-        swagger2Feature.setScan(false);
-        swagger2Feature.setPrettyPrint(isSwaggerPrettyPrint());
-        swagger2Feature.setUsePathBasedConfig(true);
-        swagger2Feature.setResourcePackage(serviceClass.getPackage().getName());
-        return swagger2Feature;
     }
 
     private OpenApiFeature getOpenAPIv3Feature(final Class<?> serviceClass) {
@@ -282,7 +243,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
                 String.format("There is no running service with name '%s'.", service.getDeployPath()));
         }
         try {
-            SwaggerRulesRedeployWorkaround.reset();
             server.destroy();
             //TODO
             runningServices.remove(service);
