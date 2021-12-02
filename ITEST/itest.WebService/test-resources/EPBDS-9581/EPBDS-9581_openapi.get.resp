@@ -116,6 +116,7 @@ Content-Type: application/json
           },
           "genderCd": {
             "type": "string",
+            "example": "male",
             "default": "other"
           },
           "dob": {

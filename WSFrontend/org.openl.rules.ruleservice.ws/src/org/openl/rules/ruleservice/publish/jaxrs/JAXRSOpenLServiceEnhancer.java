@@ -28,7 +28,6 @@ public final class JAXRSOpenLServiceEnhancer {
     }
 
     public Object decorateServiceBean(OpenLService service,
-            ObjectMapper swaggerObjectMapper,
             ObjectMapper openApiObjectMapper,
             String serviceExposedUrl) throws Exception {
         Class<?> serviceClass = service.getServiceClass();
@@ -42,7 +41,6 @@ public final class JAXRSOpenLServiceEnhancer {
             isResolveMethodParameterNames(),
             service.isProvideRuntimeContext(),
             service.isProvideVariations(),
-            swaggerObjectMapper,
             openApiObjectMapper);
         if (enhancedServiceClass.getPackage() == null) {
             throw new IllegalStateException("Package cannot be null");

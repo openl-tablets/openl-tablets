@@ -28,12 +28,6 @@ public class RunLocalZippedRepositoryTest {
     }
 
     @Test
-    public void testSwaggerSchema() {
-        client.send("EPBDS_10917/swagger.json.get");
-        client.send("EPBDS_10916/swagger.json.get");
-    }
-
-    @Test
     public void testOpenApiSchema() {
         client.send("EPBDS_10917/openapi.json.get");
         client.send("EPBDS_10916/openapi.json.get");

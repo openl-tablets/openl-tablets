@@ -62,10 +62,6 @@ import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.info.Info;
@@ -118,9 +114,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final boolean resolveMethodParameterNames;
         private final boolean provideRuntimeContext;
         private final boolean provideVariations;
-        private Set<String> usedSwaggerComponentNamesWithRequestParameterSuffix = null;
         private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix = null;
-        private final ObjectMapper swaggerObjectMapper;
         private final ObjectMapper openApiObjectMapper;
 
         private final Map<String, List<Method>> originalClassMethodsByName;
@@ -134,7 +128,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 boolean resolveMethodParameterNames,
                 boolean provideRuntimeContext,
                 boolean provideVariations,
-                ObjectMapper swaggerObjectMapper,
                 ObjectMapper openApiObjectMapper) {
             super(Opcodes.ASM5, arg0);
             this.serviceName = serviceName;
@@ -145,7 +138,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
             this.resolveMethodParameterNames = resolveMethodParameterNames;
             this.provideRuntimeContext = provideRuntimeContext;
             this.provideVariations = provideVariations;
-            this.swaggerObjectMapper = swaggerObjectMapper;
             this.openApiObjectMapper = openApiObjectMapper;
 
             this.originalClassMethodsByName = ASMUtils.buildMap(originalClass);
@@ -159,20 +151,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 String superName,
                 String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
-
-            // Swagger annotation
-            if (!originalClass.isAnnotationPresent(Api.class)) {
-                this.visitAnnotation(Type.getDescriptor(Api.class), true);
-            }
-            if (!originalClass.isAnnotationPresent(SwaggerDefinition.class)) {
-                AnnotationVisitor av = this.visitAnnotation(Type.getDescriptor(SwaggerDefinition.class), true);
-                AnnotationVisitor av1 = av.visitAnnotation("info",
-                    Type.getDescriptor(io.swagger.annotations.Info.class));
-                av1.visit("title", serviceName);
-                av1.visit("version", DEFAULT_VERSION);
-                av1.visitEnd();
-                av.visitEnd();
-            }
 
             // OpenAPI annotation
             if (!originalClass.isAnnotationPresent(OpenAPIDefinition.class)) {
@@ -208,10 +186,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 addProducesAnnotation(this);
             }
             // Error responses annotation
-            if (!originalClass.isAnnotationPresent(io.swagger.annotations.ApiResponses.class) && !originalClass
-                .isAnnotationPresent(io.swagger.annotations.ApiResponse.class)) {
-                addSwaggerApiResponsesAnnotation(this);
-            }
             if (!originalClass
                 .isAnnotationPresent(io.swagger.v3.oas.annotations.responses.ApiResponses.class) && !originalClass
                     .isAnnotationPresent(io.swagger.v3.oas.annotations.responses.ApiResponse.class)) {
@@ -231,27 +205,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
         }
 
-        private String getSwaggerComponentName(Class<?> clazz) {
-            ApiModel apiModel = getAnnotationWithObjectMapper(swaggerObjectMapper, clazz, ApiModel.class);
-            return apiModel == null ? clazz.getSimpleName() : apiModel.value();
-        }
-
         private String getOpenApiComponentName(Class<?> clazz) {
             Schema schema = getAnnotationWithObjectMapper(openApiObjectMapper, clazz, Schema.class);
             return schema == null ? clazz.getSimpleName() : schema.name();
-        }
-
-        private Set<String> getUsedSwaggerComponentNamesWithRequestParameterSuffix() {
-            if (usedSwaggerComponentNamesWithRequestParameterSuffix == null) {
-                usedSwaggerComponentNamesWithRequestParameterSuffix = new HashSet<>();
-                for (Method method : originalClass.getDeclaredMethods()) {
-                    processClassForSwaggerComponentNamesConflictResolving(method.getReturnType());
-                    for (Class<?> paramType : method.getParameterTypes()) {
-                        processClassForSwaggerComponentNamesConflictResolving(paramType);
-                    }
-                }
-            }
-            return usedSwaggerComponentNamesWithRequestParameterSuffix;
         }
 
         private Set<String> getUsedOpenApiComponentNamesWithRequestParameterSuffix() {
@@ -277,16 +233,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
         }
 
-        private void processClassForSwaggerComponentNamesConflictResolving(Class<?> type) {
-            while (type.isArray()) {
-                type = type.getComponentType();
-            }
-            String componentName = getSwaggerComponentName(type);
-            if (isConflictPossible(componentName)) {
-                usedSwaggerComponentNamesWithRequestParameterSuffix.add(componentName);
-            }
-        }
-
         private boolean isConflictPossible(String name) {
             while (Character.isDigit(name.charAt(name.length() - 1))) {
                 name = name.substring(0, name.length() - 1);
@@ -309,9 +255,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
             String nonConflictedRequestParameterName = requestParameterName;
             StringBuilder s = new StringBuilder("0");
-            while (getUsedSwaggerComponentNamesWithRequestParameterSuffix()
-                .contains(nonConflictedRequestParameterName) || getUsedOpenApiComponentNamesWithRequestParameterSuffix()
-                    .contains(nonConflictedRequestParameterName)) {
+            while (getUsedOpenApiComponentNamesWithRequestParameterSuffix().contains(nonConflictedRequestParameterName)) {
                 nonConflictedRequestParameterName = StringUtils
                     .capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX + s + (suffix > 0 ? suffix : "");
                 s.insert(0, "0");
@@ -626,8 +570,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private void addSwaggerMethodAnnotation(MethodVisitor mv, Method originalMethod, String nickname) {
-            if (!originalMethod.isAnnotationPresent(ApiOperation.class) || !originalMethod
-                .isAnnotationPresent(Operation.class)) {
+            if (!originalMethod.isAnnotationPresent(Operation.class)) {
                 String summary = originalMethod.getReturnType().getSimpleName() + " " + MethodUtil
                     .printMethod(originalMethod.getName(), originalMethod.getParameterTypes(), true);
 
@@ -642,32 +585,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 String truncatedSummary = summary.substring(0, Math.min(summary.length(), 120));
                 Class<?> type = extractOriginalType(originalMethod.getReturnType());
                 final boolean isVoidType = void.class == type || Void.class == type;
-                if (!originalMethod.isAnnotationPresent(ApiOperation.class)) {
-                    AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiOperation.class), true);
-                    av.visit("value", truncatedSummary);
-                    av.visit("notes", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
-                    if (isVoidType) {
-                        av.visit("code", Response.Status.NO_CONTENT.getStatusCode());
-                        av.visit("response", Type.getType(Void.class));
-                    } else {
-                        av.visit("response", Type.getType(type));
-                    }
-                    av.visit("nickname", nickname);
-                    av.visitEnd();
-                    if (isVoidType || !type.isPrimitive()) {
-                        // empty response body can be only for void or non-primitive types
-                        AnnotationVisitor av1 = mv
-                            .visitAnnotation(Type.getDescriptor(io.swagger.annotations.ApiResponses.class), true);
-                        AnnotationVisitor arrayAv = av1.visitArray("value");
-                        AnnotationVisitor apiResponseAv = arrayAv.visitAnnotation(null,
-                            Type.getDescriptor(io.swagger.annotations.ApiResponse.class));
-                        apiResponseAv.visit("code", Response.Status.NO_CONTENT.getStatusCode());
-                        apiResponseAv.visit("message", "Successful operation");
-                        apiResponseAv.visitEnd();
-                        arrayAv.visitEnd();
-                        av1.visitEnd();
-                    }
-                }
                 if (!originalMethod.isAnnotationPresent(Operation.class)) {
                     AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
                     av.visit("operationId", nickname);
@@ -781,50 +698,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
             av.visitEnd();
         }
 
-        private void addSwaggerApiResponsesAnnotation(ClassVisitor cv) {
-            AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(io.swagger.annotations.ApiResponses.class),
-                true);
-            AnnotationVisitor arrayAv = av.visitArray("value");
-            addSwaggerApiResponseAnnotation(arrayAv,
-                ExceptionResponseDto.UNPROCESSABLE_ENTITY,
-                UNPROCESSABLE_ENTITY_MESSAGE,
-                UNPROCESSABLE_ENTITY_EXAMPLE);
-            addSwaggerApiResponseAnnotation(arrayAv,
-                ExceptionResponseDto.BAD_REQUEST,
-                BAD_REQUEST_MESSAGE,
-                BAD_REQUEST_EXAMPLE);
-            addSwaggerApiResponseAnnotation(arrayAv,
-                ExceptionResponseDto.INTERNAL_SERVER_ERROR_CODE,
-                INTERNAL_SERVER_ERROR_MESSAGE,
-                INTERNAL_SERVER_ERROR_EXAMPLE);
-            arrayAv.visitEnd();
-            av.visitEnd();
-        }
-
-        private void addSwaggerApiResponseAnnotation(AnnotationVisitor av,
-                int code,
-                String message,
-                String jsonExample) {
-            AnnotationVisitor apiResponseAv = av.visitAnnotation(null,
-                Type.getDescriptor(io.swagger.annotations.ApiResponse.class));
-            apiResponseAv.visit("code", code);
-            apiResponseAv.visit("message", message);
-            apiResponseAv.visit("response", Type.getType(JAXRSErrorResponse.class));
-
-            AnnotationVisitor exampleAv = apiResponseAv.visitAnnotation("examples",
-                Type.getDescriptor(io.swagger.annotations.Example.class));
-            AnnotationVisitor exampleArrAv = exampleAv.visitArray("value");
-            AnnotationVisitor examplePropAv = exampleArrAv.visitAnnotation(null,
-                Type.getDescriptor(io.swagger.annotations.ExampleProperty.class));
-            examplePropAv.visit("mediaType", MediaType.APPLICATION_JSON);
-            examplePropAv.visit("value", jsonExample);
-            examplePropAv.visitEnd();
-            exampleArrAv.visitEnd();
-            exampleAv.visitEnd();
-
-            apiResponseAv.visitEnd();
-        }
-
         private void addOpenApiResponsesAnnotation(ClassVisitor cv) {
             AnnotationVisitor av = cv
                 .visitAnnotation(Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponses.class), true);
@@ -907,7 +780,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
             boolean resolveMethodParameterNames,
             boolean provideRuntimeContext,
             boolean provideVariations,
-            ObjectMapper swaggerObjectMapper,
             ObjectMapper openApiObjectMapper) throws Exception {
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Only interfaces are supported");
@@ -928,7 +800,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 resolveMethodParameterNames,
                 provideRuntimeContext,
                 provideVariations,
-                swaggerObjectMapper,
                 openApiObjectMapper);
             InterfaceTransformer transformer = new InterfaceTransformer(originalClass,
                 enhancedClassName,

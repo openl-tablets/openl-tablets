@@ -1066,11 +1066,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
-                <version>${org.apache.cxf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-management</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
@@ -1079,22 +1074,6 @@
                 <artifactId>swagger-ui</artifactId>
                 <!--<version>4.1.3</version> does not work with swagger-jaxrs <version>1.6.3</version>. Required queryConfigEnabled property is not supported. -->
                 <version>4.1.2</version>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-jaxrs</artifactId>
-                <version>1.6.4</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.validation</groupId>
-                        <artifactId>validation-api</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-annotations</artifactId>
-                <version>1.6.3</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.data</groupId>
