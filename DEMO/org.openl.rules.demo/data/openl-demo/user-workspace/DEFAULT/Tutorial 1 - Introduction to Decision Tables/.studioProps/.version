@@ -1,11 +1,11 @@
 #Project version
-#Wed Apr 07 19:49:47 GMT+03:00 2021
-modified-at=2021-04-07
+#Thu Dec 02 20:51:11 MSK 2021
+modified-at=2021-12-02
+size=-1
 author=DEFAULT
 repository-id=design
 comment=Project Tutorial 1 - Introduction to Decision Tables is created.
-version=a824ce96c294edc0615fd5acefbd19a71d1b2afb
-modified-at-long=1617809685000
+modified-at-long=1638465708000
+version=774c43ff0db21b0d1dd73e88763a39763da2241d
 branch=master
 path-in-repository=DESIGN/rules/Tutorial 1 - Introduction to Decision Tables
-size=-1
