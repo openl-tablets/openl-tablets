@@ -72,12 +72,10 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     }
 
     public int getListenerTimerPeriod() {
-        // Convert to seconds
         return listenerTimerPeriod;
     }
 
     public void setListenerTimerPeriod(int listenerTimerPeriod) {
-        // Convert to milliseconds
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 

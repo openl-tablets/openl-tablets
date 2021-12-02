@@ -95,6 +95,9 @@ public class RepositoryConfiguration {
             case AWS_S3:
                 newSettings = new AWSS3RepositorySettings(properties, configPrefix);
                 break;
+            case AZURE:
+                newSettings = new AzureBlobRepositorySettings(properties, configPrefix);
+                break;
             case GIT:
                 newSettings = new GitRepositorySettings(properties, configPrefix);
                 break;
