@@ -1,11 +1,11 @@
 #Project version
-#Wed Apr 07 19:49:57 GMT+03:00 2021
-modified-at=2021-04-07
+#Thu Dec 02 20:51:18 MSK 2021
+modified-at=2021-12-02
+size=-1
 author=DEFAULT
 repository-id=design
 comment=Project Tutorial 4 - Introduction to Column Match Tables is created.
-version=a3df6a96c7610786f5a1619d8294b094ce324df4
-modified-at-long=1617809708000
+modified-at-long=1638465723000
+version=438f503b54921849ecf9de0d5ed23f4af65115f7
 branch=master
 path-in-repository=DESIGN/rules/Tutorial 4 - Introduction to Column Match Tables
-size=-1
