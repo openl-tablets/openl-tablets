@@ -13,7 +13,6 @@ public class UserModel extends UserCreateModel {
     private boolean unsafePassword;
     private UserExternalFlags externalFlags;
     private boolean internalUser;
-    private Set<String> externalGroups;
     private Long notMatchedExternalGroupsCount;
 
     private Set<GroupModel> userGroups;
@@ -151,15 +150,6 @@ public class UserModel extends UserCreateModel {
     @Override
     public UserModel setGroups(Set<String> groups) {
         return (UserModel) super.setGroups(groups);
-    }
-
-    public Set<String> getExternalGroups() {
-        return externalGroups;
-    }
-
-    public UserModel setExternalGroups(Set<String> externalGroups) {
-        this.externalGroups = externalGroups;
-        return this;
     }
 
     public long getNotMatchedExternalGroupsCount() {

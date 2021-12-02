@@ -200,13 +200,24 @@
                 const rowTemplate = $j('#edit-user-groups>span:nth-child(1)');
                 const htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
                 let groups = "";
+                let userGroups = [];
+                let externalGroups = []
+                if (userModel.userGroups) {
+                    userModel.userGroups.forEach(group => {
+                       if (group.type === 'EXTERNAL') {
+                           externalGroups.push(group.name)
+                       } else {
+                           userGroups.push(group.name);
+                       }
+                    });
+                }
                 $j.map(data, function (val, i) {
                     const isAdminGroup = val.privileges && val.privileges.includes("ADMIN");
-                    const isExternalGroup = userModel.externalGroups && userModel.externalGroups.includes(i);
+                    const isExternalGroup = externalGroups.includes(i);
                     const isDefaultGroup = groupsConfig.defaultGroup === i;
                     $j("#edit-user-groups-row").show();
                     let groupClass = "";
-                    groupClass += (userModel.groups && userModel.groups.includes(i)) || isExternalGroup || isDefaultGroup ? ' check ' : ''
+                    groupClass += (userGroups.includes(i)) || isExternalGroup || isDefaultGroup ? ' check ' : ''
                     groupClass += (isAdminGroup && (userModel.superUser === true || userModel.currentUser === true)) || isExternalGroup || isDefaultGroup ? ' disable ' : '';
                     groups += htmlTemplate.replace(/{editUserGroupValue}/g, i)
                         .replaceAll(/{editUserGroupName}/g, i)

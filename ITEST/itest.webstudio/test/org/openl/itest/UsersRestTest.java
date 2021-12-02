@@ -94,6 +94,7 @@ public class UsersRestTest {
             statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "GROUP_2"));
             statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "GROUP_3"));
             statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "Analysts"));
+            statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "Administrators"));
 
             statement.executeBatch();
             h2Connection.commit();

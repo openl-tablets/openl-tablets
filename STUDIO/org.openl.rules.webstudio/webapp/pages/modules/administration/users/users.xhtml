@@ -151,29 +151,23 @@
                     const appendUserGroup = ($userGroup) => {
                         $userRow.find("[attr=users-groups]").append($userGroup);
                     };
-                    const extGroups = user.externalGroups || [];
-                    const groups = user.groups || [];
+                    const groups = user.userGroups || [];
                     groups.forEach(group => {
-                        if (extGroups.includes(group)) {
-                            return;
+                        const $userGroup = $userGroupTemplate.clone();
+                        const $innerGroup = $userGroup.find('[attr=users-group]')
+                        if (group.type === 'ADMIN') {
+                            $innerGroup.addClass('badge-error');
+                        } else if (group.type === 'EXTERNAL') {
+                            $innerGroup.addClass('badge-success')
+                                .attr("title", "Matched external group");
+                        } else {
+                            $innerGroup.addClass('badge-info');
                         }
-                        const $userGroup = $userGroupTemplate.clone();
-                        $userGroup.find('[attr=users-group]')
-                            .addClass((group === "Administrators" ? ' badge-error' : ' badge-info'))
-                            .text(ws.utils.escapeHtml(group));
+                        $innerGroup.text(ws.utils.escapeHtml(group.name));
                         appendUserGroup($userGroup);
                     });
 
-                    extGroups.forEach(extGroup => {
-                        const $userGroup = $userGroupTemplate.clone();
-                        $userGroup.find('[attr=users-group]')
-                            .addClass('badge-success')
-                            .attr("title", "Matched external group")
-                            .text(ws.utils.escapeHtml(extGroup));
-                        appendUserGroup($userGroup);
-                    });
-
-                    if ((extGroups.length + groups.length) === 0 && groupsConfig?.defaultGroup != null) {
+                    if (groups.length === 0 && groupsConfig?.defaultGroup != null) {
                         const $userGroup = $userGroupTemplate.clone();
                         $userGroup.find('[attr=users-group]')
                             .addClass('badge-info')

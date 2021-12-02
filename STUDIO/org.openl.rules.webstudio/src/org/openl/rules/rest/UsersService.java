@@ -9,6 +9,7 @@ import static org.openl.rules.ui.WebStudio.TEST_TESTS_PERPAGE;
 import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
@@ -41,7 +43,6 @@ import org.openl.rules.rest.model.UserProfileModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.rest.validation.UserEditModelValidator;
 import org.openl.rules.security.Group;
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
@@ -335,28 +336,32 @@ public class UsersService {
     }
 
     private UserModel mapUser(org.openl.rules.security.standalone.persistence.User user) {
-        List<Group> matchedExtGroups = extGroupService.findMatchedForUser(user.getLoginName());
+        List<Group> extGroups = extGroupService.findMatchedForUser(user.getLoginName());
+        Stream<GroupModel> matchedExtGroupsStream = extGroups.stream()
+            .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
+                .setType(
+                    simpleGroup.getPrivileges().contains(Privileges.ADMIN) ? GroupType.ADMIN : GroupType.EXTERNAL));
+        Stream<GroupModel> internalGroupStream = user.getGroups()
+            .stream()
+            // resolve collisions when the same group external and internal
+            .filter(g -> extGroups.stream().noneMatch(ext -> Objects.equals(ext.getName(), g.getName())))
+            .map(PrivilegesEvaluator::wrap)
+            .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
+                .setType(simpleGroup.getPrivileges().contains(Privileges.ADMIN) ? GroupType.ADMIN : GroupType.DEFAULT));
+
         long cntNotMatchedExtGroups = extGroupService.countNotMatchedForUser(user.getLoginName());
         return new UserModel().setFirstName(user.getFirstName())
             .setLastName(user.getSurname())
             .setEmail(user.getEmail())
             .setInternalUser(StringUtils.isNotBlank(user.getPasswordHash()))
-            .setUserGroups(
-                user.getGroups()
-                    .stream()
-                    .map(PrivilegesEvaluator::wrap)
-                    .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
-                        .setType(simpleGroup.getPrivileges().contains(Privileges.ADMIN) ? GroupType.ADMIN
-                                                                                        : GroupType.DEFAULT))
-                    .collect(Collectors.toSet()))
+            .setUserGroups(Stream.concat(matchedExtGroupsStream, internalGroupStream)
+                .collect(StreamUtils.toTreeSet(Comparator.comparing(GroupModel::getType)
+                    .thenComparing(GroupModel::getName, String.CASE_INSENSITIVE_ORDER))))
             .setUsername(user.getLoginName())
             .setCurrentUser(currentUserInfo.getUserName().equals(user.getLoginName()))
             .setSuperUser(adminUsersInitializer.isSuperuser(user.getLoginName()))
             .setUnsafePassword(
                 user.getPasswordHash() != null && passwordEncoder.matches(user.getLoginName(), user.getPasswordHash()))
-            .setExternalGroups(matchedExtGroups.stream()
-                .map(Group::getName)
-                .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER)))
             .setNotMatchedExternalGroupsCount(cntNotMatchedExtGroups)
             .setDisplayName(user.getDisplayName())
             .setExternalFlags(UserExternalFlags.builder()

@@ -6,10 +6,17 @@ Content-Type: application/json
   "displayName": "John Smith",
   "firstName": "John",
   "lastName": "Smith",
-  "groups": ["Administrators"],
   "username": "jsmith",
   "externalFlags": {},
   "internalUser": true,
-  "externalGroups": ["Analysts"],
-  "notMatchedExternalGroupsCount": 3
+  "notMatchedExternalGroupsCount": 3,
+  "userGroups": [
+    {
+      "name": "Administrators",
+      "type": "ADMIN"
+    }, {
+      "name": "Analysts",
+      "type": "EXTERNAL"
+    }
+  ]
 }
