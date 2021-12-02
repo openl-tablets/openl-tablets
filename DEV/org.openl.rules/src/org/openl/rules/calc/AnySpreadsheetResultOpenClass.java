@@ -1,7 +1,11 @@
 package org.openl.rules.calc;
 
+import org.openl.binding.impl.method.AOpenMethodDelegator;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenConstructor;
 import org.openl.vm.IRuntimeEnv;
 
 public class AnySpreadsheetResultOpenClass extends JavaOpenClass {
@@ -30,6 +34,16 @@ public class AnySpreadsheetResultOpenClass extends JavaOpenClass {
             field = new SpreadsheetResultField(this, fieldName, JavaOpenClass.OBJECT);
         }
         return field;
+    }
+
+    @Override
+    protected IOpenMethod processConstructor(JavaOpenConstructor constructor) {
+        return new AOpenMethodDelegator(super.processConstructor(constructor)) {
+            @Override
+            public IOpenClass getType() {
+                return AnySpreadsheetResultOpenClass.this;
+            }
+        };
     }
 
     @Override

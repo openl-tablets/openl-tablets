@@ -158,7 +158,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public String[] getColumnNames() {
-        return columnNames.clone();
+        return columnNames != null ? columnNames.clone() : null;
     }
 
     public void setColumnNames(String[] columnNames) {
@@ -166,7 +166,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public String[] getRowNames() {
-        return rowNames.clone();
+        return rowNames != null ? rowNames.clone() : null;
     }
 
     public void setRowNames(String[] rowNames) {
