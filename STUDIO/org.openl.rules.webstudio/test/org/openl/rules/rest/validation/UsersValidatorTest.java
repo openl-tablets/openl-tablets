@@ -1,5 +1,11 @@
 package org.openl.rules.rest.validation;
 
+import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.anySetOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,6 +14,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.openl.config.InMemoryProperties;
 import org.openl.rules.rest.model.ChangePasswordModel;
 import org.openl.rules.rest.model.InternalPasswordModel;
 import org.openl.rules.rest.model.UserCreateModel;
@@ -15,7 +22,11 @@ import org.openl.rules.rest.model.UserEditModel;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.security.standalone.persistence.Group;
+import org.openl.rules.security.standalone.persistence.User;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
+import org.openl.rules.webstudio.service.AdminUsers;
+import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,7 +43,7 @@ import static org.mockito.Mockito.when;
 public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final String MUST_BE_LESS_THAN_25 = "Must be less than 25.";
-    private static final String CANNOT_BE_EMPTY = "Cannot be empty.";
+    private static final String CANNOT_BE_EMPTY = "Can not be empty.";
     private static final String SHOULD_NOT_END_WITH_DOT_AND_WHITESPACE = "The name should not end or begin with '.' or a whitespace.";
     private static final String MUST_NOT_CONTAIN_FOLLOWING_CHARS = "The name must not contain the following characters: /  : * ? \" < > | { } ~ ^";
 
@@ -45,11 +56,26 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private UserEditModelValidator userEditModelValidator;
+
+    @Autowired
+    private InMemoryProperties properties;
+
+    @Autowired
+    private ExternalGroupService extGroupService;
+
+    @Autowired
+    private AdminUsers adminUsersInitializer;
+
     @After
     public void reset_mocks() {
-        Mockito.reset(userManagementService);
-        Mockito.reset(passwordEncoder);
-        Mockito.reset(currentUserInfo);
+        Mockito.reset(userManagementService,
+            properties,
+            passwordEncoder,
+            currentUserInfo,
+            extGroupService,
+            adminUsersInitializer);
     }
 
     @Test
@@ -106,6 +132,129 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
+    public void testEditUser_groups_notValid() {
+        UserEditModel userEditModel = getValidUserEditModel();
+        userEditModel.setGroups(null);
+        BindingResult bindingResult = validateAndGetResult(userEditModel, userEditModelValidator);
+        assertFieldError("groups",
+            "At least one group should be selected.",
+            null,
+            bindingResult.getFieldError("groups"));
+    }
+
+    @Test
+    public void testEditUser_DefaultButNoGroups_valid() {
+        UserEditModel userEditModel = getValidUserEditModel();
+        userEditModel.setGroups(null);
+
+        when(properties.getProperty("security.default-group")).thenReturn("Viewer");
+
+        assertNull(validateAndGetResult(userEditModel, userEditModelValidator));
+    }
+
+    @Test
+    public void testEditUser_externalUserButNoGroups_valid() {
+        for (String userMode : new String[] { "ad", "saml", "cas" }) {
+            UserEditModel userEditModel = getValidUserEditModel();
+            userEditModel.setGroups(null);
+
+            when(properties.getProperty("user.mode")).thenReturn(userMode);
+            when(extGroupService.countMatchedForUser(userEditModel.getUsername())).thenReturn(10L);
+
+            assertNull(validateAndGetResult(userEditModel, userEditModelValidator));
+        }
+    }
+
+    @Test
+    public void testEditUser_externalUserButNoGroups_notValid() {
+        for (String userMode : new String[] { "ad", "saml", "cas" }) {
+            UserEditModel userEditModel = getValidUserEditModel();
+            userEditModel.setGroups(null);
+
+            when(properties.getProperty("user.mode")).thenReturn(userMode);
+            when(extGroupService.countMatchedForUser(userEditModel.getUsername())).thenReturn(0L);
+
+            BindingResult bindingResult = validateAndGetResult(userEditModel, userEditModelValidator);
+            assertFieldError("groups",
+                "At least one group should be selected.",
+                null,
+                bindingResult.getFieldError("groups"));
+        }
+    }
+
+    @Test
+    public void testEditUser_adminButNoGroups_valid() {
+        for (String userMode : new String[] { "ad", "saml", "cas", "multi", "demo", "single" }) {
+            UserEditModel userEditModel = getValidUserEditModel();
+            userEditModel.setGroups(null);
+
+            when(properties.getProperty("user.mode")).thenReturn(userMode);
+            when(userManagementService.getUser(userEditModel.getUsername())).thenReturn(makeAdminUser());
+            when(userManagementService.getCurrentAdminGroups(anySetOf(Group.class)))
+                .thenReturn(Collections.singleton("Administrate"));
+            when(currentUserInfo.getUserName()).thenReturn(userEditModel.getUsername());
+
+            assertNull(validateAndGetResult(userEditModel, userEditModelValidator));
+        }
+    }
+
+    @Test
+    public void testEditUser_adminButNoGroups_valid2() {
+        for (String userMode : new String[] { "ad", "saml", "cas", "multi", "demo", "single" }) {
+            UserEditModel userEditModel = getValidUserEditModel();
+            userEditModel.setGroups(null);
+
+            when(properties.getProperty("user.mode")).thenReturn(userMode);
+            when(userManagementService.getUser(userEditModel.getUsername())).thenReturn(makeAdminUser());
+            when(userManagementService.getCurrentAdminGroups(anySetOf(Group.class)))
+                    .thenReturn(Collections.singleton("Administrate"));
+            when(adminUsersInitializer.isSuperuser(userEditModel.getUsername())).thenReturn(Boolean.TRUE);
+
+            assertNull(validateAndGetResult(userEditModel, userEditModelValidator));
+        }
+    }
+
+    @Test
+    public void testEditUser_adminButNoGroups_notValid() {
+        for (String userMode : new String[] { "ad", "saml", "cas", "multi", "demo", "single" }) {
+            UserEditModel userEditModel = getValidUserEditModel();
+            userEditModel.setGroups(null);
+
+            when(properties.getProperty("user.mode")).thenReturn(userMode);
+            when(userManagementService.getUser(userEditModel.getUsername())).thenReturn(makeAdminUser());
+            when(userManagementService.getCurrentAdminGroups(anySetOf(Group.class)))
+                    .thenReturn(Collections.emptySet());
+            when(currentUserInfo.getUserName()).thenReturn(userEditModel.getUsername());
+
+            BindingResult bindingResult = validateAndGetResult(userEditModel, userEditModelValidator);
+            assertFieldError("groups",
+                    "At least one group should be selected.",
+                    null,
+                    bindingResult.getFieldError("groups"));
+        }
+    }
+
+    @Test
+    public void testEditUser_adminButNoGroups_notValid2() {
+        for (String userMode : new String[] { "ad", "saml", "cas", "multi", "demo", "single" }) {
+            UserEditModel userEditModel = getValidUserEditModel();
+            userEditModel.setGroups(null);
+
+            when(properties.getProperty("user.mode")).thenReturn(userMode);
+            when(userManagementService.getUser(userEditModel.getUsername())).thenReturn(makeAdminUser());
+            when(userManagementService.getCurrentAdminGroups(anySetOf(Group.class)))
+                    .thenReturn(Collections.singleton("Administrate"));
+            when(adminUsersInitializer.isSuperuser(userEditModel.getUsername())).thenReturn(Boolean.FALSE);
+
+            BindingResult bindingResult = validateAndGetResult(userEditModel, userEditModelValidator);
+            assertFieldError("groups",
+                    "At least one group should be selected.",
+                    null,
+                    bindingResult.getFieldError("groups"));
+        }
+    }
+
+    @Test
     public void testEditUser_password_notValid() {
         UserEditModel userEditModel = getValidUserEditModel();
         String wrongPassword = RandomStringUtils.random(26, "pass");
@@ -132,6 +281,17 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
         userCreateModel.setUsername("a");
         assertNull(validateAndGetResult(userCreateModel));
+    }
+
+    @Test
+    public void testCreateUser_noGroups_notValid() {
+        UserCreateModel userCreateModel = getValidUserCreateModel();
+        userCreateModel.setGroups(null);
+        BindingResult bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("groups",
+            "At least one group should be selected.",
+            null,
+            bindingResult.getFieldError("groups"));
     }
 
     @Test
@@ -336,7 +496,8 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
             .setEmail("jsmith@email")
             .setLastName("Smith")
             .setPassword("pass")
-            .setGroups(groups);
+            .setGroups(groups)
+            .setUsername("jsmith");
     }
 
     private UserInfoModel getValidUserInfoModel() {
@@ -360,6 +521,15 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
             .setFirstName("John")
             .setEmail("jsmith@email")
             .setLastName("Smith");
+    }
+
+    private User makeAdminUser() {
+        User user = new User();
+        Group group = new Group();
+        user.setGroups(Collections.singleton(group));
+        group.setName("Administratior");
+        group.setPrivileges(Collections.singleton("Administrate"));
+        return user;
     }
 
 }

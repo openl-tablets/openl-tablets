@@ -8,7 +8,7 @@ Content-Type: application/json
       "code": "openl.error.Size",
       "field": "defaultGroup",
       "rejectedValue": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus.",
-      "message": "Size must be between 0 and 50"
+      "message": "Size must be between 0 and 50."
     }
   ]
 }

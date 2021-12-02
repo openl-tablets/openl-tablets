@@ -2,20 +2,21 @@ package org.openl.rules.rest.model;
 
 import org.openl.rules.security.UserExternalFlags;
 
-public class UserProfileModel extends UserProfileBaseModel {
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-    private String username;
+public class UserProfileModel extends UserProfileBaseModel {
 
     private boolean internalUser;
 
     private UserExternalFlags externalFlags;
 
+    @JsonIgnore(false)
     public String getUsername() {
-        return username;
+        return super.getUsername();
     }
 
     public UserProfileModel setUsername(String username) {
-        this.username = username;
+        super.setUsername(username);
         return this;
     }
 

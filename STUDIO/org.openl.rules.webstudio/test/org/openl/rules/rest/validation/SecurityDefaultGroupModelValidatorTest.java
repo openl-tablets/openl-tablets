@@ -37,7 +37,7 @@ public class SecurityDefaultGroupModelValidatorTest extends AbstractConstraintVa
         assertEquals(1, bindingResult.getFieldErrorCount());
         assertEquals(0, bindingResult.getGlobalErrorCount());
         assertFieldError("defaultGroup",
-            "Size must be between 0 and 50",
+            "Size must be between 0 and 50.",
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam eget erat in massa accumsan rhoncus.",
             bindingResult.getFieldError("defaultGroup"));
     }
