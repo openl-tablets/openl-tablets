@@ -4,19 +4,29 @@ import java.util.Date;
 import java.util.List;
 
 public class AzureCommit {
-    private long version;
+    private transient String version;
+    private transient String path;
+
     private String author;
     private String comment;
     private List<FileInfo> files;
     private boolean deleted;
     private Date modifiedAt;
 
-    public long getVersion() {
+    public String getVersion() {
         return version;
     }
 
-    public void setVersion(long version) {
+    public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public String getAuthor() {
