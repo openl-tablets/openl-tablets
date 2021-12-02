@@ -13,17 +13,12 @@ import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
-import com.azure.storage.blob.models.BlobItem;
-import com.azure.storage.blob.models.BlobRequestConditions;
-import com.azure.storage.blob.models.BlockBlobItem;
-import com.azure.storage.blob.models.ListBlobsOptions;
+import com.azure.storage.blob.models.*;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
-import com.azure.storage.blob.specialized.BlobInputStream;
 import com.azure.storage.common.implementation.Constants;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
-import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.TypeDescription;
@@ -31,17 +26,15 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
 
-// TODO: Check that all streams are closed properly
 public class AzureBlobRepository implements FolderRepository {
     private static final String UNSUPPORTED_IN_FOLDER_REPOSITORY = "Unsupported in folder repository";
-    private static final String VERSION_EXTENSION = ".yaml";
-    private final Logger log = LoggerFactory.getLogger(AzureBlobRepository.class);
+    private static final String VERSION_FILE = "versions.yaml";
 
     private static final String MODIFICATION_FILE = "[openl]/.modification";
     private static final String CONTENT_PREFIX = "[content]/";
     private static final String VERSIONS_PREFIX = "[openl]/versions/";
-    private static final String LOCKS_PREFIX = "[openl]/locks/";
-    private static final String VERSIONS_SEPARATOR = "/[versions]/";
+
+    private final Logger log = LoggerFactory.getLogger(AzureBlobRepository.class);
 
     private String id;
     private String name;
@@ -50,7 +43,7 @@ public class AzureBlobRepository implements FolderRepository {
     private String uri;
 
     private BlobContainerClient blobContainerClient;
-    private PassiveExpiringMap<String, AzureCommit> commitsCache;
+    private PassiveExpiringMap<CacheKey, AzureCommit> commitsCache;
 
     public void setId(String id) {
         this.id = id;
@@ -83,74 +76,69 @@ public class AzureBlobRepository implements FolderRepository {
     }
 
     @Override
-    public List<FileData> listFolders(String path) {
-        final String pathPrefix = VERSIONS_PREFIX + path;
+    public List<FileData> listFolders(String path) throws IOException {
+        try {
+            final String pathPrefix = VERSIONS_PREFIX + path;
 
-        Map<String, BlobItem> folderPaths = new LinkedHashMap<>();
-        ListBlobsOptions options = new ListBlobsOptions();
-        options.setPrefix(pathPrefix);
-        // TODO: Set timeout
-        // TODO: Set max results per response
-        final PagedIterable<BlobItem> items = blobContainerClient.listBlobs(options, null);
-        for (BlobItem item : items) {
-            final String name = item.getName();
-            if (name.startsWith(pathPrefix)) {
-                final String filePath = name.substring(VERSIONS_PREFIX.length());
-                final String folderPath = filePath.substring(0, filePath.indexOf('/', path.length()));
-                final BlobItem existingItem = folderPaths.get(folderPath);
-                if (existingItem == null) {
-                    folderPaths.put(folderPath, item);
-                } else {
-                    Long existingVersion = getVersion(existingItem);
-                    Long newVersion = getVersion(item);
-                    if (existingVersion == null || newVersion != null && newVersion > existingVersion) {
-                        folderPaths.put(folderPath, item);
+            List<FileData> folders = new ArrayList<>();
+
+            AzureCommit commit = findCommit(path, null);
+            if (commit != null) {
+                // Get sub-folders inside the project.
+                final int start = path.length();
+                Set<String> subFolders = new HashSet<>();
+                List<FileInfo> files = commit.getFiles();
+                if (files == null) {
+                    return folders;
+                }
+                for (FileInfo file : files) {
+                    String name = file.getPath();
+                    if (name.startsWith(path)) {
+                        String subFolder = name.substring(start, name.indexOf('/', start));
+                        if (!subFolders.contains(subFolder)) {
+                            folders.add(createFileData(path + subFolder, commit));
+                            subFolders.add(subFolder);
+                        }
+                    }
+                }
+            } else {
+                // Get folders outside of projects (folders containing projects).
+                ListBlobsOptions options = new ListBlobsOptions();
+                options.setPrefix(pathPrefix);
+                final PagedIterable<BlobItem> items = blobContainerClient.listBlobs(options, null);
+                for (BlobItem item : items) {
+                    final String name = item.getName();
+                    if (name.startsWith(pathPrefix)) {
+                        final String filePath = name.substring(VERSIONS_PREFIX.length());
+                        final String folderPath = filePath.substring(0, filePath.indexOf('/', path.length()));
+                        folders.add(createFileData(folderPath, getCommit(item)));
                     }
                 }
             }
-        }
 
-        List<FileData> folders = new ArrayList<>();
-        for (Map.Entry<String, BlobItem> entry : folderPaths.entrySet()) {
-            AzureCommit commit = getCommit(entry.getValue());
-            folders.add(createFileData(entry.getKey(), commit));
+            return folders;
+        } catch (Exception e) {
+            throw new IOException(e);
         }
-        return folders;
     }
 
     @Override
-    public List<FileData> listFiles(String path, String version) {
-        AzureCommit commit = getCommit(path, version);
-        return getFilesForCommit(commit);
-    }
-
-    private List<FileData> getFilesForCommit(AzureCommit commit) {
-        if (commit == null) {
-            return Collections.emptyList();
+    public List<FileData> listFiles(String path, String version) throws IOException {
+        try {
+            AzureCommit commit = findCommit(path, version);
+            return getFilesForCommit(commit);
+        } catch (Exception e) {
+            throw new IOException(e);
         }
-        final List<FileInfo> files = commit.getFiles();
-        return files == null ? Collections.emptyList() : files.stream().map(fileInfo -> {
-            FileData fileData = new FileData();
-            fileData.setName(fileInfo.getPath());
-            fileData.setVersion(String.valueOf(commit.getVersion()));
-            fileData.setUniqueId(fileInfo.getRevision());
-            // TODO: Use base64 to decode and encode metadata to support non-ascii symbols
-//            fileData.setAuthor(client.getProperties().getMetadata().get("author")); // TODO: Implement
-//            fileData.setComment(client.getProperties().getMetadata().get("comment")); // TODO: Implement
-
-            return fileData;
-        }).collect(Collectors.toList());
     }
 
     @Override
     public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException {
         String path = folderData.getName();
-        final long version = lock(path);
 
         final FileData fileData;
         try {
             AzureCommit commit = new AzureCommit();
-            commit.setVersion(version);
             commit.setAuthor(folderData.getAuthor().getUsername());
             commit.setComment(folderData.getComment());
 
@@ -168,11 +156,8 @@ public class AzureBlobRepository implements FolderRepository {
                 }
             } else {
                 String baseVersion = folderData.getVersion();
-                if (baseVersion == null) {
-                    baseVersion = String.valueOf(getLatestVersion(folderData.getName()));
-                }
                 AzureCommit baseCommit = getCommit(folderData.getName(), baseVersion);
-                if (baseCommit != null) {
+                if (baseCommit != null && baseCommit.getFiles() != null) {
                     commitFiles.addAll(baseCommit.getFiles());
                 }
 
@@ -199,31 +184,17 @@ public class AzureBlobRepository implements FolderRepository {
             }
             commit.setModifiedAt(new Date());
 
-            saveCommit(commit, path, version);
+            saveCommit(commit, path);
             fileData = createFileData(path, commit);
-        } catch (Exception e) {
-            // TODO: Rollback saved revisions if possible and saved version info
-            throw e;
-        } finally {
-            unlock(path, version);
-        }
 
-        onModified();
+            onModified();
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
 
         return fileData;
-    }
-
-    private Response<BlockBlobItem> saveFile(FileItem file) throws IOException {
-        FileData data = file.getData();
-        BlobClient blobClient = blobContainerClient.getBlobClient(CONTENT_PREFIX + data.getName());
-
-        BlobRequestConditions blobRequestConditions = new BlobRequestConditions();
-        final Response<BlockBlobItem> response;
-        try (final InputStream stream = file.getStream()) {
-            response = blobClient.uploadWithResponse(new BlobParallelUploadOptions(BinaryData.fromStream(stream)).setRequestConditions(blobRequestConditions),
-                    null, Context.NONE);
-        }
-        return response;
     }
 
     @Override
@@ -238,68 +209,47 @@ public class AzureBlobRepository implements FolderRepository {
 
     @Override
     public List<FileData> list(String path) throws IOException {
-        if (path.endsWith("/")) {
-            // TODO: Remove such lines
-            path = path.substring(0, path.length() - 1);
-        }
-        ListBlobsOptions options = new ListBlobsOptions().setPrefix(VERSIONS_PREFIX + path + VERSIONS_SEPARATOR);
-        final PagedIterable<BlobItem> items = blobContainerClient.listBlobs(options, null);
-        final Iterator<BlobItem> iterator = items.iterator();
-        if (iterator.hasNext()) {
-            return getFilesForCommit(getCommit(getLatestBlob(iterator)));
-        } else {
-            return Collections.emptyList();
+        try {
+            BlobClient client = findCommitBlob(path, null);
+            if (client != null) {
+                return getFilesForCommit(getCommit(client));
+            } else {
+                return Collections.emptyList();
+            }
+        } catch (Exception e) {
+            throw new IOException(e);
         }
     }
 
     @Override
     public FileData check(String name) throws IOException {
-
-        ListBlobsOptions options = new ListBlobsOptions().setPrefix(VERSIONS_PREFIX + name + VERSIONS_SEPARATOR);
-        final PagedIterable<BlobItem> items = blobContainerClient.listBlobs(options, null);
-        final Iterator<BlobItem> iterator = items.iterator();
-        if (iterator.hasNext()) {
-            return createFileData(name, getCommit(getLatestBlob(iterator)));
-        } else {
+        try {
             final BlobClient client = blobContainerClient.getBlobClient(CONTENT_PREFIX + name);
             if (client.exists()) {
-                final FileData fileData = new FileData();
-                fileData.setName(name);
-                fileData.setSize(client.getProperties().getBlobSize());
-                fileData.setModifiedAt(new Date(client.getProperties().getCreationTime().toInstant().toEpochMilli()));
-                fileData.setVersion(client.getVersionId()); // TODO: Set commit version instead
-                fileData.setUniqueId(client.getVersionId());
-//            fileData.setDeleted(client.isDeleted()); // TODO: Do we need it for files?
-
-                // TODO: Use base64 to decode and encode metadata to support non-ascii symbols
-                fileData.setAuthor(new UserInfo(client.getProperties().getMetadata().get("author"))); // TODO: Implement
-                fileData.setComment(client.getProperties().getMetadata().get("comment")); // TODO: Implement
-                return fileData;
+                // File
+                return createFileDataForFile(name, null, client);
+            } else {
+                // Project folder or sub-folder.
+                return createFileDataForFolder(name, null);
             }
+        } catch (Exception e) {
+            throw new IOException(e);
         }
-
-        return null;
     }
 
     @Override
     public FileItem read(String name) throws IOException {
-        final BlobClient client = blobContainerClient.getBlobClient(CONTENT_PREFIX + name);
-        if (client.exists()) {
-            final FileData fileData = new FileData();
-            fileData.setName(name);
-            fileData.setSize(client.getProperties().getBlobSize());
-            fileData.setModifiedAt(new Date(client.getProperties().getCreationTime().toInstant().toEpochMilli()));
-            fileData.setVersion(client.getVersionId()); // TODO: Set commit version instead
-            fileData.setUniqueId(client.getVersionId());
-//            fileData.setDeleted(client.isDeleted()); // TODO: Do we need it for files?
+        try {
+            final BlobClient client = blobContainerClient.getBlobClient(CONTENT_PREFIX + name);
+            if (client.exists()) {
+                FileData fileData = createFileDataForFile(name, null, client);
+                return  new FileItem(fileData, client.openInputStream());
+            }
 
-            // TODO: Use base64 to decode and encode metadata to support non-ascii symbols
-            fileData.setAuthor(new UserInfo(client.getProperties().getMetadata().get("author"))); // TODO: Implement
-            fileData.setComment(client.getProperties().getMetadata().get("comment")); // TODO: Implement
-            return  new FileItem(fileData, client.openInputStream());
+            return null;
+        } catch (Exception e) {
+            throw new IOException(e);
         }
-
-        return null;
     }
 
     @Override
@@ -314,24 +264,24 @@ public class AzureBlobRepository implements FolderRepository {
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        String path = data.getName();
-        final long version = lock(path);
-
         try {
+            String path = data.getName();
+
             AzureCommit commit = new AzureCommit();
-            commit.setVersion(version);
             commit.setAuthor(data.getAuthor().getUsername());
             commit.setComment(data.getComment());
             commit.setDeleted(true);
             commit.setModifiedAt(new Date());
 
-            saveCommit(commit, path, version);
+            saveCommit(commit, path);
 
             onModified();
 
             return true;
-        } finally {
-            unlock(path, version);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
         }
     }
 
@@ -348,98 +298,88 @@ public class AzureBlobRepository implements FolderRepository {
     }
 
     @Override
-    public List<FileData> listHistory(String name) {
-        // TODO: What if name is a file name?
-        String pathPrefix = VERSIONS_PREFIX + name;
+    public List<FileData> listHistory(String name) throws IOException {
+        try {
+            // TODO: What if name is a file name?
+            // Current implementation works only if name is a project name.
+            // If will invoke this method for files and project sub-folders, we should improve this method.
+            String pathPrefix = VERSIONS_PREFIX + name + "/" + VERSION_FILE;
 
-        ListBlobsOptions options = new ListBlobsOptions();
-        options.setPrefix(pathPrefix);
-        // TODO: Set timeout
-        // TODO: Set max results per response
+            ListBlobsOptions options = new ListBlobsOptions();
+            options.setPrefix(pathPrefix);
+            options.setDetails(new BlobListDetails().setRetrieveVersions(true));
 
-        List<AzureCommit> commits = new ArrayList<>();
-        final PagedIterable<BlobItem> items = blobContainerClient.listBlobs(options, null);
-        for (BlobItem item : items) {
-            commits.add(getCommit(item));
+            List<AzureCommit> commits = new ArrayList<>();
+            final PagedIterable<BlobItem> items = blobContainerClient.listBlobs(options, null);
+            for (BlobItem item : items) {
+                commits.add(getCommit(item));
+            }
+
+            List<FileData> fileDataList = new ArrayList<>(commits.size());
+            for (AzureCommit commit : commits) {
+                fileDataList.add(createFileData(name, commit));
+            }
+
+            return fileDataList;
+        } catch (Exception e) {
+            throw new IOException(e);
         }
-
-        commits.sort(Comparator.comparingLong(AzureCommit::getVersion));
-
-        List<FileData> fileDataList = new ArrayList<>(commits.size());
-        for (AzureCommit commit : commits) {
-            fileDataList.add(createFileData(name, commit));
-        }
-
-        return fileDataList;
     }
 
     @Override
-    public FileData checkHistory(String name, String version) {
-        BlobClient client = blobContainerClient.getBlobClient(VERSIONS_PREFIX + name + VERSIONS_SEPARATOR + version + VERSION_EXTENSION);
-        if (client.exists()) {
-            // folder
-            AzureCommit commit = getCommit(client);
-            return commit == null ? null : createFileData(name, commit);
-        } else {
-            // file
-            client = findFile(name, version);
+    public FileData checkHistory(String name, String version) throws IOException {
+        try {
+            BlobClient client = findFile(name, version);
             if (client != null) {
-                FileData fileData = new FileData();
-                fileData.setName(name);
-                fileData.setVersion(version);
-                fileData.setUniqueId(client.getVersionId());
-                // TODO: Add modified at field
-                //            fileData.setModifiedAt();
-                return fileData;
+                // File
+                return createFileDataForFile(name, version, client);
+            } else {
+                // Project folder or sub-folder.
+                return createFileDataForFolder(name, version);
+            }
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
+    @Override
+    public FileItem readHistory(String name, String version) throws IOException {
+        try {
+            BlobClient client = findFile(name, version);
+            if (client != null) {
+                FileData fileData = createFileDataForFile(name, version, client);
+                final BinaryData binaryData = client.downloadContent();
+
+                return new FileItem(fileData, binaryData.toStream());
             }
 
             return null;
+        } catch (Exception e) {
+            throw new IOException(e);
         }
-
-    }
-
-    @Override
-    public FileItem readHistory(String name, String version) {
-        BlobClient client = findFile(name, version);
-        if (client != null) {
-            FileData fileData = new FileData();
-            fileData.setName(name);
-            fileData.setVersion(version);
-            fileData.setUniqueId(client.getVersionId());
-            // TODO: Add modified at field
-            //            fileData.setModifiedAt();
-            final BinaryData binaryData = client.downloadContent();
-            final Long length = binaryData.getLength();
-            if (length != null) {
-                fileData.setSize(length);
-            }
-
-            return new FileItem(fileData, binaryData.toStream());
-        }
-
-        return null;
     }
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        final String path = data.getName();
-        final String version = data.getVersion();
+        try {
+            final String path = data.getName();
+            final String version = data.getVersion();
 
-        if (version == null) {
-            // Delete all versions.
-            deleteAllByPrefix(VERSIONS_PREFIX + path);
-            deleteAllByPrefix(CONTENT_PREFIX + path);
-        } else {
-            // Undelete
-            final long newVersion = lock(path);
-            try {
+            if (version == null) {
+                // Delete all versions.
+                deleteAllByPrefix(VERSIONS_PREFIX + path);
+                deleteAllByPrefix(CONTENT_PREFIX + path);
+                synchronized (this) {
+                    commitsCache.entrySet().removeIf(e -> e.getKey().name.equals(path));
+                }
+            } else {
+                // Undelete
                 final List<FileData> history = listHistory(path);
                 if (history.isEmpty()) {
                     return false;
                 }
 
                 AzureCommit commit = new AzureCommit();
-                commit.setVersion(newVersion);
                 commit.setAuthor(data.getAuthor().getUsername());
                 commit.setComment(data.getComment());
                 commit.setModifiedAt(new Date());
@@ -450,6 +390,9 @@ public class AzureBlobRepository implements FolderRepository {
                     final FileData fileData = listIterator.previous();
                     if (!fileData.isDeleted()) {
                         final AzureCommit oldCommit = getCommit(path, fileData.getVersion());
+                        if (oldCommit == null) {
+                            continue;
+                        }
                         commit.setFiles(oldCommit.getFiles());
                         found = true;
                         break;
@@ -457,32 +400,31 @@ public class AzureBlobRepository implements FolderRepository {
                 }
 
                 if (found) {
-                    saveCommit(commit, path, newVersion);
+                    saveCommit(commit, path);
                 } else {
                     return false;
                 }
-            } finally {
-                unlock(path, newVersion);
             }
-        }
 
-        onModified();
-        return true;
+            onModified();
+            return true;
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
     }
 
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        // TODO: Probably can be optimized
-        final List<FileData> fileDataList = listFiles(srcName, version);
-
-        String path = destData.getName();
-        final long newVersion = lock(path);
-
-        final FileData fileData;
         try {
+            final List<FileData> fileDataList = listFiles(srcName, version);
+
+            String path = destData.getName();
+
+            final FileData fileData;
             AzureCommit commit = new AzureCommit();
-            commit.setVersion(newVersion);
             commit.setAuthor(destData.getAuthor().getUsername());
             commit.setComment(destData.getComment());
             final ArrayList<FileInfo> commitFiles = new ArrayList<>();
@@ -507,15 +449,17 @@ public class AzureBlobRepository implements FolderRepository {
                 commitFiles.add(fileInfo);
             }
 
-            saveCommit(commit, path, newVersion);
+            saveCommit(commit, path);
             fileData = createFileData(destData.getName(), commit);
-        } finally {
-            unlock(path, newVersion);
+
+            onModified();
+
+            return fileData;
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
         }
-
-        onModified();
-
-        return fileData;
     }
 
     @Override
@@ -535,19 +479,45 @@ public class AzureBlobRepository implements FolderRepository {
         }
     }
 
-    private Object getLatestRevision() {
-        try {
-            BlobClient client = blobContainerClient.getBlobClient(MODIFICATION_FILE);
-
-            if (client.exists()) {
-                return client.getProperties().getCreationTime().toInstant().toEpochMilli();
-            }
-
-            return null;
-        } catch (Exception e) {
-            log.warn(e.getMessage(), e);
-            return null;
+    private List<FileData> getFilesForCommit(AzureCommit commit) {
+        if (commit == null) {
+            return Collections.emptyList();
         }
+        final List<FileInfo> files = commit.getFiles();
+        return files == null ? Collections.emptyList() : files.stream().map(fileInfo -> {
+            FileData fileData = new FileData();
+            fileData.setName(fileInfo.getPath());
+            fileData.setVersion(commit.getVersion());
+            fileData.setUniqueId(fileInfo.getRevision());
+
+            return fileData;
+        }).collect(Collectors.toList());
+    }
+
+    private Response<BlockBlobItem> saveFile(FileItem file) throws IOException {
+        FileData data = file.getData();
+        BlobClient blobClient = blobContainerClient.getBlobClient(CONTENT_PREFIX + data.getName());
+
+        BlobRequestConditions blobRequestConditions = new BlobRequestConditions();
+        final Response<BlockBlobItem> response;
+        try (final InputStream stream = file.getStream()) {
+            response = blobClient.uploadWithResponse(new BlobParallelUploadOptions(BinaryData.fromStream(stream)).setRequestConditions(blobRequestConditions),
+                null, Context.NONE);
+        }
+        return response;
+    }
+
+    private Object getLatestRevision() {
+        BlobClient client = blobContainerClient.getBlobClient(MODIFICATION_FILE);
+
+        try {
+            // Avoid making extra request. If file is absent, getProperties() will throw exception.
+            return client.getProperties().getCreationTime().toInstant().toEpochMilli();
+        } catch (Exception e) {
+            log.debug(e.getMessage(), e);
+        }
+
+        return null;
     }
 
     private void onModified() {
@@ -563,111 +533,51 @@ public class AzureBlobRepository implements FolderRepository {
         }
     }
 
-    private long lock(String path) throws IOException {
-        do {
-            long max = getLatestVersion(path);
-
-            final long newVersion = max + 1;
-            final BlobClient blobClient = blobContainerClient.getBlobClient(LOCKS_PREFIX + path + "/" + newVersion + "/lock");
-            // TODO: save timestamp instead
-            final String uuidStr = UUID.randomUUID().toString();
-            final byte[] bytes = uuidStr.getBytes(StandardCharsets.UTF_8);
-            ByteArrayInputStream is = new ByteArrayInputStream(bytes);
-            // TODO: What if the lock exists already?
-            blobClient.upload(is, bytes.length);
-            try (final BlobInputStream inputStream = blobClient.openInputStream()) {
-                final String lockContent = IOUtils.toStringAndClose(inputStream);
-                if (lockContent.equals(uuidStr)) {
-                    return newVersion;
-                } else {
-                    // TODO: Add check for locks that must be deleted
-                }
-            }
-            // TODO: Add max iterations restriction
-        } while (true);
-    }
-
-    private void unlock(String path, long version) {
-        final BlobClient blobClient = blobContainerClient.getBlobClient(LOCKS_PREFIX + path + "/" +version + "/lock");
-        if (blobClient.exists()) {
-            blobClient.delete();
-        } else {
-            log.warn("Lock for path {} and version {} isn't found.", version, path);
-        }
-    }
-
-    private long getLatestVersion(String path) {
-        ListBlobsOptions options = new ListBlobsOptions().setPrefix(VERSIONS_PREFIX + path + VERSIONS_SEPARATOR);
-        final PagedIterable<BlobItem> items = blobContainerClient.listBlobs(options, null);
-        long max = 0L;
-        for (BlobItem item : items) {
-            Long ver = getVersion(item);
-            if (ver == null) {
-                continue;
-            }
-            if (max < ver) {
-                max = ver;
-            }
-        }
-        return max;
-    }
-
-    private Long getVersion(BlobItem item) {
-        final String name = item.getName();
-        if (!name.endsWith(VERSION_EXTENSION)) {
-            return null;
-        }
-        final String verStr = name.substring(name.lastIndexOf('/') + 1, name.length() - VERSION_EXTENSION.length());
-        return Long.parseLong(verStr);
-    }
-
-    private BlobItem getLatestBlob(Iterator<BlobItem> iterator) throws IOException {
-        BlobItem latestBlob = null;
-        long max = 0L;
-        while (iterator.hasNext()) {
-            BlobItem item = iterator.next();
-            Long ver = getVersion(item);
-            if (ver == null) {
-                continue;
-            }
-            if (max < ver) {
-                max = ver;
-                latestBlob = item;
-            }
-        }
-        if (latestBlob == null) {
-            throw new IOException("Can't find file with version. Probably incorrect folder structure.");
-        }
-        return latestBlob;
-    }
-
     private AzureCommit getCommit(String path, String version) {
         if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
-        return getCommit(blobContainerClient.getBlobClient(VERSIONS_PREFIX + path + VERSIONS_SEPARATOR + version + VERSION_EXTENSION));
+        return getCommit(blobContainerClient.getBlobVersionClient(VERSIONS_PREFIX + path + "/" + VERSION_FILE, version));
     }
 
     private AzureCommit getCommit(BlobItem item) {
-        return getCommit(blobContainerClient.getBlobClient(item.getName()));
+        return getCommit(blobContainerClient.getBlobVersionClient(item.getName(), item.getVersionId()));
     }
 
     private AzureCommit getCommit(BlobClient client) {
         if (client == null) {
             return null;
         }
+        String versionId = client.getVersionId();
+        if (versionId == null) {
+            try {
+                versionId = client.getProperties().getVersionId();
+            } catch (Exception e) {
+                // Blob is absent
+                log.debug(e.getMessage(), e);
+                return null;
+            }
+        }
         synchronized (this) {
-            final AzureCommit cached = commitsCache.get(client.getBlobName());
-            if (cached != null) {
-                return cached;
+            if (versionId != null) {
+                final AzureCommit cached = commitsCache.get(new CacheKey(client.getBlobName(), versionId));
+                if (cached != null) {
+                    return cached;
+                }
             }
         }
 
         try (InputStreamReader in = new InputStreamReader(client.openInputStream(), StandardCharsets.UTF_8)) {
             Yaml yaml = createYamlForCommit();
             final AzureCommit commit = yaml.loadAs(in, AzureCommit.class);
+            commit.setVersion(versionId);
+            String blobName = client.getBlobName();
+            if (!blobName.startsWith(VERSIONS_PREFIX) || !blobName.endsWith("/" + VERSION_FILE)) {
+                throw new IllegalStateException("Unexpected blob name: " + blobName);
+            }
+            commit.setPath(blobName.substring(VERSIONS_PREFIX.length(), blobName.length() - VERSION_FILE.length() - 1));
             synchronized (this) {
-                commitsCache.put(client.getBlobName(), commit);
+                commitsCache.put(new CacheKey(blobName, versionId), commit);
             }
             return commit;
         } catch (Exception e) {
@@ -676,23 +586,29 @@ public class AzureBlobRepository implements FolderRepository {
         }
     }
 
-    private void saveCommit(AzureCommit commit, String path, long version) throws IOException {
+    private void saveCommit(AzureCommit commit, String path) throws IOException {
         final Yaml yaml = createYamlForCommit();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try (OutputStreamWriter out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
             yaml.dump(commit, out);
         }
 
-        final BlobClient blobClient = blobContainerClient.getBlobClient(VERSIONS_PREFIX + path + VERSIONS_SEPARATOR + version + VERSION_EXTENSION);
-        blobClient.upload(BinaryData.fromBytes(outputStream.toByteArray()));
+        final BlobClient blobClient = blobContainerClient.getBlobClient(VERSIONS_PREFIX + path + "/" + VERSION_FILE);
+
+        final Response<BlockBlobItem> response = blobClient
+            .uploadWithResponse(new BlobParallelUploadOptions(BinaryData.fromBytes(outputStream.toByteArray()))
+                .setRequestConditions(new BlobRequestConditions()), null, Context.NONE);
+        commit.setVersion(response.getValue().getVersionId());
     }
 
     private Yaml createYamlForCommit() {
         TypeDescription projectsDescription = new TypeDescription(AzureCommit.class);
         projectsDescription.addPropertyParameters("files", FileInfo.class);
-        Constructor constructor = new Constructor(AzureCommit.class);
-        constructor.addTypeDescription(projectsDescription);
+        projectsDescription.setExcludes("version");
+        projectsDescription.setExcludes("path");
+        Constructor constructor = new Constructor(projectsDescription);
         Representer representer = new Representer();
+        representer.addTypeDescription(projectsDescription);
         representer.getPropertyUtils().setSkipMissingProperties(true);
         return new Yaml(constructor, representer);
     }
@@ -709,7 +625,7 @@ public class AzureBlobRepository implements FolderRepository {
     private FileData createFileData(String name, AzureCommit commit) {
         FileData fileData = new FileData();
         fileData.setName(name);
-        fileData.setVersion(String.valueOf(commit.getVersion()));
+        fileData.setVersion(commit.getVersion());
         fileData.setComment(commit.getComment());
         fileData.setAuthor(new UserInfo(commit.getAuthor()));
         fileData.setModifiedAt(commit.getModifiedAt());
@@ -717,17 +633,73 @@ public class AzureBlobRepository implements FolderRepository {
         return fileData;
     }
 
-    private BlobClient findCommit(String name, String version) {
-        // TODO: What if version is null?
+    private FileData createFileDataForFile(String name, String version, BlobClient client) {
+        BlobProperties properties = client.getProperties();
+
+        FileData fileData = new FileData();
+        fileData.setName(name);
+        fileData.setVersion(version == null ? properties.getVersionId() : version);
+        fileData.setUniqueId(properties.getVersionId());
+        fileData.setModifiedAt(new Date(properties.getCreationTime().toInstant().toEpochMilli()));
+        fileData.setSize(properties.getBlobSize());
+        return fileData;
+    }
+
+    private FileData createFileDataForFolder(String name, String version) {
+        final String folderPath = name + "/";
+        AzureCommit commit = findCommit(folderPath, version);
+        if (commit != null) {
+            if (commit.getPath().equals(name)) {
+                // It's a project name.
+                return createFileData(name, commit);
+            }
+            if (commit.getFiles() == null) {
+                // Commit doesn't contain files and thus doesn't contain any folders.
+                return null;
+            }
+            // Detecting if commit contains sub-folder with path "folderPath".
+            for (FileInfo file : commit.getFiles()) {
+                if (file.getPath().startsWith(folderPath)) {
+                    // We found a file inside searched folder. We can create File Data for it.
+                    return createFileData(name, commit);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private AzureCommit findCommit(String path, String version) {
+        String name = path.endsWith("/") ? path.substring(0, path.length() - 1) : path;
+        final String commitName = VERSIONS_PREFIX + name + "/" + VERSION_FILE;
+        if (version != null) {
+            synchronized (this) {
+                final AzureCommit cached = commitsCache.get(new CacheKey(commitName, version));
+                if (cached != null) {
+                    return cached;
+                }
+            }
+        } else {
+            boolean isCommitName;
+            synchronized (this) {
+                isCommitName = commitsCache.keySet().stream().anyMatch(k -> k.name.equals(commitName));
+            }
+            if (isCommitName) {
+                return getCommit(blobContainerClient.getBlobClient(VERSIONS_PREFIX + name + "/" + VERSION_FILE));
+            }
+        }
+        return getCommit(findCommitBlob(path, version));
+    }
+
+    private BlobClient findCommitBlob(String name, String version) {
         String commitName = name;
         if (!commitName.contains("/")) {
             return null;
         }
 
-        String versionToSearch = version == null ? "1" : version;
         do {
             commitName = commitName.substring(0, commitName.lastIndexOf("/"));
-            BlobClient client = blobContainerClient.getBlobClient(VERSIONS_PREFIX + commitName + VERSIONS_SEPARATOR + versionToSearch + VERSION_EXTENSION);
+            BlobClient client = blobContainerClient.getBlobVersionClient(VERSIONS_PREFIX + commitName + "/" + VERSION_FILE, version);
             if (client.exists()) {
                 return client;
             }
@@ -737,16 +709,11 @@ public class AzureBlobRepository implements FolderRepository {
     }
 
     private BlobClient findFile(String name, String version) {
-        final AzureCommit commit = getCommit(findCommit(name, version));
-        if (commit != null) {
+        final AzureCommit commit = findCommit(name, version);
+        if (commit != null && commit.getFiles() != null) {
             Optional<FileInfo> fileInfo = commit.getFiles().stream().filter(f -> f.getPath().equals(name)).findFirst();
             if (fileInfo.isPresent()) {
-                BlobClient client = blobContainerClient.getBlobClient(CONTENT_PREFIX + fileInfo.get().getPath());
-                if (client.exists()) {
-                    client = client.getVersionClient(fileInfo.get().getRevision());
-                } else {
-                    return null;
-                }
+                BlobClient client = blobContainerClient.getBlobVersionClient(CONTENT_PREFIX + fileInfo.get().getPath(), fileInfo.get().getRevision());
 
                 if (client.exists()) {
                     return client;
@@ -755,5 +722,28 @@ public class AzureBlobRepository implements FolderRepository {
         }
 
         return null;
+    }
+
+    private static final class CacheKey {
+        final String name;
+        final String version;
+
+        private CacheKey(String name, String version) {
+            this.name = name;
+            this.version = version;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CacheKey cacheKey = (CacheKey) o;
+            return name.equals(cacheKey.name) && version.equals(cacheKey.version);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, version);
+        }
     }
 }
