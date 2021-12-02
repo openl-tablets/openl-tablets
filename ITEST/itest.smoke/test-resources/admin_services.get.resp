@@ -16,9 +16,7 @@ Content-Type: application/json
     "startedTime": "#####",
     "name": "multi_project_project2",
     "servicePath": "multimodule/project2",
-    "urls": {
-      "RESTFUL": "multi_project/project2"
-    },
+    "urls": {},
     "hasManifest": false,
     "deploymentName": "multimodule",
     "status": "DEPLOYED"
