@@ -125,8 +125,8 @@ public class ManagementService {
     }
 
     @GET
-    @Path("/groups/search")
-    public Set<String> searchExternalGroup(@QueryParam("term") String searchTerm,
+    @Path("/groups/external")
+    public Set<String> searchExternalGroup(@QueryParam("search") String searchTerm,
             @QueryParam("pageSize") @DefaultValue("10") int pageSize) {
         return extGroupService.findAllByName(searchTerm, pageSize)
                 .stream()

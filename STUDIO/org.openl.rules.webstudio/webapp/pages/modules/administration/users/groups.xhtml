@@ -192,12 +192,13 @@
 
         ws.form.autocomplete({
             $input: $j("#addEditGroupForm input[name=name]"),
+            delay: 500,
             source: (request, response) => {
                 autocompleteXhr = $j.ajax({
                     type: "GET",
-                    url: "#{contextPath}/web/admin/management/groups/search",
+                    url: "#{contextPath}/web/admin/management/groups/external",
                     data: {
-                        term: request.term
+                        search: request.term
                     },
                     datatype: "json",
                     beforeSend : function()    {
