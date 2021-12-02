@@ -262,7 +262,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 for (Method method : originalClass.getDeclaredMethods()) {
                     processClassForOpenApiComponentNamesConflictResolving(method.getReturnType());
                     for (Class<?> paramType : method.getParameterTypes()) {
-                        processClassForSwaggerComponentNamesConflictResolving(paramType);
+                        processClassForOpenApiComponentNamesConflictResolving(paramType);
                     }
                 }
             }
@@ -318,7 +318,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     .capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX + s + (suffix > 0 ? suffix : "");
                 s.insert(0, "0");
             }
-            usedOpenApiComponentNamesWithRequestParameterSuffix.add(nonConflictedRequestParameterName);
             usedOpenApiComponentNamesWithRequestParameterSuffix.add(nonConflictedRequestParameterName);
             String beanName = "org.openl.jaxrs." + nonConflictedRequestParameterName;
 
