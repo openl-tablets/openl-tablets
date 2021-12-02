@@ -479,6 +479,17 @@ public class AzureBlobRepository implements FolderRepository {
         }
     }
 
+    @Override
+    public void validateConnection() throws IOException {
+        try {
+            ListBlobsOptions options = new ListBlobsOptions();
+            options.setPrefix(VERSIONS_PREFIX);
+            blobContainerClient.listBlobs(options, null);
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
     private List<FileData> getFilesForCommit(AzureCommit commit) {
         if (commit == null) {
             return Collections.emptyList();

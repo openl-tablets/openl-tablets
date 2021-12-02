@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:f="http://java.sun.com/jsf/core"
+>
+
+    <ui:param name="settings" value="#{repository.settings}" />
+    <ui:param name="validators" value="#{settings.validators}" />
+    <ui:param name="isProductionRepo" value="#{repoType eq 'PRODUCTION'}" />
+    <ui:param name="isDesignRepo" value="#{repoType eq 'DESIGN'}" />
+
+    <h:panelGrid columns="2" columnClasses="titleColumn">
+        <h:outputText value="URL" styleClass="required" />
+        <h:inputText value="#{settings.uri}" id="#{prependId}AzureUri" validator="#{validators.url}"/>
+        <h:outputText value=""/>
+        <h:message for="#{prependId}AzureUri" styleClass="error"/>
+
+        <h:outputText value="Listener period (sec):"/>
+        <h:inputText value="#{settings.listenerTimerPeriod}" id="#{prependId}AzureListenerTimerPeriod"
+                     title="Repository changes check interval. Must be greater than 0."
+                     validatorMessage="Please enter a value greater than 0">
+            <f:validateLongRange minimum="1"/>
+        </h:inputText>
+        <h:outputText value=""/>
+        <h:message for="#{prependId}AzureListenerTimerPeriod" styleClass="error"/>
+    </h:panelGrid>
+    
+    <h:panelGroup rendered="#{isDesignRepo}">
+        <ui:include src="/pages/modules/administration/settings/commentSettings.xhtml">
+            <ui:param name="prependId" value="#{prependId}Azure"/>
+            <ui:param name="repository" value="#{repository}" />
+            <ui:param name="repoType" value="#{repoType}" />
+        </ui:include>
+    </h:panelGroup>
+</ui:composition>

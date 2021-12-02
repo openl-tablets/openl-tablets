@@ -480,6 +480,7 @@
                                                                 <f:selectItem itemValue="repo-jndi"
                                                                                       itemLabel="Database (JNDI)"/>
                                                                 <f:selectItem itemValue="repo-aws-s3" itemLabel="AWS S3"/>
+                                                                <f:selectItem itemValue="repo-azure-blob" itemLabel="Azure Blob Storage"/>
                                                                 <f:selectItem itemValue="repo-git" itemLabel="Git"/>
                                                                     </h:selectOneMenu>
                                                                     <h:outputText value=""/>
@@ -504,6 +505,16 @@
                                                                     rendered="#{designRepository.type == 'repo-aws-s3'}">
                                                                         <ui:include
                                                                                 src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                                            <ui:param name="prependId" value="design"/>
+                                                                            <ui:param name="repository"
+                                                                                      value="#{designRepository}"/>
+                                                                            <ui:param name="repoType" value="DESIGN"/>
+                                                                        </ui:include>
+                                                                    </h:panelGroup>
+                                                                    <h:panelGroup
+                                                                    rendered="#{designRepository.type == 'repo-azure-blob'}">
+                                                                        <ui:include
+                                                                                src="/pages/modules/administration/settings/AzureBlobRepositorySettings.xhtml">
                                                                             <ui:param name="prependId" value="design"/>
                                                                             <ui:param name="repository"
                                                                                       value="#{designRepository}"/>
@@ -586,6 +597,8 @@
                                                                                       itemLabel="Database (JNDI)"/>
                                                                     <f:selectItem itemValue="repo-aws-s3"
                                                                                       itemLabel="AWS S3"/>
+                                                                    <f:selectItem itemValue="repo-azure-blob"
+                                                                                      itemLabel="Azure Blob Storage"/>
                                                                     <f:selectItem itemValue="repo-git" itemLabel="Git"/>
                                                                     </h:selectOneMenu>
                                                                     <h:outputText value=""/>
@@ -614,6 +627,18 @@
                                                                         rendered="#{deployConfigRepo.type == 'repo-aws-s3'}">
                                                                         <ui:include
                                                                                 src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                                            <ui:param name="prependId"
+                                                                                      value="deployConfig"/>
+                                                                            <ui:param name="repository"
+                                                                                      value="#{deployConfigRepo}"/>
+                                                                            <ui:param name="repoType"
+                                                                                      value="DEPLOY_CONFIGURATION"/>
+                                                                        </ui:include>
+                                                                    </h:panelGroup>
+                                                                    <h:panelGroup
+                                                                        rendered="#{deployConfigRepo.type == 'repo-azure-blob'}">
+                                                                        <ui:include
+                                                                                src="/pages/modules/administration/settings/AzureBlobRepositorySettings.xhtml">
                                                                             <ui:param name="prependId"
                                                                                       value="deployConfig"/>
                                                                             <ui:param name="repository"
@@ -680,6 +705,8 @@
                                                                                           itemLabel="Database (JNDI)"/>
                                                                         <f:selectItem itemValue="repo-aws-s3"
                                                                                           itemLabel="AWS S3"/>
+                                                                        <f:selectItem itemValue="repo-azure-blob"
+                                                                                          itemLabel="Azure Blob Storage"/>
                                                                         <f:selectItem itemValue="repo-git" itemLabel="Git"/>
                                                                         <f:selectItem itemValue="repo-file" itemLabel="Local"/>
                                                                         </h:selectOneMenu>
@@ -702,6 +729,19 @@
                                                                             rendered="#{repository.type == 'repo-aws-s3'}">
                                                                             <ui:include
                                                                                     src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
+                                                                                <ui:param name="prependId"
+                                                                                          value="production"/>
+                                                                                <ui:param name="repository"
+                                                                                          value="#{repository}"/>
+                                                                                <ui:param name="repoType"
+                                                                                          value="PRODUCTION"/>
+                                                                                <ui:param name="isEditing" value="true"/>
+                                                                            </ui:include>
+                                                                        </h:panelGroup>
+                                                                        <h:panelGroup
+                                                                            rendered="#{repository.type == 'repo-azure-blob'}">
+                                                                            <ui:include
+                                                                                    src="/pages/modules/administration/settings/AzureBlobRepositorySettings.xhtml">
                                                                                 <ui:param name="prependId"
                                                                                           value="production"/>
                                                                                 <ui:param name="repository"

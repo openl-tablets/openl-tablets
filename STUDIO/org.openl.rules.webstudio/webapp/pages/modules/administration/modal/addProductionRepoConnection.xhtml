@@ -54,6 +54,13 @@
                     <ui:param name="repoType" value="PRODUCTION" />
                 </ui:include>
             </h:panelGroup>
+            <h:panelGroup rendered="#{connectionProductionRepoController.repositoryConfiguration.type == 'repo-azure-blob'}">
+                <ui:include src="/pages/modules/administration/settings/AzureBlobRepositorySettings.xhtml">
+                    <ui:param name="prependId" value="production"/>
+                    <ui:param name="repository" value="#{connectionProductionRepoController.repositoryConfiguration}" />
+                    <ui:param name="repoType" value="PRODUCTION" />
+                </ui:include>
+            </h:panelGroup>
             <h:panelGroup rendered="#{connectionProductionRepoController.repositoryConfiguration.type == 'repo-git'}">
                 <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                     <ui:param name="prependId" value="production"/>
