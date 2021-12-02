@@ -15,44 +15,71 @@
             cursor: pointer;
         }
 
-        #users-form tbody>tr:hover {
+        #users-form {
+            display: table;
+        }
+
+        #users-form .row {
+            display: table-row;
+        }
+
+        #users-form .row > div {
+            padding: 6px 11px;
+            text-align: left;
+            display: table-cell;
+            border-bottom: 1px dotted #ccc;
+        }
+
+        #users-form header {
+            font-weight: bold;
+        }
+
+        #users-form header.row > div {
+            border-bottom: 1px solid #ccc;
+        }
+
+        #users-form div.row:hover {
             background-color: #FAE5C1;
+        }
+
+        .align-middle {
+            vertical-align: middle;
+        }
+
+        #users-form>header.row {
+            white-space: nowrap;
         }
     </style>
 
-    <table class="table" id="users-form">
-        <thead>
-        <tr>
-            <th scope="col">Username</th>
-            <th scope="col">First Name</th>
-            <th scope="col">Last Name</th>
-            <th scope="col">Email</th>
-            <th scope="col">Display Name</th>
-            <th scope="col">Groups</th>
-            <th class="users-internal-user" scope="col">Local user</th>
-            <th scope="col"/>
-        </tr>
-        </thead>
-        <tbody>
-        <tr style="display: none">
-            <td>
+    <section id="users-form">
+        <header class="row">
+            <div>Username</div>
+            <div>First Name</div>
+            <div>Last Name</div>
+            <div>Email</div>
+            <div>Display Name</div>
+            <div>Groups</div>
+            <div class="users-internal-user">Local user</div>
+            <div>Action</div>
+        </header>
+        <div class="row" style="display: none">
+            <div class="align-middle">
                 <span class="clickable white-space-pre users-username-box" title="Edit" attr="users-username"/>
                 <span class="warning-icon" title="Unsafe default password" attr="users-unsafe-default-password"/>
-            </td>
-            <td attr="users-firstname"/>
-            <td attr="users-lastname"/>
-            <td attr="users-email"/>
-            <td attr="users-displayname"/>
-            <td attr="users-groups">
+            </div>
+            <div class="align-middle" attr="users-firstname"></div>
+            <div class="align-middle" attr="users-lastname"></div>
+            <div class="align-middle" attr="users-email"></div>
+            <div class="align-middle" attr="users-displayname"></div>
+            <div class="align-middle" attr="users-groups">
                 <span>
                     <span attr="users-group" class="badge users-group"/>
                 </span>
-            </td>
-            <td class="users-internal-user" attr="users-internal-user"/>
-            <td><a class="delete-icon user-delete-link" title="Delete" attr="users-delete"/></td>
-        </tr>
-        </tbody>
-    </table>
+            </div>
+            <div class="align-middle users-internal-user" attr="users-internal-user"></div>
+            <div class="align-middle"><a class="delete-icon user-delete-link" title="Delete" attr="users-delete"/></div>
+        </div>
+    </section>
     <br/>
     <br/>
     <a href="javascript:void(0)" onclick="RichFaces.$('modalAddUser').show()" id="users-add">Add New User</a>
@@ -65,8 +92,8 @@
 
     const usersTableHandler = function () {
         console.log("aa");
-        const $userRowTemplate = $j('#users-form>tbody>tr:nth-child(1)').remove();
-        $userRowTemplate.show();
+        const $userRowTemplate = $j('#users-form>div:nth-child(2)').remove();
+        $userRowTemplate.css({"display": ""})
         const $userGroupTemplate = $userRowTemplate.find('[attr=users-groups]>span:nth-child(1)').remove();
 
         const fetchUserOptions = () => {
@@ -136,7 +163,7 @@
         }
 
         const rerenderTable = () => {
-            $j('#users-form>tbody>tr').remove();
+            $j('#users-form>div.row').remove();
             renderTable();
         };
 
@@ -144,7 +171,8 @@
             $j.ajax({
                 type: "GET",
                 url: "#{contextPath}/web/users",
-                datatype: "json"
+                datatype: "json",
+                beforeSend: showLoader
             }).done(function (data) {
                 data.forEach(user => {
                     const $userRow = $userRowTemplate.clone();
@@ -211,12 +239,12 @@
                         });
                     }
 
-                    $j('#users-form>tbody').append($userRow);
+                    $j('#users-form').append($userRow);
                 });
                 fetchUserOptions();
             }).fail(function (data) {
                 handleError(data.status);
-            });
+            }).always(hideLoader);
         };
 
         return {
@@ -225,7 +253,7 @@
         }
     }();
 
-    usersTableHandler.render();
+    $j(usersTableHandler.render);
 
     //]]></script>
 
