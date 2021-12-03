@@ -13,6 +13,12 @@ import org.openl.rules.security.standalone.persistence.ExternalGroup;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.springframework.stereotype.Component;
 
+/**
+ * External Groups data access object implementation. This implementation doesn't care about transactions. All
+ * transactions must be handled by service!
+ *
+ * @author Vladyslav Pikus
+ */
 @Component("externalGroupDao")
 public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implements ExternalGroupDao {
 
@@ -50,7 +56,6 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
     }
 
     private Predicate[] getPredicatesAllForUser(Root<ExternalGroup> root, CriteriaBuilder cb, String loginName) {
-
         return new Predicate[] { cb.equal(root.get("loginName"), loginName) };
     }
 
@@ -73,8 +78,7 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<Group> groupRoot = query.from(Group.class);
 
-        query.select(cb.count(groupRoot))
-            .where(getPredicatesMatchedForUser(groupRoot, query, cb, loginName));
+        query.select(cb.count(groupRoot)).where(getPredicatesMatchedForUser(groupRoot, query, cb, loginName));
 
         return session.createQuery(query).getSingleResult();
     }
@@ -132,8 +136,9 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
         Root<ExternalGroup> extGroupRoot = query.from(ExternalGroup.class);
 
         query.select(extGroupRoot.get("groupName"))
-                .distinct(true)
-                .where(cb.like(cb.lower(extGroupRoot.get("groupName")), "%" + escape(groupName) + "%", cb.literal(ESCAPE_CHAR)));
+            .distinct(true)
+            .where(cb
+                .like(cb.lower(extGroupRoot.get("groupName")), "%" + escape(groupName) + "%", cb.literal(ESCAPE_CHAR)));
         return session.createQuery(query).setMaxResults(limit).getResultList();
     }
 

@@ -1,5 +1,11 @@
 package org.openl.rules.security;
 
+/**
+ * This class handles flags of user external feature. Here can be added as many flags as they can fit in {@code int}.
+ * Spoiler: 32 features can fit in {@code int} types.
+ *
+ * @author Vladyslav Pikus
+ */
 public class UserExternalFlags {
 
     private final int features;
@@ -32,10 +38,18 @@ public class UserExternalFlags {
         return f.enabled(features);
     }
 
+    /**
+     * Initialize feature builder with default states
+     *
+     * @return builder object
+     */
     public static Builder builder() {
         return new Builder();
     }
 
+    /**
+     * Represent amount of supported features
+     */
     public enum Feature {
         EXTERNAL_FIRST_NAME(false),
         EXTERNAL_LAST_NAME(false),
@@ -51,19 +65,40 @@ public class UserExternalFlags {
             this.mask = (1 << ordinal());
         }
 
+        /**
+         * Return mask for given feature. The value is always 2 power N. Where 0 <= N < 32
+         * 
+         * @return feature mask
+         */
         public int getMask() {
             return mask;
         }
 
+        /**
+         * Default feature state. {@code true} if enabled
+         * 
+         * @return {@code true} or {@code false}
+         */
         public boolean getDefaultState() {
             return defaultState;
         }
 
+        /**
+         * Check if current feature is enabled in flags or not.
+         * 
+         * @param flags flags of features
+         * @return {@code true} if enabled otherwise {@code false}
+         */
         public boolean enabled(int flags) {
             return (flags & mask) != 0;
         }
     }
 
+    /**
+     * Builder for user external flags
+     *
+     * @author Vladyslav Pikus
+     */
     public static class Builder {
 
         private int features;
@@ -74,6 +109,13 @@ public class UserExternalFlags {
             }
         }
 
+        /**
+         * Apply feature state
+         *
+         * @param f feature to apply
+         * @param state {@code true} if enabled otherwise {@code false}
+         * @return the same builder instance
+         */
         public Builder applyFeature(Feature f, boolean state) {
             if (state) {
                 return withFeature(f);
@@ -82,16 +124,33 @@ public class UserExternalFlags {
             }
         }
 
+        /**
+         * Enable feature
+         *
+         * @param f feature to enadle
+         * @return the same builder instance
+         */
         public Builder withFeature(Feature f) {
             features |= f.getMask();
             return this;
         }
 
+        /**
+         * Disable feature
+         *
+         * @param f feature to disable
+         * @return the same builder instance
+         */
         public Builder withoutFeature(Feature f) {
             features &= ~f.getMask();
             return this;
         }
 
+        /**
+         * Make new instance of {@link UserExternalFlags}
+         * 
+         * @return new instance of {@link UserExternalFlags}
+         */
         public UserExternalFlags build() {
             return new UserExternalFlags(features);
         }

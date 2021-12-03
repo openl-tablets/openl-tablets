@@ -15,6 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * External groups service implementation
+ *
+ * @author Vladyslav Pikus
+ */
 @Service("externalGroupService")
 public class ExternalGroupServiceImpl implements ExternalGroupService {
 
@@ -86,9 +91,10 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     @Override
     @Transactional
     public List<Group> findAllByName(String groupName, int limit) {
-        return externalGroupDao.findAllByName(groupName, limit).stream()
-                .map(ext -> new SimpleGroup(ext, ext, Collections.emptySet()))
-                .collect(Collectors.toList());
+        return externalGroupDao.findAllByName(groupName, limit)
+            .stream()
+            .map(ext -> new SimpleGroup(ext, ext, Collections.emptySet()))
+            .collect(Collectors.toList());
     }
 
     private static class BatchCreateExternalGroupCursor implements Iterable<ExternalGroup> {
