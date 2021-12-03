@@ -194,7 +194,7 @@
                 hideAddUserForm();
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
-                $j("#user-username-error, #user-password-error, #user-firstname-error, #user-display-name-error, #user-lastname-error, #user-email-error").text("");
+                $j("#user-form span.error").text("");
                 const errorsMap = new Map(JSON.parse(jqXHR.responseText).fields.map(item => [item.field, item.message]));
                 $j("#user-username-error").text(errorsMap.get("username"));
                 $j("#user-email-error").text(errorsMap.get("email"));
@@ -240,7 +240,7 @@
         }
 
         function clearAddUserForm() {
-            $j("#user-username-error, #user-password-error, #user-firstname-error, #user-display-name-error, #user-lastname-error, #user-email-error").text("");
+            $j("#user-form span.error").text("");
             $j("#user-username, #user-password, #user-firstname, #user-display-name, #user-lastname, #user-email").val("");
             $j("#user-groups input").removeAttr("checked");
             $j("#user-internal-user").attr("checked", "checked");
