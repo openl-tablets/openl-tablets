@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.service;
 
+import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -21,6 +23,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.security.core.session.SessionRegistry;
 
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 
@@ -28,6 +31,11 @@ import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 @ImportResource("classpath:META-INF/standalone/spring/security-hibernate-beans.xml")
 @ComponentScan(basePackages = "org.openl.rules.webstudio.service")
 public class DBTestConfiguration {
+
+    @Bean
+    public SessionRegistry sessionRegistry() {
+        return mock(SessionRegistry.class);
+    }
 
     /**
      * Wraps original datasource with proxy DataSource. This proxy helps to analyze generated SQL queries

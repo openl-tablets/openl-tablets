@@ -58,6 +58,7 @@
             </bean>
         </property>
         <property name="filterProcessesUrl" ref="loginCheckUrl"/>
+        <property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy"/>
     </bean>
 
     <bean id="authenticationEntryPoint"

@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -14,6 +15,7 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +27,12 @@ public class UserManagementService {
 
     private final UserDao userDao;
     private final GroupDao groupDao;
+    private final SessionRegistry sessionRegistry;
 
-    public UserManagementService(UserDao userDao, GroupDao groupDao) {
+    public UserManagementService(UserDao userDao, GroupDao groupDao, SessionRegistry sessionRegistry) {
         this.userDao = userDao;
         this.groupDao = groupDao;
+        this.sessionRegistry = sessionRegistry;
     }
 
     public org.openl.rules.security.User getApplicationUser(String name) {
@@ -165,5 +169,21 @@ public class UserManagementService {
 
     public void deleteUser(String username) {
         userDao.deleteUserByName(username);
+    }
+
+    /**
+     * Check is user has any active session
+     * @param username username
+     * @return {@code true} if action session found, otherwise {@code false}
+     */
+    public boolean isUserOnline(String username) {
+        return sessionRegistry.getAllPrincipals()
+            .stream()
+            .filter(SimpleUser.class::isInstance)
+            .map(SimpleUser.class::cast)
+            .filter(principal -> Objects.equals(username, principal.getUsername()))
+            .findFirst()
+            .map(principal -> !sessionRegistry.getAllSessions(principal, false).isEmpty())
+            .orElse(Boolean.FALSE);
     }
 }

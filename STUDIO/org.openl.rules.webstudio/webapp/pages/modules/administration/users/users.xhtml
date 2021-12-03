@@ -49,6 +49,18 @@
         #users-form>header.row {
             white-space: nowrap;
         }
+
+        .username-col {
+            position: relative;
+        }
+
+        .online::after {
+            content: "⬤";
+            color: #59c;
+            font-size: 8px;
+            padding: 0 2px;
+            position: absolute;
+        }
     </style>
 
     <section id="users-form">
@@ -64,7 +76,9 @@
         </header>
         <div class="row" style="display: none">
             <div class="align-middle">
-                <span class="clickable white-space-pre users-username-box" title="Edit" attr="users-username"/>
+                <span class="username-col">
+                    <span class="clickable white-space-pre users-username-box" title="Edit" attr="users-username"/>
+                </span>
                 <span class="warning-icon" title="Unsafe default password" attr="users-unsafe-default-password"/>
             </div>
             <div class="align-middle" attr="users-firstname"></div>
@@ -217,6 +231,10 @@
                     }
 
                     const $userName = $userRow.find('[attr=users-username]');
+                    if (user.online) {
+                        $userName.parent().css({"padding-right": "12px"});
+                        $userName.after($j("<span class='online' title='Online'/>"));
+                    }
                     $userName.click(() => {
                         showEditUserForm(user);
                     });

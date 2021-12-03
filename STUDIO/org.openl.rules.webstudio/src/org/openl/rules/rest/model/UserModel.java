@@ -12,6 +12,7 @@ public class UserModel extends UserCreateModel {
     private UserExternalFlags externalFlags;
     private boolean internalUser;
     private Long notMatchedExternalGroupsCount;
+    private boolean online;
 
     private Set<GroupModel> userGroups;
 
@@ -155,6 +156,15 @@ public class UserModel extends UserCreateModel {
 
     public UserModel setNotMatchedExternalGroupsCount(Long notMatchedExternalGroupsCount) {
         this.notMatchedExternalGroupsCount = notMatchedExternalGroupsCount;
+        return this;
+    }
+
+    public boolean isOnline() {
+        return online;
+    }
+
+    public UserModel setOnline(boolean online) {
+        this.online = online;
         return this;
     }
 }

@@ -359,6 +359,7 @@ public class UsersService {
                 user.getPasswordHash() != null && passwordEncoder.matches(user.getLoginName(), user.getPasswordHash()))
             .setNotMatchedExternalGroupsCount(cntNotMatchedExtGroups)
             .setDisplayName(user.getDisplayName())
+            .setOnline(userManagementService.isUserOnline(user.getLoginName()))
             .setExternalFlags(UserExternalFlags.builder()
                 .applyFeature(Feature.EXTERNAL_FIRST_NAME, user.isFirstNameExternal())
                 .applyFeature(Feature.EXTERNAL_LAST_NAME, user.isLastNameExternal())
