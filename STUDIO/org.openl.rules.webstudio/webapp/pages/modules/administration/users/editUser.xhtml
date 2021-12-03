@@ -160,7 +160,7 @@
         let editUserIsLastNameExternal;
         let editUserIsDisplayNameExternal;
 
-        function showEditUserForm(userModel, groupsConfig) {
+        function showEditUserForm(userModel) {
             const externalFlags = userModel.externalFlags || {};
             editUserIsEmailExternal = externalFlags.emailExternal === true;
             editUserIsFirstNameExternal = externalFlags.firstNameExternal === true;
@@ -226,11 +226,14 @@
                 });
                 $j("#edit-user-groups").html(htmlTemplate + groups);
                 $j("#edit-user-groups-row input:checkbox").each(function() {
-                    if ($j(this).hasClass("check")) {
-                        $j(this).prop("checked", true);
+                    const that = $j(this);
+                    if (that.hasClass("check")) {
+                        that.prop("checked", true);
+                        that.removeClass('check')
                     }
-                    if ($j(this).hasClass("disable")) {
-                        $j(this).prop("disabled", true);
+                    if (that.hasClass("disable")) {
+                        that.prop("disabled", true);
+                        that.removeClass('disable')
                     }
                 });
                 initEditUserAreYouSure();

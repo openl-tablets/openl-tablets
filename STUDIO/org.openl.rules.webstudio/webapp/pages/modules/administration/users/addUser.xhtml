@@ -123,7 +123,7 @@
                             <td id="user-groups">
                                 <span class="width-33pct">
                                     <label class="cursor-pointer display-flex-center">
-                                        <input value="{userGroupValue}" type="checkbox"/>
+                                        <input value="{userGroupValue}" type="checkbox"  class="{userGroupClass}"/>
                                         {userGroupName}
                                     </label>
                                 </span>
@@ -163,7 +163,7 @@
             e.preventDefault();
 
             let groupValues = [];
-            $j("#user-groups-row input:checkbox").each(function() {
+            $j("#user-groups-row input:checkbox:not(:disabled)").each(function() {
                 if ($j(this).is(":checked")) {
                     groupValues.push($j(this).val());
                 }
@@ -216,10 +216,23 @@
             let groups = "";
             $j.map(data, function (val, i) {
                 $j("#user-groups-row").show();
-                groups += htmlTemplate.replace(/{userGroupValue}/g, i).replace(/{userGroupName}/g, i);
+                const isDefaultGroup = groupsConfig.defaultGroup === i;
+                groups += htmlTemplate.replace(/{userGroupValue}/g, i).replace(/{userGroupName}/g, i)
+                    .replace(/{userGroupClass}/g, isDefaultGroup ? ' disable check' : '');
             });
-
             $j("#user-groups").html(htmlTemplate + groups);
+
+            $j("#user-groups-row input:checkbox").each(function() {
+                const that = $j(this);
+                if (that.hasClass("check")) {
+                    that.prop("checked", true);
+                    that.removeClass('check')
+                }
+                if (that.hasClass("disable")) {
+                    that.prop("disabled", true);
+                    that.removeClass('disable')
+                }
+            });
         });
 
         $j.ajax({

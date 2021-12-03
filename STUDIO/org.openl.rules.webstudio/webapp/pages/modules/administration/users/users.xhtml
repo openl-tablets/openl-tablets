@@ -84,14 +84,27 @@
     <br/>
     <a href="javascript:void(0)" onclick="RichFaces.$('modalAddUser').show()" id="users-add">Add New User</a>
 
+    <script>//<![CDATA[
+    const groupsConfig = function () {
+        let result = {};
+        $j.ajax({
+            type: "GET",
+            url: "#{contextPath}/web/admin/management/groups/settings",
+            datatype: "json",
+            async: false,
+        }).done(function (data) {
+            result = data;
+        });
+        return result;
+    }();
+    //]]></script>
+
     <ui:include src="/pages/modules/administration/users/addUser.xhtml"/>
     <ui:include src="/pages/modules/administration/users/editUser.xhtml"/>
 
     <script src="#{contextPath}/javascript/userDisplayNameSelectInitializer.js"></script>
     <script>//<![CDATA[
-
     const usersTableHandler = function () {
-        console.log("aa");
         const $userRowTemplate = $j('#users-form>div:nth-child(2)').remove();
         $userRowTemplate.css({"display": ""})
         const $userGroupTemplate = $userRowTemplate.find('[attr=users-groups]>span:nth-child(1)').remove();
@@ -133,19 +146,6 @@
                 handleError(data.status);
             });
         };
-
-        const groupsConfig = function () {
-            let result = {};
-            $j.ajax({
-                type: "GET",
-                url: "#{contextPath}/web/admin/management/groups/settings",
-                datatype: "json",
-                async: false,
-            }).done(function (data) {
-                result = data;
-            });
-            return result;
-        }();
 
         const deleteUser = (userName) => {
             if (confirm('Are you sure you want to delete the user?')) {
@@ -218,7 +218,7 @@
 
                     const $userName = $userRow.find('[attr=users-username]');
                     $userName.click(() => {
-                        showEditUserForm(user, groupsConfig);
+                        showEditUserForm(user);
                     });
                     $userName.text(ws.utils.escapeHtml(user.username));
                     if (!user.unsafePassword) {
@@ -256,5 +256,7 @@
     $j(usersTableHandler.render);
 
     //]]></script>
+
+
 
 </ui:composition>
