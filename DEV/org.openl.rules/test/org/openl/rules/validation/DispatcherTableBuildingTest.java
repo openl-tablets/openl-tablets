@@ -1,6 +1,7 @@
 package org.openl.rules.validation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.AfterClass;
@@ -34,6 +35,7 @@ public class DispatcherTableBuildingTest extends BaseOpenlBuilderHelper {
     public void checkKeywordsInSignature() {
         assertNotNull(findDispatcherForMethod("arraysTest"));
         assertNotNull(findDispatcherForMethod("keywordsTest"));
-        assertEquals(0, getCompiledOpenClass().getAllMessages().size());
+        assertFalse(getCompiledOpenClass().hasErrors());
+        assertEquals(4, getCompiledOpenClass().getAllMessages().size());
     }
 }

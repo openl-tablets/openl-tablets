@@ -22,3 +22,9 @@ ERROR: OpenAPI Reconciliation: Type of field 'field8' in type 'MyDatatype2' must
 ERROR: OpenAPI Reconciliation: Type of field 'field3' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of number(float)' that incompatible with actual schema 'array[] of string'.
 ERROR: OpenAPI Reconciliation: Type of field 'field2' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of number(double)' that incompatible with actual schema 'array[] of string'.
 ERROR: OpenAPI Reconciliation: Type of field 'field5' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of integer(int32)' that incompatible with actual schema 'array[] of string'.
+WARN: DEPRECATED 'org.openl.meta.IntValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.BigDecimalValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.BigIntegerValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.ByteValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.ShortValue' class will be removed in the next version.

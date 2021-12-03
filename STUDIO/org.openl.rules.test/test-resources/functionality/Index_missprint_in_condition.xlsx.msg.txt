@@ -1,1 +1,3 @@
 ERROR: Operator 'le(java.lang.String, org.openl.meta.DoubleValue)' is not found.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.

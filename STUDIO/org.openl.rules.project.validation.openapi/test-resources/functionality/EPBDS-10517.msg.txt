@@ -8,3 +8,13 @@ ERROR: OpenAPI Reconciliation: Type of field 'field9' in type 'MyDatatype' must 
 ERROR: OpenAPI Reconciliation: Type of field 'field3' in type 'MyDatatype' must be compatible with OpenAPI type 'number(float)' that incompatible with actual type 'string(date-time)'.
 ERROR: OpenAPI Reconciliation: Type of field 'field2' in type 'MyDatatypeArr' must be compatible with OpenAPI schema 'array[] of number(double)' that incompatible with actual schema 'array[] of string(date-time)'.
 ERROR: OpenAPI Reconciliation: Parent 'MyDatatype3' of type 'childDatatype2' mismatches to declared schema:
+WARN: DEPRECATED 'org.openl.meta.IntValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.BigDecimalValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.ByteValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.IntValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.BigDecimalValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.BigIntegerValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.ByteValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.ShortValue' class will be removed in the next version.

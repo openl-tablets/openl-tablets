@@ -1,3 +1,7 @@
  ERROR: Method 'MyRule2' is ambiguous:
  ERROR: Method 'MyRule3' is ambiguous:
  ERROR: Method 'MyRule4' is ambiguous:
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.

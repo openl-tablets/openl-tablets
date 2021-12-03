@@ -1,1 +1,2 @@
 ERROR: Parameter cell format: <type> <name>
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.

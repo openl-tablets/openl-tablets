@@ -4,3 +4,11 @@ ERROR: Lexical error at line 1, column 6.  Encountered: "^" (94), after : "^"
 ERROR: Identifier 'hello' is not found.
 ERROR: Cannot parse cell value 'I_STR'
 ERROR: Cannot convert from 'java.lang.String' to 'java.lang.Double'.
+WARN: DEPRECATED 'org.openl.meta.BigDecimalValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.BigIntegerValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.ByteValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.FloatValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.IntValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.LongValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.ShortValue' class will be removed in the next version.

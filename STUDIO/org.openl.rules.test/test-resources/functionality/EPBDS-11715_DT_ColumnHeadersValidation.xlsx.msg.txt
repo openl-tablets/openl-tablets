@@ -1,3 +1,6 @@
 ERROR: Condition 'C1' is already defined.
 ERROR: Action 'A1' is already defined.
 ERROR: Return 'RET1' is already defined.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.
+WARN: DEPRECATED 'org.openl.meta.DoubleValue' class will be removed in the next version.
