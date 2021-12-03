@@ -66,4 +66,6 @@
         </property>
         <property name="hideUserNotFoundExceptions" value="false"/>
     </bean>
+
+    <bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
 </beans>

@@ -73,7 +73,7 @@
         <property name="filterProcessesUrl" ref="logoutUrl"/>
     </bean>
 
-    <bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+
     <bean id="sessionAuthenticationStrategy" class="org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy">
         <constructor-arg name="sessionRegistry" ref="sessionRegistry"/>
     </bean>
