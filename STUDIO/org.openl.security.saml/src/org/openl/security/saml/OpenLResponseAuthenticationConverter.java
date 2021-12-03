@@ -1,5 +1,11 @@
 package org.openl.security.saml;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
@@ -16,12 +22,6 @@ import org.springframework.security.saml2.provider.service.authentication.Defaul
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.util.CollectionUtils;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
 /**
  * Creates Saml2Authentication and SimpleUser based on the ResponseToken from the IDP.
@@ -121,18 +121,26 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
                 }
             }
 
-            SimpleUser simpleUser = new SimpleUser(getAttributeAsString(firstNameAttribute),
+            UserExternalFlags externalFlags = UserExternalFlags.builder()
+                .applyFeature(UserExternalFlags.Feature.EXTERNAL_FIRST_NAME,
+                    StringUtils.isNotBlank(getAttributeAsString(firstNameAttribute)))
+                .applyFeature(UserExternalFlags.Feature.EXTERNAL_LAST_NAME,
+                    StringUtils.isNotBlank(getAttributeAsString(lastNameAttribute)))
+                .applyFeature(UserExternalFlags.Feature.EXTERNAL_EMAIL,
+                    StringUtils.isNotBlank(getAttributeAsString(emailAttribute)))
+                .applyFeature(UserExternalFlags.Feature.EXTERNAL_DISPLAY_NAME,
+                    StringUtils.isNotBlank(getAttributeAsString(displayNameAttribute)))
+                .withFeature(UserExternalFlags.Feature.SYNC_EXTERNAL_GROUPS)
+                .build();
+
+            return new SimpleUser(getAttributeAsString(firstNameAttribute),
                 getAttributeAsString(lastNameAttribute),
                 getAttributeAsString(usernameAttribute),
                 null,
                 grantedAuthorities,
                 getAttributeAsString(emailAttribute),
                 getAttributeAsString(displayNameAttribute),
-                new UserExternalFlags(StringUtils.isNotBlank(getAttributeAsString(firstNameAttribute)),
-                    StringUtils.isNotBlank(getAttributeAsString(lastNameAttribute)),
-                    StringUtils.isNotBlank(getAttributeAsString(emailAttribute)),
-                    StringUtils.isNotBlank(getAttributeAsString(displayNameAttribute))));
-            return simpleUser;
+                externalFlags);
         }
 
         private String getAttributeAsString(String key) {
