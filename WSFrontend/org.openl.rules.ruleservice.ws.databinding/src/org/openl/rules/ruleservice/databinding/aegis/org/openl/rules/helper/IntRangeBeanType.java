@@ -14,6 +14,7 @@ import org.openl.rules.helpers.IntRange;
  *
  * @author PUdalau
  */
+@Deprecated
 public class IntRangeBeanType extends BeanType {
 
     public static final Class<?> TYPE_CLASS = IntRange.class;

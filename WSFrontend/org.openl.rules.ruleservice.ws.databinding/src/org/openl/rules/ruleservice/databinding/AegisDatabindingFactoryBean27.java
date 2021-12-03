@@ -4,6 +4,7 @@ import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.basic.CharacterAsStringType;
 import org.apache.cxf.common.util.XMLSchemaQNames;
 
+@Deprecated
 public class AegisDatabindingFactoryBean27 extends AbstractAegisDatabindingFactoryBean {
 
     @Override

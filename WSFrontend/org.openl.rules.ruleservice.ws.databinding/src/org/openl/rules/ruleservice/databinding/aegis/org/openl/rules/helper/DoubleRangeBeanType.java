@@ -15,6 +15,7 @@ import org.openl.util.RangeWithBounds.BoundType;
  *
  * @author PUdalau
  */
+@Deprecated
 public class DoubleRangeBeanType extends BeanType {
 
     public static final Class<?> TYPE_CLASS = DoubleRange.class;

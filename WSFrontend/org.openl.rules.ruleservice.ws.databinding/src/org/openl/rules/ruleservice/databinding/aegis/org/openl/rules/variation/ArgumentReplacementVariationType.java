@@ -18,6 +18,7 @@ import org.openl.rules.variation.ArgumentReplacementVariation;
  *
  * @author PUdalau
  */
+@Deprecated
 public class ArgumentReplacementVariationType extends BeanType {
 
     public static final Class<?> TYPE_CLASS = ArgumentReplacementVariation.class;

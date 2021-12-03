@@ -11,6 +11,7 @@ import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
  * @author PUdalau
  *
  */
+@Deprecated
 public class WrapperBeanTypeInfo extends BeanTypeInfo {
     private final List<String> ignoredProperties;
 

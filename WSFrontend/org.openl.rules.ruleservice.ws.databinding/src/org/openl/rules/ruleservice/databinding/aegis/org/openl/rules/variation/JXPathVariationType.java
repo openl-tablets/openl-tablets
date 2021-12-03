@@ -19,6 +19,7 @@ import org.openl.rules.variation.VariationsFactory;
  *
  * @author PUdalau
  */
+@Deprecated
 public class JXPathVariationType extends BeanType {
 
     public static final Class<?> TYPE_CLASS = JXPathVariation.class;

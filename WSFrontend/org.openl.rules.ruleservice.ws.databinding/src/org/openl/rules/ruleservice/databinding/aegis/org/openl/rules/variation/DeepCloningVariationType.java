@@ -19,6 +19,7 @@ import org.openl.rules.variation.Variation;
  *
  * @author PUdalau
  */
+@Deprecated
 public class DeepCloningVariationType extends BeanType {
 
     public static final Class<?> TYPE_CLASS = DeepCloningVariation.class;

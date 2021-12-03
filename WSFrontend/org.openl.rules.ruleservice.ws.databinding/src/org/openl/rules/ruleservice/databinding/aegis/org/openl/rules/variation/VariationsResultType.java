@@ -25,6 +25,7 @@ import org.openl.rules.variation.VariationsResult;
  *
  * @author PUdalau
  */
+@Deprecated
 public class VariationsResultType extends BeanType {
     public static final Class<?> TYPE_CLASS = VariationsResult.class;
 

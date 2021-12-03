@@ -20,6 +20,7 @@ import org.openl.rules.context.RulesRuntimeContextFactory;
  *
  * @author PUdalau
  */
+@Deprecated
 public class RuntimeContextBeanType extends BeanType {
 
     public static final Class<?> TYPE_CLASS = IRulesRuntimeContext.class;

@@ -5,6 +5,7 @@ import java.lang.reflect.AnnotatedElement;
 import org.apache.cxf.aegis.type.AegisType;
 import org.apache.cxf.aegis.type.java5.AnnotationReader;
 
+@Deprecated
 public class OpenLAnnotationReader extends AnnotationReader {
 
     @Override

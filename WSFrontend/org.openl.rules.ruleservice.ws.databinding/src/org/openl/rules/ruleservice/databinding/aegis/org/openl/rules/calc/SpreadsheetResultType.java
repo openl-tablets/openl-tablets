@@ -23,6 +23,7 @@ import org.openl.rules.ruleservice.databinding.aegis.WrapperBeanTypeInfo;
  *
  * @author Marat Kamalov
  */
+@Deprecated
 public class SpreadsheetResultType extends BeanType {
     public static final Class<?> TYPE_CLASS = SpreadsheetResult.class;
 

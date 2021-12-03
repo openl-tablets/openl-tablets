@@ -5,6 +5,7 @@ import org.apache.cxf.aegis.type.AbstractTypeCreator;
 import org.apache.cxf.aegis.type.TypeCreator;
 import org.apache.cxf.aegis.type.java5.Java5TypeCreator;
 
+@Deprecated
 public class OpenLAegisContext extends AegisContext {
 
     @Override

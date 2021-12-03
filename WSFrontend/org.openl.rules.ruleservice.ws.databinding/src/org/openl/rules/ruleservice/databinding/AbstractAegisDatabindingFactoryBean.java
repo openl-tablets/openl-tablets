@@ -27,6 +27,7 @@ import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigur
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public abstract class AbstractAegisDatabindingFactoryBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAegisDatabindingFactoryBean.class);
