@@ -115,7 +115,6 @@
                 </div>
             </section>
             <section id="user-groups-row">
-                <h3 class="required titleColumn">Group</h3>
                 <div>
                     <table class="width-100pct">
                         <tbody>
@@ -128,7 +127,6 @@
                                     </label>
                                 </span>
                             </td>
-                            <td><span id="user-groups-error" class="error"/></td>
                         </tr>
                         </tbody>
                     </table>
@@ -153,7 +151,7 @@
         });
 
         function processRequiredAddUserFields() {
-            if ($j("#user-username").val().trim() === "" || ($j("#user-internal-user").prop("checked") === true && $j("#user-password").val().trim() === "") || $j("#user-groups-row input:checkbox:checked").length === 0) {
+            if ($j("#user-username").val().trim() === "" || ($j("#user-internal-user").prop("checked") === true && $j("#user-password").val().trim() === "")) {
                 $j("#user-add").prop("disabled", true);
             } else {
                 $j("#user-add").prop("disabled", false);
@@ -195,7 +193,7 @@
                 hideAddUserForm();
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
-                $j("#user-username-error, #user-password-error, #user-firstname-error, #user-display-name-error, #user-lastname-error, #user-email-error, #user-groups-error").text("");
+                $j("#user-username-error, #user-password-error, #user-firstname-error, #user-display-name-error, #user-lastname-error, #user-email-error").text("");
                 const errorsMap = new Map(JSON.parse(jqXHR.responseText).fields.map(item => [item.field, item.message]));
                 $j("#user-username-error").text(errorsMap.get("username"));
                 $j("#user-email-error").text(errorsMap.get("email"));
@@ -203,7 +201,6 @@
                 $j("#user-firstname-error").text(errorsMap.get("firstName"));
                 $j("#user-display-name-error").text(errorsMap.get("displayName"));
                 $j("#user-lastname-error").text(errorsMap.get("lastName"));
-                $j("#user-groups-error").text(errorsMap.get("groups"));
             });
         });
 
@@ -242,7 +239,7 @@
         }
 
         function clearAddUserForm() {
-            $j("#user-username-error, #user-password-error, #user-firstname-error, #user-display-name-error, #user-lastname-error, #user-email-error, #user-groups-error").text("");
+            $j("#user-username-error, #user-password-error, #user-firstname-error, #user-display-name-error, #user-lastname-error, #user-email-error").text("");
             $j("#user-username, #user-password, #user-firstname, #user-display-name, #user-lastname, #user-email").val("");
             $j("#user-groups input").removeAttr("checked");
             $j("#user-internal-user").attr("checked", "checked");

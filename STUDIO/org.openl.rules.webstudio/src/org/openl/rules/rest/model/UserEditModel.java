@@ -11,7 +11,6 @@ public class UserEditModel extends UserInfoModel {
     @Size(max = 25, message = "{openl.constraints.user.field.max-length.message}")
     private String password;
 
-    @NotEmpty(message = "{openl.constraints.user.groups.empty.message}")
     private Set<String> groups;
 
     @Override
