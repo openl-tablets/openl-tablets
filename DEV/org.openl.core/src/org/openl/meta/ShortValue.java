@@ -23,6 +23,7 @@ import org.openl.util.math.MathUtils;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(ShortValueAdapter.class)
+@Deprecated
 public class ShortValue extends ExplanationNumberValue<ShortValue> implements Comparable<ShortValue> {
 
     private static final long serialVersionUID = 5259931539737847856L;

@@ -5,6 +5,7 @@ import org.apache.cxf.aegis.type.basic.FloatType;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.openl.meta.FloatValue;
 
+@Deprecated
 public class FloatValueType extends FloatType {
     @Override
     public Object readObject(MessageReader reader, Context context) {

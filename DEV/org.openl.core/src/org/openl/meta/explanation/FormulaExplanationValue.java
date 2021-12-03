@@ -11,6 +11,7 @@ import org.openl.meta.number.Formulas;
  * @param <T> type that extends {@link ExplanationNumberValue}
  * @author DLiauchuk
  */
+@Deprecated
 public class FormulaExplanationValue<T extends ExplanationNumberValue<T>> extends SingleValueExplanation<T> {
 
     private final Formulas operand;

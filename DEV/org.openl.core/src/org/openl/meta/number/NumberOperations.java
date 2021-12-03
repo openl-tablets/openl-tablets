@@ -7,6 +7,7 @@ package org.openl.meta.number;
  * @author DLiauchuk
  *
  */
+@Deprecated
 public enum NumberOperations {
     COPY("COPY"),
     MAX("max"),

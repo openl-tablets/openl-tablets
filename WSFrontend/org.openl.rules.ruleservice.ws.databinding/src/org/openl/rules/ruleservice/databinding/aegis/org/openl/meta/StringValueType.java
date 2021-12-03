@@ -5,6 +5,7 @@ import org.apache.cxf.aegis.type.basic.StringType;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.openl.meta.StringValue;
 
+@Deprecated
 public class StringValueType extends StringType {
     @Override
     public Object readObject(MessageReader reader, Context context) {

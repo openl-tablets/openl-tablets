@@ -5,6 +5,7 @@ import org.apache.cxf.aegis.type.basic.ByteType;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.openl.meta.ByteValue;
 
+@Deprecated
 public class ByteValueType extends ByteType {
     @Override
     public Object readObject(MessageReader reader, Context context) {

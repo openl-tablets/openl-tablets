@@ -25,6 +25,7 @@ import org.openl.util.math.MathUtils;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(BigDecimalValueAdapter.class)
+@Deprecated
 public class BigDecimalValue extends ExplanationNumberValue<BigDecimalValue> implements Comparable<BigDecimalValue> {
 
     private static final long serialVersionUID = 1996508840075924034L;

@@ -1,5 +1,6 @@
 package org.openl.meta.number;
 
+@Deprecated
 public class CastOperand {
     private final String type;
     private final boolean autocast;

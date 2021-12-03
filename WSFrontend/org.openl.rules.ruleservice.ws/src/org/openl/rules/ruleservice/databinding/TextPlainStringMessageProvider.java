@@ -25,6 +25,7 @@ import org.openl.util.IOUtils;
  *
  * @author Vladyslav Pikus
  */
+@Deprecated
 public class TextPlainStringMessageProvider implements MessageBodyWriter<StringValue>, MessageBodyReader<StringValue> {
 
     @Override

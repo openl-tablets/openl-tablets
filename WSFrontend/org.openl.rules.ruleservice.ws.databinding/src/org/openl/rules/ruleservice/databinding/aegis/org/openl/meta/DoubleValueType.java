@@ -5,6 +5,7 @@ import org.apache.cxf.aegis.type.basic.DoubleType;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.openl.meta.DoubleValue;
 
+@Deprecated
 public class DoubleValueType extends DoubleType {
 
     @Override

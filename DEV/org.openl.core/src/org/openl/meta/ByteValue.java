@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(ByteValueAdapter.class)
+@Deprecated
 public class ByteValue extends ExplanationNumberValue<ByteValue> implements Comparable<ByteValue> {
 
     private static final long serialVersionUID = -3137978912171407672L;

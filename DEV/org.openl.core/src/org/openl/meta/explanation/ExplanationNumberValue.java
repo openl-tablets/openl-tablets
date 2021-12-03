@@ -16,6 +16,7 @@ import org.openl.meta.number.NumberOperations;
  *
  * @param <T> type that extends {@link ExplanationNumberValue}
  */
+@Deprecated
 public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>>
         extends Number
         implements ExplanationForNumber<T> {

@@ -7,6 +7,7 @@ import org.apache.cxf.aegis.type.basic.BigDecimalType;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.openl.meta.BigDecimalValue;
 
+@Deprecated
 public class BigDecimalValueType extends BigDecimalType {
     @Override
     public Object readObject(MessageReader reader, Context context) {

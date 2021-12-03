@@ -5,6 +5,7 @@ import org.apache.cxf.aegis.type.basic.LongType;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.openl.meta.LongValue;
 
+@Deprecated
 public class LongValueType extends LongType {
     @Override
     public Object readObject(MessageReader reader, Context context) {

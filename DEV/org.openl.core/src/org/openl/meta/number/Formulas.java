@@ -1,5 +1,6 @@
 package org.openl.meta.number;
 
+@Deprecated
 public enum Formulas {
     ADD("+", false),
     MULTIPLY("*", true),

@@ -12,6 +12,7 @@ import java.util.Collection;
  *
  * @param <T> type that extends {@link ExplanationNumberValue}
  */
+@Deprecated
 public interface ExplanationForNumber<T extends ExplanationNumberValue<T>> extends IMetaHolder, INamedThing {
 
     String printValue();

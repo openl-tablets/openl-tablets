@@ -13,6 +13,7 @@ import org.openl.meta.ValueMetaInfo;
  *
  * @param <T> type that extends {@link ExplanationNumberValue}
  */
+@Deprecated
 public class SingleValueExplanation<T extends ExplanationNumberValue<T>> implements ExplanationForNumber<T> {
 
     private IMetaInfo metaInfo;

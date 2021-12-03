@@ -7,6 +7,7 @@ import java.util.Collections;
 import org.openl.meta.number.CastOperand;
 
 @SuppressWarnings("rawtypes")
+@Deprecated
 public class CastExplanationValue extends SingleValueExplanation {
     private final ExplanationNumberValue<?> value;
     private final CastOperand operand;

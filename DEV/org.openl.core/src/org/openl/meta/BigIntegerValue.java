@@ -24,6 +24,7 @@ import org.openl.util.math.MathUtils;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(BigIntegerValueAdapter.class)
+@Deprecated
 public class BigIntegerValue extends ExplanationNumberValue<BigIntegerValue> implements Comparable<BigIntegerValue> {
 
     private static final long serialVersionUID = -3936317402079096501L;

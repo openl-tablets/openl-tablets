@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(StringValueAdapter.class)
+@Deprecated
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
     private static final Logger LOG = LoggerFactory.getLogger(StringValue.class);
 

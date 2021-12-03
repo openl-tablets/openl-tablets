@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.ArrayTool;
 
+@Deprecated
 public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
 
     private IMetaInfo metaInfo;

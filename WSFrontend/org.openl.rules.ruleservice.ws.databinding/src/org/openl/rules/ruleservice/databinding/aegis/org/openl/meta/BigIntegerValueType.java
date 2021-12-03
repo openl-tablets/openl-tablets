@@ -7,6 +7,7 @@ import org.apache.cxf.aegis.type.basic.BigIntegerType;
 import org.apache.cxf.aegis.xml.MessageReader;
 import org.openl.meta.BigIntegerValue;
 
+@Deprecated
 public class BigIntegerValueType extends BigIntegerType {
     @Override
     public Object readObject(MessageReader reader, Context context) {

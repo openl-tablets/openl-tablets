@@ -24,6 +24,7 @@ import org.openl.util.math.MathUtils;
 
 @XmlRootElement
 @XmlJavaTypeAdapter(LongValueAdapter.class)
+@Deprecated
 public class LongValue extends ExplanationNumberValue<LongValue> implements Comparable<LongValue> {
 
     private static final long serialVersionUID = -437788531108803012L;
