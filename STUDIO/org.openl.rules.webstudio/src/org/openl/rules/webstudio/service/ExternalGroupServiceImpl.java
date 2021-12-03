@@ -32,8 +32,8 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
 
     @Override
     @Transactional
-    public void deleteAllForUser(String loginName) {
-        externalGroupDao.deleteAllForUser(loginName);
+    public void deleteAll() {
+        externalGroupDao.deleteAll();
     }
 
     @Override

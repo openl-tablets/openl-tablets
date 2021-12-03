@@ -25,6 +25,11 @@ public class ExternalGroupDaoImpl extends BaseHibernateDao<ExternalGroup> implem
     public static final char ESCAPE_CHAR = '\\';
 
     @Override
+    public void deleteAll() {
+        getSession().createQuery("DELETE ExternalGroup").executeUpdate();
+    }
+
+    @Override
     public void deleteAllForUser(String loginName) {
         getSession().createQuery("DELETE ExternalGroup ext where ext.loginName = :loginName")
             .setParameter("loginName", loginName)

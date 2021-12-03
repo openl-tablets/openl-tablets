@@ -156,13 +156,56 @@ public class GroupManagementTest {
         assertEquals(2, queryCount.getTotal());
 
         QueryCountHolder.clear();
-        externalGroupService.deleteAllForUser("jdoe");
+        externalGroupService.deleteAll();
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getDelete());
         assertEquals(1, queryCount.getTotal());
 
         QueryCountHolder.clear();
         testEmpty();
+    }
+
+    @Test
+    public void testDoubleMerge() {
+        initOneUser();
+
+        Set<Privilege> privileges = generatePrivilege(10, "Analysts", "Deployers");
+        externalGroupService.mergeAllForUser("jdoe", privileges);
+        QueryCount queryCount = QueryCountHolder.getGrandTotal();
+        assertEquals(1, queryCount.getInsert());
+        assertEquals(1, queryCount.getDelete());
+        assertEquals(2, queryCount.getTotal());
+
+        QueryCountHolder.clear();
+        List<Group> extGroups = externalGroupService.findAllForUser("jdoe");
+        assertCollectionEquals(privileges.stream().map(Privilege::getName).collect(Collectors.toList()),
+                extGroups,
+                Group::getName);
+        long cntExternalGroups = externalGroupService.countAllForUser("jdoe");
+        assertEquals(12, cntExternalGroups);
+        queryCount = QueryCountHolder.getGrandTotal();
+        assertEquals(2, queryCount.getSelect());
+        assertEquals(2, queryCount.getTotal());
+
+        // New groups must override the old one
+        QueryCountHolder.clear();
+        privileges = generatePrivilege(9);
+        externalGroupService.mergeAllForUser("jdoe", privileges);
+        queryCount = QueryCountHolder.getGrandTotal();
+        assertEquals(1, queryCount.getInsert());
+        assertEquals(1, queryCount.getDelete());
+        assertEquals(2, queryCount.getTotal());
+
+        QueryCountHolder.clear();
+        extGroups = externalGroupService.findAllForUser("jdoe");
+        assertCollectionEquals(privileges.stream().map(Privilege::getName).collect(Collectors.toList()),
+                extGroups,
+                Group::getName);
+        cntExternalGroups = externalGroupService.countAllForUser("jdoe");
+        assertEquals(9, cntExternalGroups);
+        queryCount = QueryCountHolder.getGrandTotal();
+        assertEquals(2, queryCount.getSelect());
+        assertEquals(2, queryCount.getTotal());
     }
 
     @Test

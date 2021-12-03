@@ -13,6 +13,11 @@ import org.openl.rules.security.standalone.persistence.Group;
 public interface ExternalGroupDao extends Dao<ExternalGroup> {
 
     /**
+     * Delete all external groups
+     */
+    void deleteAll();
+
+    /**
      * Delete all external groups by given login name
      *
      * @param loginName username

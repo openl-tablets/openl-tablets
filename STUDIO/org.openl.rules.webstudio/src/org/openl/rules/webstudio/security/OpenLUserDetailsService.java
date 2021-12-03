@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import javax.annotation.PostConstruct;
+
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
@@ -39,6 +41,13 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
         this.adminUsersInitializer = adminUsersInitializer;
         this.defaultGroup = Props.text("security.default-group");
         this.externalGroupService = externalGroupService;
+    }
+
+    @PostConstruct
+    public void init() {
+        if (groupsAreManagedInStudio) {
+            externalGroupService.deleteAll(); // Drop all external groups because all groups are managed by WebStudio
+        }
     }
 
     public SimpleUser apply(SimpleUser user) {
@@ -93,9 +102,7 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
                 simpleUser.getDisplayName(),
                 simpleUser.getExternalFlags());
         }
-        if (groupsAreManagedInStudio) {
-            externalGroupService.deleteAllForUser(simpleUser.getUsername());
-        } else if (simpleUser.getExternalFlags().isSyncExternalGroups()) {
+        if (!groupsAreManagedInStudio && simpleUser.getExternalFlags().isSyncExternalGroups()) {
             externalGroupService.mergeAllForUser(simpleUser.getUsername(), externalGroups);
         }
         return userDetails;

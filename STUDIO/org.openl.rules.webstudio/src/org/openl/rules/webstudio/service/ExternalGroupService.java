@@ -13,11 +13,9 @@ import org.openl.rules.security.Privilege;
 public interface ExternalGroupService {
 
     /**
-     * Delete all external groups by given login name
-     * 
-     * @param loginName username
+     * Delete all external groups
      */
-    void deleteAllForUser(String loginName);
+    void deleteAll();
 
     /**
      * Fully replace old user external groups with new ones. Orphan groups will be deleted.
