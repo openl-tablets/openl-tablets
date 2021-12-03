@@ -126,10 +126,7 @@
                 </div>
             </section>
             <section id="edit-user-groups-row">
-                <div>
-                    <h3 class="titleColumn required display-inline">Group</h3>
-                    <span id="edit-user-groups-error" class="error"/>
-                </div>
+                <h3 class="titleColumn display-inline">Group</h3>
                 <div>
                     <table class="width-100pct">
                         <tbody>
@@ -267,14 +264,13 @@
                 hideEditUserForm();
             })
             .fail(function(jqXHR, textStatus, errorThrown) {
-                $j("#edit-user-firstname-error, #edit-user-display-name-error, #edit-user-password-error, #edit-user-lastname-error, #edit-user-email-error, #edit-user-groups-error").text("");
+                $j("#edit-user-form span.error").text("")
                 const errorsMap = new Map(JSON.parse(jqXHR.responseText).fields.map(item => [item.field, item.message]));
                 $j("#edit-user-email-error").text(errorsMap.get("email"));
                 $j("#edit-user-password-error").text(errorsMap.get("password"));
                 $j("#edit-user-firstname-error").text(errorsMap.get("firstName"));
                 $j("#edit-user-display-name-error").text(errorsMap.get("displayName"));
                 $j("#edit-user-lastname-error").text(errorsMap.get("lastName"));
-                $j("#edit-user-groups-error").text(errorsMap.get("groups"));
             });
         });
 
@@ -285,7 +281,7 @@
         }
 
         function clearEditUserForm() {
-            $j("#edit-user-firstname-error, #edit-user-display-name-error, #edit-user-email-error, #edit-user-password-error, #edit-user-lastname-error, #edit-user-groups-error").text("");
+            $j("#edit-user-form span.error").text("")
             $j("#edit-user-password, #edit-user-firstname, #edit-user-display-name, #edit-user-lastname, #edit-user-email").val("");
             $j("#edit-user-username, #edit-user-firstname-span, #edit-user-display-name-span, #edit-user-lastname-span, #edit-user-email-span").text("");
             $j("#edit-user-groups input").removeAttr("checked");

@@ -88,7 +88,7 @@
                                 .replace(/{usersGroup}/g, ws.utils.escapeHtml(group.name))
                         });
                     }
-                    users += htmlTemplate.replace(/{usersEditUserParams}/g, '\'' + ws.utils.escapeHtml(user.username) + '\',\'' + ws.utils.escapeHtml(user.firstName) + '\',\'' + ws.utils.escapeHtml(user.lastName) + '\',\'' + ws.utils.escapeHtml(user.email) + '\',\'' + ws.utils.escapeHtml(user.displayName) + '\',' + user.internalUser + ',\'' + user.userGroups.map(p => p.name) + '\',' + user.superUser + ',' + user.currentUser + ',' + user.externalFlags.firstNameExternal + ',' + user.externalFlags.lastNameExternal + ',' + user.externalFlags.emailExternal + ',' + user.externalFlags.displayNameExternal)
+                    users += htmlTemplate.replace(/{usersEditUserParams}/g, '\'' + ws.utils.escapeHtml(user.username) + '\',\'' + ws.utils.escapeHtml(user.firstName) + '\',\'' + ws.utils.escapeHtml(user.lastName) + '\',\'' + ws.utils.escapeHtml(user.email) + '\',\'' + ws.utils.escapeHtml(user.displayName) + '\',' + user.internalUser + ',\'' + (user.userGroups ? user.userGroups.map(p => p.name) : []) + '\',' + user.superUser + ',' + user.currentUser + ',' + user.externalFlags.firstNameExternal + ',' + user.externalFlags.lastNameExternal + ',' + user.externalFlags.emailExternal + ',' + user.externalFlags.displayNameExternal)
                         .replace(/{usersUsername}/g, ws.utils.escapeHtml(user.username))
                         .replace(/{usersUnsafeDefaultPasswordStyle}/g, !user.unsafePassword ? " display: none; " : '')
                         .replace(/{usersFirstname}/g, ws.utils.escapeHtml(user.firstName))

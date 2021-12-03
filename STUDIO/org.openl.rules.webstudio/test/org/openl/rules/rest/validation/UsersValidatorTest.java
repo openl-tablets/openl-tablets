@@ -106,17 +106,6 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
-    public void testEditUser_groups_notValid() {
-        UserEditModel userEditModel = getValidUserEditModel();
-        userEditModel.setGroups(null);
-        BindingResult bindingResult = validateAndGetResult(userEditModel);
-        assertFieldError("groups",
-            "At least one group should be selected.",
-            null,
-            bindingResult.getFieldError("groups"));
-    }
-
-    @Test
     public void testEditUser_password_notValid() {
         UserEditModel userEditModel = getValidUserEditModel();
         String wrongPassword = RandomStringUtils.random(26, "pass");
