@@ -4,8 +4,6 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class UserInfoModel {
 
     @Email(message = "{openl.constraints.user.email.format.message}")
@@ -20,8 +18,6 @@ public class UserInfoModel {
 
     @Size(max = 25, message = "{openl.constraints.size.max.message}")
     private String lastName;
-
-    private String username;
 
     public String getEmail() {
         return email;
@@ -56,16 +52,6 @@ public class UserInfoModel {
 
     public UserInfoModel setLastName(String lastName) {
         this.lastName = lastName;
-        return this;
-    }
-
-    @JsonIgnore
-    public String getUsername() {
-        return username;
-    }
-
-    public UserInfoModel setUsername(String username) {
-        this.username = username;
         return this;
     }
 }

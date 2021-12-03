@@ -1,11 +1,12 @@
 package org.openl.rules.rest.validation;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import javax.annotation.PostConstruct;
 
-import org.openl.config.InMemoryProperties;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
-import org.openl.rules.webstudio.service.AdminUsers;
-import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
@@ -75,20 +76,4 @@ public class MockConfiguration {
     public GroupManagementService groupManagementService() {
         return mock(GroupManagementService.class);
     }
-
-    @Bean
-    public ExternalGroupService externalGroupService() {
-        return mock(ExternalGroupService.class);
-    }
-
-    @Bean
-    public AdminUsers adminUsers() {
-        return mock(AdminUsers.class);
-    }
-
-    @Bean
-    public InMemoryProperties properties() {
-        return mock(InMemoryProperties.class);
-    }
-
 }

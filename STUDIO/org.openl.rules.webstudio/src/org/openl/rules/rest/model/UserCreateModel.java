@@ -6,16 +6,10 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.openl.rules.rest.validation.InternalPasswordConstraint;
 import org.openl.rules.rest.validation.UsernameExistsConstraint;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class UserCreateModel extends UserEditModel {
-
-    @InternalPasswordConstraint
-    private InternalPasswordModel internalPassword;
 
     @NotBlank
     @Size(max = 25, message = "{openl.constraints.size.max.message}")
@@ -23,13 +17,17 @@ public class UserCreateModel extends UserEditModel {
             @Pattern(regexp = "(.(?<![.]{2}))+", message = "{openl.constraints.username.1.message}"),
             @Pattern(regexp = "[^\\/\\\\:*?\"<>|{}~^]*", message = "{openl.constraints.username.3.message}") })
     @UsernameExistsConstraint
-    @JsonIgnore(false)
+    private String username;
+
+    @InternalPasswordConstraint
+    private InternalPasswordModel internalPassword;
+
     public String getUsername() {
-        return super.getUsername();
+        return username;
     }
 
     public UserCreateModel setUsername(String username) {
-        super.setUsername(username);
+        this.username = username;
         return this;
     }
 
@@ -83,7 +81,6 @@ public class UserCreateModel extends UserEditModel {
     }
 
     @Override
-    @NotEmpty(message = "{openl.constraints.user.groups.empty.message}")
     public Set<String> getGroups() {
         return super.getGroups();
     }

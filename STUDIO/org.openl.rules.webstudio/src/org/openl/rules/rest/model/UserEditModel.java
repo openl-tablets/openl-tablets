@@ -4,10 +4,6 @@ import java.util.Set;
 
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class UserEditModel extends UserInfoModel {
 
     @Size(max = 25, message = "{openl.constraints.size.max.message}")
@@ -70,18 +66,6 @@ public class UserEditModel extends UserInfoModel {
 
     public UserEditModel setGroups(Set<String> groups) {
         this.groups = groups;
-        return this;
-    }
-
-    @Override
-    @JsonIgnore
-    public String getUsername() {
-        return super.getUsername();
-    }
-
-    @Override
-    public UserEditModel setUsername(String username) {
-        super.setUsername(username);
         return this;
     }
 }

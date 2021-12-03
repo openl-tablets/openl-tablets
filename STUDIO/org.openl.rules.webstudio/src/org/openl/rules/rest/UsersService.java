@@ -41,7 +41,6 @@ import org.openl.rules.rest.model.UserModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.rest.model.UserProfileModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.rest.validation.UserEditModelValidator;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
@@ -78,7 +77,6 @@ public class UsersService {
     private final PropertyResolver environment;
     private final PasswordEncoder passwordEncoder;
     private final ExternalGroupService extGroupService;
-    private final UserEditModelValidator userEditModelValidator;
 
     @Inject
     public UsersService(UserManagementService userManagementService,
@@ -90,8 +88,7 @@ public class UsersService {
             PropertyResolver environment,
             BeanValidationProvider validationService,
             UserSettingManagementService userSettingsManager,
-            ExternalGroupService extGroupService,
-            UserEditModelValidator userEditModelValidator) {
+            ExternalGroupService extGroupService) {
         this.userManagementService = userManagementService;
         this.canCreateInternalUsers = canCreateInternalUsers;
         this.canCreateExternalUsers = canCreateExternalUsers;
@@ -102,7 +99,6 @@ public class UsersService {
         this.environment = environment;
         this.validationProvider = validationService;
         this.extGroupService = extGroupService;
-        this.userEditModelValidator = userEditModelValidator;
     }
 
     @GET
@@ -143,8 +139,7 @@ public class UsersService {
             SecurityChecker.allow(Privileges.ADMIN);
         }
         checkUserExists(username);
-        userModel.setUsername(username);
-        validationProvider.validate(userModel, userEditModelValidator);
+        validationProvider.validate(userModel);
         boolean updatePassword = Optional.ofNullable(userModel.getPassword())
             .map(StringUtils::isNotBlank)
             .orElse(false);

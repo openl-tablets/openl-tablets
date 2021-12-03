@@ -4,8 +4,6 @@ import java.util.Set;
 
 import org.openl.rules.security.UserExternalFlags;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class UserModel extends UserCreateModel {
 
     private boolean currentUser;
@@ -46,7 +44,6 @@ public class UserModel extends UserCreateModel {
     }
 
     @Override
-    @JsonIgnore(false)
     public String getUsername() {
         return super.getUsername();
     }
