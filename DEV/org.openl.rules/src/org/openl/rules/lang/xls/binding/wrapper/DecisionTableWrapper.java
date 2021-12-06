@@ -1,7 +1,9 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import java.util.IdentityHashMap;
 import java.util.Objects;
 
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.base.AbstractDecisionTableWrapper;
@@ -19,6 +21,7 @@ public final class DecisionTableWrapper extends AbstractDecisionTableWrapper imp
     private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
         this);
     private final boolean externalMethodCall;
+    private final CustomSpreadsheetResultOpenClass customSpreadsheetResultType;
 
     public DecisionTableWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             DecisionTable delegate,
@@ -27,6 +30,8 @@ public final class DecisionTableWrapper extends AbstractDecisionTableWrapper imp
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;
+        this.customSpreadsheetResultType = (CustomSpreadsheetResultOpenClass) WrapperLogic
+            .toModuleType(delegate.getCustomSpreadsheetResultType(), xlsModuleOpenClass, new IdentityHashMap<>());
         this.type = WrapperLogic.buildMethodReturnType(delegate, xlsModuleOpenClass);
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
         this.externalMethodCall = externalMethodCall;
@@ -55,6 +60,11 @@ public final class DecisionTableWrapper extends AbstractDecisionTableWrapper imp
     @Override
     public IOpenClass getType() {
         return type;
+    }
+
+    @Override
+    public CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultType() {
+        return customSpreadsheetResultType;
     }
 
     @Override

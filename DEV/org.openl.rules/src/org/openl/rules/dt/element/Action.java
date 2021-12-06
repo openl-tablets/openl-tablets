@@ -1,5 +1,6 @@
 package org.openl.rules.dt.element;
 
+import java.lang.reflect.Array;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,8 +18,11 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
+import org.openl.rules.lang.xls.binding.wrapper.DecisionTableWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -43,6 +47,7 @@ public class Action extends FunctionalRow implements IAction {
     private boolean isSingleReturnParam;
     private IOpenClass returnType;
     private IOpenClass singleActionReturnType;
+    private int singleActionReturnTypeDim;
     private final ActionType actionType;
     private final boolean skipEmptyResult;
 
@@ -108,26 +113,59 @@ public class Action extends FunctionalRow implements IAction {
             // execution.
             //
             if (returnValue == null || ClassUtils.isAssignable(returnValue.getClass(), methodType.getInstanceClass())) {
-                return ifSpreadsheetResultUseDTSprType(returnValue);
+                return ifSpreadsheetResultUseDTSprType(returnValue, env);
             }
 
             // At this point of action execution we have the result value, but it
             // has different type than return type of method. We should skip
             // optimization for this step and invoke method.
             //
-            return ifSpreadsheetResultUseDTSprType(executeActionInternal(ruleN, target, params, env));
+            return ifSpreadsheetResultUseDTSprType(executeActionInternal(ruleN, target, params, env), env);
         }
 
-        return ifSpreadsheetResultUseDTSprType(executeActionInternal(ruleN, target, params, env));
+        return ifSpreadsheetResultUseDTSprType(executeActionInternal(ruleN, target, params, env), env);
     }
 
-    private Object ifSpreadsheetResultUseDTSprType(Object value) {
-        if (singleActionReturnType instanceof CustomSpreadsheetResultOpenClass) {
-            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) value;
+    private void setCustomSpreadsheetResultOpenClassToArray(Object o,
+            int dimension,
+            SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
+        if (dimension > 0) {
+            int size = Array.getLength(o);
+            if (dimension == 1) {
+                for (int i = 0; i < size; i++) {
+                    Object v = Array.get(o, i);
+                    Object g = setCustomSpreadsheetResultOpenClassToArray(v, simpleRulesRuntimeEnv);
+                    Array.set(o, i, g);
+                }
+            } else {
+                for (int i = 0; i < size; i++) {
+                    setCustomSpreadsheetResultOpenClassToArray(Array.get(o, i), dimension - 1, simpleRulesRuntimeEnv);
+                }
+            }
+        }
+    }
+
+    private Object setCustomSpreadsheetResultOpenClassToArray(Object e, SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
+        if (e instanceof SpreadsheetResult) {
+            SpreadsheetResult spreadsheetResult = (SpreadsheetResult) e;
             SpreadsheetResult newSpreadsheetResult = new SpreadsheetResult(spreadsheetResult);
+            DecisionTableWrapper decisionTableWrapper = (DecisionTableWrapper) simpleRulesRuntimeEnv.getMethodWrapper();
             newSpreadsheetResult
-                .setCustomSpreadsheetResultOpenClass((CustomSpreadsheetResultOpenClass) singleActionReturnType);
+                .setCustomSpreadsheetResultOpenClass(decisionTableWrapper.getCustomSpreadsheetResultType());
             return newSpreadsheetResult;
+        }
+        return e;
+    }
+
+    private Object ifSpreadsheetResultUseDTSprType(Object value, IRuntimeEnv env) {
+        if (singleActionReturnType instanceof CustomSpreadsheetResultOpenClass) {
+            SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = WrapperLogic.extractSimpleRulesRuntimeEnv(env);
+            if (singleActionReturnTypeDim == 0) {
+                return setCustomSpreadsheetResultOpenClassToArray(value, simpleRulesRuntimeEnv);
+            }
+            setCustomSpreadsheetResultOpenClassToArray(value, singleActionReturnTypeDim, simpleRulesRuntimeEnv);
+            return value;
+
         }
         return value;
     }
@@ -240,6 +278,11 @@ public class Action extends FunctionalRow implements IAction {
                     decisionTable.getType(),
                     bindingContext);
             }
+        }
+        singleActionReturnTypeDim = 0;
+        while (singleActionReturnType != null && singleActionReturnType.isArray()) {
+            singleActionReturnType = singleActionReturnType.getComponentClass();
+            singleActionReturnTypeDim++;
         }
     }
 
