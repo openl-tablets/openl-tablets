@@ -6,8 +6,6 @@ import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.dependency.DependencyBindingContext;
 import org.openl.dependency.DependencyOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
-import org.openl.binding.impl.module.ModuleSpecificType;
-import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
@@ -96,9 +94,12 @@ public final class WrapperLogic {
         return method;
     }
 
-    private static IOpenClass toModuleType(IOpenClass type,
+    public static IOpenClass toModuleType(IOpenClass type,
             XlsModuleOpenClass xlsModuleOpenClass,
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+        if (type == null) {
+            return null;
+        }
         int dim = 0;
         IOpenClass g = type;
         while (g.isArray()) {

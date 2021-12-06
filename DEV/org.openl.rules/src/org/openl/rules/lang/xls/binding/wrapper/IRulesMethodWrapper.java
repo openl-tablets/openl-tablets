@@ -12,9 +12,12 @@ public interface IRulesMethodWrapper extends IOpenMethodWrapper {
             IRuntimeEnv env,
             SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
         boolean isNewRuntimeContext = getContextPropertiesInjector().push(params, env, simpleRulesRuntimeEnv);
+        IRulesMethodWrapper rulesMethodWrapper = simpleRulesRuntimeEnv.getMethodWrapper();
         try {
+            simpleRulesRuntimeEnv.setMethodWrapper(this);
             return getDelegate().invoke(target, params, env);
         } finally {
+            simpleRulesRuntimeEnv.setMethodWrapper(rulesMethodWrapper);
             if (isNewRuntimeContext) {
                 getContextPropertiesInjector().pop(simpleRulesRuntimeEnv);
             }
