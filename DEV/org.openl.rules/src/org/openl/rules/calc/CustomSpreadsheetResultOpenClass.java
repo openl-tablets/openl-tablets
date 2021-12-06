@@ -676,7 +676,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         dim++;
                         t = t.getComponentClass();
                     }
-                    if (t instanceof CustomSpreadsheetResultOpenClass || t instanceof SpreadsheetResultOpenClass) {
+                    if (t instanceof CustomSpreadsheetResultOpenClass || t instanceof SpreadsheetResultOpenClass || t instanceof AnySpreadsheetResultOpenClass) {
                         String fieldClsName;
                         XlsModuleOpenClass additionalClassGenerationClassloaderModule = null;
                         if (t instanceof CustomSpreadsheetResultOpenClass) {
@@ -699,7 +699,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                     .toCustomSpreadsheetResultOpenClass()
                                     .generateBeanClass();
                             }
-                        } else {
+                        } else if (t instanceof SpreadsheetResultOpenClass) {
                             SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) t;
                             final boolean externalSpreadsheetResultOpenClass = isExternalSpreadsheetResultOpenClass(
                                 spreadsheetResultOpenClass,
@@ -714,6 +714,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             m.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                 .toCustomSpreadsheetResultOpenClass()
                                 .generateBeanClass();
+                        } else {
+                            fieldClsName = Map.class.getName();
                         }
                         if (additionalClassGenerationClassloaderModule != null) {
                             getModule().getClassGenerationClassLoader()

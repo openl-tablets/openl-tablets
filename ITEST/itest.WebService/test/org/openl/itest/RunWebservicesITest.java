@@ -546,6 +546,7 @@ public class RunWebservicesITest {
     @Test
     public void EPBDS_12267() {
         client.send("EPBDS-12267/myRules.json.post");
+        client.send("EPBDS-12267/mySr2.json.post");
     }
 
     @Test
