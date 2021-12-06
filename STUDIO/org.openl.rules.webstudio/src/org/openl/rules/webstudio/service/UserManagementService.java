@@ -15,7 +15,9 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
+import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -173,15 +175,26 @@ public class UserManagementService {
 
     /**
      * Check is user has any active session
+     * 
      * @param username username
      * @return {@code true} if action session found, otherwise {@code false}
      */
     public boolean isUserOnline(String username) {
-        return sessionRegistry.getAllPrincipals()
-            .stream()
-            .filter(SimpleUser.class::isInstance)
-            .map(SimpleUser.class::cast)
-            .filter(principal -> Objects.equals(username, principal.getUsername()))
+        return sessionRegistry.getAllPrincipals().stream().map(principal -> {
+            if (principal instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) principal;
+                if (Objects.equals(username, userDetails.getUsername())) {
+                    return principal;
+                }
+            } else if (principal instanceof AuthenticatedPrincipal) {
+                AuthenticatedPrincipal authPrincipal = (AuthenticatedPrincipal) principal;
+                if (Objects.equals(username, authPrincipal.getName())) {
+                    return principal;
+                }
+            }
+            return null;
+        })
+            .filter(Objects::nonNull)
             .findFirst()
             .map(principal -> !sessionRegistry.getAllSessions(principal, false).isEmpty())
             .orElse(Boolean.FALSE);

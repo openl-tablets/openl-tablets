@@ -76,9 +76,7 @@
         </header>
         <div class="row" style="display: none">
             <div class="align-middle">
-                <span class="username-col">
-                    <span class="clickable white-space-pre users-username-box" title="Edit" attr="users-username"/>
-                </span>
+                <span class="clickable white-space-pre users-username-box" title="Edit" attr="users-username"/>
                 <span class="warning-icon" title="Unsafe default password" attr="users-unsafe-default-password"/>
             </div>
             <div class="align-middle" attr="users-firstname"></div>
@@ -232,7 +230,7 @@
 
                     const $userName = $userRow.find('[attr=users-username]');
                     if (user.online) {
-                        $userName.parent().css({"padding-right": "12px"});
+                        $userName.wrap($j('<span class="username-col" style="padding-right: 6px"/>'));
                         $userName.after($j("<span class='online' title='Online'/>"));
                     }
                     $userName.click(() => {

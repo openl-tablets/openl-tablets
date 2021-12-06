@@ -1,6 +1,7 @@
 package org.openl.security.saml;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.UserExternalFlags;
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSString;
@@ -21,7 +23,6 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
-import org.springframework.util.CollectionUtils;
 
 /**
  * Creates Saml2Authentication and SimpleUser based on the ResponseToken from the IDP.
@@ -46,7 +47,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
      */
     @Override
     public Saml2Authentication convert(OpenSamlAuthenticationProvider.ResponseToken responseToken) {
-        Assertion assertion = CollectionUtils.firstElement(responseToken.getResponse().getAssertions());
+        Assertion assertion = responseToken.getResponse().getAssertions().iterator().next();
         String username = assertion.getSubject().getNameID().getValue();
         SimpleUserSamlBuilder simpleUserBuilder = new SimpleUserSamlBuilder(propertyResolver);
         simpleUserBuilder.setAssertionAttributes(assertion);
@@ -54,8 +55,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
         simpleUser.setUsername(username);
         simpleUser = authoritiesMapper.apply(simpleUser);
 
-        List<Privilege> privileges = new ArrayList<>();
-        privileges.addAll(simpleUser.getAuthorities());
+        List<Privilege> privileges = new ArrayList<>(simpleUser.getAuthorities());
         DefaultSaml2AuthenticatedPrincipal defaultSaml2AuthenticatedPrincipal = new DefaultSaml2AuthenticatedPrincipal(username, new HashMap<>());
         defaultSaml2AuthenticatedPrincipal.setRelyingPartyRegistrationId(responseToken.getToken().getRelyingPartyRegistration().getRegistrationId());
         return new Saml2Authentication(defaultSaml2AuthenticatedPrincipal,
@@ -67,7 +67,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
      *
      * @author Eugene Biruk
      */
-    private class SimpleUserSamlBuilder {
+    private static class SimpleUserSamlBuilder {
 
         private final String usernameAttribute;
         private final String firstNameAttribute;
@@ -113,11 +113,12 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
         public SimpleUser build() {
             final List<Privilege> grantedAuthorities = new ArrayList<>();
             if (StringUtils.isNotBlank(groupsAttribute)) {
-                String[] names = getAttributeAsStringArray(groupsAttribute);
-                if (names != null) {
-                    for (final String name : names) {
-                        grantedAuthorities.add(new SimplePrivilege(name, name));
+                for (String name : getAttributeValues(groupsAttribute)) {
+                    if (name.charAt(0) == '/') {
+                        // SAML Groups started with '/' char
+                        name = name.substring(1);
                     }
+                    grantedAuthorities.add(new SimplePrivilege(name, name));
                 }
             }
 
@@ -145,15 +146,11 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
 
         private String getAttributeAsString(String key) {
             List<String> values = fields.get(key);
-            return CollectionUtils.firstElement(values);
+            return CollectionUtils.isNotEmpty(values) ? values.iterator().next() : null;
         }
 
-        private String[] getAttributeAsStringArray(String key) {
-            List<String> values = fields.get(key);
-            if (!CollectionUtils.isEmpty(values)) {
-                return values.toArray(new String[0]);
-            }
-            return null;
+        private List<String> getAttributeValues(String key) {
+            return Collections.unmodifiableList(fields.getOrDefault(key, Collections.emptyList()));
         }
 
         //The resulting fields are used to create a SimpleUser, only strings are expected.

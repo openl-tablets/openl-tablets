@@ -303,9 +303,9 @@
                           $input.after($list);
 
                           $list.css({
-                              "top": $input.outerHeight() + $input.position().top + 4,
-                              "left": $input.position().left - 1,
-                              "width": $input.outerWidth()
+                              "top": $input.outerHeight(true) + $input.position().top,
+                              "left": $input.position().left,
+                              "width": $input.outerWidth() - 2
                           });
 
                           $list.hover(() => {

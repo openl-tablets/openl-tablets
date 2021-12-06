@@ -121,6 +121,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         printSession(session);
 
         SpringInitializer.removeSessionCache(session, oldSessionId);
+        SpringInitializer.addSessionCache(session);
         publishSessionEvent(session, new HttpSessionIdChangedEvent(session, oldSessionId));
     }
 

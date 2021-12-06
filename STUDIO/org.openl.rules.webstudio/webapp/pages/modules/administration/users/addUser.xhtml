@@ -121,7 +121,7 @@
                         <tbody>
                         <tr>
                             <td id="user-groups">
-                                <span class="width-33pct">
+                                <span class="width-33pct" style="{userGroupStyle}">
                                     <label class="cursor-pointer display-flex-center">
                                         <input value="{userGroupValue}" type="checkbox"  class="{userGroupClass}"/>
                                         {userGroupName}
@@ -217,8 +217,10 @@
             $j.map(data, function (val, i) {
                 $j("#user-groups-row").show();
                 const isDefaultGroup = groupsConfig.defaultGroup === i;
+                const isAdminGroup = val.privileges && val.privileges.includes("ADMIN");
                 groups += htmlTemplate.replace(/{userGroupValue}/g, i).replace(/{userGroupName}/g, i)
-                    .replace(/{userGroupClass}/g, isDefaultGroup ? ' disable check' : '');
+                    .replace(/{userGroupClass}/g, isDefaultGroup ? ' disable check' : '')
+                    .replace(/{userGroupStyle}/g, isAdminGroup ? "color: red;" : "");
             });
             $j("#user-groups").html(htmlTemplate + groups);
 
