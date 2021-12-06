@@ -1,9 +1,11 @@
 package org.openl.rules.calc;
 
 import org.openl.binding.impl.method.AOpenMethodDelegator;
+import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DynamicArrayAggregateInfo;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.vm.IRuntimeEnv;
@@ -34,6 +36,11 @@ public class AnySpreadsheetResultOpenClass extends JavaOpenClass {
             field = new SpreadsheetResultField(this, fieldName, JavaOpenClass.OBJECT);
         }
         return field;
+    }
+
+    @Override
+    public IAggregateInfo getAggregateInfo() {
+        return DynamicArrayAggregateInfo.aggregateInfo;
     }
 
     @Override

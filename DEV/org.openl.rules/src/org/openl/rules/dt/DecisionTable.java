@@ -114,6 +114,9 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     @Override
     public IOpenClass getType() {
         if (isTypeCustomSpreadsheetResult()) {
+            if (customSpreadsheetResultType == null) {
+                return super.getType();
+            }
             if (dim > 0) {
                 return customSpreadsheetResultType.getArrayType(dim);
             }
