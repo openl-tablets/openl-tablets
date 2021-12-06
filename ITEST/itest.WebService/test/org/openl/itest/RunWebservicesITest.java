@@ -537,7 +537,6 @@ public class RunWebservicesITest {
         client.send("EPBDS-12225/mainSpr.json.get");
     }
 
-
     @Test
     public void EPBDS_12125() {
         client.send("EPBDS-12114/swagger.json.get");
@@ -547,6 +546,11 @@ public class RunWebservicesITest {
     public void EPBDS_12267() {
         client.send("EPBDS-12267/myRules.json.post");
         client.send("EPBDS-12267/mySr2.json.post");
+    }
+
+    @Test
+    public void EPBDS_12266() {
+        client.send("EPBDS-12266/myRules.json.post");
     }
 
     @Test

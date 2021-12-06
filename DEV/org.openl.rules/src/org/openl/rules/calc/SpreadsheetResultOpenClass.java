@@ -164,11 +164,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
 
     @Override
     public IAggregateInfo getAggregateInfo() {
-        if (module == null) {
-            return super.getAggregateInfo();
-        } else {
-            return DynamicArrayAggregateInfo.aggregateInfo;
-        }
+        return DynamicArrayAggregateInfo.aggregateInfo;
     }
 
     @Override

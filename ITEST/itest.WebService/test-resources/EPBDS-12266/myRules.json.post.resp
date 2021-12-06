@@ -1,0 +1,18 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "results": [
+      [
+        4
+      ]
+    ],
+    "columnNames": [
+      "Result"
+    ],
+    "rowNames": [
+      "Step1-1"
+    ]
+  }
+]
