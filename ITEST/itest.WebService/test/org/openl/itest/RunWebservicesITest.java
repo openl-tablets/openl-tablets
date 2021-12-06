@@ -364,10 +364,7 @@ public class RunWebservicesITest {
 
     @Test
     public void EPBDS_7947_test_validation_onPaymentMatrix_shouldBeFailed() {
-        client.post("/REST/parent-datatype-validation/checkArrayValidationFromParent",
-            "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.req.json",
-            400,
-            "/EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed.resp.json");
+        client.send("EPBDS-7947/validation_onPaymentMatrix_shouldBeFailed");
     }
 
     @Test
