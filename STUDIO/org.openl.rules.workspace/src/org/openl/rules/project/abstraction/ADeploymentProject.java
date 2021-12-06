@@ -249,11 +249,12 @@ public class ADeploymentProject extends UserWorkspaceProject {
     private List<ProjectDescriptor> getDescriptors() {
         synchronized (this) {
             try {
-                FileItem folder = getRepository().read(getFolderPath());
+                FileData folder = getRepository().check(getFolderPath());
                 if (folder != null) {
                     //Determine whether the deployment project has been modified by other WebStudio instances or manually, if so, then refresh it.
-                    Date modifiedAt = folder.getData().getModifiedAt();
-                    if (!modifiedAt.equals(getFileData().getModifiedAt())) {
+                    //do not refresh the project if it is open
+                    Date modifiedAt = folder.getModifiedAt();
+                    if (!isOpened() && !modifiedAt.equals(getFileData().getModifiedAt())) {
                         super.refresh();
                         setHistoryVersion(null);
                         descriptors = null;
