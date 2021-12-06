@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
@@ -83,7 +84,7 @@ public class WebStudioValidationUtils {
                 log.warn("Cannot delete temp file {}.", tmpFile.getName());
             }
 
-        } catch (IOException ioe) {
+        } catch (IOException | InvalidPathException ioe) {
             WebStudioUtils.throwValidationError(String.format("%s for '%s'", ioe.getMessage(), file.getName()));
         }
     }
