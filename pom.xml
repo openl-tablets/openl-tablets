@@ -104,7 +104,7 @@
         <org.slf4j.version>1.7.32</org.slf4j.version>
         <org.apache.poi.version>5.1.0</org.apache.poi.version>
         <org.bouncycastle.version>1.70</org.bouncycastle.version>
-        <com.fasterxml.jackson.version>2.11.4</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.13.0</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.44.v20210927</jetty.server.version>
