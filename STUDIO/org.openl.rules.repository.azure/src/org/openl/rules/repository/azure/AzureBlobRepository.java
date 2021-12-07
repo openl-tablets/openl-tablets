@@ -26,6 +26,16 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
 
+/**
+ * Azure Blob Storage repository.<br/>
+ * Emulates storing projects as folders. Projects are versioned.<br/>
+ * Each project version description is called Azure Commit and contains an author,
+ * commit message and file names with their versions for that particular commit.<br/>
+ * Also, it is possible to read and save only modified files when opening old project version or saving a project
+ * in WebStudio (see supports().uniqueFileId() feature).
+ * 
+ * @author Nail Samatov
+ */
 public class AzureBlobRepository implements FolderRepository {
     private static final String UNSUPPORTED_IN_FOLDER_REPOSITORY = "Unsupported in folder repository";
     private static final String VERSION_FILE = "versions.yaml";

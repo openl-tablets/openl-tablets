@@ -6,6 +6,11 @@ import java.util.Iterator;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.util.IOUtils;
 
+/**
+ * Used to combine several FileItem iterables into one. For example if we have several iterables from different folders,
+ * and we want save them in one transaction, we can combine them with this class and pass the result into the method
+ * save(fileData, iterable, changesetType).
+ */
 public class CombinedFileChanges implements Iterable<FileItem> {
     private final Collection<Iterable<FileItem>> multipleIterables;
 
