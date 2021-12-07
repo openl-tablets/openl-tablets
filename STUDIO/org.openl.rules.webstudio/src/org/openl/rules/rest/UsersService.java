@@ -322,10 +322,10 @@ public class UsersService {
         List<Group> extGroups;
         if (matched == null) {
             extGroups = extGroupService.findAllForUser(username);
-        } else if (Boolean.FALSE.equals(matched)) {
-            extGroups = extGroupService.findNotMatchedForUser(username);
-        } else {
+        } else if (matched) {
             extGroups = extGroupService.findMatchedForUser(username);
+        } else {
+            extGroups = extGroupService.findNotMatchedForUser(username);
         }
         return extGroups.stream().map(Group::getName).collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
     }

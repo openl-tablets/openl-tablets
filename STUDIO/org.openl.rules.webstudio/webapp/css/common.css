@@ -1719,6 +1719,7 @@ option[value=""]:disabled + option[value=""]:disabled {
 
 .autocomplete-items {
     position: absolute;
+    background-color: #fff;
     border: 1px solid #d4d4d4;
     border-bottom: none;
     border-top: none;
@@ -1727,9 +1728,8 @@ option[value=""]:disabled + option[value=""]:disabled {
 .autocomplete-items div {
     padding: 5px;
     cursor: pointer;
-    background-color: #fff;
     border-bottom: 1px solid #d4d4d4;
 }
 .autocomplete-active {
-    background-color: #FAE5C1 !important;
+    background-color: #FAE5C1;
 }

@@ -201,8 +201,8 @@
                         search: request.term
                     },
                     datatype: "json",
-                    beforeSend : function()    {
-                        if(autocompleteXhr != null) {
+                    beforeSend: function () {
+                        if (autocompleteXhr != null) {
                             autocompleteXhr.abort();
                         }
                     }
@@ -223,10 +223,9 @@
             url: "#{contextPath}/web/admin/management/privileges",
             async: false,
             datatype: "json"
-        })
-            .done(function (data) {
-                privileges = data;
-            });
+        }).done(function (data) {
+            privileges = data;
+        });
 
         (function () {
 
@@ -292,7 +291,7 @@
                 var group = groups[child];
                 group.cycledGroups = group.cycledGroups || [];
                 var cycledGroups = group.cycledGroups;
-                if($j.inArray(name, cycledGroups)=== -1){
+                if ($j.inArray(name, cycledGroups) === -1) {
                     cycledGroups.push(name);
                 }
                 group.roles && group.roles.forEach(function (role) {
