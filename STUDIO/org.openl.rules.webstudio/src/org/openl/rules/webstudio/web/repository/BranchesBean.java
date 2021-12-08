@@ -113,7 +113,7 @@ public class BranchesBean {
 
     private void merge(String branchToMergeFrom, String branchToMergeTo) {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.getModel().clearModuleInfo();
+        studio.getModel().getWebStudioWorkspaceDependencyManager().pause();
         String nameBeforeMerge = null;
         try {
             if (branchToMergeFrom == null || branchToMergeTo == null) {
@@ -143,7 +143,6 @@ public class BranchesBean {
                 studio.freezeProject(nameBeforeMerge);
                 ((BranchRepository) designRepository).forBranch(branchToMergeTo)
                     .merge(branchToMergeFrom, getUserWorkspace().getUser().getUserInfo(), null);
-
                 if (opened) {
                     if (project.isDeleted()) {
                         project.close();
@@ -165,11 +164,13 @@ public class BranchesBean {
                 getUserWorkspace().refresh();
                 WebStudioUtils.getWebStudio().reset();
                 setWasMerged(true);
+                studio.getModel().clearModuleInfo();
                 if (!nameAfterMerge.equals(nameBeforeMerge)) {
                     WebStudioUtils.getWebStudio().init(repoId, currentBranch, nameAfterMerge, null);
                 }
             }
         } catch (MergeConflictException e) {
+            studio.getModel().getWebStudioWorkspaceDependencyManager().resume();
             MergeConflictInfo info = new MergeConflictInfo(e,
                 getProject(currentProjectName),
                 branchToMergeFrom,
@@ -178,6 +179,7 @@ public class BranchesBean {
             ConflictUtils.saveMergeConflict(info);
             LOG.debug("Failed to save the project because of merge conflict.", e);
         } catch (Exception e) {
+            studio.getModel().getWebStudioWorkspaceDependencyManager().resume();
             String msg = e.getMessage();
             if (StringUtils.isBlank(msg)) {
                 msg = "Error during merge operation.";

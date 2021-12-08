@@ -337,6 +337,7 @@ public class MergeConflictBean {
         RulesProject project = mergeConflict.getProject();
         boolean mergeOperation = mergeConflict.isMerging();
         String repositoryId = mergeConflict.getRepositoryId();
+        studio.getModel().getWebStudioWorkspaceDependencyManager().pause();
         try {
             if (!mergeOperation) {
                 studio.freezeProject(project.getName());
@@ -413,7 +414,9 @@ public class MergeConflictBean {
             userWorkspace.refresh();
             studio.reset();
             clearMergeStatus();
+            studio.getModel().clearModuleInfo();
         } catch (Exception e) {
+            studio.getModel().getWebStudioWorkspaceDependencyManager().resume();
             String message = "Failed to resolve conflict. See logs for details.";
             log.error(message, e);
             mergeError = message;
