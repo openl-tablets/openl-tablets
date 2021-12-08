@@ -15,10 +15,12 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
 import com.azure.storage.blob.models.*;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
+import com.azure.storage.common.StorageSharedKeyCredential;
 import com.azure.storage.common.implementation.Constants;
 import org.apache.commons.collections4.map.PassiveExpiringMap;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.TypeDescription;
@@ -51,6 +53,8 @@ public class AzureBlobRepository implements FolderRepository {
     private ChangesMonitor monitor;
     private int listenerTimerPeriod = 10;
     private String uri;
+    private String accountName;
+    private String accountKey;
 
     private BlobContainerClient blobContainerClient;
     private PassiveExpiringMap<CacheKey, AzureCommit> commitsCache;
@@ -75,10 +79,21 @@ public class AzureBlobRepository implements FolderRepository {
         this.uri = uri;
     }
 
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
+
+    public void setAccountKey(String accountKey) {
+        this.accountKey = accountKey;
+    }
+
     public void initialize() {
-        blobContainerClient = new BlobContainerClientBuilder()
-                .endpoint(uri)
-                .buildClient();
+        final BlobContainerClientBuilder builder = new BlobContainerClientBuilder().endpoint(uri);
+        if (StringUtils.isNotEmpty(accountName)) {
+            builder.credential(new StorageSharedKeyCredential(accountName, accountKey));
+        }
+
+        blobContainerClient = builder.buildClient();
 
         commitsCache = new PassiveExpiringMap<>(10, TimeUnit.SECONDS);
 
@@ -494,7 +509,7 @@ public class AzureBlobRepository implements FolderRepository {
         try {
             ListBlobsOptions options = new ListBlobsOptions();
             options.setPrefix(VERSIONS_PREFIX);
-            blobContainerClient.listBlobs(options, null);
+            blobContainerClient.listBlobs(options, null).iterator();
         } catch (Exception e) {
             throw new IOException(e);
         }
