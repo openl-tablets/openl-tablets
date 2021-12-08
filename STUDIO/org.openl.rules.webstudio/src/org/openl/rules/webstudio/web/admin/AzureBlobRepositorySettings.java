@@ -6,14 +6,20 @@ import org.openl.config.PropertiesHolder;
 
 public class AzureBlobRepositorySettings extends RepositorySettings {
     private String uri;
+    private String accountName;
+    private String accountKey;
     private int listenerTimerPeriod;
 
     private final String uriProperty;
+    private final String accountNameProperty;
+    private final String accountKeyProperty;
     private final String listenerTimerPeriodProperty;
 
     AzureBlobRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
         uriProperty = configPrefix + ".uri";
+        accountNameProperty = configPrefix + ".account-name";
+        accountKeyProperty = configPrefix + ".account-key";
         listenerTimerPeriodProperty = configPrefix + ".listener-timer-period";
 
         load(properties);
@@ -21,6 +27,8 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
 
     private void load(PropertiesHolder properties) {
         uri = properties.getProperty(uriProperty);
+        accountName = properties.getProperty(accountNameProperty);
+        accountKey = properties.getProperty(accountKeyProperty);
         listenerTimerPeriod = Integer.parseInt(
                 Optional.ofNullable(properties.getProperty(listenerTimerPeriodProperty))
                         .orElse(properties.getProperty("repo-azure-blob.listener-timer-period"))
@@ -33,6 +41,22 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public String getAccountName() {
+        return accountName;
+    }
+
+    public void setAccountName(String accountName) {
+        this.accountName = accountName;
+    }
+
+    public String getAccountKey() {
+        return accountKey;
+    }
+
+    public void setAccountKey(String accountKey) {
+        this.accountKey = accountKey;
     }
 
     public int getListenerTimerPeriod() {
@@ -48,6 +72,8 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
         super.store(propertiesHolder);
 
         propertiesHolder.setProperty(uriProperty, uri);
+        propertiesHolder.setProperty(accountNameProperty, accountName);
+        propertiesHolder.setProperty(accountKeyProperty, accountKey);
         propertiesHolder.setProperty(listenerTimerPeriodProperty, listenerTimerPeriod);
     }
 
@@ -55,7 +81,7 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
     protected void revert(PropertiesHolder properties) {
         super.revert(properties);
 
-        properties.revertProperties(uriProperty, listenerTimerPeriodProperty);
+        properties.revertProperties(uriProperty, accountNameProperty, accountKeyProperty, listenerTimerPeriodProperty);
         load(properties);
     }
 
