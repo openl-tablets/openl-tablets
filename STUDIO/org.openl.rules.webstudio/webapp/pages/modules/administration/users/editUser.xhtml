@@ -191,6 +191,24 @@
             $j("#edit-user-display-name-select-box").toggle(!editUserIsDisplayNameExternal);
             $j("#edit-user-display-name-span").toggle(editUserIsDisplayNameExternal);
 
+            const userAllExternalGroups = (() => {
+                let fetchedData = null;
+                $j.ajax({
+                    type: "GET",
+                    url: '#{contextPath}/web/users/' + userModel.username + '/groups/external',
+                    data: {
+                        matched: true
+                    },
+                    async: false,
+                    datatype: "json"
+                }).done(function (data) {
+                    fetchedData = data
+                }).fail(function (data) {
+                    handleError(data.status);
+                });
+                return fetchedData || [];
+            })();
+
             $j.ajax({
                 type: "GET",
                 url: "#{contextPath}/web/admin/management/groups",
@@ -201,19 +219,16 @@
                 const htmlTemplate = $j('<div/>').append(rowTemplate.clone()).html();
                 let groups = "";
                 let userGroups = [];
-                let externalGroups = []
                 if (userModel.userGroups) {
                     userModel.userGroups.forEach(group => {
-                       if (group.type === 'EXTERNAL') {
-                           externalGroups.push(group.name)
-                       } else {
+                       if (group.type === 'DEFAULT' || group.type === 'ADMIN') {
                            userGroups.push(group.name);
                        }
                     });
                 }
                 $j.map(data, function (val, i) {
                     const isAdminGroup = val.privileges && val.privileges.includes("ADMIN");
-                    const isExternalGroup = externalGroups.includes(i);
+                    const isExternalGroup = userAllExternalGroups.includes(i);
                     const isDefaultGroup = groupsConfig.defaultGroup === i;
                     $j("#edit-user-groups-row").show();
                     let groupClass = "";
