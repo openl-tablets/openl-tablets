@@ -157,7 +157,7 @@ public class ProjectBean {
                 ProjectDependencyDescriptor dependency = new ProjectDependencyDescriptor();
                 ProjectDependencyDescriptor projectDependency = studio.getProjectDependency(name);
                 dependency.setName(name);
-                dependency.setAutoIncluded(projectDependency == null || projectDependency.isAutoIncluded());
+                dependency.setAutoIncluded(projectDependency != null && projectDependency.isAutoIncluded());
                 dependencies.add(new ListItem<>(projectDependency != null, dependency));
             }
         }
