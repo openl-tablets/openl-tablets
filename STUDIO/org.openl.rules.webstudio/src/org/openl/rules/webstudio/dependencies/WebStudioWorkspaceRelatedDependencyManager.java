@@ -47,6 +47,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private final AtomicLong highThreadPriorityFlag = new AtomicLong(0);
     private final ThreadLocal<ThreadPriority> threadPriority = new ThreadLocal<>();
     private volatile boolean active = true;
+    private volatile boolean paused = false;
     private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onCompilationCompleteListeners = new CopyOnWriteArrayList<>();
     private final List<BiConsumer<IDependencyLoader, CompiledDependency>> onResetCompleteListeners = new CopyOnWriteArrayList<>();
     private final boolean canUnload;
@@ -96,7 +97,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                             dependency.getNode().getIdentifier(),
                             priority == null ? ThreadPriority.HIGH : priority);
                         if (active) {
-                            return super.loadDependency(dependency);
+                            return loadDependencySync(dependency);
                         } else {
                             return new CompiledDependency(dependency,
                                 new CompiledOpenClass(NullOpenClass.the,
@@ -111,7 +112,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                         log.debug("Dependency '{}' is requested with '{}' priority.",
                             dependency.getNode().getIdentifier(),
                             priority == null ? ThreadPriority.HIGH : priority);
-                        return super.loadDependency(dependency);
+                        return loadDependencySync(dependency);
                     } else {
                         return new CompiledDependency(dependency,
                             new CompiledOpenClass(NullOpenClass.the,
@@ -131,6 +132,29 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                 }
             }
         }
+    }
+
+    private synchronized CompiledDependency loadDependencySync(ResolvedDependency dependency) throws OpenLCompilationException {
+        while (paused) {
+            try {
+                this.wait(50);
+            } catch (InterruptedException e) {
+                throw new OpenLCompilationException("Compilation is interrupted", e);
+            }
+        }
+        return super.loadDependency(dependency);
+    }
+
+    public void pause() {
+        paused = true;
+        //Method should return only after all synchronized blocks have been executed
+        synchronized (this){
+            return;
+        }
+    }
+
+    public void resume() {
+        paused = false;
     }
 
     public ThreadLocal<Long> getThreadVersion() {
@@ -216,6 +240,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     public void shutdown() {
+        resume();
         synchronized (listenersMutex) {
             onCompilationCompleteListeners.clear();
             onResetCompleteListeners.clear();

@@ -544,6 +544,9 @@ public class ProjectModel {
             compilationStatus.setModulesCompiled(1);
             compilationStatus.addModulesCount(1);
         } else {
+            if (webStudioWorkspaceDependencyManager == null) {
+                return compilationStatus.build();
+            }
             Collection<IDependencyLoader> dependencyLoaders = webStudioWorkspaceDependencyManager
                 .findAllProjectDependencyLoaders(moduleInfo.getProject());
             if (isProjectCompilationCompleted()) {
