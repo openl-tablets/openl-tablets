@@ -253,10 +253,12 @@
                             fields.getModelsInputs().hide();
                             fields.getImportButton().hide();
                             fields.getReconciliationButton().show();
+                            validatePath();
                         } else if (openApiMode === "generation") {
                             fields.getModelsInputs().show();
                             fields.getImportButton().show();
                             fields.getReconciliationButton().hide();
+                            validatePathAndModulesNames();
                         }
                     }
                     resizePopupPanel("importOpenAPIPopup");
