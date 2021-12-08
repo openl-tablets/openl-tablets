@@ -1220,14 +1220,16 @@
                   datatype: "json"
               })
               .done(function (data) {
-                  if (data.warnings.length > 0 || data.errors.length > 0 || #{tableBean.tablePart and studio.model.editable}) {
+                  const warnings = data.warnings || [];
+                  const errors = data.errors || [];
+                  if (warnings.length > 0 || errors.length > 0 || #{tableBean.tablePart and studio.model.editable}) {
                       $jq(".table-problems").show()
                   }
                   if (data.tableRunState === 'CANNOT_RUN') {
                       $j(".on-errors-hide").hide();
                   }
-                  applyTargetTables(data.targetTables);
-                  applyProblems(data.errors, data.warnings, data.tableUrl);
+                  applyTargetTables(data.targetTables || []);
+                  applyProblems(errors, warnings, data.tableUrl);
                   applyRunOpenedModuleCheckboxes(data.tableRunState);
                   adjustJSFElements();
               });

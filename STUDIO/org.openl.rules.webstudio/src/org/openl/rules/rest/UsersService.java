@@ -8,7 +8,6 @@ import static org.openl.rules.ui.WebStudio.TEST_RESULT_COMPLEX_SHOW;
 import static org.openl.rules.ui.WebStudio.TEST_TESTS_PERPAGE;
 import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -43,15 +42,14 @@ import org.openl.rules.rest.model.UserProfileModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privileges;
+import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.security.UserExternalFlags;
-import org.openl.rules.security.UserExternalFlags.Feature;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.ExternalGroupService;
-import org.openl.rules.webstudio.service.PrivilegesEvaluator;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -275,9 +273,9 @@ public class UsersService {
             } else if (authentication.getDetails() instanceof User) {
                 return (User) authentication.getDetails();
             } else {
-                return userManagementService.getApplicationUser(username);
+                return userManagementService.getUser(username);
             }
-        }).orElse(new SimpleUser(username, Collections.emptyList()));
+        }).orElse(SimpleUser.builder().setUsername(username).build());
 
         return new UserProfileModel().setFirstName(user.getFirstName())
             .setLastName(user.getLastName())
@@ -330,42 +328,37 @@ public class UsersService {
         return extGroups.stream().map(Group::getName).collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
     }
 
-    private UserModel mapUser(org.openl.rules.security.standalone.persistence.User user) {
-        List<Group> extGroups = extGroupService.findMatchedForUser(user.getLoginName());
+    private UserModel mapUser(User user) {
+        List<Group> extGroups = extGroupService.findMatchedForUser(user.getUsername());
         Stream<GroupModel> matchedExtGroupsStream = extGroups.stream()
             .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
                 .setType(
                     simpleGroup.getPrivileges().contains(Privileges.ADMIN) ? GroupType.ADMIN : GroupType.EXTERNAL));
-        Stream<GroupModel> internalGroupStream = user.getGroups()
+        Stream<GroupModel> internalGroupStream = user.getAuthorities()
             .stream()
+            .map(SimpleGroup.class::cast)
             // resolve collisions when the same group external and internal
             .filter(g -> extGroups.stream().noneMatch(ext -> Objects.equals(ext.getName(), g.getName())))
-            .map(PrivilegesEvaluator::wrap)
             .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
                 .setType(simpleGroup.getPrivileges().contains(Privileges.ADMIN) ? GroupType.ADMIN : GroupType.DEFAULT));
 
-        long cntNotMatchedExtGroups = extGroupService.countNotMatchedForUser(user.getLoginName());
+        long cntNotMatchedExtGroups = extGroupService.countNotMatchedForUser(user.getUsername());
         return new UserModel().setFirstName(user.getFirstName())
-            .setLastName(user.getSurname())
+            .setLastName(user.getLastName())
             .setEmail(user.getEmail())
-            .setInternalUser(StringUtils.isNotBlank(user.getPasswordHash()))
+            .setInternalUser(StringUtils.isNotBlank(user.getPassword()))
             .setUserGroups(Stream.concat(matchedExtGroupsStream, internalGroupStream)
                 .collect(StreamUtils.toTreeSet(Comparator.comparing(GroupModel::getType)
                     .thenComparing(GroupModel::getName, String.CASE_INSENSITIVE_ORDER))))
-            .setUsername(user.getLoginName())
-            .setCurrentUser(currentUserInfo.getUserName().equals(user.getLoginName()))
-            .setSuperUser(adminUsersInitializer.isSuperuser(user.getLoginName()))
+            .setUsername(user.getUsername())
+            .setCurrentUser(currentUserInfo.getUserName().equals(user.getUsername()))
+            .setSuperUser(adminUsersInitializer.isSuperuser(user.getUsername()))
             .setUnsafePassword(
-                user.getPasswordHash() != null && passwordEncoder.matches(user.getLoginName(), user.getPasswordHash()))
+                user.getPassword() != null && passwordEncoder.matches(user.getUsername(), user.getPassword()))
             .setNotMatchedExternalGroupsCount(cntNotMatchedExtGroups)
             .setDisplayName(user.getDisplayName())
-            .setOnline(userManagementService.isUserOnline(user.getLoginName()))
-            .setExternalFlags(UserExternalFlags.builder()
-                .applyFeature(Feature.EXTERNAL_FIRST_NAME, user.isFirstNameExternal())
-                .applyFeature(Feature.EXTERNAL_LAST_NAME, user.isLastNameExternal())
-                .applyFeature(Feature.EXTERNAL_EMAIL, user.isEmailExternal())
-                .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, user.isDisplayNameExternal())
-                .build());
+            .setOnline(userManagementService.isUserOnline(user.getUsername()))
+            .setExternalFlags(user.getExternalFlags());
     }
 
     private void checkUserExists(String username) {

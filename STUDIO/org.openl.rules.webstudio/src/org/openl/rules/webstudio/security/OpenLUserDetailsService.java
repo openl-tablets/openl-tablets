@@ -64,14 +64,16 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
             mapAuthorities(user.getAuthorities(), privileges);
         }
 
-        SimpleUser simpleUser = new SimpleUser(user.getFirstName(),
-            user.getLastName(),
-            user.getUsername(),
-            user.getPassword(),
-            privileges,
-            user.getEmail(),
-            user.getDisplayName(),
-            user.getExternalFlags());
+        SimpleUser simpleUser = SimpleUser.builder()
+            .setFirstName(user.getFirstName())
+            .setLastName(user.getLastName())
+            .setUsername(user.getUsername())
+            .setPasswordHash(user.getPassword())
+            .setPrivileges(privileges)
+            .setEmail(user.getEmail())
+            .setDisplayName(user.getDisplayName())
+            .setExternalFlags(user.getExternalFlags())
+            .build();
 
         syncUserWithDB(simpleUser, user.getAuthorities());
 
@@ -80,7 +82,7 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
 
     private User syncUserWithDB(SimpleUser simpleUser, Collection<Privilege> externalGroups) {
         adminUsersInitializer.initIfSuperuser(simpleUser.getUsername());
-        User userDetails = userManagementService.getApplicationUser(simpleUser.getUsername());
+        User userDetails = userManagementService.getUser(simpleUser.getUsername());
         if (userDetails == null) {
             // Create a new user
             userManagementService.addUser(simpleUser.getUsername(),

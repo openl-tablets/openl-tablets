@@ -69,7 +69,7 @@ public class ZipProjectSaveStrategy {
     public FileData save(CreateUpdateProjectModel model, Path zipArchive) throws IOException {
         Repository repository = designTimeRepository.getRepository(model.getRepoName());
         UserInfo author = Optional.ofNullable(userManagementService.getUser(model.getAuthor()))
-            .map(user -> new UserInfo(user.getLoginName(), user.getEmail(), user.getDisplayName()))
+            .map(user -> new UserInfo(user.getUsername(), user.getEmail(), user.getDisplayName()))
             .orElse(new UserInfo(model.getAuthor()));
         FileData projectData = new FileData();
         projectData.setName(designTimeRepository.getRulesLocation() + model.getProjectName());

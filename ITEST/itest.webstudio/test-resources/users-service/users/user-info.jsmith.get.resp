@@ -7,9 +7,20 @@ Content-Type: application/json
   "firstName": "John",
   "lastName": "Smith",
   "username": "jsmith",
-  "externalFlags": {},
+  "externalFlags": {
+    "emailVerified": true,
+    "syncExternalGroups": false,
+    "lastNameExternal": false,
+    "emailExternal": false,
+    "firstNameExternal": false,
+    "displayNameExternal": false
+  },
   "internalUser": true,
   "notMatchedExternalGroupsCount": 3,
+  "online": false,
+  "currentUser": false,
+  "superUser": false,
+  "unsafePassword": false,
   "userGroups": [
     {
       "name": "Administrators",

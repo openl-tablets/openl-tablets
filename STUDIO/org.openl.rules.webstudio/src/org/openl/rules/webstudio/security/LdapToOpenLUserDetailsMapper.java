@@ -96,14 +96,16 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             }
         }
         String fixedUsername = fixCaseMatching(ctx, username);
-        SimpleUser simpleUser = new SimpleUser(firstName,
-            lastName,
-            fixedUsername,
-            null,
-            privileges,
-            email,
-            displayName,
-            externalFlags);
+
+        SimpleUser simpleUser = SimpleUser.builder()
+            .setFirstName(firstName)
+            .setLastName(lastName)
+            .setUsername(fixedUsername)
+            .setPrivileges(privileges)
+            .setEmail(email)
+            .setDisplayName(displayName)
+            .setExternalFlags(externalFlags)
+            .build();
         return authoritiesMapper.apply(simpleUser);
     }
 

@@ -15,7 +15,7 @@ public class ObjectMapperFactoryBean implements FactoryBean<ObjectMapper> {
     public ObjectMapper getObject() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule())
-            .setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
+            .setSerializationInclusion(JsonInclude.Include.NON_EMPTY)
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
     }

@@ -34,6 +34,10 @@ public class UserExternalFlags {
         return checkFeature(Feature.SYNC_EXTERNAL_GROUPS);
     }
 
+    public boolean isEmailVerified() {
+        return checkFeature(Feature.EMAIL_VERIFIED);
+    }
+
     boolean checkFeature(Feature f) {
         return f.enabled(features);
     }
@@ -48,21 +52,40 @@ public class UserExternalFlags {
     }
 
     /**
+     * Initialize feature builder using custom feature flags
+     * @param features feature flags
+     * @return builder object
+     */
+    public static Builder builder(int features) {
+        return new Builder(features);
+    }
+
+    public static Builder builder(UserExternalFlags externalFlags) {
+        return new Builder(externalFlags.features);
+    }
+
+    /**
      * Represent amount of supported features
      */
     public enum Feature {
-        EXTERNAL_FIRST_NAME(false),
-        EXTERNAL_LAST_NAME(false),
-        EXTERNAL_EMAIL(false),
-        EXTERNAL_DISPLAY_NAME(false),
-        SYNC_EXTERNAL_GROUPS(false);
+        EXTERNAL_FIRST_NAME(false, 0),
+        EXTERNAL_LAST_NAME(false, 1),
+        EXTERNAL_EMAIL(false, 2),
+        EXTERNAL_DISPLAY_NAME(false, 3),
+        EMAIL_VERIFIED(false, 4),
+        SYNC_EXTERNAL_GROUPS(false, 5);
 
         private final int mask;
         private final boolean defaultState;
 
-        Feature(boolean defaultState) {
+        /**
+         *
+         * @param defaultState default feature state
+         * @param pos 0 <= bit number < 32.
+         */
+        Feature(boolean defaultState, int pos) {
             this.defaultState = defaultState;
-            this.mask = (1 << ordinal());
+            this.mask = (1 << pos);
         }
 
         /**
@@ -109,6 +132,10 @@ public class UserExternalFlags {
             }
         }
 
+        private Builder(int features) {
+            this.features = features;
+        }
+
         /**
          * Apply feature state
          *
@@ -144,6 +171,10 @@ public class UserExternalFlags {
         public Builder withoutFeature(Feature f) {
             features &= ~f.getMask();
             return this;
+        }
+
+        public int getRawFeatures() {
+            return features;
         }
 
         /**

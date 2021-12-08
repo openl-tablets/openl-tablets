@@ -56,7 +56,7 @@ public class AdminUsers {
         if (!isSuperuser(username)) {
             return;
         }
-        SimpleUser user = (SimpleUser) userService.getApplicationUser(username);
+        SimpleUser user = (SimpleUser) userService.getUser(username);
         String adminGroup = assignPrivileges(username);
         if (user == null) {
             userService.addUser(username,

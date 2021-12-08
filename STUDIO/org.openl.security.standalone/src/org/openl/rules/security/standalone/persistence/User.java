@@ -11,6 +11,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.openl.rules.security.UserExternalFlags;
 
 /**
  * This class contains information about application user.
@@ -28,11 +31,7 @@ public class User implements Serializable {
     private String surname;
     private String email;
     private String displayName;
-    private boolean emailVerified;
-    private boolean firstNameExternal;
-    private boolean lastNameExternal;
-    private boolean emailExternal;
-    private boolean displayNameExternal;
+    private int flags;
 
     /**
      * First name.
@@ -95,49 +94,18 @@ public class User implements Serializable {
         this.displayName = displayName;
     }
 
-    @Column(name = "emailVerified", nullable = false)
-    public boolean isEmailVerified() {
-        return emailVerified;
+    @Column(name = "flags")
+    public int getFlags() {
+        return flags;
     }
 
-    public void setEmailVerified(boolean emailVerified) {
-        this.emailVerified = emailVerified;
+    public void setFlags(int flags) {
+        this.flags = flags;
     }
 
-    @Column(name = "firstNameExternal", nullable = false)
-    public boolean isFirstNameExternal() {
-        return firstNameExternal;
-    }
-
-    public void setFirstNameExternal(boolean firstNameExternal) {
-        this.firstNameExternal = firstNameExternal;
-    }
-
-    @Column(name = "lastNameExternal", nullable = false)
-    public boolean isLastNameExternal() {
-        return lastNameExternal;
-    }
-
-    public void setLastNameExternal(boolean lastNameExternal) {
-        this.lastNameExternal = lastNameExternal;
-    }
-
-    @Column(name = "emailExternal", nullable = false)
-    public boolean isEmailExternal() {
-        return emailExternal;
-    }
-
-    public void setEmailExternal(boolean emailExternal) {
-        this.emailExternal = emailExternal;
-    }
-
-    @Column(name = "displayNameExternal", nullable = false)
-    public boolean isDisplayNameExternal() {
-        return displayNameExternal;
-    }
-
-    public void setDisplayNameExternal(boolean displayNameExternal) {
-        this.displayNameExternal = displayNameExternal;
+    @Transient
+    public UserExternalFlags getUserExternalFlags() {
+        return UserExternalFlags.builder(flags).build();
     }
 
     public void setFirstName(String firstName) {

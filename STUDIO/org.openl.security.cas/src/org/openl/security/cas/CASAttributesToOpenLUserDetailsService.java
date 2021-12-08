@@ -95,14 +95,15 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
             .withFeature(Feature.SYNC_EXTERNAL_GROUPS)
             .build();
 
-        SimpleUser simpleUser = new SimpleUser(firstName,
-            lastName,
-            assertion.getPrincipal().getName(),
-            null,
-            grantedAuthorities,
-            email,
-            displayName,
-            externalFlags);
+        SimpleUser simpleUser = SimpleUser.builder()
+            .setFirstName(firstName)
+            .setLastName(lastName)
+            .setUsername(assertion.getPrincipal().getName())
+            .setPrivileges(grantedAuthorities)
+            .setEmail(email)
+            .setDisplayName(displayName)
+            .setExternalFlags(externalFlags)
+            .build();
 
         return authoritiesMapper.apply(simpleUser);
     }

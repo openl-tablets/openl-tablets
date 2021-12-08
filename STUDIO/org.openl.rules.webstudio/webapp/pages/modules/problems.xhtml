@@ -160,8 +160,8 @@
                         messageIndex = data.messageIndex;
                         messageId = data.messageId;
                     }
-
-                    if (data.messages.length !== 0) {
+                    let messages = data.messages || [];
+                    if (messages.length !== 0) {
                         const warningsPanel = $j("#warnings-panel");
                         const errorsPanel = $j("#errors-panel");
                         let warningsHtml = "";
@@ -173,7 +173,7 @@
                             errorsPanel.empty();
                         }
 
-                        data.messages.forEach(function (item) {
+                        messages.forEach(function (item) {
                             const newMessageHtml = htmlTemplate.replace(/{messageId}/g, item.id)
                                 .replace(/{messageSummary}/g, ws.utils.escapeHtml(item.summary));
                             if (item.severity === 'WARN') {

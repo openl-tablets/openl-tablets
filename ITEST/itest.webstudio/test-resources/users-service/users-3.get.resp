@@ -14,7 +14,16 @@ Content-Type: application/json
     "currentUser": true,
     "superUser": true,
     "unsafePassword": true,
-    "externalFlags": {}
+    "externalFlags": {
+      "emailVerified": true,
+      "syncExternalGroups": false,
+      "lastNameExternal": false,
+      "emailExternal": false,
+      "firstNameExternal": false,
+      "displayNameExternal": false
+    },
+    "notMatchedExternalGroupsCount": 0,
+    "online": false
   },
   {
     "displayName": "js",
@@ -29,6 +38,18 @@ Content-Type: application/json
     ],
     "username": "jsmith",
     "internalUser": true,
-    "externalFlags": {}
+    "externalFlags": {
+      "emailVerified": true,
+      "syncExternalGroups": false,
+      "lastNameExternal": false,
+      "emailExternal": false,
+      "firstNameExternal": false,
+      "displayNameExternal": false
+    },
+    "notMatchedExternalGroupsCount": 0,
+    "online": false,
+    "currentUser": false,
+    "superUser": false,
+    "unsafePassword": false
   }
 ]

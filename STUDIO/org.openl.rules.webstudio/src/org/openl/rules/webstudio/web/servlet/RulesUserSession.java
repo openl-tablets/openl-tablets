@@ -34,7 +34,7 @@ public class RulesUserSession {
     private WorkspaceUserImpl getWorkspaceUser() {
         return new WorkspaceUserImpl(getUserName(),
             (username) -> Optional.ofNullable(userManagementService.getUser(username))
-                .map(usr -> new UserInfo(usr.getLoginName(), usr.getEmail(), usr.getDisplayName()))
+                .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
                 .orElse(null));
     }
 

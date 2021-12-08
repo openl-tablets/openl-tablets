@@ -5,6 +5,8 @@ Content-Type: application/json
   {
     "id": 1,
     "name": "Domain",
+    "extensible": false,
+    "nullable": false,
     "tags": [
       {
         "id": 2,

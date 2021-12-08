@@ -4,6 +4,8 @@ Content-Type: application/json
 [
   {
     "id": 1,
-    "name": "Domain"
+    "name": "Domain",
+    "extensible": false,
+    "nullable": false
   }
 ]

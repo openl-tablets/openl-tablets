@@ -35,13 +35,14 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
     private final PropertyResolver propertyResolver;
 
     public OpenLResponseAuthenticationConverter(PropertyResolver propertyResolver,
-                                                Function<SimpleUser, SimpleUser> authoritiesMapper) {
+            Function<SimpleUser, SimpleUser> authoritiesMapper) {
         this.propertyResolver = propertyResolver;
         this.authoritiesMapper = authoritiesMapper;
     }
 
     /**
      * Creates Saml2Authentication and SimpleUser based on the ResponseToken from the IDP.
+     * 
      * @param responseToken ResponseToken from the IDP
      * @return Saml2Authentication
      */
@@ -134,14 +135,15 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
                 .withFeature(UserExternalFlags.Feature.SYNC_EXTERNAL_GROUPS)
                 .build();
 
-            return new SimpleUser(getAttributeAsString(firstNameAttribute),
-                getAttributeAsString(lastNameAttribute),
-                getAttributeAsString(usernameAttribute),
-                null,
-                grantedAuthorities,
-                getAttributeAsString(emailAttribute),
-                getAttributeAsString(displayNameAttribute),
-                externalFlags);
+            return SimpleUser.builder()
+                .setFirstName(getAttributeAsString(firstNameAttribute))
+                .setLastName(getAttributeAsString(lastNameAttribute))
+                .setUsername(getAttributeAsString(usernameAttribute))
+                .setPrivileges(grantedAuthorities)
+                .setEmail(getAttributeAsString(emailAttribute))
+                .setDisplayName(getAttributeAsString(displayNameAttribute))
+                .setExternalFlags(externalFlags)
+                .build();
         }
 
         private String getAttributeAsString(String key) {
@@ -153,7 +155,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
             return Collections.unmodifiableList(fields.getOrDefault(key, Collections.emptyList()));
         }
 
-        //The resulting fields are used to create a SimpleUser, only strings are expected.
+        // The resulting fields are used to create a SimpleUser, only strings are expected.
         private String getXmlObjectValue(XMLObject xmlObject) {
             if (xmlObject instanceof XSString) {
                 return ((XSString) xmlObject).getValue();

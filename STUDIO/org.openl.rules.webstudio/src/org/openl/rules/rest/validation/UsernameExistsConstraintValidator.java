@@ -17,6 +17,6 @@ public class UsernameExistsConstraintValidator implements ConstraintValidator<Us
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        return userManagementService.getApplicationUser(value) == null;
+        return !userManagementService.existsByName(value);
     }
 }
