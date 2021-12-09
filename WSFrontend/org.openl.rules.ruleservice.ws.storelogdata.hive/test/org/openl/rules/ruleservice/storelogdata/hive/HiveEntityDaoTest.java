@@ -1,6 +1,6 @@
 package org.openl.rules.ruleservice.storelogdata.hive;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
