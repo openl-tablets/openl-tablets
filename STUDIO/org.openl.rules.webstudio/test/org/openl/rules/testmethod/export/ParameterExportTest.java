@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +37,6 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.vm.IRuntimeEnv;
 
 public class ParameterExportTest {
     private ParameterExport export;
@@ -406,7 +405,7 @@ public class ParameterExportTest {
     private PrimaryKeyField mockKeyField(String[] pkValues, int i) {
         if (pkValues != null && pkValues[i] != null) {
             PrimaryKeyField field = mock(PrimaryKeyField.class);
-            when(field.get(any(), any(IRuntimeEnv.class))).thenReturn(pkValues[i]);
+            when(field.get(any(), any())).thenReturn(pkValues[i]);
             return field;
         }
 

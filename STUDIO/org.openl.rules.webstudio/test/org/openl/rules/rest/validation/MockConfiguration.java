@@ -1,9 +1,5 @@
 package org.openl.rules.rest.validation;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import javax.annotation.PostConstruct;
 
 import org.openl.rules.webstudio.web.Props;
@@ -16,6 +12,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
+
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Configuration
 @ComponentScan(basePackages = "org.openl.rules.rest.validation")
