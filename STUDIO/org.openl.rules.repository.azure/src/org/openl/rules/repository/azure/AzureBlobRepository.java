@@ -40,11 +40,11 @@ import org.yaml.snakeyaml.representer.Representer;
  */
 public class AzureBlobRepository implements FolderRepository {
     private static final String UNSUPPORTED_IN_FOLDER_REPOSITORY = "Unsupported in folder repository";
-    private static final String VERSION_FILE = "versions.yaml";
+    static final String VERSION_FILE = "versions.yaml";
 
     private static final String MODIFICATION_FILE = "[openl]/.modification";
-    private static final String CONTENT_PREFIX = "[content]/";
-    private static final String VERSIONS_PREFIX = "[openl]/versions/";
+    static final String CONTENT_PREFIX = "[content]/";
+    static final String VERSIONS_PREFIX = "[openl]/versions/";
 
     private final Logger log = LoggerFactory.getLogger(AzureBlobRepository.class);
 
@@ -88,12 +88,14 @@ public class AzureBlobRepository implements FolderRepository {
     }
 
     public void initialize() {
-        final BlobContainerClientBuilder builder = new BlobContainerClientBuilder().endpoint(uri);
-        if (StringUtils.isNotEmpty(accountName)) {
-            builder.credential(new StorageSharedKeyCredential(accountName, accountKey));
-        }
+        if (blobContainerClient == null) {
+            final BlobContainerClientBuilder builder = new BlobContainerClientBuilder().endpoint(uri);
+            if (StringUtils.isNotEmpty(accountName)) {
+                builder.credential(new StorageSharedKeyCredential(accountName, accountKey));
+            }
 
-        blobContainerClient = builder.buildClient();
+            blobContainerClient = builder.buildClient();
+        }
 
         commitsCache = new PassiveExpiringMap<>(10, TimeUnit.SECONDS);
 
@@ -637,7 +639,7 @@ public class AzureBlobRepository implements FolderRepository {
         commit.setVersion(response.getValue().getVersionId());
     }
 
-    private Yaml createYamlForCommit() {
+    static Yaml createYamlForCommit() {
         TypeDescription projectsDescription = new TypeDescription(AzureCommit.class);
         projectsDescription.addPropertyParameters("files", FileInfo.class);
         projectsDescription.setExcludes("version");
@@ -758,6 +760,13 @@ public class AzureBlobRepository implements FolderRepository {
         }
 
         return null;
+    }
+
+    /**
+     * Is used in tests only
+     */
+    void setBlobContainerClient(BlobContainerClient client) {
+        this.blobContainerClient = client;
     }
 
     private static final class CacheKey {
