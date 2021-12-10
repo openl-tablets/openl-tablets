@@ -1,9 +1,12 @@
 package org.openl.rules.calc;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -36,6 +39,16 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     public SpreadsheetResultOpenClass(XlsModuleOpenClass module) {
         super(SpreadsheetResult.class);
         this.module = Objects.requireNonNull(module, "module cannot be null");
+    }
+
+    @Override
+    public Collection<IOpenClass> superClasses() {
+        return Collections.singleton(AnySpreadsheetResultOpenClass.INSTANCE);
+    }
+
+    @Override
+    protected IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousFieldException {
+        return null;
     }
 
     @Override
@@ -175,6 +188,9 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
+        if (ioc instanceof AnySpreadsheetResultOpenClass) {
+            return false;
+        }
         if (getModule() != null) {
             if (ioc instanceof SpreadsheetResultOpenClass) {
                 return ((SpreadsheetResultOpenClass) ioc).getModule() == getModule();

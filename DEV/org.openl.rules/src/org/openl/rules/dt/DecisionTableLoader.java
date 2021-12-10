@@ -20,7 +20,6 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.dt.DTScale.RowScale;
 import org.openl.rules.dt.element.Action;
 import org.openl.rules.dt.element.ActionType;
@@ -514,28 +513,18 @@ public class DecisionTableLoader {
         private final Collection<OpenLMessage> openLMessages;
         private final Exception ex;
         private final DecisionTableMetaInfoReader.MetaInfoHolder metaInfos;
-
-        private final boolean typeAnySpreadsheetResult;
-        private final boolean typeCustomSpreadsheetResult;
-        private final CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
         private final List<DecisionTable.DeferredChange> deferredChanges;
 
         private CompilationErrors(List<SyntaxNodeException> bindingSyntaxNodeException,
                 Collection<OpenLMessage> openLMessages,
                 DecisionTableMetaInfoReader.MetaInfoHolder metaInfos,
                 Exception ex,
-                boolean typeAnySpreadsheetResult,
-                boolean typeCustomSpreadsheetResult,
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
                 List<DecisionTable.DeferredChange> deferredChanges) {
             this.bindingSyntaxNodeException = Objects.requireNonNull(bindingSyntaxNodeException,
                 "bindingSyntaxNodeException cannot be null");
             this.openLMessages = Objects.requireNonNull(openLMessages, "openLMessages cannot be null");
             this.metaInfos = metaInfos;
             this.ex = ex;
-            this.typeAnySpreadsheetResult = typeAnySpreadsheetResult;
-            this.typeCustomSpreadsheetResult = typeCustomSpreadsheetResult;
-            this.customSpreadsheetResultOpenClass = customSpreadsheetResultOpenClass;
             this.deferredChanges = deferredChanges;
         }
 
@@ -549,9 +538,6 @@ public class DecisionTableLoader {
                     .getMetaInfoReader();
                 decisionTableMetaInfoReader.getMetaInfos().merge(metaInfos);
             }
-            decisionTable.setTypeAnySpreadsheetResult(typeAnySpreadsheetResult);
-            decisionTable.setTypeCustomSpreadsheetResult(typeCustomSpreadsheetResult);
-            decisionTable.setCustomSpreadsheetResultType(customSpreadsheetResultOpenClass);
             decisionTable.getDeferredChanges().clear();
             decisionTable.getDeferredChanges().addAll(deferredChanges);
         }
@@ -581,13 +567,6 @@ public class DecisionTableLoader {
         }
         bindingContext.pushErrors();
         bindingContext.pushMessages();
-
-        boolean typeCustomSpreadsheetResult = decisionTable.isTypeCustomSpreadsheetResult();
-        boolean typeAnySpreadsheetResult = decisionTable.isTypeAnySpreadsheetResult();
-        CustomSpreadsheetResultOpenClass type = null;
-        if (typeCustomSpreadsheetResult) {
-            type = decisionTable.getCustomSpreadsheetResultType();
-        }
         Exception ex = null;
         try {
             supplier.get();
@@ -614,14 +593,8 @@ public class DecisionTableLoader {
             messages,
             metaInfos,
             ex,
-            decisionTable.isTypeCustomSpreadsheetResult(),
-            decisionTable.isTypeAnySpreadsheetResult(),
-            decisionTable.getCustomSpreadsheetResultType(),
             new ArrayList<>(decisionTable.getDeferredChanges()));
 
-        decisionTable.setTypeAnySpreadsheetResult(typeAnySpreadsheetResult);
-        decisionTable.setTypeCustomSpreadsheetResult(typeCustomSpreadsheetResult);
-        decisionTable.setCustomSpreadsheetResultType(type);
         decisionTable.getDeferredChanges().clear();
         return compilationErrors;
     }

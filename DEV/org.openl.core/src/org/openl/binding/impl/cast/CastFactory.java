@@ -520,7 +520,7 @@ public class CastFactory implements ICastFactory {
      *
      * @param from from type
      * @param to to type
-     * @return cast operation if it have been found; null - otherwise
+     * @return cast operation if it has been found; null - otherwise
      */
     @Override
     public IOpenCast getCast(IOpenClass from, IOpenClass to) {

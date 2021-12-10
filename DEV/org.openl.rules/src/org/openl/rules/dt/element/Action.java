@@ -10,9 +10,9 @@ import java.util.Optional;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
-import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.data.RuleExecutionObject;
@@ -262,16 +262,12 @@ public class Action extends FunctionalRow implements IAction {
             while (t.isArray()) {
                 t = t.getComponentClass();
             }
-            if (t instanceof AnySpreadsheetResultOpenClass) {
-                decisionTable.setTypeCustomSpreadsheetResult(false);
-                decisionTable.setCustomSpreadsheetResultType(null);
-                decisionTable.setTypeAnySpreadsheetResult(true);
-            } else {
-                IOpenClass g = t;
-                decisionTable.getDeferredChanges().add(() -> {
+            IOpenClass g = t;
+            decisionTable.getDeferredChanges().add(() -> {
+                if (g instanceof CustomSpreadsheetResultOpenClass || g instanceof SpreadsheetResultOpenClass) {
                     decisionTable.getCustomSpreadsheetResultType().updateWithType(g);
-                });
-            }
+                }
+            });
         }
 
         this.returnType = decisionTable.getType();
