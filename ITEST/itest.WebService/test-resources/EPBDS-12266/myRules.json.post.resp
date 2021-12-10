@@ -3,16 +3,6 @@ Content-Type: application/json
 
 [
   {
-    "results": [
-      [
-        4
-      ]
-    ],
-    "columnNames": [
-      "Result"
-    ],
-    "rowNames": [
-      "Step1-1"
-    ]
+    "Step11": 4
   }
 ]
