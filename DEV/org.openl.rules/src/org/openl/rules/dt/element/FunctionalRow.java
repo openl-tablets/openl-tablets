@@ -368,15 +368,8 @@ public abstract class FunctionalRow implements IDecisionRow {
                 if (anySpreadsheetResult) {
                     newType = AnySpreadsheetResultOpenClass.INSTANCE;
                 } else if (!customSpreadsheetResultOpenClasses.isEmpty()) {
-                    CustomSpreadsheetResultOpenClass columnCustomSpreadsheetResultOpenClass;
-                    if (customSpreadsheetResultOpenClasses.size() == 1) {
-                        columnCustomSpreadsheetResultOpenClass = customSpreadsheetResultOpenClasses.iterator().next();
-                    } else {
-                        columnCustomSpreadsheetResultOpenClass = ((XlsModuleOpenClass) decisionTable.getModule())
-                            .buildOrGetUnifiedSpreadsheetResult(
-                                customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
-                    }
-                    newType = columnCustomSpreadsheetResultOpenClass;
+                    newType = ((XlsModuleOpenClass) decisionTable.getModule()).buildOrGetUnifiedSpreadsheetResult(
+                        customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
                 }
                 if (newType != null) {
                     params[i] = new ParameterDeclaration(newType, params[i].getName(), params[i].getModule());

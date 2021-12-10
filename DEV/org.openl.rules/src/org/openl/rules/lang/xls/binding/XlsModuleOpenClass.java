@@ -155,6 +155,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 c.add(t);
             }
         }
+        if (c.size() == 1) {
+            return c.iterator().next();
+        }
         CustomSpreadsheetResultOpenClassesKey key = new CustomSpreadsheetResultOpenClassesKey(
             c.toArray(new CustomSpreadsheetResultOpenClass[0]));
         UnifiedSpreadsheetResultOpenClass unifiedSpreadsheetResultOpenClass = unifiedSpreadsheetResultOpenClasses
