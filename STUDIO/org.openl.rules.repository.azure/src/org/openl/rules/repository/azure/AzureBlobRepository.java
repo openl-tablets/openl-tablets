@@ -1,7 +1,11 @@
 package org.openl.rules.repository.azure;
 
+import static org.openl.util.formatters.FileNameFormatter.fromNormalizedPath;
+import static org.openl.util.formatters.FileNameFormatter.normalizePath;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -104,25 +108,24 @@ public class AzureBlobRepository implements FolderRepository {
     @Override
     public List<FileData> listFolders(String path) throws IOException {
         try {
-            final String pathPrefix = VERSIONS_PREFIX + path;
+            Path parentFolder = fromNormalizedPath(path);
 
             List<FileData> folders = new ArrayList<>();
 
             AzureCommit commit = findCommit(path, null);
             if (commit != null) {
                 // Get sub-folders inside the project.
-                final int start = path.length();
-                Set<String> subFolders = new HashSet<>();
+                Set<Path> subFolders = new HashSet<>();
                 List<FileInfo> files = commit.getFiles();
                 if (files == null) {
                     return folders;
                 }
                 for (FileInfo file : files) {
-                    String name = file.getPath();
-                    if (name.startsWith(path)) {
-                        String subFolder = name.substring(start, name.indexOf('/', start));
+                    Path filePath = fromNormalizedPath(file.getPath());
+                    if (filePath.startsWith(parentFolder)) {
+                        Path subFolder = parentFolder.relativize(filePath).getName(0);
                         if (!subFolders.contains(subFolder)) {
-                            folders.add(createFileData(path + subFolder, commit));
+                            folders.add(createFileData(normalizePath(parentFolder.resolve(subFolder)), commit));
                             subFolders.add(subFolder);
                         }
                     }
@@ -130,15 +133,12 @@ public class AzureBlobRepository implements FolderRepository {
             } else {
                 // Get folders outside of projects (folders containing projects).
                 ListBlobsOptions options = new ListBlobsOptions();
-                options.setPrefix(pathPrefix);
+                options.setPrefix(VERSIONS_PREFIX + path);
                 final PagedIterable<BlobItem> items = blobContainerClient.listBlobs(options, null);
                 for (BlobItem item : items) {
-                    final String name = item.getName();
-                    if (name.startsWith(pathPrefix)) {
-                        final String filePath = name.substring(VERSIONS_PREFIX.length());
-                        final String folderPath = filePath.substring(0, filePath.indexOf('/', path.length()));
-                        folders.add(createFileData(folderPath, getCommit(item)));
-                    }
+                    Path filePath = fromNormalizedPath(VERSIONS_PREFIX).relativize(fromNormalizedPath(item.getName()));
+                    Path subFolder = parentFolder.relativize(filePath).getName(0);
+                    folders.add(createFileData(normalizePath(parentFolder.resolve(subFolder)), getCommit(item)));
                 }
             }
 
@@ -469,7 +469,12 @@ public class AzureBlobRepository implements FolderRepository {
             for (FileData data : fileDataList) {
                 final FileItem file = readHistory(data.getName(), data.getVersion());
                 final Response<BlockBlobItem> response;
-                String newFile = path + data.getName().substring(srcName.length());
+
+                Path srcFolder = fromNormalizedPath(srcName);
+                Path srcFile = fromNormalizedPath(data.getName());
+                Path destFolder = fromNormalizedPath(path);
+                String newFile = normalizePath(destFolder.resolve(srcFolder.relativize(srcFile)));
+
                 try (final InputStream stream = file.getStream()) {
                     BlobClient blobClient = blobContainerClient.getBlobClient(CONTENT_PREFIX + newFile);
                     response = blobClient.uploadWithResponse(new BlobParallelUploadOptions(BinaryData.fromStream(stream)).setRequestConditions(
