@@ -169,7 +169,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        if (ioc instanceof CustomSpreadsheetResultOpenClass && !(ioc instanceof CombinedSpreadsheetResultOpenClass)) {
+        if (ioc instanceof CustomSpreadsheetResultOpenClass && !(ioc instanceof UnifiedSpreadsheetResultOpenClass)) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) ioc;
             return !getModule().isExternalModule(customSpreadsheetResultOpenClass.getModule(),
                 new IdentityHashMap<>()) && this.getName().equals(customSpreadsheetResultOpenClass.getName());

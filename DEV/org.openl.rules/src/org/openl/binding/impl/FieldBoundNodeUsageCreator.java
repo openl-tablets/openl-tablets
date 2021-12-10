@@ -14,7 +14,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.dependency.DependencyType;
 import org.openl.dependency.DependencyVar;
 import org.openl.meta.IMetaInfo;
-import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
+import org.openl.rules.calc.UnifiedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.IOriginalDeclaredClassesOpenField;
 import org.openl.rules.calc.Spreadsheet;
@@ -76,8 +76,8 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
                     .stream(declaredClasses)
                     .map(CustomSpreadsheetResultOpenClass.class::cast)
                     .flatMap(
-                        e -> e instanceof CombinedSpreadsheetResultOpenClass ? ((CombinedSpreadsheetResultOpenClass) e)
-                            .getCombinedTypes()
+                        e -> e instanceof UnifiedSpreadsheetResultOpenClass ? ((UnifiedSpreadsheetResultOpenClass) e)
+                            .getUnifiedTypes()
                             .stream() : Stream.of(e))
                     .collect(Collectors.toList());
                 Map<IOpenClass, List<CustomSpreadsheetResultOpenClass>> groupedByTypes = customSpreadsheetResultOpenClasses
@@ -184,8 +184,8 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
         for (CustomSpreadsheetResultOpenClass c : types.size() > 3 ? new ArrayList<>(types).subList(0, 3) : types) {
             concatenated++;
             StringBuilder sb1 = new StringBuilder();
-            if (c instanceof CombinedSpreadsheetResultOpenClass) {
-                for (CustomSpreadsheetResultOpenClass t : ((CombinedSpreadsheetResultOpenClass) c).getCombinedTypes()) {
+            if (c instanceof UnifiedSpreadsheetResultOpenClass) {
+                for (CustomSpreadsheetResultOpenClass t : ((UnifiedSpreadsheetResultOpenClass) c).getUnifiedTypes()) {
                     if (sb1.length() > 0) {
                         sb1.append(", ");
                     }

@@ -34,10 +34,10 @@ import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
+import org.openl.rules.calc.UnifiedSpreadsheetResultOpenClass;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.rules.data.DataOpenField;
@@ -109,7 +109,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return rulesModuleBindingContext;
     }
 
-    public Map<CustomSpreadsheetResultOpenClassesKey, CombinedSpreadsheetResultOpenClass> combinedSpreadsheetResultOpenClasses = new HashMap<>();
+    public Map<CustomSpreadsheetResultOpenClassesKey, UnifiedSpreadsheetResultOpenClass> unifiedSpreadsheetResultOpenClasses = new HashMap<>();
 
     /**
      * Constructor for module with dependent modules
@@ -145,32 +145,32 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         initImports(xlsMetaInfo.getXlsModuleNode());
     }
 
-    public CustomSpreadsheetResultOpenClass buildOrGetCombinedSpreadsheetResult(
+    public CustomSpreadsheetResultOpenClass buildOrGetUnifiedSpreadsheetResult(
             CustomSpreadsheetResultOpenClass... customSpreadsheetResultOpenClasses) {
         Set<CustomSpreadsheetResultOpenClass> c = new HashSet<>();
         for (CustomSpreadsheetResultOpenClass t : customSpreadsheetResultOpenClasses) {
-            if (t instanceof CombinedSpreadsheetResultOpenClass) {
-                c.addAll(((CombinedSpreadsheetResultOpenClass) t).getCombinedTypes());
+            if (t instanceof UnifiedSpreadsheetResultOpenClass) {
+                c.addAll(((UnifiedSpreadsheetResultOpenClass) t).getUnifiedTypes());
             } else {
                 c.add(t);
             }
         }
         CustomSpreadsheetResultOpenClassesKey key = new CustomSpreadsheetResultOpenClassesKey(
             c.toArray(new CustomSpreadsheetResultOpenClass[0]));
-        CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass = combinedSpreadsheetResultOpenClasses
+        UnifiedSpreadsheetResultOpenClass unifiedSpreadsheetResultOpenClass = unifiedSpreadsheetResultOpenClasses
             .get(key);
-        if (combinedSpreadsheetResultOpenClass == null) {
-            combinedSpreadsheetResultOpenClass = new CombinedSpreadsheetResultOpenClass(this);
+        if (unifiedSpreadsheetResultOpenClass == null) {
+            unifiedSpreadsheetResultOpenClass = new UnifiedSpreadsheetResultOpenClass(this);
             for (CustomSpreadsheetResultOpenClass t : c) {
-                combinedSpreadsheetResultOpenClass.updateWithType(t);
+                unifiedSpreadsheetResultOpenClass.updateWithType(t);
             }
-            combinedSpreadsheetResultOpenClasses.put(key, combinedSpreadsheetResultOpenClass);
+            unifiedSpreadsheetResultOpenClasses.put(key, unifiedSpreadsheetResultOpenClass);
         }
-        return combinedSpreadsheetResultOpenClass;
+        return unifiedSpreadsheetResultOpenClass;
     }
 
-    public Collection<CombinedSpreadsheetResultOpenClass> getCombinedSpreadsheetResultOpenClasses() {
-        return new ArrayList<>(combinedSpreadsheetResultOpenClasses.values());
+    public Collection<UnifiedSpreadsheetResultOpenClass> getUnifiedSpreadsheetResultOpenClasses() {
+        return new ArrayList<>(unifiedSpreadsheetResultOpenClasses.values());
     }
 
     public ITableProperties getGlobalTableProperties() {
@@ -613,7 +613,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     public void clearOddData() {
-        combinedSpreadsheetResultOpenClasses = null;
+        unifiedSpreadsheetResultOpenClasses = null;
     }
 
     @Override

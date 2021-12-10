@@ -373,7 +373,7 @@ public abstract class FunctionalRow implements IDecisionRow {
                         columnCustomSpreadsheetResultOpenClass = customSpreadsheetResultOpenClasses.iterator().next();
                     } else {
                         columnCustomSpreadsheetResultOpenClass = ((XlsModuleOpenClass) decisionTable.getModule())
-                            .buildOrGetCombinedSpreadsheetResult(
+                            .buildOrGetUnifiedSpreadsheetResult(
                                 customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
                     }
                     newType = columnCustomSpreadsheetResultOpenClass;
