@@ -158,6 +158,20 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     @Override
+    public IOpenClass getClosestClass(ModuleSpecificType openClass) {
+        return getParentClass(openClass);
+    }
+
+    @Override
+    public IOpenClass getParentClass(ModuleSpecificType openClass) {
+        if (!getModule().isExternalModule((XlsModuleOpenClass) openClass.getModule(),
+            new IdentityHashMap<>()) && openClass instanceof CustomSpreadsheetResultOpenClass) {
+            return getModule().buildOrGetUnifiedSpreadsheetResult(this, (CustomSpreadsheetResultOpenClass) openClass);
+        }
+        return null;
+    }
+
+    @Override
     public void addField(IOpenField field) throws DuplicatedFieldException {
         if (!(field instanceof CustomSpreadsheetResultField)) {
             throw new IllegalStateException(String.format("Expected type '%s', but found type '%s'.",

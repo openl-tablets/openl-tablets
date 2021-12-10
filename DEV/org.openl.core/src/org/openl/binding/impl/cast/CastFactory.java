@@ -149,6 +149,13 @@ public class CastFactory implements ICastFactory {
             return openClass1;
         }
 
+        if (openClass1 instanceof ModuleSpecificType && openClass2 instanceof ModuleSpecificType) {
+            IOpenClass t = ((ModuleSpecificType) openClass1).getClosestClass((ModuleSpecificType) openClass2);
+            if (t != null) {
+                return t;
+            }
+        }
+
         if (openClass1 instanceof DomainOpenClass && !(openClass2 instanceof DomainOpenClass) || !(openClass1 instanceof DomainOpenClass) && openClass2 instanceof DomainOpenClass) {
             return findClosestClass(
                 openClass1 instanceof DomainOpenClass ? JavaOpenClass.getOpenClass(openClass1.getInstanceClass())
@@ -333,6 +340,14 @@ public class CastFactory implements ICastFactory {
             }
             return null;
         }
+
+        if (openClass1 instanceof ModuleSpecificType && openClass2 instanceof ModuleSpecificType) {
+            IOpenClass t = ((ModuleSpecificType) openClass1).getClosestClass((ModuleSpecificType) openClass2);
+            if (t != null) {
+                return t;
+            }
+        }
+
         Set<IOpenClass> superClasses = new HashSet<>();
         superClasses.add(openClass1);
         IOpenClass openClass = openClass1;

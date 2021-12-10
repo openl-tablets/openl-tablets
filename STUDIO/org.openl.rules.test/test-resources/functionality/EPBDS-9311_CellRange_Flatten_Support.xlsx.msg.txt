@@ -1,0 +1,2 @@
+ERROR: Field '$S2' is not found in type 'SRspr1 & SRspr2'.
+ERROR: Field '$S2' is not found in type 'SRspr1 & SRspr2'.

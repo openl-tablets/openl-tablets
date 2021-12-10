@@ -9,4 +9,8 @@ public interface ModuleSpecificType {
     IOpenClass convertToModuleTypeAndRegister(ModuleOpenClass module);
 
     void updateWithType(IOpenClass openClass);
+
+    IOpenClass getClosestClass(ModuleSpecificType openClass);
+
+    IOpenClass getParentClass(ModuleSpecificType openClass);
 }
