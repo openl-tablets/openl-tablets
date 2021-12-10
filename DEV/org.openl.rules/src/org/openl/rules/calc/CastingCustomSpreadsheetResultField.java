@@ -110,7 +110,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                         .collect(Collectors.toSet());
                     if (customSpreadsheetResultOpenClasses.size() > 1) {
                         this.type = getDeclaringClass().getModule()
-                            .buildOrGetCombinedSpreadsheetResult(
+                            .buildOrGetUnifiedSpreadsheetResult(
                                 customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
                     } else {
                         this.type = customSpreadsheetResultOpenClasses.iterator().next();

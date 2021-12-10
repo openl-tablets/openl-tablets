@@ -46,11 +46,11 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.binding.RecursiveOpenMethodPreBinder;
 import org.openl.rules.binding.RulesModuleBindingContext;
-import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.UnifiedSpreadsheetResultOpenClass;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.constants.ConstantsTableBinder;
 import org.openl.rules.data.DataBase;
@@ -369,13 +369,13 @@ public class XlsBinder implements IOpenBinder {
                         type.getFields().forEach(IOpenField::getType);
                     }
                 }
-                int combinedSpreadsheetResultOpenClassesSize = 0;
-                while (combinedSpreadsheetResultOpenClassesSize != moduleOpenClass
-                    .getCombinedSpreadsheetResultOpenClasses()
+                int unifiedSpreadsheetResultOpenClassesSize = 0;
+                while (unifiedSpreadsheetResultOpenClassesSize != moduleOpenClass
+                    .getUnifiedSpreadsheetResultOpenClasses()
                     .size()) {
-                    combinedSpreadsheetResultOpenClassesSize = moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
+                    unifiedSpreadsheetResultOpenClassesSize = moduleOpenClass.getUnifiedSpreadsheetResultOpenClasses()
                         .size();
-                    moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
+                    moduleOpenClass.getUnifiedSpreadsheetResultOpenClasses()
                         .forEach(e -> e.getFields().forEach(IOpenField::getType));
                 }
                 moduleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
@@ -606,7 +606,7 @@ public class XlsBinder implements IOpenBinder {
                                 rulesModuleBindingContext.isExecutionMode() ? null : tableSyntaxNode.getTableBody(),
                                 true);
                         } else {
-                            customSpreadsheetResultOpenClass = new CombinedSpreadsheetResultOpenClass(sprResTypeName,
+                            customSpreadsheetResultOpenClass = new UnifiedSpreadsheetResultOpenClass(sprResTypeName,
                                 rulesModuleBindingContext.getModule());
                         }
                         rulesModuleBindingContext.getModule().addType(customSpreadsheetResultOpenClass);

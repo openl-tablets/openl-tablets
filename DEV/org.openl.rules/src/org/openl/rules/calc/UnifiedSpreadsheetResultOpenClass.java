@@ -11,19 +11,19 @@ import java.util.stream.Collectors;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 
-public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultOpenClass {
+public class UnifiedSpreadsheetResultOpenClass extends CustomSpreadsheetResultOpenClass {
     private static final int MAX_LENGTH_DISPLAY_NAME = 150;
 
-    private final Set<CustomSpreadsheetResultOpenClass> combinedOpenClasses = new HashSet<>();
+    private final Set<CustomSpreadsheetResultOpenClass> unifiedOpenClasses = new HashSet<>();
 
     private final boolean anonymous;
 
-    public CombinedSpreadsheetResultOpenClass(XlsModuleOpenClass module) {
-        super("CombinedSpreadsheetResult", module, null, false);
+    public UnifiedSpreadsheetResultOpenClass(XlsModuleOpenClass module) {
+        super("UnifiedSpreadsheetResult", module, null, false);
         this.anonymous = true;
     }
 
-    public CombinedSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module) {
+    public UnifiedSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module) {
         super(name, module, null, true);
         this.anonymous = false;
     }
@@ -35,19 +35,19 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
 
     private void registerCustomSpreadsheetResultOpenClass(
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
-        if (customSpreadsheetResultOpenClass instanceof CombinedSpreadsheetResultOpenClass) {
-            CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass = (CombinedSpreadsheetResultOpenClass) customSpreadsheetResultOpenClass;
-            if (combinedSpreadsheetResultOpenClass.anonymous) {
-                combinedOpenClasses.addAll(
-                    ((CombinedSpreadsheetResultOpenClass) customSpreadsheetResultOpenClass).combinedOpenClasses);
+        if (customSpreadsheetResultOpenClass instanceof UnifiedSpreadsheetResultOpenClass) {
+            UnifiedSpreadsheetResultOpenClass unifiedSpreadsheetResultOpenClass = (UnifiedSpreadsheetResultOpenClass) customSpreadsheetResultOpenClass;
+            if (unifiedSpreadsheetResultOpenClass.anonymous) {
+                unifiedOpenClasses
+                    .addAll(((UnifiedSpreadsheetResultOpenClass) customSpreadsheetResultOpenClass).unifiedOpenClasses);
                 return;
             }
         }
-        combinedOpenClasses.add(customSpreadsheetResultOpenClass);
+        unifiedOpenClasses.add(customSpreadsheetResultOpenClass);
     }
 
-    public Collection<CustomSpreadsheetResultOpenClass> getCombinedTypes() {
-        return Collections.unmodifiableCollection(combinedOpenClasses);
+    public Collection<CustomSpreadsheetResultOpenClass> getUnifiedTypes() {
+        return Collections.unmodifiableCollection(unifiedOpenClasses);
     }
 
     @Override
@@ -60,18 +60,18 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        if (ioc instanceof CombinedSpreadsheetResultOpenClass) {
-            CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass = (CombinedSpreadsheetResultOpenClass) ioc;
-            return getCombinedTypes().stream()
+        if (ioc instanceof UnifiedSpreadsheetResultOpenClass) {
+            UnifiedSpreadsheetResultOpenClass unifiedSpreadsheetResultOpenClass = (UnifiedSpreadsheetResultOpenClass) ioc;
+            return getUnifiedTypes().stream()
                 .map(IOpenClass::getName)
                 .collect(Collectors.toSet())
-                .containsAll(combinedSpreadsheetResultOpenClass.getCombinedTypes()
+                .containsAll(unifiedSpreadsheetResultOpenClass.getUnifiedTypes()
                     .stream()
                     .map(IOpenClass::getName)
                     .collect(Collectors.toSet()));
         }
         if (ioc instanceof CustomSpreadsheetResultOpenClass) {
-            return getCombinedTypes().stream().map(IOpenClass::getName).anyMatch(e -> e.equals(ioc.getName()));
+            return getUnifiedTypes().stream().map(IOpenClass::getName).anyMatch(e -> e.equals(ioc.getName()));
         }
         return false;
     }
@@ -80,7 +80,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
     public String getName() {
         if (anonymous) {
             StringBuilder sb = new StringBuilder();
-            List<CustomSpreadsheetResultOpenClass> types = getCombinedTypes().stream()
+            List<CustomSpreadsheetResultOpenClass> types = getUnifiedTypes().stream()
                 .sorted(Comparator.comparing(CustomSpreadsheetResultOpenClass::getName))
                 .collect(Collectors.toList());
             for (CustomSpreadsheetResultOpenClass c : types) {
@@ -107,7 +107,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
             c = name.chars().filter(ch -> ch == '&').count() + 1;
         }
         if (f) {
-            return name + "&...(" + (getCombinedTypes().size() - c) + ") more";
+            return name + "&...(" + (getUnifiedTypes().size() - c) + ") more";
         }
         return name;
     }
