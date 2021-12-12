@@ -3,6 +3,7 @@ package org.openl.itest.core;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,14 +18,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.GZIPInputStream;
 
 import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
@@ -141,10 +145,15 @@ class HttpData {
                 return; // No body expected
             }
             String contentEncoding = headers.get("Content-Encoding");
+            Function<byte[], byte[]> decoder = Function.identity(); // empty
             if (contentEncoding != null) {
                 // Binary encoding
-                assertArrayEquals("Body: ", expected.body, this.body);
-                return;
+                for(String encoding : contentEncoding.split(",")) {
+                    if ("gzip".equals(encoding) || "x-gzip".equals(encoding)) {
+                        // decode gzip bytes
+                        decoder = decoder.andThen(HttpData::decodeGzipBytes);
+                    }
+                }
             }
             String contentType = headers.get("Content-Type");
             contentType = contentType == null ? "null" : contentType;
@@ -156,28 +165,42 @@ class HttpData {
             switch (contentType) {
                 case "text/html":
                 case "text/plain":
-                    Comparators.txt("Difference", expected.body, this.body);
+                    Comparators.txt("Difference", decoder.apply(expected.body), decoder.apply(this.body));
                     break;
                 case "application/xml":
                 case "text/xml":
-                    Comparators.xml("Difference", expected.body, this.body);
+                    Comparators.xml("Difference", decoder.apply(expected.body), decoder.apply(this.body));
                     break;
                 case "application/json":
                     JsonNode actualNode;
-                    actualNode = OBJECT_MAPPER.readTree(this.body);
-                    JsonNode expectedNode = OBJECT_MAPPER.readTree(expected.body);
+                    actualNode = OBJECT_MAPPER.readTree(decoder.apply(this.body));
+                    JsonNode expectedNode = OBJECT_MAPPER.readTree(decoder.apply(expected.body));
                     Comparators.compareJsonObjects(expectedNode, actualNode, "");
                     break;
                 case "application/zip":
-                    Comparators.zip(expected.body, this.body);
+                    Comparators.zip(decoder.apply(expected.body), decoder.apply(this.body));
                     break;
                 default:
-                    assertArrayEquals("Body: ", expected.body, this.body);
+                    assertArrayEquals("Body: ", decoder.apply(expected.body), decoder.apply(this.body));
             }
         } catch (Exception | AssertionError ex) {
             log(expected != null ? expected.resource : resource, firstLine, headers, body);
             throw new RuntimeException(ex);
         }
+    }
+
+    private static byte[] decodeGzipBytes(byte[] bytes) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (GZIPInputStream gis = new GZIPInputStream(new ByteArrayInputStream(bytes))) {
+            byte[] buffer = new byte[64 * 1024];
+            int len;
+            while ((len = gis.read(buffer)) > 0) {
+                out.write(buffer, 0, len);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to decode GZIP input", e); // wrapper
+        }
+        return out.toByteArray();
     }
 
     static void log(String resourceName, String firstLine, Map<String, String> headers, byte[] body) {
