@@ -1,0 +1,5 @@
+HTTP/1.1 200
+Content-Type: text/plain
+Content-Encoding: gzip
+
+&simple4_Hello3.resp.gzip

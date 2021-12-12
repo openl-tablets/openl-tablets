@@ -33,6 +33,7 @@ class CacheAndWriteOutputStream extends CachedOutputStream {
     public void copyCacheToFlowThroughStream() throws IOException {
         flowThroughStreamCache.flush();
         flowThroughStream.write(flowThroughStreamCache.toByteArray());
+        flowThroughStream.close();
         flowThroughStreamCache.reset();
     }
 

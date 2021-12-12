@@ -1,0 +1,6 @@
+POST /REST/deployment7/simple7/Hello HTTP/1.1
+Content-Type: application/json
+Content-Encoding: gzip
+Accept-Encoding: gzip
+
+&simple7_Hello.req.gzip
