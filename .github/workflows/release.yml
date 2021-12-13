@@ -99,8 +99,8 @@ jobs:
         -DstagingDescription="Release by ${{ github.actor }} #${{ github.run_number }}"
         -DautoReleaseAfterClose=false
         -DautoDropAfterRelease=true
-        -DkeepStagingRepositoryOnFailure=false
-        -DkeepStagingRepositoryOnCloseRuleFailure=false
+        -DkeepStagingRepositoryOnFailure=true
+        -DkeepStagingRepositoryOnCloseRuleFailure=true
         -DskipStagingRepositoryClose=false
       env:
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
