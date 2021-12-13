@@ -114,11 +114,8 @@ public final class DecisionTableHelper {
         java.lang.Integer.class,
         java.lang.Long.class,
         java.math.BigInteger.class);
-    private static final List<Class<?>> DOUBLE_TYPES = Arrays.asList(float.class,
-        double.class,
-        java.lang.Float.class,
-        java.lang.Double.class,
-        java.math.BigDecimal.class);
+    private static final List<Class<?>> DOUBLE_TYPES = Arrays
+        .asList(float.class, double.class, java.lang.Float.class, java.lang.Double.class, java.math.BigDecimal.class);
     private static final List<Class<?>> CHAR_TYPES = Arrays.asList(char.class, java.lang.Character.class);
     private static final List<Class<?>> STRING_TYPES = Arrays.asList(java.lang.String.class);
     private static final List<Class<?>> DATE_TYPES = Collections.singletonList(Date.class);
@@ -404,7 +401,6 @@ public final class DecisionTableHelper {
             fuzzyContext,
             dtHeaders,
             lookupReturnDtHeader,
-            firstColumnHeight,
             module,
             cache,
             bindingContext);
@@ -673,7 +669,6 @@ public final class DecisionTableHelper {
             DeclaredDTHeader declaredReturn,
             String header,
             boolean lookupReturnHeader,
-            int firstColumnHeight,
             XlsModuleOpenClass module,
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache,
             IBindingContext bindingContext) {
@@ -681,7 +676,7 @@ public final class DecisionTableHelper {
         grid.setCellValue(declaredReturn.getColumn(), 1, declaredReturn.getStatement());
         DTColumnsDefinition dtColumnsDefinition = declaredReturn.getMatchedDefinition().getDtColumnsDefinition();
         int c = declaredReturn.getColumn();
-        while (c < declaredReturn.getColumn() + declaredReturn.getWidth()) {
+        while (c < declaredReturn.getColumn() + declaredReturn.getWidthForMerge()) {
             ICell cell = lookupReturnHeader ? uncutOriginalTable.getSource().getCell(0, 0)
                                             : originalTable.getSource().getCell(c, 0);
             String d = cell.getStringValue();
@@ -707,22 +702,25 @@ public final class DecisionTableHelper {
                             paramType = declaredReturn.getCompositeMethod().getType();
                         }
                         typeOfColumns.add(paramType);
-                        int h = lookupReturnHeader ? firstColumnHeight
-                                                   : originalTable.getSource().getCell(c, 0).getHeight();
-                        int w1 = originalTable.getSource().getCell(c, h).getWidth();
-                        if (paramType != null && paramType.isArray()) {
-                            // If we have more columns than parameters use excess columns for array typed parameter
-                            int tmpC = c;
-                            for (int i = 0; i < totalColumnsUnder - parameters.size(); i++) {
-                                int w2 = originalTable.getSource().getCell(tmpC, h).getWidth();
-                                w1 = w1 + w2;
-                                tmpC = tmpC + w2;
+                        if (!lookupReturnHeader) {
+                            int h = originalTable.getSource().getCell(c, 0).getHeight();
+                            int w1 = originalTable.getSource().getCell(c, h).getWidth();
+                            if (paramType != null && paramType.isArray()) {
+                                // If we have more columns than parameters use excess columns for array typed parameter
+                                int tmpC = c;
+                                for (int i = 0; i < totalColumnsUnder - parameters.size(); i++) {
+                                    int w2 = originalTable.getSource().getCell(tmpC, h).getWidth();
+                                    w1 = w1 + w2;
+                                    tmpC = tmpC + w2;
+                                }
                             }
+                            if (w1 > 1) {
+                                grid.addMergedRegion(new GridRegion(2, c, 2, c + w1 - 1));
+                            }
+                            c = c + w1;
+                        } else {
+                            c = c + 1;
                         }
-                        if (w1 > 1) {
-                            grid.addMergedRegion(new GridRegion(2, c, 2, c + w1 - 1));
-                        }
-                        c = c + w1;
                     }
                     if (!bindingContext.isExecutionMode()) {
                         StringBuilder sb = new StringBuilder();
@@ -1141,7 +1139,6 @@ public final class DecisionTableHelper {
             FuzzyContext fuzzyContext,
             List<DTHeader> dtHeaders,
             DeclaredDTHeader lookupReturnDtHeader,
-            int firstColumnHeight,
             XlsModuleOpenClass module,
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache,
             IBindingContext bindingContext) throws OpenLCompilationException {
@@ -1156,7 +1153,6 @@ public final class DecisionTableHelper {
                     lookupReturnDtHeader,
                     isCollect ? CRET1_COLUMN_NAME : RET1_COLUMN_NAME,
                     true,
-                    firstColumnHeight,
                     module,
                     cache,
                     bindingContext);
@@ -1190,7 +1186,6 @@ public final class DecisionTableHelper {
                         isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cRetNum++
                                   : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++,
                         false,
-                        firstColumnHeight,
                         module,
                         cache,
                         bindingContext);
