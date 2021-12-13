@@ -102,6 +102,7 @@ jobs:
         -DkeepStagingRepositoryOnFailure=true
         -DkeepStagingRepositoryOnCloseRuleFailure=true
         -DskipStagingRepositoryClose=false
+        -DstagingProgressTimeoutMinutes=30
       env:
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
