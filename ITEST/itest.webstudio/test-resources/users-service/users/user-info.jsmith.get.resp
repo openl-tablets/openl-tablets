@@ -7,25 +7,30 @@ Content-Type: application/json
   "firstName": "John",
   "lastName": "Smith",
   "username": "jsmith",
+  "currentUser": false,
+  "superUser": false,
+  "unsafePassword": false,
   "externalFlags": {
-    "emailVerified": true,
-    "syncExternalGroups": false,
     "lastNameExternal": false,
     "emailExternal": false,
+    "displayNameExternal": false,
     "firstNameExternal": false,
-    "displayNameExternal": false
+    "syncExternalGroups": false,
+    "emailVerified": true
   },
   "internalUser": true,
   "notMatchedExternalGroupsCount": 3,
   "online": false,
-  "currentUser": false,
-  "superUser": false,
-  "unsafePassword": false,
   "userGroups": [
     {
       "name": "Administrators",
       "type": "ADMIN"
-    }, {
+    },
+    {
+      "name": "Admiral Nelson",
+      "type": "ADMIN"
+    },
+    {
       "name": "Analysts",
       "type": "EXTERNAL"
     }

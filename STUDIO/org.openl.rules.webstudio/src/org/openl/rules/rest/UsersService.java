@@ -332,15 +332,14 @@ public class UsersService {
         List<Group> extGroups = extGroupService.findMatchedForUser(user.getUsername());
         Stream<GroupModel> matchedExtGroupsStream = extGroups.stream()
             .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
-                .setType(
-                    simpleGroup.getPrivileges().contains(Privileges.ADMIN) ? GroupType.ADMIN : GroupType.EXTERNAL));
+                .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN : GroupType.EXTERNAL));
         Stream<GroupModel> internalGroupStream = user.getAuthorities()
             .stream()
             .map(SimpleGroup.class::cast)
             // resolve collisions when the same group external and internal
             .filter(g -> extGroups.stream().noneMatch(ext -> Objects.equals(ext.getName(), g.getName())))
             .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
-                .setType(simpleGroup.getPrivileges().contains(Privileges.ADMIN) ? GroupType.ADMIN : GroupType.DEFAULT));
+                .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN : GroupType.DEFAULT));
 
         long cntNotMatchedExtGroups = extGroupService.countNotMatchedForUser(user.getUsername());
         return new UserModel().setFirstName(user.getFirstName())

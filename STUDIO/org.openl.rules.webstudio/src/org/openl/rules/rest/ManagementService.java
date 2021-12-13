@@ -129,9 +129,9 @@ public class ManagementService {
     public Set<String> searchExternalGroup(@QueryParam("search") String searchTerm,
             @QueryParam("pageSize") @DefaultValue("10") int pageSize) {
         return extGroupService.findAllByName(searchTerm, pageSize)
-                .stream()
-                .map(org.openl.rules.security.Group::getName)
-                .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
+            .stream()
+            .map(org.openl.rules.security.Group::getName)
+            .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
     }
 
     public static class UIGroup {

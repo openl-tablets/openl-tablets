@@ -226,8 +226,25 @@
                        }
                     });
                 }
+                function hasPrivilege(group, privilege, visitedGroups) {
+                    if (group == null) {
+                        return false;
+                    }
+                    visitedGroups.push(group);
+                    if (group.privileges && group.privileges.includes(privilege)) {
+                        return true;
+                    }
+                    if (group.roles) {
+                        for (let role of group.roles) {
+                            if (!visitedGroups.includes(role) && hasPrivilege(data[role], privilege, visitedGroups)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
                 $j.map(data, function (val, i) {
-                    const isAdminGroup = val.privileges && val.privileges.includes("ADMIN");
+                    const isAdminGroup = hasPrivilege(val, "ADMIN", []);
                     const isExternalGroup = userAllExternalGroups.includes(i);
                     const isDefaultGroup = groupsConfig.defaultGroup === i;
                     $j("#edit-user-groups-row").show();

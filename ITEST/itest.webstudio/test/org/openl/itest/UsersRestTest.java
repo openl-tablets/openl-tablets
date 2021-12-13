@@ -85,8 +85,9 @@ public class UsersRestTest {
 
     @Test
     public void testExternalGroups() throws SQLException {
-        client.send("users-service/users-create.put");
-        client.send("users-service/users-2.get");
+        client.send("admin/management/groups/groupsAddAdmin.json.post");
+        client.send("users-service/users-create-1.put");
+        client.send("users-service/users-5.get");
         client.send("users-service/users/groups/external/empty.jsmith.get");
 
         try (Statement statement = h2Connection.createStatement()) {
@@ -94,7 +95,7 @@ public class UsersRestTest {
             statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "GROUP_2"));
             statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "GROUP_3"));
             statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "Analysts"));
-            statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "Administrators"));
+            statement.addBatch(String.format(INSERT_EXT_GROUPS_SQL, "jsmith", "Admiral Nelson"));
 
             statement.executeBatch();
             h2Connection.commit();
