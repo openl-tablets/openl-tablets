@@ -9,7 +9,6 @@ package org.openl.binding.impl.module;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ANodeBinder;
-import org.openl.binding.impl.BindHelper;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.TableNameChecker;
@@ -34,7 +33,7 @@ public class ParameterDeclarationNodeBinder extends ANodeBinder {
         String name = child.getText();
 
         if (TableNameChecker.isInvalidJavaIdentifier(name)) {
-            BindHelper.processError("Illegal parameter declaration.", node, bindingContext);
+            return makeErrorNode("Illegal parameter declaration.", node, bindingContext);
         }
 
         return new ParameterNode(node, name, type);

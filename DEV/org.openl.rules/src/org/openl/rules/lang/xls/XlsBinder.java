@@ -676,6 +676,7 @@ public class XlsBinder implements IOpenBinder {
             SyntaxNodeExceptionHolder syntaxNodeExceptionHolder,
             IMemberBoundNode[] children,
             int index) {
+        OpenMethodHeader openMethodHeader = null;
         SyntaxNodeException[] errors = SyntaxNodeException.EMPTY_ARRAY;
         Collection<OpenLMessage> messages = Collections.emptyList();
         try {
@@ -686,23 +687,30 @@ public class XlsBinder implements IOpenBinder {
             try {
                 rulesModuleBindingContext.pushErrors();
                 rulesModuleBindingContext.pushMessages();
-                OpenMethodHeader openMethodHeader = (OpenMethodHeader) OpenLManager
+                openMethodHeader = (OpenMethodHeader) OpenLManager
                     .makeMethodHeader(openl, source, rulesModuleBindingContext);
-                XlsBinderExecutableMethodBind xlsBinderExecutableMethodBind = new XlsBinderExecutableMethodBind(module,
-                    openl,
-                    tableSyntaxNode,
-                    children,
-                    index,
-                    openMethodHeader,
-                    rulesModuleBindingContext,
-                    syntaxNodeExceptionHolder);
-                rulesModuleBindingContext.addBinderMethod(openMethodHeader, xlsBinderExecutableMethodBind);
-                return openMethodHeader;
+                if (openMethodHeader != null) {
+                    XlsBinderExecutableMethodBind xlsBinderExecutableMethodBind = new XlsBinderExecutableMethodBind(
+                        module,
+                        openl,
+                        tableSyntaxNode,
+                        children,
+                        index,
+                        openMethodHeader,
+                        rulesModuleBindingContext,
+                        syntaxNodeExceptionHolder);
+                    rulesModuleBindingContext.addBinderMethod(openMethodHeader, xlsBinderExecutableMethodBind);
+                    return openMethodHeader;
+                }
             } finally {
                 errors = rulesModuleBindingContext.getErrors();
                 messages = rulesModuleBindingContext.getMessages();
                 rulesModuleBindingContext.popErrors();
                 rulesModuleBindingContext.popMessages();
+                if (openMethodHeader == null) {
+                    rulesModuleBindingContext.addMessages(messages);
+                    Arrays.stream(errors).forEach(rulesModuleBindingContext::addError);
+                }
             }
         } catch (Exception | LinkageError e) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);

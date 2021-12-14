@@ -33,7 +33,11 @@ public class MethodParametersNode extends ABoundNode {
         ParameterDeclaration[] params = new ParameterDeclaration[len];
 
         for (int i = 0; i < len; i++) {
-            params[i] = new ParameterDeclaration(children[i].getType(), ((ParameterNode) children[i]).getName());
+            if (children[i] instanceof ParameterNode) {
+                params[i] = new ParameterDeclaration(children[i].getType(), ((ParameterNode) children[i]).getName());
+            } else {
+                params[i] = new ParameterDeclaration(children[i].getType(), null);
+            }
         }
 
         return new MethodSignature(params);

@@ -17,7 +17,6 @@ import org.openl.binding.impl.TypeCastException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.dependency.IDependencyManager;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
@@ -72,14 +71,13 @@ public final class OpenLManager {
      */
     public static IOpenMethodHeader makeMethodHeader(OpenL openl,
             IOpenSourceCodeModule source,
-            IBindingContext bindingContext) throws OpenLCompilationException {
+            IBindingContext bindingContext) {
         IParsedCode parsedCode = openl.getParser().parseAsMethodHeader(source);
         IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, true);
         if (topNode instanceof IBoundMethodHeader) {
             return ((IBoundMethodHeader) topNode).getMethodHeader();
-        } else {
-            throw new OpenLCompilationException("Invalid method header.", null, null, source);
         }
+        return null;
     }
 
     public static IParameterDeclaration makeParameterDeclaration(OpenL openl,
