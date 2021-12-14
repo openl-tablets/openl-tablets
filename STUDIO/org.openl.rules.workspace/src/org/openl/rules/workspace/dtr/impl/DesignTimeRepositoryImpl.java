@@ -326,8 +326,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public AProject getProjectByPath(String repositoryId, String branch, String path, String version) throws IOException {
-        Collection<AProject> projects = getProjects();
-        Optional<AProject> project = projects.stream()
+        Collection<AProject> allProjects;
+        synchronized (projects) {
+            if (projectsRefreshNeeded) {
+                refreshProjects();
+            }
+
+            allProjects = new ArrayList<>(projects.values());
+        }
+
+        Optional<AProject> project = allProjects.stream()
             .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
             .findFirst();
         if (project.isPresent()) {
