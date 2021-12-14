@@ -21,7 +21,6 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
@@ -133,12 +132,11 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 bindingContext.pushErrors();
                 StringSourceCodeModule headerCodeSourceCodeModule = new StringSourceCodeModule(headerCode, null);
                 header = OpenLManager.makeMethodHeader(getOpenl(), headerCodeSourceCodeModule, bindingContext);
-                if (!bindingContext.isExecutionMode()) {
+                if (header == null) {
+                    inputParametersCompilationFailed = true;
+                } else if (!bindingContext.isExecutionMode()) {
                     addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
                 }
-            } catch (OpenLCompilationException e) {
-                inputParametersCompilationFailed = true;
-                header = null;
             } finally {
                 bindingContext.popErrors();
             }

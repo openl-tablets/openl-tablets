@@ -11,7 +11,6 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.engine.OpenLManager;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
@@ -21,6 +20,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.StringUtils;
@@ -66,11 +66,12 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         try {
             bindingContext.setIgnoreCustomSpreadsheetResultCompilation(true);
             IOpenSourceCodeModule headerSource = createHeaderSource(tableSyntaxNode, bindingContext);
-            try {
-                return (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, headerSource, bindingContext);
-            } catch (OpenLCompilationException e) {
-                throw new SyntaxNodeException(e.getMessage(), e.getOriginalCause(), tableSyntaxNode);
+            OpenMethodHeader methodHeader = (OpenMethodHeader) OpenLManager
+                .makeMethodHeader(openl, headerSource, bindingContext);
+            if (methodHeader == null) {
+                throw SyntaxNodeExceptionUtils.createError("Invalid method header.", tableSyntaxNode);
             }
+            return methodHeader;
         } finally {
             bindingContext.setIgnoreCustomSpreadsheetResultCompilation(false);
         }
