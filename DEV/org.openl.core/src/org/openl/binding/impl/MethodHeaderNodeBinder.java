@@ -40,6 +40,12 @@ public class MethodHeaderNodeBinder extends ANodeBinder {
 
         IMethodSignature signature = boundParametersNode.getSignature();
 
+        for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+            if (signature.getParameterName(i) == null) {
+                return new ErrorBoundNode(node);
+            }
+        }
+
         ISyntaxNode syntaxNode = typeNode.getSyntaxNode();
         while (syntaxNode.getNumberOfChildren() == 1 && !(syntaxNode instanceof IdentifierNode)) {
             // Get type node for array
