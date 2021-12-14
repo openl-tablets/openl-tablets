@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -232,6 +233,8 @@ public class RepositoryTreeController {
     private String algorithmsPath;
     private boolean editModelsPath = false;
     private boolean editAlgorithmsPath = false;
+
+    private final Map<String, RepositoryConfiguration> repositoryConfigurations = new HashMap<>();
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -614,7 +617,7 @@ public class RepositoryTreeController {
             .map(UserWorkspace::getDesignTimeRepository)
             .map(DesignTimeRepository::getDeployConfigRepository)
             .map(Repository::getId)
-            .map(repositoryId -> new RepositoryConfiguration(repositoryId, propertyResolver))
+            .map(this::getRepositoryConfiguration)
             .map(RepositoryConfiguration::getType)
             .orElse(null);
     }
@@ -631,7 +634,7 @@ public class RepositoryTreeController {
     public String getCreateAllowedRepositoriesTypes() throws JsonProcessingException {
         Map<String, String> types = getCreateAllowedRepositories().stream()
             .map(Repository::getId)
-            .map(repositoryId -> new RepositoryConfiguration(repositoryId, propertyResolver))
+            .map(this::getRepositoryConfiguration)
             .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
         return new ObjectMapper().writeValueAsString(types);
     }
@@ -968,15 +971,18 @@ public class RepositoryTreeController {
             .map(AProjectArtefact::getProject)
             .map(AProjectArtefact::getRepository)
             .map(Repository::getId)
-            .map(repositoryId -> new RepositoryConfiguration(repositoryId, propertyResolver))
+            .map(this::getRepositoryConfiguration)
             .map(RepositoryConfiguration::getType)
             .orElse(null);
     }
 
     public String getRepositoryType(String repositoryId) {
-        return Optional.ofNullable(new RepositoryConfiguration(repositoryId, propertyResolver))
-            .map(RepositoryConfiguration::getType)
-            .orElse(null);
+        return getRepositoryConfiguration(repositoryId).getType();
+    }
+
+    private RepositoryConfiguration getRepositoryConfiguration(String repositoryId) {
+        return repositoryConfigurations.computeIfAbsent(repositoryId,
+            k -> new RepositoryConfiguration(k, propertyResolver));
     }
 
     public String deleteNode() {
