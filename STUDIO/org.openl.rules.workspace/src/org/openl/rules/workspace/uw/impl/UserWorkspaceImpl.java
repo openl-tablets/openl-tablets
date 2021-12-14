@@ -65,6 +65,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     private boolean projectsRefreshNeeded = true;
     private boolean deploymentsRefreshNeeded = true;
+    private boolean syncNeeded = true;
     private boolean cleanUpOnActivation = false;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<>();
@@ -294,7 +295,14 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public void syncProjects() {
-        for (RulesProject rPr : getProjects()) {
+        syncNeeded = true;
+    }
+
+    private void doSyncProjects() {
+        syncNeeded = false;
+
+        boolean anyProjectRenamed = false;
+        for (RulesProject rPr : getProjects(false)) {
             Repository repository = designTimeRepository.getRepository(rPr.getRepository().getId());
             if (repository != null && repository.supports().mappedFolders()) {
                 if (rPr.isOpened() && !rPr.isLocalOnly()) {
@@ -309,7 +317,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
                             int index = prevPath.lastIndexOf('/');
                             String newPath = prevPath.substring(0, index + 1) + realProjectName;
                             boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
-                            if (!renamed) {
+                            if (renamed) {
+                                anyProjectRenamed = true;
+                            } else {
                                 log.warn("Can't rename folder from " + prevPath + " to " + newPath);
                             }
                         }
@@ -320,6 +330,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     }
                 }
             }
+        }
+
+        if (anyProjectRenamed) {
+            // We need to recreate projects list in user workspace.
+            refreshRulesProjects();
         }
     }
 
@@ -597,6 +612,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
             projectsRefreshNeeded = false;
             cleanUpOnActivation = false;
+
+            if (syncNeeded) {
+                doSyncProjects();
+            }
         }
     }
 
