@@ -114,11 +114,8 @@ public final class DecisionTableHelper {
         java.lang.Integer.class,
         java.lang.Long.class,
         java.math.BigInteger.class);
-    private static final List<Class<?>> DOUBLE_TYPES = Arrays.asList(float.class,
-        double.class,
-        java.lang.Float.class,
-        java.lang.Double.class,
-        java.math.BigDecimal.class);
+    private static final List<Class<?>> DOUBLE_TYPES = Arrays
+        .asList(float.class, double.class, java.lang.Float.class, java.lang.Double.class, java.math.BigDecimal.class);
     private static final List<Class<?>> CHAR_TYPES = Arrays.asList(char.class, java.lang.Character.class);
     private static final List<Class<?>> STRING_TYPES = Arrays.asList(java.lang.String.class);
     private static final List<Class<?>> DATE_TYPES = Collections.singletonList(Date.class);
@@ -3039,15 +3036,14 @@ public final class DecisionTableHelper {
                     } else if (StringUtils.isBlank(part1) && StringUtils.isNotBlank(part2)) {
                         return Pair.of(i + originalTable.getSource().getCell(i, 0).getWidth(),
                             WithVerticalTitles.EMPTY_COLUMN);
-                    }
-                }
-                if (i > 0) {
-                    int w1 = originalTable.getSource().getCell(i - 1, firstColumnHeight).getWidth();
-                    int w2 = originalTable.getSource().getCell(i - 1, firstColumnHeight - 1).getWidth();
-                    int w3 = originalTable.getSource().getCell(i, firstColumnHeight - 1).getWidth();
-                    if (w1 == w2 + w3) {
-                        return Pair.of(i + originalTable.getSource().getCell(i, 0).getWidth(),
-                            WithVerticalTitles.MERGED_COLUMN);
+                    } else if (i > 0 && StringUtils.isBlank(part1) && StringUtils.isNotBlank(part2)) {
+                        int w1 = originalTable.getSource().getCell(i - 1, firstColumnHeight).getWidth();
+                        int w2 = originalTable.getSource().getCell(i - 1, firstColumnHeight - 1).getWidth();
+                        int w3 = originalTable.getSource().getCell(i, firstColumnHeight - 1).getWidth();
+                        if (w1 == w2 + w3) {
+                            return Pair.of(i + originalTable.getSource().getCell(i, 0).getWidth(),
+                                WithVerticalTitles.MERGED_COLUMN);
+                        }
                     }
                 }
                 i = i + originalTable.getSource().getCell(i, 0).getWidth();
