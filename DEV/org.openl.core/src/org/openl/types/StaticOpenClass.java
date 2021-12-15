@@ -1,6 +1,7 @@
 package org.openl.types;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -196,7 +197,7 @@ public class StaticOpenClass implements IOpenClass {
 
     @Override
     public Collection<IOpenClass> superClasses() {
-        throw new UnsupportedOperationException();
+        return Collections.singleton(JavaOpenClass.CLASS);
     }
 
     @Override
