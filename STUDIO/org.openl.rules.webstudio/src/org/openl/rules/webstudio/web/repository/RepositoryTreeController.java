@@ -235,6 +235,7 @@ public class RepositoryTreeController {
     private boolean editAlgorithmsPath = false;
 
     private final Map<String, RepositoryConfiguration> repositoryConfigurations = new HashMap<>();
+    private final Map<String, Comments> allComments = new HashMap<>();
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -1528,7 +1529,7 @@ public class RepositoryTreeController {
 
     private Comments getComments(UserWorkspaceProject project) {
         if (project == null || project.getDesignRepository() == null) {
-            return new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID);
+            return getComments(Comments.DESIGN_CONFIG_REPO_ID);
         }
         if (project instanceof ADeploymentProject) {
             return deployConfigRepoComments;
@@ -1892,8 +1893,12 @@ public class RepositoryTreeController {
     }
 
     private Comments getDesignRepoComments() {
-        return StringUtils.isEmpty(repositoryId) ? new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID)
-                                                 : new Comments(propertyResolver, repositoryId);
+        return StringUtils.isEmpty(repositoryId) ? getComments(Comments.DESIGN_CONFIG_REPO_ID)
+                                                 : getComments(repositoryId);
+    }
+
+    private Comments getComments(String repositoryId) {
+        return allComments.computeIfAbsent(repositoryId, k -> new Comments(propertyResolver, k));
     }
 
     public void setNewProjectName(String newProjectName) {
