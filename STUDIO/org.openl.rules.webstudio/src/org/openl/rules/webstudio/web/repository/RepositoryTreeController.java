@@ -1634,10 +1634,10 @@ public class RepositoryTreeController {
             }
             project.open();
             // User workspace is changed when the project was opened, so we must refresh it to calc dependencies.
-            userWorkspace.refresh();
+            // resetStudioModel() should internally refresh workspace.
+            resetStudioModel();
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
-            resetStudioModel();
             clearVersionsBean();
         } catch (Exception e) {
             String msg = "Failed to open project.";
@@ -1653,6 +1653,7 @@ public class RepositoryTreeController {
             if (selectedProject == null) {
                 return;
             }
+            boolean openedAnyDependency = false;
             String repoId = selectedProject.getRepository().getId();
             for (String dependency : getDependencies(selectedProject, true)) {
                 TreeProject projectNode = repositoryTreeState.getProjectNodeByBusinessName(repoId, dependency);
@@ -1668,7 +1669,13 @@ public class RepositoryTreeController {
                     projectArtefact.getName());
                 if (!userWorkspace.isOpenedOtherProject(project)) {
                     project.open();
+                    openedAnyDependency = true;
                 }
+            }
+
+            if (openedAnyDependency) {
+                // If opened any dependency, we need to refresh workspace again
+                resetStudioModel();
             }
         }
     }
