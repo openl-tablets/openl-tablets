@@ -36,7 +36,7 @@ import org.openl.rules.table.IGridTable;
  * @author DLiauchuk
  *
  */
-public class LookupHeadersTransformer extends TwoDimensionDecisionTableTranformer {
+public class LookupHeadersTransformer extends TwoDimensionDecisionTableTransformer {
 
     private final int firstVerticalColumn;
     private final int[] horizontalHeaderOffsets;
@@ -55,7 +55,7 @@ public class LookupHeadersTransformer extends TwoDimensionDecisionTableTranforme
     public int getColumn(int col, int row) {
         if (col < firstVerticalColumn) {
             return super.getColumn(col, row);
-        } else if (col < firstVerticalColumn + horizontalHeaderOffsets.length && row < 3) {
+        } else if (col < firstVerticalColumn + horizontalHeaderOffsets.length && row < HCONDITION_HEADERS_HEIGHT) {
             return horizontalHeaderOffsets[col - firstVerticalColumn];
         }
         return super.getColumn(col, row);
@@ -65,7 +65,7 @@ public class LookupHeadersTransformer extends TwoDimensionDecisionTableTranforme
     public int getRow(int col, int row) {
         if (col < firstVerticalColumn) {
             return super.getRow(col, row);
-        } else if (col < firstVerticalColumn + horizontalHeaderOffsets.length && row < 3) {
+        } else if (col < firstVerticalColumn + horizontalHeaderOffsets.length && row < HCONDITION_HEADERS_HEIGHT) {
             return row;
         }
         return super.getRow(col, row);
