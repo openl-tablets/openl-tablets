@@ -353,6 +353,7 @@ public class RepositoryTreeController {
             closeProjectAndReleaseResources(repositoryProject);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
+            clearVersionsBean();
         } catch (Exception e) {
             String msg = "Failed to close project.";
             log.error(msg, e);
@@ -1636,7 +1637,7 @@ public class RepositoryTreeController {
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
-            forceUpdateVersionsBean();
+            clearVersionsBean();
         } catch (Exception e) {
             String msg = "Failed to open project.";
             log.error(msg, e);
@@ -2886,5 +2887,9 @@ public class RepositoryTreeController {
     public void forceUpdateVersionsBean() {
         nodeVersionsBean.setNodeToView(repositoryTreeState.getSelectedNode());
         setVersion(null);
+    }
+
+    private void clearVersionsBean() {
+        nodeVersionsBean.setNodeToView(null);
     }
 }
