@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.openl.rules.diff.hierarchy.Projection;
 import org.openl.rules.diff.hierarchy.ProjectionProperty;
@@ -11,6 +12,7 @@ import org.openl.rules.diff.tree.DiffElement;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjection;
 import org.openl.rules.diff.xls.XlsProjectionType;
+import org.openl.rules.table.EmptyCell;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -26,6 +28,7 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 public abstract class AbstractDiffController {
     // TODO remove?
     private boolean showEqualElements;
+    private boolean showEqualRows;
 
     private TreeNode richDiffTree;
     private TreeNode selectedNode;
@@ -39,6 +42,14 @@ public abstract class AbstractDiffController {
 
     public void setShowEqualElements(boolean showEqualElements) {
         this.showEqualElements = showEqualElements;
+    }
+
+    public boolean isShowEqualRows() {
+        return showEqualRows;
+    }
+
+    public void setShowEqualRows(boolean showEqualRows) {
+        this.showEqualRows = showEqualRows;
     }
 
     public IOpenLTable getTable1() {
@@ -131,10 +142,43 @@ public abstract class AbstractDiffController {
         selectedNode = null;
     }
 
+    public List<ICell> getModifiedCells1() {
+        return getModifiedCells(0);
+    }
+
+    public List<ICell> getModifiedCells2() {
+        return getModifiedCells(1);
+    }
+
+    // In the list of changed cells, you must add the changed cells from the second version of the table,
+    // which are not present in the first version, which means that they have been removed or added.
+    private List<ICell> getModifiedCells(int i) {
+        List<ICell> diffCells = null;
+        XlsProjection projection = projectionTable(i);
+        if (projection != null && !showEqualRows) {
+            List<ICell> projectionDiffCells = projection.getDiffCells();
+            diffCells = projectionDiffCells != null ? new ArrayList<>(projectionDiffCells) : new ArrayList<>();
+            XlsProjection projectionTableToCompare = projectionTable(i == 0 ? 1 : 0);
+            if (projectionTableToCompare != null) {
+                List<ICell> otherDiffCells = projectionTableToCompare.getDiffCells();
+                if (otherDiffCells != null) {
+                    List<ICell> finalDiffCells = diffCells;
+                    List<ICell> emptyCells = otherDiffCells.stream()
+                        .filter(cell -> finalDiffCells.stream().noneMatch(c -> c.getRow() == cell.getRow()))
+                        .map(EmptyCell::new)
+                        .collect(Collectors.toList());
+                    diffCells.addAll(emptyCells);
+                }
+            }
+        }
+        return diffCells;
+    }
+
     public void reset(){
         richDiffTree = null;
         selectedNode = null;
         showEqualElements = false;
+        showEqualRows = false;
     }
 
     private void rebuild(AtomicInteger idGenerator, TreeNode parent) {

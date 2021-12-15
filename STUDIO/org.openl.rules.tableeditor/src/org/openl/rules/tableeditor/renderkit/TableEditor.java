@@ -1,12 +1,14 @@
 package org.openl.rules.tableeditor.renderkit;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.model.ui.LinkBuilder;
@@ -26,6 +28,7 @@ public class TableEditor {
     private boolean showFormulas;
     private boolean collapseProps;
     private IGridFilter[] filters;
+    private List<ICell> modifiedCells;
     private String beforeEditAction;
     private String beforeSaveAction;
     private String afterSaveAction;
@@ -53,6 +56,7 @@ public class TableEditor {
         showFormulas = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_SHOW_FORMULAS));
         collapseProps = BooleanUtils.toBoolean(attributes.get(Constants.ATTRIBUTE_COLLAPSE_PROPS));
         castToFilters(component.getAttributes().get(Constants.ATTRIBUTE_FILTERS));
+        modifiedCells = (List<ICell>) attributes.get(Constants.ATTRIBUTE_CELLS);
         beforeEditAction = getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_EDIT_ACTION);
         beforeSaveAction = getValueExpressionString(component, Constants.ATTRIBUTE_BEFORE_SAVE_ACTION);
         afterSaveAction = getValueExpressionString(component, Constants.ATTRIBUTE_AFTER_SAVE_ACTION);
@@ -153,6 +157,14 @@ public class TableEditor {
 
     public void setFilters(IGridFilter[] filters) {
         this.filters = filters;
+    }
+
+    public List<ICell> getModifiedCells() {
+        return modifiedCells;
+    }
+
+    public void setModifiedCells(List<ICell> modifiedCells) {
+        this.modifiedCells = modifiedCells;
     }
 
     public String getBeforeEditAction() {

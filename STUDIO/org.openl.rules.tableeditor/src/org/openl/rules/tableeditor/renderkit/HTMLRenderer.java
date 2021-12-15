@@ -87,8 +87,7 @@ public class HTMLRenderer {
                 editor.getLinkBuilder(),
                 mode,
                 editor.getView(),
-                openLTable.getMetaInfoReader(), false);
-
+                openLTable.getMetaInfoReader(), false, editor.getModifiedCells());
             if (tableModel != null) {
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
                 String tableId = editor.getId() + Constants.ID_POSTFIX_TABLE;

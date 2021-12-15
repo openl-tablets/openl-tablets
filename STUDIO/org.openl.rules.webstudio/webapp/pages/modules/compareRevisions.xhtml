@@ -25,6 +25,7 @@
     .comparison-layout .te_table {
       margin: 0 auto;
     }
+
   </style>
 
   <rich:popupPanel id="modalCompareRevisions" resizeable="true">
@@ -41,6 +42,11 @@
         <p>
           <h:outputLabel value="#{msg['ws.compare.equals']}:" for="showEqualElements"/>
           <h:selectBooleanCheckbox id="showEqualElements" value="#{conflictedFileDiffController.showEqualElements}">
+            <a4j:ajax render="@form"/>
+          </h:selectBooleanCheckbox>
+
+          <h:outputLabel value="#{msg['ws.compare.equal.rows']}:" for="showEqualRows"/>
+          <h:selectBooleanCheckbox id="showEqualRows" value="#{conflictedFileDiffController.showEqualRows}">
             <a4j:ajax render="@form"/>
           </h:selectBooleanCheckbox>
         </p>
@@ -66,13 +72,15 @@
               <td valign="top">
                 <a4j:outputPanel ajaxRendered="true">
                   <rules:tableEditor id="tableEditorOur" table="#{conflictedFileDiffController.table1}"
-                                     editable="false" filters="#{conflictedFileDiffController.filter1}" />
+                                     editable="false" filters="#{conflictedFileDiffController.filter1}"
+                                     modifiedCells="#{conflictedFileDiffController.modifiedCells1}"/>
                 </a4j:outputPanel>
               </td>
               <td valign="top">
                 <a4j:outputPanel ajaxRendered="true">
                   <rules:tableEditor id="tableEditorTheir" table="#{conflictedFileDiffController.table2}"
-                                     editable="false" filters="#{conflictedFileDiffController.filter2}" />
+                                     editable="false" filters="#{conflictedFileDiffController.filter2}"
+                                     modifiedCells="#{conflictedFileDiffController.modifiedCells2}" />
                 </a4j:outputPanel>
               </td>
             </tr>

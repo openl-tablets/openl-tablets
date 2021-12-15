@@ -63,7 +63,10 @@
 
         <h:form id="diffTreeForm">
             <input type="hidden" name="id" value=""  />
-
+            <h:outputText value="#{msg['ws.compare.equal.rows']}:" />
+            <h:selectBooleanCheckbox value="#{uploadExcelDiffController.showEqualRows}">
+                <a4j:ajax render="diffCompare"/>
+            </h:selectBooleanCheckbox>
             <div style="width: 100%; height: 330px; background: #f5f5f5; border-top: 1px solid #bbbbbb; border-bottom: 1px solid #bbbbbb; overflow: auto;">
                 <rich:tree id="newTree" toggleType="client" selectionType="ajax"
                     selectionChangeListener="#{uploadExcelDiffController.processSelection}"
@@ -76,28 +79,32 @@
                 <h:outputText value="File elements are identical" style="font-weight:bold; padding: 5px 10px; " rendered="#{uploadExcelDiffController.richDiffTree.status=='EQUALS'}"/>
             </div>
 
-            <table style="width: 100%">
-                <tr>
-                    <td>#{msg['ws.compare.file1']}</td>
-                    <td>#{msg['ws.compare.file2']}</td>
-                </tr>
-                <tr>
-                    <td valign="top">
-                        <br />
-                        <a4j:outputPanel ajaxRendered="true">
-                            <rules:tableEditor id="tableEditor1" table="#{uploadExcelDiffController.table1}"
-                                editable="false" filters="#{uploadExcelDiffController.filter1}" />
-                        </a4j:outputPanel>
-                    </td>
-                    <td valign="top">
-                        <br />
-                        <a4j:outputPanel ajaxRendered="true">
-                            <rules:tableEditor id="tableEditor2" table="#{uploadExcelDiffController.table2}"
-                                editable="false" filters="#{uploadExcelDiffController.filter2}" />
-                        </a4j:outputPanel>
-                    </td>
-                </tr>
-            </table>
+            <h:panelGroup id="diffCompare">
+                <table style="width: 100%">
+                    <tr>
+                        <td>#{msg['ws.compare.file1']}</td>
+                        <td>#{msg['ws.compare.file2']}</td>
+                    </tr>
+                    <tr>
+                        <td valign="top">
+                            <br />
+                            <a4j:outputPanel ajaxRendered="true">
+                                <rules:tableEditor id="tableEditor1" table="#{uploadExcelDiffController.table1}"
+                                                   editable="false" filters="#{uploadExcelDiffController.filter1}"
+                                                   modifiedCells="#{uploadExcelDiffController.modifiedCells1}"/>
+                            </a4j:outputPanel>
+                        </td>
+                        <td valign="top">
+                            <br />
+                            <a4j:outputPanel ajaxRendered="true">
+                                <rules:tableEditor id="tableEditor2" table="#{uploadExcelDiffController.table2}"
+                                                   editable="false" filters="#{uploadExcelDiffController.filter2}"
+                                                   modifiedCells="#{uploadExcelDiffController.modifiedCells2}"/>
+                            </a4j:outputPanel>
+                        </td>
+                    </tr>
+                </table>
+            </h:panelGroup>
         </h:form>
 
         <script>
