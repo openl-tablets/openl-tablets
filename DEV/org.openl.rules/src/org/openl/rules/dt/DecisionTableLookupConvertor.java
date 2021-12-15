@@ -5,10 +5,7 @@ import java.util.List;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.table.CoordinatesTransformer;
-import org.openl.rules.table.GridRegion;
-import org.openl.rules.table.GridTable;
-import org.openl.rules.table.IGrid;
-import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.TransformedGridTable;
@@ -41,8 +38,8 @@ public class DecisionTableLookupConvertor {
     private static final int HEADER_ROW = 0;
     private static final int DISPLAY_ROW = 3;
 
-    private final List<ILogicalTable> hcHeaders = new ArrayList<>();
-    private ILogicalTable retTable;
+    private final List<IGridTable> hcHeaders = new ArrayList<>();
+    private IGridTable retTable;
     private DTScale scale;
 
     IGridTable convertTable(ILogicalTable table) throws OpenLCompilationException {
@@ -52,34 +49,28 @@ public class DecisionTableLookupConvertor {
         loadHorizConditionsAndReturnColumns(headerRow, firstLookupColumn);
         validateLookupSection();
 
-        IGridRegion displayRowRegion = getDisplayRowRegion(table);
+        processHorizConditionsHeaders(table, firstLookupColumn);
 
-        int firstLookupGridColumn = headerRow.getColumn(firstLookupColumn).getSource().getGridColumn(0, 0);
-
-        IGrid grid = table.getSource().getGrid();
-
-        processHorizConditionsHeaders(displayRowRegion, firstLookupGridColumn, grid);
-
-        IGridTable lookupValuesTable = getLookupValuesTable(table, firstLookupGridColumn, grid);
+        IGridTable lookupValuesTable = getLookupValuesTable(table, firstLookupColumn).getSource();
 
         Integer lookupValuesTableHeight = getLookupValuesTableHeight(table);
 
         isMultiplier(lookupValuesTable);
 
-        CoordinatesTransformer transformer = getTransformer(headerRow,
-            table,
+        CoordinatesTransformer transformer = getTransformer(table,
+            headerRow,
             lookupValuesTable,
             lookupValuesTableHeight);
 
         return new TransformedGridTable(table.getSource(), transformer);
     }
 
-    private CoordinatesTransformer getTransformer(ILogicalTable headerRow,
-            ILogicalTable table,
+    private CoordinatesTransformer getTransformer(ILogicalTable table,
+            ILogicalTable headerRow,
             IGridTable lookupValuesTable,
             Integer lookupValuesTableHeight) throws OpenLCompilationException {
         validateRetColumn(headerRow);
-        int retTableWidth = retTable.getSource().getCell(0, 0).getWidth();
+        int retTableWidth = retTable.getCell(0, 0).getWidth();
 
         if (lookupValuesTableHeight == null) {
             lookupValuesTableHeight = lookupValuesTable.getHeight();
@@ -111,8 +102,10 @@ public class DecisionTableLookupConvertor {
     private int[] buildHorizontalHeaderOffsets(ILogicalTable headerRow) {
         List<Integer> hcOffsets = new ArrayList<>();
         List<Integer> retOffsets = new ArrayList<>();
-        for (int columnIndex = 0; columnIndex < headerRow.getSource().getWidth(); columnIndex++) {
-            String headerStr = headerRow.getSource().getCell(columnIndex, 0).getStringValue();
+        int columnIndex = 0;
+        while (columnIndex < headerRow.getSource().getWidth()) {
+            ICell cell = headerRow.getSource().getCell(columnIndex, 0);
+            String headerStr = cell.getStringValue();
             if (headerStr != null) {
                 headerStr = headerStr.toUpperCase();
                 if (DecisionTableHelper.isValidHConditionHeader(headerStr)) {
@@ -122,6 +115,7 @@ public class DecisionTableLookupConvertor {
                     retOffsets.add(columnIndex);
                 }
             }
+            columnIndex = columnIndex + cell.getWidth();
         }
         hcOffsets.addAll(retOffsets);
         return hcOffsets.stream().mapToInt(Integer::intValue).toArray();
@@ -142,22 +136,31 @@ public class DecisionTableLookupConvertor {
         throw new OpenLCompilationException("RET or CRET column is mandatory for Lookup table.");
     }
 
-    private void processHorizConditionsHeaders(IGridRegion displayRowRegion,
-            int firstLookupGridColumn,
-            IGrid grid) throws OpenLCompilationException {
-        GridRegion hcHeadersRegion = new GridRegion(displayRowRegion);
-        hcHeadersRegion.setLeft(firstLookupGridColumn);
-        IGridTable hcHeaderTable = new GridTable(hcHeadersRegion, grid);
-
+    private void processHorizConditionsHeaders(ILogicalTable originalTable,
+            int firstLookupColumn) throws OpenLCompilationException {
+        ILogicalTable hcRowTable = originalTable.getRows(DISPLAY_ROW).getRow(0);
+        int w = 0;
+        int c = 0;
+        while (w < firstLookupColumn) {
+            w = w + hcRowTable.getColumn(c).getSource().getWidth();
+            c++;
+        }
+        ILogicalTable hcHeaderTable = hcRowTable.getSubtable(c, 0, hcRowTable.getWidth() - c, hcRowTable.getHeight());
         validateHCHeaders(hcHeaderTable);
     }
 
-    private IGridTable getLookupValuesTable(ILogicalTable originalTable, int firstLookupGridColumn, IGrid grid) {
-        ILogicalTable valueTable = originalTable.getRows(DISPLAY_ROW + 1);
-        IGridRegion region = valueTable.getSource().getRegion();
-        GridRegion lookupValuesRegion = new GridRegion(region);
-        lookupValuesRegion.setLeft(firstLookupGridColumn);
-        return new GridTable(lookupValuesRegion, grid);
+    private ILogicalTable getLookupValuesTable(ILogicalTable originalTable, int firstLookupColumn) {
+        int w = 0;
+        int c = 0;
+        while (w < firstLookupColumn) {
+            w = w + originalTable.getColumn(c).getSource().getWidth();
+            c++;
+        }
+        ILogicalTable hcRowTable = originalTable.getRows(DISPLAY_ROW).getRow(0);
+        return originalTable.getSubtable(c,
+            DISPLAY_ROW + hcRowTable.getHeight(),
+            originalTable.getWidth() - c,
+            originalTable.getHeight() - hcRowTable.getHeight() - DISPLAY_ROW);
     }
 
     private Integer getLookupValuesTableHeight(ILogicalTable originalTable) {
@@ -190,7 +193,7 @@ public class DecisionTableLookupConvertor {
     }
 
     private void isMultiplier(IGridTable lookupValuesTable) throws OpenLCompilationException {
-        int retTableWidth = retTable.getSource().getWidth();
+        int retTableWidth = retTable.getWidth();
         int lookupTableWidth = lookupValuesTable.getWidth();
 
         boolean isMultiplier = lookupTableWidth % retTableWidth == 0;
@@ -209,14 +212,8 @@ public class DecisionTableLookupConvertor {
         }
     }
 
-    private IGridRegion getDisplayRowRegion(ILogicalTable originalTable) {
-        ILogicalTable tableWithDisplay = originalTable.getRows(DISPLAY_ROW);
-        ILogicalTable displayRow = tableWithDisplay.getRow(0);
-        return displayRow.getSource().getRegion();
-    }
-
-    private void validateHCHeaders(IGridTable hcHeaderTable) throws OpenLCompilationException {
-        if (hcHeaders.size() != hcHeaderTable.getHeight()) {
+    private void validateHCHeaders(ILogicalTable hcHeaderTable) throws OpenLCompilationException {
+        if (hcHeaders.size() != hcHeaderTable.getSource().getHeight()) {
             throw new OpenLCompilationException(
                 "The height of the horizontal keys must be equal to the number of the horizontal headers.");
         }
@@ -240,10 +237,10 @@ public class DecisionTableLookupConvertor {
      * @throws OpenLCompilationException when there is no lookup headers.
      */
     private int findFirstLookupColumn(ILogicalTable headerRow) throws OpenLCompilationException {
-        int ncol = headerRow.getWidth();
+        int ncol = headerRow.getSource().getWidth();
 
         for (int columnIndex = 0; columnIndex < ncol; columnIndex++) {
-            String headerStr = headerRow.getColumn(columnIndex).getSource().getCell(0, 0).getStringValue();
+            String headerStr = headerRow.getSource().getColumn(columnIndex).getCell(0, 0).getStringValue();
 
             if (headerStr != null) {
                 headerStr = headerStr.toUpperCase();
@@ -270,34 +267,33 @@ public class DecisionTableLookupConvertor {
     private void loadHorizConditionsAndReturnColumns(ILogicalTable rowHeader,
             int firstLookupColumn) throws OpenLCompilationException {
 
-        int nCol = rowHeader.getWidth();
+        int nCol = rowHeader.getSource().getWidth();
+        int d = 0;
+        while (d < nCol) {
+            IGridTable hTable = rowHeader.getSource().getColumn(d);
+            if (d >= firstLookupColumn) {
+                String headerStr = hTable.getCell(0, 0).getStringValue();
+                if (headerStr != null) {
+                    headerStr = headerStr.toUpperCase();
 
-        while (firstLookupColumn < nCol) {
-
-            ILogicalTable hTable = rowHeader.getColumn(firstLookupColumn);
-            String headerStr = hTable.getSource().getCell(0, 0).getStringValue();
-
-            if (headerStr != null) {
-                headerStr = headerStr.toUpperCase();
-
-                if (DecisionTableHelper.isValidHConditionHeader(headerStr)) {
-                    if (hTable.getSource().getWidth() != 1) {
-                        throw new OpenLCompilationException("Column HC must have width = 1.");
+                    if (DecisionTableHelper.isValidHConditionHeader(headerStr)) {
+                        if (hTable.getWidth() != 1) {
+                            throw new OpenLCompilationException("Column HC must have width = 1.");
+                        }
+                        hcHeaders.add(hTable);
+                    } else if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper
+                        .isValidCRetHeader(headerStr)) {
+                        if (retTable != null) {
+                            throw new OpenLCompilationException("Only one RET column is allowed for Lookup table.");
+                        }
+                        retTable = hTable;
+                    } else {
+                        throw new OpenLCompilationException(
+                            "Lookup Table allows only HC or RET or CRET columns after vertical conditions: " + headerStr);
                     }
-                    hcHeaders.add(hTable);
-                } else if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper
-                    .isValidCRetHeader(headerStr)) {
-                    if (retTable != null) {
-                        throw new OpenLCompilationException("Only one RET column is allowed for Lookup table.");
-                    }
-                    retTable = hTable;
-                } else {
-                    throw new OpenLCompilationException(
-                        "Lookup Table allows only HC or RET or CRET columns after vertical conditions: " + headerStr);
                 }
             }
-
-            firstLookupColumn = firstLookupColumn + hTable.getSource().getCell(0, 0).getWidth();
+            d = d + hTable.getCell(0, 0).getWidth();
         }
     }
 
