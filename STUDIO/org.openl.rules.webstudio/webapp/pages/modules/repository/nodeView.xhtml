@@ -45,7 +45,7 @@
     <c:set var="copyMessage"
            value="Create a new project in Design Repository with a different project name but the same content "/>
 
-    <h:panelGroup rendered="#{node.type != 'deployment'}">
+    <h:panelGroup id="nodeButtons" rendered="#{node.type != 'deployment'}">
         <div class="nav-panel">
             <h:panelGroup rendered="#{node.type == 'file'}">
                 <h:commandButton id="updateId" rendered="#{repositoryTreeState.canModify}" value="Update file"
@@ -88,6 +88,7 @@
                                 rendered="#{not (environment.getProperty('user.mode') == 'single' and artefact.opened)}">
                             <h:commandButton id="openId1" rendered="#{repositoryTreeState.canOpen}" value="Open"
                                              action="#{repositoryTreeController.openProject}" title="#{openMessage}"
+                                             immediate="true"
                                              onclick="#{repositoryTreeController.hasDependencies ? rich:component('modalOpenProject').concat('.show();return false;') : ''}"/>
                             <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpenOtherVersion}"
                                              value="Open Revision"
@@ -167,6 +168,7 @@
     <rich:tabPanel id="nodeTabPanel" switchType="client"
                    rendered="#{node.type == 'file' || node.type == 'folder' || node.type == 'project' || node.type == 'prodproject' || node.type == 'prodfolder' || node.type == 'prodfile'}">
         <rich:tab id="properties" name="Properties" header="Properties">
+            <h:panelGroup id="propertiesContent">
             <table class="formfields" style="max-width: 500px;">
                 <tr>
                     <td class="label">
@@ -282,6 +284,7 @@
                     </ui:fragment>
                 </h:panelGroup>
             </table>
+            </h:panelGroup>
             <ui:fragment rendered="#{node.type == 'project' and not empty projectTagsBean.tagTypes and not repositoryTreeState.localOnly}">
                 <ui:include src="/pages/modules/tags/editProjectTagsPanel.xhtml">
                     <ui:param name="node" value="#{node}"/>
@@ -315,7 +318,9 @@
         <rich:tab id="elements" name="Elements" header="Elements"
                   disabled="#{node.type == 'file' or node.type == 'prodfile'}"
                   headerClass="#{node.type == 'file' or node.type == 'prodfile' ? 'hideHeader' : 'showHeader'}">
-            <ui:include src="/pages/modules/repository/node/elements.xhtml"/>
+            <h:panelGroup id="elementsContent">
+                <ui:include src="/pages/modules/repository/node/elements.xhtml"/>
+            </h:panelGroup>
         </rich:tab>
 
         <ui:remove><!--
@@ -362,10 +367,12 @@
 
                 <h:commandButton id="closeId3" rendered="#{repositoryTreeState.canClose}" value="Close"
                                  action="#{deploymentController.close}"
+                                 immediate="true"
                                  title="Close Deploy Configuration and make it unavailable for editing"
                                  onclick="if (#{deploymentController.modified}) {#{rich:component('modalCloseDeployConfiguration')}.show();return false;}"/>
                 <h:commandButton id="editDeployId" rendered="#{repositoryTreeState.canOpen}" value="Open"
                                  action="#{deploymentController.open}"
+                                 immediate="true"
                                  title="Make project available for editing and lock it from editing by other users"/>
                 <h:commandButton rendered="#{repositoryTreeState.canSaveDeployment}"
                                  onclick="withCommitInfoRequired('#{studio.currentUsername}', () => '#{repositoryTreeController.currentNodeRepositoryType}' === 'repo-git', () => $j('#saveDeployId').click()); return false;"
