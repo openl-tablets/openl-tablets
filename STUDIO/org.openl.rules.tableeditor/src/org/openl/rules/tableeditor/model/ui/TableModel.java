@@ -2,6 +2,7 @@ package org.openl.rules.tableeditor.model.ui;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
@@ -10,6 +11,8 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.CollectionUtils;
+
+import java.util.List;
 
 public class TableModel {
 
@@ -22,14 +25,14 @@ public class TableModel {
     private final boolean showHeader;
 
     public static TableModel initializeTableModel(IGridTable table, int numRows, MetaInfoReader metaInfoReader) {
-        return initializeTableModel(table, null, numRows, null, null, null, metaInfoReader, false);
+        return initializeTableModel(table, null, numRows, null, null, null, metaInfoReader, false, null);
     }
 
     public static TableModel initializeTableModel(IGridTable table,
             IGridFilter[] filters,
             MetaInfoReader metaInfoReader,
             boolean smartNumbers) {
-        return initializeTableModel(table, filters, -1, null, null, null, metaInfoReader, smartNumbers);
+        return initializeTableModel(table, filters, -1, null, null, null, metaInfoReader, smartNumbers, null);
     }
 
     public static TableModel initializeTableModel(IGridTable table,
@@ -39,7 +42,8 @@ public class TableModel {
             String mode,
             String view,
             MetaInfoReader metaInfoReader,
-            boolean smartNumbers) {
+            boolean smartNumbers,
+            List<ICell> modifiedCells) {
         if (table == null) {
             return null;
         }
@@ -62,7 +66,12 @@ public class TableModel {
             ((GridRegion) region).setBottom(region.getTop() + numRows - 1);
         }
 
-        return new TableViewer(grid, region, linkBuilder, mode, view, metaInfoReader, smartNumbers).buildModel(table, numRows);
+        // If we display only changed rows, then to find them, we need to consider the full region of the table,
+        // since modified lines may be outside the restricted region.
+        IGridRegion displayedRegion = modifiedCells != null ? table.getRegion() : region;
+
+        return new TableViewer(grid, region, linkBuilder, mode, view, metaInfoReader, smartNumbers)
+            .buildModel(table, numRows, modifiedCells, displayedRegion);
     }
 
     public boolean isShowHeader() {
@@ -99,7 +108,9 @@ public class TableModel {
         }
 
         ICellModel icm = cells[row][col];
-
+        if (icm == null) {
+            return null;
+        }
         CellModel cm;
         switch (border) {
             case ICellStyle.TOP:

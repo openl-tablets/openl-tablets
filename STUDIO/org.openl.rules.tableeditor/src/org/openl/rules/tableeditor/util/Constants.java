@@ -7,6 +7,7 @@ public final class Constants {
     public static final String ATTRIBUTE_TABLE = "table";
     public static final String ATTRIBUTE_VIEW = "view";
     public static final String ATTRIBUTE_FILTERS = "filters";
+    public static final String ATTRIBUTE_CELLS = "modifiedCells";
     public static final String ATTRIBUTE_MODE = "mode";
     public static final String ATTRIBUTE_EDITABLE = "editable";
     public static final String ATTRIBUTE_SHOW_FORMULAS = "showFormulas";

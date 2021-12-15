@@ -9,6 +9,7 @@ public class TableViewerTag extends BaseTag {
 
     private ValueExpression table = null;
     private ValueExpression filters = null;
+    private ValueExpression modifiedCells = null;
     private ValueExpression view = null;
     private ValueExpression showFormulas = null;
     private ValueExpression collapseProps = null;
@@ -30,6 +31,10 @@ public class TableViewerTag extends BaseTag {
 
     public void setFilters(ValueExpression filters) {
         this.filters = filters;
+    }
+
+    public void setModifiedCells(ValueExpression modifiedCells) {
+        this.modifiedCells = modifiedCells;
     }
 
     public void setView(ValueExpression view) {
@@ -55,6 +60,7 @@ public class TableViewerTag extends BaseTag {
         component.setValueExpression(Constants.ATTRIBUTE_TABLE, table);
         component.setValueExpression(Constants.ATTRIBUTE_VIEW, view);
         component.setValueExpression(Constants.ATTRIBUTE_FILTERS, filters);
+        component.setValueExpression(Constants.ATTRIBUTE_CELLS, modifiedCells);
         component.setValueExpression(Constants.ATTRIBUTE_SHOW_FORMULAS, showFormulas);
         component.setValueExpression(Constants.ATTRIBUTE_COLLAPSE_PROPS, collapseProps);
         component.setValueExpression(Constants.ATTRIBUTE_EXCLUDE_SCRIPTS, excludeScripts);
@@ -66,6 +72,7 @@ public class TableViewerTag extends BaseTag {
         super.release();
         table = null;
         filters = null;
+        modifiedCells = null;
         view = null;
         showFormulas = null;
         collapseProps = null;

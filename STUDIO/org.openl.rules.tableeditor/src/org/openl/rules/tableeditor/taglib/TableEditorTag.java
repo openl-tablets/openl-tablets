@@ -4,7 +4,11 @@ import javax.el.MethodExpression;
 import javax.el.ValueExpression;
 import javax.faces.component.UIComponent;
 
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridRegion;
 import org.openl.rules.tableeditor.util.Constants;
+
+import java.util.List;
 
 public class TableEditorTag extends TableViewerTag {
 
@@ -19,6 +23,7 @@ public class TableEditorTag extends TableViewerTag {
     private ValueExpression onError = null;
     private ValueExpression onRequestStart = null;
     private ValueExpression onRequestEnd = null;
+    private List<ICell> modifiedCells = null;
 
     @Override
     public String getComponentType() {
@@ -71,6 +76,14 @@ public class TableEditorTag extends TableViewerTag {
 
     public void setOnRequestEnd(ValueExpression onRequestEnd) {
         this.onRequestEnd = onRequestEnd;
+    }
+
+    public List<ICell> getModifiedCells() {
+        return modifiedCells;
+    }
+
+    public void setModifiedCells(List<ICell> modifiedCells) {
+        this.modifiedCells = modifiedCells;
     }
 
     @Override

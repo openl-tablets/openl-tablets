@@ -19,6 +19,11 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public class TableViewer {
     private final Logger log = LoggerFactory.getLogger(TableViewer.class);
 
@@ -205,18 +210,9 @@ public class TableViewer {
         return linkBuilder != null;
     }
 
-    public TableModel buildModel(IGridTable gt) {
-        return buildModel(gt, -1);
-    }
-
-    public TableModel buildModel(IGridTable gt, int numRows) {
-
-        // IGridTable table = new GridTable(g.getTop(), g.getLeft(),
-        // g.getBottom(),
-        // g.getRight(), t.getGrid());
-
-        int h = IGridRegion.Tool.height(reg);
-        int w = IGridRegion.Tool.width(reg);
+    public TableModel buildModel(IGridTable gt, int numRowsToDisplay, List<ICell> modifiedCells, IGridRegion region) {
+        int h = IGridRegion.Tool.height(region);
+        int w = IGridRegion.Tool.width(region);
 
         boolean showHeader = true;
         if ("business".equals(view)) {
@@ -224,7 +220,7 @@ public class TableViewer {
         }
 
         TableModel tm = new TableModel(w, h, gt, showHeader);
-        tm.setNumRowsToDisplay(numRows);
+        tm.setNumRowsToDisplay(numRowsToDisplay);
 
         if (gt.getGrid() instanceof CompositeGrid) {
             metaInfoReader.prepare(((CompositeGrid) gt.getGrid()).getGridTables()[0].getRegion());
@@ -232,35 +228,71 @@ public class TableViewer {
             metaInfoReader.prepare(reg);
         }
 
-        for (int row = reg.getTop(); row <= reg.getBottom(); row++) {
-            for (int column = reg.getLeft(); column <= reg.getRight(); column++) {
-                int c = column - reg.getLeft();
-                int r = row - reg.getTop();
-                if (tm.hasCell(r, c)) {
-                    continue;
+        if (modifiedCells != null) {
+            Set<Integer> modifiedRows = modifiedCells.stream().map(ICell::getRow).collect(Collectors.toSet());
+            if (numRowsToDisplay > -1) {
+                if (numRowsToDisplay < modifiedRows.size()) {
+                    modifiedRows = modifiedRows.stream().limit(numRowsToDisplay).collect(Collectors.toSet());
+                } else {
+                    tm.setNumRowsToDisplay(-1);
                 }
-                ICell cell = grid.getCell(column, row);
-                CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
-                CellModel cm = buildCell(cell, new CellModel(r, c), metaInfo);
+            }
+            // Display the first row even if it has not been changed.
+            if (!modifiedRows.contains(0)) {
+                addDisplayedCellToTableModel(tm, region.getTop(), region.getTop(), region, null);
+            }
+            for (int row : modifiedRows) {
+                addDisplayedCellToTableModel(tm, row, row, region, modifiedCells);
+            }
+        } else {
+            for (int row = region.getTop(); row <= region.getBottom(); row++) {
+                int r = row - region.getTop();
+                addDisplayedCellToTableModel(tm, row, r, region, null);
+            }
+        }
+        if (gt.getGrid() instanceof CompositeGrid) {
+            metaInfoReader.prepare(((CompositeGrid) gt.getGrid()).getGridTables()[0].getRegion());
+        } else {
+            metaInfoReader.prepare(reg);
+        }
 
-                tm.addCell(cm, r, c);
-                if (cm.getColspan() > 1 || cm.getRowspan() > 1) {
-                    CellModelDelegator cmd = new CellModelDelegator(cm);
-                    for (int i = 0; i < cm.getRowspan(); i++) {
-                        for (int j = 0; j < cm.getColspan(); j++) {
-                            if (i == 0 && j == 0) {
-                                continue;
-                            }
-                            tm.addCell(cmd, r + i, c + j);
+        setGrid(tm);
+        return tm;
+    }
+
+    private void addDisplayedCellToTableModel(TableModel tm,
+            int row,
+            int r,
+            IGridRegion region,
+            List<ICell> modifiedCells) {
+        for (int column = region.getLeft(); column <= region.getRight(); column++) {
+            int c = column - region.getLeft();
+            if (tm.hasCell(r, c)) {
+                continue;
+            }
+            Optional<ICell> changedCell = Optional.empty();
+            if (modifiedCells != null) {
+                changedCell = modifiedCells.stream()
+                    .filter(v -> v.getRow() == r && v.getColumn() == c)
+                    .findFirst();
+            }
+            ICell cell = changedCell.orElse(grid.getCell(column, row));
+            CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
+            CellModel cm = buildCell(cell, new CellModel(r, c), metaInfo);
+            tm.addCell(cm, r, c);
+            if (cm.getColspan() > 1 || cm.getRowspan() > 1) {
+                CellModelDelegator cmd = new CellModelDelegator(cm);
+                for (int i = 0; i < cm.getRowspan(); i++) {
+                    for (int j = 0; j < cm.getColspan(); j++) {
+                        if (i == 0 && j == 0) {
+                            continue;
                         }
+                        tm.addCell(cmd, r + i, c + j);
                     }
                 }
-
             }
 
         }
-        setGrid(tm);
-        return tm;
     }
 
     BorderStyle getBorderStyle(ICellStyle cs, int side) {

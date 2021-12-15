@@ -129,6 +129,13 @@
             </deferred-value>
         </attribute>
         <attribute>
+            <description>Table modified cells. Used to display the difference between revisions of tables.</description>
+            <name>modifiedCells</name>
+            <deferred-value>
+                <type>java.lang.Object</type>
+            </deferred-value>
+        </attribute>
+        <attribute>
             <description>Flag that indicates how to display cell content(formulas or values). The default is 'false'.</description>
             <name>showFormulas</name>
             <deferred-value>

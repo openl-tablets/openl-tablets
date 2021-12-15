@@ -47,6 +47,8 @@
 
       <h:outputText value="Show equal elements:" />
       <h:selectBooleanCheckbox value="#{repositoryDiffController.showEqualElements}" />
+      <h:outputText value="#{msg['ws.compare.equal.rows']}:" />
+      <h:selectBooleanCheckbox value="#{repositoryDiffController.showEqualRows}" />
       <h:commandButton id="compareBtn" value="Compare" action="#{repositoryDiffController.compare}"
         disabled="#{empty repositoryDiffController.excelFilesUW or empty repositoryDiffController.excelFilesRepo}"
                        style="margin-left: 10px;">
@@ -160,7 +162,7 @@
                   <div class="comparison-table">
                     <a4j:outputPanel ajaxRendered="true">
                     <rules:tableEditor id="editor1" table="#{repositoryDiffController.table1}" mode="view"
-                      editable="false" />
+                      editable="false" modifiedCells="#{repositoryDiffController.modifiedCells1}"/>
                       </a4j:outputPanel>
                    </div>
                 </td>
@@ -169,7 +171,7 @@
                   <div class="comparison-table">
                   <a4j:outputPanel ajaxRendered="true">
                     <rules:tableEditor id="editor2" table="#{repositoryDiffController.table2}" mode="view"
-                      filters="#{repositoryDiffController.filter2}" editable="false" />
+                      filters="#{repositoryDiffController.filter2}" editable="false" modifiedCells="#{repositoryDiffController.modifiedCells2}"/>
                   </a4j:outputPanel>
                   </div>
                 </td>
