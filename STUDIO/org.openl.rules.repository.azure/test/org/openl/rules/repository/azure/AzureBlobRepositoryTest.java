@@ -77,15 +77,15 @@ public class AzureBlobRepositoryTest {
         assertNotNull(folders);
         assertEquals(2, folders.size());
 
-        assertEquals("rules/project1", folders.get(0).getName());
-        assertEquals("rules/project2", folders.get(1).getName());
+        assertContains(folders, "rules/project1");
+        assertContains(folders, "rules/project2");
 
         // Finding folders inside the projects
         List<FileData> subFolders = repo.listFolders("rules/project2/");
         assertNotNull(subFolders);
         assertEquals(2, subFolders.size());
-        assertEquals("rules/project2/folder1", subFolders.get(0).getName());
-        assertEquals("rules/project2/folder2", subFolders.get(1).getName());
+        assertContains(subFolders, "rules/project2/folder1");
+        assertContains(subFolders, "rules/project2/folder2");
     }
 
     @Test
