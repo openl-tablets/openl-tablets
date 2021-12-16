@@ -45,9 +45,9 @@ public class AzureBlobRepository implements FolderRepository {
     private static final String UNSUPPORTED_IN_FOLDER_REPOSITORY = "Unsupported in folder repository";
     static final String VERSION_FILE = "versions.yaml";
 
-    private static final String MODIFICATION_FILE = "[openl]/.modification";
+    private static final String MODIFICATION_FILE = ".modification";
     static final String CONTENT_PREFIX = "[content]/";
-    static final String VERSIONS_PREFIX = "[openl]/versions/";
+    static final String VERSIONS_PREFIX = ".versions/";
 
     private final Logger log = LoggerFactory.getLogger(AzureBlobRepository.class);
 
@@ -635,7 +635,7 @@ public class AzureBlobRepository implements FolderRepository {
             }
             return commit;
         } catch (Exception e) {
-            log.debug(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             return null;
         }
     }
