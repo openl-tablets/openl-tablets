@@ -78,7 +78,7 @@
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
-        <org.springframework.version>5.2.14.RELEASE</org.springframework.version>
+        <org.springframework.version>5.3.13</org.springframework.version>
         <org.springsecurity.version>5.4.6</org.springsecurity.version>
         <org.hibernate.version>5.4.24.Final</org.hibernate.version>
         <org.mojarra.version>2.1.19</org.mojarra.version>
