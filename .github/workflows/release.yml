@@ -96,7 +96,7 @@ jobs:
         -DnexusUrl=https://oss.sonatype.org/
         -DserverId=ossrh
         -DstagingProfileId=${{ secrets.OSSRH_STAGING_PROFILE_ID }}
-        -DstagingDescription="Release by ${{ github.actor }} #${{ github.run_number }}"
+        -DstagingDescription="Release ${{ env.RELEASE_TAG }} by ${{ github.actor }} #${{ github.run_number }}"
         -DautoReleaseAfterClose=false
         -DautoDropAfterRelease=true
         -DkeepStagingRepositoryOnFailure=true
