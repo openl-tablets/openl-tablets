@@ -49,7 +49,6 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         permission java.lang.RuntimePermission "accessClassInPackage.jdk.*";
         permission java.lang.RuntimePermission "accessClassInPackage.sun.*";
 
-
         //ClassLoaders
         permission java.lang.RuntimePermission "getClassLoader";
         permission java.lang.RuntimePermission "setContextClassLoader";
@@ -140,6 +139,8 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         permission java.lang.RuntimePermission "createSecurityManager";
         //hibernate and java 9+
         permission java.lang.RuntimePermission "getStackWalkerWithClassReference";
+        //hibernate with bytebuddy version 1.12.1 which came after update mockito to 4.1.0
+        permission java.lang.RuntimePermission "net.bytebuddy.createJavaDispatcher";
 
         permission org.hibernate.validator.HibernateValidatorPermission "accessPrivateMembers";
 
