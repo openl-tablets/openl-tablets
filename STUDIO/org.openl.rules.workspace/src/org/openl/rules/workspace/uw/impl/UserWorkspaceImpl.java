@@ -63,10 +63,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final HashMap<ProjectKey, RulesProject> userRulesProjects;
     private final HashMap<String, ADeploymentProject> userDProjects;
 
-    private boolean projectsRefreshNeeded = true;
-    private boolean deploymentsRefreshNeeded = true;
-    private boolean syncNeeded = true;
-    private boolean cleanUpOnActivation = false;
+    private volatile boolean projectsRefreshNeeded = true;
+    private volatile boolean deploymentsRefreshNeeded = true;
+    private volatile boolean syncNeeded = true;
+    private volatile boolean cleanUpOnActivation = false;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<>();
     private final LockEngine projectsLockEngine;
