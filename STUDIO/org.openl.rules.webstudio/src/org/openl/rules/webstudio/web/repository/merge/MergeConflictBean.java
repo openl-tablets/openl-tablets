@@ -32,8 +32,10 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.WebStudioFormats;
+import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -337,7 +339,12 @@ public class MergeConflictBean {
         RulesProject project = mergeConflict.getProject();
         boolean mergeOperation = mergeConflict.isMerging();
         String repositoryId = mergeConflict.getRepositoryId();
-        studio.getModel().getWebStudioWorkspaceDependencyManager().pause();
+        ProjectModel model = studio.getModel();
+        WebStudioWorkspaceRelatedDependencyManager workspaceDependencyManager = model
+            .getWebStudioWorkspaceDependencyManager();
+        if (workspaceDependencyManager != null) {
+            workspaceDependencyManager.pause();
+        }
         try {
             if (!mergeOperation) {
                 studio.freezeProject(project.getName());
@@ -414,9 +421,11 @@ public class MergeConflictBean {
             userWorkspace.refresh();
             studio.reset();
             clearMergeStatus();
-            studio.getModel().clearModuleInfo();
+            model.clearModuleInfo();
         } catch (Exception e) {
-            studio.getModel().getWebStudioWorkspaceDependencyManager().resume();
+            if (workspaceDependencyManager != null) {
+                workspaceDependencyManager.resume();
+            }
             String message = "Failed to resolve conflict. See logs for details.";
             log.error(message, e);
             mergeError = message;
