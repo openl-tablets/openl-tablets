@@ -55,7 +55,7 @@ public class DemoUsers {
 
     private void initUser(String user, String email, String displayName, String... groups) {
         String password = passwordEncoder.encode(user);
-        userManagementService.addUser(user, null, null, password, email, displayName, new UserExternalFlags());
+        userManagementService.addUser(user, null, null, password, email, displayName, UserExternalFlags.builder().build());
         userManagementService.updateAuthorities(user, new HashSet<>(Arrays.asList(groups)));
 
     }

@@ -71,6 +71,7 @@
     <bean id="casFilter" class="org.springframework.security.cas.web.CasAuthenticationFilter">
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="filterProcessesUrl" value="#{casServiceUrl}"/>
+        <property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy"/>
     </bean>
 
     <bean id="authenticationEntryPoint" class="org.springframework.security.cas.web.CasAuthenticationEntryPoint">
@@ -97,6 +98,7 @@
                         <constructor-arg name="groupManagementService" ref="groupManagementService"/>
                         <constructor-arg name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
                         <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+                        <constructor-arg name="externalGroupService" ref="externalGroupService"/>
                     </bean>
                 </constructor-arg>
             </bean>

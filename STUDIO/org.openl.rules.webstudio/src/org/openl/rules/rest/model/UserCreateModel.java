@@ -11,8 +11,8 @@ import org.openl.rules.rest.validation.UsernameExistsConstraint;
 
 public class UserCreateModel extends UserEditModel {
 
-    @NotBlank(message = "{openl.constraints.user.field.empty.message}")
-    @Size(max = 25, message = "{openl.constraints.user.field.max-length.message}")
+    @NotBlank
+    @Size(max = 25, message = "{openl.constraints.size.max.message}")
     @Pattern.List({ @Pattern(regexp = "[^.\\s].*[^.\\s]|[^.\\s]", message = "{openl.constraints.username.2.message}"),
             @Pattern(regexp = "(.(?<![.]{2}))+", message = "{openl.constraints.username.1.message}"),
             @Pattern(regexp = "[^\\/\\\\:*?\"<>|{}~^]*", message = "{openl.constraints.username.3.message}") })

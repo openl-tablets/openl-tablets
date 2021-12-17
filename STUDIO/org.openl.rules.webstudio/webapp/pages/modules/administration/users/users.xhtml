@@ -3,12 +3,6 @@
         xmlns:ui="http://java.sun.com/jsf/facelets">
 
     <style>
-        #users-form>tbody>tr:nth-child(1) {
-            display: none;
-        }
-        #users-groups>span:nth-child(1) {
-            display: none;
-        }
         .white-space-pre {
             white-space: pre;
         }
@@ -21,120 +15,264 @@
             cursor: pointer;
         }
 
+        #users-form {
+            display: table;
+        }
+
+        #users-form .row {
+            display: table-row;
+        }
+
+        #users-form .row > div {
+            padding: 6px 11px;
+            text-align: left;
+            display: table-cell;
+            border-bottom: 1px dotted #ccc;
+        }
+
+        #users-form header {
+            font-weight: bold;
+        }
+
+        #users-form header.row > div {
+            border-bottom: 1px solid #ccc;
+        }
+
+        #users-form div.row:hover {
+            background-color: #FAE5C1;
+        }
+
+        .align-middle {
+            vertical-align: middle;
+        }
+
+        #users-form>header.row {
+            white-space: nowrap;
+        }
+
+        .username-col {
+            position: relative;
+        }
+
+        .online::after {
+            content: "⬤";
+            color: #1e8e3e;
+            font-size: 8px;
+            padding: 0 2px;
+            position: absolute;
+        }
     </style>
 
-    <table class="table" id="users-form">
-        <thead>
-        <tr>
-            <th scope="col">Username</th>
-            <th scope="col">First Name</th>
-            <th scope="col">Last Name</th>
-            <th scope="col">Email</th>
-            <th scope="col">Display Name</th>
-            <th scope="col">Groups</th>
-            <th class="users-internal-user" scope="col">Local user</th>
-            <th scope="col"/>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>
-                <span onclick="showEditUserForm({usersEditUserParams})"
-                      class="clickable white-space-pre users-username-box" title="Edit">{usersUsername}</span>
-                <span class="warning-icon" style="{usersUnsafeDefaultPasswordStyle}" title="Unsafe default password"/>
-            </td>
-            <td>{usersFirstname}</td>
-            <td>{usersLastname}</td>
-            <td>{usersEmail}</td>
-            <td>{usersDisplayName}</td>
-            <td id="users-groups">
-                    <span>
-                        <span class="{usersGroupClass}">{usersGroup}</span>
-                    </span>
-                {usersGroups}
-            </td>
-            <td class="users-internal-user">{usersInternalUser}</td>
-            <td><a onclick="{usersDeleteOnClick}" class="{usersDeleteClass}" title="Delete"/></td>
-        </tr>
-        </tbody>
-    </table>
+    <section id="users-form">
+        <header class="row">
+            <div>Username</div>
+            <div>First Name</div>
+            <div>Last Name</div>
+            <div>Email</div>
+            <div>Display Name</div>
+            <div>Groups</div>
+            <div class="users-internal-user">Local user</div>
+            <div>Action</div>
+        </header>
+        <div class="row" style="display: none">
+            <div class="align-middle">
+                <span class="clickable white-space-pre users-username-box" title="Edit" attr="users-username"/>
+                <span class="warning-icon" title="Unsafe default password" attr="users-unsafe-default-password"/>
+            </div>
+            <div class="align-middle" attr="users-firstname"></div>
+            <div class="align-middle" attr="users-lastname"></div>
+            <div class="align-middle" attr="users-email"></div>
+            <div class="align-middle" attr="users-displayname"></div>
+            <div class="align-middle" attr="users-groups">
+                <span>
+                    <span attr="users-group" class="badge users-group"/>
+                </span>
+            </div>
+            <div class="align-middle users-internal-user" attr="users-internal-user"></div>
+            <div class="align-middle"><a class="delete-icon user-delete-link" title="Delete" attr="users-delete"/></div>
+        </div>
+    </section>
     <br/>
     <br/>
     <a href="javascript:void(0)" onclick="RichFaces.$('modalAddUser').show()" id="users-add">Add New User</a>
+
+    <script>//<![CDATA[
+    const groupsConfig = function () {
+        let result = {};
+        $j.ajax({
+            type: "GET",
+            url: "#{contextPath}/web/admin/management/groups/settings",
+            datatype: "json",
+            async: false,
+        }).done(function (data) {
+            result = data;
+        });
+        return result;
+    }();
+    //]]></script>
 
     <ui:include src="/pages/modules/administration/users/addUser.xhtml"/>
     <ui:include src="/pages/modules/administration/users/editUser.xhtml"/>
 
     <script src="#{contextPath}/javascript/userDisplayNameSelectInitializer.js"></script>
     <script>//<![CDATA[
+    const usersTableHandler = function () {
+        const $userRowTemplate = $j('#users-form>div:nth-child(2)').remove();
+        $userRowTemplate.css({"display": ""})
+        const $userGroupTemplate = $userRowTemplate.find('[attr=users-groups]>span:nth-child(1)').remove();
 
-        function showUsersForm() {
+        const fetchUserOptions = () => {
             $j.ajax({
                 type: "GET",
-                url: "#{contextPath}/web/users",
+                url: "#{contextPath}/web/users/options",
                 datatype: "json"
-            })
-            .done(function (data) {
-                const rowTemplate = $j('#users-form>tbody>tr:nth-child(1)');
-                const htmlTemplate = $j('<tr/>').append(rowTemplate.clone()).html();
-                let users = "";
-                data.forEach(user => {
-                    let userGroups = '';
-                    if (typeof user.userGroups !== "undefined") {
-                        const userGroupRowTemplate = $j('#users-groups>span:nth-child(1)');
-                        const userGroupHtmlTemplate = userGroupRowTemplate.clone().html();
-                        user.userGroups.forEach(group => {
-                            userGroups += userGroupHtmlTemplate.replace(/{usersGroupClass}/g, "badge users-group" + (group.type === "ADMIN" ? ' badge-error' : ' badge-info'))
-                                .replace(/{usersGroup}/g, ws.utils.escapeHtml(group.name))
-                        });
-                    }
-                    users += htmlTemplate.replace(/{usersEditUserParams}/g, '\'' + ws.utils.escapeHtml(user.username) + '\',\'' + ws.utils.escapeHtml(user.firstName) + '\',\'' + ws.utils.escapeHtml(user.lastName) + '\',\'' + ws.utils.escapeHtml(user.email) + '\',\'' + ws.utils.escapeHtml(user.displayName) + '\',' + user.internalUser + ',\'' + (user.userGroups ? user.userGroups.map(p => p.name) : []) + '\',' + user.superUser + ',' + user.currentUser + ',' + user.externalFlags.firstNameExternal + ',' + user.externalFlags.lastNameExternal + ',' + user.externalFlags.emailExternal + ',' + user.externalFlags.displayNameExternal)
-                        .replace(/{usersUsername}/g, ws.utils.escapeHtml(user.username))
-                        .replace(/{usersUnsafeDefaultPasswordStyle}/g, !user.unsafePassword ? " display: none; " : '')
-                        .replace(/{usersFirstname}/g, ws.utils.escapeHtml(user.firstName))
-                        .replace(/{usersLastname}/g, ws.utils.escapeHtml(user.lastName))
-                        .replace(/{usersGroups}/g, userGroups)
-                        .replace(/{usersInternalUser}/g, user.internalUser ? 'Yes' : 'No')
-                        .replace(/{usersEmail}/g, ws.utils.escapeHtml(user.email))
-                        .replace(/{usersDisplayName}/g, ws.utils.escapeHtml(user.displayName))
-                        .replace(/{usersDeleteOnClick}/g, 'deleteUser(\'' + user.username + '\')')
-                        .replace(/{usersDeleteClass}/g, 'delete-icon user-delete-link ' + (user.superUser || user.currentUser ? ' disabled ' : ' '));
-                });
-                $j("#users-form tbody").html(htmlTemplate + users);
-
-                $j.ajax({
-                    type: "GET",
-                    url: "#{contextPath}/web/users/options",
-                    datatype: "json"
-                })
-                .done(function (data) {
-                    if (data.userMode !== 'ad') {
-                        $j(".users-internal-user").hide();
-                    }
-                    if (!(data.canCreateInternalUsers || data.canCreateExternalUsers)) {
-                        $j(".users-username-box").prop("onclick", null).off("click")
-                    }
-                    $j("#users-add").toggle(data.canCreateInternalUsers || data.canCreateExternalUsers);
-                });
+            }).done(function (data) {
+                if (data.userMode !== 'ad') {
+                    $j(".users-internal-user").hide();
+                }
+                if (!(data.canCreateInternalUsers || data.canCreateExternalUsers)) {
+                    $j(".users-username-box").prop("onclick", null).off("click")
+                }
+                $j("#users-add").toggle(data.canCreateInternalUsers || data.canCreateExternalUsers);
             });
-        }
+        };
 
-        showUsersForm();
+        const fetchNotMatchedUserGroups = (username, $notMatchedUserGroups) => {
+            const $userGroups = $notMatchedUserGroups.parent();
+            $j.ajax({
+                type: "GET",
+                url: '#{contextPath}/web/users/' + username + '/groups/external',
+                data: {
+                    matched: false
+                },
+                datatype: "json"
+            }).done(function (data) {
+                $notMatchedUserGroups.remove();
+                data.forEach((extGroup) => {
+                    let $userGroup = $userGroupTemplate.clone();
+                    $userGroup.find('[attr=users-group]')
+                        .text(ws.utils.escapeHtml(extGroup));
+                    $userGroups.append($userGroup);
+                })
+            }).fail(function (data) {
+                handleError(data.status);
+            });
+        };
 
-        function deleteUser(userName) {
+        const deleteUser = (userName) => {
             if (confirm('Are you sure you want to delete the user?')) {
                 $j.ajax({
                     type: "DELETE",
                     url: "#{contextPath}/web/users/" + userName,
                     contentType: 'application/json',
                     dataType: 'json'
-                })
-                .done(function () {
-                    showUsersForm();
+                }).done(function () {
+                    rerenderTable();
+                }).fail(function (data) {
+                    handleError(data.status);
                 });
             }
         }
 
+        const rerenderTable = () => {
+            $j('#users-form>div.row').remove();
+            renderTable();
+        };
+
+        const renderTable = () => {
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/users",
+                datatype: "json",
+                beforeSend: showLoader
+            }).done(function (data) {
+                data.forEach(user => {
+                    const $userRow = $userRowTemplate.clone();
+                    const appendUserGroup = ($userGroup) => {
+                        $userRow.find("[attr=users-groups]").append($userGroup);
+                    };
+                    const groups = user.userGroups || [];
+                    groups.forEach(group => {
+                        const $userGroup = $userGroupTemplate.clone();
+                        const $innerGroup = $userGroup.find('[attr=users-group]')
+                        if (group.type === 'ADMIN') {
+                            $innerGroup.addClass('badge-error');
+                        } else if (group.type === 'EXTERNAL') {
+                            $innerGroup.addClass('badge-success')
+                                .attr("title", "Matched external group");
+                        } else {
+                            $innerGroup.addClass('badge-info');
+                        }
+                        $innerGroup.text(ws.utils.escapeHtml(group.name));
+                        appendUserGroup($userGroup);
+                    });
+
+                    if (groups.length === 0 && groupsConfig?.defaultGroup != null) {
+                        const $userGroup = $userGroupTemplate.clone();
+                        $userGroup.find('[attr=users-group]')
+                            .addClass('badge-info')
+                            .attr("title", "Default group")
+                            .text(ws.utils.escapeHtml(groupsConfig.defaultGroup));
+                        appendUserGroup($userGroup);
+                    }
+
+                    if (user.notMatchedExternalGroupsCount > 0) {
+                        const $userGroup = $userGroupTemplate.clone();
+                        $userGroup.find('[attr=users-group]')
+                            .addClass("clickable")
+                            .attr("title", "Expand not matched external groups")
+                            .text(ws.utils.escapeHtml('+' + user.notMatchedExternalGroupsCount));
+                        $userGroup.click(() => {
+                            fetchNotMatchedUserGroups(user.username, $userGroup);
+                        });
+                        appendUserGroup($userGroup);
+                    }
+
+                    const $userName = $userRow.find('[attr=users-username]');
+                    if (user.online) {
+                        $userName.wrap($j('<span class="username-col" style="padding-right: 6px"/>'));
+                        $userName.after($j("<span class='online' title='Online'/>"));
+                    }
+                    $userName.click(() => {
+                        showEditUserForm(user);
+                    });
+                    $userName.text(ws.utils.escapeHtml(user.username));
+                    if (!user.unsafePassword) {
+                        $userRow.find('[attr=users-unsafe-default-password]').remove();
+                    }
+                    $userRow.find('[attr=users-firstname]').text(ws.utils.escapeHtml(user.firstName));
+                    $userRow.find('[attr=users-lastname]').text(ws.utils.escapeHtml(user.lastName));
+                    $userRow.find('[attr=users-internal-user]').text(user.internalUser ? 'Yes' : 'No');
+                    $userRow.find('[attr=users-email]').text(ws.utils.escapeHtml(user.email));
+                    $userRow.find('[attr=users-displayname]').text(ws.utils.escapeHtml(user.displayName));
+
+                    const $userDelete = $userRow.find('[attr=users-delete]');
+                    if (user.superUser || user.currentUser) {
+                        $userDelete.addClass("disabled");
+                    } else {
+                        $userDelete.click(() => {
+                            deleteUser(user.username);
+                        });
+                    }
+
+                    $j('#users-form').append($userRow);
+                });
+                fetchUserOptions();
+            }).fail(function (data) {
+                handleError(data.status);
+            }).always(hideLoader);
+        };
+
+        return {
+            render: renderTable,
+            rerender: rerenderTable
+        }
+    }();
+
+    $j(usersTableHandler.render);
+
     //]]></script>
+
+
 
 </ui:composition>

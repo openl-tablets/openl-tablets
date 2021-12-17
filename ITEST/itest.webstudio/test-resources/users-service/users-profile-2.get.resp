@@ -2,17 +2,25 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "email": "mjohnson@email",
   "displayName": "MJ",
   "firstName": "Mike",
   "lastName": "Johnson",
+  "showHeader": false,
   "showFormulas": true,
   "testsPerPage": 20,
   "testsFailuresOnly": true,
   "testsFailuresPerTest": 20,
   "showComplexResult": true,
   "showRealNumbers": true,
-  "email": "mjohnson@email",
   "username": "admin",
   "internalUser": true,
-  "externalFlags": {}
+  "externalFlags": {
+    "syncExternalGroups": false,
+    "lastNameExternal": false,
+    "emailExternal": false,
+    "emailVerified": true,
+    "displayNameExternal": false,
+    "firstNameExternal": false
+  }
 }

@@ -163,6 +163,7 @@
                 <constructor-arg name="groupManagementService" ref="groupManagementService"/>
                 <constructor-arg name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
                 <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+                <constructor-arg name="externalGroupService" ref="externalGroupService"/>
             </bean>
         </constructor-arg>
     </bean>
@@ -172,6 +173,7 @@
         <constructor-arg name="relyingPartyRegistrationRepository" ref="relyingPartyRegistration"/>
         <property name="authenticationManager" ref="authenticationManager"/>
         <property name="authenticationSuccessHandler" ref="successRedirectHandler"/>
+        <property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy"/>
     </bean>
 
     <!-- In order not to use deprecated classes, you need to update to the opensaml library to version 4.1.1,

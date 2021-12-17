@@ -3,19 +3,16 @@ Content-Type: application/json
 
 {
   "tableUrl": "#local/Sample/Main/table",
-  "warnings": [
-  ],
+  "tableRunState": "CAN_RUN_MODULE",
   "errors": [
     {
       "id": "*",
       "summary": "There can be only one active table.",
       "hasStacktrace": true,
+      "hasLinkToCell": false,
       "tableId": "*",
       "errorCell": "B3",
       "severity": "ERROR"
     }
-  ],
-  "targetTables": [
-  ],
-  "tableRunState": "CAN_RUN_MODULE"
+  ]
 }

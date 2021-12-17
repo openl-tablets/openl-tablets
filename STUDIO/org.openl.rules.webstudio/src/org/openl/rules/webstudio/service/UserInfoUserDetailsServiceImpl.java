@@ -1,10 +1,8 @@
 package org.openl.rules.webstudio.service;
 
-import java.util.Collections;
 import java.util.function.Function;
 
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.User;
 import org.springframework.dao.DataAccessException;
@@ -41,17 +39,15 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
             throw new UsernameNotFoundException(String.format("Unknown user: '%s'", name));
         }
 
-        SimpleUser simpleUser = new SimpleUser(user.getFirstName(),
-            user.getSurname(),
-            user.getLoginName(),
-            user.getPasswordHash(),
-            Collections.emptySet(),
-            user.getEmail(),
-            user.getDisplayName(),
-            new UserExternalFlags(user.isFirstNameExternal(),
-                user.isLastNameExternal(),
-                user.isEmailExternal(),
-                user.isDisplayNameExternal()));
+        SimpleUser simpleUser = SimpleUser.builder()
+            .setFirstName(user.getFirstName())
+            .setLastName(user.getSurname())
+            .setUsername(user.getLoginName())
+            .setPasswordHash(user.getPasswordHash())
+            .setEmail(user.getEmail())
+            .setDisplayName(user.getDisplayName())
+            .setExternalFlags(user.getUserExternalFlags())
+            .build();
         return authoritiesMapper.apply(simpleUser);
     }
 }

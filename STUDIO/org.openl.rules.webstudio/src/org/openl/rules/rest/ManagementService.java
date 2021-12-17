@@ -8,11 +8,13 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.openl.config.InMemoryProperties;
@@ -23,6 +25,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
+import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
@@ -46,16 +49,19 @@ public class ManagementService {
     private final GroupManagementService groupManagementService;
     private final InMemoryProperties properties;
     private final BeanValidationProvider validationProvider;
+    private final ExternalGroupService extGroupService;
 
     @Autowired
     public ManagementService(GroupDao groupDao,
             GroupManagementService groupManagementService,
             InMemoryProperties properties,
-            BeanValidationProvider validationProvider) {
+            BeanValidationProvider validationProvider,
+            ExternalGroupService extGroupService) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
         this.properties = properties;
         this.validationProvider = validationProvider;
+        this.extGroupService = extGroupService;
     }
 
     @GET
@@ -116,6 +122,16 @@ public class ManagementService {
         SecurityChecker.allow(Privileges.ADMIN);
         return Arrays.stream(Privileges.values())
             .collect(StreamUtils.toLinkedMap(Privilege::getName, Privilege::getDisplayName));
+    }
+
+    @GET
+    @Path("/groups/external")
+    public Set<String> searchExternalGroup(@QueryParam("search") String searchTerm,
+            @QueryParam("pageSize") @DefaultValue("10") int pageSize) {
+        return extGroupService.findAllByName(searchTerm, pageSize)
+            .stream()
+            .map(org.openl.rules.security.Group::getName)
+            .collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
     }
 
     public static class UIGroup {

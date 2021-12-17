@@ -30,6 +30,7 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
+import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.standalone.persistence.User;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
@@ -70,7 +71,7 @@ public class ZipProjectSaveStrategyTest {
         this.designTimeRepositoryMock = mock(DesignTimeRepository.class);
         this.userManagementService = mock(UserManagementService.class);
         when(designTimeRepositoryMock.getRulesLocation()).thenReturn(BASE_RULES_LOCATION);
-        User user = new User();
+        SimpleUser user = new SimpleUser();
         user.setDisplayName("John Smith");
         user.setEmail("jsmith@email");
         when(userManagementService.getUser(anyString())).thenReturn(user);

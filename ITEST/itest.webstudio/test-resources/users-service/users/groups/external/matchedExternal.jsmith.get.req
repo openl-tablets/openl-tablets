@@ -1,0 +1,3 @@
+GET /rest/users/jsmith/groups/external?matched=true HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

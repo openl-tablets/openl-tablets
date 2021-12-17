@@ -3,10 +3,10 @@ Content-Type: application/json
 
 [
   {
-    "userGroups":[
+    "userGroups": [
       {
-        "name":"Administrators",
-        "type":"ADMIN"
+        "name": "Administrators",
+        "type": "ADMIN"
       }
     ],
     "username": "admin",
@@ -14,21 +14,42 @@ Content-Type: application/json
     "currentUser": true,
     "superUser": true,
     "unsafePassword": true,
-    "externalFlags": {}
+    "externalFlags": {
+      "emailVerified": true,
+      "syncExternalGroups": false,
+      "lastNameExternal": false,
+      "emailExternal": false,
+      "firstNameExternal": false,
+      "displayNameExternal": false
+    },
+    "notMatchedExternalGroupsCount": 0,
+    "online": false
   },
   {
     "displayName": "John Smith",
     "email": "jsmith@email",
     "firstName": "John",
     "lastName": "Smith",
-    "userGroups":[
+    "userGroups": [
       {
-        "name":"Administrators",
-        "type":"ADMIN"
+        "name": "Administrators",
+        "type": "ADMIN"
       }
     ],
     "username": "jsmith",
     "internalUser": true,
-    "externalFlags": {}
+    "externalFlags": {
+      "emailVerified": true,
+      "syncExternalGroups": false,
+      "lastNameExternal": false,
+      "emailExternal": false,
+      "firstNameExternal": false,
+      "displayNameExternal": false
+    },
+    "notMatchedExternalGroupsCount": 0,
+    "online": false,
+    "currentUser": false,
+    "superUser": false,
+    "unsafePassword": false
   }
 ]

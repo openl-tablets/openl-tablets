@@ -1,5 +1,9 @@
 package org.openl.rules.rest.validation;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import javax.annotation.PostConstruct;
 
 import org.openl.rules.webstudio.security.CurrentUserInfo;
@@ -16,10 +20,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @Configuration
 @ComponentScan(basePackages = "org.openl.rules.rest.validation")
@@ -72,5 +72,4 @@ public class MockConfiguration {
     public GroupManagementService groupManagementService() {
         return mock(GroupManagementService.class);
     }
-
 }

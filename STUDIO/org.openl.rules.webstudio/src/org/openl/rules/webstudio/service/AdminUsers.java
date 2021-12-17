@@ -56,7 +56,7 @@ public class AdminUsers {
         if (!isSuperuser(username)) {
             return;
         }
-        SimpleUser user = (SimpleUser) userService.getApplicationUser(username);
+        SimpleUser user = (SimpleUser) userService.getUser(username);
         String adminGroup = assignPrivileges(username);
         if (user == null) {
             userService.addUser(username,
@@ -65,7 +65,7 @@ public class AdminUsers {
                 passwordEncoder.encode(username),
                 null,
                 null,
-                new UserExternalFlags());
+                UserExternalFlags.builder().build());
             userService.updateAuthorities(username, Collections.singleton(adminGroup));
         } else if (!user.hasPrivilege(ADMIN)) {
             Set<String> groups = new HashSet<>();

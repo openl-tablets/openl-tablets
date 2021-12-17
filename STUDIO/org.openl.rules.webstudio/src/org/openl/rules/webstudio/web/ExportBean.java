@@ -89,7 +89,7 @@ public class ExportBean {
                 fileName = String.format("%s-%s.zip", selectedProject.getName(), suffix);
                 WorkspaceUserImpl user = new WorkspaceUserImpl(userName,
                     (username) -> Optional.ofNullable(userManagementService.getUser(username))
-                        .map(usr -> new UserInfo(usr.getLoginName(), usr.getEmail(), usr.getDisplayName()))
+                        .map(usr -> new UserInfo(usr.getUsername(), usr.getEmail(), usr.getDisplayName()))
                         .orElse(null));
                 file = ProjectExportHelper.export(user, selectedProject);
             } else {

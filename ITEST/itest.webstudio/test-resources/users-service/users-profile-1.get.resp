@@ -7,9 +7,20 @@ Content-Type: application/json
   "email": "admin@email",
   "lastName": "Min",
   "showHeader": true,
+  "showFormulas": false,
   "testsPerPage": 5,
+  "testsFailuresOnly": false,
   "testsFailuresPerTest": 5,
+  "showComplexResult": false,
+  "showRealNumbers": false,
   "username": "admin",
   "internalUser": true,
-  "externalFlags": {}
+  "externalFlags": {
+    "lastNameExternal": false,
+    "emailExternal": false,
+    "emailVerified": true,
+    "firstNameExternal": false,
+    "displayNameExternal": false,
+    "syncExternalGroups": false
+  }
 }

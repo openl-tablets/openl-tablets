@@ -9,6 +9,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.UserExternalFlags;
+import org.openl.rules.security.UserExternalFlags.Feature;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
@@ -76,27 +77,41 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
 
                     for (final Object o : list) {
                         String name = o.toString();
+                        if (name.charAt(0) == '/') {
+                            // CAS Groups started with '/' char
+                            name = name.substring(1);
+                        }
                         grantedAuthorities.add(new SimplePrivilege(name, name));
                     }
 
                 } else {
                     String name = value.toString();
+                    if (name.charAt(0) == '/') {
+                        // CAS Groups started with '/' char
+                        name = name.substring(1);
+                    }
                     grantedAuthorities.add(new SimplePrivilege(name, name));
                 }
             }
         }
 
-        SimpleUser simpleUser = new SimpleUser(firstName,
-            lastName,
-            assertion.getPrincipal().getName(),
-            null,
-            grantedAuthorities,
-            email,
-            displayName,
-            new UserExternalFlags(StringUtils.isNotBlank(firstName),
-                StringUtils.isNotBlank(lastName),
-                StringUtils.isNotBlank(email),
-                StringUtils.isNotBlank(displayName)));
+        UserExternalFlags externalFlags = UserExternalFlags.builder()
+            .applyFeature(Feature.EXTERNAL_FIRST_NAME, StringUtils.isNotBlank(firstName))
+            .applyFeature(Feature.EXTERNAL_LAST_NAME, StringUtils.isNotBlank(lastName))
+            .applyFeature(Feature.EXTERNAL_EMAIL, StringUtils.isNotBlank(email))
+            .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, StringUtils.isNotBlank(displayName))
+            .withFeature(Feature.SYNC_EXTERNAL_GROUPS)
+            .build();
+
+        SimpleUser simpleUser = SimpleUser.builder()
+            .setFirstName(firstName)
+            .setLastName(lastName)
+            .setUsername(assertion.getPrincipal().getName())
+            .setPrivileges(grantedAuthorities)
+            .setEmail(email)
+            .setDisplayName(displayName)
+            .setExternalFlags(externalFlags)
+            .build();
 
         return authoritiesMapper.apply(simpleUser);
     }

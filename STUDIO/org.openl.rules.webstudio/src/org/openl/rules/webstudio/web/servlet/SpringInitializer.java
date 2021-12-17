@@ -47,8 +47,8 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         ((SpringInitializer) session.getServletContext().getAttribute(THIS)).cache.put(session.getId(), session);
     }
 
-    public static void removeSessionCache(HttpSession session) {
-        ((SpringInitializer) session.getServletContext().getAttribute(THIS)).cache.remove(session.getId());
+    public static void removeSessionCache(HttpSession session, String sessionID) {
+        ((SpringInitializer) session.getServletContext().getAttribute(THIS)).cache.remove(sessionID);
     }
 
 

@@ -14,7 +14,7 @@
 
         <link href="#{contextPath}/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
         <link href="#{contextPath}/css/bootstrap.min.css" rel="stylesheet" />
-        <link href="#{contextPath}/css/common.css?7" rel="stylesheet" />
+        <link href="#{contextPath}/css/common.css?8" rel="stylesheet" />
         <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
 
         <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
@@ -257,6 +257,154 @@
               }
           }();
 
+          const autocompleteHandler = function () {
+
+              const defaultOptions = Object.freeze({
+                  $input: null,
+                  minLength: 3,
+                  delay: null,
+                  source: (request, response) => {}
+              });
+
+              const closeAllLists =  () => {
+                  $j(".autocomplete-items").remove();
+              };
+
+              const removeActive = ($items) => {
+                  /*a function to remove the "active" class from all autocomplete items:*/
+                  $items.each((i, target) => {
+                      $j(target).removeClass("autocomplete-active");
+                  });
+              }
+
+              return {
+                  autocomplete: function (options) {
+                      options = $j.extend({}, defaultOptions, options);
+                      const $input = options.$input;
+                      if ($input == null) {
+                          throw new Error("Input must be defined.");
+                      }
+                      $input.attr("autocomplete", "off");
+                      let currentFocus;
+                      $input.unbind("input.autocomplete");
+                      // Execute a function when someone writes in the text field:
+                      const onInputChanged = () => {
+                          const val = $input.val();
+                          // Close any already open lists of autocompleted values
+                          closeAllLists();
+                          if (!val || val.length < options.minLength) {
+                              return false;
+                          }
+                          currentFocus = -1;
+                          // Create a DIV element that will contain the items (values):
+                          const $list = $j("<div>");
+                          $list.addClass("autocomplete-items")
+                              .attr("id", $input.attr("id") + "_autocomplete-list");
+                          $input.after($list);
+
+                          $list.css({
+                              "top": $input.outerHeight(true) + $input.position().top,
+                              "left": $input.position().left,
+                              "width": $input.outerWidth() - 2
+                          });
+
+                          $list.hover(() => {
+                          }, () => {
+                              // on mouse leave
+                              currentFocus = -1;
+                              const $items = $j("#" + $input.attr("id") + "_autocomplete-list>div");
+                              removeActive($items);
+                          });
+
+                          const callback = function (items) {
+                              items = items || [];
+                              items.forEach((item, i) => {
+                                  const $item = $j("<div>");
+                                  $item.text(ws.utils.escapeHtml(item.value));
+                                  $item.click(() => {
+                                      $input.val(item.value);
+                                      // Close the list of autocompleted values, (or any other open lists of autocompleted values:
+                                      closeAllLists();
+                                  });
+                                  $item.hover(() => {
+                                      // on mouseEnter
+                                      currentFocus = i;
+                                      const $items = $j("#" + $input.attr("id") + "_autocomplete-list>div");
+                                      addActive($items);
+                                  });
+                                  $list.append($item);
+                              });
+                          };
+                          options.source({term: val}, callback);
+                      };
+
+                      let delayedInputOnChange = null;
+                      $input.bind("input.autocomplete", function () {
+                          if (options.delay == null || options.delay < 1) {
+                              onInputChanged(); // Run immediately
+                          } else {
+                              // Wrap delayed run
+                              if (delayedInputOnChange) {
+                                  clearTimeout(delayedInputOnChange); // Stop previous delayed run
+                              }
+                              delayedInputOnChange = setTimeout(onInputChanged, options.delay); // Wait a bit!
+                          }
+                      });
+
+                      $input.unbind("keydown.autocomplete");
+                      // Execute a function presses a key on the keyboard.
+                      $input.bind("keydown.autocomplete", function (e) {
+                          const $items = $j("#" + $input.attr("id") + "_autocomplete-list>div");
+                          if (e.keyCode === 40) {
+                              /* If the arrow DOWN key is pressed,
+                              increase the currentFocus variable:*/
+                              currentFocus++;
+                              /* and make the current item more visible:*/
+                              addActive($items);
+                          } else if (e.keyCode === 38) { //up
+                              /* If the arrow UP key is pressed,
+                              decrease the currentFocus variable:*/
+                              currentFocus--;
+                              /* and make the current item more visible:*/
+                              addActive($items);
+                          } else if (e.keyCode === 13) {
+                              /* If the ENTER key is pressed, prevent the form from being submitted,*/
+                              e.preventDefault();
+                              if (currentFocus > -1) {
+                                  /* and simulate a click on the "active" item:*/
+                                  if ($items) {
+                                      $j($items[currentFocus]).click();
+                                  }
+                              }
+                          }
+                      });
+
+                      const addActive = ($items) => {
+                          /*a function to classify an item as "active":*/
+                          if (!$items) {
+                              return false;
+                          }
+                          /*start by removing the "active" class on all items:*/
+                          removeActive($items);
+                          if (currentFocus >= $items.length) {
+                              currentFocus = 0;
+                          }
+                          if (currentFocus < 0) {
+                              currentFocus = ($items.length - 1);
+                          }
+                          /*add class "autocomplete-active":*/
+                          $j($items[currentFocus]).addClass("autocomplete-active");
+                      }
+
+                      $j(document).unbind("click.autocomplete");
+                      $j(document).bind("click.autocomplete", function () {
+                          closeAllLists();
+                      });
+                  }
+              }
+
+          }();
+
             var ws = {
                 ui: {
                     loaderOpened: 0,
@@ -276,6 +424,9 @@
                     },
                     fetchFormData: function (options) {
                         ajaxFormHandler.fetchFormData(options)
+                    },
+                    autocomplete: function (options) {
+                        autocompleteHandler.autocomplete(options)
                     }
                 },
                 utils: {

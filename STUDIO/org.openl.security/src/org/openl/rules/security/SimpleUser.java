@@ -1,6 +1,8 @@
 package org.openl.rules.security;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
 
 public class SimpleUser implements User {
 
@@ -18,33 +20,15 @@ public class SimpleUser implements User {
     public SimpleUser() {
     }
 
-    public SimpleUser(String firstName,
-            String lastName,
-            String username,
-            String passwordHash,
-            Collection<Privilege> privileges,
-            String email,
-            String displayName,
-            UserExternalFlags externalFlags) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.passwordHash = passwordHash;
-        this.privileges = privileges;
-        this.email = email;
-        this.displayName = displayName;
-        this.externalFlags = externalFlags;
-    }
-
-    public SimpleUser(String username, Collection<Privilege> privileges) {
-        this.username = username;
-        this.privileges = privileges;
-        this.firstName = null;
-        this.lastName = null;
-        this.passwordHash = null;
-        this.email = null;
-        this.displayName = null;
-        this.externalFlags = new UserExternalFlags();
+    private SimpleUser(SimpleUser other) {
+        this.firstName = other.firstName;
+        this.lastName = other.lastName;
+        this.username = other.username;
+        this.passwordHash = other.passwordHash;
+        this.privileges = Objects.requireNonNull(other.privileges);
+        this.email = other.email;
+        this.displayName = other.displayName;
+        this.externalFlags = Objects.requireNonNull(other.externalFlags);
     }
 
     @Override
@@ -161,6 +145,65 @@ public class SimpleUser implements User {
     @Override
     public String toString() {
         return getUsername();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private final SimpleUser target;
+
+        private Builder() {
+            this.target = new SimpleUser();
+            this.target.externalFlags = UserExternalFlags.builder().build();
+            this.target.privileges = Collections.emptySet();
+        }
+
+        public Builder setFirstName(String firstName) {
+            this.target.firstName = firstName;
+            return this;
+        }
+
+        public Builder setLastName(String lastName) {
+            this.target.lastName = lastName;
+            return this;
+        }
+
+        public Builder setUsername(String username) {
+            this.target.username = username;
+            return this;
+        }
+
+        public Builder setPasswordHash(String passwordHash) {
+            this.target.passwordHash = passwordHash;
+            return this;
+        }
+
+        public Builder setPrivileges(Collection<Privilege> privileges) {
+            this.target.privileges = privileges;
+            return this;
+        }
+
+        public Builder setEmail(String email) {
+            this.target.email = email;
+            return this;
+        }
+
+        public Builder setDisplayName(String displayName) {
+            this.target.displayName = displayName;
+            return this;
+        }
+
+        public Builder setExternalFlags(UserExternalFlags externalFlags) {
+            this.target.externalFlags = Objects.requireNonNull(externalFlags);
+            return this;
+        }
+
+        public SimpleUser build() {
+            return new SimpleUser(this.target);
+        }
     }
 
 }

@@ -18,10 +18,9 @@ public final class PrivilegesEvaluator {
     public static Collection<Privilege> createPrivileges(User user) {
         Collection<Privilege> grantedList = new ArrayList<>();
 
-        Set<Group> visitedGroups = new HashSet<>();
         Set<Group> groups = user.getGroups();
         for (Group group : groups) {
-            Collection<Privilege> privileges = createPrivileges(group, visitedGroups);
+            Collection<Privilege> privileges = createPrivileges(group, new HashSet<>());
             grantedList.add(new SimpleGroup(group.getName(), group.getDescription(), privileges));
         }
         return grantedList;

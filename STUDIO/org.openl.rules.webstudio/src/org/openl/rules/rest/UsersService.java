@@ -1,12 +1,22 @@
 package org.openl.rules.rest;
 
-import java.util.Collections;
+import static org.openl.rules.ui.WebStudio.TABLE_FORMULAS_SHOW;
+import static org.openl.rules.ui.WebStudio.TABLE_VIEW;
+import static org.openl.rules.ui.WebStudio.TEST_FAILURES_ONLY;
+import static org.openl.rules.ui.WebStudio.TEST_FAILURES_PERTEST;
+import static org.openl.rules.ui.WebStudio.TEST_RESULT_COMPLEX_SHOW;
+import static org.openl.rules.ui.WebStudio.TEST_TESTS_PERPAGE;
+import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
+
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.ws.rs.DELETE;
@@ -15,6 +25,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -29,30 +40,25 @@ import org.openl.rules.rest.model.UserModel;
 import org.openl.rules.rest.model.UserProfileEditModel;
 import org.openl.rules.rest.model.UserProfileModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
+import org.openl.rules.security.Group;
 import org.openl.rules.security.Privileges;
+import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.AdminUsers;
-import org.openl.rules.webstudio.service.PrivilegesEvaluator;
+import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import static org.openl.rules.ui.WebStudio.TABLE_FORMULAS_SHOW;
-import static org.openl.rules.ui.WebStudio.TABLE_VIEW;
-import static org.openl.rules.ui.WebStudio.TEST_FAILURES_ONLY;
-import static org.openl.rules.ui.WebStudio.TEST_FAILURES_PERTEST;
-import static org.openl.rules.ui.WebStudio.TEST_RESULT_COMPLEX_SHOW;
-import static org.openl.rules.ui.WebStudio.TEST_TESTS_PERPAGE;
-import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
 
 @Service
 @Path("/users")
@@ -68,6 +74,7 @@ public class UsersService {
     private final UserSettingManagementService userSettingsManager;
     private final PropertyResolver environment;
     private final PasswordEncoder passwordEncoder;
+    private final ExternalGroupService extGroupService;
 
     @Inject
     public UsersService(UserManagementService userManagementService,
@@ -78,7 +85,8 @@ public class UsersService {
             PasswordEncoder passwordEncoder,
             PropertyResolver environment,
             BeanValidationProvider validationService,
-            UserSettingManagementService userSettingsManager) {
+            UserSettingManagementService userSettingsManager,
+            ExternalGroupService extGroupService) {
         this.userManagementService = userManagementService;
         this.canCreateInternalUsers = canCreateInternalUsers;
         this.canCreateExternalUsers = canCreateExternalUsers;
@@ -88,6 +96,7 @@ public class UsersService {
         this.userSettingsManager = userSettingsManager;
         this.environment = environment;
         this.validationProvider = validationService;
+        this.extGroupService = extGroupService;
     }
 
     @GET
@@ -101,6 +110,7 @@ public class UsersService {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
+        checkUserExists(username);
         return Optional.ofNullable(userManagementService.getUser(username)).map(this::mapUser).orElse(null);
     }
 
@@ -116,7 +126,7 @@ public class UsersService {
             willBeExternalUser ? null : passwordEncoder.encode(userModel.getInternalPassword().getPassword()),
             userModel.getEmail(),
             userModel.getDisplayName(),
-            new UserExternalFlags());
+            UserExternalFlags.builder().build());
         userManagementService.updateAuthorities(userModel.getUsername(), userModel.getGroups());
     }
 
@@ -126,6 +136,7 @@ public class UsersService {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
+        checkUserExists(username);
         validationProvider.validate(userModel);
         boolean updatePassword = Optional.ofNullable(userModel.getPassword())
             .map(StringUtils::isNotBlank)
@@ -262,9 +273,9 @@ public class UsersService {
             } else if (authentication.getDetails() instanceof User) {
                 return (User) authentication.getDetails();
             } else {
-                return userManagementService.getApplicationUser(username);
+                return userManagementService.getUser(username);
             }
-        }).orElse(new SimpleUser(username, Collections.emptyList()));
+        }).orElse(SimpleUser.builder().setUsername(username).build());
 
         return new UserProfileModel().setFirstName(user.getFirstName())
             .setLastName(user.getLastName())
@@ -286,11 +297,8 @@ public class UsersService {
     @DELETE
     @Path("/{username}")
     public void deleteUser(@PathParam("username") String username) {
-        if (userManagementService.getUser(username) != null) {
-            userManagementService.deleteUser(username);
-        } else {
-            throw new NotFoundException("users.message", username);
-        }
+        checkUserExists(username);
+        userManagementService.deleteUser(username);
     }
 
     @GET
@@ -303,29 +311,59 @@ public class UsersService {
         return options;
     }
 
-    private UserModel mapUser(org.openl.rules.security.standalone.persistence.User user) {
+    @GET
+    @Path("/{username}/groups/external")
+    public Set<String> getUserGroupsGroups(@PathParam("username") String username,
+            @QueryParam("matched") Boolean matched) {
+        SecurityChecker.allow(Privileges.ADMIN);
+        checkUserExists(username);
+        List<Group> extGroups;
+        if (matched == null) {
+            extGroups = extGroupService.findAllForUser(username);
+        } else if (matched) {
+            extGroups = extGroupService.findMatchedForUser(username);
+        } else {
+            extGroups = extGroupService.findNotMatchedForUser(username);
+        }
+        return extGroups.stream().map(Group::getName).collect(StreamUtils.toTreeSet(String.CASE_INSENSITIVE_ORDER));
+    }
+
+    private UserModel mapUser(User user) {
+        List<Group> extGroups = extGroupService.findMatchedForUser(user.getUsername());
+        Stream<GroupModel> matchedExtGroupsStream = extGroups.stream()
+            .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
+                .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN : GroupType.EXTERNAL));
+        Stream<GroupModel> internalGroupStream = user.getAuthorities()
+            .stream()
+            .map(SimpleGroup.class::cast)
+            // resolve collisions when the same group external and internal
+            .filter(g -> extGroups.stream().noneMatch(ext -> Objects.equals(ext.getName(), g.getName())))
+            .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
+                .setType(simpleGroup.hasPrivilege(Privileges.ADMIN.name()) ? GroupType.ADMIN : GroupType.DEFAULT));
+
+        long cntNotMatchedExtGroups = extGroupService.countNotMatchedForUser(user.getUsername());
         return new UserModel().setFirstName(user.getFirstName())
-            .setLastName(user.getSurname())
+            .setLastName(user.getLastName())
             .setEmail(user.getEmail())
-            .setInternalUser(StringUtils.isNotBlank(user.getPasswordHash()))
-            .setUserGroups(
-                user.getGroups()
-                    .stream()
-                    .map(PrivilegesEvaluator::wrap)
-                    .map(simpleGroup -> new GroupModel().setName(simpleGroup.getName())
-                        .setType(simpleGroup.getPrivileges().contains(Privileges.ADMIN) ? GroupType.ADMIN
-                                                                                        : GroupType.DEFAULT))
-                    .collect(Collectors.toSet()))
-            .setUsername(user.getLoginName())
-            .setCurrentUser(currentUserInfo.getUserName().equals(user.getLoginName()))
-            .setSuperUser(adminUsersInitializer.isSuperuser(user.getLoginName()))
+            .setInternalUser(StringUtils.isNotBlank(user.getPassword()))
+            .setUserGroups(Stream.concat(matchedExtGroupsStream, internalGroupStream)
+                .collect(StreamUtils.toTreeSet(Comparator.comparing(GroupModel::getType)
+                    .thenComparing(GroupModel::getName, String.CASE_INSENSITIVE_ORDER))))
+            .setUsername(user.getUsername())
+            .setCurrentUser(currentUserInfo.getUserName().equals(user.getUsername()))
+            .setSuperUser(adminUsersInitializer.isSuperuser(user.getUsername()))
             .setUnsafePassword(
-                user.getPasswordHash() != null && passwordEncoder.matches(user.getLoginName(), user.getPasswordHash()))
+                user.getPassword() != null && passwordEncoder.matches(user.getUsername(), user.getPassword()))
+            .setNotMatchedExternalGroupsCount(cntNotMatchedExtGroups)
             .setDisplayName(user.getDisplayName())
-            .setExternalFlags(new UserExternalFlags(user.isFirstNameExternal(),
-                user.isLastNameExternal(),
-                user.isEmailExternal(),
-                user.isDisplayNameExternal()));
+            .setOnline(userManagementService.isUserOnline(user.getUsername()))
+            .setExternalFlags(user.getExternalFlags());
+    }
+
+    private void checkUserExists(String username) {
+        if (!userManagementService.existsByName(username)) {
+            throw new NotFoundException("users.message", username);
+        }
     }
 
 }

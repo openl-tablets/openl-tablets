@@ -21,4 +21,11 @@ public interface Dao<T> {
      * @param obj object to update.
      */
     void update(T obj);
+
+    /**
+     *  Batch object insert operation
+     *
+     * @param objs objects to save
+     */
+    void save(Iterable<T> objs);
 }

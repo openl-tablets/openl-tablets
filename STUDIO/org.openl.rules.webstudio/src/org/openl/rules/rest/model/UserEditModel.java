@@ -4,11 +4,9 @@ import java.util.Set;
 
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotEmpty;
-
 public class UserEditModel extends UserInfoModel {
 
-    @Size(max = 25, message = "{openl.constraints.user.field.max-length.message}")
+    @Size(max = 25, message = "{openl.constraints.size.max.message}")
     private String password;
 
     private Set<String> groups;

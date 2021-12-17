@@ -19,6 +19,8 @@ public interface UserDao extends Dao<User> {
      */
     User getUserByName(String name);
 
+    boolean existsByName(String name);
+
     void deleteUserByName(String name);
 
     List<User> getAllUsers();

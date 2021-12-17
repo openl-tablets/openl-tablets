@@ -1,0 +1,59 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "username": "admin",
+    "currentUser": true,
+    "superUser": true,
+    "unsafePassword": true,
+    "externalFlags": {
+      "lastNameExternal": false,
+      "emailExternal": false,
+      "displayNameExternal": false,
+      "firstNameExternal": false,
+      "syncExternalGroups": false,
+      "emailVerified": true
+    },
+    "internalUser": true,
+    "notMatchedExternalGroupsCount": 0,
+    "online": false,
+    "userGroups": [
+      {
+        "name": "Administrators",
+        "type": "ADMIN"
+      }
+    ]
+  },
+  {
+    "email": "jsmith@email",
+    "displayName": "John Smith",
+    "firstName": "John",
+    "lastName": "Smith",
+    "username": "jsmith",
+    "currentUser": false,
+    "superUser": false,
+    "unsafePassword": false,
+    "externalFlags": {
+      "lastNameExternal": false,
+      "emailExternal": false,
+      "displayNameExternal": false,
+      "firstNameExternal": false,
+      "syncExternalGroups": false,
+      "emailVerified": true
+    },
+    "internalUser": true,
+    "notMatchedExternalGroupsCount": 0,
+    "online": false,
+    "userGroups": [
+      {
+        "name": "Administrators",
+        "type": "ADMIN"
+      }, {
+        "name": "Admiral Nelson",
+        "type": "ADMIN"
+      }
+    ]
+  }
+]
+

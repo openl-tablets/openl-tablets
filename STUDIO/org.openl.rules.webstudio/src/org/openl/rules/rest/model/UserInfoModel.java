@@ -7,16 +7,16 @@ import org.hibernate.validator.constraints.Email;
 public class UserInfoModel {
 
     @Email(message = "{openl.constraints.user.email.format.message}")
-    @Size(max = 254, message = "{openl.constraints.user.email.max-length.message}")
+    @Size(max = 254, message = "{openl.constraints.size.max.message}")
     private String email;
 
-    @Size(max = 64, message = "{openl.constraints.user.display-name.max-length.message}")
+    @Size(max = 64, message = "{openl.constraints.size.max.message}")
     private String displayName;
 
-    @Size(max = 25, message = "{openl.constraints.user.field.max-length.message}")
+    @Size(max = 25, message = "{openl.constraints.size.max.message}")
     private String firstName;
 
-    @Size(max = 25, message = "{openl.constraints.user.field.max-length.message}")
+    @Size(max = 25, message = "{openl.constraints.size.max.message}")
     private String lastName;
 
     public String getEmail() {

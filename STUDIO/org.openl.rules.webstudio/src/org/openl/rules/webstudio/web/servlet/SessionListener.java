@@ -1,20 +1,31 @@
 package org.openl.rules.webstudio.web.servlet;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionActivationListener;
+import javax.servlet.http.HttpSessionEvent;
+import javax.servlet.http.HttpSessionIdListener;
+import javax.servlet.http.HttpSessionListener;
+
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
+import org.springframework.security.web.session.HttpSessionCreatedEvent;
+import org.springframework.security.web.session.HttpSessionDestroyedEvent;
+import org.springframework.security.web.session.HttpSessionIdChangedEvent;
 
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionActivationListener;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
-
-public class SessionListener implements HttpSessionActivationListener, HttpSessionListener {
-    private static final String SERVLET_CONTEXT_KEY = "SessionCache";
+public class SessionListener implements HttpSessionActivationListener, HttpSessionListener, HttpSessionIdListener {
 
     private final Logger log = LoggerFactory.getLogger(SessionListener.class);
+
+    private static ApplicationContext getContext(ServletContext servletContext) {
+        return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(servletContext);
+    }
 
     private RulesUserSession getUserRules(HttpSession session) {
         return (RulesUserSession) session.getAttribute(Constants.RULES_USER_SESSION);
@@ -52,6 +63,7 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         printSession(session);
         log.debug("sessionCreated: {}", session);
         SpringInitializer.addSessionCache(session);
+        publishSessionEvent(session, new HttpSessionCreatedEvent(session));
     }
 
     @Override
@@ -59,7 +71,8 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         HttpSession session = event.getSession();
         log.debug("sessionDestroyed: {}", session);
         printSession(session);
-        SpringInitializer.removeSessionCache(session);
+        SpringInitializer.removeSessionCache(session, session.getId());
+        publishSessionEvent(session, new HttpSessionDestroyedEvent(session));
 
         RulesUserSession obj = getUserRules(session);
         if (obj == null) {
@@ -99,5 +112,21 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
         if (rulesUserSession != null) {
             rulesUserSession.sessionWillPassivate();
         }
+    }
+
+    @Override
+    public void sessionIdChanged(HttpSessionEvent event, String oldSessionId) {
+        HttpSession session = event.getSession();
+        log.debug("sessionIdChanged: {}", session);
+        printSession(session);
+
+        SpringInitializer.removeSessionCache(session, oldSessionId);
+        SpringInitializer.addSessionCache(session);
+        publishSessionEvent(session, new HttpSessionIdChangedEvent(session, oldSessionId));
+    }
+
+    private void publishSessionEvent(HttpSession session, ApplicationEvent e) {
+        log.debug("Publishing event: {}", e);
+        getContext(session.getServletContext()).publishEvent(e);
     }
 }

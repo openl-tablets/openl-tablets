@@ -1,5 +1,9 @@
 package org.openl.rules.rest.validation;
 
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,16 +27,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.validation.BindingResult;
 
-import static org.junit.Assert.assertNull;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MockConfiguration.class)
 public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final String MUST_BE_LESS_THAN_25 = "Must be less than 25.";
-    private static final String CANNOT_BE_EMPTY = "Cannot be empty.";
+    private static final String CANNOT_BE_EMPTY = "Can not be empty.";
     private static final String SHOULD_NOT_END_WITH_DOT_AND_WHITESPACE = "The name should not end or begin with '.' or a whitespace.";
     private static final String MUST_NOT_CONTAIN_FOLLOWING_CHARS = "The name must not contain the following characters: /  : * ? \" < > | { } ~ ^";
 
@@ -47,9 +47,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @After
     public void reset_mocks() {
-        Mockito.reset(userManagementService);
-        Mockito.reset(passwordEncoder);
-        Mockito.reset(currentUserInfo);
+        Mockito.reset(userManagementService, passwordEncoder, currentUserInfo);
     }
 
     @Test
@@ -116,7 +114,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     public void testCreateUser_valid() {
-        when(userManagementService.getApplicationUser(anyString())).thenReturn(null);
+        when(userManagementService.getUser(anyString())).thenReturn(null);
         UserCreateModel userCreateModel = getValidUserCreateModel();
 
         assertNull(validateAndGetResult(getValidUserCreateModel()));
@@ -135,8 +133,15 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
     }
 
     @Test
+    public void testCreateUser_noGroups_valid() {
+        UserCreateModel userCreateModel = getValidUserCreateModel();
+        userCreateModel.setGroups(null);
+        assertNull(validateAndGetResult(userCreateModel));
+    }
+
+    @Test
     public void testCreateUser_password_notValid() {
-        when(userManagementService.getApplicationUser(anyString())).thenReturn(null);
+        when(userManagementService.getUser(anyString())).thenReturn(null);
         UserCreateModel userCreateModel = getValidUserCreateModel();
 
         InternalPasswordModel wrongInternalPassword = new InternalPasswordModel().setInternalUser(true)
@@ -160,7 +165,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     @Test
     public void testCreateUser_username_notValid() {
-        when(userManagementService.getApplicationUser(anyString())).thenReturn(null);
+        when(userManagementService.getUser(anyString())).thenReturn(null);
         UserCreateModel userCreateModel = getValidUserCreateModel();
 
         String wrongUsername = RandomStringUtils.random(26, "jsmith");
@@ -252,7 +257,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a^", bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername("jsmith");
-        when(userManagementService.getApplicationUser(anyString())).thenReturn(new SimpleUser());
+        when(userManagementService.existsByName(anyString())).thenReturn(Boolean.TRUE);
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("username",
             "User with such username already exists.",
@@ -268,7 +273,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         when(passwordEncoder.matches("pass", "passHash")).thenReturn(true);
         SimpleUser existedUser = new SimpleUser();
         existedUser.setPassword("passHash");
-        when(userManagementService.getApplicationUser(anyString())).thenReturn(existedUser);
+        when(userManagementService.getUser(anyString())).thenReturn(existedUser);
 
         assertNull(validateAndGetResult(userProfileEditModel));
 
@@ -286,7 +291,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
         ChangePasswordModel changePasswordModel = new ChangePasswordModel().setNewPassword("pass2");
         userProfileEditModel.setChangePassword(changePasswordModel);
-        when(userManagementService.getApplicationUser(anyString())).thenReturn(existedUser);
+        when(userManagementService.getUser(anyString())).thenReturn(existedUser);
         BindingResult bindingResult = validateAndGetResult(userProfileEditModel);
         assertFieldError("changePassword",
             "Enter your password.",
@@ -361,5 +366,4 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
             .setEmail("jsmith@email")
             .setLastName("Smith");
     }
-
 }

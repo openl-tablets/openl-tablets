@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
+import javax.annotation.PostConstruct;
+
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
@@ -14,6 +16,7 @@ import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.webstudio.service.AdminUsers;
+import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
@@ -25,16 +28,26 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
     private final String defaultGroup;
     private final boolean groupsAreManagedInStudio;
     private final AdminUsers adminUsersInitializer;
+    private final ExternalGroupService externalGroupService;
 
     public OpenLUserDetailsService(UserManagementService userManagementService,
             GroupManagementService groupManagementService,
             boolean groupsAreManagedInStudio,
-            AdminUsers adminUsersInitializer) {
+            AdminUsers adminUsersInitializer,
+            ExternalGroupService externalGroupService) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
         this.groupsAreManagedInStudio = groupsAreManagedInStudio;
         this.adminUsersInitializer = adminUsersInitializer;
         this.defaultGroup = Props.text("security.default-group");
+        this.externalGroupService = externalGroupService;
+    }
+
+    @PostConstruct
+    public void init() {
+        if (groupsAreManagedInStudio) {
+            externalGroupService.deleteAll(); // Drop all external groups because all groups are managed by WebStudio
+        }
     }
 
     public SimpleUser apply(SimpleUser user) {
@@ -51,23 +64,25 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
             mapAuthorities(user.getAuthorities(), privileges);
         }
 
-        SimpleUser simpleUser = new SimpleUser(user.getFirstName(),
-            user.getLastName(),
-            user.getUsername(),
-            user.getPassword(),
-            privileges,
-            user.getEmail(),
-            user.getDisplayName(),
-            user.getExternalFlags());
+        SimpleUser simpleUser = SimpleUser.builder()
+            .setFirstName(user.getFirstName())
+            .setLastName(user.getLastName())
+            .setUsername(user.getUsername())
+            .setPasswordHash(user.getPassword())
+            .setPrivileges(privileges)
+            .setEmail(user.getEmail())
+            .setDisplayName(user.getDisplayName())
+            .setExternalFlags(user.getExternalFlags())
+            .build();
 
-        syncUserWithDB(simpleUser);
+        syncUserWithDB(simpleUser, user.getAuthorities());
 
         return simpleUser;
     }
 
-    private User syncUserWithDB(SimpleUser simpleUser) {
+    private User syncUserWithDB(SimpleUser simpleUser, Collection<Privilege> externalGroups) {
         adminUsersInitializer.initIfSuperuser(simpleUser.getUsername());
-        User userDetails = userManagementService.getApplicationUser(simpleUser.getUsername());
+        User userDetails = userManagementService.getUser(simpleUser.getUsername());
         if (userDetails == null) {
             // Create a new user
             userManagementService.addUser(simpleUser.getUsername(),
@@ -88,6 +103,9 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
                 simpleUser.getEmail(),
                 simpleUser.getDisplayName(),
                 simpleUser.getExternalFlags());
+        }
+        if (!groupsAreManagedInStudio && simpleUser.getExternalFlags().isSyncExternalGroups()) {
+            externalGroupService.mergeAllForUser(simpleUser.getUsername(), externalGroups);
         }
         return userDetails;
     }

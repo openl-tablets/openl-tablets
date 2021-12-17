@@ -111,8 +111,8 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
         BindingResult bindingResult = validateAndGetResult(model, validator);
         assertEquals(3, bindingResult.getFieldErrorCount());
         assertEquals(0, bindingResult.getGlobalErrorCount());
-        assertFieldError("repoName", "Can not be empty", null, bindingResult.getFieldError("repoName"));
-        assertFieldError("author", "Can not be empty", null, bindingResult.getFieldError("author"));
+        assertFieldError("repoName", "Can not be empty.", null, bindingResult.getFieldError("repoName"));
+        assertFieldError("author", "Can not be empty.", null, bindingResult.getFieldError("author"));
         assertFieldError("projectName",
             "Project name must not be empty.",
             null,
