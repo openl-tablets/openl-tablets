@@ -15,7 +15,9 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.Message;
+import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -113,7 +115,12 @@ public class BranchesBean {
 
     private void merge(String branchToMergeFrom, String branchToMergeTo) {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        studio.getModel().getWebStudioWorkspaceDependencyManager().pause();
+        ProjectModel model = studio.getModel();
+        WebStudioWorkspaceRelatedDependencyManager workspaceDependencyManager = model
+            .getWebStudioWorkspaceDependencyManager();
+        if (workspaceDependencyManager != null) {
+            workspaceDependencyManager.pause();
+        }
         String nameBeforeMerge = null;
         try {
             if (branchToMergeFrom == null || branchToMergeTo == null) {
@@ -164,13 +171,15 @@ public class BranchesBean {
                 getUserWorkspace().refresh();
                 WebStudioUtils.getWebStudio().reset();
                 setWasMerged(true);
-                studio.getModel().clearModuleInfo();
+                model.clearModuleInfo();
                 if (!nameAfterMerge.equals(nameBeforeMerge)) {
                     WebStudioUtils.getWebStudio().init(repoId, currentBranch, nameAfterMerge, null);
                 }
             }
         } catch (MergeConflictException e) {
-            studio.getModel().getWebStudioWorkspaceDependencyManager().resume();
+            if (workspaceDependencyManager != null) {
+                workspaceDependencyManager.resume();
+            }
             MergeConflictInfo info = new MergeConflictInfo(e,
                 getProject(currentProjectName),
                 branchToMergeFrom,
@@ -179,7 +188,9 @@ public class BranchesBean {
             ConflictUtils.saveMergeConflict(info);
             LOG.debug("Failed to save the project because of merge conflict.", e);
         } catch (Exception e) {
-            studio.getModel().getWebStudioWorkspaceDependencyManager().resume();
+            if (workspaceDependencyManager != null) {
+                workspaceDependencyManager.resume();
+            }
             String msg = e.getMessage();
             if (StringUtils.isBlank(msg)) {
                 msg = "Error during merge operation.";
