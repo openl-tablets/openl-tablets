@@ -350,11 +350,20 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
+    public void refresh() {
+        synchronized (projects) {
+            projectsRefreshNeeded = true;
+        }
+    }
+
+    @Override
     public Collection<AProject> getProjects() {
         List<AProject> result;
 
         synchronized (projects) {
-            refreshProjects();
+            if (projectsRefreshNeeded) {
+                refreshProjects();
+            }
 
             result = new ArrayList<>(projects.values());
         }
