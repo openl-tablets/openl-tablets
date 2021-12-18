@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#export JAVA_HOME=/opt/java/jdk-9.0.4
+cd -- "$(dirname -- "${BASH_SOURCE:-$0}")" || { echo "Failed to change directory."; exit 1; }
 
 # Java extensions can be outside of JAVA_HOME. Needed for security manager
 JAVA_EXTENSIONS_DIR=/usr/java/packages/lib/ext
