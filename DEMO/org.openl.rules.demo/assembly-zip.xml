@@ -16,7 +16,8 @@
             <directory>apache-tomcat-conf</directory>
             <outputDirectory>${tomcat.root}</outputDirectory>
             <includes>
-                <include>*.sh</include>
+                <include>start</include>
+                <include>stop</include>
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -24,7 +25,8 @@
             <directory>apache-tomcat-conf</directory>
             <outputDirectory>${tomcat.root}</outputDirectory>
             <excludes>
-                <exclude>*.sh</exclude>
+                <exclude>start</exclude>
+                <exclude>stop</exclude>
             </excludes>
         </fileSet>
         <fileSet>
