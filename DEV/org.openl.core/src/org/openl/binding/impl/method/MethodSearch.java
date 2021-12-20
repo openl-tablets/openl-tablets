@@ -495,14 +495,19 @@ public final class MethodSearch {
                 int penalty2 = 0;
                 if (m.getSignature().getNumberOfParameters() == params.length) {
                     for (int i = 0; i < params.length; i++) {
-                        if (!params[i].getInstanceClass().isPrimitive() && m.getSignature()
+                        if ((NullOpenClass.isAnyNull(params[i]) || !params[i].getInstanceClass().isPrimitive()) && m
+                            .getSignature()
                             .getParameterType(i)
                             .getInstanceClass()
                             .isPrimitive()) {
                             penalty1++;
                         }
-                        if (params[i].getInstanceClass()
-                            .isPrimitive() != m.getSignature().getParameterType(i).getInstanceClass().isPrimitive()) {
+                        if ((!NullOpenClass.isAnyNull(params[i]) && params[i].getInstanceClass().isPrimitive()) != m
+                            .getSignature()
+                            .getParameterType(i)
+                            .getInstanceClass()
+                            .isPrimitive() || (NullOpenClass.isAnyNull(
+                                params[i]) && !m.getSignature().getParameterType(i).getInstanceClass().isPrimitive())) {
                             penalty2++;
                         }
                     }

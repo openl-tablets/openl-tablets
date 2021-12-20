@@ -1,0 +1,1 @@
+ERROR: Method 'CoveredOptionDefaultValues(null-Class, null-Class, boolean, null-Class)' is ambiguous:
