@@ -400,6 +400,9 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             return result;
         } catch (Exception t) {
             Pair<ExceptionType, String> p = getExceptionDetailAndType(t);
+            if (ExceptionType.isServerError(p.getLeft())) {
+                log.error(p.getRight(), t);
+            }
             throw new RuleServiceWrapperException(p.getRight(),
                 p.getLeft(),
                 getExceptionMessage(calledMethod, t, args),
