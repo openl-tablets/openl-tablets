@@ -100,7 +100,7 @@
         <!-- see https://github.com/swagger-api/swagger-core/pull/3637#issuecomment-682370287 -->
         <!-- it needs to wait when it will be fixed or exclude this field from mapping via MixIn -->
         <io.swagger.core.v3.version>2.1.3</io.swagger.core.v3.version>
-        <log4j.version>2.16.0</log4j.version>
+        <log4j.version>2.17.0</log4j.version>
         <org.slf4j.version>1.7.32</org.slf4j.version>
         <org.apache.poi.version>5.1.0</org.apache.poi.version>
         <org.bouncycastle.version>1.70</org.bouncycastle.version>
