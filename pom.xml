@@ -99,7 +99,7 @@
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-databinding-aegis:jar -> org.apache.cxf:cxf-core -> org.glassfish.jaxb:jaxb-runtime -->
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <io.swagger.core.v3.version>2.1.3</io.swagger.core.v3.version>
-        <log4j.version>2.16.0</log4j.version>
+        <log4j.version>2.17.0</log4j.version>
         <org.slf4j.version>1.7.32</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
         <org.bouncycastle.version>1.70</org.bouncycastle.version>
