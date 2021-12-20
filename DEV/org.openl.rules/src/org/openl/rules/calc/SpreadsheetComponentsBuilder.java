@@ -352,6 +352,22 @@ public class SpreadsheetComponentsBuilder {
                 SpreadsheetMetaInfoReader metaInfoReader = (SpreadsheetMetaInfoReader) getTableSyntaxNode()
                     .getMetaInfoReader();
                 List<NodeUsage> nodeUsages = new ArrayList<>();
+                ILogicalTable cell;
+                if (headerDefinition.getRow() >= 0) {
+                    cell = cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow());
+                } else {
+                    cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
+                }
+                if (headerDefinition.getDefinition().isAsteriskPresented()) {
+                    String s = removeWrongSymbols(headerDefinition.getDefinitionName());
+                    if (StringUtils.isEmpty(s)) {
+                        s = "Empty string";
+                    }
+                    String stringValue = cell.getCell(0, 0).getStringValue();
+                    int d = stringValue.lastIndexOf(SpreadsheetSymbols.ASTERISK.toString());
+                    SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0, d, s, null, NodeType.OTHER);
+                    nodeUsages.add(nodeUsage);
+                }
                 if (headerType != null) {
                     IdentifierNode identifier = cutTypeIdentifier(typeIdentifierNode);
                     if (identifier != null) {
@@ -368,22 +384,6 @@ public class SpreadsheetComponentsBuilder {
                             nodeUsages.add(nodeUsage);
                         }
                     }
-                }
-                ILogicalTable cell;
-                if (headerDefinition.getRow() >= 0) {
-                    cell = cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow());
-                } else {
-                    cell = cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn());
-                }
-                if (headerDefinition.getDefinition().isAsteriskPresented()) {
-                    String s = removeWrongSymbols(headerDefinition.getDefinitionName());
-                    if (StringUtils.isEmpty(s)) {
-                        s = "Empty string";
-                    }
-                    String stringValue = cell.getCell(0, 0).getStringValue();
-                    int d = stringValue.lastIndexOf(SpreadsheetSymbols.ASTERISK.toString());
-                    SimpleNodeUsage nodeUsage = new SimpleNodeUsage(d, d, s, null, NodeType.OTHER);
-                    nodeUsages.add(nodeUsage);
                 }
                 if (!nodeUsages.isEmpty()) {
                     CellMetaInfo cellMetaInfo = new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
