@@ -6,5 +6,9 @@ public enum ExceptionType {
     COMPILATION,
     SYSTEM,
     BAD_REQUEST,
-    VALIDATION
+    VALIDATION;
+
+    public static boolean isServerError(ExceptionType type) {
+        return type == SYSTEM || type == COMPILATION || type == RULES_RUNTIME;
+    }
 }
