@@ -89,7 +89,7 @@ public final class TreeBuildTracer extends Tracer {
                 cacheNode(new TracerKeyNode<>(executor, target, params, env, source), trObj);
             }
             return res;
-        } catch (RuntimeException ex) {
+        } catch (Throwable ex) {
             trObj.setError(ex);
             throw ex;
         } finally {
