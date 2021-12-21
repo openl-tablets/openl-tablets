@@ -32,7 +32,8 @@ public final class Helper {
 
     public String formatText(Object value, boolean showRealNumbers) {
         if (value instanceof Number) {
-            IFormatter formatter = FormattersManager.getFormatter(value.getClass(), showRealNumbers ? FormattersManager.DEFAULT_NUMBER_FORMAT : null);
+            IFormatter formatter = FormattersManager.getFormatter(value.getClass(),
+                showRealNumbers ? FormattersManager.DEFAULT_NUMBER_FORMAT : null);
             return formatter.format(value);
         } else {
             return format(value);
@@ -40,6 +41,6 @@ public final class Helper {
     }
 
     public boolean isSpreadsheetResult(Object value) {
-        return value instanceof SpreadsheetResult;
+        return value instanceof SpreadsheetResult && ((SpreadsheetResult) value).getLogicalTable() != null;
     }
 }

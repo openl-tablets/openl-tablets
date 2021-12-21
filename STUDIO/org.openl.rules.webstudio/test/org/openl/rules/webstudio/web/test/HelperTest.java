@@ -6,7 +6,8 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.openl.rules.calc.StubSpreadSheetResult;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.table.SimpleLogicalTable;
 import org.richfaces.model.TreeNode;
 
 public class HelperTest {
@@ -43,8 +44,10 @@ public class HelperTest {
 
     @Test
     public void testIsSpreadsheetResult() {
+        SpreadsheetResult sr = new SpreadsheetResult();
+        sr.setLogicalTable(new SimpleLogicalTable(null)); // Real spreadsheet always contains a logical table from which it was created
         Helper helper = new Helper();
-        assertTrue(helper.isSpreadsheetResult(new StubSpreadSheetResult()));
+        assertTrue(helper.isSpreadsheetResult(sr));
         assertFalse(helper.isSpreadsheetResult(null));
         assertFalse(helper.isSpreadsheetResult("Str"));
     }
