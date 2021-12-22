@@ -1,5 +1,7 @@
 package org.openl.rules.property;
 
+import static org.openl.util.TableNameChecker.NAME_ERROR_MESSAGE;
+
 import org.openl.OpenL;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.message.OpenLMessagesUtils;
@@ -17,7 +19,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
-import org.openl.util.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -25,6 +26,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.TableNameChecker;
 
 /**
  * Binder for property table.
@@ -53,7 +55,7 @@ public class PropertyTableBinder extends DataNodeBinder {
         } else {
             tableName = identifierNode.getIdentifier();
             if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
-                String message = "Property table " + tableName + TableNameChecker.NAME_ERROR_MESSAGE;
+                String message = String.format(NAME_ERROR_MESSAGE, "Property table", tableName);
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, identifierNode));
             }
         }
