@@ -1,5 +1,7 @@
 package org.openl.rules.dt;
 
+import static org.openl.util.TableNameChecker.NAME_ERROR_MESSAGE;
+
 import org.openl.OpenL;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.exception.OpenLCompilationException;
@@ -39,7 +41,7 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
             tableName = in.getIdentifier();
             if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
                 String formattedPrefix = tableNamePrefix.substring(0, tableNamePrefix.length() - 2);
-                String message = formattedPrefix + " table " + tableName + TableNameChecker.NAME_ERROR_MESSAGE;
+                String message = String.format(NAME_ERROR_MESSAGE, formattedPrefix + " table", tableName);
                 bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, in));
             }
             aDtColumnsDefinitionTableBoundNode.setTableName(tableName);
