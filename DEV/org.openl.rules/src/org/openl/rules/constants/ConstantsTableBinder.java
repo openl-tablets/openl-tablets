@@ -1,5 +1,7 @@
 package org.openl.rules.constants;
 
+import static org.openl.util.TableNameChecker.NAME_ERROR_MESSAGE;
+
 import org.openl.OpenL;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.message.OpenLMessagesUtils;
@@ -39,7 +41,7 @@ public class ConstantsTableBinder extends AXlsTableBinder {
         if (parsedHeader.length > 1) {
             String constantsTableName = parsedHeader[CONSTANTS_TABLE_NAME_INDEX].getIdentifier();
             if (TableNameChecker.isInvalidJavaIdentifier(constantsTableName)) {
-                String message = "Constants table " + constantsTableName + TableNameChecker.NAME_ERROR_MESSAGE;
+                String message = String.format(NAME_ERROR_MESSAGE, "Constants table", constantsTableName);
                 bindingContext
                     .addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[CONSTANTS_TABLE_NAME_INDEX]));
             }

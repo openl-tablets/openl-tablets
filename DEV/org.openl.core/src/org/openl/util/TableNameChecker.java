@@ -2,7 +2,7 @@ package org.openl.util;
 
 public class TableNameChecker {
 
-    public static final String NAME_ERROR_MESSAGE = " name error. Name can only have letters, digits, _, $ and should not start with a digit.";
+    public static final String NAME_ERROR_MESSAGE = "%s '%s' name error. Name can only have letters, digits, _, $ and should not start with a digit.";
 
     private TableNameChecker() {
     }

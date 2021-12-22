@@ -98,7 +98,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         String typeName = parsedHeader[TYPE_INDEX].getText();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getText();
         if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
-            String message = "Data table " + tableName + NAME_ERROR_MESSAGE;
+            String message =  String.format(NAME_ERROR_MESSAGE, "Data table", tableName);
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
         }
         IOpenClass tableType = OpenLManager.makeType(((IBindingContext) bindingContext).getOpenL(),

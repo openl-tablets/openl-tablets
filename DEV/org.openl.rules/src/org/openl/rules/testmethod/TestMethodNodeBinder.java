@@ -3,6 +3,8 @@
  */
 package org.openl.rules.testmethod;
 
+import static org.openl.util.TableNameChecker.NAME_ERROR_MESSAGE;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -213,7 +215,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
     private void validateTableName(String tableName, ISyntaxNode syntaxNode, IBindingContext context) {
         if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
-            String message = "Test table " + tableName + TableNameChecker.NAME_ERROR_MESSAGE;
+            String message = String.format(NAME_ERROR_MESSAGE, "Test table", tableName);
             context.addMessage(OpenLMessagesUtils.newWarnMessage(message, syntaxNode));
         }
     }
