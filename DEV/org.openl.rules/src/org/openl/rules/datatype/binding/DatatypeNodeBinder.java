@@ -4,6 +4,8 @@
 
 package org.openl.rules.datatype.binding;
 
+import static org.openl.util.TableNameChecker.NAME_ERROR_MESSAGE;
+
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
@@ -58,7 +60,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
         if (TableNameChecker.isInvalidJavaIdentifier(typeName)) {
-            String message = "Datatype table " + typeName + TableNameChecker.NAME_ERROR_MESSAGE;
+            String message =  String.format(NAME_ERROR_MESSAGE, "Datatype table", typeName);
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TYPE_INDEX]));
         }
         IOpenClass openClass;

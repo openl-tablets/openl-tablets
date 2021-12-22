@@ -1,2 +1,2 @@
-WARN: Test table TheProject<test name error. Name can only have letters, digits, _, $ and should not start with a digit.
+WARN: Test table 'TheProject<test' name error. Name can only have letters, digits, _, $ and should not start with a digit.
 ERROR: Table 'TheProject<test' is not found.
