@@ -222,7 +222,7 @@ public class DataTableBindHelper {
             }
             // if it's field chain started with array index
             IOpenClass openClass = tableType;
-            while (openClass.isArray() && fieldName.charAt(0) == '[') {
+            while (openClass.isArray() && fieldName.length() > 0 && fieldName.charAt(0) == '[') {
                 boolean arrayIndex = false;
                 int endIndex = fieldName.indexOf(']');
                 for (int j = 1; j < endIndex; j++) {
@@ -997,9 +997,8 @@ public class DataTableBindHelper {
             if (loadedFieldType instanceof TestMethodOpenClass) {
                 StringBuilder sb = new StringBuilder();
                 MethodUtil.printMethod(((TestMethodOpenClass) loadedFieldType).getTestedMethod(), sb);
-                errorMessage = String.format("Expected one of the parameters from the method '%s', but found '%s'.",
-                    sb.toString(),
-                    fieldName);
+                errorMessage = String
+                    .format("Expected one of the parameters from the method '%s', but found '%s'.", sb, fieldName);
             } else {
                 errorMessage = String.format("%s '%s' is not found in type '%s'.",
                     loadedFieldType.isStatic() ? "Static field" : "Field",
