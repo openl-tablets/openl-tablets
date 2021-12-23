@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -763,7 +764,7 @@ public final class DecisionTableHelper {
         return totalColumnsUnder;
     }
 
-    private static final String FUZZY_RET_VARIABLE_NAME = "$R$E$T$U$R$N";
+    private static final String FUZZY_RET_VARIABLE_NAME = "$Rn";
 
     private static IOpenClass writeReturnStatement(IOpenClass type,
             IOpenField[] fieldsChain,
@@ -1541,7 +1542,10 @@ public final class DecisionTableHelper {
                 if (numOfVCondition == 1 && (conditions.stream()
                     .filter(e -> !e.isHCondition())
                     .count() < 2) && !(isCollect && decisionTable.getType()
-                        .isArray() && !decisionTable.getType().getComponentClass().isArray())) {
+                        .isArray() && !decisionTable.getType()
+                            .getComponentClass()
+                            .isArray()) && !(isCollect && ClassUtils
+                                .isAssignable(decisionTable.getType().getInstanceClass(), Collection.class))) {
                     header = (DecisionTableColumnHeaders.MERGED_CONDITION.getHeaderKey() + numOfVCondition);
                 } else {
                     header = (DecisionTableColumnHeaders.CONDITION.getHeaderKey() + numOfVCondition);
