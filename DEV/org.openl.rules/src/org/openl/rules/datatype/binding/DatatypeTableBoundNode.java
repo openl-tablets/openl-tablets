@@ -70,8 +70,8 @@ import org.slf4j.LoggerFactory;
 public class DatatypeTableBoundNode implements IMemberBoundNode {
 
     private static final Pattern CONTEXT_SPLITTER = Pattern.compile("\\s*:\\s*context\\s*");
-    private static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
-    private static final String TRANSIENT_FIELD_SUFFIX = "~";
+    public static final String NON_TRANSIENT_FIELD_SUFFIX = "*";
+    public static final String TRANSIENT_FIELD_SUFFIX = "~";
     private static final Logger LOG = LoggerFactory.getLogger(DatatypeTableBoundNode.class);
 
     private final TableSyntaxNode tableSyntaxNode;
