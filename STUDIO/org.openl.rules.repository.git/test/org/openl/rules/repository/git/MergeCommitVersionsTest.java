@@ -39,13 +39,13 @@ public class MergeCommitVersionsTest {
     @Test
     public void testMergeCommitVersions() throws IOException {
         List<FileData> sampleProjectHistory = repo.listHistory("DESIGN/rules/Sample Project");
-        List<FileData> javaPrHistory = repo.listHistory("DESIGN/rules/javaPr");
+        List<FileData> javaPrHistory = repo.listHistory("DESIGN/rules/Example 3 - Auto Policy Calculation");
         assertEquals(4, sampleProjectHistory.size());
         assertEquals(4, javaPrHistory.size());
         String javaPrVersion = javaPrHistory.get(3).getVersion();
-        assertEquals("3e8503c3573375628e6f7b8bd50f3c326961e68f", javaPrVersion);
+        assertEquals("15d64562c3eba9e667c4f5832458b9d3b06a325f", javaPrVersion);
         String sampleProjectVersion = sampleProjectHistory.get(3).getVersion();
-        assertEquals("887c338089201a2ef5fb4c428c8fff3ddbbbfcb3", sampleProjectVersion);
+        assertEquals("03216a3a5539660a5c9ab32ac3ad9d71862c6337", sampleProjectVersion);
     }
 
     private GitRepository createRepository() {

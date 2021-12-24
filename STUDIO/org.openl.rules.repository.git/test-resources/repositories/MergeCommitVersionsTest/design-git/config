@@ -2,6 +2,3 @@
 	repositoryformatversion = 0
 	filemode = false
 	logallrefupdates = true
-[gui]
-	wmstate = zoomed
-	geometry = 1109x563+160+160 216 255
