@@ -1525,10 +1525,10 @@
       "GetCarDataRequest1": {
         "type": "object",
         "properties": {
-          "arg0": {
+          "runtimeContext": {
             "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
           },
-          "arg1": {
+          "variationPack": {
             "$ref": "#/components/schemas/VariationsPack"
           }
         }
@@ -1536,10 +1536,10 @@
       "GetAddressDataRequest1": {
         "type": "object",
         "properties": {
-          "arg0": {
+          "runtimeContext": {
             "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
           },
-          "arg1": {
+          "variationPack": {
             "$ref": "#/components/schemas/VariationsPack"
           }
         }

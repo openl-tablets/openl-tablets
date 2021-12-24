@@ -537,4 +537,8 @@ public class RunWebservicesITest {
         client.send("EPBDS-12225/mainSpr.json.get");
     }
 
+    @Test
+    public void EPBDS_12310() {
+        client.send("EPBDS-12310/openapi.json.get");
+    }
 }
