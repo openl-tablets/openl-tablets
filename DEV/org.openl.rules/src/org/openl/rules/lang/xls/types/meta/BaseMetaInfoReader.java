@@ -50,18 +50,24 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
         nodeUsages.add(nodeUsage);
     }
 
-    protected IGridTable getGridTable() {
+    protected IGridTable getGridTable(int col, int row) {
         if (getTableSyntaxNode().getGridTable().getGrid() instanceof CompositeGrid) {
-            return ((CompositeGrid) getTableSyntaxNode().getGridTable().getGrid()).getGridTables()[0];
+            for (IGridTable gridTable : ((CompositeGrid) getTableSyntaxNode().getGridTable().getGrid())
+                .getGridTables()) {
+                if (IGridRegion.Tool.contains(gridTable.getRegion(), col, row)) {
+                    return gridTable;
+                }
+            }
         } else {
             return getTableSyntaxNode().getGridTable();
         }
+        return null;
     }
 
     @Override
     public final CellMetaInfo getMetaInfo(int row, int col) {
         try {
-            if (!IGridRegion.Tool.contains(getGridTable().getRegion(), col, row)) {
+            if (getGridTable(col, row) == null) {
                 return null;
             }
 

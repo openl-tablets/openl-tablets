@@ -227,7 +227,9 @@ public class TableViewer {
         tm.setNumRowsToDisplay(numRows);
 
         if (gt.getGrid() instanceof CompositeGrid) {
-            metaInfoReader.prepare(((CompositeGrid) gt.getGrid()).getGridTables()[0].getRegion());
+            for (IGridTable gridTable : ((CompositeGrid) gt.getGrid()).getGridTables()) {
+                metaInfoReader.prepare(gridTable.getRegion());
+            }
         } else {
             metaInfoReader.prepare(reg);
         }
