@@ -6,6 +6,7 @@ import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
+import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGrid;
@@ -225,7 +226,11 @@ public class TableViewer {
         TableModel tm = new TableModel(w, h, gt, showHeader);
         tm.setNumRowsToDisplay(numRows);
 
-        metaInfoReader.prepare(reg);
+        if (gt.getGrid() instanceof CompositeGrid) {
+            metaInfoReader.prepare(((CompositeGrid) gt.getGrid()).getGridTables()[0].getRegion());
+        } else {
+            metaInfoReader.prepare(reg);
+        }
 
         for (int row = reg.getTop(); row <= reg.getBottom(); row++) {
             for (int column = reg.getLeft(); column <= reg.getRight(); column++) {
@@ -235,8 +240,7 @@ public class TableViewer {
                     continue;
                 }
                 ICell cell = grid.getCell(column, row);
-
-                CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(row, column);
+                CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
                 CellModel cm = buildCell(cell, new CellModel(r, c), metaInfo);
 
                 tm.addCell(cm, r, c);
@@ -255,7 +259,6 @@ public class TableViewer {
             }
 
         }
-
         setGrid(tm);
         return tm;
     }

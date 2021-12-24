@@ -1,14 +1,19 @@
 package org.openl.rules.lang.xls.types.meta;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
+import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.types.IOpenClass;
@@ -45,10 +50,18 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
         nodeUsages.add(nodeUsage);
     }
 
+    protected IGridTable getGridTable() {
+        if (getTableSyntaxNode().getGridTable().getGrid() instanceof CompositeGrid) {
+            return ((CompositeGrid) getTableSyntaxNode().getGridTable().getGrid()).getGridTables()[0];
+        } else {
+            return getTableSyntaxNode().getGridTable();
+        }
+    }
+
     @Override
     public final CellMetaInfo getMetaInfo(int row, int col) {
         try {
-            if (!IGridRegion.Tool.contains(getTableSyntaxNode().getGridTable().getRegion(), col, row)) {
+            if (!IGridRegion.Tool.contains(getGridTable().getRegion(), col, row)) {
                 return null;
             }
 
