@@ -230,7 +230,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
 
         // SimpleRules or SimpleLookup
-        IGrid grid = getTableSyntaxNode().getGridTable().getGrid();
+        IGrid grid = getGridTable().getGrid();
         String cellValue = grid.getCell(col, row).getStringValue();
         if (StringUtils.isBlank(cellValue)) {
             return;
@@ -350,7 +350,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private void setMetaInfo(CellKey cellKey, String description) {
-        IGrid grid = getTableSyntaxNode().getGridTable().getGrid();
+        IGrid grid = getGridTable().getGrid();
         String cellValue = grid.getCell(cellKey.getColumn(), cellKey.getRow()).getStringValue();
         if (StringUtils.isNotEmpty(cellValue)) {
             SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0,
@@ -374,7 +374,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 continue;
             }
 
-            ICell cell = getTableSyntaxNode().getGridTable().getGrid().getCell(col, row);
+            ICell cell = getGridTable().getGrid().getCell(col, row);
             String stringValue = cell.getStringValue();
 
             if (StringUtils.isBlank(stringValue)) {
@@ -551,7 +551,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
     private CellMetaInfo getPreparedMetaInfo(int row, int col) {
         if (preparedMetaInfos == null) {
-            prepare(getTableSyntaxNode().getGridTable().getRegion());
+            prepare(getGridTable().getRegion());
         }
         int r = row - top;
         int c = col - left;
@@ -565,7 +565,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         int r = row - top;
         int c = col - left;
         if (r >= 0 && r < preparedMetaInfos.length && c >= 0 && c < preparedMetaInfos[r].length) {
-            preparedMetaInfos[row - top][col - left] = metaInfo;
+            preparedMetaInfos[r][c] = metaInfo;
         }
     }
 
