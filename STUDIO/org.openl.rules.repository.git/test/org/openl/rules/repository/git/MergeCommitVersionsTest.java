@@ -39,11 +39,11 @@ public class MergeCommitVersionsTest {
     @Test
     public void testMergeCommitVersions() throws IOException {
         List<FileData> sampleProjectHistory = repo.listHistory("DESIGN/rules/Sample Project");
-        List<FileData> javaPrHistory = repo.listHistory("DESIGN/rules/Example 3 - Auto Policy Calculation");
+        List<FileData> example3History = repo.listHistory("DESIGN/rules/Example 3 - Auto Policy Calculation");
         assertEquals(4, sampleProjectHistory.size());
-        assertEquals(4, javaPrHistory.size());
-        String javaPrVersion = javaPrHistory.get(3).getVersion();
-        assertEquals("15d64562c3eba9e667c4f5832458b9d3b06a325f", javaPrVersion);
+        assertEquals(4, example3History.size());
+        String example3Version = example3History.get(3).getVersion();
+        assertEquals("15d64562c3eba9e667c4f5832458b9d3b06a325f", example3Version);
         String sampleProjectVersion = sampleProjectHistory.get(3).getVersion();
         assertEquals("03216a3a5539660a5c9ab32ac3ad9d71862c6337", sampleProjectVersion);
     }
