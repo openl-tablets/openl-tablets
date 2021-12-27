@@ -67,7 +67,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
             IOriginalDeclaredClassesOpenField combinedOpenField = (IOriginalDeclaredClassesOpenField) boundField;
             IOpenClass[] declaredClasses = combinedOpenField.getDeclaringClasses();
             Map<IOpenClass, List<IOpenClass>> types = Arrays.stream(declaredClasses)
-                .collect(Collectors.groupingBy(c -> c.getField(boundField.getName(), false).getType()));
+                .collect(Collectors.groupingBy(c -> c.getField(boundField.getName(), true).getType()));
             StringBuilder classNames = new StringBuilder();
             if (types.keySet().size() > 1) {
                 for (IOpenClass iOpenClass : types.keySet()) {
