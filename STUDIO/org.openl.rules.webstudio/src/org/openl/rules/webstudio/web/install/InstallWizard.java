@@ -491,9 +491,7 @@ public class InstallWizard implements Serializable {
             throw new ValidatorException(createErrorMessage("SAML server metadata URL cannot be blank."));
         }
 
-        if (StringUtils.isBlank(publicServerCert)) {
-            throw new ValidatorException(createErrorMessage("SAML server certificate cannot be blank"));
-        } else {
+        if (StringUtils.isNotBlank(publicServerCert)) {
             try {
                 byte[] decoded = Base64.getDecoder().decode(publicServerCert);
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
