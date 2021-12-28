@@ -115,10 +115,6 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
             final List<Privilege> grantedAuthorities = new ArrayList<>();
             if (StringUtils.isNotBlank(groupsAttribute)) {
                 for (String name : getAttributeValues(groupsAttribute)) {
-                    if (name.charAt(0) == '/') {
-                        // SAML Groups started with '/' char
-                        name = name.substring(1);
-                    }
                     grantedAuthorities.add(new SimplePrivilege(name, name));
                 }
             }

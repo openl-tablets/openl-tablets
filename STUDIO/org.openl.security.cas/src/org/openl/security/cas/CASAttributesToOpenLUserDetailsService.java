@@ -77,19 +77,11 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
 
                     for (final Object o : list) {
                         String name = o.toString();
-                        if (name.charAt(0) == '/') {
-                            // CAS Groups started with '/' char
-                            name = name.substring(1);
-                        }
                         grantedAuthorities.add(new SimplePrivilege(name, name));
                     }
 
                 } else {
                     String name = value.toString();
-                    if (name.charAt(0) == '/') {
-                        // CAS Groups started with '/' char
-                        name = name.substring(1);
-                    }
                     grantedAuthorities.add(new SimplePrivilege(name, name));
                 }
             }
