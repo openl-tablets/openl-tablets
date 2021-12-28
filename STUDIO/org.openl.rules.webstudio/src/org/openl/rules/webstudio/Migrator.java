@@ -91,6 +91,10 @@ public class Migrator {
         props.put("security.saml.max-authentication-age", null);
         props.put("security.saml.metadata-trust-check", null);
         props.put("security.saml.request-timeout", null);
+        props.put("security.saml.keystore-file-path", null);
+        props.put("security.saml.keystore-password", null);
+        props.put("security.saml.keystore-sp-alias", null);
+        props.put("security.saml.keystore-sp-password", null);
     }
 
     // 5.24

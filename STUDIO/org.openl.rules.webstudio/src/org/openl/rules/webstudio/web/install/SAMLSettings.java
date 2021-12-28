@@ -4,10 +4,6 @@ public class SAMLSettings {
     private String webStudioUrl;
     private String entityId;
     private String samlServerMetadataUrl;
-    private final String keystoreFilePath;
-    private final String keystorePassword;
-    private final String keystoreSpAlias;
-    private final String keystoreSpPassword;
     private String usernameAttribute;
     private String firstNameAttribute;
     private String secondNameAttribute;
@@ -19,10 +15,6 @@ public class SAMLSettings {
     public SAMLSettings(String webStudioUrl,
             String entityId,
             String samlServerMetadataUrl,
-            String keystoreFilePath,
-            String keystorePassword,
-            String keystoreSpAlias,
-            String keystoreSpPassword,
             String usernameAttribute,
             String firstNameAttribute,
             String secondNameAttribute,
@@ -33,10 +25,6 @@ public class SAMLSettings {
         this.webStudioUrl = webStudioUrl;
         this.entityId = entityId;
         this.samlServerMetadataUrl = samlServerMetadataUrl;
-        this.keystoreFilePath = keystoreFilePath;
-        this.keystoreSpAlias = keystoreSpAlias;
-        this.keystorePassword = keystorePassword;
-        this.keystoreSpPassword = keystoreSpPassword;
         this.usernameAttribute = usernameAttribute;
         this.firstNameAttribute = firstNameAttribute;
         this.secondNameAttribute = secondNameAttribute;
@@ -84,22 +72,6 @@ public class SAMLSettings {
 
     public void setSamlServerMetadataUrl(String samlServerMetadataUrl) {
         this.samlServerMetadataUrl = samlServerMetadataUrl;
-    }
-
-    public String getKeystoreFilePath() {
-        return keystoreFilePath;
-    }
-
-    public String getKeystorePassword() {
-        return keystorePassword;
-    }
-
-    public String getKeystoreSpAlias() {
-        return keystoreSpAlias;
-    }
-
-    public String getKeystoreSpPassword() {
-        return keystoreSpPassword;
     }
 
     public String getUsernameAttribute() {
