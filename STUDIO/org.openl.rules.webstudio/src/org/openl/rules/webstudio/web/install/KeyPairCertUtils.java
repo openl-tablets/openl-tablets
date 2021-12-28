@@ -1,115 +1,81 @@
 package org.openl.rules.webstudio.web.install;
 
-import org.bouncycastle.asn1.oiw.OIWObjectIdentifiers;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
-import org.bouncycastle.asn1.x509.AuthorityKeyIdentifier;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
-import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.cert.CertIOException;
-import org.bouncycastle.cert.X509ExtensionUtils;
-import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.operator.ContentSigner;
-import org.bouncycastle.operator.DigestCalculator;
-import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.operator.bc.BcDigestCalculatorProvider;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
-import java.security.KeyPair;
 import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PublicKey;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.time.Duration;
 import java.time.Instant;
+import java.time.Period;
+import java.util.Base64;
 import java.util.Date;
 
 /**
  * Generate KeyPair and X509Certificate.
  *
  * @author Eugene Biruk
+ * @author Yury Molchan
  */
 public class KeyPairCertUtils {
 
+    private static final Logger LOG = LoggerFactory.getLogger(KeyPairCertUtils.class);
 
-    public static KeyPairGenerator createKeyPairGenerator(String algorithmIdentifier,
-                                                          int bitCount) throws NoSuchProviderException,
-        NoSuchAlgorithmException {
-        KeyPairGenerator kpg = KeyPairGenerator.getInstance(
-            algorithmIdentifier, BouncyCastleProvider.PROVIDER_NAME);
-        kpg.initialize(bitCount);
-        return kpg;
+    private static Pair<String, String> generate() throws Exception {
+
+        // Generate a RSA private key with 4096 bit size
+        var kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(4096);
+        var keyPair = kpg.genKeyPair();
+        var publicKey = keyPair.getPublic();
+        var privateKey = keyPair.getPrivate();
+        var privateKeyBase64 = Base64.getEncoder().encodeToString(privateKey.getEncoded());
+
+        // Define period of certificate validity during 10 years in days.
+        // Period in 10 years is enough for testing/local usage without re-installation.
+        // Minus 2 days is for the case when time on an application server is wrongly synced with IdP server time.
+        var now = Instant.now();
+        var notBefore = Date.from(now.minus(Period.ofDays(2)));
+        var notAfter = Date.from(now.plus(Period.ofDays(10 * 365)));
+
+        // Self-signed, so an issuer and a subject are the same
+        var issuer = new X500Name("CN=webstudio");
+
+        var builder = new JcaX509v3CertificateBuilder(issuer, BigInteger.valueOf(now.toEpochMilli()), notBefore, notAfter, issuer, publicKey);
+
+        var x509ExtensionUtils = new JcaX509ExtensionUtils();
+        builder.addExtension(Extension.subjectKeyIdentifier, false, x509ExtensionUtils.createSubjectKeyIdentifier(publicKey));
+        builder.addExtension(Extension.authorityKeyIdentifier, false, x509ExtensionUtils.createAuthorityKeyIdentifier(publicKey));
+        builder.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
+
+        var contentSigner = new JcaContentSignerBuilder("SHA256withRSA").build(privateKey);
+        var x509CertificateHolder = builder.build(contentSigner);
+
+        var certificate = new JcaX509CertificateConverter().getCertificate(x509CertificateHolder);
+        var certBase64 = Base64.getEncoder().encodeToString(certificate.getEncoded());
+
+        return Pair.of(privateKeyBase64, certBase64);
     }
 
     /**
-     * Generates a key pair.
-     * @param encryptionType the standard string name of the algorithm.
-     * @param byteCount the keysize.
-     * @return the generated key pair
+     * Generates a private key and its certificate in base64.
+     *
+     * @return Left-key - private key, Right-value - certificate.
      */
-    public static KeyPair createKeyPair(String encryptionType, int byteCount)
-        throws NoSuchProviderException, NoSuchAlgorithmException {
-        KeyPairGenerator keyPairGenerator = createKeyPairGenerator(encryptionType, byteCount);
-        KeyPair keyPair = keyPairGenerator.genKeyPair();
-        return keyPair;
-    }
-
-    /**
-     * Generates a X509Certificate.
-     * @param keyPair (a public key and a private key).
-     * @param algorithm algorithm type
-     * @param cn X500Name representing the subject of this certificate.
-     * @param days date after which the certificate is not valid.
-     * @return the generated X509Certificate
-     */
-    public static X509Certificate generate(final KeyPair keyPair,
-                                           final String algorithm,
-                                           final String cn,
-                                           final int days)
-        throws OperatorCreationException, CertificateException, CertIOException {
-        final Instant now = Instant.now();
-        final Date notBefore = Date.from(now);
-        final Date notAfter = Date.from(now.plus(Duration.ofDays(days)));
-
-        final ContentSigner contentSigner = new JcaContentSignerBuilder(algorithm).build(keyPair.getPrivate());
-        final X500Name x500Name = new X500Name("CN=" + cn);
-        final X509v3CertificateBuilder certificateBuilder =
-            new JcaX509v3CertificateBuilder(x500Name,
-                BigInteger.valueOf(now.toEpochMilli()),
-                notBefore,
-                notAfter,
-                x500Name,
-                keyPair.getPublic())
-                .addExtension(Extension.subjectKeyIdentifier, false, createSubjectKeyId(keyPair.getPublic()))
-                .addExtension(Extension.authorityKeyIdentifier, false, createAuthorityKeyId(keyPair.getPublic()))
-                .addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
-
-        return new JcaX509CertificateConverter()
-            .setProvider(new BouncyCastleProvider()).getCertificate(certificateBuilder.build(contentSigner));
-    }
-
-    private static AuthorityKeyIdentifier createAuthorityKeyId(final PublicKey publicKey)
-        throws OperatorCreationException {
-        final SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
-        final DigestCalculator digCalc =
-            new BcDigestCalculatorProvider().get(new AlgorithmIdentifier(OIWObjectIdentifiers.idSHA1));
-
-        return new X509ExtensionUtils(digCalc).createAuthorityKeyIdentifier(publicKeyInfo);
-    }
-
-    private static SubjectKeyIdentifier createSubjectKeyId(final PublicKey publicKey) throws OperatorCreationException {
-        final SubjectPublicKeyInfo publicKeyInfo = SubjectPublicKeyInfo.getInstance(publicKey.getEncoded());
-        final DigestCalculator digCalc =
-            new BcDigestCalculatorProvider().get(new AlgorithmIdentifier(OIWObjectIdentifiers.idSHA1));
-
-        return new X509ExtensionUtils(digCalc).createSubjectKeyIdentifier(publicKeyInfo);
+    public static Pair<String, String> generateCertificate() {
+        try {
+            return generate();
+        } catch (Exception e) {
+            LOG.error("Cannot generate X.509 certificate for the application", e);
+            return null;
+        }
     }
 }
+
