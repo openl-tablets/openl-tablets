@@ -80,8 +80,14 @@ public class ProtectedBranchTest {
         File local = new File(root, "local");
 
         FileUtils.copy(template, remote);
-        repo = createRepository(remote.toURI().toString(), local);
-        writePrePushHook(local.getPath());
+        String remoteUri = remote.toURI().toString();
+
+        // Clone remote repository and modify pre-push hook, then close it.
+        try (GitRepository ignored = createRepository(remoteUri, local)) {
+            writePrePushHook(local.getPath());
+        }
+        // Open the repository with a new pre-push hook
+        repo = createRepository(remoteUri, local);
     }
 
     @After

@@ -66,6 +66,9 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.errors.NoRemoteRepositoryException;
 import org.eclipse.jgit.hooks.CommitMsgHook;
 import org.eclipse.jgit.hooks.PreCommitHook;
+import org.eclipse.jgit.hooks.PrePushHook;
+import org.eclipse.jgit.lfs.BuiltinLFS;
+import org.eclipse.jgit.lfs.LfsBlobFilter;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
@@ -99,6 +102,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
+import org.eclipse.jgit.util.LfsFactory;
 import org.eclipse.jgit.util.io.NullOutputStream;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
@@ -155,6 +159,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private int failedAuthenticationSeconds;
     private Integer maxAuthenticationAttempts;
     private WildcardBranchNameFilter protectedBranchFilter = WildcardBranchNameFilter.NO_MATCH;
+
+    private boolean useBuiltinLFS = false;
 
     private ChangesMonitor monitor;
     private volatile Git git;
@@ -231,6 +237,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("save(data, stream): lock");
             writeLock.lock();
+            initLfsCredentials();
 
             saveSingleFile(data, stream);
         } catch (IOException e) {
@@ -240,6 +247,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset();
             throw new IOException(e.getMessage(), e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("save(data, stream): unlock");
         }
@@ -259,6 +267,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("save(multipleFiles): lock");
             writeLock.lock();
+            initLfsCredentials();
 
             checkoutForcedOrReset(branch);
 
@@ -279,6 +288,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset(firstCommitId);
             throw new IOException(e.getMessage(), e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("save(multipleFiles): unlock");
         }
@@ -347,6 +357,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("delete(): lock");
             writeLock.lock();
+            initLfsCredentials();
 
             checkoutForcedOrReset(branch);
 
@@ -402,6 +413,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset(commitId);
             throw new IOException(e.getMessage(), e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("delete(): unlock");
         }
@@ -431,6 +443,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("copy(): lock");
             writeLock.lock();
+            initLfsCredentials();
 
             checkoutForcedOrReset(branch);
 
@@ -457,6 +470,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset(commitId);
             throw new IOException(e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("copy(): unlock");
         }
@@ -513,6 +527,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("deleteHistory(): lock");
             writeLock.lock();
+            initLfsCredentials();
 
             checkoutForcedOrReset(branch);
 
@@ -563,6 +578,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset(commitId);
             throw new IOException(e.getMessage(), e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("deleteHistory(): unlock");
         }
@@ -583,6 +599,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("copyHistory(): lock");
             writeLock.lock();
+            initLfsCredentials();
 
             checkoutForcedOrReset(branch);
 
@@ -624,6 +641,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset();
             throw new IOException(e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("copyHistory(): unlock");
         }
@@ -637,6 +655,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         initializeGit(true);
         if (uri != null) {
             try {
+                initLfsCredentials();
                 git.fetch()
                     .setCredentialsProvider(credentialsProvider)
                     .setTimeout(connectionTimeout)
@@ -644,6 +663,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .call();
             } catch (GitAPIException e) {
                 throw new IOException(e);
+            } finally {
+                resetLfsCredentials();
             }
         }
     }
@@ -679,6 +700,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             File local = new File(localRepositoryPath);
 
             boolean clonedOrCreated = cloneOrInit(local);
+
+            try (Repository repository = Git.open(local).getRepository()) {
+                configureBuiltInLFS(repository);
+            }
 
             git = Git.open(local);
             updateGitConfigs();
@@ -779,6 +804,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.CLONE);
                     if (credentialsProvider != null) {
                         cloneCommand.setCredentialsProvider(credentialsProvider);
+                        initLfsCredentials();
                     }
 
                     Git cloned = cloneCommand.call();
@@ -791,6 +817,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             } catch (Exception e) {
                 FileUtils.deleteQuietly(local);
                 throw e;
+            } finally {
+                resetLfsCredentials();
             }
         } else if (shouldUpdateOrigin) {
             try (Repository repository = Git.open(local).getRepository()) {
@@ -1059,6 +1087,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (uri != null) {
             try {
                 readLock.lock();
+                initLfsCredentials();
 
                 boolean remoteLocked = remoteRepoLock.tryLock();
                 if (!remoteLocked) {
@@ -1071,6 +1100,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     remoteRepoLock.unlock();
                 }
             } finally {
+                resetLfsCredentials();
                 readLock.unlock();
             }
         }
@@ -1080,6 +1110,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("getLastRevision(): lock write");
             writeLock.lock();
+            initLfsCredentials();
 
             if (fetchResult != null) {
                 branchesChanged = doFastForward(fetchResult);
@@ -1114,6 +1145,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
             }
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("getLastRevision(): unlock write");
         }
@@ -1507,6 +1539,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("iterate(): lock");
             readLock.lock();
+            initLfsCredentials();
 
             org.eclipse.jgit.lib.Repository repository = git.getRepository();
             if (isEmpty()) {
@@ -1533,6 +1566,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
+            resetLfsCredentials();
             readLock.unlock();
             log.debug("iterate(): unlock");
         }
@@ -1543,6 +1577,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("iterateHistory(): lock");
             readLock.lock();
+            initLfsCredentials();
 
             if (isEmpty()) {
                 return historyVisitor.getResult();
@@ -1578,6 +1613,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
+            resetLfsCredentials();
             readLock.unlock();
             log.debug("iterateHistory(): unlock");
         }
@@ -1588,6 +1624,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("parseHistory(): lock");
             readLock.lock();
+            initLfsCredentials();
 
             List<Ref> tags = git.tagList().call();
 
@@ -1613,6 +1650,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
+            resetLfsCredentials();
             readLock.unlock();
             log.debug("parseHistory(): unlock");
         }
@@ -1908,6 +1946,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("save(folderData, files, changesetType): lock");
             writeLock.lock();
+            initLfsCredentials();
 
             saveMultipleFiles(folderData, files, changesetType);
         } catch (IOException e) {
@@ -1917,6 +1956,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset();
             throw new IOException(e.getMessage(), e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("save(folderData, files, changesetType): unlock");
         }
@@ -1937,6 +1977,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("pull(author): lock");
             writeLock.lock();
+            initLfsCredentials();
 
             checkoutForcedOrReset(branch);
 
@@ -1946,6 +1987,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         } catch (Exception e) {
             throw new IOException(e.getMessage(), e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("pull(author): unlock");
         }
@@ -1961,6 +2003,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("merge(): lock");
             writeLock.lock();
+            initLfsCredentials();
 
             checkoutForcedOrReset(branch);
 
@@ -1994,6 +2037,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             resetToCommit(refToResetTo);
             throw new IOException(e.getMessage(), e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("merge(): unlock");
         }
@@ -2009,9 +2053,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("isMergedInto(): lock");
             readLock.lock();
+            initLfsCredentials();
             Repository repository = git.getRepository();
             return isMergedInto(repository.resolve(from), repository.resolve(to), true);
         } finally {
+            resetLfsCredentials();
             readLock.unlock();
             log.debug("isMergedInto(): unlock");
         }
@@ -2291,6 +2337,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("createBranch(): lock");
             writeLock.lock();
+            initLfsCredentials();
 
             reset();
 
@@ -2334,6 +2381,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
             throw new IOException(e.getMessage(), e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("createBranch(): unlock");
         }
@@ -2347,6 +2395,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("deleteBranch(): lock");
             writeLock.lock();
+            initLfsCredentials();
 
             reset();
 
@@ -2386,6 +2435,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             reset();
             throw new IOException(e.getMessage(), e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("deleteBranch(): unlock");
         }
@@ -2399,6 +2449,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("getBranches(): lock");
             readLock.lock();
+            initLfsCredentials();
+
             BranchesData branches = getBranches(true);
             if (projectPath == null) {
                 // Return all available branches
@@ -2425,6 +2477,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         } catch (GitAPIException e) {
             throw new IOException(e);
         } finally {
+            resetLfsCredentials();
             readLock.unlock();
             log.debug("getBranches(): unlock");
         }
@@ -2438,6 +2491,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("forBranch(): read: lock");
             readLock.lock();
+            initLfsCredentials();
+
             if (git.getRepository().findRef(branch) == null) {
                 List<Ref> refs = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
 
@@ -2472,6 +2527,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         } catch (Exception e) {
             throw new IOException(e);
         } finally {
+            resetLfsCredentials();
             writeLock.unlock();
             log.debug("forBranch(): write: unlock");
         }
@@ -2507,6 +2563,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         // repository is same
         repo.branches = branches; // Can be shared between instances
         repo.monitor = monitor;
+        repo.useBuiltinLFS = useBuiltinLFS;
         return repo;
     }
 
@@ -2735,6 +2792,70 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
+    private void initLfsCredentials() {
+        if (credentialsProvider != null && useBuiltinLFS) {
+            LfsFactory.setCredentialsProvider(credentialsProvider);
+        }
+    }
+
+    private void resetLfsCredentials() {
+        if (credentialsProvider != null && useBuiltinLFS) {
+            LfsFactory.removeCredentialsProvider();
+        }
+    }
+
+    private ObjectLoader downloadLfs(ObjectLoader loader) throws IOException {
+        if (!useBuiltinLFS) {
+            return loader;
+        }
+        return LfsBlobFilter.smudgeLfsBlob(git.getRepository(), loader);
+    }
+
+    private void configureBuiltInLFS(Repository repository) throws IOException {
+        boolean lfsApplied = false;
+
+        try (RevWalk walk = new RevWalk(repository)) {
+            ObjectId branchId = null;
+            if (repository.findRef(branch) != null) {
+                branchId = repository.resolve(branch);
+            }
+            if (branchId != null) {
+                RevCommit commit = walk.parseCommit(branchId);
+
+                try (TreeWalk rootWalk = buildTreeWalk(repository, Constants.DOT_GIT_ATTRIBUTES, commit.getTree())) {
+                    ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
+                    lfsApplied = new String(loader.getBytes(), StandardCharsets.UTF_8).contains("filter=lfs");
+                } catch (FileNotFoundException ignored) {
+                }
+            }
+        }
+
+        useBuiltinLFS = lfsApplied;
+
+        if (useBuiltinLFS) {
+            try {
+                BuiltinLFS.register();
+                LfsFactory.getInstance().getInstallCommand().setRepository(repository).call();
+            } catch (IOException e) {
+                throw e;
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
+
+            File hookFile = repository.getFS().findHook(repository, PrePushHook.NAME);
+            if (hookFile != null && IOUtils.toStringAndClose(new FileInputStream(hookFile)).contains("git lfs")) {
+                // Rename pre-push hook otherwise we will be spammed with warning message (if native git with LFS is found)
+                log.info("Rename pre-push hook to avoid conflict between LFS built-in hook and existing pre-push hook. Repo: {}", repository);
+                String from = hookFile.getPath();
+                String to = from + ".renamed";
+                boolean renamed = hookFile.renameTo(new File(to));
+                if (!renamed) {
+                    log.warn("Can't rename '{}' to '{}'", from, to);
+                }
+            }
+        }
+    }
+
     private class GitRevisionGetter implements RevisionGetter {
         @Override
         public Object getRevision() {
@@ -2882,7 +3003,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 String baseFolder) throws IOException {
             if (rootWalk != null && StringUtils.isNotEmpty(baseFolder)) {
                 FileData fileData = createFileData(rootWalk, "", resolveBranchId());
-                ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
+                ObjectLoader loader = downloadLfs(repository.open(rootWalk.getObjectId(0)));
                 return new FileItem(fileData, loader.openStream());
             } else {
                 return null;
@@ -3012,7 +3133,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
                     FileData fileData = createFileData(rootWalk, commit);
-                    ObjectLoader loader = repository.open(rootWalk.getObjectId(0));
+                    ObjectLoader loader = downloadLfs(repository.open(rootWalk.getObjectId(0)));
                     result = new FileItem(fileData, loader.openStream());
                 } catch (FileNotFoundException e) {
                     result = null;

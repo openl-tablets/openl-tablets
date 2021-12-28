@@ -81,6 +81,7 @@
                         <ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
                         <ignoredResourcePattern>git.properties</ignoredResourcePattern>
                         <ignoredResourcePattern>about.html</ignoredResourcePattern>
+                        <ignoredResourcePattern>plugin.properties</ignoredResourcePattern>
                     </ignoredResourcePatterns>
                 </configuration>
             </plugin>
