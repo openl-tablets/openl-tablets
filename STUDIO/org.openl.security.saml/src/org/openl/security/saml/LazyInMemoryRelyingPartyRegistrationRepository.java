@@ -51,15 +51,12 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
 
             Saml2X509Credential signing = Saml2X509Credential.signing(privateKey, localCert);
             Saml2X509Credential decryption = Saml2X509Credential.decryption(privateKey, localCert);
-            String appUrl = propertyResolver.getProperty("security.saml.app-url");
             RelyingPartyRegistration.Builder registrationBuilder = RelyingPartyRegistrations
                 .fromMetadataLocation(propertyResolver.getProperty("security.saml.saml-server-metadata-url"))
                 .registrationId("webstudio")
                 .entityId(propertyResolver.getProperty("security.saml.entity-id"))
                 .signingX509Credentials(c -> c.add(signing))
-                .decryptionX509Credentials(c -> c.add(decryption))
-                .assertionConsumerServiceLocation(appUrl + "/login/saml2/sso/{registrationId}")
-                .singleLogoutServiceLocation(appUrl + "/logout/saml2/slo");
+                .decryptionX509Credentials(c -> c.add(decryption));
 
             // Override certificate from the Metadata XML to prevent MITM attack.
             String serverCertificate = propertyResolver.getProperty("security.saml.server-certificate");

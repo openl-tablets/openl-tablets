@@ -80,6 +80,7 @@ public class Migrator {
                 }
             });
         //removing unnecessary SAML properties
+        props.put("security.saml.app-url", null);
         props.put("security.saml.authentication-contexts", null);
         props.put("security.saml.local-logout", null);
         props.put("security.saml.is-app-after-balancer", null);

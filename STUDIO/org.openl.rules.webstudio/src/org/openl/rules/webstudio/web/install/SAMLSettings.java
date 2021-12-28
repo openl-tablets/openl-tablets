@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.install;
 
 public class SAMLSettings {
-    private String webStudioUrl;
     private String entityId;
     private String samlServerMetadataUrl;
     private String usernameAttribute;
@@ -12,8 +11,7 @@ public class SAMLSettings {
     private String groupsAttribute;
     private String serverCertificate;
 
-    public SAMLSettings(String webStudioUrl,
-            String entityId,
+    public SAMLSettings(String entityId,
             String samlServerMetadataUrl,
             String usernameAttribute,
             String firstNameAttribute,
@@ -22,7 +20,6 @@ public class SAMLSettings {
             String emailAttribute,
             String groupsAttribute,
             String serverCertificate) {
-        this.webStudioUrl = webStudioUrl;
         this.entityId = entityId;
         this.samlServerMetadataUrl = samlServerMetadataUrl;
         this.usernameAttribute = usernameAttribute;
@@ -48,14 +45,6 @@ public class SAMLSettings {
 
     public void setEmailAttribute(String emailAttribute) {
         this.emailAttribute = emailAttribute;
-    }
-
-    public String getWebStudioUrl() {
-        return webStudioUrl;
-    }
-
-    public void setWebStudioUrl(String webStudioUrl) {
-        this.webStudioUrl = webStudioUrl;
     }
 
     public String getEntityId() {

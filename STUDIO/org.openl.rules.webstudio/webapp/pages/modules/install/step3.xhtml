@@ -268,23 +268,16 @@
                                         <a4j:outputPanel styleClass="installMessages" ajaxRendered="true">
                                             <h:messages infoClass="success" errorClass="error" showDetail="true"
                                                         showSummary="false" tooltip="true" globalOnly="true"/>
-                                            <h:message class="error" for="samlWebStudioUrl"/>
+                                            <h:message class="error" for="samlEntityId"/>
                                         </a4j:outputPanel>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><label class="required">WebStudio server URL:</label></td>
-                                    <td>
-                                        <h:inputText id="samlWebStudioUrl"
-                                                     value="#{installWizard.samlSettings.webStudioUrl}" size="40"
-                                                     validator="#{installWizard.samlValidator}"/>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td><label class="required">Entity ID:</label></td>
                                     <td>
                                         <h:inputText id="samlEntityId"
-                                                     value="#{installWizard.samlSettings.entityId}" size="40"/>
+                                                     value="#{installWizard.samlSettings.entityId}" size="40"
+                                                     validator="#{installWizard.samlValidator}"/>
                                     </td>
                                 </tr>
                                 <tr>

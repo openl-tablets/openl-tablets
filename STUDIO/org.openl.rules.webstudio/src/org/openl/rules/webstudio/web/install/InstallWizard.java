@@ -247,8 +247,7 @@ public class InstallWizard implements Serializable {
     }
 
     private void readSamlProperties() {
-        samlSettings = new SAMLSettings(propertyResolver.getProperty("security.saml.app-url"),
-            propertyResolver.getProperty("security.saml.entity-id"),
+        samlSettings = new SAMLSettings(propertyResolver.getProperty("security.saml.entity-id"),
             propertyResolver.getProperty("security.saml.saml-server-metadata-url"),
             propertyResolver.getProperty("security.saml.attribute.username"),
             propertyResolver.getProperty("security.saml.attribute.first-name"),
@@ -279,7 +278,6 @@ public class InstallWizard implements Serializable {
                     properties.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
                     properties.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
                 } else if (SAML_USER_MODE.equals(userMode)) {
-                    properties.setProperty("security.saml.app-url", samlSettings.getWebStudioUrl());
                     properties.setProperty("security.saml.entity-id", samlSettings.getEntityId());
                     properties.setProperty("security.saml.saml-server-metadata-url",
                         samlSettings.getSamlServerMetadataUrl());
@@ -473,18 +471,12 @@ public class InstallWizard implements Serializable {
     public void samlValidator(FacesContext context, UIComponent toValidate, Object value) {
         UIViewRoot viewRoot = context.getViewRoot();
 
-        String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlWebStudioUrl"))
-            .getSubmittedValue();
         String entityId = (String) ((UIInput) viewRoot.findComponent("step3Form:samlEntityId")).getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getSubmittedValue();
         String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:samlGroupsAttribute"))
             .getSubmittedValue();
         String publicServerCert = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerCertificate"))
             .getSubmittedValue();
-
-        if (StringUtils.isBlank(webStudioUrl)) {
-            throw new ValidatorException(createErrorMessage("WebStudio server URL cannot be blank."));
-        }
 
         if (StringUtils.isBlank(entityId)) {
             throw new ValidatorException(createErrorMessage("Entity ID cannot be blank."));
