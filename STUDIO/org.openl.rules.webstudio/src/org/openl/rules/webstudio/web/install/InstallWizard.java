@@ -280,9 +280,7 @@ public class InstallWizard implements Serializable {
                     properties.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
                 } else if (SAML_USER_MODE.equals(userMode)) {
                     properties.setProperty("security.saml.app-url", samlSettings.getWebStudioUrl());
-                    if (!StringUtils.isBlank(samlSettings.getEntityId())) {
-                        properties.setProperty("security.saml.entity-id", samlSettings.getEntityId());
-                    }
+                    properties.setProperty("security.saml.entity-id", samlSettings.getEntityId());
                     properties.setProperty("security.saml.saml-server-metadata-url",
                         samlSettings.getSamlServerMetadataUrl());
                     properties.setProperty("security.saml.attribute.username", samlSettings.getUsernameAttribute());
@@ -477,6 +475,7 @@ public class InstallWizard implements Serializable {
 
         String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlWebStudioUrl"))
             .getSubmittedValue();
+        String entityId = (String) ((UIInput) viewRoot.findComponent("step3Form:samlEntityId")).getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getSubmittedValue();
         String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:samlGroupsAttribute"))
             .getSubmittedValue();
@@ -485,6 +484,10 @@ public class InstallWizard implements Serializable {
 
         if (StringUtils.isBlank(webStudioUrl)) {
             throw new ValidatorException(createErrorMessage("WebStudio server URL cannot be blank."));
+        }
+
+        if (StringUtils.isBlank(entityId)) {
+            throw new ValidatorException(createErrorMessage("Entity ID cannot be blank."));
         }
 
         if (StringUtils.isBlank(serverUrl)) {
