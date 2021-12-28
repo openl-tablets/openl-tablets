@@ -1289,8 +1289,13 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.eclipse.jgit</groupId>
+                <groupId>org.openl.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
+                <version>6.0.0.202111291000-r</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.jgit</groupId>
+                <artifactId>org.eclipse.jgit.lfs</artifactId>
                 <version>6.0.0.202111291000-r</version>
             </dependency>
             <!-- The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms. This jar
