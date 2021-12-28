@@ -277,8 +277,16 @@ public class AzureBlobRepository implements FolderRepository {
         try {
             final BlobClient client = blobContainerClient.getBlobClient(CONTENT_PREFIX + name);
             if (client.exists()) {
-                FileData fileData = createFileDataForFile(name, null, client);
-                return  new FileItem(fileData, client.openInputStream());
+                return new FileItem(name, client.openInputStream()) {
+                    private FileData lazyData;
+                    @Override
+                    public FileData getData() {
+                        if (lazyData == null) {
+                            lazyData = createFileDataForFile(name, null, client);
+                        }
+                        return lazyData;
+                    }
+                };
             }
 
             return null;
@@ -382,10 +390,18 @@ public class AzureBlobRepository implements FolderRepository {
         try {
             BlobClient client = findFile(name, version);
             if (client != null) {
-                FileData fileData = createFileDataForFile(name, version, client);
                 final BinaryData binaryData = client.downloadContent();
 
-                return new FileItem(fileData, binaryData.toStream());
+                return new FileItem(name, binaryData.toStream()) {
+                    private FileData lazyData;
+                    @Override
+                    public FileData getData() {
+                        if (lazyData == null) {
+                            lazyData = createFileDataForFile(name, version, client);
+                        }
+                        return lazyData;
+                    }
+                };
             }
 
             return null;
@@ -635,7 +651,8 @@ public class AzureBlobRepository implements FolderRepository {
             }
             return commit;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            // Blob is absent
+            log.debug(e.getMessage(), e);
             return null;
         }
     }
@@ -767,11 +784,8 @@ public class AzureBlobRepository implements FolderRepository {
         if (commit != null && commit.getFiles() != null) {
             Optional<FileInfo> fileInfo = commit.getFiles().stream().filter(f -> f.getPath().equals(name)).findFirst();
             if (fileInfo.isPresent()) {
-                BlobClient client = blobContainerClient.getBlobVersionClient(CONTENT_PREFIX + fileInfo.get().getPath(), fileInfo.get().getRevision());
-
-                if (client.exists()) {
-                    return client;
-                }
+                // Assume that the file in the commit exists otherwise it's a broken commit.
+                return blobContainerClient.getBlobVersionClient(CONTENT_PREFIX + fileInfo.get().getPath(), fileInfo.get().getRevision());
             }
         }
 
