@@ -7,8 +7,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.security.KeyPair;
-import java.security.Security;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
@@ -32,6 +30,7 @@ import javax.faces.validator.ValidatorException;
 import javax.naming.directory.InvalidSearchFilterException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.config.InMemoryProperties;
@@ -294,16 +293,10 @@ public class InstallWizard implements Serializable {
 
                     //Generating default keys and certificate.
                     if (rsaKey == null || cert == null) {
-                        try {
-                            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-                            KeyPair keyPair = KeyPairCertUtils.createKeyPair("RSA", 4096);
-                            X509Certificate certificate = KeyPairCertUtils.generate(keyPair, "SHA256withRSA", "webstudio", 3650);
-                            String privateKeyBase64 = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
-                            String certBase64 = Base64.getEncoder().encodeToString(certificate.getEncoded());
-                            properties.setProperty("security.saml.local-certificate", certBase64);
-                            properties.setProperty("security.saml.local_key", privateKeyBase64);
-                        } catch (Exception e) {
-                            log.error(e.getMessage());
+                        Pair<String, String> pair = KeyPairCertUtils.generateCertificate();
+                        if (pair != null) {
+                            properties.setProperty("security.saml.local_key", pair.getKey());
+                            properties.setProperty("security.saml.local-certificate", pair.getValue());
                         }
                     }
                 }
