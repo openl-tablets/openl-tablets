@@ -497,13 +497,6 @@
                 $j("#step3Form\\:adPassword").on("change keyup cut paste", function () {
                     updateCheckConnectionButton();
                 });
-
-                //remove all whitespaces and new lines from input
-                $j("#step3Form\\:samlServerCertificate").on("input", function () {
-                    jQuery(this).val(function (_, v) {
-                        return v.replace(/\r?\n|\r|\s/g, '');
-                    })
-                });
             })();
 
             //]]>
