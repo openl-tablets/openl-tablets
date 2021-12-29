@@ -288,11 +288,8 @@ public class InstallWizard implements Serializable {
                     properties.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());
                     properties.setProperty("security.saml.server-certificate", samlSettings.getServerCertificate());
 
-                    String rsaKey = propertyResolver.getProperty("security.saml.local-key");
-                    String cert = propertyResolver.getProperty("security.saml.local-certificate");
-
                     //Generating default keys and certificate.
-                    if (rsaKey == null || cert == null) {
+                    if (propertyResolver.getProperty("security.saml.local-key") == null || propertyResolver.getProperty("security.saml.local-certificate") == null) {
                         Pair<String, String> pair = KeyPairCertUtils.generateCertificate();
                         if (pair != null) {
                             properties.setProperty("security.saml.local-key", pair.getKey());
