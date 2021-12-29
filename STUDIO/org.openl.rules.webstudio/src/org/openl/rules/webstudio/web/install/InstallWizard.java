@@ -481,7 +481,7 @@ public class InstallWizard implements Serializable {
 
         if (StringUtils.isNotBlank(publicServerCert)) {
             try {
-                byte[] decoded = Base64.getDecoder().decode(publicServerCert);
+                byte[] decoded = Base64.getMimeDecoder().decode(publicServerCert);
                 CertificateFactory cf = CertificateFactory.getInstance("X.509");
                 X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(decoded));
                 cert.checkValidity();

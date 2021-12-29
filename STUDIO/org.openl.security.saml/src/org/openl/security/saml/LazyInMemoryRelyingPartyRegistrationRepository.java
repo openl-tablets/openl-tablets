@@ -42,11 +42,11 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
     private void init() {
         try {
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-            EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(propertyResolver.getProperty("security.saml.local-key")));
+            EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(Base64.getMimeDecoder().decode(propertyResolver.getProperty("security.saml.local-key")));
             PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
 
             CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
-            InputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(propertyResolver.getProperty("security.saml.local-certificate")));
+            InputStream in = new ByteArrayInputStream(Base64.getMimeDecoder().decode(propertyResolver.getProperty("security.saml.local-certificate")));
             X509Certificate localCert = (X509Certificate) certFactory.generateCertificate(in);
 
             Saml2X509Credential signing = Saml2X509Credential.signing(privateKey, localCert);
