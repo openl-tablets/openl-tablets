@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 
 import javax.annotation.PreDestroy;
 
@@ -55,6 +56,7 @@ import org.springframework.util.FileSystemUtils;
  * @author Marat Kamalov
  */
 public class RuleServiceLoaderImpl implements RuleServiceLoader {
+    private static final Pattern NOT_ALLOWED_SYMBOLS = Pattern.compile("[^[-.\\w]]");
     private final Logger log = LoggerFactory.getLogger(RuleServiceLoaderImpl.class);
 
     private final ProjectResolver projectResolver;
@@ -139,7 +141,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         }
         String versionName = version.getVersionName();
         Deployment loadedDeployment = new Deployment(tempRepo,
-            deploymentName + "_v" + versionName,
+            deploymentName + "_v" + cleanUp(versionName),
             deploymentName,
             version,
             true);
@@ -345,5 +347,12 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             log.debug(e.getMessage(), e);
             return false;
         }
+    }
+
+    /**
+     * Remove not allowed symbols from string and add hashcode to make cleaned string more unique.
+     */
+    static String cleanUp(String str) {
+        return NOT_ALLOWED_SYMBOLS.matcher(str).replaceAll("_") + str.hashCode();
     }
 }
