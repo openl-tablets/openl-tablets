@@ -168,6 +168,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public LocalWorkspace getLocalWorkspace() {
+        if (syncNeeded) {
+            // We must ensure that all folders are renamed to correct names before using local workspace.
+            doSyncProjects();
+        }
         return localWorkspace;
     }
 
@@ -311,7 +315,6 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         if (!rPr.getLocalFolderName().equals(realProjectName)) {
                             // We can't close and then open a project in workspace, we should rename the folder
                             // in file system directly. Otherwise we will lose unsaved user changes.
-                            LocalWorkspace localWorkspace = getLocalWorkspace();
                             File repoRoot = localWorkspace.getRepository(rPr.getRepository().getId()).getRoot();
                             String prevPath = rPr.getFolderPath();
                             int index = prevPath.lastIndexOf('/');
