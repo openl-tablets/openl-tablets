@@ -68,15 +68,12 @@ public class Migrator {
 
     // 5.26.0
     private static void migrateTo5_26_0(DynamicPropertySource settings, HashMap<String, String> props) {
-        String newDefaultCommentTemplate = "{user-message} Type: {commit-type}.";
         Arrays.stream(settings.getPropertyNames())
-            .filter(propertyName -> propertyName.startsWith("repository."))
-            .filter(propertyName -> propertyName.endsWith(".comment-template"))
+            .filter(propertyName -> propertyName.startsWith("repository.") && propertyName.endsWith(".comment-template"))
             .forEach(propertyName -> {
                 String commentTemplate = (String) settings.getProperty(propertyName);
                 if (commentTemplate != null && commentTemplate.contains("{username}")) {
-                    props.put(propertyName + "-old", commentTemplate);
-                    props.put(propertyName, newDefaultCommentTemplate);
+                    props.put(propertyName, commentTemplate.replaceAll("(\\s+Author\\s*:?)?\\s*\\{username}\\.?", ""));
                 }
             });
         //removing unnecessary SAML properties
