@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -117,14 +118,17 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Map<String, Map<String, Integer>> pathsWithRequestsRefs = OpenLOpenAPIUtils.collectPathsWithParams(paths,
             jxPathContext);
 
-        Set<String> pathsToIgnore = pathsWithRequestsRefs.entrySet().stream().filter(pathEntry -> {
-            Map<String, Integer> usedSchemas = pathEntry.getValue();
-            return usedSchemas.keySet().stream().anyMatch(ignoredRefs::contains);
-        }).map(Map.Entry::getKey).collect(Collectors.toSet());
-
         if (areVariationsProvided) {
-            pathsWithRequestsRefs.keySet().removeAll(pathsToIgnore);
-            paths.keySet().removeAll(pathsToIgnore);
+            Iterator<Map.Entry<String, Map<String, Integer>>> it = pathsWithRequestsRefs.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, Map<String, Integer>> pathEntry = it.next();
+                Map<String, Integer> usedSchemas = pathEntry.getValue();
+                if (usedSchemas.keySet().stream().anyMatch(ignoredRefs::contains)) {
+                    it.remove();
+                    String refToIgnore = pathEntry.getKey();
+                    paths.keySet().remove(refToIgnore);
+                }
+            }
         }
 
         Map<String, Integer> allUsedSchemaRefsInRequests = pathsWithRequestsRefs.values()

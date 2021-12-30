@@ -538,6 +538,11 @@ public class RunWebservicesITest {
     }
 
     @Test
+    public void EPBDS_12310() {
+        client.send("EPBDS-12310/openapi.json.get");
+    }
+
+    @Test
     public void EPBDS_12125() {
         client.send("EPBDS-12114/swagger.json.get");
     }

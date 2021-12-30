@@ -7,7 +7,9 @@ import java.util.List;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.util.ClassUtils;
 import org.openl.util.JavaKeywordUtils;
 
 /**
@@ -79,6 +81,37 @@ public final class GenUtils {
                     fixJavaKeyWords(parameterNames);
 
                     return parameterNames.toArray(new String[] {});
+                }
+            }
+        }
+        for (IOpenField field : openClass.getFields()) {
+            if (ClassUtils.getter(field.getName()).equals(method.getName())) {
+                int j = 0;
+                boolean variationPackIsLastParameter = false;
+                boolean fieldGetter = true;
+                for (Class<?> clazz : method.getParameterTypes()) {
+                    j++;
+                    if (hasContext && j == 1) {
+                        continue;
+                    }
+                    if (j == method.getParameterTypes().length && hasVariations && clazz
+                        .isAssignableFrom(VariationsPack.class)) {
+                        variationPackIsLastParameter = true;
+                        continue;
+                    }
+                    // getter field must not have extra parameters
+                    fieldGetter = false;
+                    break;
+                }
+                if (fieldGetter) {
+                    List<String> parameterNames = new ArrayList<>();
+                    if (hasContext) {
+                        parameterNames.add("runtimeContext");
+                    }
+                    if (variationPackIsLastParameter) {
+                        parameterNames.add("variationPack");
+                    }
+                    return parameterNames.toArray(new String[0]);
                 }
             }
         }
