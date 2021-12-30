@@ -27,7 +27,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
     private final Collection<IOpenField> fields;
     private final IOpenClass[] declaringClasses;
 
-    public CastingCustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass,
+    public CastingCustomSpreadsheetResultField(IOpenClass declaringClass,
             String name,
             IOpenField field1,
             IOpenField field2) {
@@ -55,8 +55,17 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
     }
 
     @Override
-    public CustomSpreadsheetResultOpenClass getDeclaringClass() {
-        return (CustomSpreadsheetResultOpenClass) super.getDeclaringClass();
+    public IOpenClass getDeclaringClass() {
+        return super.getDeclaringClass();
+    }
+
+    private XlsModuleOpenClass getModule() {
+        if (getDeclaringClass() instanceof CustomSpreadsheetResultOpenClass) {
+            return ((CustomSpreadsheetResultOpenClass) getDeclaringClass()).getModule();
+        } else if (getDeclaringClass() instanceof SpreadsheetResultOpenClass) {
+            return ((SpreadsheetResultOpenClass) getDeclaringClass()).getModule();
+        }
+        return null;
     }
 
     @Override
@@ -82,7 +91,8 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
 
     private void initLazyFields() {
         if (this.type == null) {
-            if (getDeclaringClass().getModule().getRulesModuleBindingContext() == null) {
+            XlsModuleOpenClass xlsModuleOpenClass = getModule();
+            if (xlsModuleOpenClass == null || xlsModuleOpenClass.getRulesModuleBindingContext() == null) {
                 throw new IllegalStateException("Spreadsheet cell type is not resolved at compile time");
             }
             Set<IOpenClass> types = new HashSet<>();
@@ -104,14 +114,13 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                     }
                 }
                 if (allTypesCustomSpreadsheetResult && modules.size() == 1 && modules.iterator()
-                    .next() == getDeclaringClass().getModule()) {
+                    .next() == xlsModuleOpenClass) {
                     Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = types.stream()
                         .map(CustomSpreadsheetResultOpenClass.class::cast)
                         .collect(Collectors.toSet());
                     if (customSpreadsheetResultOpenClasses.size() > 1) {
-                        this.type = getDeclaringClass().getModule()
-                            .buildOrGetUnifiedSpreadsheetResult(
-                                customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
+                        this.type = xlsModuleOpenClass.buildOrGetUnifiedSpreadsheetResult(
+                            customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
                     } else {
                         this.type = customSpreadsheetResultOpenClasses.iterator().next();
                     }
@@ -122,15 +131,13 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                     while (itr.hasNext()) {
                         IOpenClass t1 = itr.next();
                         CastToWiderType castToWiderType = CastToWiderType
-                            .create(getDeclaringClass().getModule().getRulesModuleBindingContext(), t, t1);
+                            .create(xlsModuleOpenClass.getRulesModuleBindingContext(), t, t1);
                         t = castToWiderType.getWiderType();
                     }
                     this.casts = new ArrayList<>();
                     this.type = t;
                     for (IOpenClass type : types) {
-                        IOpenCast cast = getDeclaringClass().getModule()
-                            .getRulesModuleBindingContext()
-                            .getCast(type, this.type);
+                        IOpenCast cast = xlsModuleOpenClass.getRulesModuleBindingContext().getCast(type, this.type);
                         this.casts.add(Pair.of(type, cast));
                     }
                 }
