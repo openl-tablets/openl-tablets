@@ -1,7 +1,9 @@
 package org.openl.rules.ruleservice.core.interceptors.converters;
 
 import java.lang.reflect.Array;
+import java.util.Map;
 
+import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterReturningAdvice;
@@ -46,17 +48,15 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
                         openClass = openClass.getComponentClass();
                         dim++;
                     }
-                    if (openClass instanceof SpreadsheetResultOpenClass) {
-                        SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) openClass;
-                        Class<?> t;
-                        // Check: custom spreadsheet is enabled
-                        if (spreadsheetResultOpenClass.getModule() != null) {
+                    if (openClass instanceof SpreadsheetResultOpenClass || openClass instanceof AnySpreadsheetResultOpenClass) {
+                        Class<?> t = Map.class;
+                        if (openClass instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) openClass)
+                            .getModule() != null) {
+                            SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) openClass;
                             t = spreadsheetResultOpenClass.getModule()
                                 .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                 .toCustomSpreadsheetResultOpenClass()
                                 .getBeanClass();
-                        } else {
-                            t = openClass.getInstanceClass();
                         }
                         if (dim > 0) {
                             t = Array.newInstance(t, dim).getClass();

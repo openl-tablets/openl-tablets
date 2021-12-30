@@ -63,9 +63,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final HashMap<ProjectKey, RulesProject> userRulesProjects;
     private final HashMap<String, ADeploymentProject> userDProjects;
 
-    private boolean projectsRefreshNeeded = true;
-    private boolean deploymentsRefreshNeeded = true;
-    private boolean cleanUpOnActivation = false;
+    private volatile boolean projectsRefreshNeeded = true;
+    private volatile boolean deploymentsRefreshNeeded = true;
+    private volatile boolean syncNeeded = true;
+    private volatile boolean cleanUpOnActivation = false;
 
     private final List<UserWorkspaceListener> listeners = new ArrayList<>();
     private final LockEngine projectsLockEngine;
@@ -167,6 +168,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public LocalWorkspace getLocalWorkspace() {
+        if (syncNeeded) {
+            // We must ensure that all folders are renamed to correct names before using local workspace.
+            doSyncProjects();
+        }
         return localWorkspace;
     }
 
@@ -294,7 +299,14 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public void syncProjects() {
-        for (RulesProject rPr : getProjects()) {
+        syncNeeded = true;
+    }
+
+    private void doSyncProjects() {
+        syncNeeded = false;
+
+        boolean anyProjectRenamed = false;
+        for (RulesProject rPr : getProjects(false)) {
             Repository repository = designTimeRepository.getRepository(rPr.getRepository().getId());
             if (repository != null && repository.supports().mappedFolders()) {
                 if (rPr.isOpened() && !rPr.isLocalOnly()) {
@@ -303,13 +315,14 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         if (!rPr.getLocalFolderName().equals(realProjectName)) {
                             // We can't close and then open a project in workspace, we should rename the folder
                             // in file system directly. Otherwise we will lose unsaved user changes.
-                            LocalWorkspace localWorkspace = getLocalWorkspace();
                             File repoRoot = localWorkspace.getRepository(rPr.getRepository().getId()).getRoot();
                             String prevPath = rPr.getFolderPath();
                             int index = prevPath.lastIndexOf('/');
                             String newPath = prevPath.substring(0, index + 1) + realProjectName;
                             boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
-                            if (!renamed) {
+                            if (renamed) {
+                                anyProjectRenamed = true;
+                            } else {
                                 log.warn("Can't rename folder from " + prevPath + " to " + newPath);
                             }
                         }
@@ -320,6 +333,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     }
                 }
             }
+        }
+
+        if (anyProjectRenamed) {
+            // We need to recreate projects list in user workspace.
+            refreshRulesProjects();
         }
     }
 
@@ -405,6 +423,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private void scheduleProjectsRefresh() {
         synchronized (userRulesProjects) {
             projectsRefreshNeeded = true;
+            designTimeRepository.refresh();
         }
         for (UserWorkspaceListener listener : listeners) {
             listener.workspaceRefreshed();
@@ -597,6 +616,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
             projectsRefreshNeeded = false;
             cleanUpOnActivation = false;
+
+            if (syncNeeded) {
+                doSyncProjects();
+            }
         }
     }
 

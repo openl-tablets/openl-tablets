@@ -1,0 +1,4 @@
+ERROR: Field '$Any' is not found in type 'SpreadsheetResulttest'.
+ERROR: Cannot convert from 'org.openl.rules.calc.AnySpreadsheetResult' to 'org.openl.rules.calc.SpreadsheetResult'.
+ERROR: Field '$Any' is not found in type 'SpreadsheetResulttest1'.
+ERROR: Cannot convert from 'org.openl.rules.calc.AnySpreadsheetResult' to 'org.openl.rules.calc.SpreadsheetResult'.

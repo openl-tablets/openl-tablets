@@ -1,2 +1,2 @@
-ERROR: Field '$Value$Step2' is not found in type 'IfNodeminiSpr1AndminiSpr2'.
-ERROR: Field '$Value$RETURN1' is not found in type 'IfNodeminiSpr1AndminiSpr2'.
+ERROR: Field '$Value$Step2' is not found in type 'SRminiSpr1 & SRminiSpr2'.
+ERROR: Field '$Value$RETURN1' is not found in type 'SRminiSpr1 & SRminiSpr2'.

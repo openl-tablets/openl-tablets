@@ -13,13 +13,21 @@ import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.engine.OpenLManager;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.binding.RulesModuleBindingContextHelper;
+import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.dt.DTScale;
+import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
 import org.openl.rules.dt.storage.StorageFactory;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -134,7 +142,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     /**
      * Whole representation of decision table. Horizontal representation of the table where conditions are listed from
-     * top to bottom. And must be readed from left to right</br>
+     * top to bottom. And must be read from left to right</br>
      * Example:
      *
      * <table cellspacing="2">
@@ -205,7 +213,8 @@ public abstract class FunctionalRow implements IDecisionRow {
     }
 
     @Override
-    public void prepare(IOpenClass methodType,
+    public void prepare(DecisionTable table,
+            IOpenClass methodType,
             IMethodSignature signature,
             OpenL openl,
             IBindingContext bindingContext,
@@ -214,14 +223,23 @@ public abstract class FunctionalRow implements IDecisionRow {
             TableSyntaxNode tableSyntaxNode) throws Exception {
         this.ruleExecutionType = ruleExecutionType;
 
-        method = generateMethod(tableSyntaxNode, openl, signature, methodType, bindingContext);
+        IOpenSourceCodeModule source = getExpressionSource(tableSyntaxNode,
+            signature,
+            methodType,
+            null,
+            openl,
+            bindingContext);
+        prepareParams(null, signature, methodType, source, openl, bindingContext);
 
         OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tableSyntaxNode);
-
         IOpenMethodHeader header = new OpenMethodHeader(name, null, signature, null);
         openlAdaptor.setHeader(header);
 
-        prepareParamValues(method, openlAdaptor, ruleRow);
+        prepareParamValues(table, openlAdaptor, ruleRow, bindingContext);
+
+        IMethodSignature newSignature = ((MethodSignature) signature).merge(params);
+        OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
+        this.method = OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
 
         if (bindingContext.isExecutionMode()) {
             decisionTable = null;
@@ -291,18 +309,11 @@ public abstract class FunctionalRow implements IDecisionRow {
         }
     }
 
-    private void prepareParamValues(CompositeMethod method, OpenlToolAdaptor ota, RuleRow ruleRow) throws Exception {
-        if (method.getMethodBodyBoundNode() == null) {
-            return;
-        }
+    private void prepareParamValues(DecisionTable decisionTable,
+            OpenlToolAdaptor ota,
+            RuleRow ruleRow,
+            IBindingContext bindingContext) {
         int len = nValues();
-
-        prepareParams(method.getDeclaringClass(),
-            method.getSignature(),
-            method.getType(),
-            method.getMethodBodyBoundNode().getSyntaxNode().getModule(),
-            ota.getOpenl(),
-            ota.getBindingContext());
 
         boolean[] paramIndexed = getParamIndexed(params);
 
@@ -318,6 +329,52 @@ public abstract class FunctionalRow implements IDecisionRow {
         storage = new IStorage<?>[builders.length];
         for (int i = 0; i < builders.length; i++) {
             storage[i] = builders[i].optimizeAndBuild();
+            IOpenClass paramType = params[i].getType();
+            int paramDim = 0;
+            while (paramType.isArray()) {
+                paramType = paramType.getComponentClass();
+                paramDim++;
+            }
+            if (paramType.getInstanceClass() == SpreadsheetResult.class && OpenLSystemProperties
+                .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
+                Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = new HashSet<>();
+                boolean anySpreadsheetResult = false;
+                for (int j = 0; j < storage[i].size(); j++) {
+                    if (storage[i].getValue(j) instanceof CompositeMethod) {
+                        CompositeMethod compositeMethod = (CompositeMethod) storage[i].getValue(j);
+                        IOpenClass methodBodyType = compositeMethod.getBodyType();
+                        int methodTypeDim = 0;
+                        while (methodBodyType.isArray()) {
+                            methodBodyType = methodBodyType.getComponentClass();
+                            methodTypeDim++;
+                        }
+                        if (paramDim == methodTypeDim) {
+                            if (methodBodyType instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) methodBodyType)
+                                .getModule() != null) {
+                                customSpreadsheetResultOpenClasses.add(
+                                    ((SpreadsheetResultOpenClass) methodBodyType).toCustomSpreadsheetResultOpenClass());
+                            } else if (methodBodyType instanceof CustomSpreadsheetResultOpenClass) {
+                                customSpreadsheetResultOpenClasses
+                                    .add((CustomSpreadsheetResultOpenClass) methodBodyType);
+                            } else if (methodBodyType instanceof AnySpreadsheetResultOpenClass || methodBodyType instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) methodBodyType)
+                                .getModule() == null) {
+                                anySpreadsheetResult = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                IOpenClass newType = null;
+                if (anySpreadsheetResult) {
+                    newType = AnySpreadsheetResultOpenClass.INSTANCE;
+                } else if (!customSpreadsheetResultOpenClasses.isEmpty()) {
+                    newType = ((XlsModuleOpenClass) decisionTable.getModule()).buildOrGetUnifiedSpreadsheetResult(
+                        customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
+                }
+                if (newType != null) {
+                    params[i] = new ParameterDeclaration(newType, params[i].getName(), params[i].getModule());
+                }
+            }
         }
 
     }
@@ -445,25 +502,6 @@ public abstract class FunctionalRow implements IDecisionRow {
         return (NO_PARAM + noParamsIndex).intern();
     }
 
-    private CompositeMethod generateMethod(TableSyntaxNode tableSyntaxNode,
-            OpenL openl,
-            IMethodSignature signature,
-            IOpenClass methodType,
-            IBindingContext bindingContext) throws Exception {
-
-        IOpenSourceCodeModule source = getExpressionSource(tableSyntaxNode,
-            signature,
-            methodType,
-            null,
-            openl,
-            bindingContext);
-        prepareParams(null, signature, methodType, source, openl, bindingContext);
-        IMethodSignature newSignature = ((MethodSignature) signature).merge(params);
-        OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
-
-        return OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
-    }
-
     protected IOpenSourceCodeModule getExpressionSource(TableSyntaxNode tableSyntaxNode,
             IMethodSignature signature,
             IOpenClass methodType,
@@ -517,10 +555,11 @@ public abstract class FunctionalRow implements IDecisionRow {
             if (allowEmpty) {
                 try {
                     OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
-
+                    RulesModuleBindingContextHelper.compileAllTypesInSignature(methodHeader.getSignature(),
+                        bindingContext);
                     CompositeMethod method = OpenLManager.makeMethod(openl, methodSource, methodHeader, bindingContext);
 
-                    IOpenClass type = method.getBodyType();
+                    IOpenClass type = method.getMethodBodyBoundNode().getType();
 
                     if (type != NullOpenClass.the) {
                         return new ParameterDeclaration(type, makeParamName(), paramSource);
@@ -631,6 +670,10 @@ public abstract class FunctionalRow implements IDecisionRow {
             }
         }
         return false;
+    }
+
+    public IStorage<?>[] getStorage() {
+        return storage;
     }
 
     public Object getStorageValue(int paramNum, int ruleNum) {

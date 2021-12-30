@@ -1,2 +1,3 @@
 WARN: More than one input parameter is set to return 'MyDatatype.myCode'.
 WARN: More than one input parameter is set to return 'MyDatatype.foo'.
+WARN: Ambiguous matching of column titles to DT columns. Use more appropriate titles.

@@ -46,10 +46,10 @@ public class XlsPreBinder extends XlsBinder {
             try {
                 memberBoundNode.finalizeBind(rulesModuleBindingContext);
             } catch (SyntaxNodeException error) {
-                processError(error, tableSyntaxNode, rulesModuleBindingContext);
+                processError(error, rulesModuleBindingContext);
             } catch (Exception | LinkageError t) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
-                processError(error, tableSyntaxNode, rulesModuleBindingContext);
+                processError(error, rulesModuleBindingContext);
             }
         }
     }

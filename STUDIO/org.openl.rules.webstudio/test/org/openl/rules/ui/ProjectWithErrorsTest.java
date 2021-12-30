@@ -55,18 +55,18 @@ public class ProjectWithErrorsTest extends AbstractWorkbookGeneratingTest {
         Sheet sheet = book.createSheet(SHEET_NAME);
 
         // Correct tables
-        String expenseDatatypeTable[][] = { { "Datatype Expense" }, { "String", "area" } };
+        String[][] expenseDatatypeTable = { { "Datatype Expense" }, { "String", "area" } };
 
-        String greetingMethodTable[][] = { { "Method String getGreeting(String name)" },
+        String[][] greetingMethodTable = { { "Method String getGreeting(String name)" },
                 { "Return \"Hi, \" + name;" } };
-        String greetingTestTable[][] = { { "Test getGreeting getGreetingTest" },
+        String[][] greetingTestTable = { { "Test getGreeting getGreetingTest" },
                 { "name", "_res_" },
                 { "Name", "Result" },
                 { "John", "Hi, John" } };
 
         // Tables with errors
-        String incorrectDatatypeTable[][] = { { "Datatype Incorrect" }, { "NotExistedType", "area" } };
-        String incorrectTestTable[][] = { { "Test notExistedMethod getGreetingTest" },
+        String[][] incorrectDatatypeTable = { { "Datatype Incorrect" }, { "NotExistedType", "area" } };
+        String[][] incorrectTestTable = { { "Test notExistedMethod getGreetingTest" },
                 { "name", "_res_" },
                 { "Name", "Result" },
                 { "John", "Hi, John" } };

@@ -68,18 +68,16 @@ public class Migrator {
 
     // 5.26.0
     private static void migrateTo5_26_0(DynamicPropertySource settings, HashMap<String, String> props) {
-        String newDefaultCommentTemplate = "{user-message} Type: {commit-type}.";
         Arrays.stream(settings.getPropertyNames())
-            .filter(propertyName -> propertyName.startsWith("repository."))
-            .filter(propertyName -> propertyName.endsWith(".comment-template"))
+            .filter(propertyName -> propertyName.startsWith("repository.") && propertyName.endsWith(".comment-template"))
             .forEach(propertyName -> {
                 String commentTemplate = (String) settings.getProperty(propertyName);
                 if (commentTemplate != null && commentTemplate.contains("{username}")) {
-                    props.put(propertyName + "-old", commentTemplate);
-                    props.put(propertyName, newDefaultCommentTemplate);
+                    props.put(propertyName, commentTemplate.replaceAll("(\\s+Author\\s*:?)?\\s*\\{username}\\.?", ""));
                 }
             });
         //removing unnecessary SAML properties
+        props.put("security.saml.app-url", null);
         props.put("security.saml.authentication-contexts", null);
         props.put("security.saml.local-logout", null);
         props.put("security.saml.is-app-after-balancer", null);
@@ -91,6 +89,10 @@ public class Migrator {
         props.put("security.saml.max-authentication-age", null);
         props.put("security.saml.metadata-trust-check", null);
         props.put("security.saml.request-timeout", null);
+        props.put("security.saml.keystore-file-path", null);
+        props.put("security.saml.keystore-password", null);
+        props.put("security.saml.keystore-sp-alias", null);
+        props.put("security.saml.keystore-sp-password", null);
     }
 
     // 5.24

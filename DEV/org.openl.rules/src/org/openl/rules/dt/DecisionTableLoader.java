@@ -220,60 +220,72 @@ public class DecisionTableLoader {
             f = false;
         }
         final boolean firstTransposedThenNormal = f;
-        CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
-            () -> loadAndBind(tableSyntaxNode, decisionTable, openl, module, firstTransposedThenNormal, bindingContext),
-            bindingContext);
-        final DTInfo dtInfo = decisionTable.getDtInfo();
-        if (loadAndBindErrors != null) {
-            // If table have errors, try to compile transposed variant.
-            // Note that compiling transposed table consumes memory twice and for big tables it does not make any sense
-            // for smart tables
-            if (Direction.UNKNOWN.equals(direction) && (tableBody == null || !isSmart(
-                tableSyntaxNode) || (firstTransposedThenNormal ? width : height) <= MAX_COLUMNS_IN_DT)) {
-                CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
-                    () -> loadAndBind(tableSyntaxNode,
+        try {
+            CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
+                decisionTable,
+                () -> loadAndBind(tableSyntaxNode,
+                    decisionTable,
+                    openl,
+                    module,
+                    firstTransposedThenNormal,
+                    bindingContext),
+                bindingContext);
+            final DTInfo dtInfo = decisionTable.getDtInfo();
+            if (loadAndBindErrors != null) {
+                // If table have errors, try to compile transposed variant.
+                // Note that compiling transposed table consumes memory twice and for big tables it does not make any
+                // sense
+                // for smart tables
+                if (Direction.UNKNOWN.equals(direction) && (tableBody == null || !isSmart(
+                    tableSyntaxNode) || (firstTransposedThenNormal ? width : height) <= MAX_COLUMNS_IN_DT)) {
+                    CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
                         decisionTable,
-                        openl,
-                        module,
-                        !firstTransposedThenNormal,
-                        bindingContext),
-                    bindingContext);
-                if (altLoadAndBindErrors == null) {
-                    return;
-                } else {
-                    if (tableBody == null || isSmart(tableSyntaxNode) || isSimple(tableSyntaxNode)) {
-                        // Select compilation with less errors count for smart tables
-                        if (isNotUnmatchedTableError(
-                            altLoadAndBindErrors) && loadAndBindErrors.getBindingSyntaxNodeException()
-                                .size() > altLoadAndBindErrors.getBindingSyntaxNodeException()
-                                    .size() && isExceptionIsNotWorse(loadAndBindErrors, altLoadAndBindErrors)) {
-                            putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
-                            altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
-                            if (altLoadAndBindErrors.getEx() != null) {
-                                throw altLoadAndBindErrors.getEx();
-                            }
-                            return;
-                        }
+                        () -> loadAndBind(tableSyntaxNode,
+                            decisionTable,
+                            openl,
+                            module,
+                            !firstTransposedThenNormal,
+                            bindingContext),
+                        bindingContext);
+                    if (altLoadAndBindErrors == null) {
+                        return;
                     } else {
-                        // Try to analyze what errors is better to use based on table headers
-                        if (!firstTransposedThenNormal && looksLikeVertical(
-                            tableBody) || firstTransposedThenNormal && looksLikeHorizontal(tableBody)) {
-                            putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
-                            altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
-                            if (altLoadAndBindErrors.getEx() != null) {
-                                throw altLoadAndBindErrors.getEx();
+                        if (tableBody == null || isSmart(tableSyntaxNode) || isSimple(tableSyntaxNode)) {
+                            // Select compilation with fewer errors count for smart tables
+                            if (isNotUnmatchedTableError(
+                                altLoadAndBindErrors) && loadAndBindErrors.getBindingSyntaxNodeException()
+                                    .size() > altLoadAndBindErrors.getBindingSyntaxNodeException()
+                                        .size() && isExceptionIsNotWorse(loadAndBindErrors, altLoadAndBindErrors)) {
+                                putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
+                                altLoadAndBindErrors.apply(tableSyntaxNode, decisionTable, bindingContext);
+                                if (altLoadAndBindErrors.getEx() != null) {
+                                    throw altLoadAndBindErrors.getEx();
+                                }
+                                return;
                             }
-                            return;
+                        } else {
+                            // Try to analyze what errors are better to use based on table headers
+                            if (!firstTransposedThenNormal && looksLikeVertical(
+                                tableBody) || firstTransposedThenNormal && looksLikeHorizontal(tableBody)) {
+                                putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
+                                altLoadAndBindErrors.apply(tableSyntaxNode, decisionTable, bindingContext);
+                                if (altLoadAndBindErrors.getEx() != null) {
+                                    throw altLoadAndBindErrors.getEx();
+                                }
+                                return;
+                            }
                         }
                     }
+                    decisionTable.setDtInfo(dtInfo);
                 }
-                decisionTable.setDtInfo(dtInfo);
+                putTableForBusinessView(tableSyntaxNode, firstTransposedThenNormal);
+                loadAndBindErrors.apply(tableSyntaxNode, decisionTable, bindingContext);
+                if (loadAndBindErrors.getEx() != null) {
+                    throw loadAndBindErrors.getEx();
+                }
             }
-            putTableForBusinessView(tableSyntaxNode, firstTransposedThenNormal);
-            loadAndBindErrors.apply(tableSyntaxNode, bindingContext);
-            if (loadAndBindErrors.getEx() != null) {
-                throw loadAndBindErrors.getEx();
-            }
+        } finally {
+            decisionTable.getDeferredChanges().forEach(DecisionTable.DeferredChange::apply);
         }
     }
 
@@ -434,12 +446,11 @@ public class DecisionTableLoader {
             .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
                 .isSimpleLookupTable(tableSyntaxNode) || DecisionTableHelper.isSmartLookupTable(tableSyntaxNode)) {
             try {
-                tableBody = DecisionTableHelper
-                    .preprocessDecisionTableWithoutHeaders(tableSyntaxNode,
-                        decisionTable,
-                        tableBody,
-                        module,
-                        bindingContext);
+                tableBody = DecisionTableHelper.preprocessDecisionTableWithoutHeaders(tableSyntaxNode,
+                    decisionTable,
+                    tableBody,
+                    module,
+                    bindingContext);
             } catch (OpenLCompilationException e) {
                 throw SyntaxNodeExceptionUtils.createError(
                     "Cannot create a header for a Simple Rules, Lookup Table or Smart Table.",
@@ -502,19 +513,24 @@ public class DecisionTableLoader {
         private final Collection<OpenLMessage> openLMessages;
         private final Exception ex;
         private final DecisionTableMetaInfoReader.MetaInfoHolder metaInfos;
+        private final List<DecisionTable.DeferredChange> deferredChanges;
 
         private CompilationErrors(List<SyntaxNodeException> bindingSyntaxNodeException,
                 Collection<OpenLMessage> openLMessages,
                 DecisionTableMetaInfoReader.MetaInfoHolder metaInfos,
-                Exception ex) {
+                Exception ex,
+                List<DecisionTable.DeferredChange> deferredChanges) {
             this.bindingSyntaxNodeException = Objects.requireNonNull(bindingSyntaxNodeException,
                 "bindingSyntaxNodeException cannot be null");
             this.openLMessages = Objects.requireNonNull(openLMessages, "openLMessages cannot be null");
             this.metaInfos = metaInfos;
             this.ex = ex;
+            this.deferredChanges = deferredChanges;
         }
 
-        private void apply(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
+        private void apply(TableSyntaxNode tableSyntaxNode,
+                DecisionTable decisionTable,
+                IBindingContext bindingContext) {
             bindingSyntaxNodeException.forEach(bindingContext::addError);
             openLMessages.forEach(bindingContext::addMessage);
             if (!bindingContext.isExecutionMode()) {
@@ -522,6 +538,8 @@ public class DecisionTableLoader {
                     .getMetaInfoReader();
                 decisionTableMetaInfoReader.getMetaInfos().merge(metaInfos);
             }
+            decisionTable.getDeferredChanges().clear();
+            decisionTable.getDeferredChanges().addAll(deferredChanges);
         }
 
         public Exception getEx() {
@@ -539,6 +557,7 @@ public class DecisionTableLoader {
     }
 
     private CompilationErrors compileAndRevertIfFails(TableSyntaxNode tableSyntaxNode,
+            DecisionTable decisionTable,
             Supplier supplier,
             IBindingContext bindingContext) {
         DecisionTableMetaInfoReader decisionTableMetaInfoReader = null;
@@ -570,7 +589,14 @@ public class DecisionTableLoader {
             }
             return null;
         }
-        return new CompilationErrors(errors, messages, metaInfos, ex);
+        CompilationErrors compilationErrors = new CompilationErrors(errors,
+            messages,
+            metaInfos,
+            ex,
+            new ArrayList<>(decisionTable.getDeferredChanges()));
+
+        decisionTable.getDeferredChanges().clear();
+        return compilationErrors;
     }
 
     private void filterErrorsAndMessagesNotRelatedToThisTable(TableSyntaxNode tableSyntaxNode,
@@ -629,7 +655,6 @@ public class DecisionTableLoader {
     }
 
     private ILogicalTable unmergeFirstRow(ILogicalTable toParse) {
-
         return LogicalTableHelper
             .unmergeColumns(toParse, IDecisionTableConstants.SERVICE_COLUMNS_NUMBER, toParse.getWidth());
     }

@@ -21,7 +21,7 @@ public class SpreadsheetCell implements Invokable {
 
     private IOpenMethod method;
 
-    private boolean typeUnknown;
+    private boolean resolvingInProgress;
 
     public SpreadsheetCell(int rowIndex, int columnIndex, ICell sourceCell, SpreadsheetCellType spreadsheetCellType) {
         this.rowIndex = rowIndex;
@@ -105,6 +105,14 @@ public class SpreadsheetCell implements Invokable {
         }
     }
 
+    public boolean isResolvingInProgress() {
+        return resolvingInProgress;
+    }
+
+    public void setResolvingInProgress(boolean resolvingInProgress) {
+        this.resolvingInProgress = resolvingInProgress;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public Object invoke(Object spreadsheetResult, Object[] params, IRuntimeEnv env) {
@@ -122,11 +130,4 @@ public class SpreadsheetCell implements Invokable {
         return "R" + getRowIndex() + "C" + getColumnIndex();
     }
 
-    public void setTypeUnknown(boolean typeUnknown) {
-        this.typeUnknown = typeUnknown;
-    }
-
-    public boolean isTypeUnknown() {
-        return typeUnknown;
-    }
 }

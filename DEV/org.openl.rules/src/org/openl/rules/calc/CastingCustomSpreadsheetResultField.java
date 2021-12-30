@@ -3,15 +3,19 @@ package org.openl.rules.calc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
@@ -30,7 +34,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         super(declaringClass, name, null);
         Objects.requireNonNull(field1, "field1 cannot be null");
         Objects.requireNonNull(field2, "field2 cannot be null");
-        this.fields = new ArrayList<>(extractFields(field1));
+        this.fields = new HashSet<>(extractFields(field1));
         this.fields.addAll(extractFields(field2));
 
         List<IOpenClass> declaringClasses = new ArrayList<>();
@@ -89,21 +93,46 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                 this.type = types.iterator().next();
                 this.casts = null;
             } else {
-                Iterator<IOpenClass> itr = types.iterator();
-                IOpenClass t = getDeclaringClass().toModuleType(itr.next());
-                while (itr.hasNext()) {
-                    IOpenClass t1 = getDeclaringClass().toModuleType(itr.next());
-                    CastToWiderType castToWiderType = CastToWiderType
-                        .create(getDeclaringClass().getModule().getRulesModuleBindingContext(), t, t1);
-                    t = castToWiderType.getWiderType();
+                boolean allTypesCustomSpreadsheetResult = true;
+                Set<XlsModuleOpenClass> modules = Collections.newSetFromMap(new IdentityHashMap<>());
+                for (IOpenClass openClass : types) {
+                    if (!(openClass instanceof CustomSpreadsheetResultOpenClass)) {
+                        allTypesCustomSpreadsheetResult = false;
+                        break;
+                    } else {
+                        modules.add(((CustomSpreadsheetResultOpenClass) openClass).getModule());
+                    }
                 }
-                this.casts = new ArrayList<>();
-                this.type = t;
-                for (IOpenClass type : types) {
-                    IOpenCast cast = getDeclaringClass().getModule()
-                        .getRulesModuleBindingContext()
-                        .getCast(type, this.type);
-                    this.casts.add(Pair.of(type, cast));
+                if (allTypesCustomSpreadsheetResult && modules.size() == 1 && modules.iterator()
+                    .next() == getDeclaringClass().getModule()) {
+                    Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses = types.stream()
+                        .map(CustomSpreadsheetResultOpenClass.class::cast)
+                        .collect(Collectors.toSet());
+                    if (customSpreadsheetResultOpenClasses.size() > 1) {
+                        this.type = getDeclaringClass().getModule()
+                            .buildOrGetUnifiedSpreadsheetResult(
+                                customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
+                    } else {
+                        this.type = customSpreadsheetResultOpenClasses.iterator().next();
+                    }
+                    this.casts = null;
+                } else {
+                    Iterator<IOpenClass> itr = types.iterator();
+                    IOpenClass t = itr.next();
+                    while (itr.hasNext()) {
+                        IOpenClass t1 = itr.next();
+                        CastToWiderType castToWiderType = CastToWiderType
+                            .create(getDeclaringClass().getModule().getRulesModuleBindingContext(), t, t1);
+                        t = castToWiderType.getWiderType();
+                    }
+                    this.casts = new ArrayList<>();
+                    this.type = t;
+                    for (IOpenClass type : types) {
+                        IOpenCast cast = getDeclaringClass().getModule()
+                            .getRulesModuleBindingContext()
+                            .getCast(type, this.type);
+                        this.casts.add(Pair.of(type, cast));
+                    }
                 }
             }
         }

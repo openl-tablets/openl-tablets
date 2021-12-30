@@ -158,6 +158,20 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     @Override
+    public IOpenClass getClosestClass(ModuleSpecificType openClass) {
+        return getParentClass(openClass);
+    }
+
+    @Override
+    public IOpenClass getParentClass(ModuleSpecificType openClass) {
+        if (!getModule().isExternalModule((XlsModuleOpenClass) openClass.getModule(),
+            new IdentityHashMap<>()) && openClass instanceof CustomSpreadsheetResultOpenClass) {
+            return getModule().buildOrGetUnifiedSpreadsheetResult(this, (CustomSpreadsheetResultOpenClass) openClass);
+        }
+        return null;
+    }
+
+    @Override
     public void addField(IOpenField field) throws DuplicatedFieldException {
         if (!(field instanceof CustomSpreadsheetResultField)) {
             throw new IllegalStateException(String.format("Expected type '%s', but found type '%s'.",
@@ -169,7 +183,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        if (ioc instanceof CustomSpreadsheetResultOpenClass) {
+        if (ioc instanceof CustomSpreadsheetResultOpenClass && !(ioc instanceof UnifiedSpreadsheetResultOpenClass)) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) ioc;
             return !getModule().isExternalModule(customSpreadsheetResultOpenClass.getModule(),
                 new IdentityHashMap<>()) && this.getName().equals(customSpreadsheetResultOpenClass.getName());
@@ -320,6 +334,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         if (beanClassByteCode != null) {
             throw new IllegalStateException(
                 "Java bean class for custom spreadsheet result is loaded to classloader. " + "Custom spreadsheet result cannot be extended.");
+        }
+        if (openClass instanceof SpreadsheetResultOpenClass) {
+            this.updateWithType(((SpreadsheetResultOpenClass) openClass).toCustomSpreadsheetResultOpenClass());
+            return;
         }
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
         if (customSpreadsheetResultOpenClass.getModule() != getModule()) {
@@ -672,7 +690,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         dim++;
                         t = t.getComponentClass();
                     }
-                    if (t instanceof CustomSpreadsheetResultOpenClass || t instanceof SpreadsheetResultOpenClass) {
+                    if (t instanceof CustomSpreadsheetResultOpenClass || t instanceof SpreadsheetResultOpenClass || t instanceof AnySpreadsheetResultOpenClass) {
                         String fieldClsName;
                         XlsModuleOpenClass additionalClassGenerationClassloaderModule = null;
                         if (t instanceof CustomSpreadsheetResultOpenClass) {
@@ -695,7 +713,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                     .toCustomSpreadsheetResultOpenClass()
                                     .generateBeanClass();
                             }
-                        } else {
+                        } else if (t instanceof SpreadsheetResultOpenClass) {
                             SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) t;
                             final boolean externalSpreadsheetResultOpenClass = isExternalSpreadsheetResultOpenClass(
                                 spreadsheetResultOpenClass,
@@ -710,6 +728,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             m.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                 .toCustomSpreadsheetResultOpenClass()
                                 .generateBeanClass();
+                        } else {
+                            fieldClsName = Map.class.getName();
                         }
                         if (additionalClassGenerationClassloaderModule != null) {
                             getModule().getClassGenerationClassLoader()

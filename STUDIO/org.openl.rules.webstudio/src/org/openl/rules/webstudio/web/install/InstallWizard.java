@@ -3,11 +3,13 @@ package org.openl.rules.webstudio.web.install;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DESIGN_REPOSITORY_CONFIGS;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.security.KeyPair;
 import java.security.Security;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -35,7 +37,6 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.webstudio.security.KeyStoreUtils;
 import org.openl.rules.webstudio.util.WebStudioValidationUtils;
 import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
 import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
@@ -246,13 +247,8 @@ public class InstallWizard implements Serializable {
     }
 
     private void readSamlProperties() {
-        samlSettings = new SAMLSettings(propertyResolver.getProperty("security.saml.app-url"),
-            propertyResolver.getProperty("security.saml.entity-id"),
+        samlSettings = new SAMLSettings(propertyResolver.getProperty("security.saml.entity-id"),
             propertyResolver.getProperty("security.saml.saml-server-metadata-url"),
-            propertyResolver.getProperty("security.saml.keystore-file-path"),
-            propertyResolver.getProperty("security.saml.keystore-password"),
-            propertyResolver.getProperty("security.saml.keystore-sp-alias"),
-            propertyResolver.getProperty("security.saml.keystore-sp-password"),
             propertyResolver.getProperty("security.saml.attribute.username"),
             propertyResolver.getProperty("security.saml.attribute.first-name"),
             propertyResolver.getProperty("security.saml.attribute.last-name"),
@@ -282,16 +278,9 @@ public class InstallWizard implements Serializable {
                     properties.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
                     properties.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
                 } else if (SAML_USER_MODE.equals(userMode)) {
-                    properties.setProperty("security.saml.app-url", samlSettings.getWebStudioUrl());
-                    if (!StringUtils.isBlank(samlSettings.getEntityId())) {
-                        properties.setProperty("security.saml.entity-id", samlSettings.getEntityId());
-                    }
+                    properties.setProperty("security.saml.entity-id", samlSettings.getEntityId());
                     properties.setProperty("security.saml.saml-server-metadata-url",
                         samlSettings.getSamlServerMetadataUrl());
-                    properties.setProperty("security.saml.keystore-file-path", samlSettings.getKeystoreFilePath());
-                    properties.setProperty("security.saml.keystore-password", samlSettings.getKeystorePassword());
-                    properties.setProperty("security.saml.keystore-sp-alias", samlSettings.getKeystoreSpAlias());
-                    properties.setProperty("security.saml.keystore-sp-password", samlSettings.getKeystoreSpPassword());
                     properties.setProperty("security.saml.attribute.username", samlSettings.getUsernameAttribute());
                     properties.setProperty("security.saml.attribute.first-name", samlSettings.getFirstNameAttribute());
                     properties.setProperty("security.saml.attribute.last-name", samlSettings.getSecondNameAttribute());
@@ -482,27 +471,26 @@ public class InstallWizard implements Serializable {
     public void samlValidator(FacesContext context, UIComponent toValidate, Object value) {
         UIViewRoot viewRoot = context.getViewRoot();
 
-        String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlWebStudioUrl"))
-            .getSubmittedValue();
+        String entityId = (String) ((UIInput) viewRoot.findComponent("step3Form:samlEntityId")).getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getSubmittedValue();
         String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:samlGroupsAttribute"))
             .getSubmittedValue();
         String publicServerCert = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerCertificate"))
             .getSubmittedValue();
 
-        if (StringUtils.isBlank(webStudioUrl)) {
-            throw new ValidatorException(createErrorMessage("WebStudio server URL cannot be blank."));
+        if (StringUtils.isBlank(entityId)) {
+            throw new ValidatorException(createErrorMessage("Entity ID cannot be blank."));
         }
 
         if (StringUtils.isBlank(serverUrl)) {
             throw new ValidatorException(createErrorMessage("SAML server metadata URL cannot be blank."));
         }
 
-        if (StringUtils.isBlank(publicServerCert)) {
-            throw new ValidatorException(createErrorMessage("SAML server certificate cannot be blank"));
-        } else {
+        if (StringUtils.isNotBlank(publicServerCert)) {
             try {
-                X509Certificate cert = KeyStoreUtils.generateCertificate(publicServerCert);
+                byte[] decoded = Base64.getDecoder().decode(publicServerCert);
+                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                X509Certificate cert = (X509Certificate) cf.generateCertificate(new ByteArrayInputStream(decoded));
                 cert.checkValidity();
             } catch (Exception e) {
                 throw new ValidatorException(createErrorMessage("Entered SAML server certificate is not valid."));

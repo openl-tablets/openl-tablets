@@ -296,6 +296,10 @@ public class JavaOpenClass extends AOpenClass {
         return Collections.unmodifiableMap(methods);
     }
 
+    protected IOpenMethod processConstructor(JavaOpenConstructor constructor) {
+        return constructor;
+    }
+
     @Override
     protected Map<MethodKey, IOpenMethod> initConstructorMap() {
         Map<MethodKey, IOpenMethod> constructors = new HashMap<>();
@@ -303,8 +307,8 @@ public class JavaOpenClass extends AOpenClass {
         Constructor<?>[] cc = getInstanceClass().getDeclaredConstructors();
         for (Constructor<?> constructor : cc) {
             if (isPublic(constructor)) {
-                IOpenMethod om = new JavaOpenConstructor(constructor);
-                constructors.put(new MethodKey(om), om);
+                JavaOpenConstructor om = new JavaOpenConstructor(constructor);
+                constructors.put(new MethodKey(om), processConstructor(om));
             }
         }
         if (constructors.isEmpty()) {

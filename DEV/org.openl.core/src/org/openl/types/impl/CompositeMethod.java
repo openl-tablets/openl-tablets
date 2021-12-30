@@ -24,11 +24,12 @@ public class CompositeMethod extends ExecutableMethod {
     public static final CompositeMethod[] EMPTY_ARRAY = new CompositeMethod[0];
     private IBoundMethodNode methodBodyBoundNode;
     private Boolean invokable;
-
     /**
      * Invoker for current method.
      */
     private Invokable invoker;
+
+    private IOpenClass bodyType;
 
     public CompositeMethod(IOpenMethodHeader header, IBoundMethodNode methodBodyBoundNode) {
         super(header);
@@ -36,7 +37,11 @@ public class CompositeMethod extends ExecutableMethod {
     }
 
     public IOpenClass getBodyType() {
-        return methodBodyBoundNode.getType();
+        return bodyType;
+    }
+
+    public void setBodyType(IOpenClass bodyType) {
+        this.bodyType = bodyType;
     }
 
     public IBoundMethodNode getMethodBodyBoundNode() {
@@ -77,7 +82,7 @@ public class CompositeMethod extends ExecutableMethod {
     }
 
     public void setMethodBodyBoundNode(IBoundMethodNode node) {
-        methodBodyBoundNode = node;
+        this.methodBodyBoundNode = node;
     }
 
     public void updateDependency(BindingDependencies dependencies) {

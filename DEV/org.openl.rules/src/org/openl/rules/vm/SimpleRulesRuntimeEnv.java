@@ -6,6 +6,7 @@ import java.util.Queue;
 import java.util.concurrent.RecursiveAction;
 
 import org.openl.rules.context.RulesRuntimeContextFactory;
+import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
@@ -17,6 +18,7 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
     private volatile boolean ignoreRecalculate = true;
     private volatile boolean originalCalculation = true;
     private ArgumentCachingStorage argumentCachingStorage;
+    private IRulesMethodWrapper methodWrapper;
 
     public SimpleRulesRuntimeEnv() {
         super();
@@ -82,6 +84,14 @@ public class SimpleRulesRuntimeEnv extends SimpleRuntimeEnv {
             argumentCachingStorage = new ArgumentCachingStorage(this);
         }
         return argumentCachingStorage;
+    }
+
+    public IRulesMethodWrapper getMethodWrapper() {
+        return methodWrapper;
+    }
+
+    public void setMethodWrapper(IRulesMethodWrapper methodWrapper) {
+        this.methodWrapper = methodWrapper;
     }
 
     public IOpenClass getTopClass() {

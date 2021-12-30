@@ -3,7 +3,6 @@ package org.openl.rules.cmatch;
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.AMethodBasedNode;
@@ -14,7 +13,7 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
 
-public class ColumnMatchBoundNode extends AMethodBasedNode implements IMemberBoundNode {
+public class ColumnMatchBoundNode extends AMethodBasedNode {
     private final IOpenSourceCodeModule nameOfAlgorithm;
 
     public ColumnMatchBoundNode(TableSyntaxNode tsn,

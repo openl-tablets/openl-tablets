@@ -1,7 +1,11 @@
 package org.openl.rules.validation.properties.dimentional;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
@@ -11,7 +15,11 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.dt.*;
+import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.DecisionTableBoundNode;
+import org.openl.rules.dt.DecisionTableLoader;
+import org.openl.rules.dt.IBaseAction;
+import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.lang.xls.XlsHelper;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
@@ -27,8 +35,16 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.types.*;
-import org.openl.types.impl.*;
+import org.openl.types.IMethodCaller;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
+import org.openl.types.IParameterDeclaration;
+import org.openl.types.impl.MethodDelegator;
+import org.openl.types.impl.MethodKey;
+import org.openl.types.impl.MethodSignature;
+import org.openl.types.impl.OpenMethodHeader;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -159,7 +175,7 @@ class TableSyntaxNodeDispatcherBuilder {
                 moduleOpenClass.getOpenl(),
                 header,
                 moduleOpenClass);
-            DecisionTable decisionTable = new DecisionTable(header, boundNode);
+            DecisionTable decisionTable = new DecisionTable(header, boundNode, false);
             // Dispatcher tables are shown in Trace
             tsn.setMetaInfoReader(
                 new DecisionTableMetaInfoReader((DecisionTableBoundNode) decisionTable.getBoundNode(), decisionTable));
@@ -340,10 +356,12 @@ class TableSyntaxNodeDispatcherBuilder {
 
         setTableProperties(tsn);
 
-        DecisionTableLoader dtLoader = new DecisionTableLoader();
         try {
-            dtLoader
-                .loadAndBind(tsn, decisionTable, moduleOpenClass.getOpenl(), null, createContextWithAuxiliaryMethods());
+            new DecisionTableLoader().loadAndBind(tsn,
+                decisionTable,
+                moduleOpenClass.getOpenl(),
+                moduleOpenClass,
+                createContextWithAuxiliaryMethods());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             rulesModuleBindingContext.addMessages(OpenLMessagesUtils.newErrorMessages(e));

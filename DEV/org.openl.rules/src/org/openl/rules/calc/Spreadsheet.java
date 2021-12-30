@@ -19,6 +19,7 @@ import org.openl.vm.IRuntimeEnv;
 public class Spreadsheet extends ExecutableRulesMethod {
 
     public static final String SPREADSHEETRESULT_TYPE_PREFIX = "SpreadsheetResult";
+    public static final String SPREADSHEETRESULT_SHORT_TYPE_PREFIX = "SR";
 
     private IResultBuilder resultBuilder;
 
@@ -59,38 +60,38 @@ public class Spreadsheet extends ExecutableRulesMethod {
     /**
      * Custom return type of the spreadsheet method. Is a public type of the spreadsheet
      */
-    private CustomSpreadsheetResultOpenClass spreadsheetCustomResultType;
+    private CustomSpreadsheetResultOpenClass customSpreadsheetResultType;
 
     /**
      * Whether <code>spreadsheetCustomType</code> should be generated or not.
      */
-    private boolean customSpreadsheet;
+    private boolean typeCustomSpreadsheetResult;
 
     public Spreadsheet() {
         super(null, null);
     }
 
-    public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode, boolean customSpreadsheet) {
+    public Spreadsheet(IOpenMethodHeader header, SpreadsheetBoundNode boundNode, boolean typeCustomSpreadsheetResult) {
         super(header, boundNode);
         initProperties(getSyntaxNode().getTableProperties());
-        this.customSpreadsheet = customSpreadsheet;
+        this.typeCustomSpreadsheetResult = typeCustomSpreadsheetResult;
     }
 
     @Override
     public IOpenClass getType() {
-        if (isCustomSpreadsheet()) {
-            return spreadsheetCustomResultType;
+        if (isTypeCustomSpreadsheetResult()) {
+            return customSpreadsheetResultType;
         } else {
             return super.getType();
         }
     }
 
     public void setCustomSpreadsheetResultType(CustomSpreadsheetResultOpenClass spreadsheetCustomResultType) {
-        this.spreadsheetCustomResultType = spreadsheetCustomResultType;
+        this.customSpreadsheetResultType = spreadsheetCustomResultType;
     }
 
-    public boolean isCustomSpreadsheet() {
-        return customSpreadsheet;
+    public boolean isTypeCustomSpreadsheetResult() {
+        return typeCustomSpreadsheetResult;
     }
 
     @Override

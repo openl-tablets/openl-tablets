@@ -190,7 +190,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 if (!csrOpenClass.isIgnoreCompilation()) {
                     // CSR class name is a conjunction of "SpreadsheetResult" and "MethodName"
                     // If a class is CSR, then extract a method from the class name and process the Spreadsheet method
-                    final String methodName = typeName.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+                    final String methodName = csrOpenClass.getName()
+                        .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
                     preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
                         if (openMethodBinder.isReturnsCustomSpreadsheetResult()) {
                             preBindMethod(openMethodBinder.getHeader());

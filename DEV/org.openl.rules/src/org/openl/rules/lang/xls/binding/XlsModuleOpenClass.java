@@ -35,7 +35,9 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
+import org.openl.rules.calc.UnifiedSpreadsheetResultOpenClass;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.rules.data.DataOpenField;
@@ -59,6 +61,7 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,6 +109,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return rulesModuleBindingContext;
     }
 
+    public Map<CustomSpreadsheetResultOpenClassesKey, UnifiedSpreadsheetResultOpenClass> unifiedSpreadsheetResultOpenClasses = new HashMap<>();
+
     /**
      * Constructor for module with dependent modules
      *
@@ -138,6 +143,37 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             initDependencies();
         }
         initImports(xlsMetaInfo.getXlsModuleNode());
+    }
+
+    public CustomSpreadsheetResultOpenClass buildOrGetUnifiedSpreadsheetResult(
+            CustomSpreadsheetResultOpenClass... customSpreadsheetResultOpenClasses) {
+        Set<CustomSpreadsheetResultOpenClass> c = new HashSet<>();
+        for (CustomSpreadsheetResultOpenClass t : customSpreadsheetResultOpenClasses) {
+            if (t instanceof UnifiedSpreadsheetResultOpenClass) {
+                c.addAll(((UnifiedSpreadsheetResultOpenClass) t).getUnifiedTypes());
+            } else {
+                c.add(t);
+            }
+        }
+        if (c.size() == 1) {
+            return c.iterator().next();
+        }
+        CustomSpreadsheetResultOpenClassesKey key = new CustomSpreadsheetResultOpenClassesKey(
+            c.toArray(new CustomSpreadsheetResultOpenClass[0]));
+        UnifiedSpreadsheetResultOpenClass unifiedSpreadsheetResultOpenClass = unifiedSpreadsheetResultOpenClasses
+            .get(key);
+        if (unifiedSpreadsheetResultOpenClass == null) {
+            unifiedSpreadsheetResultOpenClass = new UnifiedSpreadsheetResultOpenClass(this);
+            for (CustomSpreadsheetResultOpenClass t : c) {
+                unifiedSpreadsheetResultOpenClass.updateWithType(t);
+            }
+            unifiedSpreadsheetResultOpenClasses.put(key, unifiedSpreadsheetResultOpenClass);
+        }
+        return unifiedSpreadsheetResultOpenClass;
+    }
+
+    public Collection<UnifiedSpreadsheetResultOpenClass> getUnifiedSpreadsheetResultOpenClasses() {
+        return new ArrayList<>(unifiedSpreadsheetResultOpenClasses.values());
     }
 
     public ITableProperties getGlobalTableProperties() {
@@ -579,6 +615,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return decorator;
     }
 
+    public void clearOddData() {
+        unifiedSpreadsheetResultOpenClasses = null;
+    }
+
     @Override
     public void clearForExecutionMode() {
         super.clearForExecutionMode();
@@ -634,7 +674,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     public void addType(IOpenClass type) {
         validateType(type);
-        super.addType(type);
+        addType(type.getName(), type, true);
+        if (type instanceof DomainOpenClass) {
+            return;
+        }
+        if (type instanceof CustomSpreadsheetResultOpenClass) {
+            addType(
+                Spreadsheet.SPREADSHEETRESULT_SHORT_TYPE_PREFIX + type.getName()
+                    .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()),
+                type,
+                false);
+        } else {
+            addType(type.getJavaName(), type, false);
+        }
     }
 
     protected void addTestSuiteMethodsFromDependencies() {

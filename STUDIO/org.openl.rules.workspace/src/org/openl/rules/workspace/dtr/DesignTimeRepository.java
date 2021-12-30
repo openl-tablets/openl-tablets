@@ -51,6 +51,8 @@ public interface DesignTimeRepository extends ProjectsContainer {
 
     AProject getProjectByPath(String repositoryId, String branch, String path, String version) throws IOException;
 
+    void refresh();
+
     /**
      * Checks whether the DTR has deployment project with specified name.
      *

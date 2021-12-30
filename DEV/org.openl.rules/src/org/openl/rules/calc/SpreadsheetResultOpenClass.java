@@ -1,11 +1,13 @@
 package org.openl.rules.calc;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Stack;
 
-import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
+import org.openl.binding.exception.AmbiguousFieldException;
+import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IAggregateInfo;
@@ -13,8 +15,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicArrayAggregateInfo;
-import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenConstructor;
 import org.openl.vm.IRuntimeEnv;
 
 // Do not extend this class
@@ -29,10 +31,9 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     private volatile CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
     private final Map<String, IOpenField> strictBlankCache = new HashMap<>();
     private final Map<String, IOpenField> noStrictBlankCache = new HashMap<>();
-    private final Map<MethodKey, IOpenMethod> constructorMap = new HashMap<>();
 
     public SpreadsheetResultOpenClass(Class<?> type) {
-        super(type);
+        super(SpreadsheetResult.class);
     }
 
     public SpreadsheetResultOpenClass(XlsModuleOpenClass module) {
@@ -40,8 +41,14 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
         this.module = Objects.requireNonNull(module, "module cannot be null");
     }
 
-    public XlsModuleOpenClass getModule() {
-        return module;
+    @Override
+    public Collection<IOpenClass> superClasses() {
+        return Collections.singleton(AnySpreadsheetResultOpenClass.INSTANCE);
+    }
+
+    @Override
+    protected IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousFieldException {
+        return null;
     }
 
     @Override
@@ -80,7 +87,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                 noStrictMatchCache.put(fieldName.toLowerCase(), RESOLVING_IN_PROGRESS);
             }
             openField = super.getField(fieldName, strictMatch);
-            boolean g = SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get() == null;
+
             if (openField == null && fieldName.startsWith("$")) {
                 if (module == null) {
                     openField = new SpreadsheetResultField(this, fieldName, JavaOpenClass.OBJECT);
@@ -88,19 +95,8 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                     CustomSpreadsheetResultField mergedField = null;
                     for (IOpenClass openClass : module.getTypes()) {
                         if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                            try {
-                                if (g) {
-                                    SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
-                                }
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashMap<>());
-                                module.getRulesModuleBindingContext()
-                                    .findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
-                            } finally {
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
-                                if (g) {
-                                    SpreadsheetStructureBuilder.preventCellsLoopingOnThis.remove();
-                                }
-                            }
+                            module.getRulesModuleBindingContext()
+                                .findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
                             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                             IOpenField f = customSpreadsheetResultOpenClass.getField(fieldName, strictMatch);
                             if (f instanceof CustomSpreadsheetResultField) {
@@ -117,19 +113,8 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                         }
                     }
                     if (mergedField != null) {
-                        try {
-                            if (g) {
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
-                            }
-                            SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashMap<>());
-                            mergedField.getType(); // Fires compilation
-                            openField = mergedField;
-                        } finally {
-                            SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
-                            if (g) {
-                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.remove();
-                            }
-                        }
+                        mergedField.getType(); // Fires compilation
+                        openField = mergedField;
                     }
                 }
             }
@@ -186,13 +171,13 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
         return this.customSpreadsheetResultOpenClass;
     }
 
+    public XlsModuleOpenClass getModule() {
+        return module;
+    }
+
     @Override
     public IAggregateInfo getAggregateInfo() {
-        if (module == null) {
-            return super.getAggregateInfo();
-        } else {
-            return DynamicArrayAggregateInfo.aggregateInfo;
-        }
+        return DynamicArrayAggregateInfo.aggregateInfo;
     }
 
     @Override
@@ -203,6 +188,9 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
+        if (ioc instanceof AnySpreadsheetResultOpenClass) {
+            return false;
+        }
         if (getModule() != null) {
             if (ioc instanceof SpreadsheetResultOpenClass) {
                 return ((SpreadsheetResultOpenClass) ioc).getModule() == getModule();
@@ -227,18 +215,14 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     }
 
     @Override
-    public IOpenMethod getConstructor(IOpenClass[] params) {
-        MethodKey methodKey = new MethodKey(params);
-        IOpenMethod m = constructorMap.get(methodKey);
-        if (m != null) {
-            return m;
-        }
-        IOpenMethod c = super.getConstructor(params);
-        if (c != null) {
-            m = new ModuleSpecificOpenMethod(c, this);
-            constructorMap.put(methodKey, m);
-        }
-        return m;
+    protected IOpenMethod processConstructor(JavaOpenConstructor constructor) {
+        return new AOpenMethodDelegator(super.processConstructor(constructor)) {
+            @Override
+            public IOpenClass getType() {
+                return SpreadsheetResultOpenClass.this.getModule() == null ? AnySpreadsheetResultOpenClass.INSTANCE
+                                                                           : SpreadsheetResultOpenClass.this;
+            }
+        };
     }
 
     @Override

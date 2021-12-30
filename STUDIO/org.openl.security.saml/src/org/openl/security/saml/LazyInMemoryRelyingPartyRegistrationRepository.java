@@ -1,5 +1,6 @@
 package org.openl.security.saml;
 
+import org.openl.util.StringUtils;
 import org.opensaml.security.x509.X509Support;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,23 +49,30 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
             InputStream in = new ByteArrayInputStream(Base64.getDecoder().decode(propertyResolver.getProperty("security.saml.local-certificate")));
             X509Certificate localCert = (X509Certificate) certFactory.generateCertificate(in);
 
-            X509Certificate idpCert = X509Support.decodeCertificate(propertyResolver.getProperty("security.saml.server-certificate"));
-            Saml2X509Credential verification = Saml2X509Credential.verification(idpCert);
-
             Saml2X509Credential signing = Saml2X509Credential.signing(privateKey, localCert);
             Saml2X509Credential decryption = Saml2X509Credential.decryption(privateKey, localCert);
-            String appUrl = propertyResolver.getProperty("security.saml.app-url");
-            RelyingPartyRegistration registration = RelyingPartyRegistrations
+            RelyingPartyRegistration.Builder registrationBuilder = RelyingPartyRegistrations
                 .fromMetadataLocation(propertyResolver.getProperty("security.saml.saml-server-metadata-url"))
                 .registrationId("webstudio")
                 .entityId(propertyResolver.getProperty("security.saml.entity-id"))
                 .signingX509Credentials(c -> c.add(signing))
-                .decryptionX509Credentials(c -> c.add(decryption))
-                .assertionConsumerServiceLocation(appUrl + "/login/saml2/sso/{registrationId}")
-                .singleLogoutServiceLocation(appUrl + "/logout/saml2/slo")
-                .assertingPartyDetails(party -> party
-                    .verificationX509Credentials(c -> c.add(verification))
-                ).build();
+                .decryptionX509Credentials(c -> c.add(decryption));
+
+            // Override certificate from the Metadata XML to prevent MITM attack.
+            String serverCertificate = propertyResolver.getProperty("security.saml.server-certificate");
+            if (StringUtils.isNotBlank(serverCertificate)) {
+                X509Certificate idpCert = X509Support.decodeCertificate(serverCertificate);
+                Saml2X509Credential verification = Saml2X509Credential.verification(idpCert);
+                registrationBuilder.assertingPartyDetails(party -> party
+                        .verificationX509Credentials(c -> {
+                            c.clear();
+                            c.add(verification);
+                        })
+                );
+            }
+
+            RelyingPartyRegistration registration = registrationBuilder.build();
+
             relyingPartyRegistrationRepository = new InMemoryRelyingPartyRegistrationRepository(registration);
         } catch (Exception e) {
             log.error(e.getMessage());

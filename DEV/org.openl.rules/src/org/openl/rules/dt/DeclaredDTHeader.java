@@ -1,16 +1,16 @@
 package org.openl.rules.dt;
 
+import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.types.IParameterDeclaration;
-import org.openl.types.impl.CompositeMethod;
 
 class DeclaredDTHeader extends DTHeader {
     private final IParameterDeclaration[][] columnParameters;
-    private final CompositeMethod compositeMethod;
+    private final DTColumnsDefinition dtColumnsDefinition;
     private final MatchedDefinition matchedDefinition;
     private final boolean verticalConditionWithMergedTitle;
 
     DeclaredDTHeader(int[] methodParameterIndexes,
-            CompositeMethod compositeMethod,
+            DTColumnsDefinition dtColumnsDefinition,
             IParameterDeclaration[][] columnParameters,
             int column,
             int row,
@@ -21,7 +21,7 @@ class DeclaredDTHeader extends DTHeader {
             boolean verticalConditionWithMergedTitle) {
         super(methodParameterIndexes, null, column, row, width, widthForMerge, horizontal);
         this.columnParameters = columnParameters;
-        this.compositeMethod = compositeMethod;
+        this.dtColumnsDefinition = dtColumnsDefinition;
         this.matchedDefinition = matchedDefinition;
         this.verticalConditionWithMergedTitle = verticalConditionWithMergedTitle;
     }
@@ -50,8 +50,8 @@ class DeclaredDTHeader extends DTHeader {
         return false;
     }
 
-    CompositeMethod getCompositeMethod() {
-        return compositeMethod;
+    public DTColumnsDefinition getDtColumnsDefinition() {
+        return dtColumnsDefinition;
     }
 
     @Override

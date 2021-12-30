@@ -13,8 +13,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
 import java.util.Properties;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
@@ -159,14 +157,8 @@ public class Lock {
             try {
                 date = Instant.parse(stringDate);
             } catch (Exception e) {
-                try {
-                    // Fallback to the old approach when date was stored in yyyy-MM-dd format
-                    // TODO: remove this block on OpenL v5.25.0
-                    date = LocalDate.parse(stringDate).atStartOfDay(ZoneOffset.UTC).toInstant();
-                } catch (Exception ignored2) {
-                    date = Instant.ofEpochMilli(0);
-                    LOG.warn("Failed to parse date '{}'.", stringDate, e);
-                }
+                date = Instant.ofEpochMilli(0);
+                LOG.warn("Failed to parse date '{}'.", stringDate, e);
             }
             return new LockInfo(date, userName);
         } catch (NoSuchFileException e) {

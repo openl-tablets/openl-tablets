@@ -322,7 +322,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(3, usedNodes.size());
         assertEquals("Cell type: Integer", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResultTotalAssets $AssetsCalc2012", usedNodes.get(1).getDescription()); // $AssetsCalc2012
-        assertEquals("Spreadsheet TotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+        assertEquals("SpreadsheetResultTotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
         // (other
         // spreadsheet)
 
@@ -385,7 +385,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals("SpreadsheetResultTotalAssets totalAssets1", usedNodes.get(1).getDescription()); // $AssetsCalc2012
         assertEquals(totalAssets.getUri(),
             usedNodes.stream().filter(e -> e.getUri() != null).findFirst().get().getUri());
-        assertEquals("Spreadsheet TotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+        assertEquals("SpreadsheetResultTotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
         // (other
         // spreadsheet)
         assertEquals(totalAssets.getUri(), usedNodes.get(2).getUri());
@@ -395,7 +395,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(3, usedNodes.size());
         assertEquals("Cell type: Integer", usedNodes.get(0).getDescription()); // =
         assertEquals("SpreadsheetResult totalAssets2", usedNodes.get(1).getDescription()); // totalAssets2
-        assertEquals("Spreadsheet TotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
+        assertEquals("SpreadsheetResultTotalAssets\nInteger $USDValue$Total", usedNodes.get(2).getDescription()); // $USDValue$Total
         // (other spreadsheet)
     }
 
@@ -582,8 +582,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 3));
         usedNodes = cellMetaInfo.getUsedNodes();
         assertEquals(2, usedNodes.size());
-        assertNull(usedNodes.get(1).getUri());
-        assertEquals("org.openl.generated.beans\nclass TypeC", usedNodes.get(1).getDescription());
+        assertNotNull(usedNodes.get(1).getUri());
+        assertEquals("Datatype TypeC extends TypeB", usedNodes.get(1).getDescription());
         assertEquals(6, usedNodes.get(1).getStart());
         assertEquals(36, usedNodes.get(1).getEnd());
 

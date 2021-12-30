@@ -94,9 +94,12 @@ public final class WrapperLogic {
         return method;
     }
 
-    private static IOpenClass toModuleType(IOpenClass type,
+    public static IOpenClass toModuleType(IOpenClass type,
             XlsModuleOpenClass xlsModuleOpenClass,
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+        if (type == null) {
+            return null;
+        }
         int dim = 0;
         IOpenClass g = type;
         while (g.isArray()) {

@@ -16,12 +16,12 @@ import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.util.ParserUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ParserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -142,7 +142,12 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
             // Table with error. Skip it
             return null;
         } else {
-            return idn[0].getIdentifier();
+            String name = idn[0].getIdentifier();
+            if (name.endsWith(DatatypeTableBoundNode.TRANSIENT_FIELD_SUFFIX) || name
+                .endsWith(DatatypeTableBoundNode.NON_TRANSIENT_FIELD_SUFFIX)) {
+                return name.substring(0, name.length() - 1);
+            }
+            return name;
         }
     }
 }

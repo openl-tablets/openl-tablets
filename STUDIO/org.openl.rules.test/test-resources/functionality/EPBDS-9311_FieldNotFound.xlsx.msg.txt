@@ -1,0 +1,5 @@
+ERROR: Field '$spr3Step1' is not found in type 'SpreadsheetResultdt1'.
+ERROR: Field '$spr2Step1' is not found in type 'SpreadsheetResultdt4'.
+ERROR: Field '$spr3Step1' is not found in type 'SRspr1 & SRspr2'.
+ERROR: Field '$spr3Step1' is not found in type 'SRspr1 & SRspr2'.
+ERROR: Field '$spr3Step1' is not found in type 'SRspr1 & SRspr2'.
