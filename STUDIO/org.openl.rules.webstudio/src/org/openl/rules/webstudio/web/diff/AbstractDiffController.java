@@ -285,3 +285,4 @@ public abstract class AbstractDiffController {
         tempFiles.clear();
     }
 }
+

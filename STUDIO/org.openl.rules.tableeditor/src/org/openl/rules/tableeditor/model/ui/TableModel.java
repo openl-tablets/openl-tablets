@@ -174,6 +174,11 @@ public class TableModel {
     }
 
     public boolean hasCell(int r, int c) {
+        // This is the correct case if we add empty rows to the display of the table,
+        // in place of the deleted ones, when comparing tables.
+        if (cells.length <= r || cells[0].length <= c) {
+            return false;
+        }
         return cells[r][c] != null;
     }
 

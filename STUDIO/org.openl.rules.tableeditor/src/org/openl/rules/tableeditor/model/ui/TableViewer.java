@@ -242,18 +242,14 @@ public class TableViewer {
                 addDisplayedCellToTableModel(tm, region.getTop(), region.getTop(), region, null);
             }
             for (int row : modifiedRows) {
-                addDisplayedCellToTableModel(tm, row, row, region, modifiedCells);
+                int gridRow = row + region.getTop();
+                addDisplayedCellToTableModel(tm, gridRow, row, region, modifiedCells);
             }
         } else {
-            for (int row = region.getTop(); row <= region.getBottom(); row++) {
-                int r = row - region.getTop();
-                addDisplayedCellToTableModel(tm, row, r, region, null);
+            for (int gridRow = region.getTop(); gridRow <= region.getBottom(); gridRow++) {
+                int row = gridRow - region.getTop();
+                addDisplayedCellToTableModel(tm, gridRow, row, region, null);
             }
-        }
-        if (gt.getGrid() instanceof CompositeGrid) {
-            metaInfoReader.prepare(((CompositeGrid) gt.getGrid()).getGridTables()[0].getRegion());
-        } else {
-            metaInfoReader.prepare(reg);
         }
 
         setGrid(tm);
@@ -261,25 +257,25 @@ public class TableViewer {
     }
 
     private void addDisplayedCellToTableModel(TableModel tm,
-            int row,
-            int r,
+            int gridRow,
+            int displayedRowIndex,
             IGridRegion region,
             List<ICell> modifiedCells) {
         for (int column = region.getLeft(); column <= region.getRight(); column++) {
             int c = column - region.getLeft();
-            if (tm.hasCell(r, c)) {
+            if (tm.hasCell(displayedRowIndex, c)) {
                 continue;
             }
             Optional<ICell> changedCell = Optional.empty();
             if (modifiedCells != null) {
                 changedCell = modifiedCells.stream()
-                    .filter(v -> v.getRow() == r && v.getColumn() == c)
+                    .filter(v -> v.getRow() == displayedRowIndex && v.getColumn() == c)
                     .findFirst();
             }
-            ICell cell = changedCell.orElse(grid.getCell(column, row));
+            ICell cell = changedCell.orElse(grid.getCell(column, gridRow));
             CellMetaInfo metaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
-            CellModel cm = buildCell(cell, new CellModel(r, c), metaInfo);
-            tm.addCell(cm, r, c);
+            CellModel cm = buildCell(cell, new CellModel(displayedRowIndex, c), metaInfo);
+            tm.addCell(cm, displayedRowIndex, c);
             if (cm.getColspan() > 1 || cm.getRowspan() > 1) {
                 CellModelDelegator cmd = new CellModelDelegator(cm);
                 for (int i = 0; i < cm.getRowspan(); i++) {
@@ -287,7 +283,7 @@ public class TableViewer {
                         if (i == 0 && j == 0) {
                             continue;
                         }
-                        tm.addCell(cmd, r + i, c + j);
+                        tm.addCell(cmd, displayedRowIndex + i, c + j);
                     }
                 }
             }
