@@ -5,12 +5,14 @@ import java.util.Optional;
 import org.openl.config.PropertiesHolder;
 
 public class AWSS3RepositorySettings extends RepositorySettings {
+    private String serviceEndpoint;
     private String bucketName;
     private String regionName;
     private String accessKey;
     private String secretKey;
     private int listenerTimerPeriod;
 
+    private final String serviceEndpointPath;
     private final String bucketNamePath;
     private final String regionNamePath;
     private final String accessKeyPath;
@@ -19,6 +21,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
 
     AWSS3RepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
+        serviceEndpointPath = configPrefix + ".service-endpoint";
         bucketNamePath = configPrefix + ".bucket-name";
         regionNamePath = configPrefix + ".region-name";
         accessKeyPath = configPrefix + ".access-key";
@@ -29,6 +32,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     }
 
     private void load(PropertiesHolder properties) {
+        serviceEndpoint = properties.getProperty(serviceEndpointPath);
         bucketName = properties.getProperty(bucketNamePath);
         regionName = properties.getProperty(regionNamePath);
         accessKey = properties.getProperty(accessKeyPath);
@@ -37,6 +41,14 @@ public class AWSS3RepositorySettings extends RepositorySettings {
                 Optional.ofNullable(properties.getProperty(listenerTimerPeriodPath))
                         .orElse(properties.getProperty("repo-aws-s3.listener-timer-period"))
         );
+    }
+
+    public String getServiceEndpoint() {
+        return serviceEndpoint;
+    }
+
+    public void setServiceEndpoint(String serviceEndpoint) {
+        this.serviceEndpoint = serviceEndpoint;
     }
 
     public String getBucketName() {
@@ -83,6 +95,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
 
+        propertiesHolder.setProperty(serviceEndpointPath, serviceEndpoint);
         propertiesHolder.setProperty(bucketNamePath, bucketName);
         propertiesHolder.setProperty(regionNamePath, regionName);
         propertiesHolder.setProperty(accessKeyPath, accessKey);
@@ -95,6 +108,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         super.revert(properties);
 
         properties.revertProperties(
+                serviceEndpoint,
                 bucketNamePath,
                 regionNamePath,
                 accessKeyPath,
@@ -110,6 +124,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
 
         if (other instanceof AWSS3RepositorySettings) {
             AWSS3RepositorySettings otherSettings = (AWSS3RepositorySettings) other;
+            setServiceEndpoint(otherSettings.getServiceEndpoint());
             setBucketName(otherSettings.getBucketName());
             setRegionName(otherSettings.getRegionName());
             setAccessKey(otherSettings.getAccessKey());

@@ -9,6 +9,8 @@
     <ui:param name="isDesignRepo" value="#{repoType eq 'DESIGN'}" />
 
     <h:panelGrid columns="2" columnClasses="titleColumn">
+        <h:outputText value="Service endpoint:"/>
+        <h:inputText value="#{settings.serviceEndpoint}" title="If you want to use standard AWS S3, leave this field empty. Otherwise, enter url for your non-standard service endpoint."/>
         <h:outputText value="Bucket name:" styleClass="required"/>
         <h:inputText value="#{settings.bucketName}" title="A bucket is a logical unit of storage in AWS object storage service, is used to store objects. Bucket names are globally unique, regardless of the AWS Region in which you create the bucket."/>
         <h:outputText value="Region name:" styleClass="required"/>

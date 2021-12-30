@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.amazonaws.client.builder.AwsClientBuilder;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -26,7 +27,6 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
@@ -44,6 +44,7 @@ public class S3Repository implements Repository, Closeable {
 
     private static final String MODIFICATION_FILE = ".openl-settings/.modification";
 
+    private String serviceEndpoint;
     private String bucketName;
     private String regionName;
     private String accessKey;
@@ -54,6 +55,10 @@ public class S3Repository implements Repository, Closeable {
     private ChangesMonitor monitor;
     private String id;
     private String name;
+
+    public void setServiceEndpoint(String serviceEndpoint) {
+        this.serviceEndpoint = serviceEndpoint;
+    }
 
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -85,12 +90,17 @@ public class S3Repository implements Repository, Closeable {
 
     public void initialize() {
         AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
+        if (!StringUtils.isBlank(serviceEndpoint)) {
+            builder.withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(serviceEndpoint, regionName));
+        } else {
+            builder.withRegion(regionName);
+        }
         if (!StringUtils.isBlank(accessKey) && !StringUtils.isBlank(secretKey)) {
             builder.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
         } else {
             builder.withCredentials(new DefaultAWSCredentialsProviderChain());
         }
-        s3 = builder.withRegion(Regions.fromName(regionName)).build();
+        s3 = builder.build();
 
         try {
             if (!s3.doesBucketExistV2(bucketName)) {
