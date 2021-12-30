@@ -3,11 +3,15 @@ package org.openl.rules.diff.xls2;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.openl.OpenClassUtil;
 import org.openl.binding.IBoundCode;
@@ -206,19 +210,12 @@ public class XlsDiff2 {
         List<ICell> diff1 = new ArrayList<>();
         List<ICell> diff2 = new ArrayList<>();
 
-        if (grid1.getWidth() == grid2.getWidth() && grid1.getHeight() == grid2.getHeight()) {
-            // Same Size
-            compareRows(grid1, grid2, diff1);
-            compareRows(grid2, grid1, diff2);
-        } else if (grid1.getWidth() == grid2.getWidth()) {
-            // Same Width
-            // May be ROWs were changed
-            compareRows(grid1, grid2, diff1);
-            compareRows(grid2, grid1, diff2);
-        } else if (grid1.getHeight() == grid2.getHeight()) {
-            // Same Height
-            compareCols(grid1, grid2, diff1);
-            compareCols(grid2, grid1, diff2);
+        if (grid1.getWidth() == grid2.getWidth() || grid1.getHeight() == grid2.getHeight()) {
+            if (grid1.getWidth() == grid2.getWidth()) {
+                compareRows(grid1, grid2, diff1, diff2);
+            } else {
+                compareCols(grid1, grid2, diff1, diff2);
+            }
         } else {
             // Diff Size
             // TODO Implement AxB vs CxD algorithm
@@ -231,122 +228,124 @@ public class XlsDiff2 {
             pair.setDiffCells2(diff2);
         }
     }
-
-    private void compareRows(IGridTable grid1, IGridTable grid2, List<ICell> diff) {
-        // TODO Review the algorithm. Seems like it is not optimal.
-        boolean[] matched = new boolean[grid1.getHeight()];
-        int[] match2 = new int[grid1.getHeight()];
-        // The getDiffsCount() is used instead of map to prevent OutOfMemoryError. Not so fast but less
-        // memory-consumptive.
-        // int[][] map = new int[grid1.getHeight()][grid2.getHeight()];
-
-        int y2s = 0;
-        for (int y1 = 0; y1 < grid1.getHeight(); y1++) {
-            for (int y2 = y2s; y2 < grid2.getHeight(); y2++) {
-                int nDiff = getDiffsCount(grid1, grid2, y1, y2);
-                // faster but too greed, i.e. non-optimal
-                if (nDiff == 0) {
-                    matched[y1] = true;
-                    match2[y1] = y2;
-                    y2s = y2 + 1;
+    
+    private void compareRows(IGridTable grid1, IGridTable grid2, List<ICell> diff1, List<ICell> diff2) {
+        ArrayList<Integer> grid1MatchedRows = new ArrayList<>();
+        // For each row from grid1, the value of the corresponding row from grid2 (if found)
+        // and the difference between them are stored.
+        Map<Integer, RowDiff> grid1RowsState = new HashMap<>();
+        // This index is needed so that for each n+1 row from grid1, the corresponding row from grid2 is not lower
+        // than the corresponding row from grid2, for row n from grid1.
+        int grid2LastMatched = 0;
+        // Below we fill grid1RowsState for those rows from grid1 that have a complete match with the rows from grid2
+        // if there are no such rows, then the index is set to -1.
+        for (int grid1Row = 0; grid1Row < grid1.getHeight(); grid1Row++) {
+            for (int grid2Row = grid2LastMatched; grid2Row < grid2.getHeight(); grid2Row++) {
+                List<ICell> diffs = getDiffs(grid1, grid2, grid1Row, grid2Row);
+                if (diffs.size() == 0) {
+                    grid1MatchedRows.add(grid1Row);
+                    grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(grid2Row));
+                    grid2LastMatched = grid2Row + 1;
                     break;
                 }
-                // map[y1][y2] = nDiff;
+                grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(-1));
             }
         }
-
-        // list unmatched rows
-        int nPart;
-        do {
-            nPart = 0;
-
-            y2s = 0;
-            for (int y1 = 0; y1 < grid1.getHeight(); y1++) {
-                if (matched[y1]) {
-                    y2s = match2[y1] + 1;
-                    continue;
-                }
-
-                int y2e = grid2.getHeight();
-                int y1e = y1;
-                for (; y1e < grid1.getHeight(); y1e++) {
-                    if (matched[y1e]) {
-                        y2e = match2[y1e];
-                        break;
-                    }
-                }
-
-                if (y2s < grid2.getHeight()) {
-                    // find best match
-                    int i1 = y1;
-                    int i2 = y2s;
-                    // int n = map[i1][i2];
-                    int n = getDiffsCount(grid1, grid2, i1, i2);
-                    for (int y = y1; y < y1e; y++) {
-                        for (int y2 = y2s; y2 < y2e; y2++) {
-                            // int m = map[y][y2];
-                            int m = getDiffsCount(grid1, grid2, y, y2);
-                            if (m < n) {
-                                n = m;
-                                i1 = y;
-                                i2 = y2;
-                            }
-                        }
-                    }
-
-                    // partial match
-                    matched[i1] = true;
-                    match2[i1] = i2;
-                    for (int x = 0; x < grid1.getWidth(); x++) {
-                        ICell c1 = grid1.getCell(x, i1);
-                        ICell c2 = grid2.getCell(x, i2);
-                        if (notEquals(c1, c2)) {
-                            diff.add(c1);
-                        }
-                    }
-
-                    nPart++;
-                    // trick, 1 step back
-                    y1 = i1 - 1;
-                }
-            }
-        } while (nPart > 0);
-
-        // list unmatched rows
-        // just in case
-        for (int y1 = 0; y1 < grid1.getHeight(); y1++) {
-            if (matched[y1]) {
+        for (Integer grid1row : grid1RowsState.keySet()) {
+            if (grid1RowsState.get(grid1row).getRowIndex() != -1) {
                 continue;
             }
-
-            for (int x = 0; x < grid1.getWidth(); x++) {
-                ICell c1 = grid1.getCell(x, y1);
-                diff.add(c1);
+            // From and to, the value between which the most suitable string should be found,
+            // the range must be between the previous and next found match against grid2.
+            int from = grid1row > 1 ? grid1RowsState.get(grid1row - 1).getRowIndex() + 1 : grid1row;
+            Optional<Integer> nextMatched = grid1MatchedRows.stream().filter(i -> i > grid1row).findFirst();
+            int to = nextMatched.map(i -> grid1RowsState.get(i).getRowIndex()).orElseGet(grid2::getHeight);
+            List<RowDiff> allRowDiffs = new ArrayList<>();
+            if (from < to) {
+                for (; from < to; from++) {
+                    allRowDiffs.add(new RowDiff().setRowIndex(from).setDiff(getDiffs(grid1, grid2, grid1row, from)));
+                }
+                Optional<RowDiff> minDiff = allRowDiffs.stream().min(Comparator.comparingInt(o -> o.getDiff().size()));
+                RowDiff rowDiff = minDiff.orElse(new RowDiff());
+                grid1RowsState.get(grid1row).setRowIndex(rowDiff.getRowIndex()).setDiff(rowDiff.getDiff());
+            } else {
+                // If there are no rows in the range, then we assume that the row was deleted.
+                for (int grid1Col = 0; grid1Col < grid1.getWidth(); grid1Col++) {
+                    diff1.add(grid1.getCell(grid1Col, grid1row));
+                }
+            }
+        }
+        diff1.addAll(
+            grid1RowsState.values().stream().map(RowDiff::getDiff).flatMap(List::stream).collect(Collectors.toList()));
+        // For grid2 we compare the rows found for grid1, if there are no such rows, we assume that the row was added.
+        for (int grid2Row = 0; grid2Row < grid2.getHeight(); grid2Row++) {
+            int finalGrid2Row = grid2Row;
+            Optional<Integer> matchedKey = grid1RowsState.keySet()
+                .stream()
+                .filter(key -> grid1RowsState.get(key).getRowIndex() == finalGrid2Row)
+                .findFirst();
+            if (matchedKey.isPresent()) {
+                int rowIndex = matchedKey.get();
+                if (!grid1RowsState.get(rowIndex).getDiff().isEmpty()) {
+                    diff2.addAll(getDiffs(grid2, grid1, grid2Row, rowIndex));
+                }
+            } else {
+                for (int grid2Col = 0; grid2Col < grid2.getWidth(); grid2Col++) {
+                    diff2.add(grid2.getCell(grid2Col, grid2Row));
+                }
             }
         }
     }
 
-    private int getDiffsCount(IGridTable grid1, IGridTable grid2, int y1, int y2) {
-        int nDiff = 0;
+    private List<ICell> getDiffs(IGridTable grid1, IGridTable grid2, int y1, int y2) {
+        List<ICell> diff = new ArrayList<>();
         for (int x = 0; x < grid1.getWidth(); x++) {
             ICell c1 = grid1.getCell(x, y1);
             ICell c2 = grid2.getCell(x, y2);
             if (notEquals(c1, c2)) {
-                nDiff++;
+                diff.add(c1);
             }
         }
-        return nDiff;
+        return diff;
     }
 
-    private void compareCols(IGridTable grid1, IGridTable grid2, List<ICell> diff) {
+    private static class RowDiff {
+
+        private int rowIndex;
+        private List<ICell> diff = new ArrayList<>();
+
+        public int getRowIndex() {
+            return rowIndex;
+        }
+
+        public List<ICell> getDiff() {
+            return diff;
+        }
+
+        public RowDiff setRowIndex(int rowIndex) {
+            this.rowIndex = rowIndex;
+            return this;
+        }
+
+        public RowDiff setDiff(List<ICell> diff) {
+            this.diff = diff;
+            return this;
+        }
+    }
+
+    private void compareCols(IGridTable grid1, IGridTable grid2, List<ICell> diff1, List<ICell> diff2) {
         // compareRows is hard enough :)
         // let reuse it
-        List<ICell> iDiff = new ArrayList<>();
-        compareRows(grid1.transpose(), grid2.transpose(), iDiff);
+        List<ICell> iDiff1 = new ArrayList<>();
+        List<ICell> iDiff2 = new ArrayList<>();
+        compareRows(grid1.transpose(), grid2.transpose(), iDiff1, iDiff2);
 
         // fix diff -- invert coordinates
-        for (ICell c : iDiff) {
-            diff.add(grid1.getCell(c.getRow(), c.getColumn()));
+        for (ICell c : iDiff1) {
+            diff1.add(grid1.getCell(c.getRow(), c.getColumn()));
+        }
+        for (ICell c : iDiff2) {
+            diff2.add(grid2.getCell(c.getRow(), c.getColumn()));
         }
     }
 
