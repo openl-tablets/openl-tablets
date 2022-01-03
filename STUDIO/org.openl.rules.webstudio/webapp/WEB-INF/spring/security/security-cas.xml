@@ -35,8 +35,6 @@
         <ref bean="authenticationProviderWrapper"/>
     </util:list>
 
-    <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
-
     <bean id="canCreateInternalUsers" class="java.lang.Boolean">
         <constructor-arg type="boolean" value="false"/>
     </bean>
@@ -96,7 +94,6 @@
                     <bean class="org.openl.rules.webstudio.security.OpenLUserDetailsService">
                         <constructor-arg name="userManagementService" ref="userManagementService"/>
                         <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                        <constructor-arg name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
                         <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
                         <constructor-arg name="externalGroupService" ref="externalGroupService"/>
                     </bean>
@@ -104,10 +101,6 @@
             </bean>
         </property>
         <property name="key" value="OpenLCasAuthenticationProviderKey"/>
-    </bean>
-
-    <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="#{environment.getProperty('security.cas.attribute.groups').isEmpty()}"/>
     </bean>
 
     <bean id="authenticationProviderWrapper"
