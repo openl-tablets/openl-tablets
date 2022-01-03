@@ -20,7 +20,5 @@ public interface User extends UserDetails {
 
     boolean hasPrivilege(String privilege);
 
-    boolean isInternalUser();
-
     UserExternalFlags getExternalFlags();
 }

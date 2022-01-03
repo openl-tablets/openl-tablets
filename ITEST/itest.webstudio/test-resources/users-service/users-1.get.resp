@@ -10,7 +10,6 @@ Content-Type: application/json
       }
     ],
     "username": "admin",
-    "internalUser": true,
     "currentUser": true,
     "superUser": true,
     "unsafePassword": true,

@@ -7,7 +7,6 @@ Content-Type: application/json
   "groups": ["Administrators"],
   "username": "jsmith",
   "internalPassword": {
-    "internalUser": true,
     "password": "pass"
   },
   "firstName": "John",

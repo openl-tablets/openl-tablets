@@ -138,11 +138,6 @@ public class SimpleUser implements User {
     }
 
     @Override
-    public boolean isInternalUser() {
-        return passwordHash != null && !passwordHash.isEmpty();
-    }
-
-    @Override
     public String toString() {
         return getUsername();
     }

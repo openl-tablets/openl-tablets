@@ -364,7 +364,7 @@
                     userMode = options.userMode;
                     $j("#account-user-name-row").toggle(userMode !== 'single');
                     $j("#account-user-email-row").toggle(userMode !== 'single');
-                    $j("#account-user-password-row").toggle(userMode === 'multi' && data.internalUser === true);
+                    $j("#account-user-password-row").toggle(userMode === 'multi');
 
                 });
                 initAccountUserAreYouSure();

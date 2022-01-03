@@ -22,7 +22,7 @@
     <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
 
     <bean id="canCreateInternalUsers" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="true"/>
+        <constructor-arg type="boolean" value="false"/>
     </bean>
 
     <!-- ================================= Authentication ======================================= -->

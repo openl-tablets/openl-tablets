@@ -71,7 +71,6 @@
             <div>Email</div>
             <div>Display Name</div>
             <div>Groups</div>
-            <div class="users-internal-user">Local user</div>
             <div>Action</div>
         </header>
         <div class="row" style="display: none">
@@ -91,7 +90,6 @@
                     <span attr="users-group" class="badge users-group"/>
                 </span>
             </div>
-            <div class="align-middle users-internal-user" attr="users-internal-user"></div>
             <div class="align-middle"><a class="delete-icon user-delete-link" title="Delete" attr="users-delete"/></div>
         </div>
     </section>
@@ -130,9 +128,6 @@
                 url: "#{contextPath}/web/users/options",
                 datatype: "json"
             }).done(function (data) {
-                if (data.userMode !== 'ad') {
-                    $j(".users-internal-user").hide();
-                }
                 if (!(data.canCreateInternalUsers || data.canCreateExternalUsers)) {
                     $j(".users-username-box").prop("onclick", null).off("click")
                 }
@@ -246,7 +241,6 @@
                     }
                     $userRow.find('[attr=users-firstname]').text(ws.utils.escapeHtml(user.firstName));
                     $userRow.find('[attr=users-lastname]').text(ws.utils.escapeHtml(user.lastName));
-                    $userRow.find('[attr=users-internal-user]').text(user.internalUser ? 'Yes' : 'No');
                     $userRow.find('[attr=users-email]').text(ws.utils.escapeHtml(user.email));
                     const emailExists = user.email && user.email.trim() !== '';
                     if (!emailExists || user.externalFlags.emailVerified) {

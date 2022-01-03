@@ -13,7 +13,6 @@ Content-Type: application/json
     }
   ],
   "username": "jsmith",
-  "internalUser": true,
   "externalFlags": {
     "emailVerified": false,
     "syncExternalGroups": false,
