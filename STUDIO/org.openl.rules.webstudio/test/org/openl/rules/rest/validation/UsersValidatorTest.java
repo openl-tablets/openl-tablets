@@ -119,7 +119,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
         assertNull(validateAndGetResult(getValidUserCreateModel()));
 
-        userCreateModel.setInternalPassword(new InternalPasswordModel().setInternalUser(false).setPassword(null));
+        userCreateModel.setInternalPassword(new InternalPasswordModel().setPassword("password"));
         assertNull(validateAndGetResult(userCreateModel));
 
         userCreateModel.setUsername("a 1!@#$%&()_-+=;'.,");
@@ -144,8 +144,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         when(userManagementService.getUser(anyString())).thenReturn(null);
         UserCreateModel userCreateModel = getValidUserCreateModel();
 
-        InternalPasswordModel wrongInternalPassword = new InternalPasswordModel().setInternalUser(true)
-            .setPassword(null);
+        InternalPasswordModel wrongInternalPassword = new InternalPasswordModel().setPassword(null);
         userCreateModel.setInternalPassword(wrongInternalPassword);
         BindingResult bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("internalPassword",
@@ -153,8 +152,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
             wrongInternalPassword,
             bindingResult.getFieldError("internalPassword"));
 
-        wrongInternalPassword = new InternalPasswordModel().setInternalUser(true)
-            .setPassword(RandomStringUtils.random(26, "pass"));
+        wrongInternalPassword = new InternalPasswordModel().setPassword(RandomStringUtils.random(26, "pass"));
         userCreateModel.setInternalPassword(wrongInternalPassword);
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("internalPassword",
@@ -328,7 +326,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
             .setFirstName("John")
             .setEmail("jsmith@email")
             .setLastName("Smith")
-            .setInternalPassword(new InternalPasswordModel().setPassword("pass").setInternalUser(true))
+            .setInternalPassword(new InternalPasswordModel().setPassword("pass"))
             .setGroups(groups)
             .setUsername("jsmith");
     }

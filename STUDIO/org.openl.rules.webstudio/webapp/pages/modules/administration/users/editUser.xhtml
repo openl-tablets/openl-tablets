@@ -188,7 +188,6 @@
 
             $j(".edit-user-super-user").toggle(userModel.superUser === true);
             $j(".edit-user-current-user").toggle(!(userModel.superUser === true) && userModel.currentUser === true);
-            $j(".edit-user-password-row").toggle(userModel.internalUser === true);
 
             $j("#edit-user-firstname").toggle(!editUserIsFirstNameExternal);
             $j("#edit-user-firstname-span").toggle(editUserIsFirstNameExternal);
@@ -279,6 +278,15 @@
                 initEditUserAreYouSure();
                 initUserDisplayNameSelect($j("#edit-user-display-name-select-box"), $j("#edit-user-firstname"), $j("#edit-user-lastname"), $j("#edit-user-display-name"));
                 RichFaces.$("modalEditUser").show();
+            });
+
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/users/options",
+                datatype: "json"
+            })
+            .done(function (data) {
+                $j(".edit-user-password-row").toggle(data.canCreateInternalUsers);
             });
         }
 

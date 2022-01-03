@@ -10,7 +10,6 @@ public class UserModel extends UserCreateModel {
     private boolean superUser;
     private boolean unsafePassword;
     private UserExternalFlags externalFlags;
-    private boolean internalUser;
     private Long notMatchedExternalGroupsCount;
     private boolean online;
 
@@ -22,15 +21,6 @@ public class UserModel extends UserCreateModel {
 
     public UserModel setUserGroups(Set<GroupModel> userGroups) {
         this.userGroups = userGroups;
-        return this;
-    }
-
-    public boolean isInternalUser() {
-        return internalUser;
-    }
-
-    public UserModel setInternalUser(boolean internalUser) {
-        this.internalUser = internalUser;
         return this;
     }
 

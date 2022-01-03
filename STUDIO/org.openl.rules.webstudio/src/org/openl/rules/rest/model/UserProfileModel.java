@@ -6,8 +6,6 @@ public class UserProfileModel extends UserProfileBaseModel {
 
     private String username;
 
-    private boolean internalUser;
-
     private UserExternalFlags externalFlags;
 
     public String getUsername() {
@@ -136,15 +134,6 @@ public class UserProfileModel extends UserProfileBaseModel {
     @Override
     public UserProfileModel setShowRealNumbers(boolean showRealNumbers) {
         return (UserProfileModel) super.setShowRealNumbers(showRealNumbers);
-    }
-
-    public boolean isInternalUser() {
-        return internalUser;
-    }
-
-    public UserProfileModel setInternalUser(boolean internalUser) {
-        this.internalUser = internalUser;
-        return this;
     }
 
 }

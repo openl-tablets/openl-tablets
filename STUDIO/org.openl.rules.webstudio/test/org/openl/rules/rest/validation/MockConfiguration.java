@@ -57,6 +57,11 @@ public class MockConfiguration {
     }
 
     @Bean
+    public Boolean canCreateInternalUsers() {
+        return true;
+    }
+
+    @Bean
     public PathFilter zipFilter() {
         PathFilter mocked = mock(PathFilter.class);
         when(mocked.accept(anyString())).thenReturn(Boolean.TRUE);

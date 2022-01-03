@@ -14,7 +14,6 @@ Content-Type: application/json
   "testsFailuresPerTest": 5,
   "showComplexResult": false,
   "showRealNumbers": false,
-  "internalUser": true,
   "externalFlags": {
     "lastNameExternal": false,
     "emailExternal": false,
