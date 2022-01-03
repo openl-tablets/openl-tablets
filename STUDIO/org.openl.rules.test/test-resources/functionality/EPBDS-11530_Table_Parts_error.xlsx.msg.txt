@@ -1,0 +1,1 @@
+ERROR: The value 'bbb' is outside of valid domain 'MyAli'. Valid values: [aaa]
