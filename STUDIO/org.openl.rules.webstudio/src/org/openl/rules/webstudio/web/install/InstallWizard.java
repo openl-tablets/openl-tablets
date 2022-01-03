@@ -79,10 +79,6 @@ public class InstallWizard implements Serializable {
     private boolean showErrorMessage = false;
 
     private String userMode = "demo";
-    /**
-     * TODO: Rename the field and properties to something more clear
-     */
-    private boolean groupsAreManagedInStudio = true;
 
     @NotBlank
     private String dbUrl;
@@ -94,6 +90,7 @@ public class InstallWizard implements Serializable {
     private String adUsername;
     private String adPassword;
     private String ldapFilter;
+    private String groupFilter;
 
     private CASSettings casSettings;
     private SAMLSettings samlSettings;
@@ -188,21 +185,6 @@ public class InstallWizard implements Serializable {
                 readCasProperties();
                 readSamlProperties();
 
-                switch (userMode) {
-                    case AD_USER_MODE:
-                        groupsAreManagedInStudio = propertyResolver
-                            .getRequiredProperty("security.ad.groups-are-managed-in-studio", Boolean.class);
-                        break;
-                    case CAS_USER_MODE:
-                        groupsAreManagedInStudio = StringUtils
-                            .isBlank(propertyResolver.getProperty("security.cas.attribute.groups"));
-                        break;
-                    case SAML_USER_MODE:
-                        groupsAreManagedInStudio = StringUtils
-                            .isBlank(propertyResolver.getProperty("security.saml.attribute.groups"));
-                        break;
-                }
-
                 defaultGroup = propertyResolver.getProperty("security.default-group");
                 externalAdmins = propertyResolver.getProperty("security.administrators");
 
@@ -230,6 +212,7 @@ public class InstallWizard implements Serializable {
         adDomain = propertyResolver.getProperty("security.ad.domain");
         adUrl = propertyResolver.getProperty("security.ad.server-url");
         ldapFilter = propertyResolver.getProperty("security.ad.search-filter");
+        groupFilter = propertyResolver.getProperty("security.ad.group-filter");
     }
 
     private void readCasProperties() {
@@ -267,7 +250,7 @@ public class InstallWizard implements Serializable {
                 properties.setProperty("security.ad.domain", adDomain);
                 properties.setProperty("security.ad.server-url", adUrl);
                 properties.setProperty("security.ad.search-filter", ldapFilter);
-                properties.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
+                properties.setProperty("security.ad.group-filter", groupFilter);
             } else if (CAS_USER_MODE.equals(userMode)) {
                 properties.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
                 properties.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
@@ -394,8 +377,8 @@ public class InstallWizard implements Serializable {
 
         String domain = (String) ((UIInput) viewRoot.findComponent("step3Form:adDomain")).getValue();
         String url = (String) ((UIInput) viewRoot.findComponent("step3Form:adUrl")).getValue();
-        String username = (String) ((UIInput) viewRoot.findComponent("step3Form:adUsername")).getValue();
         String ldapFilter = (String) ((UIInput) viewRoot.findComponent("step3Form:ldapFilter")).getValue();
+        String username = (String) ((UIInput) viewRoot.findComponent("step3Form:adUsername")).getValue();
         String password = (String) ((UIInput) toValidate).getSubmittedValue();
 
         if (StringUtils.isBlank(domain)) {
@@ -404,8 +387,11 @@ public class InstallWizard implements Serializable {
         if (StringUtils.isBlank(url)) {
             throw new ValidatorException(createErrorMessage("Active Directory URL cannot be blank."));
         }
+        if (StringUtils.isBlank(ldapFilter)) {
+            throw new ValidatorException(createErrorMessage("User filter cannot be blank."));
+        }
 
-        if (!StringUtils.isEmpty(username) && !StringUtils.isEmpty(password)) {
+        if (StringUtils.isNotEmpty(username) && StringUtils.isNotEmpty(password)) {
             try {
                 ActiveDirectoryLdapAuthenticationProvider ldapAuthenticationProvider = new ActiveDirectoryLdapAuthenticationProvider(
                     domain,
@@ -433,8 +419,6 @@ public class InstallWizard implements Serializable {
         String webStudioUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casWebStudioUrl"))
             .getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:casServerUrl")).getSubmittedValue();
-        String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:casGroupsAttribute"))
-            .getSubmittedValue();
 
         if (StringUtils.isBlank(webStudioUrl)) {
             throw new ValidatorException(createErrorMessage("WebStudio server URL cannot be blank."));
@@ -443,11 +427,6 @@ public class InstallWizard implements Serializable {
         if (StringUtils.isBlank(serverUrl)) {
             throw new ValidatorException(createErrorMessage("CAS server URL cannot be blank."));
         }
-
-        if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {
-            throw new ValidatorException(createErrorMessage(
-                "Attribute for Groups cannot be blank or Internal User Management must be selected."));
-        }
     }
 
     public void samlValidator(FacesContext context, UIComponent toValidate, Object value) {
@@ -455,8 +434,6 @@ public class InstallWizard implements Serializable {
 
         String entityId = (String) ((UIInput) viewRoot.findComponent("step3Form:samlEntityId")).getSubmittedValue();
         String serverUrl = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerUrl")).getSubmittedValue();
-        String groupsAttribute = (String) ((UIInput) viewRoot.findComponent("step3Form:samlGroupsAttribute"))
-            .getSubmittedValue();
         String publicServerCert = (String) ((UIInput) viewRoot.findComponent("step3Form:samlServerCertificate"))
             .getSubmittedValue();
 
@@ -478,12 +455,6 @@ public class InstallWizard implements Serializable {
                 throw new ValidatorException(createErrorMessage("Entered SAML server certificate is not valid."));
             }
         }
-
-        if (!groupsAreManagedInStudio && StringUtils.isBlank(groupsAttribute)) {
-            throw new ValidatorException(createErrorMessage(
-                "Attribute for Groups cannot be blank or Internal User Management must be selected."));
-        }
-
     }
 
     public void externalAdminsValidator(FacesContext context, UIComponent toValidate, Object value) {
@@ -547,11 +518,6 @@ public class InstallWizard implements Serializable {
         setDbUsername(username);
     }
 
-    public void groupsAreManagedInStudioChanged(AjaxBehaviorEvent e) {
-        UIInput uiInput = (UIInput) e.getComponent();
-        groupsAreManagedInStudio = Boolean.parseBoolean(uiInput.getValue().toString());
-    }
-
     public int getStep() {
         return step;
     }
@@ -568,14 +534,6 @@ public class InstallWizard implements Serializable {
         this.workingDir = workingDir;
         // Other configurations depend on this property
         DynamicPropertySource.get().setOpenLHomeDir(this.workingDir);
-    }
-
-    public String getGroupsAreManagedInStudio() {
-        return "" + groupsAreManagedInStudio;
-    }
-
-    public void setGroupsAreManagedInStudio(String groupsAreManagedInStudio) {
-        this.groupsAreManagedInStudio = Boolean.parseBoolean(groupsAreManagedInStudio);
     }
 
     public void setAllowAccessToNewUsers(Boolean allowAccessToNewUsers) {
@@ -656,6 +614,14 @@ public class InstallWizard implements Serializable {
 
     public void setLdapFilter(String ldapFilter) {
         this.ldapFilter = ldapFilter;
+    }
+
+    public String getGroupFilter() {
+        return groupFilter;
+    }
+
+    public void setGroupFilter(String groupFilter) {
+        this.groupFilter = groupFilter;
     }
 
     public String getAdPassword() {

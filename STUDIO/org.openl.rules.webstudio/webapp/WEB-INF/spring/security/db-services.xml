@@ -57,7 +57,6 @@
                     <bean class="org.openl.rules.webstudio.security.OpenLUserDetailsService">
                         <constructor-arg name="userManagementService" ref="userManagementService"/>
                         <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                        <constructor-arg name="groupsAreManagedInStudio" value="true"/>
                         <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
                         <constructor-arg name="externalGroupService" ref="externalGroupService"/>
                     </bean>

@@ -10,10 +10,6 @@
     <import resource="authorization.xml"/>
     <import resource="db-services.xml"/>
 
-    <bean id="canCreateExternalUsers" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="false"/>
-    </bean>
-
     <bean id="canCreateInternalUsers" class="java.lang.Boolean">
         <constructor-arg type="boolean" value="true"/>
     </bean>
