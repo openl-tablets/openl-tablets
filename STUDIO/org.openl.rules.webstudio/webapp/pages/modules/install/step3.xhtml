@@ -80,28 +80,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="wizard-block" id="groupsManagingModeBlock">
-                        <h3>Select how user permissions will be managed:
-                            <div class="field-description">
-                                <p>Here you should choose where user permissions will be managed.</p>
-                            </div>
-                        </h3>
-                        <div class="block-with-description">
-                            <div class="field-edit">
-                                <h:selectOneRadio id="groupsAreManagedInStudio"
-                                                  value="#{installWizard.groupsAreManagedInStudio}"
-                                                  layout="pageDirection" immediate="true">
-                                    <f:selectItem itemValue="true" itemLabel="Local user management"/>
-                                    <f:selectItem itemValue="false" itemLabel="External user management"/>
-                                    <f:ajax listener="#{installWizard.groupsAreManagedInStudioChanged}"/>
-                                </h:selectOneRadio>
-                            </div>
-                            <div class="field-description">
-                                <p class="user-managemement-internal">You will use WebStudio to assign Active Directory or SSO users to Groups. You can create any groups and will manage authenticated user permissions in WebStudio</p>
-                                <p class="user-managemement-external">User groups will be managed in Active Directory or SSO. You must configure user attributes in Active Directory or SSO to be equal to OpenL groups.</p>
-                            </div>
-                        </div>
-                    </div>
                     <div class="wizard-block" id="adBlock">
                         <h3>Configure Active Directory:
                             <div class="field-description">
@@ -144,9 +122,26 @@
 
                             <table>
                                 <tr>
-                                    <td><label>LDAP filter:</label></td>
+                                    <td><label class="required">User filter:</label></td>
                                     <td>
                                         <h:inputText id="ldapFilter" value="#{installWizard.ldapFilter}"
+                                                     style="width:400px" size="200"/>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <div class="field-description">
+                                <p> The LDAP filter string to search for the groups belong to the user.<br/>
+                                    Occurrences of {0} are replaced with the <b>login@domain.</b><br/>
+                                    Occurrences of {1} are replaced with the <b>login</b> only.<br/>
+                                    Occurrences of {2} are replaced with the DN of the found user.</p>
+                            </div>
+
+                            <table>
+                                <tr>
+                                    <td><label>Group filter:</label></td>
+                                    <td>
+                                        <h:inputText id="groupFilter" value="#{installWizard.groupFilter}"
                                                      style="width:400px" size="200"/>
                                     </td>
                                 </tr>
@@ -244,8 +239,8 @@
                                                      value="#{installWizard.casSettings.emailAttribute}" size="254"/>
                                     </td>
                                 </tr>
-                                <tr id="cas-group-field">
-                                    <td><label class="required">Attribute for Groups:</label></td>
+                                <tr>
+                                    <td><label>Attribute for Groups:</label></td>
                                     <td>
                                         <h:inputText id="casGroupsAttribute"
                                                      value="#{installWizard.casSettings.groupsAttribute}" size="40"/>
@@ -334,8 +329,8 @@
                                                      size="254"/>
                                     </td>
                                 </tr>
-                                <tr id="saml-group-field">
-                                    <td><label class="required">Attribute for Groups:</label></td>
+                                <tr>
+                                    <td><label>Attribute for Groups:</label></td>
                                     <td>
                                         <h:inputText id="samlGroupsAttribute"
                                                      value="#{installWizard.samlSettings.groupsAttribute}" size="40"/>
@@ -459,21 +454,16 @@
             (function () {
                 var toggleVisibleBlocks = function () {
                     var userMode = $j("#usermodeBlock input:checked").val();
-                    var groupsInStudio = $j("#groupsManagingModeBlock input:checked").val() === "true";
 
                     toggleBlock("#dbBlock", userMode !== "single" && userMode !== "demo");
-                    toggleBlock("#groupsManagingModeBlock", userMode === "ad" || userMode === "cas" || userMode === "saml");
-
                     toggleBlock("#adBlock", userMode === "ad");
                     toggleBlock("#casBlock", userMode === "cas");
                     toggleBlock("#samlBlock", userMode === "saml");
 
                     toggleBlock("#internalGroupsBlock", (userMode === "ad" || userMode === "cas" || userMode === "saml" || userMode === "multi"));
-                    toggleBlock("#cas-group-field,#saml-group-field", !groupsInStudio);
 
                     $j(".block-with-description .field-description > p").hide();
                     $j(".block-with-description p.user-mode-" + userMode).show();
-                    $j(".block-with-description p.user-managemement-" + (groupsInStudio ? "internal" : "external")).show();
                 };
 
                 var updateCheckConnectionButton = function () {
@@ -487,7 +477,7 @@
                 toggleVisibleBlocks();
                 updateCheckConnectionButton();
 
-                $j("#usermodeBlock input, #groupsManagingModeBlock input").change(function () {
+                $j("#usermodeBlock input").change(function () {
                     toggleVisibleBlocks();
                 });
 

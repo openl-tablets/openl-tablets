@@ -69,7 +69,6 @@ public class UsersController {
 
     private final UserManagementService userManagementService;
     private final Boolean canCreateInternalUsers;
-    private final Boolean canCreateExternalUsers;
     private final AdminUsers adminUsersInitializer;
     private final CurrentUserInfo currentUserInfo;
     private final BeanValidationProvider validationProvider;
@@ -82,7 +81,6 @@ public class UsersController {
     @Autowired
     public UsersController(UserManagementService userManagementService,
             Boolean canCreateInternalUsers,
-            Boolean canCreateExternalUsers,
             AdminUsers adminUsersInitializer,
             CurrentUserInfo currentUserInfo,
             PasswordEncoder passwordEncoder,
@@ -93,7 +91,6 @@ public class UsersController {
             MailSender mailSender) {
         this.userManagementService = userManagementService;
         this.canCreateInternalUsers = canCreateInternalUsers;
-        this.canCreateExternalUsers = canCreateExternalUsers;
         this.adminUsersInitializer = adminUsersInitializer;
         this.currentUserInfo = currentUserInfo;
         this.passwordEncoder = passwordEncoder;
@@ -334,7 +331,6 @@ public class UsersController {
     public Map<String, Object> options() {
         HashMap<String, Object> options = new HashMap<>();
         options.put("canCreateInternalUsers", canCreateInternalUsers);
-        options.put("canCreateExternalUsers", canCreateExternalUsers);
         options.put("userMode", environment.getProperty("user.mode"));
         options.put("emailVerification", mailSender.isValidEmailSettings());
         return options;

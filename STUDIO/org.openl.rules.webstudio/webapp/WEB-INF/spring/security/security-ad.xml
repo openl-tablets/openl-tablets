@@ -19,8 +19,6 @@
         <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
     </util:list>
 
-    <alias name="groupsAreManagedInStudio" alias="canCreateExternalUsers"/>
-
     <bean id="canCreateInternalUsers" class="java.lang.Boolean">
         <constructor-arg type="boolean" value="false"/>
     </bean>
@@ -43,15 +41,10 @@
             <bean class="org.openl.rules.webstudio.security.OpenLUserDetailsService">
                 <constructor-arg name="userManagementService" ref="userManagementService"/>
                 <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <constructor-arg name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
                 <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
                 <constructor-arg name="externalGroupService" ref="externalGroupService"/>
             </bean>
         </constructor-arg>
-    </bean>
-
-    <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
-        <constructor-arg type="boolean" value="${security.ad.groups-are-managed-in-studio}"/>
     </bean>
 
     <bean id="authenticationProviderWrapper"

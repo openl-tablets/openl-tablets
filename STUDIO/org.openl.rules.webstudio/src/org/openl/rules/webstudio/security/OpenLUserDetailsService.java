@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import javax.annotation.PostConstruct;
-
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
@@ -26,28 +24,18 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
     private final String defaultGroup;
-    private final boolean groupsAreManagedInStudio;
     private final AdminUsers adminUsersInitializer;
     private final ExternalGroupService externalGroupService;
 
     public OpenLUserDetailsService(UserManagementService userManagementService,
             GroupManagementService groupManagementService,
-            boolean groupsAreManagedInStudio,
             AdminUsers adminUsersInitializer,
             ExternalGroupService externalGroupService) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
-        this.groupsAreManagedInStudio = groupsAreManagedInStudio;
         this.adminUsersInitializer = adminUsersInitializer;
         this.defaultGroup = Props.text("security.default-group");
         this.externalGroupService = externalGroupService;
-    }
-
-    @PostConstruct
-    public void init() {
-        if (groupsAreManagedInStudio) {
-            externalGroupService.deleteAll(); // Drop all external groups because all groups are managed by WebStudio
-        }
     }
 
     public SimpleUser apply(SimpleUser user) {
@@ -59,10 +47,9 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
         if (defaultGroup != null) {
             privileges.add(defaultGroup);
         }
-        if (!groupsAreManagedInStudio) {
-            // Map external authorities to OpenL privileges
-            mapAuthorities(user.getAuthorities(), privileges);
-        }
+
+        // Map external authorities to OpenL privileges
+        mapAuthorities(user.getAuthorities(), privileges);
 
         SimpleUser simpleUser = SimpleUser.builder()
             .setFirstName(user.getFirstName())
@@ -102,7 +89,7 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
                 simpleUser.getDisplayName(),
                 simpleUser.getExternalFlags());
         }
-        if (!groupsAreManagedInStudio && simpleUser.getExternalFlags().isSyncExternalGroups()) {
+        if (simpleUser.getExternalFlags().isSyncExternalGroups()) {
             externalGroupService.mergeAllForUser(simpleUser.getUsername(), externalGroups);
         }
         return userDetails;
