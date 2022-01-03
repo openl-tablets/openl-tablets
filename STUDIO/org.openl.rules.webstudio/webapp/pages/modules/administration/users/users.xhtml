@@ -128,10 +128,6 @@
                 url: "#{contextPath}/web/users/options",
                 datatype: "json"
             }).done(function (data) {
-                if (!(data.canCreateInternalUsers || data.canCreateExternalUsers)) {
-                    $j(".users-username-box").prop("onclick", null).off("click")
-                }
-                $j("#users-add").toggle(data.canCreateInternalUsers || data.canCreateExternalUsers);
                 $j('[attr=users-email-not-verified]').toggle(data.emailVerification)
             });
         };
