@@ -15,7 +15,6 @@ Content-Type: application/json
       "syncExternalGroups": false,
       "emailVerified": false
     },
-    "internalUser": true,
     "notMatchedExternalGroupsCount": 0,
     "online": false,
     "userGroups": [
@@ -42,7 +41,6 @@ Content-Type: application/json
       "syncExternalGroups": false,
       "emailVerified": false
     },
-    "internalUser": true,
     "notMatchedExternalGroupsCount": 0,
     "online": false,
     "userGroups": [

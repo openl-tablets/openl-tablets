@@ -112,8 +112,6 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
         // Add authorities from the DB
         simpleUser.getAuthorities().addAll((Collection<? extends Privilege>) userDetails.getAuthorities());
 
-        // sync external user
-        if (simpleUser.getPassword() == null) {
             UserExternalFlags externalFlags = simpleUser.getExternalFlags();
             if (!externalFlags.isDisplayNameExternal()) {
                 String displayName = userDetails.getDisplayName();
@@ -151,7 +149,6 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
                         userDetails.getExternalFlags().isEmailVerified());
                 simpleUser.setExternalFlags(withNewEmailVerifiedFlags.build());
             }
-        }
     }
 
     private void mapAuthorities(Collection<? extends Privilege> authorities, List<Privilege> privileges) {

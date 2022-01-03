@@ -6,7 +6,6 @@ Content-Type: application/json
   "displayName": "John Doe",
   "username": "jdoe",
   "internalPassword": {
-    "internalUser": true,
     "password": "pass"
   },
   "firstName": "John",

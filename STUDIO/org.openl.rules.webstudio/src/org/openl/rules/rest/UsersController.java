@@ -123,12 +123,10 @@ public class UsersController {
     public void addUser(HttpServletRequest request, @RequestBody UserCreateModel userModel) {
         SecurityChecker.allow(Privileges.ADMIN);
         validationProvider.validate(userModel);
-        boolean willBeExternalUser = canCreateExternalUsers && (!userModel.getInternalPassword()
-            .isInternalUser() || !canCreateInternalUsers);
         userManagementService.addUser(userModel.getUsername(),
             userModel.getFirstName(),
             userModel.getLastName(),
-            willBeExternalUser ? null : userModel.getInternalPassword().getPassword(),
+            canCreateInternalUsers ? userModel.getInternalPassword().getPassword() : null,
             userModel.getEmail(),
             userModel.getDisplayName(),
             UserExternalFlags.builder().build());
@@ -322,7 +320,6 @@ public class UsersController {
             .setShowRealNumbers(userSettingsManager.getBooleanProperty(user.getUsername(), TRACE_REALNUMBERS_SHOW))
             .setDisplayName(user.getDisplayName())
             .setUsername(user.getUsername())
-            .setInternalUser(StringUtils.isNotBlank(user.getPassword()))
             .setExternalFlags(user.getExternalFlags());
     }
 
@@ -376,7 +373,6 @@ public class UsersController {
         return new UserModel().setFirstName(user.getFirstName())
             .setLastName(user.getLastName())
             .setEmail(user.getEmail())
-            .setInternalUser(StringUtils.isNotBlank(user.getPassword()))
             .setUserGroups(Stream.concat(matchedExtGroupsStream, internalGroupStream)
                 .collect(StreamUtils.toTreeSet(Comparator.comparing(GroupModel::getType)
                     .thenComparing(GroupModel::getName, String.CASE_INSENSITIVE_ORDER))))

@@ -16,9 +16,6 @@
         #user-groups-row {
             display: none;
         }
-        #user-internal-user-row {
-            display: none;
-        }
         #user-password-row {
             display: none;
         }
@@ -59,10 +56,6 @@
                 <div>
                     <table>
                         <tbody>
-                        <tr id="user-internal-user-row">
-                            <td class="titleColumn"><label>Local user:</label></td>
-                            <td><input id="user-internal-user" type="checkbox" checked="checked"/></td>
-                        </tr>
                         <tr>
                             <td class="titleColumn"><label class="required">Username:</label></td>
                             <td><input id="user-username" type="text"/></td>
@@ -146,12 +139,8 @@
         $j("#user-form").change(processRequiredAddUserFields);
         $j("#user-form").keyup(processRequiredAddUserFields);
 
-        $j("#user-internal-user").change(function () {
-            $j("#user-password-row").toggle($j(this).attr("checked") === 'checked');
-        });
-
         function processRequiredAddUserFields() {
-            if ($j("#user-username").val().trim() === "" || ($j("#user-internal-user").prop("checked") === true && $j("#user-password").val().trim() === "")) {
+            if ($j("#user-username").val().trim() === "") {
                 $j("#user-add").prop("disabled", true);
             } else {
                 $j("#user-add").prop("disabled", false);
@@ -170,7 +159,6 @@
 
             const internalPassword = {
                 password : $j("#user-password").val(),
-                internalUser : $j("#user-internal-user").is(":checked")
             }
 
             $j.ajax({
@@ -260,18 +248,10 @@
         })
         .done(function (data) {
             $j("#user-password-row").toggle(data.canCreateInternalUsers);
-            $j("#user-internal-user-row").toggle(data.canCreateInternalUsers && data.canCreateExternalUsers);
-            if (data.canCreateInternalUsers && !data.canCreateExternalUsers) {
-                $j("#user-internal-user").attr("checked", "checked");
-            } else if (!data.canCreateInternalUsers && data.canCreateExternalUsers) {
-                $j("#user-internal-user").removeAttr("checked");
-            }
-            $j("#user-internal-user").change();
         });
 
         function hideAddUserForm() {
             RichFaces.$("modalAddUser").hide();
-            $j("#user-internal-user").change();
             clearAddUserForm();
         }
 
@@ -279,7 +259,6 @@
             $j("#user-form span.error").text("");
             $j("#user-username, #user-password, #user-firstname, #user-display-name, #user-lastname, #user-email").val("");
             $j("#user-groups input").removeAttr("checked");
-            $j("#user-internal-user").attr("checked", "checked");
             $j("#user-add").prop("disabled", true);
         }
 
