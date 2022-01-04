@@ -2,10 +2,10 @@ package org.openl.rules.rest.model;
 
 import java.util.Set;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.rest.validation.InternalPasswordConstraint;
 import org.openl.rules.rest.validation.UsernameExistsConstraint;
 
