@@ -29,7 +29,7 @@ public class InternalPasswordConstraintValidator implements ConstraintValidator<
                 return false;
             }
         } else if (canCreateInternalUsers) {
-            context.buildConstraintViolationWithTemplate("{org.hibernate.validator.constraints.NotBlank.message}")
+            context.buildConstraintViolationWithTemplate("{javax.validation.constraints.NotBlank.message}")
                 .addConstraintViolation();
             return false;
         }
