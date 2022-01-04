@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import javax.validation.GroupSequence;
+import javax.validation.constraints.NotBlank;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;

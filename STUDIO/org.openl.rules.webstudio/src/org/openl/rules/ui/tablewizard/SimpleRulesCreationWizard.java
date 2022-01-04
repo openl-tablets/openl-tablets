@@ -13,8 +13,8 @@ import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 import javax.faces.validator.ValidatorException;
 import javax.validation.GroupSequence;
+import javax.validation.constraints.NotBlank;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;

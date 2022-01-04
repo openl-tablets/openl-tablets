@@ -9,8 +9,8 @@ import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.validation.GroupSequence;
+import javax.validation.constraints.NotBlank;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;

@@ -28,10 +28,10 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.validator.ValidatorException;
 import javax.naming.directory.InvalidSearchFilterException;
+import javax.validation.constraints.NotBlank;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.flywaydb.core.api.FlywayException;
-import org.hibernate.validator.constraints.NotBlank;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryMode;

@@ -1,8 +1,7 @@
 package org.openl.rules.rest.model;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.Email;
 
 public class UserInfoModel {
 
