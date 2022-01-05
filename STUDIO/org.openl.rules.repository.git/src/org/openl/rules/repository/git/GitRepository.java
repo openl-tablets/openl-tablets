@@ -82,6 +82,7 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.PushResult;
@@ -1555,7 +1556,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 while (iterator.hasNext()) {
                     RevCommit commit = iterator.next();
-                    if (!hasChangesInPath(tw, commit)) {
+                    if (!hasChangesInPath(tw, commit, repository)) {
                         continue;
                     }
 
@@ -1727,7 +1728,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try (ObjectReader or = repository.newObjectReader()) {
             TreeWalk tw = createTreeWalk(or, path);
             for (RevCommit commit : git.log().add(startCommit).call()) {
-                if (hasChangesInPath(tw, commit)) {
+                if (hasChangesInPath(tw, commit, repository)) {
                     return commit;
                 }
             }
@@ -1736,7 +1737,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return null;
     }
 
-    private static boolean hasChangesInPath(TreeWalk tw, RevCommit commit) throws IOException {
+    private static boolean hasChangesInPath(TreeWalk tw, RevCommit commit, Repository repository) throws IOException {
         RevCommit[] parents = commit.getParents();
         int parentsNum = parents.length;
 
@@ -1748,7 +1749,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         trees[parentsNum] = commit.getTree();
         tw.reset(trees);
 
-        int[] changes = new int[parentsNum];
+        Set<Integer> changes = new HashSet<>();
 
         while (tw.next()) {
             if (parentsNum == 0) {
@@ -1761,7 +1762,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 int parentMode = tw.getRawMode(i);
                 if (currentMode != parentMode || !tw.idEqual(i, parentsNum)) {
                     // Path configured in tw was changed
-                    changes[i]++;
+                    changes.add(i);
                 }
             }
         }
@@ -1769,37 +1770,41 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (parentsNum == 0) {
             return false;
         } else if (parentsNum == 1) {
-            return changes[0] > 0;
+            return !changes.isEmpty();
         } else {
-            boolean allChanged = true;
-            boolean anyChanged = false;
-
-            for (int change : changes) {
-                if (change == 0) {
-                    allChanged = false;
-                } else {
-                    anyChanged = true;
-                }
-            }
-            if (allChanged) {
+            if (changes.size() == parentsNum) {
                 // Merge commit is modified comparing to both parents. Definitely we must show it in history.
                 return true;
             }
-            if (anyChanged) {
+            if (!changes.isEmpty()) {
                 // Merge commit is same as one of the parents for inspecting path.
                 // It can be in two cases:
                 // 1) it's a merge commit with overwriting changes of a user (ours or theirs).
                 // 2) merge commit doesn't introduce anything related to our path (merged changes are for other
                 // paths not related to the path interesting to us).
-                String fullMessage = commit.getFullMessage();
-                // We assume that if some of the parents contains a change, and message contains "conflict" word,
-                // then probably someone overwrites other user's changes in our project. So we should show that
-                // commit in history to show that overwrite step.
-                //
-                // Otherwise (if we don't contain "conflict" word), most probably that just means that their branch
-                // doesn't contain changes from our branch so that Merge commit isn't interesting for us because it
-                // doesn't introduce any change to our branch.
-                return fullMessage.contains("conflict") || fullMessage.contains("Conflict");
+
+                // Find a common parent for commits that were merged.
+                // Then we compare it to each commit that changed the project in question.
+                // If there is a difference between commits, then it should be displayed.
+                try (RevWalk walk = new RevWalk(repository)) {
+                    walk.setRevFilter(RevFilter.MERGE_BASE);
+
+                    for (RevCommit parent : parents) {
+                        RevCommit revCommit = walk.parseCommit(parent);
+                        walk.markStart(revCommit);
+                    }
+                    RevCommit mergeBase = walk.next();
+
+                    if (mergeBase != null) {
+                        for (int i : changes) {
+                            tw.reset(parents[i].getTree(), mergeBase.getTree());
+                            if (tw.next() && !tw.idEqual(0, 1)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
             }
         }
 
