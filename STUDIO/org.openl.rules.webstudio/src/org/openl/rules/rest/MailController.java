@@ -77,7 +77,6 @@ public class MailController {
                 user.getFirstName(),
                 user.getLastName(),
                 null,
-                false,
                 user.getEmail(),
                 user.getDisplayName(),
                 true);

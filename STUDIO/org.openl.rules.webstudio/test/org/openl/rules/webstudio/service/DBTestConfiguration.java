@@ -26,6 +26,8 @@ import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.security.core.session.SessionRegistry;
 
 import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @ImportResource("classpath:META-INF/standalone/spring/security-hibernate-beans.xml")
@@ -68,6 +70,11 @@ public class DBTestConfiguration {
     @Bean
     public PropertySourcesPlaceholderConfigurer properties() {
         return new PropertySourcesPlaceholderConfigurer();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(10);
     }
 
     @Bean

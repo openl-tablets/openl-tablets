@@ -16,9 +16,11 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
+import org.openl.util.StringUtils;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,11 +33,13 @@ public class UserManagementService {
     private final UserDao userDao;
     private final GroupDao groupDao;
     private final SessionRegistry sessionRegistry;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserManagementService(UserDao userDao, GroupDao groupDao, SessionRegistry sessionRegistry) {
+    public UserManagementService(UserDao userDao, GroupDao groupDao, SessionRegistry sessionRegistry, PasswordEncoder passwordEncoder) {
         this.userDao = userDao;
         this.groupDao = groupDao;
         this.sessionRegistry = sessionRegistry;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<org.openl.rules.security.User> getAllUsers() {
@@ -54,13 +58,13 @@ public class UserManagementService {
     public void addUser(String user,
             String firstName,
             String lastName,
-            String passwordHash,
+            String password,
             String email,
             String displayName,
             UserExternalFlags externalFlags) {
         User persistUser = new User();
         persistUser.setLoginName(user);
-        persistUser.setPasswordHash(passwordHash);
+        persistUser.setPasswordHash(StringUtils.isNotBlank(password) ? passwordEncoder.encode(password) : null);
         persistUser.setFirstName(firstName);
         persistUser.setSurname(lastName);
         persistUser.setEmail(email);
@@ -75,8 +79,6 @@ public class UserManagementService {
     public void updateUserData(String user,
             String firstName,
             String lastName,
-            String passwordHash,
-            boolean updatePassword,
             String email,
             String displayName,
             UserExternalFlags externalFlags) {
@@ -87,17 +89,13 @@ public class UserManagementService {
         persistUser.setEmail(currentFlags.isEmailExternal() ? persistUser.getEmail() : email);
         persistUser.setDisplayName(currentFlags.isDisplayNameExternal() ? persistUser.getDisplayName() : displayName);
         persistUser.setFlags(UserExternalFlags.builder(externalFlags).getRawFeatures());
-        if (updatePassword) {
-            persistUser.setPasswordHash(passwordHash);
-        }
         userDao.update(persistUser);
     }
 
     public void updateUserData(String user,
             String firstName,
             String lastName,
-            String passwordHash,
-            boolean updatePassword,
+            String password,
             String email,
             String displayName,
             boolean emailVerified) {
@@ -110,8 +108,8 @@ public class UserManagementService {
         persistUser.setFlags(UserExternalFlags.builder(persistUser.getFlags())
             .applyFeature(Feature.EMAIL_VERIFIED, emailVerified)
             .getRawFeatures());
-        if (updatePassword) {
-            persistUser.setPasswordHash(passwordHash);
+        if (StringUtils.isNotBlank(password)) {
+            persistUser.setPasswordHash(passwordEncoder.encode(password));
         }
         userDao.update(persistUser);
     }
