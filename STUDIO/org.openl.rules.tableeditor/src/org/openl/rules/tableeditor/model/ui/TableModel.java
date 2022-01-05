@@ -24,6 +24,8 @@ public class TableModel {
 
     private final boolean showHeader;
 
+    private final int height;
+
     public static TableModel initializeTableModel(IGridTable table, int numRows, MetaInfoReader metaInfoReader) {
         return initializeTableModel(table, null, numRows, null, null, null, metaInfoReader, false, null);
     }
@@ -79,7 +81,8 @@ public class TableModel {
     }
 
     public TableModel(int width, int height, IGridTable gridTable, boolean showHeader) {
-        cells = new ICellModel[height][];
+        this.height = height;
+        this.cells = new ICellModel[height][];
         for (int i = 0; i < cells.length; i++) {
             cells[i] = new ICellModel[width];
         }
@@ -182,4 +185,7 @@ public class TableModel {
         return cells[r][c] != null;
     }
 
+    public int getHeight() {
+        return height;
+    }
 }

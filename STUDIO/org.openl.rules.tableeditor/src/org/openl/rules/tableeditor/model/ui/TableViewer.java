@@ -230,6 +230,10 @@ public class TableViewer {
 
         if (modifiedCells != null) {
             Set<Integer> modifiedRows = modifiedCells.stream().map(ICell::getRow).collect(Collectors.toSet());
+            int lastModifiedRow = modifiedRows.stream().max(Integer::compareTo).orElse(0);
+            if (lastModifiedRow >= h) {
+                tm = new TableModel(w, lastModifiedRow + 1, gt, showHeader);
+            }
             if (numRowsToDisplay > -1) {
                 if (numRowsToDisplay < modifiedRows.size()) {
                     modifiedRows = modifiedRows.stream().limit(numRowsToDisplay).collect(Collectors.toSet());
@@ -237,13 +241,10 @@ public class TableViewer {
                     tm.setNumRowsToDisplay(-1);
                 }
             }
-            // Display the first row even if it has not been changed.
-            if (!modifiedRows.contains(0)) {
-                addDisplayedCellToTableModel(tm, region.getTop(), region.getTop(), region, null);
-            }
             for (int row : modifiedRows) {
                 int gridRow = row + region.getTop();
-                addDisplayedCellToTableModel(tm, gridRow, row, region, modifiedCells);
+                long count = modifiedCells.stream().filter(c -> c.getRow() == row).count();
+                addDisplayedCellToTableModel(tm, gridRow, row, region, count == w ? modifiedCells : null);
             }
         } else {
             for (int gridRow = region.getTop(); gridRow <= region.getBottom(); gridRow++) {
@@ -401,7 +402,7 @@ public class TableViewer {
             setVerticalBorder(i, tm);
         }
 
-        int height = IGridRegion.Tool.height(reg);
+        int height = tm.getHeight();
 
         for (int i = 0; i <= height; i++) {
             setHorizontalBorder(i, tm);
@@ -462,7 +463,7 @@ public class TableViewer {
     }
 
     void setVerticalBorder(int column, TableModel tm) {
-        int height = IGridRegion.Tool.height(reg);
+        int height = tm.getHeight();
         int left = reg.getLeft();
         int top = reg.getTop();
 
