@@ -2,7 +2,9 @@ package org.openl.rules.lang.xls.types.meta;
 
 import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getCellSource;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
@@ -13,7 +15,11 @@ import org.openl.rules.datatype.binding.DatatypeTableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGrid;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
@@ -51,7 +57,21 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
     public CellMetaInfo getBodyMetaInfo(int row, int col) {
         ILogicalTable logicalTable = getBoundNode().getTable();
 
-        ICell firstCell = logicalTable.getCell(0, 0);
+        ICell firstCell;
+        IGrid grid = getBoundNode().getTable().getSource().getGrid();
+        // CompositeGrid consists of several parts in Excel, in order to take the first cell,
+        // we must first find the part of which the cell belongs.
+        if (grid instanceof CompositeGrid) {
+            IGridTable containingTable = ((CompositeGrid) grid).getContainingTable(col, row);
+            if (containingTable != null) {
+                firstCell = containingTable.getCell(0, 0);
+            } else {
+                return null;
+            }
+        } else {
+            firstCell = logicalTable.getCell(0, 0);
+        }
+
         int r = row - firstCell.getAbsoluteRow();
         int c = col - firstCell.getAbsoluteColumn();
         if (r < 0 || c < 0) {

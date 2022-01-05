@@ -4,8 +4,10 @@
 package org.openl.rules.table;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.openl.rules.table.xls.XlsSheetGridModel;
@@ -324,6 +326,20 @@ public class CompositeGrid extends AGrid {
         }
 
         return null;
+    }
+
+    /**
+     * Getting a table containing a given row and column.
+     *
+     * @param col grid column index
+     * @param row grid row index
+     * @return {@link IGridTable} that contains coordinates to cell.
+     */
+    public IGridTable getContainingTable(int col, int row) {
+        return Arrays.stream(gridTables)
+            .filter(g -> IGridRegion.Tool.contains(g.getRegion(), col, row))
+            .findFirst()
+            .orElse(null);
     }
 
     /**
