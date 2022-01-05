@@ -14,6 +14,7 @@ import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.security.UserExternalFlags.Feature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -32,6 +33,9 @@ public class UserManagementTest {
     @Autowired
     @Qualifier("flywayDBReset")
     private Flyway flywayDBReset;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Before
     public void setUp() {
@@ -61,7 +65,7 @@ public class UserManagementTest {
         assertEquals("jdoe", user.getUsername());
         assertEquals("John", user.getFirstName());
         assertEquals("Doe", user.getLastName());
-        assertEquals("qwerty", user.getPassword());
+        assertTrue(passwordEncoder.matches("qwerty", user.getPassword()));
         assertEquals("jdoe@test", user.getEmail());
         assertEquals("John Doe", user.getDisplayName());
         assertTrue(user.getAuthorities().isEmpty());
@@ -95,7 +99,7 @@ public class UserManagementTest {
         assertEquals("jdoe", user.getUsername());
         assertEquals("John", user.getFirstName());
         assertEquals("Doe", user.getLastName());
-        assertEquals("qwerty", user.getPassword());
+        assertTrue(passwordEncoder.matches("qwerty", user.getPassword()));
         assertEquals("jdoe@test", user.getEmail());
         assertEquals("John Doe", user.getDisplayName());
         assertTrue(user.getAuthorities().isEmpty());

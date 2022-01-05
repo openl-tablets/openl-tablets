@@ -88,7 +88,7 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
             userManagementService.addUser(simpleUser.getUsername(),
                 simpleUser.getFirstName(),
                 simpleUser.getLastName(),
-                simpleUser.getPassword(),
+                null,
                 simpleUser.getEmail(),
                 simpleUser.getDisplayName(),
                 simpleUser.getExternalFlags());
@@ -98,8 +98,6 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
             userManagementService.updateUserData(simpleUser.getUsername(),
                 simpleUser.getFirstName(),
                 simpleUser.getLastName(),
-                simpleUser.getPassword(),
-                true,
                 simpleUser.getEmail(),
                 simpleUser.getDisplayName(),
                 simpleUser.getExternalFlags());

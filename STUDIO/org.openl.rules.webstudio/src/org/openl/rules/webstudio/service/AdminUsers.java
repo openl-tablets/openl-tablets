@@ -13,7 +13,6 @@ import org.openl.rules.security.UserExternalFlags;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Allows to create or assign administrators from the properties file.
@@ -31,9 +30,6 @@ public class AdminUsers {
 
     @Autowired
     private GroupManagementService groupService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private Environment environment;
@@ -62,7 +58,7 @@ public class AdminUsers {
             userService.addUser(username,
                 null,
                 null,
-                passwordEncoder.encode(username),
+                username,
                 null,
                 null,
                 UserExternalFlags.builder().build());
