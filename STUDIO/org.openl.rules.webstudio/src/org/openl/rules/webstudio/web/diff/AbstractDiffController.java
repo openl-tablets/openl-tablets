@@ -171,7 +171,7 @@ public abstract class AbstractDiffController {
                 }
             }
         }
-        return diffCells;
+        return diffCells != null && diffCells.isEmpty() ? null : diffCells;
     }
 
     public void reset(){

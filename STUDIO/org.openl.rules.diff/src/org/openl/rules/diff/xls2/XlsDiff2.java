@@ -239,15 +239,33 @@ public class XlsDiff2 {
         int grid2LastMatched = 0;
         // Below we fill grid1RowsState for those rows from grid1 that have a complete match with the rows from grid2
         // if there are no such rows, then the index is set to -1.
-        for (int grid1Row = 0; grid1Row < grid1.getHeight(); grid1Row++) {
-            for (int grid2Row = grid2LastMatched; grid2Row < grid2.getHeight(); grid2Row++) {
+        int grid1Height = grid1.getHeight();
+        int grid2Height = grid2.getHeight();
+        for (int grid1Row = 0; grid1Row < grid1Height; grid1Row++) {
+            boolean followingRow = true;
+            for (int grid2Row = grid2LastMatched; grid2Row < grid2Height; grid2Row++) {
                 List<ICell> diffs = getDiffs(grid1, grid2, grid1Row, grid2Row);
                 if (diffs.size() == 0) {
+                    if (!followingRow && grid1Row != grid2Row && grid1Row < grid1Height + 1) {
+                        // Check if the next line matches the one found.
+                        // For cases when several identical lines can go in a row.
+                        List<ICell> nextRowDiffs = getDiffs(grid1, grid2, grid1Row + 1, grid2Row);
+                        if (nextRowDiffs.size() == 0) {
+                            break;
+                        }
+                    }
                     grid1MatchedRows.add(grid1Row);
                     grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(grid2Row));
                     grid2LastMatched = grid2Row + 1;
                     break;
+                } else if (grid1Height == grid2Height) {
+                    grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(grid2Row).setDiff(diffs));
+                    grid2LastMatched = grid2Row + 1;
+                    break;
                 }
+                followingRow = false;
+            }
+            if (grid1RowsState.get(grid1Row) == null) {
                 grid1RowsState.put(grid1Row, new RowDiff().setRowIndex(-1));
             }
         }
@@ -278,7 +296,7 @@ public class XlsDiff2 {
         diff1.addAll(
             grid1RowsState.values().stream().map(RowDiff::getDiff).flatMap(List::stream).collect(Collectors.toList()));
         // For grid2 we compare the rows found for grid1, if there are no such rows, we assume that the row was added.
-        for (int grid2Row = 0; grid2Row < grid2.getHeight(); grid2Row++) {
+        for (int grid2Row = 0; grid2Row < grid2Height; grid2Row++) {
             int finalGrid2Row = grid2Row;
             Optional<Integer> matchedKey = grid1RowsState.keySet()
                 .stream()
