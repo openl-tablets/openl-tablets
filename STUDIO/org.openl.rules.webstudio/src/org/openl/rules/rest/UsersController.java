@@ -128,7 +128,7 @@ public class UsersController {
         userManagementService.addUser(userModel.getUsername(),
             userModel.getFirstName(),
             userModel.getLastName(),
-            willBeExternalUser ? null : passwordEncoder.encode(userModel.getInternalPassword().getPassword()),
+            willBeExternalUser ? null : userModel.getInternalPassword().getPassword(),
             userModel.getEmail(),
             userModel.getDisplayName(),
             UserExternalFlags.builder().build());
@@ -151,14 +151,10 @@ public class UsersController {
         User dbUser = userManagementService.getUser(username);
         boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
                 && !dbUser.getExternalFlags().isEmailExternal();
-        boolean updatePassword = Optional.ofNullable(userModel.getPassword())
-            .map(StringUtils::isNotBlank)
-            .orElse(false);
         userManagementService.updateUserData(username,
             userModel.getFirstName(),
             userModel.getLastName(),
-            updatePassword ? passwordEncoder.encode(userModel.getPassword()) : null,
-            updatePassword,
+            userModel.getPassword(),
             userModel.getEmail(),
             userModel.getDisplayName(),
             !emailChanged && dbUser.getExternalFlags().isEmailVerified());
@@ -191,7 +187,6 @@ public class UsersController {
             userModel.getFirstName(),
             userModel.getLastName(),
             null,
-            false,
             userModel.getEmail(),
             userModel.getDisplayName(),
             !emailChanged && dbUser.getExternalFlags().isEmailVerified());
@@ -215,15 +210,10 @@ public class UsersController {
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
         boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
                 && !dbUser.getExternalFlags().isEmailExternal();
-        boolean updatePassword = Optional.ofNullable(userModel.getChangePassword())
-            .map(ChangePasswordModel::getNewPassword)
-            .map(StringUtils::isNotBlank)
-            .orElse(false);
         userManagementService.updateUserData(dbUser.getUsername(),
             userModel.getFirstName(),
             userModel.getLastName(),
-            updatePassword ? passwordEncoder.encode(userModel.getChangePassword().getNewPassword()) : null,
-            updatePassword,
+            Optional.ofNullable(userModel.getChangePassword()).map(ChangePasswordModel::getNewPassword).orElse(null),
             userModel.getEmail(),
             userModel.getDisplayName(),
             !emailChanged && dbUser.getExternalFlags().isEmailVerified());
@@ -301,7 +291,7 @@ public class UsersController {
                 .applyFeature(UserExternalFlags.Feature.EMAIL_VERIFIED, emailVerified)
                 .build());
             if (StringUtils.isNotEmpty(newPassword)) {
-                simpleUser.setPassword(passwordEncoder.encode(newPassword));
+                simpleUser.setPassword(newPassword);
             }
         });
     }

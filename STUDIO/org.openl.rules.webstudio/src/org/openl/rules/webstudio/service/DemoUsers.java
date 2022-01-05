@@ -5,7 +5,6 @@ import java.util.HashSet;
 
 import org.openl.rules.security.UserExternalFlags;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * Creates users for demo mode.
@@ -24,15 +23,8 @@ public class DemoUsers {
     @Autowired
     private UserManagementService userManagementService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
     public void setUserManagementService(UserManagementService userManagementService) {
         this.userManagementService = userManagementService;
-    }
-
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
     }
 
     public void init() {
@@ -54,11 +46,10 @@ public class DemoUsers {
     }
 
     private void initUser(String user, String email, String displayName, String... groups) {
-        String password = passwordEncoder.encode(user);
         userManagementService.addUser(user,
             null,
             null,
-            password,
+            user,
             email,
             displayName,
             UserExternalFlags.builder().withFeature(UserExternalFlags.Feature.EMAIL_VERIFIED).build());
