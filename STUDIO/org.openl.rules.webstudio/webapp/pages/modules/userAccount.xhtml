@@ -12,6 +12,9 @@
         .font-size-80pct {
             font-size: 80%;
         }
+        #account-user-email-verified {
+            display:none;
+        }
         .display-block {
             display: block;
         }
@@ -31,7 +34,9 @@
             text-align: center;
             margin: 2px;
         }
-
+        #account-user-email-resend {
+            display:none;
+        }
     </style>
 
     <f:view transient="#{module=='rules'}">
@@ -64,12 +69,15 @@
                                             </td>
                                         </tr>
                                         <tr id="account-user-email-row">
-                                            <td class="titleColumn"><label>Email:</label></td>
+                                            <td class="titleColumn">
+                                                <label>Email:</label>
+                                                <span id="account-user-email-verified" class="yes-icon" title="Email verified"/>
+                                             </td>
                                             <td>
                                                 <input id="account-user-email" name="account-user-email"
                                                        class="display-block" type="text"/>
-                                                <span id="account-user-email-span"
-                                                      class="font-weight-bold"/>
+                                                <span id="account-user-email-span" class="font-weight-bold"/>
+                                                <a id="account-user-email-resend" href="javascript:void(0)" title="Resend verification link to email above">Resend</a>
                                             </td>
                                             <td><span id="account-user-email-error" class="error"/></td>
                                         </tr>
@@ -326,8 +334,6 @@
                 $j("#account-user-firstname-span").toggle(accountUserIsFirstNameExternal);
                 $j("#account-user-lastname").toggle(!accountUserIsLastNameExternal);
                 $j("#account-user-lastname-span").toggle(accountUserIsLastNameExternal);
-                $j("#account-user-email").toggle(!accountUserIsEmailExternal);
-                $j("#account-user-email-span").toggle(accountUserIsEmailExternal);
                 $j("#account-user-display-name").toggle(!accountUserIsDisplayNameExternal);
                 $j("#account-user-display-name-select-box").toggle(!accountUserIsDisplayNameExternal);
                 $j("#account-user-display-name-span").toggle(accountUserIsDisplayNameExternal);
@@ -337,18 +343,17 @@
                 $j("#account-user-show-real-numbers").prop("checked", data.showRealNumbers);
                 $j("#account-user-firstname-span").text(data.firstName);
                 $j("#account-user-display-name-span").text(data.displayName);
-                $j("#account-user-email-span").text(data.email);
                 $j("#account-user-lastname-span").text(data.lastName);
                 $j("#account-user-username").text(data.username);
                 $j("#account-user-firstname").val(data.firstName);
                 $j("#account-user-display-name").val(data.displayName);
-                $j("#account-user-email").val(data.email);
                 $j("#account-user-lastname").val(data.lastName);
                 $j('#account-user-failures-per-test-row').toggle(data.testsFailuresOnly === true);
                 $j("#account-user-show-header").attr("checked", data.showHeader);
                 $j("#account-user-complex-result").attr("checked", data.showComplexResult);
                 $j("#account-user-tests-per-page").val(data.testsPerPage);
                 $j("#account-user-failures-per-test").val(data.testsFailuresPerTest);
+                initAccountUserEmail(data);
 
                 $j.ajax({
                     type: "GET",
@@ -366,6 +371,70 @@
                 initUserDisplayNameSelect($j("#account-user-display-name-select-box"), $j("#account-user-firstname"), $j("#account-user-lastname"), $j("#account-user-display-name"));
                 RichFaces.$("account-user-form:userProfileTab").switchToItem(tab === "settings" ? "userProfileSettings" : "@first");
                 RichFaces.$("modalUserProfile").show();
+            });
+        }
+
+        function initAccountUserEmail(userModel) {
+            const username = userModel.username;
+            const email = userModel.email;
+            const emailExternal = userModel.externalFlags.emailExternal;
+            const emailVerified = userModel.externalFlags.emailVerified;
+            const accountUserEmailSpan = $j("#account-user-email-span");
+            const accountUserEmail = $j("#account-user-email");
+            const accountUserEmailVerified = $j("#account-user-email-verified");
+            const accountUserEmailResend = $j("#account-user-email-resend");
+
+            accountUserEmailSpan.text(email);
+            accountUserEmail.val(email);
+            accountUserEmail.toggle(!(emailExternal === true));
+            accountUserEmailSpan.toggle(emailExternal === true);
+
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/users/options",
+                datatype: "json"
+            }).done(function (data) {
+                if (data.emailVerification) {
+                    const initEmailComponents = () => {
+                        let emailExists = (email && email.trim() !== '') === true;
+                        if (!emailVerified && emailExists) {
+                            accountUserEmailResend.show();
+                            accountUserEmailVerified.removeClass("yes-icon").addClass("no-icon").prop("title", "Email not verified");
+                        } else {
+                            accountUserEmailResend.hide();
+                            accountUserEmailVerified.removeClass("no-icon").addClass("yes-icon").prop("title", "Email verified");
+                        }
+                        accountUserEmailVerified.toggle(emailExists);
+                    };
+
+                    initEmailComponents();
+
+                    accountUserEmail.keyup(() => {
+                        if (accountUserEmail.val() === accountUserEmailSpan.text()) {
+                            initEmailComponents();
+                        } else {
+                            accountUserEmailResend.hide();
+                            accountUserEmailVerified.show();
+                            accountUserEmailVerified.removeClass("yes-icon").addClass("no-icon").prop("title", "Email not verified");
+                        }
+                    });
+
+                    accountUserEmailResend.off().click(function (e) {
+                        $j.ajax({
+                            type: "POST",
+                            url: "#{contextPath}/web/mail/send/" + username,
+                            datatype: "json",
+                            beforeSend: () => window.ws && ws.ui && ws.ui.showLoader ? ws.ui.showLoader() : showLoader(),
+                            complete: () => window.ws && ws.ui && ws.ui.hideLoader ? ws.ui.hideLoader() : hideLoader()
+                        })
+                        .done(function (data) {
+                            window.ws && ws.ui && ws.ui.success(data.message);
+                        })
+                        .fail(function(jqXHR, textStatus, errorThrown) {
+                            window.ws && ws.ui && ws.ui.error(JSON.parse(jqXHR.responseText).message);
+                        });
+                    });
+                }
             });
         }
 
@@ -407,6 +476,8 @@
             $j("#account-user-lastname, #account-user-new-password, #account-user-email, #account-user-firstname, #account-user-display-name, #account-user-current-password, #account-user-confirm-password").val("");
             $j("#account-user-show-header, #account-user-show-real-numbers, #account-user-show-formulas, #account-user-failures-only, #account-user-complex-result").removeAttr("checked");
             $j("#account-user-tests-per-page, #account-user-failures-per-test").val(-1);
+            $j("#account-user-email-resend, #account-user-email-verified").hide();
+            $j("#account-user-email-verified").removeClass("no-icon").addClass("yes-icon").prop("title", "Email verified");
         }
 
     //]]>

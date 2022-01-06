@@ -65,6 +65,7 @@
                 <ref bean="propertyService"/>
                 <ref bean="workspaceCompileService"/>
                 <ref bean="usersService"/>
+                <ref bean="mailService"/>
                 <ref bean="designTimeRepositoryService"/>
                 <ref bean="tagConfigService"/>
                 <ref bean="openLMessageService"/>

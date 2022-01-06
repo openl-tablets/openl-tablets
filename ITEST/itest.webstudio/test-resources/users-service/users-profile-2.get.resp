@@ -2,6 +2,7 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
+  "username": "jsmith",
   "email": "mjohnson@email",
   "displayName": "MJ",
   "firstName": "Mike",
@@ -13,13 +14,12 @@ Content-Type: application/json
   "testsFailuresPerTest": 20,
   "showComplexResult": true,
   "showRealNumbers": true,
-  "username": "admin",
   "internalUser": true,
   "externalFlags": {
     "syncExternalGroups": false,
     "lastNameExternal": false,
     "emailExternal": false,
-    "emailVerified": true,
+    "emailVerified": false,
     "displayNameExternal": false,
     "firstNameExternal": false
   }

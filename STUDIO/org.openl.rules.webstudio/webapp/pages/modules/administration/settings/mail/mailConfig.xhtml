@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <style>
+        #mail-config-verification-section {
+            margin-top: 0;
+            display:none
+        }
+        .mail-config-row {
+            display: flex;
+        }
+        #mail-config-verification-enable {
+            align-items: center;
+        }
+    </style>
+    <form id="mailConfigForm" class="fields">
+        <section>
+            <h3>Email server configuration</h3>
+            <div id="mail-config-verification-enable" class="mail-config-row">
+                <div class="titleColumn"><label>Enable email address verification:</label></div>
+                <div><input id="mail-config-verification" type="checkbox"/></div>
+            </div>
+            <div id="mail-config-verification-section" class="fields">
+                <section>
+                    <div>
+                        <div class="mail-config-row">
+                            <div class="titleColumn"><label class="required">URL:</label></div>
+                            <div><input id="mail-config-url" name="url" type="text"/></div>
+                        </div>
+                        <div class="mail-config-row">
+                            <div class="titleColumn"><label class="required">Username:</label></div>
+                            <div><input id="mail-config-username" name="username"  type="text"/></div>
+                        </div>
+                        <div class="mail-config-row">
+                            <div class="titleColumn"><label class="required">Password:</label></div>
+                            <div><input id="mail-config-password" name="password"  type="password"/></div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+        <input id="mail-config" type="button" value="Apply All and Restart" title="Apply All and Restart"
+               class="button-primary save-button"/>
+    </form>
+    <script>//<![CDATA[
+        $j(function() {
+            ws.form.fetchFormData({
+                methodURL: "#{contextPath}/web/mail/settings",
+                $form: $j("#mailConfigForm"),
+                onSuccess: (data) => {
+                    let verification = data.url && data.username && data.password && true || false;
+                    $j("#mail-config-verification-section").toggle(verification);
+                    $j("#mail-config-verification").attr("checked", verification);
+                }
+            });
+
+            $j("#mail-config-verification").change(function () {
+                const verificationChecked = $j(this).attr("checked") === 'checked';
+                $j("#mail-config-verification-section").toggle(verificationChecked);
+            });
+
+            ws.form.registerSubmitFormHandler({
+                methodURL: "#{contextPath}/web/mail/settings",
+                $form: $j("#mailConfigForm"),
+                dataType: "json",
+                methodType: "PUT",
+                serializeJSON: ($form) => {
+                    if ($form.find("#mail-config-verification").is(":checked")) {
+                        return {
+                            url: $form.find("#mail-config-url").val().trim(),
+                            username: $form.find("#mail-config-username").val().trim(),
+                            password: $form.find("#mail-config-password").val().trim()
+                        }
+                    } else {
+                        return {};
+                    }
+                },
+                onSuccess: () => {
+                    location.reload();
+                }
+            });
+
+            $j("#mail-config").click(function (e) {
+                e.preventDefault();
+                if (confirm('All users working with WebStudio now will lose all unsaved changes. Are you sure you want to apply these settings now?')) {
+                    $j('#mailConfigForm').submit();
+                }
+            });
+        });
+    //]]></script>
+</ui:composition>

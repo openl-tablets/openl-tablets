@@ -117,9 +117,6 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
         // sync external user
         if (simpleUser.getPassword() == null) {
             UserExternalFlags externalFlags = simpleUser.getExternalFlags();
-            if (!externalFlags.isEmailExternal()) {
-                simpleUser.setEmail(userDetails.getEmail());
-            }
             if (!externalFlags.isDisplayNameExternal()) {
                 String displayName = userDetails.getDisplayName();
 
@@ -148,6 +145,16 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
             if (!externalFlags.isLastNameExternal()) {
                 simpleUser.setLastName(userDetails.getLastName());
             }
+
+            UserExternalFlags.Builder withNewEmailVerifiedFlags = UserExternalFlags.builder(externalFlags);
+            if (!externalFlags.isEmailExternal()) {
+                simpleUser.setEmail(userDetails.getEmail());
+                withNewEmailVerifiedFlags.applyFeature(UserExternalFlags.Feature.EMAIL_VERIFIED,
+                        userDetails.getExternalFlags().isEmailVerified());
+            } else {
+                withNewEmailVerifiedFlags.withFeature(UserExternalFlags.Feature.EMAIL_VERIFIED);
+            }
+            simpleUser.setExternalFlags(withNewEmailVerifiedFlags.build());
         }
     }
 

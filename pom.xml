@@ -105,6 +105,8 @@
         <org.apache.poi.version>5.2.0</org.apache.poi.version>
         <org.bouncycastle.version>1.70</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.13.1</com.fasterxml.jackson.version>
+        <jakarta.mail.version>1.6.7</jakarta.mail.version>
+        <com.icegreen.greenmail.version>1.6.5</com.icegreen.greenmail.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.44.v20210927</jetty.server.version>
@@ -1171,6 +1173,12 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>com.icegreen</groupId>
+                <artifactId>greenmail-junit4</artifactId>
+                <version>${com.icegreen.greenmail.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <!-- to remove dependency duplication from the cassandra driver -->
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jnr-ffi</artifactId>
@@ -1477,6 +1485,12 @@
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>1.29</version>
+            </dependency>
+            <!-- Jakarta Mail Api for SMTP server connection, depends on Jakarta Activation -->
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>jakarta.mail</artifactId>
+                <version>${jakarta.mail.version}</version>
             </dependency>
             <!-- OpenAPI -->
             <dependency>

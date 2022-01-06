@@ -9,3 +9,4 @@ Dockerfiles/* eol=lf
 **/*.req eol=crlf
 **/*.resp eol=crlf
 **/*.http eol=crlf
+**/*.eml eol=crlf

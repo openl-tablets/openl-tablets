@@ -81,7 +81,10 @@
             </div>
             <div class="align-middle" attr="users-firstname"></div>
             <div class="align-middle" attr="users-lastname"></div>
-            <div class="align-middle" attr="users-email"></div>
+            <div class="align-middle">
+                <span attr="users-email">{usersEmail}</span>
+                <span class="warning-icon" title="Email not verified" attr="users-email-not-verified"/>
+            </div>
             <div class="align-middle" attr="users-displayname"></div>
             <div class="align-middle" attr="users-groups">
                 <span>
@@ -134,6 +137,7 @@
                     $j(".users-username-box").prop("onclick", null).off("click")
                 }
                 $j("#users-add").toggle(data.canCreateInternalUsers || data.canCreateExternalUsers);
+                $j('[attr=users-email-not-verified]').toggle(data.emailVerification)
             });
         };
 
@@ -244,6 +248,10 @@
                     $userRow.find('[attr=users-lastname]').text(ws.utils.escapeHtml(user.lastName));
                     $userRow.find('[attr=users-internal-user]').text(user.internalUser ? 'Yes' : 'No');
                     $userRow.find('[attr=users-email]').text(ws.utils.escapeHtml(user.email));
+                    const emailExists = user.email && user.email.trim() !== '';
+                    if (!emailExists || user.externalFlags.emailVerified) {
+                        $userRow.find('[attr=users-email-not-verified]').remove();
+                    }
                     $userRow.find('[attr=users-displayname]').text(ws.utils.escapeHtml(user.displayName));
 
                     const $userDelete = $userRow.find('[attr=users-delete]');

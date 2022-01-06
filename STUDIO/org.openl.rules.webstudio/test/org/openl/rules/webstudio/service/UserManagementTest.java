@@ -70,10 +70,8 @@ public class UserManagementTest {
         assertFalse(user.getExternalFlags().isFirstNameExternal());
         assertFalse(user.getExternalFlags().isLastNameExternal());
         assertFalse(user.getExternalFlags().isSyncExternalGroups()); // Always must be false
-        assertTrue(user.getExternalFlags().isEmailVerified()); // It's always true for now
-        final int expectedFeatures = UserExternalFlags.builder()
-            .withFeature(Feature.EMAIL_VERIFIED)// It's always true for now
-            .getRawFeatures();
+        assertFalse(user.getExternalFlags().isEmailVerified());
+        final int expectedFeatures = UserExternalFlags.builder().getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(2, queryCount.getSelect());
@@ -106,14 +104,14 @@ public class UserManagementTest {
         assertTrue(user.getExternalFlags().isFirstNameExternal());
         assertTrue(user.getExternalFlags().isLastNameExternal());
         assertFalse(user.getExternalFlags().isSyncExternalGroups()); // Always must be false
-        assertTrue(user.getExternalFlags().isEmailVerified()); // It's always true for now
+        assertTrue(user.getExternalFlags().isEmailVerified());
         final int expectedFeatures = UserExternalFlags.builder()
             .withFeature(Feature.EXTERNAL_DISPLAY_NAME)
             .withoutFeature(Feature.SYNC_EXTERNAL_GROUPS) // Always must be false
             .withFeature(Feature.EXTERNAL_LAST_NAME)
             .withFeature(Feature.EXTERNAL_FIRST_NAME)
             .withFeature(Feature.EXTERNAL_EMAIL)
-            .withFeature(Feature.EMAIL_VERIFIED)// It's always true for now
+            .withFeature(Feature.EMAIL_VERIFIED)
             .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();

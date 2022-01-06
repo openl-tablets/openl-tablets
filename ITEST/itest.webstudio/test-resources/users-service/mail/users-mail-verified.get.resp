@@ -2,11 +2,11 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "username": "jsmith",
-  "email": "js@email",
-  "displayName": "js",
-  "firstName": "J",
-  "lastName": "S",
+  "username": "admin",
+  "email": "admin@email",
+  "displayName": "Admin",
+  "firstName": "Ad",
+  "lastName": "Min",
   "showHeader": true,
   "showFormulas": false,
   "testsPerPage": 5,
@@ -16,11 +16,11 @@ Content-Type: application/json
   "showRealNumbers": false,
   "internalUser": true,
   "externalFlags": {
-    "lastNameExternal": false,
-    "emailExternal": false,
-    "emailVerified": false,
     "firstNameExternal": false,
     "displayNameExternal": false,
+    "emailExternal": false,
+    "lastNameExternal": false,
+    "emailVerified": true,
     "syncExternalGroups": false
   }
 }
