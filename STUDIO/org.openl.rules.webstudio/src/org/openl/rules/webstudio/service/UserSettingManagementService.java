@@ -2,7 +2,10 @@ package org.openl.rules.webstudio.service;
 
 import org.openl.rules.security.standalone.dao.UserSettingDao;
 import org.openl.rules.security.standalone.persistence.UserSetting;
+import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
+
+import java.util.Objects;
 
 public class UserSettingManagementService {
     private final UserSettingDao userSettingDao;
@@ -49,10 +52,7 @@ public class UserSettingManagementService {
 
     public void setProperty(String login, String key, String value) {
         String defVal = propertyResolver.getProperty(key);
-        if (defVal == null) {
-            throw new IllegalArgumentException("Default value for the key " + key + " is absent.");
-        }
-        if (defVal.equals(value)) {
+        if (StringUtils.isBlank(defVal) && StringUtils.isBlank(value) || Objects.equals(defVal, value)) {
             userSettingDao.removeProperty(login, key);
         } else {
             userSettingDao.setProperty(login, key, value);
