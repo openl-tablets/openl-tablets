@@ -143,12 +143,11 @@
     </rich:popupPanel>
 
     <script>//<![CDATA[
-
         $j("#user-form").change(processRequiredAddUserFields);
         $j("#user-form").keyup(processRequiredAddUserFields);
 
         $j("#user-internal-user").change(function () {
-            $j("#user-password-row").toggle($j(this).attr("checked") === 'checked' || $j(this).parent().is(':hidden'));
+            $j("#user-password-row").toggle($j(this).attr("checked") === 'checked');
         });
 
         function processRequiredAddUserFields() {
@@ -262,6 +261,11 @@
         .done(function (data) {
             $j("#user-password-row").toggle(data.canCreateInternalUsers);
             $j("#user-internal-user-row").toggle(data.canCreateInternalUsers && data.canCreateExternalUsers);
+            if (data.canCreateInternalUsers && !data.canCreateExternalUsers) {
+                $j("#user-internal-user").attr("checked", "checked");
+            } else if (!data.canCreateInternalUsers && data.canCreateExternalUsers) {
+                $j("#user-internal-user").removeAttr("checked");
+            }
             $j("#user-internal-user").change();
         });
 
