@@ -253,7 +253,11 @@
                 }
             }
 
-            withCommitInfoRequired('#{studio.currentUsername}', () => copyProjectRepositoryType === "repo-git", afterAction);
+            withCommitInfoRequired(
+                '#{studio.currentUsername}',
+                () => copyProjectRepositoryType === "repo-git" || JSON.parse('#{copyBean.allowedRepositoriesTypes}')[$j('#copyProjectForm\\:repository').val()] === "repo-git",
+                afterAction
+            );
         }
         //]]>
     </script>
