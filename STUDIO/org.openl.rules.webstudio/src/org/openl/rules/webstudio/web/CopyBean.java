@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
@@ -30,6 +31,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
 import org.openl.rules.webstudio.web.admin.ProjectTagsBean;
+import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.admin.RepositorySettingsValidators;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
@@ -48,6 +50,9 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.jsf.FacesContextUtils;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
@@ -472,6 +477,14 @@ public class CopyBean {
             .filter(repo -> !repo.supports().branches() || !((BranchRepository) repo)
                 .isBranchProtected(((BranchRepository) repo).getBranch()))
             .collect(Collectors.toList());
+    }
+
+    public String getAllowedRepositoriesTypes() throws JsonProcessingException {
+        Map<String, String> types = getAllowedRepositories().stream()
+                .map(Repository::getId)
+                .map(repositoryId -> new RepositoryConfiguration(repositoryId, propertyResolver))
+                .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
+        return new ObjectMapper().writeValueAsString(types);
     }
 
     public boolean getCanCreateNewProject() {
