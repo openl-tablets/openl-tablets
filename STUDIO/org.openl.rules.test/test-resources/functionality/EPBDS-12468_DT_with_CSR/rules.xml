@@ -1,0 +1,11 @@
+<project>
+    <name>EPBDS-12468_DT_with_CSR</name>
+    <comment></comment>
+    <modules>
+        <module>
+            <name>ccBug-CW</name>
+            <rules-root path="ccBug-CW.xlsx"/>
+        </module>
+    </modules>
+    <properties-file-name-pattern>.*-%state%</properties-file-name-pattern>
+</project>
