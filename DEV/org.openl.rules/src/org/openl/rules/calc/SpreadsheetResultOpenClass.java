@@ -94,7 +94,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                 } else {
                     CustomSpreadsheetResultField mergedField = null;
                     for (IOpenClass openClass : module.getTypes()) {
-                        if (openClass instanceof CustomSpreadsheetResultOpenClass) {
+                        if (openClass instanceof CustomSpreadsheetResultOpenClass && !(openClass instanceof UnifiedSpreadsheetResultOpenClass)) {
                             module.getRulesModuleBindingContext()
                                 .findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
                             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
