@@ -18,7 +18,7 @@ import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
-import org.openl.rules.lang.xls.binding.wrapper.DecisionTableWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -128,30 +128,34 @@ public class Action extends FunctionalRow implements IAction {
 
     private void setCustomSpreadsheetResultOpenClassToArray(Object o,
             int dimension,
-            SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
+        if (o == null) {
+            return;
+        }
         if (dimension > 0) {
             int size = Array.getLength(o);
             if (dimension == 1) {
                 for (int i = 0; i < size; i++) {
                     Object v = Array.get(o, i);
-                    Object g = setCustomSpreadsheetResultOpenClassToArray(v, simpleRulesRuntimeEnv);
+                    Object g = setCustomSpreadsheetResultOpenClassToArray(v, customSpreadsheetResultOpenClass);
                     Array.set(o, i, g);
                 }
             } else {
                 for (int i = 0; i < size; i++) {
-                    setCustomSpreadsheetResultOpenClassToArray(Array.get(o, i), dimension - 1, simpleRulesRuntimeEnv);
+                    setCustomSpreadsheetResultOpenClassToArray(Array.get(o, i),
+                        dimension - 1,
+                        customSpreadsheetResultOpenClass);
                 }
             }
         }
     }
 
-    private Object setCustomSpreadsheetResultOpenClassToArray(Object e, SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
+    private Object setCustomSpreadsheetResultOpenClassToArray(Object e,
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         if (e instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) e;
             SpreadsheetResult newSpreadsheetResult = new SpreadsheetResult(spreadsheetResult);
-            DecisionTableWrapper decisionTableWrapper = (DecisionTableWrapper) simpleRulesRuntimeEnv.getMethodWrapper();
-            newSpreadsheetResult
-                .setCustomSpreadsheetResultOpenClass(decisionTableWrapper.getCustomSpreadsheetResultType());
+            newSpreadsheetResult.setCustomSpreadsheetResultOpenClass(customSpreadsheetResultOpenClass);
             return newSpreadsheetResult;
         }
         return e;
@@ -160,12 +164,18 @@ public class Action extends FunctionalRow implements IAction {
     private Object ifSpreadsheetResultUseDTSprType(Object value, IRuntimeEnv env) {
         if (singleActionReturnType instanceof CustomSpreadsheetResultOpenClass) {
             SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = WrapperLogic.extractSimpleRulesRuntimeEnv(env);
-            if (singleActionReturnTypeDim == 0) {
-                return setCustomSpreadsheetResultOpenClassToArray(value, simpleRulesRuntimeEnv);
+            IRulesMethodWrapper methodWrapper = simpleRulesRuntimeEnv.getMethodWrapper();
+            IOpenClass t = methodWrapper.getType();
+            if (t.isArray()) {
+                t = t.getComponentClass();
             }
-            setCustomSpreadsheetResultOpenClassToArray(value, singleActionReturnTypeDim, simpleRulesRuntimeEnv);
+            if (singleActionReturnTypeDim == 0) {
+                return setCustomSpreadsheetResultOpenClassToArray(value, (CustomSpreadsheetResultOpenClass) t);
+            }
+            setCustomSpreadsheetResultOpenClassToArray(value,
+                singleActionReturnTypeDim,
+                (CustomSpreadsheetResultOpenClass) t);
             return value;
-
         }
         return value;
     }
