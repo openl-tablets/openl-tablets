@@ -238,7 +238,6 @@ public class XlsBinder implements IOpenBinder {
             ValidationManager.validate(compileContext, topNode.getType(), bindingContext);
             return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getMessages());
         } finally {
-            moduleOpenClass.clearOddData();
             if (ValidationManager.isValidationEnabled() && bindingContext.isExecutionMode()) {
                 moduleOpenClass.clearForExecutionMode();
             }
