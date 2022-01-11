@@ -106,17 +106,20 @@ public class IdentifierBinder extends ANodeBinder {
                 type instanceof StaticOpenClass ? ((StaticOpenClass) type).getDelegate().getName() : type.getName()));
         }
 
-        if (type instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
-            IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, field.getType().getName());
-            if (t != null) {
-                field = new ModuleSpecificOpenField(field, t);
-            }
+        IOpenClass t = field.getType();
+        int dim = 0;
+        while (t.isArray()) {
+            t = t.getComponentClass();
+            dim++;
         }
 
-        if (type instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
-            IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, field.getType().getName());
-            if (t != null) {
-                field = new ModuleSpecificOpenField(field, t);
+        if (type instanceof WrapModuleSpecificTypes && t instanceof ModuleSpecificType) {
+            IOpenClass newType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, t.getName());
+            if (newType != null) {
+                if (dim > 0) {
+                    newType = newType.getArrayType(dim);
+                }
+                field = new ModuleSpecificOpenField(field, newType);
             }
         }
 
