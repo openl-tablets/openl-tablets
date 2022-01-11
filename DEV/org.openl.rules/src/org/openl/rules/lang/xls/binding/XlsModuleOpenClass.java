@@ -615,10 +615,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return decorator;
     }
 
-    public void clearOddData() {
-        unifiedSpreadsheetResultOpenClasses = null;
-    }
-
     @Override
     public void clearForExecutionMode() {
         super.clearForExecutionMode();
