@@ -45,7 +45,7 @@
 
                     <h:outputLabel for="repository" value="Repository:" styleClass="required"/>
                     <h:selectOneMenu id="repository" value="#{copyBean.toRepositoryId}">
-                        <f:ajax event="change" execute="@form" render="newProject" onevent="onRepositoryChange"/>
+                        <f:ajax event="change" execute="@form" render="newProject destRepositoryType" onevent="onRepositoryChange"/>
                         <f:selectItems value="#{copyBean.allowedRepositories}" var="repository"
                                        itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                     </h:selectOneMenu>
@@ -117,6 +117,7 @@
 
         </h:form>
 
+        <h:inputHidden id="destRepositoryType" required="false" value="#{copyBean.destRepositoryType}"/>
     </rich:popupPanel>
 
     <script>
@@ -252,10 +253,9 @@
                     afterAction = () => createProjectTags(projectName, originalSubmit);
                 }
             }
-
             withCommitInfoRequired(
                 '#{studio.currentUsername}',
-                () => copyProjectRepositoryType === "repo-git" || JSON.parse('#{copyBean.allowedRepositoriesTypes}')[$j('#copyProjectForm\\:repository').val()] === "repo-git",
+                () => copyProjectRepositoryType === "repo-git" || $j("#destRepositoryType").val() === "repo-git",
                 afterAction
             );
         }

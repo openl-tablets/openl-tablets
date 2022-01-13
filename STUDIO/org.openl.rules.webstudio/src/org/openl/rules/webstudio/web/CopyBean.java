@@ -1,12 +1,15 @@
 package org.openl.rules.webstudio.web;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
@@ -50,12 +53,6 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.jsf.FacesContextUtils;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
 
 /**
  * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor
@@ -479,12 +476,11 @@ public class CopyBean {
             .collect(Collectors.toList());
     }
 
-    public String getAllowedRepositoriesTypes() throws JsonProcessingException {
-        Map<String, String> types = getAllowedRepositories().stream()
-                .map(Repository::getId)
-                .map(repositoryId -> new RepositoryConfiguration(repositoryId, propertyResolver))
-                .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
-        return new ObjectMapper().writeValueAsString(types);
+    public String getDestRepositoryType() {
+        return Optional.ofNullable(toRepositoryId)
+                .map(repoId -> new RepositoryConfiguration(repoId, propertyResolver))
+                .map(RepositoryConfiguration::getType)
+                .orElse(null);
     }
 
     public boolean getCanCreateNewProject() {
