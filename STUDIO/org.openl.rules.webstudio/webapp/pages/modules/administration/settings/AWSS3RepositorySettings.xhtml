@@ -15,35 +15,7 @@
         <h:inputText value="#{settings.bucketName}" title="A bucket is a logical unit of storage in AWS object storage service, is used to store objects. Bucket names are globally unique, regardless of the AWS Region in which you create the bucket."/>
         <h:outputText value="Region name:" styleClass="required"/>
         <h:selectOneMenu value="#{settings.regionName}" title="You can choose any AWS Region that is geographically close to you to optimize latency, minimize costs, or address regulatory requirements.">
-            <f:selectItem itemValue="us-gov-west-1" itemLabel="AWS GovCloud (US)"/>
-            <f:selectItem itemValue="us-gov-east-1" itemLabel="AWS GovCloud (US-East)"/>
-            <f:selectItem itemValue="us-east-1" itemLabel="US East (N. Virginia)"/>
-            <f:selectItem itemValue="us-east-2" itemLabel="US East (Ohio)"/>
-            <f:selectItem itemValue="us-west-1" itemLabel="US West (N. California)"/>
-            <f:selectItem itemValue="us-west-2" itemLabel="US West (Oregon)"/>
-            <f:selectItem itemValue="eu-west-1" itemLabel="EU (Ireland)"/>
-            <f:selectItem itemValue="eu-west-2" itemLabel="EU (London)"/>
-            <f:selectItem itemValue="eu-west-3" itemLabel="EU (Paris)"/>
-            <f:selectItem itemValue="eu-central-1" itemLabel="EU (Frankfurt)"/>
-            <f:selectItem itemValue="eu-north-1" itemLabel="EU (Stockholm)"/>
-            <f:selectItem itemValue="eu-south-1" itemLabel="EU (Milan)"/>
-            <f:selectItem itemValue="ap-east-1" itemLabel="Asia Pacific (Hong Kong)"/>
-            <f:selectItem itemValue="ap-south-1" itemLabel="Asia Pacific (Mumbai)"/>
-            <f:selectItem itemValue="ap-southeast-1" itemLabel="Asia Pacific (Singapore)"/>
-            <f:selectItem itemValue="ap-southeast-2" itemLabel="Asia Pacific (Sydney)"/>
-            <f:selectItem itemValue="ap-northeast-1" itemLabel="Asia Pacific (Tokyo)"/>
-            <f:selectItem itemValue="ap-northeast-2" itemLabel="Asia Pacific (Seoul)"/>
-            <f:selectItem itemValue="ap-northeast-3" itemLabel="Asia Pacific (Osaka)"/>
-
-            <f:selectItem itemValue="sa-east-1" itemLabel="South America (Sao Paulo)"/>
-            <f:selectItem itemValue="cn-north-1" itemLabel="China (Beijing)"/>
-            <f:selectItem itemValue="cn-northwest-1" itemLabel="China (Ningxia)"/>
-            <f:selectItem itemValue="ca-central-1" itemLabel="Canada (Central)"/>
-            <f:selectItem itemValue="me-south-1" itemLabel="Middle East (Bahrain)"/>
-            <f:selectItem itemValue="af-south-1" itemLabel="Africa (Cape Town)"/>
-            <f:selectItem itemValue="us-iso-east-1" itemLabel="US ISO East"/>
-            <f:selectItem itemValue="us-isob-east-1" itemLabel="US ISOB East (Ohio)"/>
-            <f:selectItem itemValue="us-iso-west-1" itemLabel="US ISO West"/>
+            <f:selectItems value="#{settings.allRegions}" var="region" itemValue="#{region.name}" itemLabel="#{region.description}"/>
         </h:selectOneMenu>
         <h:outputText value="Access key:"/>
         <h:inputText value="#{settings.accessKey}" title="Alphanumeric text string that is used to identify the user who owns the account."/>

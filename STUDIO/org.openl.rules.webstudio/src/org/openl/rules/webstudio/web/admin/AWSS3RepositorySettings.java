@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.util.Optional;
 
+import com.amazonaws.regions.Regions;
 import org.openl.config.PropertiesHolder;
 
 public class AWSS3RepositorySettings extends RepositorySettings {
@@ -65,6 +66,10 @@ public class AWSS3RepositorySettings extends RepositorySettings {
 
     public void setRegionName(String regionName) {
         this.regionName = regionName;
+    }
+
+    public Regions[] getAllRegions() {
+        return Regions.values();
     }
 
     public String getAccessKey() {
