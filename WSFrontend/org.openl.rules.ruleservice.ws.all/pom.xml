@@ -140,6 +140,21 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!-- Different Repository implementations -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.repository.aws</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.repository.git</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.repository.azure</artifactId>
+        </dependency>
+
         <!-- Cassandra Dependencies -->
         <dependency>
             <groupId>org.openl.rules</groupId>
