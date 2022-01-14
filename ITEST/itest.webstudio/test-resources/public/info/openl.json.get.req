@@ -1,0 +1,2 @@
+GET /web/public/info/openl.json HTTP/1.1
+
