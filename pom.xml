@@ -824,6 +824,11 @@
                 <artifactId>spring-web</artifactId>
                 <version>${org.springframework.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-webmvc</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
             <!-- Spring's TestContext framework. Also includes common Servlet and Portlet API mocks. -->
             <dependency>
                 <groupId>org.springframework</groupId>

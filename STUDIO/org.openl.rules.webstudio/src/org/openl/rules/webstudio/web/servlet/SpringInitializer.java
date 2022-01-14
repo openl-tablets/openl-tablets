@@ -2,7 +2,11 @@ package org.openl.rules.webstudio.web.servlet;
 
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -20,8 +24,11 @@ import org.openl.spring.env.PropertySourcesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.XmlWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
 
 @WebListener
 public final class SpringInitializer implements Runnable, ServletContextListener {
@@ -51,12 +58,12 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         ((SpringInitializer) session.getServletContext().getAttribute(THIS)).cache.remove(sessionID);
     }
 
-
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext servletContext = sce.getServletContext();
         servletContext.log("Initializing Spring root ApplicationContext");
         applicationContext = new XmlWebApplicationContext();
+        registerDispatcherServlet(servletContext);
         applicationContext.setServletContext(servletContext);
         applicationContext.setId("OpenL_WebStudio");
         applicationContext.setConfigLocations("/WEB-INF/spring/webstudio.xml");
@@ -73,7 +80,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
         // Register a WEB context path for easy access from Spring beans
         applicationContext.addBeanFactoryPostProcessor(
-                bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
+            bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
 
         // Register Utility 'Props' class
         Props.setEnvironment(applicationContext.getEnvironment());
@@ -89,6 +96,22 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
 
         startTimer();
+    }
+
+    /**
+     * Register Spring Dispatcher Servlet
+     * 
+     * @param sc servlet context
+     */
+    private void registerDispatcherServlet(ServletContext sc) {
+        var dispatcherServlet = new DispatcherServlet();
+        dispatcherServlet.setApplicationContext(applicationContext);
+        var eventListener = (ApplicationListener<ContextRefreshedEvent>) dispatcherServlet::onApplicationEvent;
+        applicationContext.addApplicationListener(eventListener);
+
+        var registration = sc.addServlet("springDispatcher", dispatcherServlet);
+        registration.setLoadOnStartup(1);
+        registration.addMapping("/rest/*", "/web/*");
     }
 
     @Override
