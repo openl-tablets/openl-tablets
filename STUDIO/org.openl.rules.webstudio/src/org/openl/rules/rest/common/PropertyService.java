@@ -1,58 +1,54 @@
-package org.openl.rules.rest;
+package org.openl.rules.rest.common;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertyBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Service
-@Path("/property")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping(value = "/property", produces = MediaType.APPLICATION_JSON_VALUE)
 // TODO Think about using of {@link org.openl.config.PropertiesHolder} and {@link org.openl.config.InMemoryProperties}
 // TODO instead of custom one {@link PropertyBean}
 // TODO Refactor this API
 public class PropertyService {
 
-    @Autowired
-    private PropertyBean propertyBean;
+    private final PropertyBean propertyBean;
 
-    @GET
-    @Path("/current")
+    @Autowired
+    public PropertyService(PropertyBean propertyBean) {
+        this.propertyBean = propertyBean;
+    }
+
+    @SuppressWarnings("unchecked")
+    @GetMapping("/current")
     public Map<String, String> getProperties() {
         DynamicPropertySource dynamicPropertySource = DynamicPropertySource.get();
         Map<String, String> currentPropertyMap = new HashMap<>(propertyBean.getPropertyMap());
-        currentPropertyMap.putAll(new HashMap<>((Map) dynamicPropertySource.getProperties()));
+        currentPropertyMap.putAll(new HashMap(dynamicPropertySource.getProperties()));
         return currentPropertyMap;
     }
 
-    @GET
-    @Path("/webStudio")
+    @GetMapping("/webStudio")
     public Properties getWebStudioProperties() {
         DynamicPropertySource dynamicPropertySource = DynamicPropertySource.get();
         return dynamicPropertySource.getProperties();
     }
 
-    @GET
-    @Path("/default")
+    @GetMapping("/default")
     public Map<String, String> getDefaultProperties() {
         return propertyBean.getDefaultPropertyMap();
     }
 
-    @POST
-    @Path("/save")
+    @PostMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void saveProperties(Map<String, String> properties) throws IOException {
         DynamicPropertySource.get().save(properties);
     }
