@@ -1,13 +1,10 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.net.ConnectException;
+import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.regex.Pattern;
+import java.util.*;
 
 import javax.security.auth.login.FailedLoginException;
 
@@ -77,7 +74,7 @@ public final class RepositoryValidators {
                     if (path.equals(otherPath)) {
                         String msg = String.format(
                             "Repository local path '%s' already exists. Please, insert a new one.",
-                            path.toString());
+                            path);
                         throw new RepositoryValidationException(msg);
                     }
                 }
@@ -126,53 +123,60 @@ public final class RepositoryValidators {
         }
     }
 
-    static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
-        try {
-            validateInstantiation(repoConfig);
-        } catch (Exception e) {
-            Throwable resultException = ExceptionUtils.getRootCause(e);
-            if (resultException == null) {
-                resultException = e;
-            }
-            throw new RepositoryValidationException(String.format("Repository '%s' : %s", repoConfig.getName(),
-                    resultException.getMessage() != null ? resultException.getMessage() : e.getMessage()), resultException);
-        }
+    public static void validateConnection(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
+        validateConnection(repoConfig, null);
     }
 
     static void validateConnection(RepositoryConfiguration repoConfig,
             RepositoryFactoryProxy repositoryFactoryProxy) throws RepositoryValidationException {
         try {
-            /* Close connection to repository before checking connection */
-            repositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
+            if (repositoryFactoryProxy != null) {
+                /* Close connection to repository before checking connection */
+                repositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
+            }
 
             validateInstantiation(repoConfig);
         } catch (Exception e) {
-            Throwable resultException = ExceptionUtils.getRootCause(e);
-            if (resultException == null) {
-                resultException = e;
-            }
-
-            if (repoConfig.getSettings() instanceof CommonRepositorySettings) {
-                if (resultException instanceof FailedLoginException) {
-                    throw new RepositoryValidationException(
-                        String.format("Repository '%s' : Invalid login or password. Please, check login and password.",
-                            repoConfig.getName()));
-                } else if (resultException instanceof ConnectException) {
-                    throw new RepositoryValidationException("Connection refused. Please, check repository URL.");
-                }
-            }
-
             throw new RepositoryValidationException(
-                String.format("Repository '%s' : %s", repoConfig.getName(), e.getMessage()));
+                String.format("Repository '%s' : %s", repoConfig.getName(), getMostSpecificMessage(e)), e);
         }
     }
 
-    public static void validateInstantiation(RepositoryConfiguration repoConfig) throws Exception {
+    private static void validateInstantiation(RepositoryConfiguration repoConfig) throws Exception {
         PropertyResolver propertiesResolver = DelegatedPropertySource
             .createPropertiesResolver(repoConfig.getPropertiesToValidate());
         try (Repository repository = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
             // Validate instantiation
             repository.validateConnection();
         }
+    }
+
+    public static String getMostSpecificMessage(Exception e) {
+        final List<Throwable> list = ExceptionUtils.getThrowableList(e);
+        Throwable cause = list.isEmpty() ? null : list.get(list.size() - 1);
+        if (cause == null) {
+            cause = e;
+        }
+
+        // Check for common cases.
+        if (cause instanceof FailedLoginException) {
+            return "Invalid login or password. Please, check login and password.";
+        } else if (cause instanceof ConnectException) {
+            return "Connection refused. Please, check repository URL.";
+        } else if (cause instanceof UnknownHostException) {
+            final String message = cause.getMessage();
+            return message != null ? String.format("Unknown host (%s).", message) : "Unknown host.";
+        }
+
+        // Obviously root cause gives more specific message. If we get empty message, we should consider wrapper exception.
+        ListIterator<Throwable> listIterator = list.listIterator(list.size());
+        while (listIterator.hasPrevious()) {
+            String message = listIterator.previous().getMessage();
+            if (StringUtils.isNotBlank(message)) {
+                return message;
+            }
+        }
+
+        return e.getMessage();
     }
 }

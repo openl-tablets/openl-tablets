@@ -63,6 +63,7 @@ import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.errors.CorruptObjectException;
 import org.eclipse.jgit.errors.MissingObjectException;
+import org.eclipse.jgit.errors.NoRemoteRepositoryException;
 import org.eclipse.jgit.hooks.CommitMsgHook;
 import org.eclipse.jgit.hooks.PreCommitHook;
 import org.eclipse.jgit.lib.ConfigConstants;
@@ -873,21 +874,25 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         // Unknown host
         if (cause instanceof UnknownHostException) {
-            String error = String.format("Unknown host for URL %s.", uri);
+            String error;
             final String message = cause.getMessage();
             if (message != null) {
-                error += " Root cause message: " + message;
+                error = String.format("Unknown host (%s) for URL %s.", message, uri);
+            } else {
+                error = String.format("Unknown host for URL %s.", uri);
             }
-            throw new IllegalArgumentException(error, e);
+            throw new IllegalArgumentException(error);
+        } else if (cause instanceof NoRemoteRepositoryException) {
+            throw new IllegalArgumentException(String.format("Remote repository \"%s\" does not exist.", uri));
         }
 
         if (e instanceof TransportException) {
             try {
                 if ((new URIish(uri)).getScheme() == null) {
-                    throw new IllegalStateException("Incorrect URL.", e);
+                    throw new IllegalStateException("Incorrect URL.");
                 }
             } catch (URISyntaxException uriSyntaxException) {
-                throw new IllegalStateException("Incorrect URL.", uriSyntaxException);
+                throw new IllegalStateException("Incorrect URL.");
             }
         }
 

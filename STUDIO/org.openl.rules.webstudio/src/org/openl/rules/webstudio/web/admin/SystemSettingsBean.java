@@ -228,7 +228,7 @@ public class SystemSettingsBean {
 
             if (!isUseDesignRepo()) {
                 RepositoryValidators.validate(deployConfigRepositoryConfiguration);
-                RepositoryValidators.validateConnectionForDesignRepository(deployConfigRepositoryConfiguration);
+                RepositoryValidators.validateConnection(deployConfigRepositoryConfiguration);
             }
 
             productionRepositoryEditor.validate();

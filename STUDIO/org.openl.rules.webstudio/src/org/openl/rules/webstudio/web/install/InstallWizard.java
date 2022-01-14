@@ -29,7 +29,6 @@ import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.validator.ValidatorException;
 import javax.naming.directory.InvalidSearchFilterException;
 
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
@@ -150,19 +149,17 @@ public class InstallWizard implements Serializable {
             if (step == 2) {
                 try {
                     RepositoryValidators.validate(designRepositoryConfiguration);
-                    RepositoryValidators.validateInstantiation(designRepositoryConfiguration);
+                    RepositoryValidators.validateConnection(designRepositoryConfiguration);
 
                     if (!isUseDesignRepo()) {
                         RepositoryValidators.validate(deployConfigRepositoryConfiguration);
-                        RepositoryValidators.validateInstantiation(deployConfigRepositoryConfiguration);
+                        RepositoryValidators.validateConnection(deployConfigRepositoryConfiguration);
                     }
 
                     productionRepositoryEditor.validate();
                 } catch (Exception e) {
-                    Throwable rootCause = ExceptionUtils.getRootCause(e);
-                    String message = "Incorrect Design Repository configuration: " + ((rootCause == null || rootCause.getMessage()==null)? e
-                            .getMessage() : rootCause.getMessage());
-                    WebStudioUtils.addErrorMessage(message);
+                    log.error(e.getMessage(), e);
+                    WebStudioUtils.addErrorMessage(e.getMessage());
                     return null;
                 }
             }
