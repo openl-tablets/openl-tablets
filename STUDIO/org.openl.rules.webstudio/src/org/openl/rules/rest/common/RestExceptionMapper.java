@@ -1,4 +1,4 @@
-package org.openl.rules.rest;
+package org.openl.rules.rest.common;
 
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -7,24 +7,36 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-
 import org.openl.rules.rest.exception.RestRuntimeException;
 import org.openl.rules.rest.exception.ValidationException;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-public class RestExceptionMapper implements ExceptionMapper<Exception> {
+/**
+ * API Exception Handler
+ *
+ * @author Vladyslav Pikus
+ */
+@ControllerAdvice
+public class RestExceptionMapper extends ResponseEntityExceptionHandler {
 
     private static final String DEF_ERROR_PREFIX = "openl.error.";
 
@@ -32,34 +44,77 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
 
     private final MessageSource messageSource;
 
-    public RestExceptionMapper(MessageSource messageSource) {
+    @Autowired
+    public RestExceptionMapper(@Qualifier("validationMessageSource") MessageSource messageSource) {
         this.messageSource = messageSource;
     }
 
-    @Override
-    public Response toResponse(Exception e) {
-        ResponseStatus status = e.getClass().getAnnotation(ResponseStatus.class);
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<Object> handleAllRestRuntimeExceptions(ValidationException e, WebRequest request) {
+        var code = Optional.ofNullable(AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class))
+            .map(ResponseStatus::code)
+            .orElse(HttpStatus.BAD_REQUEST);
+        return handleExceptionInternal(e,
+            handleBindingResult(code, e.getBindingResult()),
+            new HttpHeaders(),
+            code,
+            request);
+    }
+
+    @ExceptionHandler(RestRuntimeException.class)
+    public ResponseEntity<Object> handleAllRestRuntimeExceptions(RestRuntimeException e, WebRequest request) {
+        ResponseStatus status = AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class);
         if (status != null) {
-            HttpStatus code = status.code();
-            if (e instanceof ValidationException) {
-                return handleBindingResult(code, ((ValidationException) e).getBindingResult());
-            } else {
-                return Response.status(code.value())
-                    .type(MediaType.APPLICATION_JSON_TYPE)
-                    .entity(mapCommonException(code, e))
-                    .build();
-            }
+            final HttpStatus code = status.code();
+            return handleExceptionInternal(e, mapCommonException(code, e), new HttpHeaders(), code, request);
         } else {
             HttpStatus code = HttpStatus.INTERNAL_SERVER_ERROR;
             LOG.error(e.getMessage(), e);
-            return Response.status(code.value())
-                .type(MediaType.APPLICATION_JSON_TYPE)
-                .entity(mapCommonException(code, e))
-                .build();
+            return handleExceptionInternal(e, mapCommonException(code, e), new HttpHeaders(), code, request);
         }
     }
 
-    private Response handleBindingResult(HttpStatus status, BindingResult bindingResult) {
+    @ExceptionHandler({ Exception.class, RuntimeException.class })
+    public ResponseEntity<Object> handleInternalErrors(Exception e, WebRequest request) {
+        LOG.error(e.getMessage(), e);
+        return handleExceptionInternal(e, e.getMessage(), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleExceptionInternal(Exception e,
+            Object body,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request) {
+        var handledException = super.handleExceptionInternal(e, body, headers, status, request);
+        if (handledException.hasBody()) {
+            var handledBody = handledException.getBody();
+            if (handledBody instanceof Map) {
+                return handledException;
+            } else {
+                Map<String, Object> dest = new LinkedHashMap<>();
+                dest.put("message",
+                    Optional.ofNullable(handledBody)
+                        .map(Object::toString)
+                        .filter(StringUtils::isNotBlank)
+                        .orElseGet(status::getReasonPhrase));
+                return new ResponseEntity<>(dest, headers, status);
+            }
+        }
+        return handledException;
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleBindException(BindException e,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request) {
+        var handledException = super.handleBindException(e, headers, status, request);
+        var bindingErrorModel = handleBindingResult(status, e.getBindingResult());
+        return new ResponseEntity<>(bindingErrorModel, handledException.getHeaders(), handledException.getStatusCode());
+    }
+
+    private Map<String, Object> handleBindingResult(HttpStatus status, BindingResult bindingResult) {
         Map<String, Object> dest = new LinkedHashMap<>();
         if (bindingResult.getGlobalErrorCount() == 1 && !bindingResult.hasFieldErrors()) {
             dest.put("code", buildErrorCode(bindingResult.getGlobalError().getCode()));
@@ -83,10 +138,7 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
                         .collect(Collectors.toList()));
             }
         }
-        return Response.status(Response.Status.BAD_REQUEST.getStatusCode())
-            .type(MediaType.APPLICATION_JSON_TYPE)
-            .entity(dest)
-            .build();
+        return dest;
     }
 
     private String resolveLocalMessage(ObjectError error) {
