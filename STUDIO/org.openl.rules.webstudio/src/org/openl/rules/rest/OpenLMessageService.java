@@ -2,31 +2,26 @@ package org.openl.rules.rest;
 
 import java.util.Optional;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.MessageHandler;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Service
-@Path("/message/")
-@Produces(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping(value = "/message/", produces = MediaType.APPLICATION_JSON_VALUE)
 public class OpenLMessageService {
 
     private static final MessageHandler messageHandler = new MessageHandler();
 
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("{messageId}/stacktrace")
-    public String messageStacktrace(@PathParam("messageId") final long messageId) {
+    @GetMapping(value = "{messageId}/stacktrace", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String messageStacktrace(@PathVariable("messageId") final long messageId) {
         return Optional.ofNullable(WebStudioUtils.getWebStudio(WebStudioUtils.getSession()))
             .map(WebStudio::getModel)
             .flatMap(model -> model.getCompilationStatus()
@@ -40,10 +35,8 @@ public class OpenLMessageService {
             .orElse(null);
     }
 
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    @Path("{messageId}/url")
-    public String messageUrl(@PathParam("messageId") final long messageId) {
+    @GetMapping(value = "{messageId}/url", produces = MediaType.TEXT_PLAIN_VALUE)
+    public String messageUrl(@PathVariable("messageId") final long messageId) {
         return Optional.ofNullable(WebStudioUtils.getWebStudio(WebStudioUtils.getSession()))
             .flatMap(webStudio -> webStudio.getModel()
                 .getCompilationStatus()

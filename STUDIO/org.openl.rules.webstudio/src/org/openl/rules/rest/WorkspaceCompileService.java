@@ -7,12 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
@@ -29,19 +23,21 @@ import org.openl.rules.webstudio.web.tableeditor.TableBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
-import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Service
-@Path("/compile/")
-@Produces(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping(value = "/compile/", produces = MediaType.APPLICATION_JSON_VALUE)
 public class WorkspaceCompileService {
 
     private static final int MAX_PROBLEMS = 100;
 
-    @GET
-    @Path("progress/{messageId}/{messageIndex}")
-    public Map<String, Object> getCompile(@PathParam("messageId") final Long messageId,
-            @PathParam("messageIndex") final Integer messageIndex) {
+    @GetMapping("progress/{messageId}/{messageIndex}")
+    public Map<String, Object> getCompile(@PathVariable("messageId") final Long messageId,
+            @PathVariable("messageIndex") final Integer messageIndex) {
         Map<String, Object> compileModuleInfo = new HashMap<>();
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         if (webStudio != null) {
@@ -75,9 +71,8 @@ public class WorkspaceCompileService {
         return compileModuleInfo;
     }
 
-    @GET
-    @Path("tests/{tableId}")
-    public Map<String, Object> getCompile(@PathParam("tableId") final String tableId) {
+    @GetMapping("tests/{tableId}")
+    public Map<String, Object> getCompile(@PathVariable("tableId") final String tableId) {
         Map<String, Object> tableTestsInfo = new HashMap<>();
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         List<TableBean.TableDescription> tableDescriptions = new ArrayList<>();
@@ -103,12 +98,14 @@ public class WorkspaceCompileService {
         return tableTestsInfo;
     }
 
-    @GET
-    @Path("tests")
+    @GetMapping("tests")
     public Map<String, Object> tests() {
         Map<String, Object> moduleTestsInfo = new HashMap<>();
-        WebStudio studio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
-        ProjectModel model = studio.getModel();
+        WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
+        if (webStudio == null) {
+            return moduleTestsInfo;
+        }
+        ProjectModel model = webStudio.getModel();
         TestSuiteMethod[] allTestMethods = model.getAllTestMethods();
         moduleTestsInfo.put("count", CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0);
         moduleTestsInfo.put("compiled", !model.isCompilationInProgress());
@@ -117,18 +114,22 @@ public class WorkspaceCompileService {
         return moduleTestsInfo;
     }
 
-    @GET
-    @Path("project")
+    @GetMapping("project")
     public boolean project() {
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
+        if (webStudio == null) {
+            return false;
+        }
         return !webStudio.getModel().isCompilationInProgress();
     }
 
-    @GET
-    @Path("table/{tableId}")
-    public Map<String, Object> table(@PathParam("tableId") final String tableId) {
+    @GetMapping("table/{tableId}")
+    public Map<String, Object> table(@PathVariable("tableId") final String tableId) {
         Map<String, Object> tableInfo = new HashMap<>();
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
+        if (webStudio == null) {
+            return tableInfo;
+        }
         ProjectModel model = webStudio.getModel();
         IOpenLTable table = model.getTableById(tableId);
         final boolean projectCompilationCompleted = model.isProjectCompilationCompleted();
