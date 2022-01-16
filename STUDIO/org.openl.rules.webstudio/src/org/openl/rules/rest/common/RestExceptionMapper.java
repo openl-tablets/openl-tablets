@@ -86,11 +86,11 @@ public class RestExceptionMapper extends ResponseEntityExceptionHandler {
             HttpHeaders headers,
             HttpStatus status,
             WebRequest request) {
-        var handledException = super.handleExceptionInternal(e, body, headers, status, request);
-        if (handledException.hasBody()) {
-            var handledBody = handledException.getBody();
+        var handledEx = super.handleExceptionInternal(e, body, headers, status, request);
+        if (handledEx.hasBody()) {
+            var handledBody = handledEx.getBody();
             if (handledBody instanceof Map) {
-                return handledException;
+                return handledEx;
             } else {
                 Map<String, Object> dest = new LinkedHashMap<>();
                 dest.put("message",
@@ -98,10 +98,14 @@ public class RestExceptionMapper extends ResponseEntityExceptionHandler {
                         .map(Object::toString)
                         .filter(StringUtils::isNotBlank)
                         .orElseGet(status::getReasonPhrase));
-                return new ResponseEntity<>(dest, headers, status);
+                return new ResponseEntity<>(dest, handledEx.getHeaders(), handledEx.getStatusCode());
             }
+        } else {
+            Map<String, Object> dest = new LinkedHashMap<>();
+            dest.put("code", buildErrorCode(status.value() + ".default.message"));
+            dest.put("message", e.getMessage());
+            return new ResponseEntity<>(dest, handledEx.getHeaders(), handledEx.getStatusCode());
         }
-        return handledException;
     }
 
     @Override
@@ -109,9 +113,9 @@ public class RestExceptionMapper extends ResponseEntityExceptionHandler {
             HttpHeaders headers,
             HttpStatus status,
             WebRequest request) {
-        var handledException = super.handleBindException(e, headers, status, request);
+        var handledEx = super.handleBindException(e, headers, status, request);
         var bindingErrorModel = handleBindingResult(status, e.getBindingResult());
-        return new ResponseEntity<>(bindingErrorModel, handledException.getHeaders(), handledException.getStatusCode());
+        return new ResponseEntity<>(bindingErrorModel, handledEx.getHeaders(), handledEx.getStatusCode());
     }
 
     private Map<String, Object> handleBindingResult(HttpStatus status, BindingResult bindingResult) {

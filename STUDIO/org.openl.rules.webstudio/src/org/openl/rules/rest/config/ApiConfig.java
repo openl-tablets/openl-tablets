@@ -5,7 +5,6 @@ import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
@@ -29,9 +28,13 @@ public class ApiConfig implements WebMvcConfigurer {
 
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-        var jacksonMessageConverter = new MappingJackson2HttpMessageConverter(objectMapper());
-        jacksonMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON));
-        converters.add(jacksonMessageConverter);
+        for (HttpMessageConverter<?> converter : converters) {
+            if (converter instanceof MappingJackson2HttpMessageConverter) {
+                var jacksonConverter = (MappingJackson2HttpMessageConverter) converter;
+                jacksonConverter.setObjectMapper(objectMapper()); // replace default objectMapper with custom
+                break;
+            }
+        }
     }
 
     @Bean
