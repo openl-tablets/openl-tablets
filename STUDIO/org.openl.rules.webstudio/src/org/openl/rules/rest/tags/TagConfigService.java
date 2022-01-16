@@ -5,18 +5,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+import javax.servlet.http.HttpServletRequest;
 
 import org.openl.rules.rest.SecurityChecker;
 import org.openl.rules.rest.exception.BadRequestException;
@@ -29,71 +18,77 @@ import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Service
-@Path("/admin/tag-config")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping(value = "/admin/tag-config")
 public class TagConfigService {
+
     private final TagTypeService tagTypeService;
     private final TagService tagService;
 
+    @Autowired
     public TagConfigService(TagTypeService tagTypeService, TagService tagService) {
         this.tagTypeService = tagTypeService;
         this.tagService = tagService;
     }
 
-    @GET
-    @Path("/types")
+    @GetMapping(value = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<TagTypeDTO> getTypes() {
         SecurityChecker.allow(Privileges.ADMIN);
         return tagTypeService.getAll();
     }
 
-    @DELETE
-    @Path("/types/{id}")
-    public Response deleteTagType(@PathParam("id") final Long id) {
+    @DeleteMapping(value = "/types/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteTagType(@PathVariable("id") final Long id) {
         SecurityChecker.allow(Privileges.ADMIN);
         if (tagTypeService.delete(id)) {
-            return Response.noContent().build();
+            return ResponseEntity.noContent().build();
         } else {
             throw new NotFoundException("tag-type.message");
         }
     }
 
-    @DELETE
-    @Path("/types/{tagTypeId}/tags/{id}")
-    public Response deleteTag(@PathParam("tagTypeId") final Long tagTypeId, @PathParam("id") final Long id) {
+    @DeleteMapping("/types/{tagTypeId}/tags/{id}")
+    public ResponseEntity<?> deleteTag(@PathVariable("tagTypeId") final Long tagTypeId,
+            @PathVariable("id") final Long id) {
         SecurityChecker.allow(Privileges.ADMIN);
         final Tag tag = tagService.getById(id);
         if (tag == null || !Objects.equals(tag.getType().getId(), tagTypeId)) {
             throw new NotFoundException("tag.message");
         }
         if (tagService.delete(id)) {
-            return Response.noContent().build();
+            return ResponseEntity.noContent().build();
         } else {
             throw new NotFoundException("tag.message");
         }
     }
 
-    @POST
-    @Path("/types")
-    public Response addTagType(TagTypeDTO typeDTO, @Context UriInfo uriInfo) {
-        return addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), uriInfo);
+    @PostMapping(value = "/types", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> addTagType(@RequestBody TagTypeDTO typeDTO, HttpServletRequest request) {
+        return addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), request);
     }
 
-    @PUT
-    @Path("/types/{id}")
-    public Response updateTagType(@PathParam("id") final Long id, TagTypeDTO typeDTO) {
+    @PutMapping(value = "/types/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateTagType(@PathVariable("id") final Long id, @RequestBody TagTypeDTO typeDTO) {
         return addOrUpdateTagType(id, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), null);
     }
 
-    private Response addOrUpdateTagType(final Long id,
+    private ResponseEntity<?> addOrUpdateTagType(final Long id,
             final String name,
             final Boolean nullable,
             final Boolean extensible,
-            final UriInfo uriInfo) {
+            final HttpServletRequest request) {
         SecurityChecker.allow(Privileges.ADMIN);
         final TagType tagType;
 
@@ -130,30 +125,31 @@ public class TagConfigService {
 
         if (id == null) {
             tagTypeService.save(tagType);
-            return created(uriInfo, tagType.getId());
+            return created(request, tagType.getId());
         } else {
             tagTypeService.update(tagType);
-            return Response.noContent().build();
+            return ResponseEntity.noContent().build();
         }
     }
 
-    @POST
-    @Path("/types/{tagTypeId}/tags")
-    @Consumes(MediaType.TEXT_PLAIN)
-    public Response addTag(@PathParam("tagTypeId") final Long tagTypeId, final String name, @Context UriInfo uriInfo) {
-        return addOrUpdateTag(tagTypeId, null, name, uriInfo);
+    @PostMapping(value = "/types/{tagTypeId}/tags", consumes = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> addTag(@PathVariable("tagTypeId") final Long tagTypeId,
+            @RequestBody final String name,
+            HttpServletRequest request) {
+        return addOrUpdateTag(tagTypeId, null, name, request);
     }
 
-    @PUT
-    @Path("/types/{tagTypeId}/tags/{tagId}")
-    @Consumes(MediaType.TEXT_PLAIN)
-    public Response updateTag(@PathParam("tagTypeId") final Long tagTypeId,
-            @PathParam("tagId") final Long tagId,
-            final String name) {
+    @PutMapping(value = "/types/{tagTypeId}/tags/{tagId}", consumes = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> updateTag(@PathVariable("tagTypeId") final Long tagTypeId,
+            @PathVariable("tagId") final Long tagId,
+            @RequestBody final String name) {
         return addOrUpdateTag(tagTypeId, tagId, name, null);
     }
 
-    private Response addOrUpdateTag(final Long tagTypeId, final Long tagId, final String name, UriInfo uriInfo) {
+    private ResponseEntity<?> addOrUpdateTag(final Long tagTypeId,
+            final Long tagId,
+            final String name,
+            HttpServletRequest request) {
         SecurityChecker.allow(Privileges.ADMIN);
 
         final Tag tag;
@@ -188,16 +184,16 @@ public class TagConfigService {
 
         if (tagId == null) {
             tagService.save(tag);
-            return created(uriInfo, tag.getId());
+            return created(request, tag.getId());
         } else {
             tagService.update(tag);
-            return Response.noContent().build();
+            return ResponseEntity.noContent().build();
         }
     }
 
-    private Response created(UriInfo uriInfo, Long id) {
+    private ResponseEntity<?> created(HttpServletRequest request, Long id) {
         try {
-            return Response.created(new URI(uriInfo.getPath(false) + "/" + id)).build();
+            return ResponseEntity.created(new URI(request.getRequestURL() + "/" + id)).build();
         } catch (URISyntaxException e) {
             throw new IllegalStateException(e);
         }
