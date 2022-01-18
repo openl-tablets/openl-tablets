@@ -191,18 +191,6 @@
     <url-pattern>/action/prop_values</url-pattern>
   </servlet-mapping>
 
-  <servlet>
-    <servlet-name>CXFServlet</servlet-name>
-    <servlet-class>org.openl.rules.webstudio.web.servlet.WebStudioCXFServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
-
-  <servlet-mapping>
-    <servlet-name>CXFServlet</servlet-name>
-    <url-pattern>/rest/*</url-pattern>
-    <url-pattern>/web/*</url-pattern>
-  </servlet-mapping>
-
   <welcome-file-list>
     <welcome-file>faces/pages/modules/index.xhtml</welcome-file>
   </welcome-file-list>
