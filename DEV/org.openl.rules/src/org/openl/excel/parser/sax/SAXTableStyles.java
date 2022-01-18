@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.model.StylesTable;
+import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.ICellComment;
@@ -14,8 +15,6 @@ import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsCellFont;
 import org.openl.rules.table.xls.XlsCellStyle;
 import org.openl.util.StringUtils;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTComment;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst;
 
 public class SAXTableStyles implements TableStyles {
     private final IGridRegion region;
@@ -61,14 +60,14 @@ public class SAXTableStyles implements TableStyles {
             return null;
         }
 
-        CTComment comment = sheetComments.getCTComment(new CellAddress(row, column));
+        XSSFComment comment = sheetComments.findCellComment(new CellAddress(row, column));
         if (comment == null) {
             return null;
         }
 
-        CTRst rst = comment.getText();
-        String text = rst == null ? null : new XSSFRichTextString(rst).getString();
-        return new SAXCellComment(text, sheetComments.getAuthor(comment.getAuthorId()));
+        XSSFRichTextString rst = comment.getString();
+        String text = rst == null ? null : rst.getString();
+        return new SAXCellComment(text, comment.getAuthor());
     }
 
     @Override

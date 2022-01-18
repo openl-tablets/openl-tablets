@@ -10,7 +10,7 @@ import java.util.Map;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.apache.poi.xssf.model.SharedStringsTable;
+import org.apache.poi.xssf.model.SharedStrings;
 import org.openl.excel.parser.AlignedValue;
 import org.openl.excel.parser.ExcelParseException;
 import org.openl.excel.parser.MergedCell;
@@ -27,7 +27,7 @@ public class SheetHandler extends DefaultHandler {
 
     private final Logger log = LoggerFactory.getLogger(SheetHandler.class);
 
-    private final SharedStringsTable sharedStringsTable;
+    private final SharedStrings sharedStringsTable;
     private final ParserDateUtil parserDateUtil;
     private final boolean use1904Windowing;
     private final MinimalStyleTable stylesTable;
@@ -60,10 +60,10 @@ public class SheetHandler extends DefaultHandler {
 
     private final List<CellRangeAddress> mergedCells = new ArrayList<>();
 
-    SheetHandler(SharedStringsTable sharedStringsTable,
-            boolean use1904Windowing,
-            MinimalStyleTable stylesTable,
-            ParserDateUtil parserDateUtil) {
+    SheetHandler(SharedStrings sharedStringsTable,
+                 boolean use1904Windowing,
+                 MinimalStyleTable stylesTable,
+                 ParserDateUtil parserDateUtil) {
         this.sharedStringsTable = sharedStringsTable;
         this.use1904Windowing = use1904Windowing;
         this.stylesTable = stylesTable;
