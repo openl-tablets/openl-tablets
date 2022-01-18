@@ -11,6 +11,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -112,6 +113,9 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         var registration = sc.addServlet("springDispatcher", dispatcherServlet);
         registration.setLoadOnStartup(1);
         registration.addMapping("/rest/*", "/web/*");
+
+        MultipartConfigElement multipartConfigElement = new MultipartConfigElement("", -1L, -1L, 0);
+        registration.setMultipartConfig(multipartConfigElement);
     }
 
     @Override

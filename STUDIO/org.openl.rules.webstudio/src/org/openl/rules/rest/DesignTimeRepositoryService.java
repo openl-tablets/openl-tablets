@@ -1,7 +1,6 @@
 package org.openl.rules.rest;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,15 +15,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.openl.rules.lock.Lock;
 import org.openl.rules.lock.LockManager;
 import org.openl.rules.project.abstraction.AProject;
@@ -33,8 +23,8 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
@@ -45,15 +35,22 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
-@Service
-@javax.ws.rs.Path("/repos")
-@Produces(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping(value = "/repos", produces = MediaType.APPLICATION_JSON_VALUE)
 public class DesignTimeRepositoryService {
 
     private final DesignTimeRepository designTimeRepository;
@@ -64,7 +61,7 @@ public class DesignTimeRepositoryService {
     private final ZipProjectSaveStrategy zipProjectSaveStrategy;
     private final LockManager lockManager;
 
-    @Inject
+    @Autowired
     public DesignTimeRepositoryService(DesignTimeRepository designTimeRepository,
             PropertyResolver propertyResolver,
             BeanValidationProvider validationService,
@@ -81,7 +78,7 @@ public class DesignTimeRepositoryService {
         this.lockManager = new LockManager(Paths.get(homeDirectory).resolve("locks/api"));
     }
 
-    @GET
+    @GetMapping
     public List<Map<String, Object>> getRepositoryList() {
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         return designTimeRepository.getRepositories().stream().map(repository -> {
@@ -92,9 +89,8 @@ public class DesignTimeRepositoryService {
         }).collect(Collectors.toList());
     }
 
-    @GET
-    @javax.ws.rs.Path("/{repo-name}/projects")
-    public List<Map<String, Object>> getProjectListByRepository(@PathParam("repo-name") String repoName) {
+    @GetMapping("/{repo-name}/projects")
+    public List<Map<String, Object>> getProjectListByRepository(@PathVariable("repo-name") String repoName) {
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         Repository repository = getRepositoryByName(repoName);
         return designTimeRepository.getProjects(repoName)
@@ -126,15 +122,13 @@ public class DesignTimeRepositoryService {
         return dest;
     }
 
-    @PUT
-    @javax.ws.rs.Path("/{repo-name}/projects/{project-name}")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Map<String, Object> createProjectFromZip(@PathParam("repo-name") String repoName,
-            @PathParam("project-name") String projectName,
-            @Multipart(value = "path", required = false) String path,
-            @Multipart(value = "comment", required = false) String comment,
-            @Multipart(value = "template", type = "application/zip") InputStream inZip,
-            @Multipart(value = "overwrite", required = false) boolean overwrite) throws IOException {
+    @PutMapping(value = "/{repo-name}/projects/{project-name}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Map<String, Object> createProjectFromZip(@PathVariable("repo-name") String repoName,
+            @PathVariable("project-name") String projectName,
+            @RequestParam(value = "path", required = false) String path,
+            @RequestParam(value = "comment", required = false) String comment,
+            @RequestParam("template") MultipartFile file,
+            @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException {
 
         Repository repository = getRepositoryByName(repoName);
         SecurityChecker.allow(overwrite ? Privileges.EDIT_PROJECTS : Privileges.CREATE_PROJECTS);
@@ -151,7 +145,7 @@ public class DesignTimeRepositoryService {
         final Path archiveTmp = Files.createTempFile(projectName, ".zip");
         final Lock lock = getLock(model);
         try {
-            IOUtils.copyAndClose(inZip, Files.newOutputStream(archiveTmp));
+            IOUtils.copyAndClose(file.getInputStream(), Files.newOutputStream(archiveTmp));
             if (!lock.tryLock(getUserName(), 15, TimeUnit.SECONDS)) {
                 throw new IllegalStateException("Can't create a lock.");
             }
