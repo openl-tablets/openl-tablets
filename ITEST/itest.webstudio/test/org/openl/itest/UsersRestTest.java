@@ -81,7 +81,7 @@ public class UsersRestTest {
             statement.execute("DROP ALL OBJECTS DELETE FILES;");
             h2Connection.commit();
 
-            String dump = new String(Files.readAllBytes(Paths.get(DB_DUMP_FILE)), Charset.defaultCharset());
+            String dump = Files.readString(Paths.get(DB_DUMP_FILE), Charset.defaultCharset());
             statement.execute(dump);
             h2Connection.commit();
         }
