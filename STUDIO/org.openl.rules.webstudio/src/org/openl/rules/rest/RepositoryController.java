@@ -62,6 +62,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -84,10 +85,10 @@ import org.xml.sax.InputSource;
  POST /unlock_project/{Project Name}                 (ok, fail)
  */
 @RestController
-@RequestMapping(value = "/repo/", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/repo/", produces = MediaType.APPLICATION_JSON_VALUE)
 @Deprecated
-public class RepositoryService {
-    private static final Logger LOG = LoggerFactory.getLogger(RepositoryService.class);
+public class RepositoryController {
+    private static final Logger LOG = LoggerFactory.getLogger(RepositoryController.class);
 
     private final MultiUserWorkspaceManager workspaceManager;
 
@@ -96,7 +97,7 @@ public class RepositoryService {
     private final Comments designRepoComments;
 
     @Autowired
-    public RepositoryService(MultiUserWorkspaceManager workspaceManager,
+    public RepositoryController(MultiUserWorkspaceManager workspaceManager,
             PropertyResolver propertyResolver,
             UserManagementService userManagementService) {
         this.workspaceManager = workspaceManager;
@@ -196,7 +197,7 @@ public class RepositoryService {
      * @param zipFile a zipped project
      * @param comment a revision comment
      */
-    @PostMapping(value = "project/{name}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "project/{name}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addProject(HttpServletRequest request,
             @PathVariable("name") String name,
             @RequestParam(value = "file") MultipartFile zipFile,
@@ -245,7 +246,7 @@ public class RepositoryService {
      * @param zipFile a zipped project
      * @param comment a revision comment
      */
-    @PostMapping(value = "project", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "project", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addProject(HttpServletRequest request,
             @RequestParam(value = "file") MultipartFile zipFile,
             @RequestParam(value = "comment", required = false) String comment) {

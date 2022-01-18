@@ -32,13 +32,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/admin/tag-config")
-public class TagConfigService {
+public class TagConfigController {
 
     private final TagTypeService tagTypeService;
     private final TagService tagService;
 
     @Autowired
-    public TagConfigService(TagTypeService tagTypeService, TagService tagService) {
+    public TagConfigController(TagTypeService tagTypeService, TagService tagService) {
         this.tagTypeService = tagTypeService;
         this.tagService = tagService;
     }

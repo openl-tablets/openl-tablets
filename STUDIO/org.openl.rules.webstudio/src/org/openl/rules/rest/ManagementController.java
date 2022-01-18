@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(value = "/admin/management", produces = MediaType.APPLICATION_JSON_VALUE)
-public class ManagementService {
+public class ManagementController {
 
     private static final String SECURITY_DEF_GROUP_PROP = "security.default-group";
 
@@ -48,7 +48,7 @@ public class ManagementService {
     private final ExternalGroupService extGroupService;
 
     @Autowired
-    public ManagementService(GroupDao groupDao,
+    public ManagementController(GroupDao groupDao,
             GroupManagementService groupManagementService,
             InMemoryProperties properties,
             BeanValidationProvider validationProvider,

@@ -23,12 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE)
-public class NotificationService {
+public class NotificationController {
 
-    @Value("${admin.notification-file}")
     private final Path NOTIFICATION_FILE;
 
-    public NotificationService(@Value("${admin.notification-file}") String notificationFile) {
+    public NotificationController(@Value("${admin.notification-file}") String notificationFile) {
         this.NOTIFICATION_FILE = Paths.get(notificationFile);
     }
 

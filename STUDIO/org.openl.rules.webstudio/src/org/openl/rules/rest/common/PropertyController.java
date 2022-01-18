@@ -19,12 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 // TODO Think about using of {@link org.openl.config.PropertiesHolder} and {@link org.openl.config.InMemoryProperties}
 // TODO instead of custom one {@link PropertyBean}
 // TODO Refactor this API
-public class PropertyService {
+public class PropertyController {
 
     private final PropertyBean propertyBean;
 
     @Autowired
-    public PropertyService(PropertyBean propertyBean) {
+    public PropertyController(PropertyBean propertyBean) {
         this.propertyBean = propertyBean;
     }
 

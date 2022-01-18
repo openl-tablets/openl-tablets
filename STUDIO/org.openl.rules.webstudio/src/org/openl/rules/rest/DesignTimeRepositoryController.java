@@ -51,7 +51,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(value = "/repos", produces = MediaType.APPLICATION_JSON_VALUE)
-public class DesignTimeRepositoryService {
+public class DesignTimeRepositoryController {
 
     private final DesignTimeRepository designTimeRepository;
     private final PropertyResolver propertyResolver;
@@ -62,7 +62,7 @@ public class DesignTimeRepositoryService {
     private final LockManager lockManager;
 
     @Autowired
-    public DesignTimeRepositoryService(DesignTimeRepository designTimeRepository,
+    public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
             PropertyResolver propertyResolver,
             BeanValidationProvider validationService,
             CreateUpdateProjectModelValidator createUpdateProjectModelValidator,

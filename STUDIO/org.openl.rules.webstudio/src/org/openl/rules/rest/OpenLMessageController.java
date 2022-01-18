@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/message/", produces = MediaType.APPLICATION_JSON_VALUE)
-public class OpenLMessageService {
+public class OpenLMessageController {
 
     private static final MessageHandler messageHandler = new MessageHandler();
 
