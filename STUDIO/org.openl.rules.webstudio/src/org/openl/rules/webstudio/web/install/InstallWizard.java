@@ -60,7 +60,7 @@ import org.springframework.web.context.annotation.SessionScope;
 @SessionScope
 public class InstallWizard implements Serializable {
 
-    private static final String MULTI_USER_MODE = "multi";
+    private static final String SINGLE_USER_MODE = "single";
     private static final String AD_USER_MODE = "ad";
     private static final String CAS_USER_MODE = "cas";
     private static final String SAML_USER_MODE = "saml";
@@ -256,42 +256,43 @@ public class InstallWizard implements Serializable {
 
     public String finish() {
         try {
-            if (MULTI_USER_MODE.equals(userMode)) {
-                setProductionDbProperties();
-            } else {
-                if (AD_USER_MODE.equals(userMode)) {
+            if (!USER_MODE_DEMO.equals(userMode) && !SINGLE_USER_MODE.equals(userMode)) {
+                // Single and Demo user mode are special cases, which do not require configuration to an external DB.
+                properties.setProperty("db.url", dbUrl);
+                properties.setProperty("db.user", dbUsername);
+                properties.setProperty("db.password", dbPassword);
+            }
+            if (AD_USER_MODE.equals(userMode)) {
 
-                    properties.setProperty("security.ad.domain", adDomain);
-                    properties.setProperty("security.ad.server-url", adUrl);
-                    properties.setProperty("security.ad.search-filter", ldapFilter);
-                    properties.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
-                } else if (CAS_USER_MODE.equals(userMode)) {
-                    properties.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
-                    properties.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
-                    properties.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
-                    properties.setProperty("security.cas.attribute.display-name", casSettings.getDisplayNameAttribute());
-                    properties.setProperty("security.cas.attribute.email", casSettings.getEmailAttribute());
-                    properties.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
-                    properties.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
-                } else if (SAML_USER_MODE.equals(userMode)) {
-                    properties.setProperty("security.saml.entity-id", samlSettings.getEntityId());
-                    properties.setProperty("security.saml.saml-server-metadata-url",
-                        samlSettings.getSamlServerMetadataUrl());
-                    properties.setProperty("security.saml.attribute.username", samlSettings.getUsernameAttribute());
-                    properties.setProperty("security.saml.attribute.first-name", samlSettings.getFirstNameAttribute());
-                    properties.setProperty("security.saml.attribute.last-name", samlSettings.getSecondNameAttribute());
-                    properties.setProperty("security.saml.attribute.display-name", samlSettings.getDisplayNameAttribute());
-                    properties.setProperty("security.saml.attribute.email", samlSettings.getEmailAttribute());
-                    properties.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());
-                    properties.setProperty("security.saml.server-certificate", samlSettings.getServerCertificate());
+                properties.setProperty("security.ad.domain", adDomain);
+                properties.setProperty("security.ad.server-url", adUrl);
+                properties.setProperty("security.ad.search-filter", ldapFilter);
+                properties.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
+            } else if (CAS_USER_MODE.equals(userMode)) {
+                properties.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
+                properties.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
+                properties.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
+                properties.setProperty("security.cas.attribute.display-name", casSettings.getDisplayNameAttribute());
+                properties.setProperty("security.cas.attribute.email", casSettings.getEmailAttribute());
+                properties.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
+                properties.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
+            } else if (SAML_USER_MODE.equals(userMode)) {
+                properties.setProperty("security.saml.entity-id", samlSettings.getEntityId());
+                properties.setProperty("security.saml.saml-server-metadata-url", samlSettings.getSamlServerMetadataUrl());
+                properties.setProperty("security.saml.attribute.username", samlSettings.getUsernameAttribute());
+                properties.setProperty("security.saml.attribute.first-name", samlSettings.getFirstNameAttribute());
+                properties.setProperty("security.saml.attribute.last-name", samlSettings.getSecondNameAttribute());
+                properties.setProperty("security.saml.attribute.display-name", samlSettings.getDisplayNameAttribute());
+                properties.setProperty("security.saml.attribute.email", samlSettings.getEmailAttribute());
+                properties.setProperty("security.saml.attribute.groups", samlSettings.getGroupsAttribute());
+                properties.setProperty("security.saml.server-certificate", samlSettings.getServerCertificate());
 
-                    //Generating default keys and certificate.
-                    if (propertyResolver.getProperty("security.saml.local-key") == null || propertyResolver.getProperty("security.saml.local-certificate") == null) {
-                        Pair<String, String> pair = KeyPairCertUtils.generateCertificate();
-                        if (pair != null) {
-                            properties.setProperty("security.saml.local-key", pair.getKey());
-                            properties.setProperty("security.saml.local-certificate", pair.getValue());
-                        }
+                //Generating default keys and certificate.
+                if (propertyResolver.getProperty("security.saml.local-key") == null || propertyResolver.getProperty("security.saml.local-certificate") == null) {
+                    Pair<String, String> pair = KeyPairCertUtils.generateCertificate();
+                    if (pair != null) {
+                        properties.setProperty("security.saml.local-key", pair.getKey());
+                        properties.setProperty("security.saml.local-certificate", pair.getValue());
                     }
                 }
             }
@@ -326,12 +327,6 @@ public class InstallWizard implements Serializable {
             }
             return null;
         }
-    }
-
-    private void setProductionDbProperties() {
-        properties.setProperty("db.url", dbUrl);
-        properties.setProperty("db.user", dbUsername);
-        properties.setProperty("db.password", dbPassword);
     }
 
     /**
