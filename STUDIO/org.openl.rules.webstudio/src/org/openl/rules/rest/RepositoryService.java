@@ -1,5 +1,9 @@
 package org.openl.rules.rest;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,25 +20,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipInputStream;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.GenericEntity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
@@ -67,13 +59,20 @@ import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.InputSource;
-
-import static org.openl.rules.security.AccessManager.isGranted;
 
 /*
  GET /projects                                       list of (Project Name, Last Version, Last Modified Date, Last Modified By, Status, Editor)
@@ -84,9 +83,9 @@ import static org.openl.rules.security.AccessManager.isGranted;
  POST /lock_project/{Project Name}                   (ok, fail (already locked by ...))
  POST /unlock_project/{Project Name}                 (ok, fail)
  */
-@Service
-@Path("/repo/")
-@Produces(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping(value = "/repo/", produces = org.springframework.http.MediaType.APPLICATION_JSON_VALUE)
+@Deprecated
 public class RepositoryService {
     private static final Logger LOG = LoggerFactory.getLogger(RepositoryService.class);
 
@@ -96,6 +95,7 @@ public class RepositoryService {
 
     private final Comments designRepoComments;
 
+    @Autowired
     public RepositoryService(MultiUserWorkspaceManager workspaceManager,
             PropertyResolver propertyResolver,
             UserManagementService userManagementService) {
@@ -107,11 +107,10 @@ public class RepositoryService {
     /**
      * @return a list of project descriptions.
      */
-    @GET
-    @Path("projects")
-    public Response getProjects() {
+    @GetMapping("projects")
+    public ResponseEntity<?> getProjects() {
         if (!isGranted(Privileges.VIEW_PROJECTS)) {
-            return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Does not have VIEW privilege");
         }
         Collection<? extends AProject> projects = getDesignTimeRepository().getProjects();
         List<ProjectDescription> result = new ArrayList<>(projects.size());
@@ -119,8 +118,7 @@ public class RepositoryService {
             ProjectDescription projectDescription = getProjectDescription(prj);
             result.add(projectDescription);
         }
-        return Response.ok(new GenericEntity<List<ProjectDescription>>(result) {
-        }).build();
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -129,14 +127,10 @@ public class RepositoryService {
      * @param name a project name
      * @return a zipped project
      */
-    @GET
-    @Path("project/{name}")
-    @Produces("application/zip")
-    public Response getLastProject(@PathParam("name") String name) {
+    @GetMapping(value = "project/{name}", produces = "application/zip")
+    public ResponseEntity<?> getLastProject(@PathVariable("name") String name) {
         try {
-            if (!isGranted(Privileges.VIEW_PROJECTS)) {
-                return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
-            }
+            SecurityChecker.allow(Privileges.VIEW_PROJECTS);
             FileData fileData = getRepository().check(getFileName(name));
             if (fileData == null) {
                 throw new FileNotFoundException(String.format("Project '%s' is not found.", name));
@@ -144,7 +138,7 @@ public class RepositoryService {
 
             return getProject(name, fileData.getVersion());
         } catch (IOException ex) {
-            return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 
@@ -155,14 +149,11 @@ public class RepositoryService {
      * @param version a project version
      * @return a zipped project
      */
-    @GET
-    @Path("project/{name}/{version}")
-    @Produces("application/zip")
-    public Response getProject(@PathParam("name") final String name, @PathParam("version") final String version) {
+    @GetMapping(value = "project/{name}/{version}", produces = "application/zip")
+    public ResponseEntity<?> getProject(@PathVariable("name") final String name,
+            @PathVariable("version") final String version) {
         try {
-            if (!isGranted(Privileges.VIEW_PROJECTS)) {
-                return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
-            }
+            SecurityChecker.allow(Privileges.VIEW_PROJECTS);
 
             final Repository repository = getRepository();
             final String projectPath = getFileName(name);
@@ -189,11 +180,11 @@ public class RepositoryService {
             }
             String zipFileName = String.format("%s-%s.zip", name, version);
 
-            return Response.ok(entity)
+            return ResponseEntity.ok()
                 .header("Content-Disposition", "attachment;filename=\"" + zipFileName + "\"")
-                .build();
+                .body(entity);
         } catch (IOException ex) {
-            return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         }
     }
 
@@ -205,19 +196,17 @@ public class RepositoryService {
      * @param zipFile a zipped project
      * @param comment a revision comment
      */
-    @POST
-    @Path("project/{name}")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response addProject(@Context UriInfo uriInfo,
-            @PathParam("name") String name,
-            @Multipart(value = "file") InputStream zipFile,
-            @Multipart(value = "comment", required = false) String comment) {
+    @PostMapping(value = "project/{name}", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addProject(HttpServletRequest request,
+            @PathVariable("name") String name,
+            @RequestParam(value = "file") MultipartFile zipFile,
+            @RequestParam(value = "comment", required = false) String comment) {
         File modifiedZip = null;
         FileInputStream modifiedZipStream = null;
         File originalZipFolder = null;
         try {
             originalZipFolder = Files.createTempDirectory("openl").toFile();
-            ZipUtils.extractAll(zipFile, originalZipFolder);
+            ZipUtils.extractAll(zipFile.getInputStream(), originalZipFolder);
 
             File rules = new File(originalZipFolder, "rules.xml");
             if (rules.exists()) {
@@ -238,9 +227,10 @@ public class RepositoryService {
             ZipUtils.archive(originalZipFolder, modifiedZip);
             modifiedZipStream = new FileInputStream(modifiedZip);
 
-            return addProject(uriInfo.getPath(false), name, modifiedZipStream, modifiedZip.length(), comment);
+            return addProject(request.getRequestURL()
+                .toString(), name, modifiedZipStream, modifiedZip.length(), comment);
         } catch (IOException ex) {
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
         } finally {
             FileUtils.deleteQuietly(originalZipFolder);
             IOUtils.closeQuietly(modifiedZipStream);
@@ -255,18 +245,18 @@ public class RepositoryService {
      * @param zipFile a zipped project
      * @param comment a revision comment
      */
-    @POST
-    @Path("project")
-    @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response addProject(@Context UriInfo uriInfo,
-            @Multipart(value = "file") File zipFile,
-            @Multipart(value = "comment", required = false) String comment) {
+    @PostMapping(value = "project", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addProject(HttpServletRequest request,
+            @RequestParam(value = "file") MultipartFile zipFile,
+            @RequestParam(value = "comment", required = false) String comment) {
         File zipFolder = null;
+        ByteArrayOutputStream cachedStream = new ByteArrayOutputStream();
         try {
+            IOUtils.copyAndClose(zipFile.getInputStream(), cachedStream);
             // Temp folders
             zipFolder = Files.createTempDirectory("openl").toFile();
             // Unpack jar to a file system
-            ZipUtils.extractAll(zipFile, zipFolder);
+            ZipUtils.extractAll(new ByteArrayInputStream(cachedStream.toByteArray()), zipFolder);
 
             // Renamed a project according to rules.xml
             File rules = new File(zipFolder, "rules.xml");
@@ -275,22 +265,20 @@ public class RepositoryService {
                 name = getProjectName(rules);
             }
             if (StringUtils.isBlank(name)) {
-                return Response.status(Status.NOT_ACCEPTABLE)
-                    .entity("The uploaded file does not contain Project Name in the rules.xml ")
-                    .build();
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE)
+                    .body("The uploaded file does not contain Project Name in the rules.xml ");
             }
 
-            return addProject(uriInfo.getPath(false) + "/" + StringTool.encodeURL(name),
+            return addProject(request.getRequestURL().toString() + "/" + StringTool.encodeURL(name),
                 name,
-                new FileInputStream(zipFile),
-                zipFile.length(),
+                new ByteArrayInputStream(cachedStream.toByteArray()),
+                zipFile.getSize(),
                 comment);
         } catch (IOException ex) {
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
         } finally {
             /* Clean up */
             FileUtils.deleteQuietly(zipFolder);
-            FileUtils.deleteQuietly(zipFile);
         }
     }
 
@@ -300,13 +288,12 @@ public class RepositoryService {
      *
      * @param zipFile a zipped project
      */
-    @POST
-    @Path("project")
-    public Response addProject(@Context UriInfo uriInfo, File zipFile) {
-        return addProject(uriInfo, zipFile, null);
+    @PostMapping("project")
+    public ResponseEntity<?> addProject(HttpServletRequest request, @RequestParam MultipartFile zipFile) {
+        return addProject(request, zipFile, null);
     }
 
-    private Response addProject(String uri, String name, InputStream zipFile, long zipSize, String comment) {
+    private ResponseEntity<?> addProject(String uri, String name, InputStream zipFile, long zipSize, String comment) {
         try {
             if (getRepository().supports().branches()) {
                 BranchRepository branchRepo = (BranchRepository) getRepository();
@@ -318,16 +305,16 @@ public class RepositoryService {
             String repositoryId = getDefaultRepositoryId();
             if (userWorkspace.hasProject(repositoryId, name)) {
                 if (!isGranted(Privileges.EDIT_PROJECTS)) {
-                    return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Does not have EDIT PROJECTS privilege");
                 }
                 RulesProject project = userWorkspace.getProject(repositoryId, name);
                 if (!project.tryLock()) {
                     String lockedBy = project.getLockInfo().getLockedBy();
-                    return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Already locked by '" + lockedBy + "'");
                 }
             } else {
                 if (!isGranted(Privileges.CREATE_PROJECTS)) {
-                    return Response.status(Status.FORBIDDEN).entity("Does not have CREATE PROJECTS privilege").build();
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Does not have CREATE PROJECTS privilege");
                 }
                 if (getRepository().supports().mappedFolders()) {
                     throw new UnsupportedOperationException(
@@ -365,11 +352,11 @@ public class RepositoryService {
                 save = repository.save(data, zipFile);
             }
             userWorkspace.getProject(repositoryId, name).unlock();
-            return Response.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
+            return ResponseEntity.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();
         } catch (IOException | URISyntaxException | RuntimeException ex) {
-            return Response.status(Status.INTERNAL_SERVER_ERROR).entity(ex.getMessage()).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
         } catch (ProjectException ex) {
-            return Response.status(Status.NOT_FOUND).entity(ex.getMessage()).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
         } finally {
             IOUtils.closeQuietly(zipFile);
         }
@@ -396,19 +383,18 @@ public class RepositoryService {
      *
      * @param name a project name to lock
      */
-    @POST
-    @Path("lockProject/{name}")
-    public Response lockProject(@PathParam("name") String name) throws ProjectException {
+    @PostMapping("lockProject/{name}")
+    public ResponseEntity<?> lockProject(@PathVariable("name") String name) throws ProjectException {
         // When locking the project only EDIT_PROJECTS privilege is needed because we modify the project's state.
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
-            return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Does not have EDIT PROJECTS privilege");
         }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
         if (!project.tryLock()) {
             String lockedBy = project.getLockInfo().getLockedBy();
-            return Response.status(Status.FORBIDDEN).entity("Already locked by '" + lockedBy + "'").build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Already locked by '" + lockedBy + "'");
         }
-        return Response.ok().build();
+        return ResponseEntity.ok().build();
     }
 
     /**
@@ -416,24 +402,23 @@ public class RepositoryService {
      *
      * @param name a project name to unlock.
      */
-    @POST
-    @Path("unlockProject/{name}")
-    public Response unlockProject(@PathParam("name") String name) throws ProjectException {
+    @PostMapping("unlockProject/{name}")
+    public ResponseEntity<?> unlockProject(@PathVariable("name") String name) throws ProjectException {
         // When unlocking the project locked by current user, only EDIT_PROJECTS privilege is needed because we modify
         // the project's state.
         // UNLOCK_PROJECTS privilege is needed only to unlock the project locked by other user (it's not our case).
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
-            return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Does not have EDIT PROJECTS privilege");
         }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
         if (!project.isLocked()) {
-            return Response.status(Status.FORBIDDEN).entity("The project is not locked.").build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("The project is not locked.");
         } else if (!project.isLockedByMe()) {
             String lockedBy = project.getLockInfo().getLockedBy();
-            return Response.status(Status.FORBIDDEN).entity("Locked by '" + lockedBy + "'").build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Locked by '" + lockedBy + "'");
         }
         project.unlock();
-        return Response.ok().build();
+        return ResponseEntity.ok().build();
     }
 
     private Repository getRepository() {
