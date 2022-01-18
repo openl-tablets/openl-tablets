@@ -160,7 +160,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private Integer maxAuthenticationAttempts;
     private WildcardBranchNameFilter protectedBranchFilter = WildcardBranchNameFilter.NO_MATCH;
 
-    private boolean useBuiltinLFS = false;
+    private boolean useLFS = false;
 
     private ChangesMonitor monitor;
     private volatile Git git;
@@ -699,25 +699,31 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             File local = new File(localRepositoryPath);
 
-            boolean clonedOrCreated = cloneOrInit(local);
+            // If LFS is enabled, we will use only built-in LFS.
+            BuiltinLFS.register();
 
-            try (Repository repository = Git.open(local).getRepository()) {
-                configureBuiltInLFS(repository);
-            }
+            boolean clonedOrCreated = cloneOrInit(local);
 
             git = Git.open(local);
             updateGitConfigs();
 
             // Track all remote branches as local branches
-            trackRemoteBranches();
+            trackRemoteBranches(git);
 
             // Check if we should skip hooks.
             detectCanRunHooks();
 
             if (!clonedOrCreated && uri != null) {
-                FetchResult fetchResult = fetchAll();
-                doFastForward(fetchResult);
-                fastForwardNotMergedCommits(fetchResult);
+                try (Repository repository = Git.open(local).getRepository()) {
+                    configureBuiltInLFS(repository);
+
+                    initLfsCredentials();
+                    FetchResult fetchResult = fetchAll();
+                    doFastForward(fetchResult);
+                    fastForwardNotMergedCommits(fetchResult);
+                } finally {
+                    resetLfsCredentials();
+                }
             }
 
             readBranchesWithLock();
@@ -799,16 +805,31 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         .setURI(uri)
                         .setDirectory(local)
                         .setBranch(branch)
+                        .setNoCheckout(true)
                         .setCloneAllBranches(true);
 
                     CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.CLONE);
                     if (credentialsProvider != null) {
                         cloneCommand.setCredentialsProvider(credentialsProvider);
-                        initLfsCredentials();
                     }
 
                     Git cloned = cloneCommand.call();
                     successAuthentication(GitActionType.CLONE);
+
+                    // After cloning without checkout we don't have HEAD and local branches. Need to create them.
+                    trackRemoteBranches(cloned);
+
+                    // Detect if our repository needs to use built-in LFS.
+                    configureBuiltInLFS(cloned.getRepository());
+
+                    try {
+                        // Checkout after clone with LFS enabled.
+                        initLfsCredentials();
+                        cloned.checkout().setName(branch).setForced(true).call();
+                    } finally {
+                        resetLfsCredentials();
+                    }
+
                     cloned.close();
                 } else {
                     Git repo = Git.init().setDirectory(local).call();
@@ -846,9 +867,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         config.save();
     }
 
-    private void trackRemoteBranches() throws GitAPIException {
+    private void trackRemoteBranches(Git git) throws GitAPIException {
         List<Ref> remoteBranches = git.branchList().setListMode(ListBranchCommand.ListMode.REMOTE).call();
-        TreeSet<String> localBranches = getAvailableBranches();
+        TreeSet<String> localBranches = getAvailableBranches(git);
         String remotePrefix = Constants.R_REMOTES + Constants.DEFAULT_REMOTE_NAME + "/";
         for (Ref remoteBranch : remoteBranches) {
             if (remoteBranch.isSymbolic()) {
@@ -862,7 +883,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             String branchName = remoteBranch.getName().substring(remotePrefix.length());
             try {
                 if (!localBranches.contains(branchName)) {
-                    createRemoteTrackingBranch(branchName);
+                    createRemoteTrackingBranch(git, branchName);
                 }
             } catch (RefAlreadyExistsException e) {
                 // the error may appear on non-case sensitive OS
@@ -1233,7 +1254,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     if (ObjectId.zeroId().equals(refUpdate.getOldObjectId())) {
                         String remoteName = refUpdate.getRemoteName();
                         if (remoteName.startsWith(Constants.R_HEADS)) {
-                            createRemoteTrackingBranch(Repository.shortenRefName(remoteName));
+                            createRemoteTrackingBranch(git, Repository.shortenRefName(remoteName));
                             branchesChanged = true;
                         }
                     }
@@ -2535,7 +2556,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private GitRepository createRepository(String branch) throws IOException, GitAPIException {
         if (git.getRepository().findRef(branch) == null) {
-            createRemoteTrackingBranch(branch);
+            createRemoteTrackingBranch(git, branch);
         }
 
         GitRepository repo = new GitRepository();
@@ -2563,11 +2584,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         // repository is same
         repo.branches = branches; // Can be shared between instances
         repo.monitor = monitor;
-        repo.useBuiltinLFS = useBuiltinLFS;
+        repo.useLFS = useLFS;
         return repo;
     }
 
-    private void createRemoteTrackingBranch(String branch) throws GitAPIException {
+    private void createRemoteTrackingBranch(Git git, String branch) throws GitAPIException {
         git.branchCreate()
             .setName(branch)
             .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
@@ -2576,6 +2597,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     TreeSet<String> getAvailableBranches() throws GitAPIException {
+        return getAvailableBranches(git);
+    }
+
+    private TreeSet<String> getAvailableBranches(Git git) throws GitAPIException {
         TreeSet<String> branchNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
         List<Ref> refs = git.branchList().call();
@@ -2793,19 +2818,19 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private void initLfsCredentials() {
-        if (credentialsProvider != null && useBuiltinLFS) {
+        if (credentialsProvider != null && useLFS) {
             LfsFactory.setCredentialsProvider(credentialsProvider);
         }
     }
 
     private void resetLfsCredentials() {
-        if (credentialsProvider != null && useBuiltinLFS) {
+        if (credentialsProvider != null && useLFS) {
             LfsFactory.removeCredentialsProvider();
         }
     }
 
     private ObjectLoader downloadLfs(ObjectLoader loader) throws IOException {
-        if (!useBuiltinLFS) {
+        if (!useLFS) {
             return loader;
         }
         return LfsBlobFilter.smudgeLfsBlob(git.getRepository(), loader);
@@ -2830,11 +2855,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
         }
 
-        useBuiltinLFS = lfsApplied;
+        useLFS = lfsApplied;
 
-        if (useBuiltinLFS) {
+        if (useLFS) {
+            log.info("LFS is enabled for repository '{}'.", name);
             try {
-                BuiltinLFS.register();
                 LfsFactory.getInstance().getInstallCommand().setRepository(repository).call();
             } catch (IOException e) {
                 throw e;
