@@ -6,17 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
 import org.openl.config.InMemoryProperties;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.model.GroupSettingsModel;
@@ -30,17 +19,24 @@ import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Manages Users and Groups.
  * 
  * @author Yury Molchan
  */
-
-@Service
-@Path("/admin/management")
-@Produces(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping(value = "/admin/management", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ManagementService {
 
     private static final String SECURITY_DEF_GROUP_PROP = "security.default-group";
@@ -64,29 +60,26 @@ public class ManagementService {
         this.extGroupService = extGroupService;
     }
 
-    @GET
-    @Path("/groups")
+    @GetMapping("/groups")
     public Map<String, UIGroup> getGroups() {
         SecurityChecker.allow(Privileges.ADMIN);
         return groupDao.getAllGroups().stream().collect(StreamUtils.toLinkedMap(Group::getName, UIGroup::new));
     }
 
-    @DELETE
-    @Path("/groups")
-    @Consumes(MediaType.TEXT_PLAIN)
-    public void deleteGroup(final String name) {
+    @DeleteMapping(value = "/groups", consumes = MediaType.TEXT_PLAIN_VALUE)
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void deleteGroup(@RequestBody final String name) {
         SecurityChecker.allow(Privileges.ADMIN);
         groupDao.deleteGroupByName(name);
     }
 
-    @POST
-    @Path("/groups")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public void saveGroup(@FormParam("oldName") final String oldName,
-            @FormParam("name") final String name,
-            @FormParam("description") final String description,
-            @FormParam("group") final Set<String> roles,
-            @FormParam("privilege") final Set<String> privileges) {
+    @PostMapping(value = "/groups", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void saveGroup(@RequestParam(value = "oldName", required = false) final String oldName,
+            @RequestParam("name") final String name,
+            @RequestParam(value = "description", required = false) final String description,
+            @RequestParam(value = "group", required = false) final Set<String> roles,
+            @RequestParam(value = "privilege", required = false) final Set<String> privileges) {
         SecurityChecker.allow(Privileges.ADMIN);
         if (!name.equals(oldName) && groupManagementService.isGroupExist(name)) {
             throw new ConflictException("duplicated.group.message");
@@ -99,35 +92,31 @@ public class ManagementService {
         groupManagementService.updateGroup(name, roles, privileges);
     }
 
-    @POST
-    @Path("/groups/settings")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public void saveSettings(GroupSettingsModel request) {
+    @PostMapping(value = "/groups/settings", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    public void saveSettings(@RequestBody GroupSettingsModel request) {
         SecurityChecker.allow(Privileges.ADMIN);
         validationProvider.validate(request);
         properties.setProperty(SECURITY_DEF_GROUP_PROP, request.getDefaultGroup());
     }
 
-    @GET
-    @Path("/groups/settings")
+    @GetMapping("/groups/settings")
     public GroupSettingsModel getSettings() {
         GroupSettingsModel model = new GroupSettingsModel();
         model.setDefaultGroup(properties.getProperty(SECURITY_DEF_GROUP_PROP));
         return model;
     }
 
-    @GET
-    @Path("/privileges")
+    @GetMapping("/privileges")
     public Map<String, String> getPrivileges() {
         SecurityChecker.allow(Privileges.ADMIN);
         return Arrays.stream(Privileges.values())
             .collect(StreamUtils.toLinkedMap(Privilege::getName, Privilege::getDisplayName));
     }
 
-    @GET
-    @Path("/groups/external")
-    public Set<String> searchExternalGroup(@QueryParam("search") String searchTerm,
-            @QueryParam("pageSize") @DefaultValue("10") int pageSize) {
+    @GetMapping("/groups/external")
+    public Set<String> searchExternalGroup(@RequestParam("search") String searchTerm,
+            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         return extGroupService.findAllByName(searchTerm, pageSize)
             .stream()
             .map(org.openl.rules.security.Group::getName)
