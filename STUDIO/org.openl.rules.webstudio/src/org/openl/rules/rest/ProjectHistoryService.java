@@ -19,12 +19,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.rest.exception.LockedException;
@@ -38,25 +32,25 @@ import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Service
-@Path("/history")
-@Produces(MediaType.APPLICATION_JSON)
+@RestController
+@RequestMapping("/history")
 public class ProjectHistoryService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProjectHistoryService.class);
     private static final String CURRENT_VERSION = "_current";
     private static final String REVISION_VERSION = "Revision Version";
 
-    @Autowired
-    private HttpSession httpSession;
-
-    @GET
-    @Path("/project")
-    public List<ProjectHistoryItem> getProjectHistory() {
-        WebStudio webStudio = WebStudioUtils.getWebStudio(httpSession);
+    @GetMapping(value = "/project", produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<ProjectHistoryItem> getProjectHistory(HttpSession session) {
+        WebStudio webStudio = WebStudioUtils.getWebStudio(session);
         ProjectModel model = webStudio.getModel();
         String projectHistoryPath = Paths
             .get(webStudio.getWorkspacePath(),
@@ -76,10 +70,9 @@ public class ProjectHistoryService {
         return collect;
     }
 
-    @POST
-    @Path("/restore")
-    public void restore(String versionToRestore) throws Exception {
-        ProjectModel model = WebStudioUtils.getWebStudio(httpSession).getModel();
+    @PostMapping("/restore")
+    public void restore(@RequestBody String versionToRestore, HttpSession session) throws Exception {
+        ProjectModel model = WebStudioUtils.getWebStudio(session).getModel();
         if (model == null) {
             return;
         }
@@ -102,7 +95,7 @@ public class ProjectHistoryService {
         }
     }
 
-    @DELETE
+    @DeleteMapping
     public void deleteAllHistory() throws IOException {
         String projectHistoryHome = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
         File userWorkspace = new File(projectHistoryHome);
