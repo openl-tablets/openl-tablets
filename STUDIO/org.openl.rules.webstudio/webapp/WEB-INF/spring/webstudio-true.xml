@@ -53,32 +53,10 @@
         <property name="address" value=""/>
         <property name="serviceBeans">
             <list>
-                <ref bean="managementService"/>
-                <ref bean="sysInfoService"/>
-                <ref bean="repositoryService"/>
                 <ref bean="traceService"/>
                 <ref bean="testDownloadService"/>
                 <ref bean="conflictService"/>
                 <ref bean="diffService"/>
-                <ref bean="notificationService"/>
-                <ref bean="projectHistoryService"/>
-                <ref bean="propertyService"/>
-                <ref bean="workspaceCompileService"/>
-                <ref bean="usersService"/>
-                <ref bean="mailService"/>
-                <ref bean="designTimeRepositoryService"/>
-                <ref bean="tagConfigService"/>
-                <ref bean="openLMessageService"/>
-            </list>
-        </property>
-        <property name="providers">
-            <list>
-                <bean class="org.openl.rules.rest.RestExceptionMapper">
-                    <constructor-arg name="messageSource" ref="validationMessageSource"/>
-                </bean>
-                <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">
-                    <constructor-arg name="mapper" ref="objectMapperFactoryBean"/>
-                </bean>
             </list>
         </property>
     </bean>
