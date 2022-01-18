@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-public class SysInfoService {
+public class SysInfoController {
 
     @GetMapping(value = "/public/info/sys.json")
     public Map<String, Object> getSysInfo() {

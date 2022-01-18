@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/compile/", produces = MediaType.APPLICATION_JSON_VALUE)
-public class WorkspaceCompileService {
+public class WorkspaceCompileController {
 
     private static final int MAX_PROBLEMS = 100;
 

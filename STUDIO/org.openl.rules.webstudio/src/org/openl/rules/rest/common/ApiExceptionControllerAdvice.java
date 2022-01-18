@@ -36,16 +36,16 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
  * @author Vladyslav Pikus
  */
 @ControllerAdvice
-public class RestExceptionMapper extends ResponseEntityExceptionHandler {
+public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     private static final String DEF_ERROR_PREFIX = "openl.error.";
 
-    private static final Logger LOG = LoggerFactory.getLogger(RestExceptionMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ApiExceptionControllerAdvice.class);
 
     private final MessageSource messageSource;
 
     @Autowired
-    public RestExceptionMapper(@Qualifier("validationMessageSource") MessageSource messageSource) {
+    public ApiExceptionControllerAdvice(@Qualifier("validationMessageSource") MessageSource messageSource) {
         this.messageSource = messageSource;
     }
 
