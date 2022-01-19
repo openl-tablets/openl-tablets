@@ -908,6 +908,17 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-client</artifactId>
+                <version>${org.springsecurity.version}</version>
+            </dependency>
+            <!-- Necessary for oauth2 Oidc. -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-jose</artifactId>
+                <version>${org.springsecurity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
                 <version>${org.springsecurity.version}</version>
             </dependency>
@@ -1733,6 +1744,11 @@
                         <artifactId>bcprov-jdk15on</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.security.oauth2</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
