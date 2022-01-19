@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <import resource="common-authentication.xml"/>
+    <import resource="authorization.xml"/>
+    <import resource="db-services.xml"/>
+
+    <!-- Enable auto-wiring -->
+    <context:annotation-config/>
+    <!-- Scan for auto-wiring classes in spring oauth2 packages -->
+    <context:component-scan base-package="org.springframework.security.oauth2"/>
+
+    <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+        <security:filter-chain-map request-matcher="ant">
+            <security:filter-chain pattern="/favicon.ico" filters="none"/>
+            <security:filter-chain pattern="/css/**" filters="none"/>
+            <security:filter-chain pattern="/images/**" filters="none"/>
+            <security:filter-chain pattern="/javascript/**" filters="none"/>
+            <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
+            <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
+            <security:filter-chain pattern="/org.richfaces.resources/**" filters="none"/>
+            <security:filter-chain pattern="/faces/tableEditor/css/**" filters="none"/>
+            <security:filter-chain pattern="/faces/tableEditor/img/**" filters="none"/>
+            <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none"/>
+            <security:filter-chain pattern="/faces/pages/public/**" filters="none"/>
+            <security:filter-chain pattern="/logout"
+                                   filters="securityContextPersistenceFilter,logoutFilter"/>
+            <security:filter-chain pattern="/login/oauth2/code/**"
+                                   filters="securityContextPersistenceFilter,oauth2Filter"/>
+            <security:filter-chain pattern="/oauth2/authorization/**"
+                                   filters="securityContextPersistenceFilter,oauth2RedirectFilter"/>
+            <security:filter-chain pattern="/**"
+                                   filters="securityContextPersistenceFilter,exceptionTranslationFilter,filterSecurityInterceptor"/>
+        </security:filter-chain-map>
+    </bean>
+
+    <!-- ============================ Define needed beans for dependencies ====================================== -->
+
+    <util:list id="authenticationProviders">
+        <ref bean="authenticationProviderWrapper"/>
+    </util:list>
+
+    <bean id="canCreateInternalUsers" class="java.lang.Boolean">
+        <constructor-arg type="boolean" value="false"/>
+    </bean>
+
+    <bean id="loginUrl" class="java.lang.String">
+        <constructor-arg value="/oauth2/authorization/webstudio"/>
+    </bean>
+
+    <bean id="authenticationEntryPoint"
+          class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+        <constructor-arg name="loginFormUrl" ref="loginUrl"/>
+    </bean>
+
+    <!-- ======================== Logout ========================== -->
+
+    <bean id="logoutUrl" class="java.lang.String">
+        <constructor-arg value="/logout"/>
+    </bean>
+
+    <bean id="logoutSuccessUrl" class="java.lang.String">
+        <constructor-arg value="/"/>
+    </bean>
+
+    <util:list id="logoutHandlers">
+        <bean class="org.openl.security.oauth2.Oauth2LogoutSuccessHandler">
+            <constructor-arg name="clientRegistrationRepository" ref="registrationRepository"/>
+        </bean>
+    </util:list>
+
+    <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
+        <constructor-arg name="logoutSuccessUrl" ref="logoutSuccessUrl"/>
+        <constructor-arg name="handlers" ref="logoutHandlers"/>
+        <property name="filterProcessesUrl" ref="logoutUrl"/>
+    </bean>
+
+    <!-- ============================== OAuth2 ==================================================================== -->
+
+    <bean id="authenticationProviderWrapper"
+          class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
+        <constructor-arg name="delegate" ref="oauth2AuthenticationProvider"/>
+    </bean>
+
+    <bean id="oauth2AuthenticationProvider"
+          class="org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider">
+        <constructor-arg name="accessTokenResponseClient">
+            <bean class="org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient"/>
+        </constructor-arg>
+        <constructor-arg name="userService">
+            <bean class="org.openl.security.oauth2.OpenLOAuth2UserService">
+                <constructor-arg name="propertyResolver" ref="environment"/>
+                <constructor-arg name="syncUserData" ref="syncUserData"/>
+                <constructor-arg name="privilegeMapper" ref="privilegeMapper"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean id="registrationRepository"
+          class="org.openl.security.oauth2.LazyClientRegistrationRepository">
+        <constructor-arg name="propertyResolver" ref="environment"/>
+    </bean>
+
+    <bean id="oauth2RedirectFilter"
+          class="org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter">
+        <constructor-arg name="clientRegistrationRepository" ref="registrationRepository"/>
+    </bean>
+
+    <bean id="oauth2Filter"
+          class="org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter">
+        <constructor-arg name="clientRegistrationRepository" ref="registrationRepository"/>
+        <constructor-arg name="authorizedClientService">
+            <bean class="org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService">
+                <constructor-arg name="clientRegistrationRepository" ref="registrationRepository"/>
+            </bean>
+        </constructor-arg>
+        <property name="authenticationManager" ref="authenticationManager"/>
+    </bean>
+</beans>

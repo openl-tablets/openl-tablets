@@ -64,6 +64,7 @@ public class InstallWizard implements Serializable {
     private static final String AD_USER_MODE = "ad";
     private static final String CAS_USER_MODE = "cas";
     private static final String SAML_USER_MODE = "saml";
+    private static final String OAUTH2_USER_MODE = "oauth2";
     private static final String USER_MODE_DEMO = "demo";
     private static final String VIEWERS_GROUP = "Authenticated";
 
@@ -94,6 +95,7 @@ public class InstallWizard implements Serializable {
 
     private CASSettings casSettings;
     private SAMLSettings samlSettings;
+    private Oauth2Settings oauth2Settings;
 
     private RepositoryConfiguration designRepositoryConfiguration;
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
@@ -184,6 +186,7 @@ public class InstallWizard implements Serializable {
                 readAdProperties();
                 readCasProperties();
                 readSamlProperties();
+                readOauth2Properties();
 
                 defaultGroup = propertyResolver.getProperty("security.default-group");
                 externalAdmins = propertyResolver.getProperty("security.administrators");
@@ -237,6 +240,20 @@ public class InstallWizard implements Serializable {
             propertyResolver.getProperty("security.saml.server-certificate"));
     }
 
+    private void readOauth2Properties() {
+        oauth2Settings = new Oauth2Settings();
+        oauth2Settings.setClientId(propertyResolver.getProperty("security.oauth2.client-id"));
+        oauth2Settings.setClientSecret(propertyResolver.getProperty("security.oauth2.client-secret"));
+        oauth2Settings.setIssuerUri(propertyResolver.getProperty("security.oauth2.issuer-uri"));
+        oauth2Settings.setScope(propertyResolver.getProperty("security.oauth2.scope"));
+        oauth2Settings.setUsernameAttribute(propertyResolver.getProperty("security.oauth2.attribute.username"));
+        oauth2Settings.setFirstNameAttribute(propertyResolver.getProperty("security.oauth2.attribute.first-name"));
+        oauth2Settings.setSecondNameAttribute(propertyResolver.getProperty("security.oauth2.attribute.last-name"));
+        oauth2Settings.setDisplayNameAttribute(propertyResolver.getProperty("security.oauth2.attribute.display-name"));
+        oauth2Settings.setEmailAttribute(propertyResolver.getProperty("security.oauth2.attribute.email"));
+        oauth2Settings.setGroupsAttribute(propertyResolver.getProperty("security.oauth2.attribute.groups"));
+    }
+
     public String finish() {
         try {
             if (!USER_MODE_DEMO.equals(userMode) && !SINGLE_USER_MODE.equals(userMode)) {
@@ -278,6 +295,18 @@ public class InstallWizard implements Serializable {
                         properties.setProperty("security.saml.local-certificate", pair.getValue());
                     }
                 }
+            } else if (OAUTH2_USER_MODE.equals(userMode)) {
+                properties.setProperty("security.oauth2.client-id", oauth2Settings.getClientId());
+                properties.setProperty("security.oauth2.issuer-uri", oauth2Settings.getIssuerUri());
+                properties.setProperty("security.oauth2.client-secret", oauth2Settings.getClientSecret());
+                properties.setProperty("security.oauth2.scope", oauth2Settings.getScope());
+                properties.setProperty("security.oauth2.attribute.username", oauth2Settings.getUsernameAttribute());
+                properties.setProperty("security.oauth2.attribute.first-name", oauth2Settings.getFirstNameAttribute());
+                properties.setProperty("security.oauth2.attribute.last-name", oauth2Settings.getSecondNameAttribute());
+                properties.setProperty("security.oauth2.attribute.display-name",
+                    oauth2Settings.getDisplayNameAttribute());
+                properties.setProperty("security.oauth2.attribute.email", oauth2Settings.getEmailAttribute());
+                properties.setProperty("security.oauth2.attribute.groups", oauth2Settings.getGroupsAttribute());
             }
 
             productionRepositoryEditor.save();
@@ -454,6 +483,15 @@ public class InstallWizard implements Serializable {
             } catch (Exception e) {
                 throw new ValidatorException(createErrorMessage("Entered SAML server certificate is not valid."));
             }
+        }
+    }
+
+    public void oauth2Validator(FacesContext context, UIComponent toValidate, Object value) {
+        UIViewRoot viewRoot = context.getViewRoot();
+
+        String clientID = (String) ((UIInput) viewRoot.findComponent("step3Form:oauth2ClientId")).getSubmittedValue();
+        if (StringUtils.isBlank(clientID)) {
+            throw new ValidatorException(createErrorMessage("Client ID cannot be blank."));
         }
     }
 
@@ -638,6 +676,10 @@ public class InstallWizard implements Serializable {
 
     public SAMLSettings getSamlSettings() {
         return samlSettings;
+    }
+
+    public Oauth2Settings getOauth2Settings() {
+        return oauth2Settings;
     }
 
     public boolean isShowErrorMessage() {
