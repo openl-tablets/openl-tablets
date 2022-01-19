@@ -309,10 +309,10 @@
                         let emailExists = (email && email.trim() !== '') === true;
                         if (!emailVerified && emailExists) {
                             editUserEmailResend.show();
-                            editUserEmailVerified.removeClass("yes-icon").addClass("no-icon").prop("title", "Email not verified");
+                            editUserEmailVerified.removeClass("yes-icon").addClass("warning-icon").prop("title", "Email not verified");
                         } else {
                             editUserEmailResend.hide();
-                            editUserEmailVerified.removeClass("no-icon").addClass("yes-icon").prop("title", "Email verified");
+                            editUserEmailVerified.removeClass("warning-icon").addClass("yes-icon").prop("title", "Email verified");
                         }
                         editUserEmailVerified.toggle(emailExists);
                     };
@@ -325,7 +325,7 @@
                         } else {
                             editUserEmailResend.hide();
                             editUserEmailVerified.show();
-                            editUserEmailVerified.removeClass("yes-icon").addClass("no-icon").prop("title", "Email not verified");
+                            editUserEmailVerified.removeClass("yes-icon").addClass("warning-icon").prop("title", "Email not verified");
                         }
                     });
 
@@ -408,7 +408,7 @@
             $j("#edit-user-username, #edit-user-firstname-span, #edit-user-display-name-span, #edit-user-lastname-span, #edit-user-email-span").text("");
             $j("#edit-user-groups input").removeAttr("checked");
             $j("#edit-user-email-resend, #edit-user-email-verified").hide();
-            $j("#edit-user-email-verified").removeClass("no-icon").addClass("yes-icon").prop("title", "Email verified");
+            $j("#edit-user-email-verified").removeClass("warning-icon").addClass("yes-icon").prop("title", "Email verified");
         }
 
     //]]>

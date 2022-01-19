@@ -399,10 +399,10 @@
                         let emailExists = (email && email.trim() !== '') === true;
                         if (!emailVerified && emailExists) {
                             accountUserEmailResend.show();
-                            accountUserEmailVerified.removeClass("yes-icon").addClass("no-icon").prop("title", "Email not verified");
+                            accountUserEmailVerified.removeClass("yes-icon").addClass("warning-icon").prop("title", "Email not verified");
                         } else {
                             accountUserEmailResend.hide();
-                            accountUserEmailVerified.removeClass("no-icon").addClass("yes-icon").prop("title", "Email verified");
+                            accountUserEmailVerified.removeClass("warning-icon").addClass("yes-icon").prop("title", "Email verified");
                         }
                         accountUserEmailVerified.toggle(emailExists);
                     };
@@ -415,7 +415,7 @@
                         } else {
                             accountUserEmailResend.hide();
                             accountUserEmailVerified.show();
-                            accountUserEmailVerified.removeClass("yes-icon").addClass("no-icon").prop("title", "Email not verified");
+                            accountUserEmailVerified.removeClass("yes-icon").addClass("warning-icon").prop("title", "Email not verified");
                         }
                     });
 
@@ -477,7 +477,7 @@
             $j("#account-user-show-header, #account-user-show-real-numbers, #account-user-show-formulas, #account-user-failures-only, #account-user-complex-result").removeAttr("checked");
             $j("#account-user-tests-per-page, #account-user-failures-per-test").val(-1);
             $j("#account-user-email-resend, #account-user-email-verified").hide();
-            $j("#account-user-email-verified").removeClass("no-icon").addClass("yes-icon").prop("title", "Email verified");
+            $j("#account-user-email-verified").removeClass("warning-icon").addClass("yes-icon").prop("title", "Email verified");
         }
 
     //]]>
