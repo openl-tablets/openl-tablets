@@ -679,13 +679,16 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact
                                                                             : artefact.getProject();
 
-                String name = project.getName();
-                if (project instanceof RulesProject) {
-                    // We cannot use hasProject() and then getProject(name) in multithreaded environment
-                    invalidateSelectionIfDeleted(name, projects);
-                } else if (project instanceof ADeploymentProject) {
-                    // We cannot use hasDDProject() and then getDDProject(name) in multithreaded environment
-                    invalidateSelectionIfDeleted(name, deployConfigs);
+                // project can be null if selected artefact is a Deployment.
+                if (project != null) {
+                    String name = project.getName();
+                    if (project instanceof RulesProject) {
+                        // We cannot use hasProject() and then getProject(name) in multithreaded environment
+                        invalidateSelectionIfDeleted(name, projects);
+                    } else if (project instanceof ADeploymentProject) {
+                        // We cannot use hasDDProject() and then getDDProject(name) in multithreaded environment
+                        invalidateSelectionIfDeleted(name, deployConfigs);
+                    }
                 }
             }
 
