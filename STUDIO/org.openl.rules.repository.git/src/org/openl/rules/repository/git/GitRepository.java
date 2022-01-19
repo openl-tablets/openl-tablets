@@ -1184,6 +1184,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                             String currentBranch = Repository.shortenRefName(git.getRepository().getFullBranch());
                             if (branchToDelete.equals(currentBranch)) {
                                 String branchToCheckout = git.lsRemote()
+                                    .setCredentialsProvider(getCredentialsProvider(GitActionType.FETCH_ALL))
                                     .callAsMap()
                                     .get("HEAD")
                                     .getObjectId()
