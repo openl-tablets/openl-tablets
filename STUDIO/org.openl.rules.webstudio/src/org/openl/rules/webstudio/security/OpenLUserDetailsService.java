@@ -146,15 +146,13 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
                 simpleUser.setLastName(userDetails.getLastName());
             }
 
-            UserExternalFlags.Builder withNewEmailVerifiedFlags = UserExternalFlags.builder(externalFlags);
             if (!externalFlags.isEmailExternal()) {
                 simpleUser.setEmail(userDetails.getEmail());
+                UserExternalFlags.Builder withNewEmailVerifiedFlags = UserExternalFlags.builder(externalFlags);
                 withNewEmailVerifiedFlags.applyFeature(UserExternalFlags.Feature.EMAIL_VERIFIED,
                         userDetails.getExternalFlags().isEmailVerified());
-            } else {
-                withNewEmailVerifiedFlags.withFeature(UserExternalFlags.Feature.EMAIL_VERIFIED);
+                simpleUser.setExternalFlags(withNewEmailVerifiedFlags.build());
             }
-            simpleUser.setExternalFlags(withNewEmailVerifiedFlags.build());
         }
     }
 
