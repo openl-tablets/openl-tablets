@@ -29,8 +29,8 @@ public class RunKafkaSmokeITest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        cluster = provisionWith(EmbeddedKafkaClusterConfig.create()
-            .provisionWith(EmbeddedKafkaConfig.create().with("listeners", "PLAINTEXT://:61099").build())
+        cluster = provisionWith(EmbeddedKafkaClusterConfig.newClusterConfig()
+            .configure(EmbeddedKafkaConfig.brokers().with("listeners", "PLAINTEXT://:61099").build())
             .build());
 
         cluster.start();
