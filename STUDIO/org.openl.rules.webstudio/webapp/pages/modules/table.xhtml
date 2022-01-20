@@ -1188,7 +1188,7 @@
                                 .replace(/{testName}/g, item.name)
                                 .replace(/{testId}/g, item.id);
                             if (i === 0) {
-                                rowTemplate.after(testLinkRow.replace(/div/g, "span"));
+                                rowTemplate.after(testLinkRow.replace(/<div>/g, "<span>").replace(/<\/div>/g, "<\/span>"));
                             } else {
                                 $j("#tests-section-toggle-id").show();
                                 availableTests += testLinkRow;
@@ -1310,12 +1310,12 @@
                            .replace(/{tableName}/g, table.name)
                            .replace(/{tableId}/g, table.id);
                         if (i === 0) {
-                            rowTemplate.after(targetTableLinkRow.replace(/div/g, "span"));
+                            rowTemplate.after(targetTableLinkRow.replace(/<div>/g, "<span>").replace(/<\/div>/g, "<\/span>"));
                         } else {
                             $j("#target-tables-toggle-id").show();
                             additionalTargetTables += targetTableLinkRow;
                         }
-                    };
+                    }
                 });
                 if (targetTables.length > 1) {
                     targetTablesHeader += "s";
@@ -1323,7 +1323,7 @@
                 $j("#targetTablesHeader").html(targetTablesHeader);
                 $j('#target-tables-additional-tables-id').html(additionalTargetTables);
              }
-         };
+         }
 
         $jq('#tableTestsPanel').trigger('refresh');
 
