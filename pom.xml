@@ -78,7 +78,7 @@
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <org.springframework.version>5.3.15</org.springframework.version>
         <org.springsecurity.version>5.6.1</org.springsecurity.version>
-        <org.hibernate.version>5.6.2.Final</org.hibernate.version>
+        <org.hibernate.version>5.6.4.Final</org.hibernate.version>
         <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
             At the time of writing the latest official version is 2.3.9.
          -->
@@ -104,7 +104,7 @@
         <org.slf4j.version>1.7.32</org.slf4j.version>
         <org.apache.poi.version>5.2.0</org.apache.poi.version>
         <org.bouncycastle.version>1.70</org.bouncycastle.version>
-        <com.fasterxml.jackson.version>2.13.0</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.13.1</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.44.v20210927</jetty.server.version>
@@ -1342,7 +1342,7 @@
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
-                <version>5.0.0</version>
+                <version>5.0.1</version>
             </dependency>
             <!-- Microsoft JDBC Driver for SQL Server -->
             <dependency>
