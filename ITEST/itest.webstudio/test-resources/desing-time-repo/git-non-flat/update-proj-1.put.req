@@ -10,10 +10,12 @@ Content-Type: application/zip
 &Sample Project.zip
 --WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="overwrite"
+Content-Type: text/plain
 
 true
 --WebKitFormBoundary7MA4YWxkTrZu0gW
 Content-Disposition: form-data; name="comment"
+Content-Type: text/plain
 
 EPBDS-10682 Create project via rest
 --WebKitFormBoundary7MA4YWxkTrZu0gW--
