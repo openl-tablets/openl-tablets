@@ -150,7 +150,8 @@ public class UsersService {
         checkUserExists(username);
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(username);
-        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail());
+        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
+                && !dbUser.getExternalFlags().isEmailExternal();
         boolean updatePassword = Optional.ofNullable(userModel.getPassword())
             .map(StringUtils::isNotBlank)
             .orElse(false);
@@ -185,7 +186,8 @@ public class UsersService {
     public void editUserInfo(@Context UriInfo uriInfo, @RequestBody UserInfoModel userModel) {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
-        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail());
+        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
+                && !dbUser.getExternalFlags().isEmailExternal();
         userManagementService.updateUserData(currentUserInfo.getUserName(),
             userModel.getFirstName(),
             userModel.getLastName(),
@@ -212,7 +214,8 @@ public class UsersService {
     public void editUserProfile(@Context UriInfo uriInfo, @RequestBody UserProfileEditModel userModel) {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
-        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail());
+        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
+                && !dbUser.getExternalFlags().isEmailExternal();
         boolean updatePassword = Optional.ofNullable(userModel.getChangePassword())
             .map(ChangePasswordModel::getNewPassword)
             .map(StringUtils::isNotBlank)
