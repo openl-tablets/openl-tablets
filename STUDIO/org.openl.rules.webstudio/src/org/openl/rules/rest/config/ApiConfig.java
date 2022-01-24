@@ -6,7 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
@@ -29,14 +31,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public class ApiConfig implements WebMvcConfigurer {
 
     @Override
-    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-        for (HttpMessageConverter<?> converter : converters) {
-            if (converter instanceof MappingJackson2HttpMessageConverter) {
-                var jacksonConverter = (MappingJackson2HttpMessageConverter) converter;
-                jacksonConverter.setObjectMapper(objectMapper()); // replace default objectMapper with custom
-                break;
-            }
-        }
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        converters.add(new ByteArrayHttpMessageConverter());
+        converters.add(new StringHttpMessageConverter());
+        var jacksonMessageConverter = new MappingJackson2HttpMessageConverter(objectMapper());
+        jacksonMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON));
+        converters.add(jacksonMessageConverter);
     }
 
     @Override
