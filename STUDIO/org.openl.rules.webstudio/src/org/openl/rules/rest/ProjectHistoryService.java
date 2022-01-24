@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpSession;
-
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.rest.exception.LockedException;
 import org.openl.rules.ui.ProjectModel;
@@ -32,25 +30,16 @@ import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Service;
 
-@RestController
-@RequestMapping("/history")
+@Service
 public class ProjectHistoryService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProjectHistoryService.class);
     private static final String CURRENT_VERSION = "_current";
     private static final String REVISION_VERSION = "Revision Version";
 
-    @GetMapping(value = "/project", produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ProjectHistoryItem> getProjectHistory(HttpSession session) {
-        WebStudio webStudio = WebStudioUtils.getWebStudio(session);
+    public List<ProjectHistoryItem> getProjectHistory(WebStudio webStudio) {
         ProjectModel model = webStudio.getModel();
         String projectHistoryPath = Paths
             .get(webStudio.getWorkspacePath(),
@@ -70,9 +59,8 @@ public class ProjectHistoryService {
         return collect;
     }
 
-    @PostMapping("/restore")
-    public void restore(@RequestBody String versionToRestore, HttpSession session) throws Exception {
-        ProjectModel model = WebStudioUtils.getWebStudio(session).getModel();
+    public void restore(WebStudio webStudio, String versionToRestore) throws Exception {
+        ProjectModel model = webStudio.getModel();
         if (model == null) {
             return;
         }
@@ -95,7 +83,6 @@ public class ProjectHistoryService {
         }
     }
 
-    @DeleteMapping
     public void deleteAllHistory() throws IOException {
         String projectHistoryHome = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
         File userWorkspace = new File(projectHistoryHome);
