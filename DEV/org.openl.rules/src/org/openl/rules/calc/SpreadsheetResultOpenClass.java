@@ -3,8 +3,10 @@ package org.openl.rules.calc;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Stack;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
@@ -87,7 +89,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                 noStrictMatchCache.put(fieldName.toLowerCase(), RESOLVING_IN_PROGRESS);
             }
             openField = super.getField(fieldName, strictMatch);
-
+            boolean g = SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get() == null;
             if (openField == null && fieldName.startsWith("$")) {
                 if (module == null) {
                     openField = new SpreadsheetResultField(this, fieldName, JavaOpenClass.OBJECT);
@@ -95,8 +97,19 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                     CustomSpreadsheetResultField mergedField = null;
                     for (IOpenClass openClass : module.getTypes()) {
                         if (openClass instanceof CustomSpreadsheetResultOpenClass && !(openClass instanceof UnifiedSpreadsheetResultOpenClass)) {
-                            module.getRulesModuleBindingContext()
-                                .findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
+                            try {
+                                if (g) {
+                                    SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
+                                }
+                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashSet<>());
+                                module.getRulesModuleBindingContext()
+                                    .findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
+                            } finally {
+                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
+                                if (g) {
+                                    SpreadsheetStructureBuilder.preventCellsLoopingOnThis.remove();
+                                }
+                            }
                             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
                             IOpenField f = customSpreadsheetResultOpenClass.getField(fieldName, strictMatch);
                             if (f instanceof CustomSpreadsheetResultField) {
@@ -112,8 +125,19 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                         }
                     }
                     if (mergedField != null) {
-                        mergedField.getType(); // Fires compilation
-                        openField = mergedField;
+                        try {
+                            if (g) {
+                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
+                            }
+                            SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().push(new HashSet<>());
+                            mergedField.getType(); // Fires compilation
+                            openField = mergedField;
+                        } finally {
+                            SpreadsheetStructureBuilder.preventCellsLoopingOnThis.get().pop();
+                            if (g) {
+                                SpreadsheetStructureBuilder.preventCellsLoopingOnThis.remove();
+                            }
+                        }
                     }
                 }
             }

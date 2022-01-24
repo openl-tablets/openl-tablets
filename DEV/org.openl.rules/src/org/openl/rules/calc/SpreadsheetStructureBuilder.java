@@ -2,8 +2,11 @@ package org.openl.rules.calc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -57,6 +60,8 @@ public class SpreadsheetStructureBuilder {
 
     private final SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(
         this);
+
+    public static final ThreadLocal<Stack<Set<SpreadsheetCell>>> preventCellsLoopingOnThis = new ThreadLocal<>();
 
     public SpreadsheetStructureBuilderHolder getSpreadsheetStructureBuilderHolder() {
         return spreadsheetStructureBuilderHolder;
@@ -159,19 +164,37 @@ public class SpreadsheetStructureBuilder {
 
     public IOpenClass makeType(SpreadsheetCell cell) {
         if (cell.getType() == null) {
-            if (!cell.isResolvingInProgress()) {
-                try {
-                    cell.setResolvingInProgress(true);
-                    int rowIndex = cell.getRowIndex();
-                    int columnIndex = cell.getColumnIndex();
-                    IBindingContext rowContext = getRowContext(rowIndex);
-                    extractCellValue(rowContext, rowIndex, columnIndex);
-                    extractedCellValues.add(cell);
-                } finally {
-                    cell.setResolvingInProgress(false);
+            Stack<Set<SpreadsheetCell>> stack = preventCellsLoopingOnThis.get();
+            boolean f = stack == null;
+            try {
+                if (f) {
+                    preventCellsLoopingOnThis.set(stack = new Stack<>());
                 }
-            } else {
-                return JavaOpenClass.OBJECT;
+                Set<SpreadsheetCell> cellInProgressSet;
+                if (stack.isEmpty()) {
+                    cellInProgressSet = new HashSet<>();
+                    stack.push(cellInProgressSet);
+                } else {
+                    cellInProgressSet = stack.peek();
+                }
+                if (!cellInProgressSet.contains(cell)) {
+                    try {
+                        cellInProgressSet.add(cell);
+                        int rowIndex = cell.getRowIndex();
+                        int columnIndex = cell.getColumnIndex();
+                        IBindingContext rowContext = getRowContext(rowIndex);
+                        extractCellValue(rowContext, rowIndex, columnIndex);
+                        extractedCellValues.add(cell);
+                    } finally {
+                        cellInProgressSet.remove(cell);
+                    }
+                } else {
+                    return JavaOpenClass.OBJECT;
+                }
+            } finally {
+                if (f) {
+                    preventCellsLoopingOnThis.remove();
+                }
             }
         }
         return cell.getType();

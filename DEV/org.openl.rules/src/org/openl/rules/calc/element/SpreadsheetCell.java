@@ -21,8 +21,6 @@ public class SpreadsheetCell implements Invokable {
 
     private IOpenMethod method;
 
-    private boolean resolvingInProgress;
-
     public SpreadsheetCell(int rowIndex, int columnIndex, ICell sourceCell, SpreadsheetCellType spreadsheetCellType) {
         this.rowIndex = rowIndex;
         this.columnIndex = columnIndex;
@@ -103,14 +101,6 @@ public class SpreadsheetCell implements Invokable {
         } else {
             this.value = value;
         }
-    }
-
-    public boolean isResolvingInProgress() {
-        return resolvingInProgress;
-    }
-
-    public void setResolvingInProgress(boolean resolvingInProgress) {
-        this.resolvingInProgress = resolvingInProgress;
     }
 
     @Override
