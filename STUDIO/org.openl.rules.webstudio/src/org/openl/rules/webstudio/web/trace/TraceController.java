@@ -4,39 +4,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 
 import org.openl.rules.ui.TraceHelper;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
-import org.springframework.stereotype.Service;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Request scope managed bean providing logic for trace tree page of OpenL Studio.
  */
-@Service
-@Path("/trace/")
-@Produces(MediaType.APPLICATION_JSON)
-public class TraceService {
+@RestController
+@RequestMapping(value = "/trace", produces = MediaType.APPLICATION_JSON_VALUE)
+public class TraceController {
 
-    @GET
-    @Path("nodes")
-    public List<TraceNode> getNodes(@QueryParam("id") Integer id, @Context HttpServletRequest request, @QueryParam("showRealNumbers") Boolean showRealNumbers) {
+    @GetMapping("/nodes")
+    public List<TraceNode> getNodes(@RequestParam(value = "id", required = false) Integer id,
+            @RequestParam(value = "showRealNumbers", required = false) Boolean showRealNumbers,
+            HttpServletRequest request) {
         TraceHelper traceHelper = WebStudioUtils.getTraceHelper(request.getSession());
         ITracerObject element = traceHelper.getTableTracer(id == null ? 0 : id);
         return createNodes(element.getChildren(), traceHelper, showRealNumbers != null && showRealNumbers);
     }
 
-    private List<TraceNode> createNodes(Iterable<ITracerObject> children, TraceHelper traceHelper, boolean showRealNumbers) {
+    private List<TraceNode> createNodes(Iterable<ITracerObject> children,
+            TraceHelper traceHelper,
+            boolean showRealNumbers) {
         List<TraceNode> nodes = new ArrayList<>(16);
         for (ITracerObject child : children) {
             nodes.add(createNode(child, traceHelper, showRealNumbers));

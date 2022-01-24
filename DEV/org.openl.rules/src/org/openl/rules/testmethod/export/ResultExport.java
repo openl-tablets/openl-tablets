@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -18,8 +19,8 @@ public abstract class ResultExport extends BaseExport {
 
     public void export(OutputStream outputStream, int testsPerPage, TestUnitsResults... results) throws IOException {
         List<List<TestUnitsResults>> listsWithResults = new ArrayList<>();
-        SXSSFWorkbook workbook = new SXSSFWorkbook();
-        try {
+        SXSSFWorkbook tempWorkbook = null;
+        try (var workbook = tempWorkbook = new SXSSFWorkbook()) {
             styles = new Styles(workbook);
             ParameterExport parameterExport = new ParameterExport(styles);
 
@@ -65,10 +66,9 @@ public abstract class ResultExport extends BaseExport {
             }
 
             workbook.write(outputStream);
-            workbook.close();
         } finally {
             styles = null;
-            workbook.dispose();
+            Optional.ofNullable(tempWorkbook).ifPresent(SXSSFWorkbook::dispose);
             listsWithResults.clear();
         }
     }
