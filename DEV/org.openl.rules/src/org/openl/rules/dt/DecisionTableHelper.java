@@ -2977,7 +2977,9 @@ public final class DecisionTableHelper {
         boolean fuzzyReturn = false;
         for (DTHeader dtHeader : dtHeaders) {
             if (dtHeader.isReturn()) {
-                if (dtHeader instanceof FuzzyDTHeader) {
+                // If fieldsChain == null then it is a return for whole return type. It is not a part of fuzzy columns
+                // returns.
+                if (dtHeader instanceof FuzzyDTHeader && ((FuzzyDTHeader) dtHeader).getFieldsChain() != null) {
                     if (!fuzzyReturn) {
                         countReturns++;
                     }
