@@ -1,0 +1,95 @@
+package org.openl.rules.webstudio.web.test;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
+import org.openl.rules.testmethod.TestSuite;
+import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.export.RulesResultExport;
+import org.openl.rules.testmethod.export.TestResultExport;
+import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
+
+@RestController
+@RequestMapping("/test")
+public class TestDownloadController {
+
+    @GetMapping(value = "/testcase")
+    public ResponseEntity<StreamingResponseBody> download(@RequestParam(Constants.REQUEST_PARAM_ID) String id,
+            @RequestParam(value = Constants.REQUEST_PARAM_TEST_RANGES, required = false) String testRanges,
+            @RequestParam(value = Constants.REQUEST_PARAM_PERPAGE, required = false) Integer pp,
+            @RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
+            @RequestParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+
+        HttpSession session = request.getSession();
+
+        final int testsPerPage = pp != null ? pp : WebStudioUtils.getWebStudio(session).getTestsPerPage();
+        final TestUnitsResults[] results = Utils.runTests(id, testRanges, currentOpenedModule, session);
+
+        String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
+        StreamingResponseBody streamingOutput = output -> new TestResultExport().export(output, testsPerPage, results);
+
+        return prepareResponse(request, response, cookieName, streamingOutput);
+    }
+
+    private ResponseEntity<StreamingResponseBody> prepareResponse(HttpServletRequest request,
+            HttpServletResponse response,
+            String cookieName,
+            StreamingResponseBody streamingOutput) {
+        response.addCookie(newCookie(cookieName, "success", request.getContextPath()));
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=test-results.xlsx")
+            .header(HttpHeaders.CONTENT_TYPE, "application/xlsx")
+            .body(streamingOutput);
+    }
+
+    @GetMapping(value = "/rule", produces = "application/zip")
+    public ResponseEntity<?> manual(@RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
+            @RequestParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
+            HttpServletRequest request,
+            HttpServletResponse response) {
+        HttpSession session = request.getSession();
+        String cookieName = Constants.RESPONSE_MONITOR_COOKIE + "_" + cookieId;
+
+        ProjectModel model = WebStudioUtils.getWebStudio(session).getModel();
+        TestSuite testSuite = Utils.pollTestFromSession(session);
+        if (testSuite != null) {
+            final TestUnitsResults results = model.runTest(testSuite, currentOpenedModule);
+            StreamingResponseBody streamingOutput = output -> new RulesResultExport().export(output, -1, results);
+            return prepareResponse(request, response, cookieName, streamingOutput);
+        }
+
+        String failure = "Test data is not available anymore";
+        response.addCookie(newCookie(cookieName, failure, request.getContextPath()));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Input parameters not found");
+    }
+
+    private Cookie newCookie(String cookieName, String value, String contextPath) {
+        if (StringUtils.isEmpty(contextPath)) {
+            contextPath = "/"; // //EPBDS-7613
+        }
+        var cookie = new Cookie(cookieName, StringTool.encodeURL(value));
+        cookie.setPath(contextPath);
+        cookie.setVersion(1);
+        cookie.setMaxAge(-1);
+        cookie.setSecure(false);
+        cookie.setHttpOnly(false); // Has to be visible from client scripting
+        return cookie;
+    }
+
+}

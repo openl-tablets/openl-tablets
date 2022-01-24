@@ -49,18 +49,6 @@
         </constructor-arg>
     </bean>
 
-    <bean class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" init-method="create">
-        <property name="address" value=""/>
-        <property name="serviceBeans">
-            <list>
-                <ref bean="traceService"/>
-                <ref bean="testDownloadService"/>
-                <ref bean="conflictService"/>
-                <ref bean="diffService"/>
-            </list>
-        </property>
-    </bean>
-
     <bean class="org.openl.rules.testmethod.TestSuiteExecutor" destroy-method="destroy">
         <constructor-arg value="${test.run.thread.count}"/>
     </bean>
