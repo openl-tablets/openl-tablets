@@ -20,18 +20,19 @@ import org.openl.rules.webstudio.mail.MailSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.util.SocketUtils;
 import org.springframework.validation.BindingResult;
 
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 
-import java.io.IOException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = MockConfiguration.class)
 public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
     private static GreenMail smtpServer;
+    private static int smtpPort;
 
     @Autowired
     private MailSender mailSender;
@@ -43,7 +44,8 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
     @BeforeClass
     public static void setUp() {
-        smtpServer = new GreenMail(new ServerSetup(1587, "127.0.0.1", ServerSetup.PROTOCOL_SMTP));
+        smtpPort = SocketUtils.findAvailableTcpPort(1000);
+        smtpServer = new GreenMail(new ServerSetup(smtpPort, "127.0.0.1", ServerSetup.PROTOCOL_SMTP));
         smtpServer.setUser("username@email", "password");
         smtpServer.start();
     }
@@ -83,7 +85,7 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
     private MailConfigModel getValidMailConfigModel() {
         return new MailConfigModel()
-            .setUrl("smtp://127.0.0.1:1587")
+            .setUrl("smtp://127.0.0.1:" + smtpPort)
             .setUsername("username@email")
             .setPassword("password");
     }

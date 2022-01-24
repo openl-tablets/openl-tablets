@@ -297,7 +297,17 @@ public class HttpClient {
         if (StringUtils.hasLength(cookie.get())) {
             headers.add("Cookie", cookie.get());
         }
-        ResponseEntity<T> exchange = rest.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), cl);
+        return getForObject(url, cl, status, headers);
+    }
+
+    public <T> T getForObject(String url, Class<T> cl, HttpStatus status, HttpHeaders httpHeaders) {
+        ResponseEntity<T> exchange = rest.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), cl);
+        assertEquals("URL :" + url, status, exchange.getStatusCode());
+        return exchange.getBody();
+    }
+
+    public <T> T putForObject(String url, Object request, Class<T> cl, HttpStatus status, HttpHeaders httpHeaders) {
+        ResponseEntity<T> exchange = rest.exchange(url, HttpMethod.PUT, new HttpEntity<>(request, httpHeaders), cl);
         assertEquals("URL :" + url, status, exchange.getStatusCode());
         return exchange.getBody();
     }

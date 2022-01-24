@@ -424,14 +424,15 @@
                             type: "POST",
                             url: "#{contextPath}/web/mail/send/" + username,
                             datatype: "json",
-                            beforeSend: () => window.ws && ws.ui && ws.ui.showLoader ? ws.ui.showLoader() : showLoader(),
-                            complete: () => window.ws && ws.ui && ws.ui.hideLoader ? ws.ui.hideLoader() : hideLoader()
+                            contentType: "application/json",
+                            beforeSend: () => window?.ws?.ui?.showLoader ? ws.ui.showLoader() : showLoader(),
+                            complete: () => window?.ws?.ui?.hideLoader ? ws.ui.hideLoader() : hideLoader()
                         })
                         .done(function (data) {
-                            window.ws && ws.ui && ws.ui.success(data.message);
+                            window?.ws?.ui?.success(data.message);
                         })
                         .fail(function(jqXHR, textStatus, errorThrown) {
-                            window.ws && ws.ui && ws.ui.error(JSON.parse(jqXHR.responseText).message);
+                            window?.ws?.ui?.error(JSON.parse(jqXHR.responseText).message);
                         });
                     });
                 }
@@ -459,8 +460,8 @@
 
         function hideAndReloadAccountUserForm() {
             hideAccountUserForm();
-            window.ws && ws.nav && ws.nav.reload(true);
-            window.ws && ws.ui && ws.ui.success("User profile has been saved successfully!");
+            window?.ws?.nav?.reload(true);
+            window?.ws?.ui?.success("User profile has been saved successfully!");
         }
 
         function hideAccountUserForm() {

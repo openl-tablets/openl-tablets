@@ -10,7 +10,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.URLName;
 import javax.mail.internet.MimeMessage;
-import javax.ws.rs.core.UriInfo;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.openl.rules.security.User;
@@ -55,11 +55,11 @@ public class MailSender {
      *
      * @return true - if e-mail has been sent successful, false - if the service is off.
      */
-    public boolean sendVerificationMail(User user, UriInfo uriInfo) {
+    public boolean sendVerificationMail(User user, HttpServletRequest httpServletRequest) {
         String token = RandomStringUtils.random(8, false, true);
         boolean emailWasSent = false;
 
-        String verificationLink = createVerificationLink(uriInfo, token);
+        String verificationLink = createVerificationLink(httpServletRequest, token);
 
         try {
             if (isValidEmailSettings()) {
@@ -105,10 +105,12 @@ public class MailSender {
         return transport;
     }
 
-    private String createVerificationLink(UriInfo uriInfo, String token) {
-        String root = uriInfo.getBaseUri().toString();
-        if (root.endsWith("/web") || root.endsWith("/rest")) {
-            root = root.substring(0, root.lastIndexOf('/'));
+    private String createVerificationLink(HttpServletRequest httpServletRequest, String token) {
+        String root = httpServletRequest.getRequestURL().toString();
+        if (root.contains("/web")) {
+            root = root.substring(0, root.lastIndexOf("/web"));
+        } else if (root.contains("/rest")) {
+            root = root.substring(0, root.lastIndexOf("/rest"));
         }
         return root + MAIL_VERIFICATION_PAGE + "?token=" + token;
     }

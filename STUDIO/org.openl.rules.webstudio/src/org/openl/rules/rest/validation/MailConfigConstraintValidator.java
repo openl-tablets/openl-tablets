@@ -4,6 +4,7 @@ import javax.mail.Transport;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
+import org.hibernate.validator.constraintvalidation.HibernateConstraintValidatorContext;
 import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.util.StringUtils;
@@ -41,7 +42,9 @@ public class MailConfigConstraintValidator implements ConstraintValidator<MailCo
             return transport.isConnected();
         } catch (Exception e) {
             LOGGER.warn("Error on changing email server configuration: ", e);
-            context.buildConstraintViolationWithTemplate("{openl.constraints.mail.config.wrong.message}" + " " + e.getMessage())
+            context.unwrap(HibernateConstraintValidatorContext.class)
+                    .addMessageParameter("error", e.getMessage())
+                    .buildConstraintViolationWithTemplate("{openl.constraints.mail.config.wrong.message}")
                     .addConstraintViolation();
             return false;
         }

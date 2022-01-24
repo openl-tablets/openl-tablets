@@ -3,6 +3,6 @@ Authorization: Basic YWRtaW46YWRtaW4y
 Content-Type: application/json
 
 {
-  "url": "127.0.0.1",
-  "username": ""
+  "url": null,
+  "password": ""
 }

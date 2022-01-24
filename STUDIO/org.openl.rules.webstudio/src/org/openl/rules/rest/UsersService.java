@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -28,7 +29,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.rest.exception.NotFoundException;
@@ -121,7 +121,7 @@ public class UsersService {
     }
 
     @PUT
-    public void addUser(@Context UriInfo uriInfo, UserCreateModel userModel) {
+    public void addUser(@Context HttpServletRequest httpServletRequest, UserCreateModel userModel) {
         SecurityChecker.allow(Privileges.ADMIN);
         validationProvider.validate(userModel);
         boolean willBeExternalUser = canCreateExternalUsers && (!userModel.getInternalPassword()
@@ -135,15 +135,15 @@ public class UsersService {
             UserExternalFlags.builder().build());
         userManagementService.updateAuthorities(userModel.getUsername(), userModel.getGroups());
         if (StringUtils.isNotBlank(userModel.getEmail())) {
-            mailSender.sendVerificationMail(userManagementService.getUser(userModel.getUsername()), uriInfo);
+            mailSender.sendVerificationMail(userManagementService.getUser(userModel.getUsername()), httpServletRequest);
         }
     }
 
     @PUT
     @Path("/{username}")
-    public void editUser(@Context UriInfo uriInfo,
-            @RequestBody UserEditModel userModel,
-            @PathParam("username") String username) {
+    public void editUser(@Context HttpServletRequest httpServletRequest,
+                         @RequestBody UserEditModel userModel,
+                         @PathParam("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
@@ -177,13 +177,13 @@ public class UsersService {
         }
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
-            mailSender.sendVerificationMail(userManagementService.getUser(username), uriInfo);
+            mailSender.sendVerificationMail(userManagementService.getUser(username), httpServletRequest);
         }
     }
 
     @PUT
     @Path("/info")
-    public void editUserInfo(@Context UriInfo uriInfo, @RequestBody UserInfoModel userModel) {
+    public void editUserInfo(@Context HttpServletRequest httpServletRequest, @RequestBody UserInfoModel userModel) {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
         boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
@@ -205,13 +205,13 @@ public class UsersService {
             !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
-            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), uriInfo);
+            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), httpServletRequest);
         }
     }
 
     @PUT
     @Path("/profile")
-    public void editUserProfile(@Context UriInfo uriInfo, @RequestBody UserProfileEditModel userModel) {
+    public void editUserProfile(@Context HttpServletRequest httpServletRequest, @RequestBody UserProfileEditModel userModel) {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
         boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
@@ -245,7 +245,7 @@ public class UsersService {
             !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
-            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), uriInfo);
+            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), httpServletRequest);
         }
     }
 

@@ -24,7 +24,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.SocketUtils;
 
 import com.icegreen.greenmail.store.FolderException;
 import com.icegreen.greenmail.util.GreenMail;
@@ -39,6 +41,7 @@ public class UsersRestTest {
     private static JettyServer server;
     private static HttpClient client;
     private static GreenMail smtpServer;
+    private static int smtpPort;
 
     private static Server h2Server;
     private static Connection h2Connection;
@@ -52,7 +55,8 @@ public class UsersRestTest {
         server = JettyServer.startWithWebXml("usr");
         client = server.client();
 
-        smtpServer = new GreenMail(new ServerSetup(1587, "127.0.0.1", ServerSetup.PROTOCOL_SMTP));
+        smtpPort = SocketUtils.findAvailableTcpPort(1000);
+        smtpServer = new GreenMail(new ServerSetup(smtpPort, "127.0.0.1", ServerSetup.PROTOCOL_SMTP));
         smtpServer.setUser("username@email", "password");
         smtpServer.start();
 
@@ -137,8 +141,20 @@ public class UsersRestTest {
         client.send("users-service/mail/users-mail-config-1.get");
         client.send("users-service/mail/users-mail-config-update-2.put");
         client.send("users-service/mail/users-mail-config-1.get");
-        client.send("users-service/mail/users-mail-config-update-1.put");
-        client.send("users-service/mail/users-mail-config-2.get");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic YWRtaW46YWRtaW4=");
+
+        MailConfig newMailConfig = new MailConfig();
+        newMailConfig.password = "password";
+        newMailConfig.url = "smtp://127.0.0.1:" + smtpPort;
+        newMailConfig.username = "username@email";
+        client.putForObject("/web/mail/settings", newMailConfig, MailConfig.class, HttpStatus.NO_CONTENT, headers);
+
+        MailConfig mailConfig = client.getForObject("/web/mail/settings", MailConfig.class, HttpStatus.OK, headers);
+        Assert.assertEquals("password", mailConfig.password);
+        Assert.assertEquals("username@email", mailConfig.username);
+        Assert.assertEquals("smtp://127.0.0.1:" + smtpPort, mailConfig.url);
 
         int receivedMessagesCounter = 0;
         client.send("users-service/users-1.get");
@@ -181,7 +197,13 @@ public class UsersRestTest {
 
         client.send("users-service/mail/users-mail-verified.get");
 
-        client.send("users-service/mail/users-mail-config-update-3.put");
+        client.send("users-service/mail/users-mail-config-update-2.put");
         client.send("users-service/mail/users-mail-config-1.get");
+    }
+
+    public static class MailConfig {
+        public String url;
+        public String username;
+        public String password;
     }
 }

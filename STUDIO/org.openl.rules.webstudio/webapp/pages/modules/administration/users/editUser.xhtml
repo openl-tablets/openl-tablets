@@ -334,14 +334,15 @@
                             type: "POST",
                             url: "#{contextPath}/web/mail/send/" + username,
                             datatype: "json",
+                            contentType: "application/json",
                             beforeSend: showLoader,
                             complete: hideLoader
                         })
                         .done(function (data) {
-                            window.ws && ws.ui && ws.ui.success(data.message);
+                            window?.ws?.ui?.success(data.message);
                         })
                         .fail(function(jqXHR, textStatus, errorThrown) {
-                            window.ws && ws.ui && ws.ui.error(JSON.parse(jqXHR.responseText).message);
+                            window?.ws?.ui?.error(JSON.parse(jqXHR.responseText).message);
                         });
                     });
                 }

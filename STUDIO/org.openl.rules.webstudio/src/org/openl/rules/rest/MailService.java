@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -15,7 +16,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.UriInfo;
 
 import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.exception.ForbiddenException;
@@ -107,12 +107,12 @@ public class MailService {
     @POST
     @Path("/send/{username}")
     @Produces(MediaType.APPLICATION_JSON)
-    public NotificationModel sendVerification(@Context UriInfo uriInfo, @PathParam("username") String username) {
+    public NotificationModel sendVerification(@Context HttpServletRequest httpServletRequest, @PathParam("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
         User user = userManagementService.getUser(username);
-        boolean emailWasSent = mailSender.sendVerificationMail(user, uriInfo);
+        boolean emailWasSent = mailSender.sendVerificationMail(user, httpServletRequest);
         if (emailWasSent) {
             return new NotificationModel("Sent to " + user.getEmail());
         } else {
