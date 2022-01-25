@@ -386,9 +386,6 @@ public class TableBuilder {
                 Cell newCell = PoiExcelHelper.getCell(i + region.getLeft(),
                     currentRow + j + region.getTop(),
                     gridModel.getSheetSource().getSheet());
-                if (cell.getType() != IGrid.CELL_TYPE_FORMULA && newCell.getCellType() == CellType.FORMULA) {
-                    newCell.setCellValue(cellValue.toString());
-                }
                 ICellComment iCellComment = cell.getComment();
                 if (iCellComment != null) {
                     Comment xlxComment = ((XlsCellComment) iCellComment).getXlxComment();
