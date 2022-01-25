@@ -108,7 +108,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 if (openMethodBinder.isPreBindStarted()) {
                     if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams()) && openMethodBinder
                         .isReturnsCustomSpreadsheetResult()) {
-                        throw new RecursiveSpreadsheetMethodPreBindingException();
+                        throw new RecursiveSpreadsheetMethodPreBindingException(
+                            String.format("Type '%s' compilation failed with circular reference issue.",
+                                openMethodBinder.getCustomSpreadsheetResultOpenClass().getName()));
                     }
                     method = super.findMethodCaller(namespace, methodName, parTypes);
                     if (method == null) {
@@ -120,7 +122,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                         return method;
                     }
                     throw new IllegalStateException(
-                        "Method compilation is failed with the circular reference to itself.");
+                        String.format("Type '%s' compilation failed with circular reference issue.",
+                            openMethodBinder.getCustomSpreadsheetResultOpenClass().getName()));
                 }
                 preBindMethod(openMethodBinder.getHeader());
             }
@@ -259,9 +262,13 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (prebindingOpenMethodPreBinder.isPresent()) {
             if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(
                 getExternalParams()) && prebindingOpenMethodPreBinder.get().isReturnsCustomSpreadsheetResult()) {
-                throw new RecursiveSpreadsheetMethodPreBindingException();
+                throw new RecursiveSpreadsheetMethodPreBindingException(
+                    String.format("Type '%s' compilation failed with circular reference issue.",
+                        prebindingOpenMethodPreBinder.get().getCustomSpreadsheetResultOpenClass().getName()));
             } else {
-                throw new IllegalStateException("Method compilation is failed with the circular reference to itself.");
+                throw new IllegalStateException(
+                    String.format("Type '%s' compilation failed with circular reference issue.",
+                        prebindingOpenMethodPreBinder.get().getCustomSpreadsheetResultOpenClass().getName()));
             }
         }
         openMethodBinders.forEach(RecursiveOpenMethodPreBinder::startPreBind);
