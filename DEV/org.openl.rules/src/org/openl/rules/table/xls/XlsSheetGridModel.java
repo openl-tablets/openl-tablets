@@ -60,7 +60,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         cellWriters.put(AXlsCellWriter.DATE_WRITER, new XlsCellDateWriter(this));
         cellWriters.put(AXlsCellWriter.ENUM_ARRAY_WRITER, new XlsCellEnumArrayWriter(this));
         cellWriters.put(AXlsCellWriter.ENUM_WRITER, new XlsCellEnumWriter(this));
-        cellWriters.put(AXlsCellWriter.FORMULA_WRITER, new XlsCellFormulaWriter(this));
         cellWriters.put(AXlsCellWriter.NUMBER_WRITER, new XlsCellNumberWriter(this));
         cellWriters.put(AXlsCellWriter.STRING_WRITER, new XlsCellStringWriter(this));
     }
@@ -336,10 +335,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
 
         if (formula != null) {
-            AXlsCellWriter cellWriter = getCellWriters().get(AXlsCellWriter.FORMULA_WRITER);
-            cellWriter.setCellToWrite(poiCell);
-            cellWriter.setValueToWrite(formula);
-            cellWriter.writeCellValue();
+            poiCell.setCellFormula(formula);
+            PoiExcelHelper.evaluateFormula(poiCell);
         }
     }
 
@@ -580,13 +577,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         } else if (value.getClass().isArray()) {
             result = cellWriters.get(AXlsCellWriter.ARRAY_WRITER);
         } else { // String
-            String strValue = String.valueOf(value);
-            // Formula
-            if (strValue.startsWith("=")) {
-                result = cellWriters.get(AXlsCellWriter.FORMULA_WRITER);
-            } else {
-                result = cellWriters.get(AXlsCellWriter.STRING_WRITER);
-            }
+            result = cellWriters.get(AXlsCellWriter.STRING_WRITER);
         }
         return result;
     }

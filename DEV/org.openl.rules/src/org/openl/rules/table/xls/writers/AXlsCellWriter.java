@@ -11,7 +11,6 @@ public abstract class AXlsCellWriter {
 
     public static final String ENUM_ARRAY_WRITER = "Enum Array Writer";
     public static final String ENUM_WRITER = "Enum Writer";
-    public static final String FORMULA_WRITER = "Formula Writer";
     public static final String NUMBER_WRITER = "Number Writer";
     public static final String STRING_WRITER = "String Writer";
 
