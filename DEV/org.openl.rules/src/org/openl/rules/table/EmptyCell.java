@@ -80,7 +80,7 @@ public class EmptyCell implements ICell {
 
     @Override
     public int getType() {
-        return cell.getType();
+        return IGrid.CELL_TYPE_BLANK;
     }
 
     @Override
