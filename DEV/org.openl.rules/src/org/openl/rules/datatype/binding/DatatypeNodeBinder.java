@@ -24,6 +24,7 @@ import org.openl.rules.lang.xls.types.DatatypeMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.CompositeOpenlException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -60,7 +61,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
         if (TableNameChecker.isInvalidJavaIdentifier(typeName)) {
-            String message =  String.format(NAME_ERROR_MESSAGE, "Datatype table", typeName);
+            String message = String.format(NAME_ERROR_MESSAGE, "Datatype table", typeName);
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TYPE_INDEX]));
         }
         IOpenClass openClass;
@@ -100,12 +101,36 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             //
             String type = parsedHeader[2].getOriginalText().substring(beginIndex, endIndex).trim();
 
+            // Domain values are loaded as elements of array. We create one
+            // more type for it - array with appropriate type of elements.
+            // Create appropriate OpenL class for type definition.
+            //
+            IOpenClass baseOpenClass;
+            try {
+                bindingContext.pushErrors();
+                bindingContext.pushMessages();
+                baseOpenClass = OpenLManager
+                    .makeType(((IBindingContext) bindingContext).getOpenL(), type, tableSource, bindingContext);
+                // Prevent NPE if type is not found
+                if (bindingContext.getErrors().length > 0) {
+                    if (bindingContext.getErrors().length == 1) {
+                        throw bindingContext.getErrors()[0];
+                    } else {
+                        throw new CompositeOpenlException("Binding Errors:",
+                            bindingContext.getErrors(),
+                            bindingContext.getMessages());
+                    }
+                }
+            } finally {
+                bindingContext.popErrors();
+                bindingContext.popMessages();
+            }
+
             // Create appropriate domain object.
             //
             Object[] res = {};
             if (dataPart != null) {
-                IOpenClass arrayOpenClass = OpenLManager
-                    .makeType(((IBindingContext) bindingContext).getOpenL(), type + "[]", tableSource, bindingContext);
+                IOpenClass arrayOpenClass = baseOpenClass.getArrayType(1);
 
                 OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tsn);
 
@@ -117,13 +142,6 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             }
 
             IDomain<?> domain = new EnumDomain<>(res);
-
-            // Domain values are loaded as elements of array. We are create one
-            // more type for it - array with appropriate type of elements.
-            // Create appropriate OpenL class for type definition.
-            //
-            IOpenClass baseOpenClass = OpenLManager
-                .makeType(((IBindingContext) bindingContext).getOpenL(), type, tableSource, bindingContext);
 
             // Create domain class definition which will be used by OpenL engine at runtime.
             //
