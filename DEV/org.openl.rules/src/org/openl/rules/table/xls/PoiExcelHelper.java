@@ -6,7 +6,6 @@ import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.*;
 
@@ -17,44 +16,6 @@ public final class PoiExcelHelper {
 
     /** For more information, see {@link HSSFWorkbook#MAX_STYLES} */
     private static final short MAX_STYLES = 4030;
-
-    public static void copyCellValue(Cell cellFrom, Cell cellTo) {
-        cellTo.setBlank();
-        switch (cellFrom.getCellType()) {
-            case BLANK:
-                break;
-            case BOOLEAN:
-                cellTo.setCellValue(cellFrom.getBooleanCellValue());
-                break;
-            case FORMULA:
-                cellTo.setCellFormula(cellFrom.getCellFormula());
-                try {
-                    evaluateFormula(cellTo);
-                } catch (Exception ignored) {
-                }
-                break;
-            case NUMERIC:
-                cellTo.setCellValue(cellFrom.getNumericCellValue());
-                break;
-            case STRING:
-                cellTo.setCellValue(cellFrom.getRichStringCellValue());
-                break;
-            default:
-                throw new RuntimeException("Unknown cell type: " + cellFrom.getCellType());
-        }
-    }
-
-    public static void copyCellStyle(Cell cellFrom, Cell cellTo, Sheet sheetTo) {
-        CellStyle styleFrom = cellFrom.getCellStyle();
-        try {
-            cellTo.setCellStyle(styleFrom);
-        } catch (IllegalArgumentException e) { // copy cell style to cell of
-            // another workbook
-            CellStyle styleTo = createCellStyle(sheetTo.getWorkbook());
-            styleTo.cloneStyleFrom(styleFrom);
-            cellTo.setCellStyle(styleTo);
-        }
-    }
 
     public static Cell getCell(int colIndex, int rowIndex, Sheet sheet) {
         Row row = sheet.getRow(rowIndex);
@@ -70,65 +31,6 @@ public final class PoiExcelHelper {
             row = sheet.createRow(rowIndex);
         }
         return row.getCell(colIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-    }
-
-    /**
-     * Some magic numbers here What is column width???
-     */
-    public static int getColumnWidth(int col, Sheet sheet) {
-        int w = sheet.getColumnWidth((short) col);
-        if (w == sheet.getDefaultColumnWidth()) {
-            return 79;
-        }
-        return w / 40;
-    }
-
-    /**
-     * Returns the index of the column. After that column there is no more filled cells on the sheet in given row.
-     *
-     * @param rownum index of the row on the sheet
-     */
-    public static int getMaxColumnIndex(int rownum, Sheet sheet) {
-        Row row = sheet.getRow(rownum);
-        return row == null ? 0 : row.getLastCellNum();
-    }
-
-    public static int getMaxRowIndex(Sheet sheet) {
-        return sheet.getLastRowNum();
-    }
-
-    /**
-     * Returns the index of the column, the next column will be the first cell with data in given row.
-     *
-     */
-    public static int getMinColumnIndex(int rownum, Sheet sheet) {
-        Row row = sheet.getRow(rownum);
-        return row == null ? 0 : row.getFirstCellNum();
-    }
-
-    public static int getNumberOfMergedRegions(Sheet sheet) {
-        try {
-            return sheet.getNumMergedRegions();
-        } catch (NullPointerException e) {
-            return 0;
-        }
-    }
-
-    public static int getMinRowIndex(Sheet sheet) {
-        return sheet.getFirstRowNum();
-    }
-
-    public static int getLastRowNum(Sheet sheet) {
-        return sheet.getLastRowNum();
-    }
-
-    public static void setCellStringValue(int col, int row, String value, Sheet sheet) {
-        Cell cell = getOrCreateCell(col, row, sheet);
-        cell.setCellValue(value);
-    }
-
-    public static CellRangeAddress getMergedRegionAt(int index, Sheet sheet) {
-        return sheet.getMergedRegion(index);
     }
 
     /**
@@ -163,27 +65,6 @@ public final class PoiExcelHelper {
             newStyle.cloneStyleFrom(fromStyle);
         }
         return newStyle;
-    }
-
-    public static Font cloneFontFrom(Cell cell) {
-        Font newFont = null;
-        if (cell != null) {
-            Workbook workbook = cell.getSheet().getWorkbook();
-            newFont = workbook.createFont();
-            int fontIndex = cell.getCellStyle().getFontIndexAsInt();
-            Font fromFont = workbook.getFontAt(fontIndex);
-
-            newFont.setBold(fromFont.getBold());
-            newFont.setColor(fromFont.getColor());
-            newFont.setFontHeight(fromFont.getFontHeight());
-            newFont.setFontName(fromFont.getFontName());
-            newFont.setItalic(fromFont.getItalic());
-            newFont.setStrikeout(fromFont.getStrikeout());
-            newFont.setTypeOffset(fromFont.getTypeOffset());
-            newFont.setUnderline(fromFont.getUnderline());
-            newFont.setCharSet(fromFont.getCharSet());
-        }
-        return newFont;
     }
 
     public static Font getCellFont(Cell cell) {
