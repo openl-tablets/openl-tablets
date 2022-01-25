@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import javax.faces.model.SelectItem;
-import javax.servlet.http.HttpServletRequest;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -56,23 +55,14 @@ public class SearchBean {
     private String[] tableTypes;
     private String tableHeader;
     private SearchScope searchScope = SearchScope.CURRENT_MODULE;
-    private SearchScope searchScope;
     private final List<TableProperty> properties = new ArrayList<>();
 
     private List<IOpenLTable> searchResults;
 
     public SearchBean() {
         initProperties();
-
-        if (((HttpServletRequest) WebStudioUtils.getExternalContext().getRequest()).getRequestURI()
-            .contains("search.xhtml")) {
-            initSearchQuery();
-            search();
-        }
-    }
-
-    public String getQuery() {
-        return query;
+        initSearchQuery();
+        search();
     }
 
     public String[] getTableTypes() {
@@ -81,18 +71,6 @@ public class SearchBean {
 
     public void setTableTypes(String[] tableTypes) {
         this.tableTypes = tableTypes;
-    }
-
-    public SearchScope getSearchScope() {
-        return searchScope;
-    }
-
-    public void setSearchScope(SearchScope searchScope) {
-        this.searchScope = searchScope;
-    }
-
-    public String getTableHeader() {
-        return tableHeader;
     }
 
     public List<TableProperty> getProperties() {
@@ -186,7 +164,7 @@ public class SearchBean {
             selectors = selectors.and(new TablePropertiesSelector(properties));
         }
 
-        searchResults = projectModel.search(selectors, getSearchScope());
+        searchResults = projectModel.search(selectors, searchScope);
     }
 
 }
