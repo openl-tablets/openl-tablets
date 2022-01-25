@@ -55,6 +55,7 @@ public class SearchBean {
     private String query;
     private String[] tableTypes;
     private String tableHeader;
+    private SearchScope searchScope = SearchScope.CURRENT_MODULE;
     private SearchScope searchScope;
     private final List<TableProperty> properties = new ArrayList<>();
 
@@ -141,7 +142,9 @@ public class SearchBean {
 
         this.tableHeader = tableHeader;
 
-        setSearchScope(SearchScope.valueOf(searchScope));
+        if (StringUtils.isNotBlank(searchScope)) {
+            this.searchScope = SearchScope.valueOf(searchScope);
+        }
 
         // Init properties query
         for (TableProperty property : properties) {
