@@ -124,7 +124,6 @@ public final class PoiExcelHelper {
 
     public static void setCellStringValue(int col, int row, String value, Sheet sheet) {
         Cell cell = getOrCreateCell(col, row, sheet);
-        cell.setCellType(CellType.STRING);
         cell.setCellValue(value);
     }
 
