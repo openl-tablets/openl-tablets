@@ -58,7 +58,12 @@ public class XlsCell implements ICell {
         if (cell == null) {
             return null;
         }
-        return getCellStyle(cell);
+        CellStyle style = cell.getCellStyle();
+        if (style == null) {
+            return null;
+        }
+        Workbook workbook = gridModel.getSheetSource().getSheet().getWorkbook();
+        return new XlsCellStyle(style, workbook);
     }
 
     @Override
@@ -186,26 +191,15 @@ public class XlsCell implements ICell {
 
     @Override
     public String getFormula() {
-        if (getCell() == null && region == null) {
-            return null;
-        } else if (region != null) {
-            return getFormulaFromRegion();
-        } else {
-            return cellFormula();
-        }
-    }
-
-    private String getFormulaFromRegion() {
-        if (isCurrentCellATopLeftCellInRegion()) {
-            return cellFormula();
-        }
-        ICell topLeftCell = getTopLeftCellFromRegion();
-        return topLeftCell.getType() == IGrid.CELL_TYPE_FORMULA ? topLeftCell.getFormula() : null;
-    }
-
-    private String cellFormula() {
         Cell cell = getCell();
-        return cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
+        if (cell == null && region == null) {
+            return null;
+        } else if (region == null || isCurrentCellATopLeftCellInRegion()) {
+            return cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
+        } else {
+            ICell topLeftCell = getTopLeftCellFromRegion();
+            return topLeftCell.getType() == IGrid.CELL_TYPE_FORMULA ? topLeftCell.getFormula() : null;
+        }
     }
 
     @Override
@@ -213,20 +207,13 @@ public class XlsCell implements ICell {
         Cell cell = getCell();
         if (cell == null && region == null) {
             return IGrid.CELL_TYPE_BLANK;
-        } else if (region != null) {
-            return getTypeFromRegion();
-        } else {
+        } else if (region == null || isCurrentCellATopLeftCellInRegion()) {
             return getIGridCellType(cell.getCellType());
+        } else {
+            ICell topLeftCell = getTopLeftCellFromRegion();
+            return topLeftCell.getType();
         }
 
-    }
-
-    private int getTypeFromRegion() {
-        if (isCurrentCellATopLeftCellInRegion()) {
-            return getIGridCellType(getCell().getCellType());
-        }
-        ICell topLeftCell = getTopLeftCellFromRegion();
-        return topLeftCell.getType();
     }
 
     @Override
@@ -299,15 +286,6 @@ public class XlsCell implements ICell {
                 throw new IllegalStateException("Cannot parse the value as a date : " + cell.getNumericCellValue());
             }
         }
-    }
-
-    private ICellStyle getCellStyle(Cell cell) {
-        CellStyle style = cell.getCellStyle();
-        if (style != null) {
-            Workbook workbook = gridModel.getSheetSource().getSheet().getWorkbook();
-            return new XlsCellStyle(style, workbook);
-        }
-        return null;
     }
 
     @Override
