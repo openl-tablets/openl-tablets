@@ -12,6 +12,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.webstudio.web.ErrorsContainer;
 
 /**
  * This abstract class implements basic functionality of {@link TreeNode} interface. Every particular tree node should
@@ -83,6 +84,8 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     private boolean expanded = false;
 
+    private ErrorsContainer errorsContainer;
+
     /**
      * Creates tree node that can have children.
      *
@@ -132,6 +135,9 @@ public abstract class AbstractTreeNode implements TreeNode {
 
         getElements().put(id, child);
         child.setParent(this);
+        if (child instanceof AbstractTreeNode) {
+            ((AbstractTreeNode) child).setErrorsContainer(getErrorsContainer());
+        }
     }
 
     @Override
@@ -360,6 +366,14 @@ public abstract class AbstractTreeNode implements TreeNode {
     @Override
     public void setData(AProjectArtefact data) {
         this.data = data;
+    }
+
+    public void setErrorsContainer(ErrorsContainer errorsContainer) {
+        this.errorsContainer = errorsContainer;
+    }
+
+    public ErrorsContainer getErrorsContainer() {
+        return errorsContainer;
     }
 
     @Override

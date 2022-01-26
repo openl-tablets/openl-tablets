@@ -5,8 +5,11 @@ import java.util.*;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.webstudio.filter.IFilter;
+import org.openl.rules.webstudio.web.ErrorsContainer;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents OpenL folder in a tree.
@@ -16,6 +19,7 @@ import org.openl.rules.webstudio.web.repository.UiConst;
  */
 public class TreeFolder extends AbstractTreeNode {
 
+    private final Logger log = LoggerFactory.getLogger(TreeFolder.class);
     /**
      * Collection of children. In LeafOnly mode it is left uninitialized.
      */
@@ -57,18 +61,28 @@ public class TreeFolder extends AbstractTreeNode {
     public Map<Object, TreeNode> getElements() {
         if (elements == null && !isLeafOnly()) {
             elements = new LinkedHashMap<>();
-            if (getData() instanceof AProjectFolder) {
-                AProjectFolder folder = (AProjectFolder) getData();
-                Collection<AProjectArtefact> filteredArtefacts = getFilteredArtefacts(folder);
+            try {
+                if (getData() instanceof AProjectFolder) {
+                    AProjectFolder folder = (AProjectFolder) getData();
+                    Collection<AProjectArtefact> filteredArtefacts = getFilteredArtefacts(folder);
 
-                AProjectArtefact[] sortedArtefacts = new AProjectArtefact[filteredArtefacts.size()];
-                sortedArtefacts = filteredArtefacts.toArray(sortedArtefacts);
+                    AProjectArtefact[] sortedArtefacts = new AProjectArtefact[filteredArtefacts.size()];
+                    sortedArtefacts = filteredArtefacts.toArray(sortedArtefacts);
 
-                Arrays.sort(sortedArtefacts, RepositoryUtils.ARTEFACT_COMPARATOR);
+                    Arrays.sort(sortedArtefacts, RepositoryUtils.ARTEFACT_COMPARATOR);
 
-                for (AProjectArtefact artefact : sortedArtefacts) {
-                    addChild(artefact);
+                    for (AProjectArtefact artefact : sortedArtefacts) {
+                        addChild(artefact);
+                    }
                 }
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                ErrorsContainer errorsContainer = getErrorsContainer();
+                if (errorsContainer != null) {
+                    errorsContainer.addRequestError(e);
+                }
+                elements = null;
+                return Collections.emptyMap();
             }
         }
         return elements;
