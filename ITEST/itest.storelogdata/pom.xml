@@ -156,15 +156,4 @@
             <version>1.4.194</version>
         </dependency>
     </dependencies>
-    <profiles>
-        <profile>
-            <id>qytqylkage</id>
-            <activation>
-                <jdk>1.8</jdk>
-            </activation>
-            <properties>
-                <maven.test.skip>false</maven.test.skip>
-            </properties>
-        </profile>
-    </profiles>
 </project>
