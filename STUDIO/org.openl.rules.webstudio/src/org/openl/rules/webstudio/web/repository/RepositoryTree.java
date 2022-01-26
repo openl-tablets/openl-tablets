@@ -7,6 +7,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
 
+import java.util.List;
+
 /**
  * Needed to render repository tree and to show error messages if failed to render it.
  */
@@ -20,12 +22,6 @@ public class RepositoryTree {
 
         // Build tree if needed.
         repositoryTreeState.getRoot();
-
-        // If during tree building found an error, show it.
-        String errorMessage = repositoryTreeState.getErrorMessage();
-        if (errorMessage != null) {
-            WebStudioUtils.addErrorMessage(errorMessage);
-        }
     }
 
     public TreeRepository getRoot() {
@@ -33,8 +29,22 @@ public class RepositoryTree {
     }
 
     public boolean isHasMessages() {
-        return FacesContext.getCurrentInstance().getMaximumSeverity() != null && FacesContext.getCurrentInstance()
-            .getMessages(null)
-            .hasNext();
+        boolean hasMessages = FacesContext.getCurrentInstance().getMaximumSeverity() != null && FacesContext.getCurrentInstance()
+                .getMessages(null)
+                .hasNext();
+        if (hasMessages) {
+            return true;
+        }
+
+        // Error can be absent at the beginning of current request, but added before end of request.
+        List<String> errorMessages = repositoryTreeState.getErrorsContainer().getErrors();
+        if (!errorMessages.isEmpty()) {
+            for (String errorMessage : errorMessages) {
+                WebStudioUtils.addErrorMessage(errorMessage);
+            }
+            return true;
+        }
+
+        return false;
     }
 }

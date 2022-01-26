@@ -379,6 +379,9 @@ public class RepositoryTreeController {
     }
 
     public boolean getHasDependencies() {
+        if (repositoryTreeState.getErrorsContainer().hasErrors()) {
+            return false;
+        }
         return !getDependencies(getSelectedProject(), false).isEmpty();
     }
 
@@ -472,6 +475,7 @@ public class RepositoryTreeController {
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
+            repositoryTreeState.getErrorsContainer().addRequestError(e.getMessage());
             // Skip this dependency
             return;
         }
@@ -2475,6 +2479,10 @@ public class RepositoryTreeController {
     }
 
     public boolean isRenamed(RulesProject project) {
+        if (repositoryTreeState.getErrorsContainer().hasErrors()) {
+            return false;
+        }
+
         return project != null && !getLogicalName(project).equals(project.getName());
     }
 

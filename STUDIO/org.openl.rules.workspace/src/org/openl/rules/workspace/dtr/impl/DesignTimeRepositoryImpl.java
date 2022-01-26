@@ -384,8 +384,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 } else {
                     fileDatas = repository.list(path);
                 }
-            } catch (IOException ex) {
-                LOG.error(ex.getMessage(), ex);
             } catch (Exception e) {
                 exceptions.add(String.format("Repository '%s' : %s", repository.getName(), e.getMessage()));
             }
