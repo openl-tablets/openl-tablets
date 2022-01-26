@@ -45,6 +45,7 @@ import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.ProjectGroupingService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
+import org.openl.rules.webstudio.web.ErrorsContainer;
 import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeFile;
@@ -117,7 +118,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private boolean hideDeleted = true;
 
     private final Object lock = new Object();
-    private String errorMessage;
+    /**
+     * Show only first 3 errors. Obviously showing more errors is useless and probably just adds a mess to UI.
+     * 3 errors should be enough. Can be changed in the future.
+     */
+    private final ErrorsContainer errorsContainer = new ErrorsContainer(3);
     private final WorkspaceListener workspaceListener = new WorkspaceListener();
 
     private ProjectGrouping projectGrouping;
@@ -130,6 +135,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             log.debug("Starting buildTree()");
 
             root = new TreeRepository("", "", filter, ROOT_TYPE);
+            root.setErrorsContainer(errorsContainer);
 
             String projectsTreeId = "1st - Projects";
             String rpName = "Projects";
@@ -254,10 +260,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                     // Initialize content of empty node
                     deploymentRepository.getElements();
                 }
-                List<String> exceptions = userWorkspace.getDesignTimeRepository().getExceptions();
-                if (!exceptions.isEmpty()) {
-                    errorMessage = exceptions.get(0);
-                }
+                errorsContainer.addPermanentErrors(userWorkspace.getDesignTimeRepository().getExceptions());
             } catch (ProjectException e) {
                 log.error("Cannot get deployment projects", e);
             }
@@ -278,7 +281,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             String message = "Cannot build repository tree. " + (rootCause == null ? e.getMessage()
                                                                                    : rootCause.getMessage());
             log.error(message, e);
-            errorMessage = message;
+            errorsContainer.addPermanentError(message);
             setSelectedNode(rulesRepository);
         }
     }
@@ -332,8 +335,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
     }
 
-    String getErrorMessage() {
-        return errorMessage;
+    ErrorsContainer getErrorsContainer() {
+        return errorsContainer;
     }
 
     public TreeRepository getRulesRepository() {
@@ -577,7 +580,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         synchronized (lock) {
             backupRoot();
             root = null;
-            errorMessage = null;
+            errorsContainer.clear();
             projectGrouping = null;
 
             // Clear all ViewScoped beans that could cache some temporary values (for example DeploymentController).
@@ -630,7 +633,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         synchronized (lock) {
             backupRoot();
             root = null;
-            errorMessage = null;
+            errorsContainer.clear();
         }
     }
 
@@ -694,7 +697,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
             backupRoot();
             root = null;
-            errorMessage = null;
+            errorsContainer.clear();
         }
     }
 

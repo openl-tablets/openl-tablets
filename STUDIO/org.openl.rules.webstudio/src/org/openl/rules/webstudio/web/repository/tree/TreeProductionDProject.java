@@ -70,7 +70,7 @@ public class TreeProductionDProject extends TreeProductFolder {
         String name = childArtefact.getName();
         String id = RepositoryUtils.getTreeNodeId(childArtefact);
         if (childArtefact instanceof AProjectFolder) {
-            TreeProductProject prj = new TreeProductProject(id, childArtefact.getName(), filter);
+            TreeProductProject prj = new TreeProductProject(id, name, filter);
             prj.setData(childArtefact);
 
             add(prj);
