@@ -342,7 +342,7 @@
                         <dependency>
                             <groupId>com.h2database</groupId>
                             <artifactId>h2</artifactId>
-                            <version>1.4.199</version>
+                            <version>2.1.210</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -1340,9 +1340,7 @@
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>1.4.199</version>
-                <!--<version>1.4.200</version> does not work with policy file due to FilePermission, will be fixed in the next version-->
-                <!--<version>2.0.202</version> does not work due backward compatibility when no username is defined -->
+                <version>2.1.210</version>
             </dependency>
             <!-- Flyway: The agile database migration framework for Java. -->
             <dependency>
