@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
@@ -440,10 +441,10 @@ public abstract class AOpenClass implements IOpenClass {
         if (o == null || getClass() != o.getClass())
             return false;
         AOpenClass that = (AOpenClass) o;
-        if (getInstanceClass() != null ? !getInstanceClass().equals(that.getInstanceClass())
-                                       : that.getInstanceClass() != null)
-            return false;
-        return getName().equals(that.getName());
+        if (getInstanceClass() != null || that.getInstanceClass() != null) {
+            return Objects.equals(getInstanceClass(), that.getInstanceClass());
+        }
+        return false;
     }
 
     @Override
