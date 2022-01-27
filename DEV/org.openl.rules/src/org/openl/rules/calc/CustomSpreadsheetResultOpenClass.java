@@ -164,9 +164,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     @Override
     public IOpenClass getParentClass(ModuleSpecificType openClass) {
-        if (!getModule().isExternalModule((XlsModuleOpenClass) openClass.getModule(),
-            new IdentityHashMap<>()) && openClass instanceof CustomSpreadsheetResultOpenClass) {
-            return getModule().buildOrGetUnifiedSpreadsheetResult(this, (CustomSpreadsheetResultOpenClass) openClass);
+        if (openClass instanceof CustomSpreadsheetResultOpenClass) {
+            if (!getModule().isExternalModule((XlsModuleOpenClass) openClass.getModule(), new IdentityHashMap<>())) {
+                return getModule().buildOrGetUnifiedSpreadsheetResult(this,
+                    (CustomSpreadsheetResultOpenClass) openClass);
+            } else {
+                return AnySpreadsheetResultOpenClass.INSTANCE;
+            }
         }
         return null;
     }
@@ -1031,7 +1035,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
         CustomSpreadsheetResultOpenClass that = (CustomSpreadsheetResultOpenClass) o;
 
-        return Objects.equals(module, that.module);
+        return Objects.equals(module, that.module) && Objects.equals(getName(), that.getName());
     }
 
     @Override

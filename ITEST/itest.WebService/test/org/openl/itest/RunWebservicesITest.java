@@ -563,4 +563,9 @@ public class RunWebservicesITest {
         client.send("EPBDS-12264/myRules.json.post");
     }
 
+    @Test
+    public void EPBDS_12546() {
+        client.send("EPBDS-12546/theSpreadsheet.json.get");
+        client.send("EPBDS-12546/theSpreadsheet2.json.get");
+    }
 }
