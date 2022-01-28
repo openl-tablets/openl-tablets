@@ -23,10 +23,9 @@ public interface IPosition {
     /**
      *
      * @param info text helper class
-     * @param tabSize the tab size as understood by caller
      * @return the column with '\t' expanded according to the tabsize starting from 0
      */
-    int getColumn(TextInfo info, int tabSize);
+    int getColumn(TextInfo info);
 
     /**
      * @param info text helper class

@@ -33,11 +33,11 @@ public class AbsolutePosition implements IPosition {
      * @see org.openl.util.text.Position#getColumn(org.openl.util.text.TextInfo)
      */
     @Override
-    public int getColumn(TextInfo info, int tabsize) {
+    public int getColumn(TextInfo info) {
         int line = info.getLineIdx(pos);
         int start = info.getPosition(line);
 
-        return TextInfo.getColumn(info.getLine(line), pos - start, tabsize);
+        return pos - start + 1;
     }
 
     /*
