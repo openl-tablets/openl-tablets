@@ -19,39 +19,6 @@ public class TextInfo {
     private final String text;
     private int[] lineTable;
 
-    public static int getColumn(String line, int linePos, int tabsize) {
-        int col = 0;
-        for (int i = 0; i < linePos; i++) {
-            if (line.charAt(i) == '\t') {
-                col += tabsize - col % tabsize;
-            } else {
-                col++;
-            }
-        }
-        return col;
-    }
-
-    public static int getPosition(String line, int column, int tabsize) {
-        if (column == 0) {
-            return 0;
-        }
-        int pos = 0;
-        for (int i = 0; i < line.length(); i++) {
-            if (line.charAt(i) == '\t') {
-                pos += tabsize - pos % tabsize;
-            } else {
-                pos++;
-            }
-            if (pos >= column) {
-                return i + 1;
-            }
-        }
-
-        // throw new RuntimeException();
-        // In case we get EOF position(for some errors)
-        return line.length();
-    }
-
     public TextInfo(String text) {
         this.text = text;
     }

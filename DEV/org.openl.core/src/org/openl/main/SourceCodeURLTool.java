@@ -126,10 +126,10 @@ public final class SourceCodeURLTool {
         pw.print("=======================\r\n");
 
         int line1 = location.getStart().getLine(info);
-        int column1 = location.getStart().getColumn(info, 1);
+        int column1 = location.getStart().getColumn(info);
 
         int line2 = location.getEnd().getLine(info);
-        int column2 = location.getEnd().getColumn(info, 1);
+        int column2 = location.getEnd().getColumn(info);
 
         int start = Math.max(line1 - 2, 0);
 
