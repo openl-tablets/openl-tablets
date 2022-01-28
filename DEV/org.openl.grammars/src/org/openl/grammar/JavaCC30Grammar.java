@@ -118,9 +118,9 @@ public abstract class JavaCC30Grammar implements IGrammar {
                 // grammar problem???
                 ISyntaxNode node = pop();
                 syntaxError = SyntaxNodeExceptionUtils.createError(
-                        "More than one syntax node on stack:\nSource:\n" + node.getModule().getCode(),
-                        null,
-                        node);
+                    "More than one syntax node on stack:\nSource:\n" + node.getModule().getCode(),
+                    null,
+                    node);
                 return node;
             // throw new RuntimeException("More than one syntax node on
             // stack");
@@ -167,7 +167,7 @@ public abstract class JavaCC30Grammar implements IGrammar {
     }
 
     public void notImplemented(String type) {
-        throw new RuntimeException(type + " is not implemented yet");
+        throw new IllegalStateException(String.format("'%s' is not implemented yet.", type));
     }
 
     public void uop(String type, TextInterval pos) {

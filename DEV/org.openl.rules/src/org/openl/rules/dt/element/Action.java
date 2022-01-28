@@ -269,15 +269,17 @@ public class Action extends FunctionalRow implements IAction {
 
         if ((isReturnAction() || isCollectReturnAction()) && decisionTable.isTypeCustomSpreadsheetResult()) {
             IOpenClass t = method.getBodyType();
-            while (t.isArray()) {
-                t = t.getComponentClass();
-            }
-            IOpenClass g = t;
-            decisionTable.getDeferredChanges().add(() -> {
-                if (g instanceof CustomSpreadsheetResultOpenClass || g instanceof SpreadsheetResultOpenClass) {
-                    decisionTable.getCustomSpreadsheetResultType().updateWithType(g);
+            if (t != null) {
+                while (t.isArray()) {
+                    t = t.getComponentClass();
                 }
-            });
+                IOpenClass g = t;
+                decisionTable.getDeferredChanges().add(() -> {
+                    if (g instanceof CustomSpreadsheetResultOpenClass || g instanceof SpreadsheetResultOpenClass) {
+                        decisionTable.getCustomSpreadsheetResultType().updateWithType(g);
+                    }
+                });
+            }
         }
 
         this.returnType = decisionTable.getType();
