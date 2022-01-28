@@ -77,7 +77,7 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
 
             syntaxError = new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(), null, loc, module);
         } catch (Throwable e) {
-            syntaxError = new SyntaxNodeException("", e, pos(token), module);
+            syntaxError = new SyntaxNodeException("Failed to parse an expression.", e, pos(token), module);
         }
     }
 
