@@ -5,8 +5,6 @@ import org.openl.util.text.TextInfo;
 
 public class JavaCC30Position implements IPosition {
 
-    private static final int JAVACC30_TABSIZE = 8;
-
     private final int jcc30line;
     private final int jcc30col;
 
@@ -30,7 +28,7 @@ public class JavaCC30Position implements IPosition {
 
         int line = jcc30line - 1;
         int linePos = info.getPosition(line);
-        int colPos = TextInfo.getPosition(info.getLine(line), jcc30col - 1, JAVACC30_TABSIZE);
+        int colPos = Math.min(info.getLine(line).length(), jcc30col - 1);
 
         return linePos + colPos;
     }
@@ -41,7 +39,7 @@ public class JavaCC30Position implements IPosition {
      * @see org.openl.util.text.Position#getColumn(org.openl.util.text.TextInfo, int)
      */
     @Override
-    public int getColumn(TextInfo info, int tabSize) {
+    public int getColumn(TextInfo info) {
 
         if (jcc30line == 0) {
             return 0;
@@ -49,9 +47,9 @@ public class JavaCC30Position implements IPosition {
 
         int line = jcc30line - 1;
         // int linePos = info.getPosition(line);
-        int colPos = TextInfo.getPosition(info.getLine(line), jcc30col - 1, JAVACC30_TABSIZE);
+        int colPos = Math.min(info.getLine(line).length(), jcc30col - 1);
 
-        return TextInfo.getColumn(info.getLine(line), colPos, tabSize);
+        return colPos + 1;
     }
 
     /*

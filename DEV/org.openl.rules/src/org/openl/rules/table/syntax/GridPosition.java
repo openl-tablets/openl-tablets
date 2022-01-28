@@ -42,7 +42,7 @@ public class GridPosition implements IPosition {
      * @see org.openl.util.text.IPosition#getColumn(org.openl.util.text.TextInfo, int)
      */
     @Override
-    public int getColumn(TextInfo info, int tabSize) {
+    public int getColumn(TextInfo info) {
         return x;
     }
 
