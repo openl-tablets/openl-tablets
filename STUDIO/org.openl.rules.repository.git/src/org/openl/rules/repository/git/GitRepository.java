@@ -2860,7 +2860,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (useLFS) {
             log.info("LFS is enabled for repository '{}'.", name);
             try {
-                LfsFactory.getInstance().getInstallCommand().setRepository(repository).call();
+                boolean installed = repository.getConfig().getBoolean(ConfigConstants.CONFIG_FILTER_SECTION,
+                        ConfigConstants.CONFIG_SECTION_LFS,
+                        ConfigConstants.CONFIG_KEY_USEJGITBUILTIN,
+                        false);
+                if (!installed) {
+                    LfsFactory.getInstance().getInstallCommand().setRepository(repository).call();
+                }
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
