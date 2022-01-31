@@ -4,5 +4,6 @@ Content-Type: application/json
 {
   "canCreateExternalUsers": false,
   "canCreateInternalUsers": true,
-  "userMode": "multi"
+  "userMode": "multi",
+  "emailVerification": false
 }

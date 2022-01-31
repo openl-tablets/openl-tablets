@@ -1,0 +1,3 @@
+POST /web/mail/send/admin HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

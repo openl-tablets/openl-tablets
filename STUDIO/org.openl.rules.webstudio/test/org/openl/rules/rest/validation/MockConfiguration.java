@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import javax.annotation.PostConstruct;
 
+import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
@@ -32,6 +33,11 @@ public class MockConfiguration {
     @Bean
     public DesignTimeRepository designTimeRepository() {
         return mock(DesignTimeRepository.class);
+    }
+
+    @Bean
+    public MailSender mailSender() {
+        return mock(MailSender.class);
     }
 
     @Bean

@@ -125,11 +125,20 @@
 
           const ajaxFormHandler = function () {
 
+              const serializeJSON = function($form, exclude) {
+                  exclude || (exclude = []);
+                  return $form.serializeArray().reduce(function (hash, pair) {
+                      pair.value && !(pair.name in exclude) && (hash[pair.name] = pair.value);
+                      return hash;
+                  }, {});
+              };
+
               const submitDefaults = Object.freeze({
                   methodURL: undefined,
                   methodType: "POST",
                   dataType: "form",
                   $form: undefined,
+                  serializeJSON: serializeJSON,
                   onSuccess: () => {},
                   onFail: () => {}
               });
@@ -139,15 +148,10 @@
                   methodType: "GET",
                   dataType: "json",
                   $form: undefined,
+                  onSuccess: () => {},
+                  onFail: () => {}
               });
 
-              const serializeJSON = function($form, exclude) {
-                  exclude || (exclude = []);
-                  return $form.serializeArray().reduce(function (hash, pair) {
-                      pair.value && !(pair.name in exclude) && (hash[pair.name] = pair.value);
-                      return hash;
-                  }, {});
-              };
 
               const fieldSelector = function(fieldName) {
                   return "input[name='" + fieldName + "']";
@@ -185,8 +189,10 @@
                                   field.val(ws.utils.escapeHtml(item));
                               }
                           });
+                          options.onSuccess(data);
                       }).fail(function (data) {
                           ws.ui.error("#{msg['ws.common.error.500']}");
+                          options.onFail(data);
                       });
                   },
                   registerSubmitFormHandler(options) {
@@ -204,7 +210,7 @@
 
                       $targetForm.on("submit", function (e) {
                           e.preventDefault();
-                          let requestData = serializeJSON($targetForm);
+                          let requestData = options.serializeJSON($targetForm);
                           let ajaxSettings = {
                               type: options.methodType,
                               url: options.methodURL,

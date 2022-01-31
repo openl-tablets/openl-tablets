@@ -19,7 +19,7 @@ Content-Type: application/json
     "superUser": true,
     "unsafePassword": true,
     "externalFlags": {
-      "emailVerified": true,
+      "emailVerified": false,
       "syncExternalGroups": false,
       "lastNameExternal": false,
       "emailExternal": false,

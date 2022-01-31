@@ -1,12 +1,12 @@
 PUT /rest/users/profile HTTP/1.1
-Authorization: Basic YWRtaW46YWRtaW4=
+Authorization: Basic anNtaXRoOnBhc3My
 Content-Type: application/json
 
 {
   "changePassword": {
-    "newPassword": "admin2",
-    "currentPassword": "admin",
-    "confirmPassword": "admin2"
+    "newPassword": "pass3",
+    "currentPassword": "pass2",
+    "confirmPassword": "pass3"
   },
   "firstName": "Mike",
   "lastName": "Johnson",

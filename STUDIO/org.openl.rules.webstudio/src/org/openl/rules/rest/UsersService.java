@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
@@ -26,6 +27,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
@@ -47,6 +49,7 @@ import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.ExternalGroupService;
@@ -75,6 +78,7 @@ public class UsersService {
     private final PropertyResolver environment;
     private final PasswordEncoder passwordEncoder;
     private final ExternalGroupService extGroupService;
+    private final MailSender mailSender;
 
     @Inject
     public UsersService(UserManagementService userManagementService,
@@ -86,7 +90,8 @@ public class UsersService {
             PropertyResolver environment,
             BeanValidationProvider validationService,
             UserSettingManagementService userSettingsManager,
-            ExternalGroupService extGroupService) {
+            ExternalGroupService extGroupService,
+            MailSender mailSender) {
         this.userManagementService = userManagementService;
         this.canCreateInternalUsers = canCreateInternalUsers;
         this.canCreateExternalUsers = canCreateExternalUsers;
@@ -97,6 +102,7 @@ public class UsersService {
         this.environment = environment;
         this.validationProvider = validationService;
         this.extGroupService = extGroupService;
+        this.mailSender = mailSender;
     }
 
     @GET
@@ -115,7 +121,7 @@ public class UsersService {
     }
 
     @PUT
-    public void addUser(UserCreateModel userModel) {
+    public void addUser(@Context HttpServletRequest httpServletRequest, UserCreateModel userModel) {
         SecurityChecker.allow(Privileges.ADMIN);
         validationProvider.validate(userModel);
         boolean willBeExternalUser = canCreateExternalUsers && (!userModel.getInternalPassword()
@@ -128,16 +134,24 @@ public class UsersService {
             userModel.getDisplayName(),
             UserExternalFlags.builder().build());
         userManagementService.updateAuthorities(userModel.getUsername(), userModel.getGroups());
+        if (StringUtils.isNotBlank(userModel.getEmail())) {
+            mailSender.sendVerificationMail(userManagementService.getUser(userModel.getUsername()), httpServletRequest);
+        }
     }
 
     @PUT
     @Path("/{username}")
-    public void editUser(@RequestBody UserEditModel userModel, @PathParam("username") String username) {
+    public void editUser(@Context HttpServletRequest httpServletRequest,
+                         @RequestBody UserEditModel userModel,
+                         @PathParam("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
         checkUserExists(username);
         validationProvider.validate(userModel);
+        User dbUser = userManagementService.getUser(username);
+        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
+                && !dbUser.getExternalFlags().isEmailExternal();
         boolean updatePassword = Optional.ofNullable(userModel.getPassword())
             .map(StringUtils::isNotBlank)
             .orElse(false);
@@ -147,7 +161,8 @@ public class UsersService {
             updatePassword ? passwordEncoder.encode(userModel.getPassword()) : null,
             updatePassword,
             userModel.getEmail(),
-            userModel.getDisplayName());
+            userModel.getDisplayName(),
+            !emailChanged && dbUser.getExternalFlags().isEmailVerified());
         boolean leaveAdminGroups = adminUsersInitializer.isSuperuser(username) || Objects
             .equals(currentUserInfo.getUserName(), username);
         userManagementService.updateAuthorities(username, userModel.getGroups(), leaveAdminGroups);
@@ -157,42 +172,62 @@ public class UsersService {
                 userModel.getLastName(),
                 userModel.getEmail(),
                 userModel.getDisplayName(),
-                userModel.getPassword());
+                userModel.getPassword(),
+                !emailChanged && dbUser.getExternalFlags().isEmailVerified());
+        }
+
+        if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
+            mailSender.sendVerificationMail(userManagementService.getUser(username), httpServletRequest);
         }
     }
 
     @PUT
     @Path("/info")
-    public void editUserInfo(@RequestBody UserInfoModel userModel) {
+    public void editUserInfo(@Context HttpServletRequest httpServletRequest, @RequestBody UserInfoModel userModel) {
         validationProvider.validate(userModel);
+        User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
+        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
+                && !dbUser.getExternalFlags().isEmailExternal();
         userManagementService.updateUserData(currentUserInfo.getUserName(),
             userModel.getFirstName(),
             userModel.getLastName(),
             null,
             false,
             userModel.getEmail(),
-            userModel.getDisplayName());
+            userModel.getDisplayName(),
+            !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
-        updateCurrentApplicationUser(userModel
-            .getFirstName(), userModel.getLastName(), userModel.getEmail(), userModel.getDisplayName(), null);
+        updateCurrentApplicationUser(userModel.getFirstName(),
+            userModel.getLastName(),
+            userModel.getEmail(),
+            userModel.getDisplayName(),
+            null,
+            !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
+        if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
+            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), httpServletRequest);
+        }
     }
 
     @PUT
     @Path("/profile")
-    public void editUserProfile(@RequestBody UserProfileEditModel userModel) {
+    public void editUserProfile(@Context HttpServletRequest httpServletRequest, @RequestBody UserProfileEditModel userModel) {
         validationProvider.validate(userModel);
+        User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
+        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
+                && !dbUser.getExternalFlags().isEmailExternal();
         boolean updatePassword = Optional.ofNullable(userModel.getChangePassword())
             .map(ChangePasswordModel::getNewPassword)
             .map(StringUtils::isNotBlank)
             .orElse(false);
-        userManagementService.updateUserData(currentUserInfo.getUserName(),
+        userManagementService.updateUserData(dbUser.getUsername(),
             userModel.getFirstName(),
             userModel.getLastName(),
             updatePassword ? passwordEncoder.encode(userModel.getChangePassword().getNewPassword()) : null,
             updatePassword,
             userModel.getEmail(),
-            userModel.getDisplayName());
+            userModel.getDisplayName(),
+            !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
         updateUserSettings(userModel.isShowFormulas(),
             userModel.isShowHeader(),
@@ -206,7 +241,12 @@ public class UsersService {
             userModel.getLastName(),
             userModel.getEmail(),
             userModel.getDisplayName(),
-            userModel.getChangePassword().getNewPassword());
+            userModel.getChangePassword().getNewPassword(),
+            !emailChanged && dbUser.getExternalFlags().isEmailVerified());
+
+        if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
+            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), httpServletRequest);
+        }
     }
 
     private void updateUserSettings(boolean showFormulas,
@@ -243,7 +283,8 @@ public class UsersService {
             String lastname,
             String email,
             String displayName,
-            String newPassword) {
+            String newPassword,
+            boolean emailVerified) {
         Optional.ofNullable(currentUserInfo.getAuthentication()).map(authentication -> {
             if (authentication.getPrincipal() instanceof SimpleUser) {
                 return (SimpleUser) authentication.getPrincipal();
@@ -257,6 +298,9 @@ public class UsersService {
             simpleUser.setLastName(lastname);
             simpleUser.setEmail(email);
             simpleUser.setDisplayName(displayName);
+            simpleUser.setExternalFlags(UserExternalFlags.builder(simpleUser.getExternalFlags())
+                .applyFeature(UserExternalFlags.Feature.EMAIL_VERIFIED, emailVerified)
+                .build());
             if (StringUtils.isNotEmpty(newPassword)) {
                 simpleUser.setPassword(passwordEncoder.encode(newPassword));
             }
@@ -308,6 +352,7 @@ public class UsersService {
         options.put("canCreateInternalUsers", canCreateInternalUsers);
         options.put("canCreateExternalUsers", canCreateExternalUsers);
         options.put("userMode", environment.getProperty("user.mode"));
+        options.put("emailVerification", mailSender.isValidEmailSettings());
         return options;
     }
 

@@ -126,6 +126,8 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
                     StringUtils.isNotBlank(getAttributeAsString(lastNameAttribute)))
                 .applyFeature(UserExternalFlags.Feature.EXTERNAL_EMAIL,
                     StringUtils.isNotBlank(getAttributeAsString(emailAttribute)))
+                .applyFeature(UserExternalFlags.Feature.EMAIL_VERIFIED,
+                    StringUtils.isNotBlank(getAttributeAsString(emailAttribute)))
                 .applyFeature(UserExternalFlags.Feature.EXTERNAL_DISPLAY_NAME,
                     StringUtils.isNotBlank(getAttributeAsString(displayNameAttribute)))
                 .withFeature(UserExternalFlags.Feature.SYNC_EXTERNAL_GROUPS)

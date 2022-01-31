@@ -1,0 +1,22 @@
+From: ${from}
+To: ${email}
+Subject: WebStudio email address verification
+MIME-Version: 1.0
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html>
+    <body>
+        <p style="color: #333333;">
+        Hello ${user}, <br><br>
+        Thank you for adding your email.<br>
+        Please verify it to proceed with OpenL WebStudio.
+        </p>
+        <a href="${link}" target="_blank" style="text-decoration:none;">
+            <span style="border:thin solid gray; color:white; background:yellowgreen; display:inline-block;">
+                <span style="border:0.5em solid yellowgreen; display:inline-block;">Verify email</span>
+            </span>
+        </a>
+    </body>
+</html>

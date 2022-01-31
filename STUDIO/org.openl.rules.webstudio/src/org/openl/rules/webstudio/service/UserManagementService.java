@@ -67,7 +67,6 @@ public class UserManagementService {
         persistUser.setDisplayName(displayName);
         persistUser.setFlags(UserExternalFlags.builder(externalFlags)
             .withoutFeature(Feature.SYNC_EXTERNAL_GROUPS) // Disable transient feature
-            .withFeature(Feature.EMAIL_VERIFIED) // <-- TODO Implement flag in a proper way according to EPBDS-11277
             .getRawFeatures());
 
         userDao.save(persistUser);
@@ -100,13 +99,17 @@ public class UserManagementService {
             String passwordHash,
             boolean updatePassword,
             String email,
-            String displayName) {
+            String displayName,
+            boolean emailVerified) {
         User persistUser = userDao.getUserByName(user);
         final UserExternalFlags currentFlags = persistUser.getUserExternalFlags();
         persistUser.setFirstName(currentFlags.isFirstNameExternal() ? persistUser.getFirstName() : firstName);
         persistUser.setSurname(currentFlags.isLastNameExternal() ? persistUser.getSurname() : lastName);
         persistUser.setEmail(currentFlags.isEmailExternal() ? persistUser.getEmail() : email);
         persistUser.setDisplayName(currentFlags.isDisplayNameExternal() ? persistUser.getDisplayName() : displayName);
+        persistUser.setFlags(UserExternalFlags.builder(persistUser.getFlags())
+            .applyFeature(Feature.EMAIL_VERIFIED, emailVerified)
+            .getRawFeatures());
         if (updatePassword) {
             persistUser.setPasswordHash(passwordHash);
         }
@@ -154,7 +157,7 @@ public class UserManagementService {
 
     /**
      * Check is user has any active session
-     * 
+     *
      * @param username username
      * @return {@code true} if action session found, otherwise {@code false}
      */

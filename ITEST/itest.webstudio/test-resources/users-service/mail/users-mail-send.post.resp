@@ -1,0 +1,7 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "message": "Sent to admin@email"
+}
+

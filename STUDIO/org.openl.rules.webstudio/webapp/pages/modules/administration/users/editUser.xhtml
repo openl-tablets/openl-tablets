@@ -9,6 +9,9 @@
         #edit-user-groups>span:nth-child(1) {
             display: none;
         }
+        #edit-user-email-verified {
+            display: none;
+        }
         #edit-user-groups {
             display: flex;
             flex-wrap: wrap;
@@ -38,6 +41,9 @@
         .display-flex-center {
             display: flex;
             align-items: center;
+        }
+        #edit-user-email-resend {
+            display: none;
         }
     </style>
 
@@ -69,10 +75,15 @@
                             <td><span id="edit-user-username" class="font-weight-bold"/></td>
                         </tr>
                         <tr>
-                            <td class="titleColumn"><label>Email:</label></td>
+                            <td class="titleColumn">
+                                <label>Email:</label>
+                                <span id="edit-user-email-verified" class="yes-icon" title="Email verified"/>
+                            </td>
                             <td>
                                 <input id="edit-user-email" name="edit-user-email" type="text"/>
                                 <span id="edit-user-email-span" class="font-weight-bold"/>
+                                <br/>
+                                <a id="edit-user-email-resend" href="javascript:void(0)" title="Resend verification link to email above">Resend</a>
                             </td>
                             <td><span id="edit-user-email-error" class="error"/></td>
                         </tr>
@@ -171,8 +182,6 @@
             $j("#edit-user-firstname").val(userModel.firstName);
             $j("#edit-user-display-name").val(userModel.displayName);
             $j("#edit-user-lastname").val(userModel.lastName);
-            $j("#edit-user-email").val(userModel.email);
-            $j("#edit-user-email-span").text(ws.utils.escapeHtml(userModel.email));
             $j("#edit-user-firstname-span").text(ws.utils.escapeHtml(userModel.firstName));
             $j("#edit-user-display-name-span").text(ws.utils.escapeHtml(userModel.displayName));
             $j("#edit-user-lastname-span").text(ws.utils.escapeHtml(userModel.lastName));
@@ -185,11 +194,10 @@
             $j("#edit-user-firstname-span").toggle(editUserIsFirstNameExternal);
             $j("#edit-user-lastname").toggle(!editUserIsLastNameExternal);
             $j("#edit-user-lastname-span").toggle(editUserIsLastNameExternal);
-            $j("#edit-user-email").toggle(!editUserIsEmailExternal);
-            $j("#edit-user-email-span").toggle(editUserIsEmailExternal);
             $j("#edit-user-display-name").toggle(!editUserIsDisplayNameExternal);
             $j("#edit-user-display-name-select-box").toggle(!editUserIsDisplayNameExternal);
             $j("#edit-user-display-name-span").toggle(editUserIsDisplayNameExternal);
+            initEditUserEmail(userModel);
 
             const userAllExternalGroups = (() => {
                 let fetchedData = null;
@@ -274,6 +282,73 @@
             });
         }
 
+        function initEditUserEmail(userModel) {
+            const externalFlags = userModel.externalFlags || {};
+            const username = userModel.username;
+            const email = userModel.email;
+            const emailExternal = externalFlags.emailExternal;
+            const emailVerified = externalFlags.emailVerified;
+            const editUserEmail = $j("#edit-user-email");
+            const editUserEmailSpan = $j("#edit-user-email-span");
+            const editUserEmailResend = $j("#edit-user-email-resend");
+            const editUserEmailVerified = $j("#edit-user-email-verified");
+
+            editUserEmail.val(email);
+            editUserEmailSpan.text(email);
+
+            editUserEmail.toggle(!(emailExternal === true));
+            editUserEmailSpan.toggle(emailExternal === true);
+
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/users/options",
+                datatype: "json"
+            }).done(function (data) {
+                if (data.emailVerification) {
+                    const initEmailComponents = () => {
+                        let emailExists = (email && email.trim() !== '') === true;
+                        if (!emailVerified && emailExists) {
+                            editUserEmailResend.show();
+                            editUserEmailVerified.removeClass("yes-icon").addClass("warning-icon").prop("title", "Email not verified");
+                        } else {
+                            editUserEmailResend.hide();
+                            editUserEmailVerified.removeClass("warning-icon").addClass("yes-icon").prop("title", "Email verified");
+                        }
+                        editUserEmailVerified.toggle(emailExists);
+                    };
+
+                    initEmailComponents();
+
+                    editUserEmail.keyup(() => {
+                        if (editUserEmail.val() === editUserEmailSpan.text()) {
+                            initEmailComponents();
+                        } else {
+                            editUserEmailResend.hide();
+                            editUserEmailVerified.show();
+                            editUserEmailVerified.removeClass("yes-icon").addClass("warning-icon").prop("title", "Email not verified");
+                        }
+                    });
+
+                    editUserEmailResend.off().click(function (e) {
+                        $j.ajax({
+                            type: "POST",
+                            url: "#{contextPath}/web/mail/send/" + username,
+                            datatype: "json",
+                            contentType: "application/json",
+                            beforeSend: showLoader,
+                            complete: hideLoader
+                        })
+                        .done(function (data) {
+                            window?.ws?.ui?.success(data.message);
+                        })
+                        .fail(function(jqXHR, textStatus, errorThrown) {
+                            window?.ws?.ui?.error(JSON.parse(jqXHR.responseText).message);
+                        });
+                    });
+                }
+            });
+        }
+
         function initEditUserAreYouSure() {
             $j("#edit-user-form").bind('dirty.areYouSure', function () {
                 $j("#user-edit").prop("disabled", false);
@@ -333,6 +408,8 @@
             $j("#edit-user-password, #edit-user-firstname, #edit-user-display-name, #edit-user-lastname, #edit-user-email").val("");
             $j("#edit-user-username, #edit-user-firstname-span, #edit-user-display-name-span, #edit-user-lastname-span, #edit-user-email-span").text("");
             $j("#edit-user-groups input").removeAttr("checked");
+            $j("#edit-user-email-resend, #edit-user-email-verified").hide();
+            $j("#edit-user-email-verified").removeClass("warning-icon").addClass("yes-icon").prop("title", "Email verified");
         }
 
     //]]>

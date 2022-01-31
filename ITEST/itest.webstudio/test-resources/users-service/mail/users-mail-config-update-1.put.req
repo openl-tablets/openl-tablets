@@ -1,0 +1,9 @@
+PUT /web/mail/settings HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4y
+Content-Type: application/json
+
+{
+  "url": "smtp://127.0.0.1:1587",
+  "username": "username@email",
+  "password": "password"
+}

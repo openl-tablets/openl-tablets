@@ -1,0 +1,106 @@
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="/pages/layout/simpleLayout.xhtml">
+    <ui:define name="content">
+        <style>
+            #email-verification-container {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            #email-verification-success-text {
+                font-weight: bold;
+                font-size: 200%;
+                margin-bottom: 10px;
+                color:#777;
+            }
+            #email-verification-success-button {
+                border-style: solid;
+                border-color: #999999;
+                border-width: 1px;
+                display: inline-block;
+                background: #ffffff;
+            }
+            #email-verification-success-button a{
+                border-style: solid;
+                border-width: 5px 15px;
+                display: inline-block;
+                font-size: 16px;
+                font-family: Montserrat,
+                sans-serif; line-height: 120%;
+                color: #ffffff;
+                background: #8c2;
+                border-color: #8c2;
+                text-decoration: none;
+            }
+            #email-verification-error-text {
+                font-weight: bold;
+                font-size: 200%;
+                margin-bottom: 10px;
+            }
+            #email-verification-error-description {
+                font-weight: bold;
+                font-size: 150%;
+                margin-bottom: 10px;
+            }
+            #email-verification-error-retry-text {
+                font-size: 150%;
+            }
+        </style>
+
+        <div id="email-verification-container">
+            <div align="center">
+                <div id="email-verification-success">
+                    <div id="email-verification-success-text" class="success">
+                        Your email was successfully verified!
+                    </div>
+                    <div>
+                    <span id="email-verification-success-button">
+                        <a href="#{contextPath}/">Go to WebStudio</a>
+                    </span>
+                    </div>
+                </div>
+
+                <div id="email-verification-error">
+                    <div id="email-verification-error-text" class="error">
+                        Email address verification failed!
+                    </div>
+                    <div id="email-verification-error-description"/>
+                    <div id="email-verification-error-retry-text">
+                        <span>Please try to resend verification link</span>
+                        <a href="#{contextPath}/">again</a>
+                        <span>or contact administrator.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            //<![CDATA[
+                $j(function() {
+                    const verificationSuccess = $j("#email-verification-success");
+                    const verificationError = $j("#email-verification-error");
+                    const verificationErrorDescription= $j("#email-verification-error-description");
+
+                    verificationSuccess.hide();
+                    verificationError.hide();
+                    verificationErrorDescription.text("");
+
+                    $j.ajax({
+                        type: "GET",
+                        url: "#{contextPath}/web/mail/verify/" + getURLParameter("token")
+                    }).done(function (data) {
+                        verificationSuccess.show();
+                    }).fail(function(jqXHR, textStatus, errorThrown) {
+                        verificationError.show();
+                        verificationErrorDescription.text(JSON.parse(jqXHR.responseText).message);
+                    });
+
+                    function getURLParameter(name) {
+                        return (RegExp(name + '=' + '(.+?)(&|$)').exec(window.location.href)||[,null])[1];
+                    }
+                });
+            //]]>
+        </script>
+    </ui:define>
+</ui:composition>
