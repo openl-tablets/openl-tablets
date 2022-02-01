@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.mail;
 
-import static org.openl.rules.rest.MailService.MAIL_VERIFY_TOKEN;
+import static org.openl.rules.rest.MailController.MAIL_VERIFY_TOKEN;
 
 import java.io.IOException;
 import java.util.Properties;

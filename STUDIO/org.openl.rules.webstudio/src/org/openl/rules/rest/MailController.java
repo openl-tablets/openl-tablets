@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/mail")
-public class MailService {
+public class MailController {
 
     public static final String MAIL_VERIFY_TOKEN = "mail.verify.token";
     public static final String MAIL_URL = "mail.url";
@@ -52,7 +52,7 @@ public class MailService {
     private final BeanValidationProvider validationProvider;
 
     @Autowired
-    public MailService(MailSender mailSender,
+    public MailController(MailSender mailSender,
             UserManagementService userManagementService,
             CurrentUserInfo currentUserInfo,
             UserSettingManagementService userSettingManagementService,
