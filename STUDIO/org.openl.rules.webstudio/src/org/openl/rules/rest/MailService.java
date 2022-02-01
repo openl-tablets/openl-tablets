@@ -6,16 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 
 import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.exception.ForbiddenException;
@@ -31,12 +22,21 @@ import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.spring.env.DynamicPropertySource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
-import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-@Service
-@Path("/mail")
+@RestController
+@RequestMapping("/mail")
 public class MailService {
 
     public static final String MAIL_VERIFY_TOKEN = "mail.verify.token";
@@ -51,13 +51,13 @@ public class MailService {
     private final PropertyResolver propertyResolver;
     private final BeanValidationProvider validationProvider;
 
-    @Inject
+    @Autowired
     public MailService(MailSender mailSender,
-           UserManagementService userManagementService,
-           CurrentUserInfo currentUserInfo,
-           UserSettingManagementService userSettingManagementService,
-           PropertyResolver propertyResolver,
-           BeanValidationProvider validationProvider) {
+            UserManagementService userManagementService,
+            CurrentUserInfo currentUserInfo,
+            UserSettingManagementService userSettingManagementService,
+            PropertyResolver propertyResolver,
+            BeanValidationProvider validationProvider) {
         this.mailSender = mailSender;
         this.userSettingManagementService = userSettingManagementService;
         this.userManagementService = userManagementService;
@@ -66,9 +66,9 @@ public class MailService {
         this.validationProvider = validationProvider;
     }
 
-    @GET
-    @Path("/verify/{token}")
-    public void verify(@PathParam("token") String token) {
+    @GetMapping("/verify/{token}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void verify(@PathVariable("token") String token) {
         String username = currentUserInfo.getUserName();
         User user = userManagementService.getUser(username);
         String dbToken = userSettingManagementService.getStringProperty(username, MAIL_VERIFY_TOKEN);
@@ -104,15 +104,13 @@ public class MailService {
                     .build()));
     }
 
-    @POST
-    @Path("/send/{username}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public NotificationModel sendVerification(@Context HttpServletRequest httpServletRequest, @PathParam("username") String username) {
+    @PostMapping(value = "/send/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public NotificationModel sendVerification(HttpServletRequest request, @PathVariable("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
         User user = userManagementService.getUser(username);
-        boolean emailWasSent = mailSender.sendVerificationMail(user, httpServletRequest);
+        boolean emailWasSent = mailSender.sendVerificationMail(user, request);
         if (emailWasSent) {
             return new NotificationModel("Sent to " + user.getEmail());
         } else {
@@ -120,18 +118,15 @@ public class MailService {
         }
     }
 
-    @GET
-    @Path("/settings")
-    @Produces(MediaType.APPLICATION_JSON)
+    @GetMapping(value = "/settings", produces = MediaType.APPLICATION_JSON_VALUE)
     public MailConfigModel getMailConfig() {
-        return new MailConfigModel()
-            .setUrl(propertyResolver.getProperty(MAIL_URL))
+        return new MailConfigModel().setUrl(propertyResolver.getProperty(MAIL_URL))
             .setUsername(propertyResolver.getProperty(MAIL_USERNAME))
             .setPassword(propertyResolver.getProperty(MAIL_PASSWORD));
     }
 
-    @PUT
-    @Path("/settings")
+    @PutMapping("/settings")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateMailConfig(@RequestBody MailConfigModel mailConfig) throws IOException {
         SecurityChecker.allow(Privileges.ADMIN);
         validationProvider.validate(mailConfig);

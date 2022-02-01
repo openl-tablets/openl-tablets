@@ -18,17 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.rest.exception.NotFoundException;
@@ -58,15 +48,24 @@ import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-@Service
-@Path("/users")
-@Produces(MediaType.APPLICATION_JSON)
-public class UsersService {
+@RestController
+@RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+public class UsersController {
 
     private final UserManagementService userManagementService;
     private final Boolean canCreateInternalUsers;
@@ -80,8 +79,8 @@ public class UsersService {
     private final ExternalGroupService extGroupService;
     private final MailSender mailSender;
 
-    @Inject
-    public UsersService(UserManagementService userManagementService,
+    @Autowired
+    public UsersController(UserManagementService userManagementService,
             Boolean canCreateInternalUsers,
             Boolean canCreateExternalUsers,
             AdminUsers adminUsersInitializer,
@@ -105,14 +104,13 @@ public class UsersService {
         this.mailSender = mailSender;
     }
 
-    @GET
+    @GetMapping
     public List<UserModel> getAllUsers() {
         return userManagementService.getAllUsers().stream().map(this::mapUser).collect(Collectors.toList());
     }
 
-    @GET
-    @Path("/{username}")
-    public UserModel getUser(@PathParam("username") String username) {
+    @GetMapping("/{username}")
+    public UserModel getUser(@PathVariable("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
@@ -120,8 +118,9 @@ public class UsersService {
         return Optional.ofNullable(userManagementService.getUser(username)).map(this::mapUser).orElse(null);
     }
 
-    @PUT
-    public void addUser(@Context HttpServletRequest httpServletRequest, UserCreateModel userModel) {
+    @PutMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addUser(HttpServletRequest request, @RequestBody UserCreateModel userModel) {
         SecurityChecker.allow(Privileges.ADMIN);
         validationProvider.validate(userModel);
         boolean willBeExternalUser = canCreateExternalUsers && (!userModel.getInternalPassword()
@@ -135,15 +134,15 @@ public class UsersService {
             UserExternalFlags.builder().build());
         userManagementService.updateAuthorities(userModel.getUsername(), userModel.getGroups());
         if (StringUtils.isNotBlank(userModel.getEmail())) {
-            mailSender.sendVerificationMail(userManagementService.getUser(userModel.getUsername()), httpServletRequest);
+            mailSender.sendVerificationMail(userManagementService.getUser(userModel.getUsername()), request);
         }
     }
 
-    @PUT
-    @Path("/{username}")
-    public void editUser(@Context HttpServletRequest httpServletRequest,
+    @PutMapping("/{username}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editUser(HttpServletRequest request,
                          @RequestBody UserEditModel userModel,
-                         @PathParam("username") String username) {
+                         @PathVariable("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
@@ -177,13 +176,13 @@ public class UsersService {
         }
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
-            mailSender.sendVerificationMail(userManagementService.getUser(username), httpServletRequest);
+            mailSender.sendVerificationMail(userManagementService.getUser(username), request);
         }
     }
 
-    @PUT
-    @Path("/info")
-    public void editUserInfo(@Context HttpServletRequest httpServletRequest, @RequestBody UserInfoModel userModel) {
+    @PutMapping("/info")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editUserInfo(HttpServletRequest request, @RequestBody UserInfoModel userModel) {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
         boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
@@ -205,13 +204,13 @@ public class UsersService {
             !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
-            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), httpServletRequest);
+            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), request);
         }
     }
 
-    @PUT
-    @Path("/profile")
-    public void editUserProfile(@Context HttpServletRequest httpServletRequest, @RequestBody UserProfileEditModel userModel) {
+    @PutMapping("/profile")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void editUserProfile(HttpServletRequest request, @RequestBody UserProfileEditModel userModel) {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
         boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
@@ -245,7 +244,7 @@ public class UsersService {
             !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
-            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), httpServletRequest);
+            mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), request);
         }
     }
 
@@ -307,8 +306,7 @@ public class UsersService {
         });
     }
 
-    @GET
-    @Path("/profile")
+    @GetMapping("/profile")
     public UserProfileModel getUserProfile() {
         String username = currentUserInfo.getUserName();
         User user = Optional.ofNullable(currentUserInfo.getAuthentication()).map(authentication -> {
@@ -338,15 +336,14 @@ public class UsersService {
             .setExternalFlags(user.getExternalFlags());
     }
 
-    @DELETE
-    @Path("/{username}")
-    public void deleteUser(@PathParam("username") String username) {
+    @DeleteMapping("/{username}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable("username") String username) {
         checkUserExists(username);
         userManagementService.deleteUser(username);
     }
 
-    @GET
-    @Path("/options")
+    @GetMapping("/options")
     public Map<String, Object> options() {
         HashMap<String, Object> options = new HashMap<>();
         options.put("canCreateInternalUsers", canCreateInternalUsers);
@@ -356,10 +353,9 @@ public class UsersService {
         return options;
     }
 
-    @GET
-    @Path("/{username}/groups/external")
-    public Set<String> getUserGroupsGroups(@PathParam("username") String username,
-            @QueryParam("matched") Boolean matched) {
+    @GetMapping("/{username}/groups/external")
+    public Set<String> getUserGroupsGroups(@PathVariable("username") String username,
+            @RequestParam(value = "matched", required = false) Boolean matched) {
         SecurityChecker.allow(Privileges.ADMIN);
         checkUserExists(username);
         List<Group> extGroups;
