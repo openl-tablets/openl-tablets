@@ -36,6 +36,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
+import io.swagger.v3.oas.models.security.SecurityScheme;
+
 /**
  * DeploymentAdmin to expose services via HTTP using JAXRS.
  *
@@ -49,6 +51,8 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private final Map<OpenLService, Server> runningServices = new ConcurrentHashMap<>();
 
     private boolean swaggerPrettyPrint = false;
+
+    private boolean authenticationEnabled;
 
     // false is for testing purposes, see org.openl.rules.ruleservice.servlet.SpringInitializer
     @Autowired(required = false)
@@ -125,6 +129,14 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         return swaggerPrettyPrint;
     }
 
+    public void setAuthenticationEnabled(boolean authenticationEnabled) {
+        this.authenticationEnabled = authenticationEnabled;
+    }
+
+    public boolean isAuthenticationEnabled() {
+        return authenticationEnabled;
+    }
+
     public ObjectFactory<JAXRSOpenLServiceEnhancer> getServiceEnhancerObjectFactory() {
         return serviceEnhancerObjectFactory;
     }
@@ -169,7 +181,10 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             ((List) svrFactory.getProviders()).add(new OpenApiHackContainerResponseFilter());
 
             JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
-            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service,  openApiObjectMapper, servletContextPath + url);
+            Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service,
+                openApiObjectMapper,
+                servletContextPath + url,
+                authenticationEnabled);
             // The first one is a decorated interface
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];
             svrFactory.setResourceClasses(serviceClass);
@@ -220,6 +235,14 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         openApiFeature.setUseContextBasedConfig(false);
         openApiFeature.setScannerClass(io.swagger.v3.jaxrs2.integration.JaxrsApplicationScanner.class.getName());
         openApiFeature.setResourcePackages(Collections.singleton(serviceClass.getPackage().getName()));
+        if (authenticationEnabled) {
+            //Add to OpenAPI scheme description about supported OAuth2 authentication format.
+            openApiFeature.setSecurityDefinitions(Collections.singletonMap("OAuth2",
+                new SecurityScheme().type(SecurityScheme.Type.HTTP)
+                    .name("Authorization")
+                    .scheme("Bearer")
+                    .bearerFormat("JWT")));
+        }
         return openApiFeature;
     }
 

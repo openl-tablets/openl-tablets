@@ -19,7 +19,7 @@
     <import resource="classpath*:META-INF/openl/extension-*.xml"/>
 
     <!-- Extension point -->
-    <context:component-scan base-package="org.openl.rules.ruleservice.spring" />
+    <context:component-scan base-package="org.openl.rules.ruleservice.spring org.openl.rules.ruleservice.oauth" />
 
 
     <http-conf:conduit name="*.http-conduit">

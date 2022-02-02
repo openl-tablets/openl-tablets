@@ -119,6 +119,7 @@
 
     <bean id="jaxrsServicesRuleServicePublisher" class="org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher">
         <property name="swaggerPrettyPrint" value="${ruleservice.jaxrs.swagger.prettyprint}"/>
+        <property name="authenticationEnabled" value="${ruleservice.authentication.enabled}"/>
     </bean>
 
 </beans>

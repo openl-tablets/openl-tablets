@@ -43,7 +43,7 @@ public class Oauth2LogoutSuccessHandler extends SecurityContextLogoutHandler imp
         try {
             logoutHandler.onLogoutSuccess(request, response, authentication);
         } catch (IOException | ServletException e) {
-            log.error(e.getMessage());
+            log.warn(e.getMessage());
         }
     }
 }

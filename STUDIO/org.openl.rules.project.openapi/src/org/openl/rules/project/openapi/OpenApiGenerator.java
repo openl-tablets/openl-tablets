@@ -278,7 +278,8 @@ public class OpenApiGenerator {
                 true,
                 isProvidedRuntimeContext(),
                 isProvideVariations(),
-                objectMapper);
+                objectMapper,
+                false);
         } catch (Exception e) {
             throw new OpenApiGenerationException("Failed to build an interface for the project.", e);
         }

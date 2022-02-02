@@ -278,7 +278,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             isResolveMethodParameterNames(),
             provideRuntimeContext,
             provideVariations,
-            context.getObjectMapper());
+            context.getObjectMapper(),
+            false);
     }
 
     private Pair<String, PathItem> findPathItem(io.swagger.v3.oas.models.Paths paths, String path) {

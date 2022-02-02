@@ -22,7 +22,7 @@ public class CXFServlet extends CXFNonSpringServlet {
         Bus cxf = ac.getBean("cxf", Bus.class);
         setBus(cxf);
         ResourceManager resourceManager = cxf.getExtension(ResourceManager.class);
-        resourceManager.addResourceResolver(new StaticResourceResolver("static"));
+        resourceManager.addResourceResolver(new StaticResourceResolver());
         resourceManager.addResourceResolver(new SwaggerUIResolver());
     }
 }

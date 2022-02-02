@@ -6,11 +6,7 @@ import java.io.InputStream;
 
 class StaticResourceResolver implements ResourceResolver {
 
-    private final String prefix;
-
-    StaticResourceResolver(String prefix) {
-        this.prefix = prefix;
-    }
+    private final static String PREFIX = "static";
 
     @Override
     public <T> T resolve(String resourceName, Class<T> resourceType) {
@@ -23,6 +19,10 @@ class StaticResourceResolver implements ResourceResolver {
 
     @Override
     public InputStream getAsStream(String name) {
-        return getClass().getClassLoader().getResourceAsStream(prefix + name);
+        return getClass().getClassLoader().getResourceAsStream(PREFIX + name);
+    }
+
+    public static boolean isResourceExists(String name) {
+        return StaticResourceResolver.class.getClassLoader().getResource(PREFIX + name) != null;
     }
 }
