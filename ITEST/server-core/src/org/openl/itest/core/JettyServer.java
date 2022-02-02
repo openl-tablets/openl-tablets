@@ -116,8 +116,10 @@ public class JettyServer {
     /**
      * Starts Jetty Server and executes a set of http requests.
      */
-    public static void test() throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, false, new String[0]);
+    public static void test(String profile) throws Exception {
+        String[] profiles = profile == null ? new String[0] : new String[] { profile };
+        String testFolder = profile == null ? "test-resources" : ("test-resources-" + profile);
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, false, profiles);
 
         final Locale DEFAULT_LOCALE = Locale.getDefault();
         final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
@@ -129,7 +131,7 @@ public class JettyServer {
 
             jetty.server.start();
             try {
-                jetty.client().test();
+                jetty.client().test(testFolder);
             } finally {
                 jetty.stop();
             }
@@ -137,6 +139,10 @@ public class JettyServer {
             Locale.setDefault(DEFAULT_LOCALE);
             TimeZone.setDefault(DEFAULT_TIMEZONE);
         }
+    }
+
+    public static void test() throws Exception {
+        test(null);
     }
 
 }

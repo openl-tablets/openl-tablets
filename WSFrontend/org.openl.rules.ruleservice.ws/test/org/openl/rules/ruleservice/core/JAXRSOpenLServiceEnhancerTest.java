@@ -361,7 +361,7 @@ public class JAXRSOpenLServiceEnhancerTest {
                 }
             });
         service.setServiceBean(new Object());
-        Object proxy = new JAXRSOpenLServiceEnhancer().decorateServiceBean(service, null, null);
+        Object proxy = new JAXRSOpenLServiceEnhancer().decorateServiceBean(service, null, null, false);
         return proxy.getClass().getInterfaces()[0];
     }
 }
