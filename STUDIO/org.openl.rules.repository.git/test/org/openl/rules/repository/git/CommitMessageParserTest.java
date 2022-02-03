@@ -46,6 +46,13 @@ public class CommitMessageParserTest {
         assertEquals("John Smith", commitMessage.getAuthor());
         assertEquals(CommitType.ERASE, commitMessage.getCommitType());
 
+        commitMessage = decompiler
+                .parse("Project my-project was saved. Author: John Smith. Commit type: SAVE.\n");
+        assertNotNull("Commit message must be parsed!", commitMessage);
+        assertEquals("Project my-project was saved.", commitMessage.getMessage());
+        assertEquals("John Smith", commitMessage.getAuthor());
+        assertEquals(CommitType.SAVE, commitMessage.getCommitType());
+
         commitMessage = decompiler.parse(
             "Merge with commit 573dd47e6302faf1ba15ff6599e997f2bed4cbb9 Conflicts: My Rules/rules-deploy.xml (yours). Author: John Smith. Commit type: MERGE.");
         assertNotNull("Commit message must be parsed!", commitMessage);

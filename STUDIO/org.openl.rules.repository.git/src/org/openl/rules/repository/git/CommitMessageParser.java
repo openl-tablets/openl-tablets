@@ -108,6 +108,8 @@ class CommitMessageParser {
         if (start < len) {
             builder.append("\\Q").append(template, start, len).append("\\E");
         }
+        // Some tools can add '\n' at the end of message.
+        builder.append("\\s*");
         return builder.toString();
     }
 
