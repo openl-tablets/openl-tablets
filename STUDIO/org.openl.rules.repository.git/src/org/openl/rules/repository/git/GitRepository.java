@@ -1561,7 +1561,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
                 while (iterator.hasNext()) {
                     RevCommit commit = iterator.next();
-                    if (!hasChangesInPath(tw, commit, repository)) {
+                    if (!hasChangesInPath(tw, commit, git)) {
                         continue;
                     }
 
@@ -1733,7 +1733,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try (ObjectReader or = repository.newObjectReader()) {
             TreeWalk tw = createTreeWalk(or, path);
             for (RevCommit commit : git.log().add(startCommit).call()) {
-                if (hasChangesInPath(tw, commit, repository)) {
+                if (hasChangesInPath(tw, commit, git)) {
                     return commit;
                 }
             }
@@ -1742,17 +1742,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return null;
     }
 
-    private static boolean hasChangesInPath(TreeWalk tw, RevCommit commit, Repository repository) throws IOException {
+    private static boolean hasChangesInPath(TreeWalk tw, RevCommit commit, Git git) throws IOException, GitAPIException {
+        Repository repository = git.getRepository();
         RevCommit[] parents = commit.getParents();
         int parentsNum = parents.length;
 
-        ObjectId[] trees = new ObjectId[parentsNum + 1];
-        for (int i = 0; i < parentsNum; i++) {
-            trees[i] = parents[i].getTree();
-        }
-        // The last tree is a tree for inspecting commit.
-        trees[parentsNum] = commit.getTree();
-        tw.reset(trees);
+        tw.reset(getTreesToCompare(commit));
 
         Set<Integer> changes = new HashSet<>();
 
@@ -1807,6 +1802,28 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                 return true;
                             }
                         }
+
+                        // Check if any commit from parent until merge base contains changes in the project.
+                        // If contains (probably that commit was reverted eventually), then it will be shown in history,
+                        // so we must show our merge commit because it contains the latest project state, and
+                        // it differs from its parent.
+                        for (int i : changes) {
+                            Iterable<RevCommit> commits = git.log().addRange(mergeBase, parents[i]).call();
+                            for (RevCommit prevParentCommit : commits) {
+                                tw.reset(getTreesToCompare(prevParentCommit));
+                                int prevParentCount = prevParentCommit.getParentCount();
+                                int modified = 0;
+                                for (int j = 0; j < prevParentCount; j++) {
+                                    if (tw.next() && !tw.idEqual(j, prevParentCount)) {
+                                        // Path configured in tw was changed
+                                        modified++;
+                                    }
+                                }
+                                if (modified > 0 && modified == prevParentCount) {
+                                    return true;
+                                }
+                            }
+                        }
                     }
                 }
                 return false;
@@ -1814,6 +1831,20 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
 
         return false;
+    }
+
+    private static ObjectId[] getTreesToCompare(RevCommit commit) {
+        RevCommit[] parents = commit.getParents();
+        int parentsNum = parents.length;
+
+        ObjectId[] trees = new ObjectId[parentsNum + 1];
+        for (int i = 0; i < parentsNum; i++) {
+            trees[i] = parents[i].getTree();
+        }
+        // The last tree is a tree for inspecting commit.
+        trees[parentsNum] = commit.getTree();
+
+        return trees;
     }
 
     private static TreeWalk createTreeWalk(ObjectReader or, String path) {
