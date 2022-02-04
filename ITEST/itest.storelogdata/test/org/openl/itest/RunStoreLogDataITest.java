@@ -2,16 +2,13 @@ package org.openl.itest;
 
 import static net.mguenther.kafka.junit.EmbeddedKafkaCluster.provisionWith;
 import static org.awaitility.Awaitility.given;
-import static org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner.newConfigs;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -20,7 +17,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -28,12 +24,6 @@ import javax.persistence.Entity;
 
 import org.apache.log4j.Logger;
 import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
-import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
-import org.elasticsearch.action.ActionFuture;
-import org.elasticsearch.action.search.SearchRequest;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.search.SearchHit;
 import org.h2.tools.Server;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -48,19 +38,11 @@ import org.openl.itest.common.ExpectedLogValues;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.db.DBFields;
-import org.openl.itest.elasticsearch.CustomElasticEntity1;
-import org.openl.itest.elasticsearch.CustomElasticEntity2;
-import org.openl.itest.elasticsearch.CustomElasticEntity3;
-import org.openl.itest.elasticsearch.CustomElasticEntity4;
-import org.openl.itest.elasticsearch.CustomElasticEntity8;
-import org.openl.itest.elasticsearch.ElasticFields;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.cassandra.DefaultCassandraEntity;
 import org.openl.rules.ruleservice.storelogdata.db.DefaultEntity;
-import org.openl.rules.ruleservice.storelogdata.elasticsearch.DefaultElasticEntity;
 import org.openl.util.IOUtils;
-import org.springframework.data.elasticsearch.annotations.Document;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
@@ -83,10 +65,6 @@ public class RunStoreLogDataITest {
     private static final int AWAIT_TIMEOUT = 60;
     private static final String KEYSPACE = "openl_ws_logging";
 
-    private static final String DEFAULT_ELASTIC_INDEX_NAME = DefaultElasticEntity.class.getAnnotation(Document.class)
-        .indexName();
-    private static final String DEFAULT_ELASTIC_CLUSTER_NAME = "ELASTIC-SEARCH-CLUSTER";
-
     private static final String DEFAULT_TABLE_NAME = DefaultCassandraEntity.class.getAnnotation(CqlName.class).value();
 
     private static final String DEFAULT_H2_TABLE_NAME = DefaultEntity.class.getAnnotation(Entity.class).name();
@@ -106,8 +84,6 @@ public class RunStoreLogDataITest {
     private static JettyServer server;
     private static HttpClient client;
     private static EmbeddedKafkaCluster cluster;
-    private static ElasticsearchClusterRunner elasticRunner;
-    private static Client esClient;
     private static Connection h2Connection;
     private static Server h2Server;
 
@@ -134,15 +110,6 @@ public class RunStoreLogDataITest {
         server = JettyServer.startSharingClassLoader();
         client = server.client();
 
-        elasticRunner = new ElasticsearchClusterRunner();
-        System.setProperty("elasticsearch.cluster", DEFAULT_ELASTIC_CLUSTER_NAME);
-        elasticRunner.onBuild((number, settingsBuilder) -> {
-            settingsBuilder.put("http.cors.enabled", true);
-            settingsBuilder.put("http.cors.allow-origin", "*");
-            settingsBuilder.putList("discovery.zen.ping.unicast.hosts", "localhost:9301-9305");
-        }).build(newConfigs().clusterName(DEFAULT_ELASTIC_CLUSTER_NAME).numOfNode(1));
-        elasticRunner.ensureYellow();
-        esClient = elasticRunner.client();
         h2Connection = DriverManager.getConnection("jdbc:h2:tcp://localhost:9110/mem:mydb");
     }
 
@@ -169,56 +136,10 @@ public class RunStoreLogDataITest {
         session.execute(query);
     }
 
-    private void removeIndexIfExists(final String indexName) {
-        if (elasticRunner.indexExists(indexName))
-            elasticRunner.deleteIndex(indexName);
-    }
-
-    private Callable<Boolean> validateElastic(final ExpectedLogValues input) {
-        return () -> {
-            SearchHit[] hits = getElasticSearchHits(DEFAULT_ELASTIC_INDEX_NAME);
-            if (hits.length == 0) {
-                return false;
-            }
-            assertEquals(1, hits.length);
-            SearchHit hit = hits[0];
-            Map<String, Object> source = hit.getSourceAsMap();
-            assertNotNull(source.get(ElasticFields.ID));
-            assertEquals(input.getRequest(), source.get(ElasticFields.REQUEST_BODY));
-            assertEquals(input.getMethodName(), source.get(ElasticFields.METHOD_NAME));
-            assertEquals(input.getServiceName(), source.get(ElasticFields.SERVICE_NAME));
-            assertNotNull(source.get(ElasticFields.INCOMING_TIME));
-            assertNotNull(source.get(ElasticFields.OUTCOMING_TIME));
-            String publisherType = (String) source.get(ElasticFields.PUBLISHER_TYPE);
-            assertEquals(input.getPublisherType(), publisherType);
-            if (publisherType.equals(RESTFUL_PUBLISHER_TYPE)) {
-                assertNotNull(source.get(ElasticFields.REQUEST));
-                assertNotNull(source.get(ElasticFields.RESPONSE));
-            }
-            if (publisherType.equals(RESTFUL_PUBLISHER_TYPE) || publisherType.equals(WEBSERVICE_PUBLISHER_TYPE)) {
-                assertNotNull(source.get(ElasticFields.URL));
-            }
-            String responseValue = (String) source.get(ElasticFields.RESPONSE_BODY);
-            if (input.isResponseProvided()) {
-                String expected = input.getResponse();
-                assertEquals(expected, responseValue);
-            } else {
-                assertNotNull(responseValue);
-            }
-            return true;
-        };
-    }
-
     private List<Row> getCassandraRows(final String tableName) {
         ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
             .execute("SELECT * FROM " + KEYSPACE + "." + tableName);
         return resultSet.all();
-    }
-
-    private SearchHit[] getElasticSearchHits(final String indexName) throws InterruptedException,
-                                                                     java.util.concurrent.ExecutionException {
-        ActionFuture<SearchResponse> search = esClient.search(new SearchRequest(indexName));
-        return search.get().getHits().getHits();
     }
 
     private Callable<Boolean> validateCassandra(final ExpectedLogValues input) {
@@ -296,11 +217,6 @@ public class RunStoreLogDataITest {
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
-        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
-            removeIndexIfExists(DEFAULT_ELASTIC_INDEX_NAME);
-            return !elasticRunner.indexExists(DEFAULT_ELASTIC_INDEX_NAME);
-        }, equalTo(true));
-
         KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record)).useDefaults());
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic", 1)
@@ -324,12 +240,6 @@ public class RunStoreLogDataITest {
             .await()
             .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
             .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
             .until(validateH2(values), equalTo(true));
     }
 
@@ -339,11 +249,6 @@ public class RunStoreLogDataITest {
 
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
-
-        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
-            removeIndexIfExists(DEFAULT_ELASTIC_INDEX_NAME);
-            return !elasticRunner.indexExists(DEFAULT_ELASTIC_INDEX_NAME);
-        }, equalTo(true));
 
         KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
         record.addHeader(KafkaHeaders.METHOD_NAME, HELLO_METHOD_NAME, StandardCharsets.UTF_8);
@@ -364,12 +269,6 @@ public class RunStoreLogDataITest {
             .await()
             .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
             .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
             .until(validateH2(values), equalTo(true));
     }
 
@@ -379,11 +278,6 @@ public class RunStoreLogDataITest {
 
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
-
-        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
-            removeIndexIfExists(DEFAULT_ELASTIC_INDEX_NAME);
-            return !elasticRunner.indexExists(DEFAULT_ELASTIC_INDEX_NAME);
-        }, equalTo(true));
 
         KeyValue<String, String> record1 = new KeyValue<>(null, REQUEST);
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record1)).useDefaults());
@@ -409,12 +303,6 @@ public class RunStoreLogDataITest {
             .await()
             .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
             .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
             .until(validateH2(values), equalTo(true));
     }
 
@@ -425,11 +313,6 @@ public class RunStoreLogDataITest {
 
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
-
-        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
-            removeIndexIfExists(DEFAULT_ELASTIC_INDEX_NAME);
-            return !elasticRunner.indexExists(DEFAULT_ELASTIC_INDEX_NAME);
-        }, equalTo(true));
 
         KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
         record.addHeader(KafkaHeaders.METHOD_NAME, HELLO_METHOD_NAME, StandardCharsets.UTF_8);
@@ -457,12 +340,6 @@ public class RunStoreLogDataITest {
             .await()
             .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
             .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
             .until(validateH2(values), equalTo(true));
     }
 
@@ -473,11 +350,6 @@ public class RunStoreLogDataITest {
 
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
-
-        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
-            removeIndexIfExists(DEFAULT_ELASTIC_INDEX_NAME);
-            return !elasticRunner.indexExists(DEFAULT_ELASTIC_INDEX_NAME);
-        }, equalTo(true));
 
         KeyValue<String, String> record = new KeyValue<>(null, "5");
         record.addHeader(KafkaHeaders.METHOD_NAME, HELLO_METHOD_NAME, StandardCharsets.UTF_8);
@@ -498,12 +370,6 @@ public class RunStoreLogDataITest {
             .await()
             .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
             .until(validateCassandra(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
 
         given().ignoreExceptions()
             .await()
@@ -530,11 +396,6 @@ public class RunStoreLogDataITest {
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
-        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
-            removeIndexIfExists(DEFAULT_ELASTIC_INDEX_NAME);
-            return !elasticRunner.indexExists(DEFAULT_ELASTIC_INDEX_NAME);
-        }, equalTo(true));
-
         client.post("/REST/deployment3/simple3/Hello", "/simple3_Hello.req.json", "/simple3_Hello.resp.txt");
 
         ExpectedLogValues parameters = new ExpectedLogValues(REQUEST,
@@ -547,12 +408,6 @@ public class RunStoreLogDataITest {
             .await()
             .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
             .until(validateCassandra(parameters), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(parameters), equalTo(true));
 
         given().ignoreExceptions()
             .await()
@@ -572,10 +427,6 @@ public class RunStoreLogDataITest {
 
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
-        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
-            removeIndexIfExists(DEFAULT_ELASTIC_INDEX_NAME);
-            return !elasticRunner.indexExists(DEFAULT_ELASTIC_INDEX_NAME);
-        }, equalTo(true));
 
         client.post("/REST/deployment3/simple3/Hello", "/simple3_Hello_fail.req.json", 400);
 
@@ -588,12 +439,6 @@ public class RunStoreLogDataITest {
             .await()
             .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
             .until(validateCassandra(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
 
         given().ignoreExceptions()
             .await()
@@ -630,23 +475,6 @@ public class RunStoreLogDataITest {
         truncateH2TableIfExists(h2HelloEntity3TableName);
         truncateH2TableIfExists(h2HelloEntity4TableName);
         truncateH2TableIfExists(h2HelloEntity8TableName);
-
-        final String customElasticIndexName1 = CustomElasticEntity1.class.getAnnotation(Document.class).indexName();
-        final String customElasticIndexName2 = CustomElasticEntity2.class.getAnnotation(Document.class).indexName();
-        final String customElasticIndexName3 = CustomElasticEntity3.class.getAnnotation(Document.class).indexName();
-        final String customElasticIndexName4 = CustomElasticEntity4.class.getAnnotation(Document.class).indexName();
-        final String customElasticIndexName8 = CustomElasticEntity8.class.getAnnotation(Document.class).indexName();
-
-        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
-            removeIndexIfExists(customElasticIndexName1);
-            removeIndexIfExists(customElasticIndexName2);
-            removeIndexIfExists(customElasticIndexName3);
-            removeIndexIfExists(customElasticIndexName4);
-            removeIndexIfExists(customElasticIndexName8);
-            return !elasticRunner.indexExists(customElasticIndexName1) && !elasticRunner.indexExists(
-                customElasticIndexName2) && !elasticRunner.indexExists(customElasticIndexName3) && !elasticRunner
-                    .indexExists(customElasticIndexName4) && !elasticRunner.indexExists(customElasticIndexName8);
-        }, equalTo(true));
 
         client.post("/deployment4/simple4/Hello", "/simple4_Hello.req.json", "/simple4_Hello.resp.txt");
 
@@ -798,55 +626,6 @@ public class RunStoreLogDataITest {
         if (rs1.next()) {
             fail();
         }
-        // Elastic
-        SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
-        if (hits.length == 0) {
-            fail("SearchHit is not found.");
-        }
-        assertEquals(1, hits.length);
-        SearchHit hit = hits[0];
-        Map<String, Object> source = hit.getSourceAsMap();
-
-        assertEquals("value1", hit.getSourceAsMap().get(ElasticFields.VALUE));
-        assertEquals(5, source.get(ElasticFields.HOUR));
-        assertEquals("Good Morning", source.get(ElasticFields.RESULT));
-        assertTrue((Boolean) source.get(ElasticFields.AWARE_INSTANCES_FOUND));
-        assertTrue((Boolean) source.get(ElasticFields.ELASTICSEARCH_OPERATIONS_FOUND));
-
-        SearchHit[] hitsCustom2 = getElasticSearchHits(customElasticIndexName2);
-        if (hitsCustom2.length == 0) {
-            fail("SearchHit is not found.");
-        }
-        assertEquals(1, hitsCustom2.length);
-        SearchHit hitCustom2 = hitsCustom2[0];
-        Map<String, Object> source2 = hitCustom2.getSourceAsMap();
-
-        assertEquals("value1", source2.get(ElasticFields.VALUE));
-        assertEquals(5, source2.get(ElasticFields.HOUR));
-        assertEquals("Good Morning", source2.get(ElasticFields.RESULT));
-
-        SearchHit[] hitsCustom3 = getElasticSearchHits(customElasticIndexName3);
-        if (hitsCustom3.length == 0) {
-            fail("SearchHit is not found.");
-        }
-        assertEquals(1, hitsCustom3.length);
-        SearchHit hitCustom3 = hitsCustom3[0];
-        Map<String, Object> source3 = hitCustom3.getSourceAsMap();
-
-        assertNotNull(source3.get(ElasticFields.ID));
-        assertNull(source3.get(ElasticFields.REQUEST));
-        assertNull(source3.get(ElasticFields.RESPONSE));
-        assertNull(source3.get(ElasticFields.METHOD_NAME));
-        assertEquals(SIMPLE4_SERVICE_NAME, source3.get(ElasticFields.SERVICE_NAME));
-        assertNull(source3.get(ElasticFields.INCOMING_TIME));
-        assertNull(source3.get(ElasticFields.OUTCOMING_TIME));
-        assertEquals(RESTFUL_PUBLISHER_TYPE, source3.get(ElasticFields.PUBLISHER_TYPE));
-
-        assertNull(source3.get(ElasticFields.VALUE));
-        assertNull(source3.get(ElasticFields.RESULT));
-
-        assertFalse(elasticRunner.indexExists(customElasticIndexName4));
-        assertFalse(elasticRunner.indexExists(customElasticIndexName8));
     }
 
     @Test
@@ -855,16 +634,10 @@ public class RunStoreLogDataITest {
         final String RESPONSE = getText("simple4_Hello2.resp.txt");
 
         final String helloEntity1TableName = getCassandraTableName(HelloEntity1.class);
-        final String customElasticIndexName1 = CustomElasticEntity1.class.getAnnotation(Document.class).indexName();
         final String h2HelloEntity1TableName = getDBTableName(org.openl.itest.db.HelloEntity1.class);
 
         truncateCassandraTableIfExists(KEYSPACE, helloEntity1TableName);
         truncateH2TableIfExists(h2HelloEntity1TableName);
-
-        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
-            removeIndexIfExists(customElasticIndexName1);
-            return !elasticRunner.indexExists(customElasticIndexName1);
-        }, equalTo(true));
 
         client.post("/deployment4/simple4/Hello2", "/simple4_Hello2.req.json", "/simple4_Hello2.resp.txt");
 
@@ -895,29 +668,6 @@ public class RunStoreLogDataITest {
                 assertEquals(RESPONSE, row.getString(CassandraFields.STRING_VALUE3));
                 assertTrue(row.getBool(CassandraFields.BOOL_VALUE1));
                 assertEquals("22", row.getString(CassandraFields.INT_VALUE_TO_STRING));
-                return true;
-            }, equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(() -> {
-                SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
-                if (hits.length == 0) {
-                    return false;
-                }
-                assertEquals(1, hits.length);
-                SearchHit hit = hits[0];
-                Map<String, Object> source = hit.getSourceAsMap();
-                assertEquals(5, source.get(ElasticFields.INT_VALUE1));
-                assertEquals(22, source.get(ElasticFields.INT_VALUE2));
-                assertEquals(22, source.get(ElasticFields.INT_VALUE3));
-                assertEquals("Good Night", source.get(ElasticFields.STRING_VALUE1));
-                assertEquals("Good Night", source.get(ElasticFields.STRING_VALUE2));
-                assertEquals(RESPONSE, source.get(ElasticFields.STRING_VALUE3));
-                assertTrue((boolean) source.get(ElasticFields.BOOL_VALUE1));
-                assertEquals("22", source.get(ElasticFields.INT_VALUE_TO_STRING));
                 return true;
             }, equalTo(true));
 
@@ -999,12 +749,6 @@ public class RunStoreLogDataITest {
         truncateH2TableIfExists(h2HelloEntity3TableName);
         truncateH2TableIfExists(h2HelloEntity4TableName);
 
-        final String customElasticIndexName1 = CustomElasticEntity1.class.getAnnotation(Document.class).indexName();
-        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
-            removeIndexIfExists(customElasticIndexName1);
-            return !elasticRunner.indexExists(customElasticIndexName1);
-        }, equalTo(true));
-
         KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
         record.addHeader(KafkaHeaders.METHOD_NAME, HELLO_METHOD_NAME, StandardCharsets.UTF_8);
         record.addHeader(KafkaHeaders.METHOD_PARAMETERS, "*, *", StandardCharsets.UTF_8);
@@ -1043,22 +787,6 @@ public class RunStoreLogDataITest {
                 return true;
             }, equalTo(true));
 
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(() -> {
-                SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
-                if (hits.length == 0) {
-                    return false;
-                }
-                assertEquals(1, hits.length);
-                SearchHit hit = hits[0];
-                Map<String, Object> source = hit.getSourceAsMap();
-                assertEquals(HELLO_METHOD_NAME, source.get(ElasticFields.HEADER1));
-                assertEquals("testHeaderValue", source.get(ElasticFields.HEADER2));
-                return true;
-            }, equalTo(true));
         given().ignoreException(InvalidQueryException.class)
             .await()
             .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
@@ -1127,18 +855,6 @@ public class RunStoreLogDataITest {
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
-        doQuite(() -> {
-            // close runner
-            try {
-                elasticRunner.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        doQuite(() -> {
-            // delete all files
-            elasticRunner.clean();
-        });
         doQuite(EmbeddedCassandraServerHelper::cleanEmbeddedCassandra);
         doQuite(() -> cluster.stop());
 

@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 
 import org.openl.itest.cassandra.HelloEntity8;
-import org.openl.itest.elasticsearch.CustomElasticEntity8;
 import org.openl.rules.ruleservice.core.interceptors.IOpenClassAware;
 import org.openl.rules.ruleservice.core.interceptors.IOpenMemberAware;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
@@ -14,10 +13,8 @@ import org.openl.rules.ruleservice.storelogdata.advice.ObjectSerializerAware;
 import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
 import org.openl.rules.ruleservice.storelogdata.db.annotation.InjectEntityManager;
-import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.InjectElasticsearchOperations;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 
@@ -29,9 +26,6 @@ public class PrepareStoreLogDataValues implements StoreLogDataAdvice, ObjectSeri
 
     @CassandraSession
     CqlSession cassandraSession;
-
-    @InjectElasticsearchOperations
-    ElasticsearchOperations elasticsearchOperations;
 
     @InjectEntityManager
     EntityManager entityManager;
@@ -61,12 +55,9 @@ public class PrepareStoreLogDataValues implements StoreLogDataAdvice, ObjectSeri
 
         values.put("cassandraSessionFound", cassandraSession != null && !cassandraSession.isClosed());
 
-        values.put("elasticsearchOperationsFound", elasticsearchOperations != null);
-
         values.put("dbConnectionFound", entityManager != null && entityManager.isOpen());
 
         StoreLogDataHolder.get().ignore(HelloEntity8.class);
-        StoreLogDataHolder.get().ignore(CustomElasticEntity8.class);
         StoreLogDataHolder.get().ignore(org.openl.itest.db.HelloEntity8.class);
     }
 }
