@@ -110,8 +110,6 @@
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.44.v20210927</jetty.server.version>
-        <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
-        <elasticsearch.version>6.8.21</elasticsearch.version>
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
         <org.apache.avro.version>1.10.0</org.apache.avro.version>
         <org.apache.zookeeper.version>3.7.0</org.apache.zookeeper.version>
@@ -1076,48 +1074,6 @@
                 <version>4.1.2</version>
             </dependency>
             <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-elasticsearch</artifactId>
-                <version>3.2.13.RELEASE</version>
-                <exclusions>
-                    <!-- Elasticsearch rest template is used, no need in transport client -->
-                    <exclusion>
-                        <groupId>org.elasticsearch.client</groupId>
-                        <artifactId>transport</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.elasticsearch.plugin</groupId>
-                        <artifactId>transport-netty4-client</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <!-- Upgrade Elasticsearch using by spring-data-elasticsearch. -->
-            <!-- Reduce dependencies as spring-data-elasticsearch uses 6.8.14 -->
-            <dependency>
-                <groupId>org.elasticsearch.client</groupId>
-                <artifactId>elasticsearch-rest-high-level-client</artifactId>
-                <version>${elasticsearch.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <!-- Date and time library to replace JDK date handling -->
-                <!-- to remove dependency duplication from the elasticsearc -->
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>2.10.13</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codelibs</groupId>
-                <artifactId>elasticsearch-cluster-runner</artifactId>
-                <version>${elasticsearch-cluster-runner.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-core-shaded</artifactId>
                 <version>${cassandra.driver.version}</version>
@@ -1865,16 +1821,6 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws.storelogdata.db.annotation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch.annotation</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

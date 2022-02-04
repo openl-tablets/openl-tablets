@@ -20,8 +20,6 @@
         <module>org.openl.rules.ruleservice.ws.storelogdata.db</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata.cassandra</module>
-        <module>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch.annotation</module>
-        <module>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata.hive.annotation</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata.hive</module>
         <module>org.openl.rules.ruleservice.ws.tracing.jaeger</module>
