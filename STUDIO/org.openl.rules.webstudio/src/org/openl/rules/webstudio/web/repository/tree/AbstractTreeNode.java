@@ -368,10 +368,20 @@ public abstract class AbstractTreeNode implements TreeNode {
         this.data = data;
     }
 
+    /**
+     * Initialize errors container.
+     * If we catch any error during Tree Node operation (expand node for example),
+     * we should catch that exception and add to error container.
+     * Otherwise, we will get white screen (if we don't catch), or user will not know that something went wrong (if
+     * we don't add error message to errorsContainer).
+     */
     public void setErrorsContainer(ErrorsContainer errorsContainer) {
         this.errorsContainer = errorsContainer;
     }
 
+    /**
+     * Get error container. Can be null if we don't have error container.
+     */
     public ErrorsContainer getErrorsContainer() {
         return errorsContainer;
     }

@@ -118,7 +118,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private boolean hideDeleted = true;
 
     private final Object lock = new Object();
-    private ErrorsContainer errorsContainer = new ErrorsContainer(3);
+    /**
+     * Show only first 3 errors. Obviously showing more errors is useless and probably just adds a mess to UI.
+     * 3 errors should be enough. Can be changed in the future.
+     */
+    private final ErrorsContainer errorsContainer = new ErrorsContainer(3);
     private final WorkspaceListener workspaceListener = new WorkspaceListener();
 
     private ProjectGrouping projectGrouping;

@@ -79,7 +79,7 @@ public class TreeFolder extends AbstractTreeNode {
                 log.error(e.getMessage());
                 ErrorsContainer errorsContainer = getErrorsContainer();
                 if (errorsContainer != null) {
-                    errorsContainer.addRequestError(e);
+                    errorsContainer.addRequestError(e.getMessage());
                 }
                 elements = null;
                 return Collections.emptyMap();
