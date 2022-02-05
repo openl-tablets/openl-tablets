@@ -25,8 +25,8 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.exception.ForbiddenException;
-import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
+import org.openl.rules.rest.resolver.DesignRepository;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.rest.validation.CreateUpdateProjectModelValidator;
 import org.openl.rules.rest.validation.ZipArchiveValidator;
@@ -90,10 +90,9 @@ public class DesignTimeRepositoryController {
     }
 
     @GetMapping("/{repo-name}/projects")
-    public List<Map<String, Object>> getProjectListByRepository(@PathVariable("repo-name") String repoName) {
+    public List<Map<String, Object>> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
-        Repository repository = getRepositoryByName(repoName);
-        return designTimeRepository.getProjects(repoName)
+        return designTimeRepository.getProjects(repository.getId())
             .stream()
             .filter(proj -> !proj.isDeleted())
             .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
@@ -123,27 +122,27 @@ public class DesignTimeRepositoryController {
     }
 
     @PutMapping(value = "/{repo-name}/projects/{project-name}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Map<String, Object> createProjectFromZip(@PathVariable("repo-name") String repoName,
+    public Map<String, Object> createProjectFromZip(@DesignRepository("repo-name") Repository repository,
             @PathVariable("project-name") String projectName,
             @RequestParam(value = "path", required = false) String path,
             @RequestParam(value = "comment", required = false) String comment,
             @RequestParam("template") MultipartFile file,
             @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException {
 
-        Repository repository = getRepositoryByName(repoName);
         SecurityChecker.allow(overwrite ? Privileges.EDIT_PROJECTS : Privileges.CREATE_PROJECTS);
         allowedToPush(repository);
 
-        CreateUpdateProjectModel model = new CreateUpdateProjectModel(repoName,
+        CreateUpdateProjectModel model = new CreateUpdateProjectModel(repository.getId(),
             getUserName(),
             StringUtils.trimToNull(projectName),
             StringUtils.trimToNull(path),
-            StringUtils.isNotBlank(comment) ? comment : createCommentsService(repoName).createProject(projectName),
+            StringUtils.isNotBlank(comment) ? comment
+                                            : createCommentsService(repository.getId()).createProject(projectName),
             overwrite);
         validationProvider.validate(model); // perform basic validation
 
         final Path archiveTmp = Files.createTempFile(projectName, ".zip");
-        final Lock lock = getLock(model);
+        final Lock lock = getLock(repository, model);
         try {
             IOUtils.copyAndClose(file.getInputStream(), Files.newOutputStream(archiveTmp));
             if (!lock.tryLock(getUserName(), 15, TimeUnit.SECONDS)) {
@@ -159,8 +158,7 @@ public class DesignTimeRepositoryController {
         }
     }
 
-    private Lock getLock(CreateUpdateProjectModel model) {
-        Repository repository = getRepositoryByName(model.getRepoName());
+    private Lock getLock(Repository repository, CreateUpdateProjectModel model) {
         StringBuilder lockId = new StringBuilder(model.getRepoName());
         if (repository.supports().branches()) {
             lockId.append("/[branches]/").append(((BranchRepository) repository).getBaseBranch()).append('/');
@@ -188,14 +186,6 @@ public class DesignTimeRepositoryController {
     private String getUserName() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getName();
-    }
-
-    public Repository getRepositoryByName(String repoName) {
-        Repository repository = designTimeRepository.getRepository(repoName);
-        if (repository != null) {
-            return repository;
-        }
-        throw new NotFoundException("design.repo.message", repoName);
     }
 
     private void allowedToPush(Repository repo) {

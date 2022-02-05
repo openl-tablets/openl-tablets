@@ -15,10 +15,12 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -42,6 +44,7 @@ public class NotificationController {
     }
 
     @PostMapping(value = "/admin/notification.txt", consumes = MediaType.TEXT_PLAIN_VALUE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void postNotification(String notification) throws IOException {
         if (StringUtils.isBlank(notification)) {
             Files.deleteIfExists(NOTIFICATION_FILE);
