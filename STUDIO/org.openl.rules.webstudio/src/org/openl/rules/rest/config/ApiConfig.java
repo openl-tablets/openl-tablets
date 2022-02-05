@@ -2,6 +2,8 @@ package org.openl.rules.rest.config;
 
 import java.util.List;
 
+import org.openl.rules.rest.resolver.RepositoryNamedValueArgumentResolver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +12,7 @@ import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -30,6 +33,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 @ComponentScan(basePackages = "org.openl.rules.rest.common")
 public class ApiConfig implements WebMvcConfigurer {
 
+    // No custom argument resolvers in Wizard
+    @Autowired(required = false)
+    private List<HandlerMethodArgumentResolver> argumentResolvers;
+
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(new ByteArrayHttpMessageConverter());
@@ -42,6 +49,13 @@ public class ApiConfig implements WebMvcConfigurer {
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         configurer.defaultContentType(MediaType.APPLICATION_JSON);
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        if (argumentResolvers != null) {
+            resolvers.addAll(argumentResolvers);
+        }
     }
 
     @Bean
