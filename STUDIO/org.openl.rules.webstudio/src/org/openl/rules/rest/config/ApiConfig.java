@@ -2,16 +2,19 @@ package org.openl.rules.rest.config;
 
 import java.util.List;
 
-import org.openl.rules.rest.resolver.RepositoryNamedValueArgumentResolver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.validation.Validator;
+import org.springframework.validation.beanvalidation.CustomValidatorBean;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
@@ -29,6 +32,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  * @author Vladyslav Pikus
  */
 @Configuration
+@Import(ValidationConfiguration.class)
 @EnableWebMvc
 @ComponentScan(basePackages = "org.openl.rules.rest.common")
 public class ApiConfig implements WebMvcConfigurer {
@@ -36,6 +40,10 @@ public class ApiConfig implements WebMvcConfigurer {
     // No custom argument resolvers in Wizard
     @Autowired(required = false)
     private List<HandlerMethodArgumentResolver> argumentResolvers;
+
+    @Autowired
+    @Qualifier("webstudioValidatorBean")
+    private CustomValidatorBean validator;
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -56,6 +64,11 @@ public class ApiConfig implements WebMvcConfigurer {
         if (argumentResolvers != null) {
             resolvers.addAll(argumentResolvers);
         }
+    }
+
+    @Override
+    public Validator getValidator() {
+        return validator;
     }
 
     @Bean

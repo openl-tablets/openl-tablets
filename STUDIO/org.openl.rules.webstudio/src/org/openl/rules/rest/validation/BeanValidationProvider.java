@@ -9,7 +9,10 @@ import org.springframework.validation.DataBinder;
 import org.springframework.validation.Validator;
 
 /**
- * Bean validation provider.
+ * Custom Bean Validation provider. This validator must be used in case of impossibility to define POJO argument in
+ * Spring Rest Controller. In the rest of simple cases use {@link org.springframework.validation.annotation.Validated}
+ * annotation on method argument. Additional validators can be added to the default
+ * {@link org.springframework.web.bind.WebDataBinder} via {@link org.springframework.web.bind.annotation.InitBinder}.
  *
  * @author Vladyslav Pikus
  */
