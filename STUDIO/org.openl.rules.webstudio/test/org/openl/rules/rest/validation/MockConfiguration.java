@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import javax.annotation.PostConstruct;
 
+import org.openl.rules.rest.config.ValidationConfiguration;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.GroupManagementService;
@@ -18,13 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @ComponentScan(basePackages = "org.openl.rules.rest.validation")
-@ImportResource("file:webapp/WEB-INF/spring/validation-beans.xml")
+@Import(ValidationConfiguration.class)
 public class MockConfiguration {
 
     @Autowired
