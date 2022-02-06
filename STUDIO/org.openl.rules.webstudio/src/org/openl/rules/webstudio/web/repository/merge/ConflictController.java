@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository.merge;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +10,7 @@ import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.Response;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -28,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -134,16 +137,26 @@ public class ConflictController {
         return prepareResponse(request, response, cookieName, name, streamingOutput);
     }
 
-    private ResponseEntity<StreamingResponseBody> prepareResponse(HttpServletRequest request,
+    private ResponseEntity<?> prepareResponse(HttpServletRequest request,
             HttpServletResponse response,
             String cookieName,
             String filePath,
             StreamingResponseBody streamingOutput) {
-        String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
-        response.addCookie(newCookie(cookieName, "success", request.getContextPath()));
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
-            .body(streamingOutput);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            streamingOutput.writeTo(output);
+            String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
+            response.addCookie(newCookie(cookieName, "success", request.getContextPath()));
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
+                    .body(streamingOutput);
+        } catch (IOException e) {
+            String message = "Failed to download file.";
+            LOG.error(message, e);
+            response.addCookie(newCookie(cookieName, message, request.getContextPath()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        }
     }
 
     private static Cookie newCookie(String cookieName, String value, String contextPath) {

@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +17,8 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,8 +32,10 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @RequestMapping("/test")
 public class TestDownloadController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TestDownloadController.class);
+
     @GetMapping(value = "/testcase")
-    public ResponseEntity<StreamingResponseBody> download(@RequestParam(Constants.REQUEST_PARAM_ID) String id,
+    public ResponseEntity<?> download(@RequestParam(value = Constants.REQUEST_PARAM_ID, required = false) String id,
             @RequestParam(value = Constants.REQUEST_PARAM_TEST_RANGES, required = false) String testRanges,
             @RequestParam(value = Constants.REQUEST_PARAM_PERPAGE, required = false) Integer pp,
             @RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
@@ -47,18 +54,27 @@ public class TestDownloadController {
         return prepareResponse(request, response, cookieName, streamingOutput);
     }
 
-    private ResponseEntity<StreamingResponseBody> prepareResponse(HttpServletRequest request,
+    private ResponseEntity<?> prepareResponse(HttpServletRequest request,
             HttpServletResponse response,
             String cookieName,
             StreamingResponseBody streamingOutput) {
-        response.addCookie(newCookie(cookieName, "success", request.getContextPath()));
-        return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=test-results.xlsx")
-            .header(HttpHeaders.CONTENT_TYPE, "application/xlsx")
-            .body(streamingOutput);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        try {
+            streamingOutput.writeTo(output);
+            response.addCookie(newCookie(cookieName, "success", request.getContextPath()));
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=test-results.xlsx")
+                .header(HttpHeaders.CONTENT_TYPE, "application/xlsx")
+                .body(output.toByteArray());
+        } catch (IOException e) {
+            String message = "Failed to export results.";
+            LOG.error(message, e);
+            response.addCookie(newCookie(cookieName, message, request.getContextPath()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
-    @GetMapping(value = "/rule", produces = "application/zip")
+    @GetMapping(value = "/rule")
     public ResponseEntity<?> manual(@RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
             @RequestParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
             HttpServletRequest request,

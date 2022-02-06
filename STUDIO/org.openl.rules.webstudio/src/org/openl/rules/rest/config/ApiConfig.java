@@ -17,7 +17,6 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
-import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -52,11 +51,6 @@ public class ApiConfig implements WebMvcConfigurer {
         var jacksonMessageConverter = new MappingJackson2HttpMessageConverter(objectMapper());
         jacksonMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON));
         converters.add(jacksonMessageConverter);
-    }
-
-    @Override
-    public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-        configurer.defaultContentType(MediaType.APPLICATION_JSON);
     }
 
     @Override
