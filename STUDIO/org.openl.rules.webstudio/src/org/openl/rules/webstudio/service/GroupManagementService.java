@@ -62,11 +62,13 @@ public class GroupManagementService {
         Group persistGroup = groupDao.getGroupByName(name);
 
         Set<Group> includedGroups = new HashSet<>();
-        for (String group : groups) {
-            Group includedGroup = groupDao.getGroupByName(group);
-            if (!persistGroup.equals(includedGroup)) {
-                // Persisting group should not include itself
-                includedGroups.add(includedGroup);
+        if (groups != null) {
+            for (String group : groups) {
+                Group includedGroup = groupDao.getGroupByName(group);
+                if (!persistGroup.equals(includedGroup)) {
+                    // Persisting group should not include itself
+                    includedGroups.add(includedGroup);
+                }
             }
         }
 

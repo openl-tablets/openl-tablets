@@ -119,8 +119,10 @@ public class UserManagementService {
     public void updateAuthorities(String user, Set<String> authorities) {
         User persistUser = userDao.getUserByName(user);
         Set<Group> groups = new HashSet<>();
-        for (String auth : authorities) {
-            groups.add(groupDao.getGroupByName(auth));
+        if (authorities != null) {
+            for (String auth : authorities) {
+                groups.add(groupDao.getGroupByName(auth));
+            }
         }
         persistUser.setGroups(groups);
 
