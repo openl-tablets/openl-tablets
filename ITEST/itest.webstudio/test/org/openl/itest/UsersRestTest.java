@@ -108,6 +108,9 @@ public class UsersRestTest {
         client.send("users-service/users-4.get");
 
         client.send("users-service/users-options.get");
+
+        client.send("admin/management/groups/addEmptyGroups.json.post");
+        client.send("users-service/users-create-2.put");
     }
 
     @Test

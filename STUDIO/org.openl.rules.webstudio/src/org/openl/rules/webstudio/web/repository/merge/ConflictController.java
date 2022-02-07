@@ -58,7 +58,7 @@ public class ConflictController {
     public ResponseEntity<?> repository(@RequestParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
             @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
             @RequestParam(Constants.REQUEST_PARAM_VERSION) final String version,
-            @RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
+            @RequestParam(value = Constants.RESPONSE_MONITOR_COOKIE, required = false) String cookieId,
             HttpServletRequest request,
             HttpServletResponse response) {
 
@@ -84,7 +84,7 @@ public class ConflictController {
     @GetMapping(value = "/local", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<?> local(@RequestParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
             @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
-            @RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
+            @RequestParam(value = Constants.RESPONSE_MONITOR_COOKIE, required = false) String cookieId,
             HttpServletRequest request,
             HttpServletResponse response) {
 
@@ -117,7 +117,7 @@ public class ConflictController {
 
     @GetMapping(value = "/merged", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public ResponseEntity<?> merged(@RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
-            @RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
+            @RequestParam(value = Constants.RESPONSE_MONITOR_COOKIE, required = false) String cookieId,
             HttpServletRequest request,
             HttpServletResponse response) {
 
@@ -148,7 +148,7 @@ public class ConflictController {
             response.addCookie(newCookie(cookieName, "success", request.getContextPath()));
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
-                    .body(streamingOutput);
+                    .body(output.toByteArray());
         } catch (IOException e) {
             String message = "Failed to download file.";
             LOG.error(message, e);
