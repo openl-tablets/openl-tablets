@@ -2846,7 +2846,7 @@ public final class DecisionTableHelper {
 
         fits = filterHeadersByMax(fits,
             e -> e.stream().flatMapToInt(c -> Arrays.stream(c.getMethodParameterIndexes())).distinct().count(),
-            e -> e.stream().anyMatch(DTHeader::isCondition));
+            e -> e.stream().anyMatch(x -> x.isCondition() && x instanceof DeclaredDTHeader));
 
         fits = filterHeadersByMin(fits,
             e -> e.stream().filter(x -> x instanceof SimpleReturnDTHeader).count(),
