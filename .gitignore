@@ -1,6 +1,9 @@
 # use global syntax for excludes
 syntax: glob
 
+#exclude macOS system files
+.DS_Store
+
 #exclude intelliJ files
 .idea
 .vagrant
