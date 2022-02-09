@@ -1,1 +1,6 @@
 ERROR: Identifier '$BenefitAmountOptions' is not found.
+WARN: Warning: Object 'NonContributory' is outside of valid domain 'ContributionType'. The comparison always returns false.
+WARN: Warning: Object 'la' is outside of valid domain 'CoverageType'. The comparison always returns false.
+WARN: Warning: Object 'DependentTermLife' is outside of valid domain 'CoverageType'. The comparison always returns false.
+WARN: Warning: Object 'la' is outside of valid domain 'CoverageType'. The comparison always returns false.
+WARN: Warning: Object 'DependentTermLife' is outside of valid domain 'CoverageType'. The comparison always returns false.

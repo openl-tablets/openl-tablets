@@ -1,0 +1,2 @@
+WARN: Warning: Object 'Pink' is outside of valid domain 'MyColor'. The comparison always returns false.
+WARN: Warning: Object 'Pink' is outside of valid domain 'MyColor'. The comparison always returns true.
