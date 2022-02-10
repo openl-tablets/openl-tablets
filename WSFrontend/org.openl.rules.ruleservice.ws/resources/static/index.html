@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <title>OpenL Tablets Rule Services</title>
@@ -320,7 +320,7 @@
         Object.keys(urls).forEach(function (name) {
             var url = urls[name];
             if (name === "RESTFUL") {
-                html += "<a href='" + url + "/api-docs?url=openapi.json'\>Swagger UI</a>";
+                html += "<a href='swagger-ui.html?urls.primaryName=" + encodeURIComponent(service.name) + "'\>Swagger UI</a>";
                 html += "<a href='" + url + "/openapi.json'\>OpenAPI.JSON</a>";
                 html += "<a href='" + url + "/openapi.yaml'\>OpenAPI.YAML</a>";
             } else if (url == null) {

@@ -11,7 +11,7 @@ import org.springframework.context.ApplicationContext;
 
 @WebServlet(value = "/*", loadOnStartup = 1, initParams = {
         @WebInitParam(name = "static-welcome-file", value = "/index.html"),
-        @WebInitParam(name = "static-resources-list", value = "/favicon.ico"),
+        @WebInitParam(name = "static-resources-list", value = "/favicon.ico /swagger-ui.html /swagger-ui/.*"),
         @WebInitParam(name = "service-list-path", value = "cxf-services"),
         @WebInitParam(name = "hide-service-list-page", value = "true") })
 public class CXFServlet extends CXFNonSpringServlet {
@@ -23,5 +23,6 @@ public class CXFServlet extends CXFNonSpringServlet {
         setBus(cxf);
         ResourceManager resourceManager = cxf.getExtension(ResourceManager.class);
         resourceManager.addResourceResolver(new StaticResourceResolver("static"));
+        resourceManager.addResourceResolver(new SwaggerUIResolver());
     }
 }
