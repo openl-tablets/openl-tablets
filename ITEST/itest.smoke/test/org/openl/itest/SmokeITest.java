@@ -28,6 +28,12 @@ public class SmokeITest {
     }
 
     @Test
+    public void testSwaggerUI() {
+        client.send("swagger-ui.get");
+        client.send("swagger-ui.json");
+    }
+
+    @Test
     public void testPingRest() {
         client.send("simple_ping.get");
     }

@@ -2,7 +2,9 @@ package org.openl.rules.ruleservice.rest;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.ws.rs.GET;
@@ -121,6 +123,20 @@ public class AdminRestController {
     @Path("/healthcheck/startup")
     public Response startup() {
         return Response.ok("UP", MediaType.TEXT_PLAIN_TYPE).build();
+    }
+
+    @GET
+    @Path("/swagger-ui.json")
+    public Response swaggerUIConfig() {
+        List<Map<String, String>> urls = serviceManager.getServicesInfo().stream()
+                .filter(k -> getRestUrl(k) != null)
+                .map(k -> new HashMap<String, String>() {{put("name", k.getName()); put("url", getRestUrl(k) + "/openapi.json");}})
+                .collect(Collectors.toList());
+        return Response.ok(new HashMap<String, Object>() {{put("urls", urls);}}).build();
+    }
+
+    private String getRestUrl(ServiceInfo k) {
+        return k.getUrls().get("RESTFUL");
     }
 
     private static Response okOrNotFound(Object entity) {
