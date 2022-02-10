@@ -1,0 +1,14 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "urls": [
+    {
+      "name": "multi_project_project1",
+      "url": "multi_project/project1/openapi.json"
+    }, {
+      "name": "simple_simple",
+      "url": "REST/simple/openapi.json"
+    }
+  ]
+}
