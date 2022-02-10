@@ -2336,10 +2336,10 @@ public final class DecisionTableHelper {
                         .deepEquals(a1.getFieldsChain(), b1.getFieldsChain())) {
                     return false;
                 }
+            }
 
-                if (a1.isReturn() && b1.isReturn() && fieldsChainsIsCrossed(a1.getFieldsChain(), b1.getFieldsChain())) {
-                    return false;
-                }
+            if (a1.isReturn() && b1.isReturn() && fieldsChainsIsCrossed(a1.getFieldsChain(), b1.getFieldsChain())) {
+                return false;
             }
 
             if (!(a1.isHCondition() && b1.isHCondition() || a1.isCondition() && b1.isCondition() || a1.isAction() && b1
@@ -2456,7 +2456,7 @@ public final class DecisionTableHelper {
                 failedToFit.addAll(indexes);
             }
         }
-        if (!lastColumnReached && numberOfReturns == 0) {
+        if (!lastColumnReached && (numberOfReturns + (fuzzyReturnsFlag > 1 ? 1 : 0)) == 0) {
             ICell cell = originalTable.getSource().getCell(column, firstColumnHeight - 1);
             if (column + cell.getWidth() <= maxColumnIndex) {
                 boolean isHorizontal = column + cell.getWidth() >= lastColumn;
