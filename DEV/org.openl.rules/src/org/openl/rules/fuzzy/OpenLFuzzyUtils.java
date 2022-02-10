@@ -44,56 +44,10 @@ public final class OpenLFuzzyUtils {
         openClassRecursivelyCacheForWritableFields.remove();
     }
 
-    public static Map<Token, IOpenField[]> tokensMapToOpenClassWritableFields(IOpenClass openClass) {
-        Map<IOpenClass, Map<Token, IOpenField[]>> cache = openClassCacheForWritableFields.get();
-        Map<Token, IOpenField[]> ret = cache.get(openClass);
-        if (ret == null) {
-            ret = new HashMap<>();
-            Map<Token, LinkedList<IOpenField>> map = new HashMap<>();
-            if (!openClass.isSimple()) {
-                for (IOpenField field : openClass.getFields()) {
-                    if (!field.isStatic() && !field.isConst()) {
-                        String fieldName = field.getName();
-                        String t = OpenLFuzzyUtils.toTokenString(phoneticFix(fieldName));
-                        LinkedList<IOpenField> m = null;
-                        for (Entry<Token, LinkedList<IOpenField>> entry : map.entrySet()) {
-                            Token token = entry.getKey();
-                            if (token.getValue().equals(t)) {
-                                m = entry.getValue();
-                                break;
-                            }
-                        }
-
-                        if (m == null) {
-                            m = new LinkedList<>();
-                            m.add(field);
-                            map.put(new Token(t, 0), m);
-                        } else {
-                            m.add(field);
-                        }
-                    }
-                }
-            }
-            for (Entry<Token, LinkedList<IOpenField>> entry : map.entrySet()) {
-                ret.put(entry.getKey(), entry.getValue().toArray(new IOpenField[] {}));
-            }
-            cache.put(openClass, ret);
-        }
-        return ret;
-    }
-
-    public static Map<Token, IOpenField[][]> tokensMapToOpenClassWritableFieldsRecursively(IOpenClass openClass) {
-        return tokensMapToOpenClassWritableFieldsRecursively(openClass, null, 0);
-    }
-
     public static Map<Token, IOpenField[][]> tokensMapToOpenClassWritableFieldsRecursively(IOpenClass openClass,
             String tokenPrefix,
             int startLevel) {
         return tokensMapToOpenClassFieldsRecursively(openClass, tokenPrefix, startLevel, true);
-    }
-
-    public static Map<Token, IOpenField[][]> tokensMapToOpenClassReadableFieldsRecursively(IOpenClass openClass) {
-        return tokensMapToOpenClassReadableFieldsRecursively(openClass, null, 0);
     }
 
     public static Map<Token, IOpenField[][]> tokensMapToOpenClassReadableFieldsRecursively(IOpenClass openClass,
