@@ -8,6 +8,6 @@
     </modules>
 
     <classpath>
-        <entry path="lib/*.jar"/>
+        <entry path="classes"/>
     </classpath>
 </project>

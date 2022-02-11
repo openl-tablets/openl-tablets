@@ -1,0 +1,4 @@
+POST /REST/v1/string/toNumber/parse11 HTTP/1.1
+Content-Type: text/plain
+
+B

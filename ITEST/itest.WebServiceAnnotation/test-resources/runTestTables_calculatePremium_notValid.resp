@@ -1,0 +1,8 @@
+HTTP/1.1 422
+Content-Type: application/json
+
+{
+  "message": "Object 'Cov100' is outside of valid domain 'CoverageName'. Valid values: [Cov1, Cov2, Cov3, Cov4]",
+  "type": "VALIDATION",
+  "details": null
+}

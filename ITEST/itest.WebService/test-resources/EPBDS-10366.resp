@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "name": "Pop Corn",
+    "value": 0.5,
+    "item": {
+      "code": "PC",
+      "count": 1
+    }
+  }, {
+  "name": "Coca Cola",
+  "value": 0.33
+  }, {
+    "name": "Hot Dog",
+    "item": {
+      "code": "HT"
+    }
+  }
+]

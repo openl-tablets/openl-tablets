@@ -1,0 +1,10 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "тест": 1,
+  "アスタリスク": 2,
+  "TestЫЫЫ": 3,
+  "印刷中的星号": 3,
+  "aaa": 3
+}

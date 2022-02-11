@@ -1,0 +1,6 @@
+POST /EPBDS-10699/EPBDS-10699/m HTTP/1.1
+Content-Type: application/json
+
+{
+  "lob": "auto"
+}

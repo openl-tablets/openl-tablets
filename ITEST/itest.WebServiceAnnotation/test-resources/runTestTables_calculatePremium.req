@@ -1,0 +1,7 @@
+POST /REST/rules-tests-and-run-tables/calculatePremium HTTP/1.1
+Content-Type: application/json
+
+{
+  "covName": "Cov1",
+  "amount": 1000
+}

@@ -1,0 +1,10 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "results": [
+    [0.1], [100.0], [0.0], [0.0], [100.0]
+  ],
+  "columnNames": ["Formula"],
+  "rowNames": ["Factor", "Premium", "Discount", "DiscountAmt", "FinalPremium"]
+}

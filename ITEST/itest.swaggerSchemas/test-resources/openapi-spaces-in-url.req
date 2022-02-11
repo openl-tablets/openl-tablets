@@ -1,0 +1,2 @@
+GET /service%20name%20with%20spaces/openapi.json HTTP/1.1
+

@@ -1,0 +1,7 @@
+POST /upcs/lowCase HTTP/1.1
+Content-Type: application/json
+
+{
+  "number": 1.0,
+  "string": "a"
+}

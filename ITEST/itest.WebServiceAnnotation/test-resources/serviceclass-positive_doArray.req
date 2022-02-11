@@ -1,0 +1,2 @@
+GET /REST/ws-serviceclass-positive/doArray HTTP/1.1
+

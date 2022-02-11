@@ -1,0 +1,9 @@
+POST /EPBDS-9665/EPBDS-9665/anotherSpr HTTP/1.1
+Content-Type: application/json
+
+{
+  "runtimeContext": {
+    "usState": "CA"
+  },
+  "c": 0
+}

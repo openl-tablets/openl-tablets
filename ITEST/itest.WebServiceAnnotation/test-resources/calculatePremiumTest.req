@@ -1,0 +1,2 @@
+GET /REST/rules-tests-and-run-tables/calculatePremiumTest HTTP/1.1
+

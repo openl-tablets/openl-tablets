@@ -1,0 +1,4 @@
+POST /REST/rules-tests-and-run-tables/getDiscount HTTP/1.1
+Content-Type: text/plain
+
+Any text

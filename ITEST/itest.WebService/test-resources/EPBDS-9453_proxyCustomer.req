@@ -1,0 +1,7 @@
+POST /EPBDS-9453/EPBDS-9453/proxyCustomer HTTP/1.1
+Content-Type: application/json
+
+{
+  "cusomerId": "1",
+  "GENDER": "male"
+}

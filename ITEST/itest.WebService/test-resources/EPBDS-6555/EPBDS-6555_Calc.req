@@ -1,0 +1,18 @@
+POST /REST/EPBDS-6555/Calc HTTP/1.1
+Content-Type: application/json
+
+{
+  "assert1": "1",
+  "boolean1": "2",
+  "this1": "3",
+  "float1": "4",
+  "double1": "5",
+  "byte1": "6",
+  "enum1": "7",
+  "int1": "8",
+  "short1": "9",
+  "class1": "10",
+  "char1": "11",
+  "long1": "12",
+  "strictfp1": "13"
+}

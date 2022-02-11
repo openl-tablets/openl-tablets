@@ -1,0 +1,2 @@
+GET /rules-serializationInclusionAlways/openapi.json HTTP/1.1
+

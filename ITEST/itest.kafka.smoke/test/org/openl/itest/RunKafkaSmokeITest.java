@@ -41,7 +41,7 @@ public class RunKafkaSmokeITest {
 
     @Test
     public void testRest() {
-        client.post("simple1/Hello", "/simple1.req.json", "/simple1.resp.txt");
+        client.send("simple1");
     }
 
     @Test

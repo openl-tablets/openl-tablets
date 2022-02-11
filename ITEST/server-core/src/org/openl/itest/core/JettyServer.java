@@ -6,6 +6,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -110,4 +112,31 @@ public class JettyServer {
             throw new IllegalArgumentException(e);
         }
     }
+
+    /**
+     * Starts Jetty Server and executes a set of http requests.
+     */
+    public static void test() throws Exception {
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, false, new String[0]);
+
+        final Locale DEFAULT_LOCALE = Locale.getDefault();
+        final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();
+        try {
+            Locale.setDefault(Locale.US);
+
+            // set +2 as default
+            TimeZone.setDefault(TimeZone.getTimeZone("Europe/Helsinki"));
+
+            jetty.server.start();
+            try {
+                jetty.client().test();
+            } finally {
+                jetty.stop();
+            }
+        } finally {
+            Locale.setDefault(DEFAULT_LOCALE);
+            TimeZone.setDefault(DEFAULT_TIMEZONE);
+        }
+    }
+
 }

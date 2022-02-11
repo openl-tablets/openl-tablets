@@ -1,0 +1,2 @@
+GET /rules-serializationInclusionNonEmpty/getObject HTTP/1.1
+

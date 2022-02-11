@@ -1,0 +1,5 @@
+POST /REST/http-statuses-test/hello HTTP/1.1
+Content-Type: application/json
+
+{
+  sdssddsd

@@ -1,5 +1,0 @@
-{
-  "message": "Failure in the method 'java.util.Objects.requireNonNull(java.lang.Object)'. Cause: java.lang.NullPointerException",
-  "details": "***",
-  "type": "RULES@@@"
-}

@@ -1,0 +1,4 @@
+POST /REST/ws-serviceclass-positive/aroundLongMethod HTTP/1.1
+Content-Type: text/plain
+
+1111

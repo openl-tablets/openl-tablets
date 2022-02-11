@@ -1,0 +1,12 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "@class": "org.openl.generated.spreadsheetresults.Spr1",
+    "Step1": 1.0
+  }, {
+    "@class": "org.openl.generated.spreadsheetresults.Spr1",
+    "Step1": 1.0
+  }
+]

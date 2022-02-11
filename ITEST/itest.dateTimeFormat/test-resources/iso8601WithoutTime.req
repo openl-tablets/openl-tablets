@@ -1,0 +1,6 @@
+POST /REST/EPBDS-9201/spr HTTP/1.1
+Content-Type: application/json
+
+{
+  "date": "2019-01-01"
+}

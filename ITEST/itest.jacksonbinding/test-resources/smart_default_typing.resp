@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "@class": "org.openl.generated.beans.Cat",
+  "lives": 0,
+  "intWithDefault": null
+}

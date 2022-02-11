@@ -1,0 +1,2 @@
+GET /REST/v1/annotation-template-abstract-class/string/toNumber/parseXQueryParam?numParam=11 HTTP/1.1
+

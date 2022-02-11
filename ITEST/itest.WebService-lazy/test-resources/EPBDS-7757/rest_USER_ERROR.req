@@ -1,0 +1,2 @@
+GET /REST/http-statuses-test/throwUserException HTTP/1.1
+

@@ -1,0 +1,12 @@
+POST /upcs/overload1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "b": {
+    "I": 17,
+    "BeanBName": {
+      "STR": null,
+      "In": 0
+    }
+  }
+}

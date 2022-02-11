@@ -1,0 +1,20 @@
+POST /EPBDS-10557/EPBDS-10557/myRule1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "inputParam": {
+    "param1": "a",
+    "param2": 1
+  },
+  "variationPack": {
+    "variations": [
+      {
+        "@class": "org.openl.rules.variation.JXPathVariation",
+        "updatedArgumentIndex": 0,
+        "valueToSet": 2,
+        "path": "param2",
+        "variationID": "FOR_2"
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+POST /REST/EPBDS-6437/calVehicleYear HTTP/1.1
+Content-Type: application/json
+
+{
+  "runtimeContext": {},
+  "v": {
+    "modelYear": 2007,
+    "vehEffectiveYear": "2016-12-31T22:00:00"
+  }
+}

@@ -396,7 +396,7 @@ public class RunStoreLogDataITest {
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
-        client.post("/REST/deployment3/simple3/Hello", "/simple3_Hello.req.json", "/simple3_Hello.resp.txt");
+        client.send("simple3_Hello");
 
         ExpectedLogValues parameters = new ExpectedLogValues(REQUEST,
             RESPONSE,
@@ -428,7 +428,7 @@ public class RunStoreLogDataITest {
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
-        client.post("/REST/deployment3/simple3/Hello", "/simple3_Hello_fail.req.json", 400);
+        client.send("simple3_Hello_fail");
 
         ExpectedLogValues values = new ExpectedLogValues(REQUEST,
             null,
@@ -476,7 +476,7 @@ public class RunStoreLogDataITest {
         truncateH2TableIfExists(h2HelloEntity4TableName);
         truncateH2TableIfExists(h2HelloEntity8TableName);
 
-        client.post("/deployment4/simple4/Hello", "/simple4_Hello.req.json", "/simple4_Hello.resp.txt");
+        client.send("simple4_Hello");
 
         List<Row> rows = getCassandraRows(helloEntity1TableName);
         if (rows.size() == 0) { // Table is created but row is not created
@@ -639,7 +639,7 @@ public class RunStoreLogDataITest {
         truncateCassandraTableIfExists(KEYSPACE, helloEntity1TableName);
         truncateH2TableIfExists(h2HelloEntity1TableName);
 
-        client.post("/deployment4/simple4/Hello2", "/simple4_Hello2.req.json", "/simple4_Hello2.resp.txt");
+        client.send("simple4_Hello2");
 
         given().ignoreException(InvalidQueryException.class)
             .await()

@@ -1,0 +1,6 @@
+POST /EPBDS-12266/EPBDS-12266/myRules HTTP/1.1
+Content-Type: application/json
+
+{
+  "param": 0
+}

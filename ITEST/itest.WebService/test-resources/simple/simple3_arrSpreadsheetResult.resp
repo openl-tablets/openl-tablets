@@ -1,0 +1,10 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "Value_Step1": 1.0
+  }, {
+    "Value_Step1": 1.0
+  }
+]

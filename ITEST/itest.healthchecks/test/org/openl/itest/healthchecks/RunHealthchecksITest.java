@@ -31,13 +31,13 @@ public class RunHealthchecksITest {
     public void testReadiness() {
         client.send("healthcheck/readiness_empty.get");
 
-        client.post("/admin/deploy", "/rules-to-deploy.zip", 201);
+        client.send("deploy_v1");
         client.send("healthcheck/readiness_ready.get");
 
-        client.post("/admin/deploy", "/rules-to-deploy-failed.zip", 201);
+        client.send("deploy_failed");
         client.send("healthcheck/readiness_failure.get");
 
-        client.post("/admin/deploy", "/rules-to-deploy_v2.zip", 201);
+        client.send("deploy_v2");
         client.send("healthcheck/readiness_ready.get");
     }
 }

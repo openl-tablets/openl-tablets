@@ -1,0 +1,8 @@
+POST /EPBDS-9678-project2/test1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "a": 200,
+  "b": "test1",
+  "c": "foo"
+}

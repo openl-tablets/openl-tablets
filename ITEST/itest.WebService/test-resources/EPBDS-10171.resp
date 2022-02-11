@@ -1,0 +1,9 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "@class": "org.openl.generated.beans.Mansion",
+  "rooms": 2,
+  "kithen": 3,
+  "swimmingpool": 4
+}

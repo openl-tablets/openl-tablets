@@ -1,0 +1,8 @@
+HTTP/1.1 500
+Content-Type: application/json
+
+{
+  "message": "Failure in the method 'java.lang.Integer.decode(java.lang.String)'. Cause: Zero length string",
+  "type": "RULES_RUNTIME",
+  "details": "***"
+}

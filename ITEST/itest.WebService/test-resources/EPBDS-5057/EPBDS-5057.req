@@ -1,0 +1,4 @@
+POST /REST/%D0%9A%D0%B8%D1%80%D0%B8%D0%BB%D0%BB%D0%B8%D1%86%D0%B0%D0%A2%D0%B5%D1%81%D1%82/hello HTTP/1.1
+Content-Type: application/json
+
+{}

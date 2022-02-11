@@ -1,0 +1,4 @@
+POST /EPBDS-10642/dateType HTTP/1.1
+Content-Type: text/plain
+
+2020-11-03T13:29:23.911Z

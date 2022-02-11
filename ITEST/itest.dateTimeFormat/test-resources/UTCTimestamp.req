@@ -1,0 +1,6 @@
+POST /REST/EPBDS-6437/checkRulesModule HTTP/1.1
+Content-Type: application/json
+
+{
+  "requestDate": 1514757600000
+}

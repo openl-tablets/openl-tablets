@@ -73,7 +73,7 @@ class HttpData {
     }
 
     static HttpData readFile(String resource) throws IOException {
-        try (InputStream input = HttpData.class.getResourceAsStream(resource)) {
+        try (InputStream input = getStream(resource)) {
             return readData(input, resource);
         }
     }
@@ -284,7 +284,7 @@ class HttpData {
                     if (isFileRef(line)) {
                         writer.flush();
                         String fileRes = resolveFileRef(Paths.get(resource).getParent(), line);
-                        try (InputStream fileStream = HttpData.class.getResourceAsStream(fileRes)) {
+                        try (InputStream fileStream = getStream(fileRes)) {
                             if (fileStream == null) {
                                 throw new FileNotFoundException(fileRes);
                             }
@@ -307,7 +307,7 @@ class HttpData {
             String line = readLine(input);
             if (isFileRef(line)) {
                 String fileRes = resolveFileRef(Paths.get(resource).getParent(), line);
-                try (InputStream fileStream = HttpData.class.getResourceAsStream(fileRes)) {
+                try (InputStream fileStream = getStream(fileRes)) {
                     if (fileStream == null) {
                         throw new FileNotFoundException(fileRes);
                     }
@@ -332,6 +332,14 @@ class HttpData {
         }
 
         return new HttpData(firstLine, headers, body, resource);
+    }
+
+    private static InputStream getStream(String fileRes) {
+        try {
+            return Files.newInputStream(Paths.get(fileRes));
+        } catch (IOException e) {
+            return HttpData.class.getResourceAsStream(fileRes);
+        }
     }
 
     private static boolean isFileRef(String s) {

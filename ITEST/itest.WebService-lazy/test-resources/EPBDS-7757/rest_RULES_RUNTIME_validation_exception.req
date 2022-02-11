@@ -1,0 +1,2 @@
+GET /REST/http-statuses-test/throwValidationException HTTP/1.1
+
