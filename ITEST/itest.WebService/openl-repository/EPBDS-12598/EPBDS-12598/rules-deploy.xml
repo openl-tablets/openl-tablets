@@ -1,0 +1,9 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <serviceName>openl-example</serviceName>
+    <url>EPBDS-12598</url>
+    <publishers>
+        <publisher>restful</publisher>
+    </publishers>
+    <annotationTemplateClassName>Service</annotationTemplateClassName>
+</rules-deploy>
