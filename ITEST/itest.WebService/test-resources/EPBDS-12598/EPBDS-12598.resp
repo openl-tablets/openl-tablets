@@ -1,0 +1,14 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "json": {
+    "field1": "Foo",
+    "field2": null
+  },
+  "csv": [
+    "Date;Billed Premium;Exposure;Paid Claims",
+    "2017-01-31;4567;100;454",
+    "2017-02-28;4568;120;3543"
+  ]
+}
