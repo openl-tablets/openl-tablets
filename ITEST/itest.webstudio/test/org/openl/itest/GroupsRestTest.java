@@ -32,5 +32,9 @@ public class GroupsRestTest {
         client.send("EPBDS-7698_cyclic_groups/05-users-a-get-profile");
     }
 
-
+    @Test
+    public void EPBDS_11391_informative_error_on_duplication_group_name() {
+        client.send("EPBDS-11391_create_group_same_name/01-groupsAddGroupC");
+        client.send("EPBDS-11391_create_group_same_name/02-groupsAddGroupCSecondTime");
+    }
 }
