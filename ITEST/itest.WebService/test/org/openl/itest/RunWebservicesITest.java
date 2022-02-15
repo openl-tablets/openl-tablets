@@ -678,4 +678,9 @@ public class RunWebservicesITest {
     public void EPBDS_12598() {
         client.send("EPBDS-12598/EPBDS-12598");
     }
+
+    @Test
+    public void EPBDS_12600() {
+        client.send("EPBDS-12600/calc.json.get");
+    }
 }

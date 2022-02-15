@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -33,6 +34,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     public static final String JACKSON_DEFAULT_TYPING_MODE = "jackson.defaultTypingMode";
     public static final String JACKSON_SERIALIZATION_INCLUSION = "jackson.serializationInclusion";
     public static final String JACKSON_FAIL_ON_UNKNOWN_PROPERTIES = "jackson.failOnUnknownProperties";
+    public static final String JACKSON_FAIL_ON_EMPTY_BEANS = "jackson.failOnEmptyBeans";
     public static final String JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE = "jackson.simpleClassNameAsTypingPropertyValue";
     public static final String JACKSON_TYPING_PROPERTY_NAME = "jackson.typingPropertyName";
     public static final String JACKSON_PROPERTY_NAMING_STRATEGY = "jackson.propertyNamingStrategy";
@@ -86,8 +88,16 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             }
             Map<String, Object> configuration = rulesDeploy.getConfiguration();
             if (configuration != null) {
-                processCaseInsensitivePropertiesSetting(configuration.get(JACKSON_CASE_INSENSITIVE_PROPERTIES));
-                processJacksonFailOnUnknownPropertiesSetting(configuration.get(JACKSON_FAIL_ON_UNKNOWN_PROPERTIES));
+                processJacksonPropertiesSettingBoolean(configuration.get(JACKSON_CASE_INSENSITIVE_PROPERTIES),
+                    JACKSON_CASE_INSENSITIVE_PROPERTIES,
+                    delegate::setCaseInsensitiveProperties);
+                processJacksonPropertiesSettingBoolean(configuration.get(JACKSON_FAIL_ON_UNKNOWN_PROPERTIES),
+                    JACKSON_FAIL_ON_UNKNOWN_PROPERTIES,
+                    delegate::setFailOnUnknownProperties);
+                processJacksonPropertiesSettingBoolean(configuration.get(JACKSON_FAIL_ON_EMPTY_BEANS),
+                    JACKSON_FAIL_ON_EMPTY_BEANS,
+                    delegate::setFailOnEmptyBeans);
+
                 processJacksonDefaultDateFormatSetting(configuration.get(JACKSON_DEFAULT_DATE_FORMAT));
                 processJacksonDefaultTypingModeSetting(configuration.get(JACKSON_DEFAULT_TYPING_MODE));
                 processJacksonSerializationInclusionSetting(configuration.get(JACKSON_SERIALIZATION_INCLUSION));
@@ -102,6 +112,10 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                                                                               .get(ROOT_CLASS_NAMES_BINDING)
                                                                           : null);
         processXlsModuleOpenClassRelatedSettings();
+    }
+
+    protected JacksonObjectMapperFactoryBean getDelegate() {
+        return delegate;
     }
 
     private void processXlsModuleOpenClassRelatedSettings() {
@@ -131,16 +145,16 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         }
     }
 
-    protected void processJacksonFailOnUnknownPropertiesSetting(Object failOnUnknownProperties) {
-        if (failOnUnknownProperties != null) {
-            if (failOnUnknownProperties instanceof Boolean) {
-                delegate.setFailOnUnknownProperties((Boolean) failOnUnknownProperties);
-            } else if (failOnUnknownProperties instanceof String) {
-                delegate.setFailOnUnknownProperties(Boolean.parseBoolean((String) failOnUnknownProperties));
+    protected void processJacksonPropertiesSettingBoolean(Object value, String property, Consumer<Boolean> consumer) {
+        if (value != null) {
+            if (value instanceof Boolean) {
+                consumer.accept((Boolean) value);
+            } else if (value instanceof String) {
+                consumer.accept(Boolean.parseBoolean((String) value));
             } else {
                 throw new ObjectMapperConfigurationParsingException(
                     String.format("Expected true/false value for '%s' in the configuration for service '%s'.",
-                        JACKSON_FAIL_ON_UNKNOWN_PROPERTIES,
+                        property,
                         rulesDeploy.getServiceName()));
             }
         }
@@ -214,21 +228,6 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 throw new ObjectMapperConfigurationParsingException(
                     String.format("Expected string value for '%s' in the configuration for service '%s'.",
                         JACKSON_TYPING_PROPERTY_NAME,
-                        rulesDeploy.getServiceName()));
-            }
-        }
-    }
-
-    protected void processCaseInsensitivePropertiesSetting(Object caseInsensitive) {
-        if (caseInsensitive != null) {
-            if (caseInsensitive instanceof Boolean) {
-                delegate.setCaseInsensitiveProperties((Boolean) caseInsensitive);
-            } else if (caseInsensitive instanceof String) {
-                delegate.setCaseInsensitiveProperties(Boolean.parseBoolean((String) caseInsensitive));
-            } else {
-                throw new ObjectMapperConfigurationParsingException(
-                    String.format("Expected true/false value for '%s' in the configuration for service '%s'.",
-                        JACKSON_CASE_INSENSITIVE_PROPERTIES,
                         rulesDeploy.getServiceName()));
             }
         }
@@ -512,6 +511,14 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     public void setSimpleClassNameAsTypingPropertyValue(boolean simpleClassNameAsTypingPropertyValue) {
         delegate.setSimpleClassNameAsTypingPropertyValue(simpleClassNameAsTypingPropertyValue);
+    }
+
+    public void setFailOnEmptyBeans(boolean failOnEmptyBeans) {
+        delegate.setFailOnEmptyBeans(failOnEmptyBeans);
+    }
+
+    public boolean isFailOnEmptyBeans() {
+        return delegate.isFailOnEmptyBeans();
     }
 
     public void setTypingPropertyName(String typingPropertyName) {
