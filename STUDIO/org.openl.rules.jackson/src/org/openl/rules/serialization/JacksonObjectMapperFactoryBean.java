@@ -90,9 +90,11 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     private boolean failOnUnknownProperties = false;
 
+    private boolean failOnEmptyBeans = SerializationFeature.FAIL_ON_EMPTY_BEANS.enabledByDefault();
+
     private boolean polymorphicTypeValidation = false;
 
-    private boolean caseInsensitiveProperties = false;
+    private boolean caseInsensitiveProperties = MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES.enabledByDefault();
 
     private ClassLoader classLoader;
 
@@ -261,13 +263,12 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 mapper.findMixInClassFor(clazz),
                 overrideClasses,
                 getClassLoader());
-            if (subtypeMixInClass != null) {
-                mapper.addMixIn(clazz, subtypeMixInClass);
-            }
+            mapper.addMixIn(clazz, subtypeMixInClass);
         }
 
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, isFailOnUnknownProperties());
         mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, isCaseInsensitiveProperties());
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, isFailOnEmptyBeans());
         mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, false); // OpenL uses ENUMs names
         mapper.configure(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING, true);
 
@@ -402,6 +403,14 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     public boolean isFailOnUnknownProperties() {
         return failOnUnknownProperties;
+    }
+
+    public void setFailOnEmptyBeans(boolean failOnEmptyBeans) {
+        this.failOnEmptyBeans = failOnEmptyBeans;
+    }
+
+    public boolean isFailOnEmptyBeans() {
+        return failOnEmptyBeans;
     }
 
     public Set<String> getOverrideTypes() {
