@@ -51,8 +51,17 @@ public class KafkaProjectJacksonObjectMapperFactoryBean extends ProjectJacksonOb
         super.applyProjectConfiguration();
         applyKafkaConfiguration();
         processRootClassNamesBindingSetting(getConfigurationValue(ROOT_CLASS_NAMES_BINDING));
-        processCaseInsensitivePropertiesSetting(getConfigurationValue(JACKSON_CASE_INSENSITIVE_PROPERTIES));
-        processJacksonFailOnUnknownPropertiesSetting(getConfigurationValue(JACKSON_FAIL_ON_UNKNOWN_PROPERTIES));
+
+        processJacksonPropertiesSettingBoolean(getConfigurationValue(JACKSON_CASE_INSENSITIVE_PROPERTIES),
+            JACKSON_CASE_INSENSITIVE_PROPERTIES,
+            this.getDelegate()::setCaseInsensitiveProperties);
+        processJacksonPropertiesSettingBoolean(getConfigurationValue(JACKSON_FAIL_ON_UNKNOWN_PROPERTIES),
+            JACKSON_FAIL_ON_UNKNOWN_PROPERTIES,
+            this.getDelegate()::setFailOnUnknownProperties);
+        processJacksonPropertiesSettingBoolean(getConfigurationValue(JACKSON_FAIL_ON_EMPTY_BEANS),
+            JACKSON_FAIL_ON_EMPTY_BEANS,
+            this.getDelegate()::setFailOnEmptyBeans);
+
         processJacksonDefaultDateFormatSetting(getConfigurationValue(JACKSON_DEFAULT_DATE_FORMAT));
         processJacksonDefaultTypingModeSetting(getConfigurationValue(JACKSON_DEFAULT_TYPING_MODE));
         processJacksonSerializationInclusionSetting(getConfigurationValue(JACKSON_SERIALIZATION_INCLUSION));

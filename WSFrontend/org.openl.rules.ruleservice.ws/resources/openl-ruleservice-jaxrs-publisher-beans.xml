@@ -32,6 +32,7 @@
         <property name="caseInsensitiveProperties" value="${ruleservice.jackson.caseInsensitiveProperties}"/>
         <property name="defaultDateFormatAsString" value="${ruleservice.jackson.defaultDateFormat}"/>
         <property name="failOnUnknownProperties" value="${ruleservice.jackson.failOnUnknownProperties}"/>
+        <property name="failOnEmptyBeans" value="${ruleservice.jackson.failOnEmptyBeans}"/>
         <property name="defaultTypingMode" value="${ruleservice.jackson.defaultTypingMode}"/>
         <property name="supportVariations" value="${ruleservice.isSupportVariations}"/>
         <property name="serializationInclusion" value="${ruleservice.jackson.serializationInclusion}"/>
