@@ -11,7 +11,7 @@
     <name>ITEST - Spring Boot: Application</name>
 
     <properties>
-        <spring-boot.version>2.6.2</spring-boot.version>
+        <spring-boot.version>2.6.3</spring-boot.version>
     </properties>
 
     <dependencies>
