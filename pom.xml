@@ -101,7 +101,7 @@
         <!-- it needs to wait when it will be fixed or exclude this field from mapping via MixIn -->
         <io.swagger.core.v3.version>2.1.3</io.swagger.core.v3.version>
         <log4j.version>2.17.1</log4j.version>
-        <org.slf4j.version>1.7.32</org.slf4j.version>
+        <org.slf4j.version>1.7.36</org.slf4j.version>
         <org.apache.poi.version>5.2.0</org.apache.poi.version>
         <org.bouncycastle.version>1.70</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.13.1</com.fasterxml.jackson.version>
@@ -109,13 +109,13 @@
         <com.icegreen.greenmail.version>1.6.5</com.icegreen.greenmail.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.44.v20210927</jetty.server.version>
+        <jetty.server.version>9.4.45.v20220203</jetty.server.version>
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
         <org.apache.avro.version>1.10.0</org.apache.avro.version>
         <org.apache.zookeeper.version>3.7.0</org.apache.zookeeper.version>
         <org.apache.thrift.version>0.13.0</org.apache.thrift.version>
         <org.apache.ant.version>1.10.12</org.apache.ant.version>
-        <io.netty.version>4.1.73.Final</io.netty.version>
+        <io.netty.version>4.1.74.Final</io.netty.version>
         <owasp.version>6.5.3</owasp.version>
         <groovy.version>3.0.9</groovy.version>
         <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
@@ -175,7 +175,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-archetype-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.2.1</version>
                     <configuration>
                         <skip>true</skip>
                     </configuration>
@@ -188,7 +188,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -213,17 +213,17 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-scm-plugin</artifactId>
-                    <version>1.11.2</version>
+                    <version>1.12.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.8.1</version>
+                    <version>3.9.0</version>
                     <configuration>
                         <release>11</release>
                     </configuration>
@@ -261,7 +261,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.2.2</version>
                     <configuration>
                         <skipIfEmpty>true</skipIfEmpty>
                         <archive>
@@ -279,7 +279,7 @@
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
                     <artifactId>duplicate-finder-maven-plugin</artifactId>
-                    <version>1.5.0</version>
+                    <version>1.5.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -289,7 +289,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-invoker-plugin</artifactId>
-                    <version>3.2.1</version>
+                    <version>3.2.2</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.gmaven</groupId>
@@ -299,12 +299,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.2.1</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.9.1</version>
+                    <version>3.10.0</version>
                     <configuration>
                         <siteDirectory>${basedir}/site</siteDirectory>
                     </configuration>
@@ -348,7 +348,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>1.4</version>
+                <version>3.0.0</version>
                 <configuration>
                     <timestampPropertyName>build.date</timestampPropertyName>
                     <timestampFormat>{0,date,yyyy-MM-dd}</timestampFormat>
@@ -430,7 +430,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>0.8.5</version>
+                        <version>0.8.7</version>
                         <configuration>
                             <propertyName>jacoco.argLine</propertyName>
                             <includes>
@@ -507,7 +507,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.2.0</version>
+                        <version>3.3.2</version>
                         <configuration>
                             <!-- To skip invalid HTML4 tags -->
                             <!-- http://openjdk.java.net/jeps/172 -->
@@ -703,7 +703,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>4.2.0</version>
+                <version>4.3.1</version>
                 <scope>test</scope>
             </dependency>
             <!-- Apache Velocity is a general purpose template engine. -->
@@ -1002,7 +1002,7 @@
             <dependency>
                 <groupId>com.helger</groupId>
                 <artifactId>jcodemodel</artifactId>
-                <version>3.4.0</version>
+                <version>3.4.1</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.annotation</groupId>
@@ -1075,8 +1075,7 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <!--<version>4.1.3</version> does not work with swagger-jaxrs <version>1.6.3</version>. Required queryConfigEnabled property is not supported. -->
-                <version>4.1.2</version>
+                <version>4.5.0</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.oss</groupId>
@@ -1173,7 +1172,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.18</version>
+                <version>1.4.19</version>
             </dependency>
             <!-- graph-theory data structures and algorithms. -->
             <dependency>
@@ -1296,7 +1295,7 @@
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
-                <version>9.4.1.jre8</version>
+                <version>10.2.0.jre8</version>
             </dependency>
             <!-- the Java in-memory SQL DB -->
             <dependency>
@@ -1424,7 +1423,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.29</version>
+                <version>1.30</version>
             </dependency>
             <!-- Jakarta Mail Api for SMTP server connection, depends on Jakarta Activation -->
             <dependency>
