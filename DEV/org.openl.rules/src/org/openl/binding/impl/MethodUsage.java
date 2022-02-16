@@ -10,8 +10,6 @@ import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IOpenMethod;
-import org.openl.types.java.JavaOpenClass;
-import org.openl.types.java.JavaOpenConstructor;
 
 public class MethodUsage implements NodeUsage {
     private final int startPos;
@@ -92,9 +90,6 @@ public class MethodUsage implements NodeUsage {
     @Override
     public String getDescription() {
         StringBuilder buff = new StringBuilder();
-        if (method instanceof JavaOpenConstructor && method.getDeclaringClass() instanceof JavaOpenClass) {
-            buff.append(method.getDeclaringClass().getPackageName()).append('\n');
-        }
         MethodUtil.printMethod(method, buff);
         return buff.toString();
     }

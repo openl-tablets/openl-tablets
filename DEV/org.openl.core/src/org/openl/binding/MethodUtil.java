@@ -1,12 +1,7 @@
-/*
- * Created on Jun 3, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -14,6 +9,7 @@ import org.openl.base.INamedThing;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.print.DefaultFormat;
 
@@ -39,6 +35,35 @@ public final class MethodUtil {
         return buf;
     }
 
+    public static String printConstructorWithNamedParameters(IOpenMethodHeader method, Map<String, IOpenClass> params) {
+        StringBuilder buf = new StringBuilder();
+        if (method.getDeclaringClass() instanceof JavaOpenClass) {
+            buf.append(method.getDeclaringClass().getPackageName()).append('\n');
+        }
+        buf.append(DEFAULT_TYPE_CONVERTER.apply(method.getType())).append(' ');
+        String prefix = "";
+        buf.append('(');
+        for (Map.Entry<String, IOpenClass> name : params.entrySet()) {
+            buf.append(prefix);
+            prefix = ", ";
+            buf.append(DEFAULT_TYPE_CONVERTER.apply(name.getValue())).append(" ").append(name.getKey());
+        }
+        endPrintingMethodName(buf);
+        return buf.toString();
+    }
+
+    public static String printConstructor(IOpenMethodHeader method) {
+        StringBuilder buf = new StringBuilder();
+        if (method.getDeclaringClass() instanceof JavaOpenClass) {
+            buf.append(method.getDeclaringClass().getPackageName()).append('\n');
+        }
+        buf.append(DEFAULT_TYPE_CONVERTER.apply(method.getType())).append(' ');
+        buf.append('(');
+        printParameters(method, buf, DEFAULT_TYPE_CONVERTER);
+        endPrintingMethodName(buf);
+        return buf.toString();
+    }
+
     public static String printSignature(IOpenMethodHeader methodHeader, final int mode) {
         StringBuilder buf = new StringBuilder();
         Function<IOpenClass, String> typeConverter = (e) -> e.getDisplayName(mode);
@@ -54,11 +79,13 @@ public final class MethodUtil {
     private static void printMethod(IOpenMethodHeader methodHeader,
             StringBuilder buf,
             Function<IOpenClass, String> typeConverter) {
-
         startPrintingMethodName(methodHeader.getName(), buf);
+        printParameters(methodHeader, buf, typeConverter);
+        endPrintingMethodName(buf);
+    }
 
+    private static void printParameters(IOpenMethodHeader methodHeader, StringBuilder buf, Function<IOpenClass, String> typeConverter){
         IMethodSignature signature = methodHeader.getSignature();
-
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             String type = typeConverter.apply(signature.getParameterType(i));
             String name = signature.getParameterName(i);
@@ -78,8 +105,6 @@ public final class MethodUtil {
                 buf.append(name);
             }
         }
-
-        endPrintingMethodName(buf);
     }
 
     public static String printMethod(String name, Class<?>[] params, boolean shortClassNames) {
