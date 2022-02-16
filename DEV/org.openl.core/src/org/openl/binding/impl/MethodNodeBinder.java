@@ -1,22 +1,31 @@
 package org.openl.binding.impl;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.ILocalVar;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.binding.impl.cast.AutoCastFactory;
 import org.openl.binding.impl.cast.AutoCastReturnType;
 import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificOpenField;
 import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
+import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
@@ -88,12 +97,17 @@ public class MethodNodeBinder extends ANodeBinder {
         ISyntaxNode lastNode = node.getChild(childrenCount - 1);
 
         String methodName = ((IdentifierNode) lastNode).getIdentifier();
+        IOpenClass[] parameterTypes = IOpenClass.EMPTY;
 
+        bindingContext.pushErrors();
+        bindingContext.pushMessages();
         IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
-        if (hasErrorBoundNode(children)) {
-            return new ErrorBoundNode(node);
-        }
-        IOpenClass[] parameterTypes = getTypes(children);
+        List<SyntaxNodeException> syntaxNodeExceptions = bindingContext.popErrors();
+        Collection<OpenLMessage> openLMessages = bindingContext.popMessages();
+
+        if (syntaxNodeExceptions.isEmpty()) {
+
+        parameterTypes = getTypes(children);
 
         IMethodCaller methodCaller = bindingContext
             .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
@@ -102,6 +116,7 @@ public class MethodNodeBinder extends ANodeBinder {
         methodCaller = autoCastReturnTypeWrap(bindingContext, methodCaller, parameterTypes);
 
         if (methodCaller != null && noArrayOneElementCast(methodCaller)) {
+            bindingContext.addMessages(openLMessages);
             log(methodName, parameterTypes, "entirely appropriate by signature method");
             return new MethodBoundNode(node, methodCaller, children);
         }
@@ -125,11 +140,13 @@ public class MethodNodeBinder extends ANodeBinder {
                 children);
 
             if (arrayArgumentsMethod != null) {
+                bindingContext.addMessages(openLMessages);
                 log(methodName, parameterTypes, "array argument method");
                 return arrayArgumentsMethod;
             }
 
             if (methodCaller != null) {
+                bindingContext.addMessages(openLMessages);
                 log(methodName, parameterTypes, "entirely appropriate by signature method");
                 return new MethodBoundNode(node, methodCaller, children);
             }
@@ -150,14 +167,77 @@ public class MethodNodeBinder extends ANodeBinder {
                 dims,
                 bindingContext);
             if (field != null) {
+                bindingContext.addMessages(openLMessages);
                 return field;
             }
-
-            throw new MethodNotFoundException(methodName, parameterTypes);
+        }
         }
 
-        // There are no other variants - so error.
+        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, methodName);
+        Optional<IBoundNode> iBoundNode = Optional.ofNullable(type)
+            .map(t -> makeDatatypeConstructor(node, bindingContext, t));
+        if (iBoundNode.isPresent()) {
+            return iBoundNode.get();
+        }
+
+        bindingContext.addMessages(openLMessages);
+        if (!syntaxNodeExceptions.isEmpty()) {
+            syntaxNodeExceptions.forEach(bindingContext::addError);
+            return new ErrorBoundNode(node);
+        }
+
         throw new MethodNotFoundException(methodName, parameterTypes);
+    }
+
+    private IBoundNode makeDatatypeConstructor(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) {
+        List<IBoundNode> params = new ArrayList<>();
+        List<String> namedParams = new ArrayList<>();
+        boolean isAllParamsAssign = true;
+        try {
+            bindingContext.pushLocalVarContext();
+            ILocalVar localVar = bindingContext
+                .addVar(ISyntaxConstants.THIS_NAMESPACE, bindingContext.getTemporaryVarName(), type);
+            TypeBindingContext varBindingContext = TypeBindingContext.create(bindingContext, localVar, 1);
+            for (int i = 0; i < node.getNumberOfChildren() - 1; i++) {
+                ISyntaxNode child = node.getChild(i);
+                String childType = child.getType();
+                if ("op.assign".equals(childType)) {
+                    IBoundNode iBoundNode = bindChildNode(child, varBindingContext);
+                    String paramName = child.getChild(0).getText();
+                    if (namedParams.contains(paramName)) {
+                        isAllParamsAssign = false;
+                    }
+                    namedParams.add(paramName);
+                    params.add(iBoundNode);
+                } else {
+                    isAllParamsAssign = false;
+                    IBoundNode iBoundNode = bindChildNode(child, bindingContext);
+                    params.add(iBoundNode);
+                }
+            }
+            if (isAllParamsAssign && namedParams.stream().allMatch(n -> type.getField(n) != null)) {
+                IMethodCaller methodCaller = MethodSearch.findConstructor(IOpenClass.EMPTY, bindingContext, type);
+                MethodBoundNode methodBoundNode = new MethodBoundNode(node, methodCaller);
+                return new ConstructorNamedParamsNode(localVar, methodBoundNode, params.toArray(IBoundNode.EMPTY));
+            } else if (!Date.class.getName().equals(type.getName())) {
+                IBoundNode[] children = params.toArray(IBoundNode.EMPTY);
+                if (hasErrorBoundNode(children)) {
+                    return new ErrorBoundNode(node);
+                }
+                IOpenClass[] types = getTypes(children);
+                IMethodCaller methodCaller = MethodSearch.findConstructor(types, bindingContext, type);
+
+                if (methodCaller != null) {
+                    BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
+                    return new ConstructorParamsNode(
+                        new MethodBoundNode(node, methodCaller, params.toArray(IBoundNode.EMPTY)));
+                }
+
+            }
+        } finally {
+            bindingContext.popLocalVarContext();
+        }
+        return null;
     }
 
     private boolean noArrayOneElementCast(IMethodCaller methodCaller) {
