@@ -1,7 +1,3 @@
-/*
- * Created on May 19, 2003 Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
@@ -60,7 +56,7 @@ public class NewNodeBinder extends ANodeBinder {
             return makeErrorNode(MessageUtils.getConstructorNotFoundMessage(constructor), typeNode, bindingContext);
         }
 
-        return new MethodBoundNode(node, methodCaller, children);
+        return new ConstructorParamsNode(new MethodBoundNode(typeNode, methodCaller, children));
     }
 
 }
