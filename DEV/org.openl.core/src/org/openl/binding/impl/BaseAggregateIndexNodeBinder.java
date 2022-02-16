@@ -18,20 +18,6 @@ import org.openl.types.NullOpenClass;
  */
 public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
 
-    /**
-     * Analyzes the binding context and returns the name for internal/temporary/service variable with the name:
-     * varNamePrefix + '$' + available_index.
-     */
-    private static String getTemporaryVarName(IBindingContext bindingContext) {
-        int index = 0;
-        String tmpVarName = "tmp$";
-        while (bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, tmpVarName, true) != null) {
-            tmpVarName = "tmp$" + index;
-            index++;
-        }
-        return tmpVarName;
-    }
-
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         return makeErrorNode("This node always binds with target", node, bindingContext);
@@ -69,7 +55,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
         if (numberOfChildren == 1) {
             expressionNode = node.getChild(0);
 
-            varName = getTemporaryVarName(bindingContext);
+            varName = bindingContext.getTemporaryVarName();
             varType = componentType;
         } else {
             expressionNode = node.getChild(1);
