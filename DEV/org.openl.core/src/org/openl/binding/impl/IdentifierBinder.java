@@ -26,7 +26,7 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class IdentifierBinder extends ANodeBinder {
 
-    protected IBoundNode bindAsOpenField(ISyntaxNode node, boolean strictMatch, IBindingContext bindingContext) {
+    protected FieldBoundNode bindAsOpenField(ISyntaxNode node, boolean strictMatch, IBindingContext bindingContext) {
         String fieldName = node.getText();
 
         // According to "6.4.2. Obscuring" of Java Language Specification:
@@ -48,7 +48,7 @@ public class IdentifierBinder extends ANodeBinder {
         return null;
     }
 
-    protected IBoundNode bindAsType(ISyntaxNode node, IBindingContext bindingContext) {
+    protected TypeBoundNode bindAsType(ISyntaxNode node, IBindingContext bindingContext) {
         String typeName = node.getText();
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
         if (type != null) {
@@ -61,18 +61,21 @@ public class IdentifierBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-        IBoundNode fieldBoundNode = bindAsOpenField(node, true, bindingContext);
-        if (fieldBoundNode != null) {
-            return fieldBoundNode;
+        IBoundNode caseSensitive = bindAsOpenField(node, true, bindingContext);
+        if (caseSensitive != null) {
+            return caseSensitive;
         }
 
         IBoundNode typeBoundNode = bindAsType(node, bindingContext);
         if (typeBoundNode != null) {
             return typeBoundNode;
         }
-        fieldBoundNode = bindAsOpenField(node, false, bindingContext);
-        if (fieldBoundNode != null) {
-            return fieldBoundNode;
+        FieldBoundNode caseInsensitive = bindAsOpenField(node, false, bindingContext);
+        if (caseInsensitive != null) {
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
+                String.format("Case insensitive matching to '%s'.", caseInsensitive.getFieldName()),
+                node));
+            return caseInsensitive;
         }
         throw new OpenlNotCheckedException(String.format("Identifier '%s' is not found.", node.getText()));
     }

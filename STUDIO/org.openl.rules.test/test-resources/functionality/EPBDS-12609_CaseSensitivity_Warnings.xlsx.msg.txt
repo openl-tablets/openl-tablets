@@ -1,0 +1,10 @@
+WARN: Case insensitive matching to 'param1'.
+WARN: Case insensitive matching to 'A'.
+WARN: Case insensitive matching to 'A'.
+WARN: Case insensitive matching to 'A'.
+WARN: Case insensitive matching to 'strField'.
+WARN: Case insensitive matching to 'strParam'.
+WARN: Case insensitive matching to 'Param1'.
+WARN: Case insensitive matching to 'P1'.
+WARN: Case insensitive matching to 'P1'.
+WARN: Case insensitive matching to 'P1'.
