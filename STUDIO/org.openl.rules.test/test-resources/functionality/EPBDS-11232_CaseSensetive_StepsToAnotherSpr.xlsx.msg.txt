@@ -3,3 +3,6 @@ ERROR: Field '$paraM1' is not found in type 'SpreadsheetResultsecondSpr'.
 ERROR: Field '$PaRam2' is not found in type 'SpreadsheetResultsecondSpr'.
 ERROR: Field 'aMBaR' is ambiguous:
 ERROR: Field '$PaRam2' is not found in type 'SpreadsheetResultsecondSpr'.
+WARN: Case insensitive matching to '$callMethod'.
+WARN: Case insensitive matching to 'foo'.
+WARN: Case insensitive matching to 'a'.
