@@ -21,6 +21,7 @@ import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 
@@ -29,7 +30,7 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
  *
  * @author Eugene Biruk
  */
-public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlAuthenticationProvider.ResponseToken, Saml2Authentication> {
+public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> {
 
     private final Function<SimpleUser, SimpleUser> authoritiesMapper;
     private final PropertyResolver propertyResolver;
@@ -47,7 +48,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSamlA
      * @return Saml2Authentication
      */
     @Override
-    public Saml2Authentication convert(OpenSamlAuthenticationProvider.ResponseToken responseToken) {
+    public Saml2Authentication convert(OpenSaml4AuthenticationProvider.ResponseToken responseToken) {
         Assertion assertion = responseToken.getResponse().getAssertions().iterator().next();
         String username = assertion.getSubject().getNameID().getValue();
         SimpleUserSamlBuilder simpleUserBuilder = new SimpleUserSamlBuilder(propertyResolver);

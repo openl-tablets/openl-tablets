@@ -89,7 +89,7 @@
     <util:list id="logoutHandlers">
         <bean class="org.openl.security.saml.SamlLogoutSuccessHandler">
             <constructor-arg name="requestResolver">
-                <bean class="org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml3LogoutRequestResolver">
+                <bean class="org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver">
                     <constructor-arg name="relyingPartyRegistrationResolver" ref="relyingPartyRegistrationResolver"/>
                 </bean>
             </constructor-arg>
@@ -151,7 +151,7 @@
           class="org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter">
         <constructor-arg name="authenticationRequestContextResolver" ref="authenticationRequestContextResolver"/>
         <constructor-arg name="authenticationRequestFactory">
-            <bean class="org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory"/>
+            <bean class="org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory"/>
         </constructor-arg>
     </bean>
 
@@ -176,10 +176,8 @@
         <property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy"/>
     </bean>
 
-    <!-- In order not to use deprecated classes, you need to update to the opensaml library to version 4.1.1,
-    which is now only in the repository https://build.shibboleth.net/nexus/content/repositories/releases -->
     <bean id="samlAuthenticationProvider"
-          class="org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider">
+          class="org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider">
         <property name="responseAuthenticationConverter" ref="responseAuthenticationConverter"/>
     </bean>
 
