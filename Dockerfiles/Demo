@@ -19,23 +19,23 @@ RUN set -eux ; \
     unzip -q demo.zip ; \
     rm demo.zip ; \
     \
-    demoDir=$(ls | grep apache-tomcat-) ; \
+    demoDir=$(ls | grep jetty-) ; \
     mv "$demoDir" /demo ; \
     \
     cd demo/webapps ; \
-    unzip -q webservice.war -d webservice ; \
-    unzip -q webstudio.war -d webstudio ; \
-    rm *.war ; \
     \
 # Permission for rootless mode (for running as non-root)
     cd .. ; \
-    chmod 777 logs temp work ; \
+    touch jetty.state; \
+    chmod 777 logs jetty.state; \
+    chmod 777 logs; \
     chmod 777 -R openl-demo
 
 FROM ubuntu:focal
 
 # Copy Java
 ENV JAVA_HOME /opt/java/openjdk
+ENV JAVA $JAVA_HOME/bin/java
 COPY --from=eclipse-temurin:11-jre-focal $JAVA_HOME $JAVA_HOME
 
 # Install fonts required for Apache POI (export into Excel with autowidth of columns)
@@ -49,11 +49,11 @@ RUN set -eux ; \
 RUN useradd -r -m -U -s /usr/sbin/nologin openl
 USER openl
 
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=90.0"
+ENV JAVA_OPTIONS "$JAVA_OPTIONS $JAVA_OPTS -XX:MaxRAMPercentage=90.0"
 
 EXPOSE 8080
-#Start Tomcat
-CMD export CATALINA_OPTS="-Dopenl.home=./openl-demo -Dws.port=8080 $CATALINA_OPTS" && sh bin/catalina.sh start && tail -f /dev/null
+#Start Jetty
+CMD export JETTY_ARGS="-Dopenl.home=./openl-demo -Dws.port=8080 $JETTY_ARGS" && bin/jetty.sh run && tail -f /dev/null
 
 COPY --from=0 /demo /demo
 WORKDIR /demo

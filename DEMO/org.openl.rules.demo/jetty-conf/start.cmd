@@ -39,7 +39,7 @@
   @echo       Neither the JAVA_HOME nor the JRE_HOME environment variable is defined
   @echo       At least one of these environment variable is needed to run this program
   @echo.
-  @echo       !!!    JRE_HOME variable is not set 
+  @echo       !!!    JRE_HOME variable is not set
   @echo.
   @echo       You can define this variable in this file "start.cmd"
   @echo       The first line should be like this:
@@ -97,9 +97,11 @@ rem SUBROUTINES
 
 :start
 @rem check JAVA installation and save valid JRE_HOME
-@setlocal & pushd %~dp0 & call bin\setclasspath.bat > NUL & popd & endlocal & if errorlevel 1 exit /b 1 & endlocal
-@setlocal & pushd %~dp0 & call bin\setclasspath.bat & popd
-@endlocal & set _JRE_HOME=%JRE_HOME%
+@if not %JAVA_HOME% == "" set "JRE_HOME=%JAVA_HOME%"
+@if not %JRE_HOME% == "" if exist "%JRE_HOME%\bin\java.exe" goto :javaFound
+@exit /b 1 & endlocal
+:javaFound
+@set _JRE_HOME=%JRE_HOME%
 
 @rem Determine Java version
 @pushd "%_JRE_HOME%"
@@ -125,7 +127,7 @@ rem SUBROUTINES
 @if "%_MEMORY%" == "" set _MEMORY=0
 set _MEMORY=%_MEMORY:~0,-9%
 
-%if not defined _JAVA_MEMORY (
+@if not defined _JAVA_MEMORY (
 @rem default memory settings
 @set _JAVA_MEMORY=-Xms256m -Xmx512m
 
@@ -189,20 +191,21 @@ echo.
 @pushd %~dp0
 
 @rem Apply security policy for demo
-@if exist demo-java.policy set CATALINA_OPTS=%CATALINA_OPTS% -Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=%JAVA_EXTENSIONS_DIR%
+@if exist demo-java.policy set JETTY_OPT=%JETTY_OPT% -Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=%JAVA_EXTENSIONS_DIR%
 
-@rem Run Apache Tomcat
+@rem Run Jetty
 @echo.
 @echo ### Starting OpenL Tablets DEMO ...
 @echo.
 @set JAVA_OPTS=%JAVA_OPTS% %_JAVA_MEMORY% %_JAVA_OPTS%
-@set CATALINA_OPTS=-DDEMO=DEMO -Dopenl.home=./openl-demo -Dws.port=8080 -Dh2.bindAddress=localhost %CATALINA_OPTS%
+@set JETTY_OPT=-DDEMO=DEMO -Dopenl.home=./openl-demo -Dws.port=8080 -Dh2.bindAddress=localhost %JETTY_OPT%
 @echo Memory size:           "%_MEMORY%GBytes"
 @echo Java version:          "%_JAVA_VERSION%"
 @echo Using JRE_HOME:        "%_JRE_HOME%"
 @echo Using JAVA_OPTS:       "%JAVA_OPTS%"
-@echo Using CATALINA_OPTS:   "%CATALINA_OPTS%"
-@call bin\startup.bat
+@echo Using JETTY_OPT:   "%JETTY_OPT%"
+
+%JRE_HOME%\bin\java.exe %JAVA_OPTS% %JETTY_OPT% -Djetty.home=. -Djetty.base=. -Djava.io.tmpdir=%TEMP% -jar start.jar jetty.state=jetty.state jetty-started.xml
 
 @popd
 @exit /b 0 & endlocal

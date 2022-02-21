@@ -1,5 +1,5 @@
 // These permissions apply to the server startup code
-grant codeBase "file:${catalina.home}/bin/bootstrap.jar" {
+grant codeBase "file:${jetty.home}/start.jar" {
         permission java.security.AllPermission;
 };
 
@@ -7,26 +7,11 @@ grant codeBase "file:${catalina.home}/bin/bootstrap.jar" {
 // These permissions apply to the servlet API classes
 // and those that are shared across all class loaders
 // located in the "lib" directory
-grant codeBase "file:${catalina.home}/lib/-" {
+grant codeBase "file:${jetty.home}/lib/-" {
         permission java.security.AllPermission;
 };
 
-grant codeBase "file:${catalina.home}/bin/tomcat-juli.jar" {
-        permission java.security.AllPermission;
-};
-
-// WEBSTUDIO
-
-//permission for a specific jar file. change the path to your jar file
-//grant codeBase "file:${catalina.home}/openl-demo/user-workspace/DEFAULT/PROJECT_NAME/JAR_FILE_NAME" {
-            //permissions
-//};
-
-grant codeBase "file:${catalina.home}/webapps/webstudio/WEB-INF/-" {
-    //permission for a specific jar file should be duplicated here
-};
-
-grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
+grant codeBase "file:${jetty.home}/webapps/webstudio/-" {
 
         //Permission errors that occur but are not displayed in the logs and do not affect functionality
         //permission java.lang.RuntimePermission "defineClassInPackage.java.lang";
@@ -101,15 +86,18 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         //FileUtils
         permission java.io.FilePermission "${java.io.tmpdir}", "read,write,delete";
         permission java.io.FilePermission "${java.io.tmpdir}/-", "read,write,delete";
+        //Fix for MacOS
+        permission java.io.FilePermission "/private/${java.io.tmpdir}", "read,write,delete";
+        permission java.io.FilePermission "/private/${java.io.tmpdir}/-", "read,write,delete";
 
         permission java.io.FilePermission "${openl.home}", "read,write,delete";
         permission java.io.FilePermission "${openl.home}/-", "read,write,delete";
-        permission java.io.FilePermission "${catalina.base}/logs/-", "read,write,delete";
-        permission java.io.FilePermission "${catalina.base}/logs", "read,write,delete";
+        permission java.io.FilePermission "${jetty.home}/logs/-", "read,write,delete";
+        permission java.io.FilePermission "${jetty.home}/logs", "read,write,delete";
 
         //richfaces
-        permission java.io.FilePermission "${catalina.base}/-", "read";
-        permission java.io.FilePermission "${catalina.base}/", "read";
+        permission java.io.FilePermission "${jetty.home}/-", "read";
+        permission java.io.FilePermission "${jetty.home}/", "read";
 
         permission java.io.FilePermission "${java.home}/-", "read";
         permission java.util.PropertyPermission "*", "read,write";
@@ -129,7 +117,7 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         permission java.security.SecurityPermission "insertProvider.BC";
         permission java.security.SecurityPermission "putProviderProperty.BC";
 
-        //tomcat
+        //app server
         permission java.net.NetPermission "specifyStreamHandler";
 
         //docker
@@ -143,21 +131,11 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         permission java.lang.RuntimePermission "net.bytebuddy.createJavaDispatcher";
 
         permission org.hibernate.validator.HibernateValidatorPermission "accessPrivateMembers";
-
 };
 
 // WEBSERVICE
 
-//permission for a specific jar file. change the path to your jar file
-//grant codeBase "file:${catalina.home}/openl-demo/rules-deploy/PROJECT_NAME_VERSION/PROJECT_NAME/JAR_FILE_NAME" {
-        //permissions
-//};
-
-grant codeBase "file:${catalina.home}/webapps/webservice/WEB-INF/-" {
-    //permission for a specific jar file should be duplicated here
-};
-
-grant codeBase "file:${catalina.home}/webapps/webservice/-" {
+grant codeBase "file:${jetty.home}/webapps/webservice/-" {
         //accessClassInPackages
         permission java.lang.RuntimePermission "accessClassInPackage.org.apache.*";
         permission java.lang.RuntimePermission "accessClassInPackage.com.sun.*";
@@ -204,15 +182,18 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         //FileUtils
         permission java.io.FilePermission "${java.io.tmpdir}", "read,write,delete";
         permission java.io.FilePermission "${java.io.tmpdir}/-", "read,write,delete";
+        //Fix for MacOS
+        permission java.io.FilePermission "/private/${java.io.tmpdir}", "read,write,delete";
+        permission java.io.FilePermission "/private/${java.io.tmpdir}/-", "read,write,delete";
 
         permission java.io.FilePermission "${openl.home}", "read,write,delete";
         permission java.io.FilePermission "${openl.home}/-", "read,write,delete";
 
         //org.springframework.beans.factory
-        permission java.io.FilePermission "${catalina.base}", "read";
-        permission java.io.FilePermission "${catalina.base}/-", "read";
+        permission java.io.FilePermission "${jetty.home}", "read";
+        permission java.io.FilePermission "${jetty.home}/-", "read";
 
-        permission java.io.FilePermission "${catalina.base}/logs/-", "write,delete";
+        permission java.io.FilePermission "${jetty.home}/logs/-", "write,delete";
         permission java.io.FilePermission "${java.home}/-", "read";
         permission java.util.PropertyPermission "*", "read,write";
 
@@ -221,7 +202,7 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         permission javax.management.MBeanPermission "*", "*";
         permission javax.management.MBeanTrustPermission "register";
 
-        //tomcat
+        //app server
         permission java.net.NetPermission "specifyStreamHandler";
 
         //log4j
@@ -233,7 +214,7 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         permission java.lang.RuntimePermission "shutdownHooks";
 
         //ZipFileSystem for JDK 8 issue
-        permission java.io.FilePermission "${catalina.base}/lib/Example3-datasource.jar", "read,write";
+        permission java.io.FilePermission "${jetty.home}/lib/ext/Example3-datasource.jar", "read,write";
 
         // "/groovy/script" is used in GroovyClassLoader parseClass method
         permission groovy.security.GroovyCodeSourcePermission "/groovy/script";
