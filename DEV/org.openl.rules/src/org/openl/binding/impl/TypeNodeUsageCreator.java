@@ -50,7 +50,7 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
         IOpenClass componentOpenClass = OpenClassUtils.getRootComponentClass(type);
         TextInfo textInfo = new TextInfo(sourceString);
         int pstart = location.getStart().getAbsolutePosition(textInfo) + startIndex;
-        int pend = location.getEnd().getAbsolutePosition(textInfo) + startIndex;
+        int pend = location.getEnd().getAbsolutePosition(textInfo) + startIndex + 1; // 1 - is because location returns 'end' inclusively
         if (componentOpenClass instanceof JavaOpenClass) {
             StringBuilder description = new StringBuilder();
             if (StringUtils.isNotBlank(componentOpenClass.getPackageName())) {

@@ -6,6 +6,9 @@ package org.openl.binding.impl;
 public interface NodeUsage {
     int getStart();
 
+    /**
+     * @return the ending index, exclusive
+     */
     int getEnd();
 
     String getDescription();

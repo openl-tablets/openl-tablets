@@ -16,6 +16,9 @@ public class MethodUsage implements NodeUsage {
     private final int endPos;
     private final IOpenMethod method;
 
+    /**
+     * @param endPos the ending index position, exclusive
+     */
     public MethodUsage(int startPos, int endPos, IOpenMethod method) {
         this.startPos = startPos;
         this.endPos = endPos;
