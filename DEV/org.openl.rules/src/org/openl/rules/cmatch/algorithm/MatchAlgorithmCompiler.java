@@ -309,7 +309,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             ICell cell = grid.getCell(gridRegion.getLeft(), gridRegion.getTop());
             MetaInfoReader metaInfoReader = columnMatch.getSyntaxNode().getMetaInfoReader();
             if (metaInfoReader instanceof BaseMetaInfoReader) {
-                SimpleNodeUsage nodeUsage = RuleRowHelper.createConstantNodeUsage(constantOpenField, 0, s.length() - 1);
+                SimpleNodeUsage nodeUsage = RuleRowHelper.createConstantNodeUsage(constantOpenField, 0, s.length());
                 ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, nodeUsage);
             }
         }

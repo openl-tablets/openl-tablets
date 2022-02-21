@@ -10,6 +10,9 @@ package org.openl.util.text;
  */
 public interface ILocation {
 
+    /**
+     * @return the ending position, inclusive
+     */
     IPosition getEnd();
 
     IPosition getStart();

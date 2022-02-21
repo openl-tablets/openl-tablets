@@ -487,9 +487,9 @@ public final class RuleRowHelper {
             int startFrom = 0;
             for (String token : tokens) {
                 int start = cellValue.indexOf(token, startFrom);
-                startFrom = start + token.length() - 1;
+                startFrom = start + token.length();
                 if (token.equals(constantOpenField.getName())) {
-                    int end = start + constantOpenField.getName().length() - 1;
+                    int end = start + constantOpenField.getName().length();
                     SimpleNodeUsage nodeUsage = createConstantNodeUsage(constantOpenField, start, end);
                     ((BaseMetaInfoReader) metaInfoReader).addConstant(theValueCell, nodeUsage);
                 }

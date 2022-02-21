@@ -33,11 +33,12 @@ public class ConstructorNodeCreator implements NodeUsageCreator {
         IOpenMethod method = methodBoundNode.getMethodCaller().getMethod();
         ILocation location = syntaxNode.getSourceLocation();
         int pstart = startIndex + location.getStart().getAbsolutePosition(info);
-        if (sourceString.indexOf(method.getDeclaringClass().getPackageName()) == pstart - 1) { // -1 - is a start position calculated from 1
-            // shift start index if constructor calling start with packageName
-            pstart += method.getDeclaringClass().getPackageName().length() + 1; // +1 - is a dot
+        int pend = pstart;
+        if (sourceString.indexOf(method.getDeclaringClass().getPackageName()) == pstart) {
+            // shift end index if constructor calling start with packageName
+            pend += method.getDeclaringClass().getPackageName().length() + 1; // +1 - is a dot
         }
-        int pend = pstart + method.getDeclaringClass().getDisplayName(INamedThing.SHORT).length() - 1;
+        pend += method.getDeclaringClass().getDisplayName(INamedThing.SHORT).length();
         return Optional.of(new ConstructorUsage(constructorNode, pstart, pend, method));
     }
 

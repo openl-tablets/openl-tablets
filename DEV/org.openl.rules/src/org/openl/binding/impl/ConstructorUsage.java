@@ -11,6 +11,9 @@ public class ConstructorUsage extends MethodUsage {
 
     private final ConstructorNode constructorNode;
 
+    /**
+     * @param endPos the ending index position, exclusive
+     */
     public ConstructorUsage(ConstructorNode constructorNode, int startPos, int endPos, IOpenMethod method) {
         super(startPos, endPos, method);
         this.constructorNode = constructorNode;

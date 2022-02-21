@@ -171,7 +171,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
         ILocation typeLocation = syntaxNode.getSourceLocation();
         if (typeLocation != null) {
             int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
-            int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
+            int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because typeLocation returns 'end' inclusively
             return Optional.of(new SimpleNodeUsage(start, end, description, uri, NodeType.FIELD));
         }
         return Optional.empty();

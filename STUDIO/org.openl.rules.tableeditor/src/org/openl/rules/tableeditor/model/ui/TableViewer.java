@@ -178,12 +178,12 @@ public class TableViewer {
                         .append("\">");
                     if (addUri && tableUri != null) {
                         buff.append(
-                            linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend + 1)));
+                            linkBuilder.createLinkForTable(tableUri, formattedValue.substring(pstart, pend)));
                     } else {
-                        buff.append(escapeHtml4(formattedValue.substring(pstart, pend + 1)));
+                        buff.append(escapeHtml4(formattedValue.substring(pstart, pend)));
                     }
                     buff.append("<em>").append(escapeHtml4(nodeUsage.getDescription())).append("</em></span>");
-                    nextSymbolIndex = pend + 1;
+                    nextSymbolIndex = pend;
                 }
             }
             buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex)));

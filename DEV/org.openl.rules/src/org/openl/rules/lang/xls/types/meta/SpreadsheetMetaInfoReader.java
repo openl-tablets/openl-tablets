@@ -60,14 +60,14 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
                 int from = stringValue.indexOf('=');
                 if (from >= 0 && type != null) {
                     String description = "Cell type: " + MethodUtil.printType(type);
-                    nodeUsages.add(new SimpleNodeUsage(from, from, description, null, NodeType.OTHER));
+                    nodeUsages.add(new SimpleNodeUsage(from, from + 1, description, null, NodeType.OTHER));
                 }
+                from += 1; // next symbol after '=' or '{'
 
                 IOpenMethod method = spreadsheetCell.getMethod();
                 if (method instanceof CompositeMethod) {
-                    int startIndex = from + 1;
                     List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils
-                        .getNodeUsages((CompositeMethod) method, stringValue.substring(startIndex), startIndex);
+                        .getNodeUsages((CompositeMethod) method, stringValue, from);
                     nodeUsages.addAll(parsedNodeUsages);
                 }
             }

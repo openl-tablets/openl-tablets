@@ -83,7 +83,7 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
                     ILocation sourceLocation = paramTypeLocations[i];
                     TextInfo text = new TextInfo(value1.getMiddle());
                     int start = sourceLocation.getStart().getAbsolutePosition(text) - value1.getRight();
-                    int end = sourceLocation.getEnd().getAbsolutePosition(text) - value1.getRight();
+                    int end = sourceLocation.getEnd().getAbsolutePosition(text) - value1.getRight() + 1; // 1 - is because location returns 'end' inclusively
                     nodeUsages.add(new SimpleNodeUsage(start,
                         end,
                         metaInfo.getDisplayName(INamedThing.SHORT),
