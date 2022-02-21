@@ -57,17 +57,17 @@ fi
 
 
 
-[[ -f demo-java.policy ]] && CATALINA_OPTS="$CATALINA_OPTS -Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=$JAVA_EXTENSIONS_DIR"
+[[ -f demo-java.policy ]] && JETTY_OPTS="$JETTY_OPTS -Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=$JAVA_EXTENSIONS_DIR"
 
 export JAVA_OPTS="$JAVA_OPTS $_JAVA_MEMORY"
-export CATALINA_OPTS="-DDEMO=DEMO -Dopenl.home=./openl-demo -Dws.port=8080 -Dh2.bindAddress=localhost $CATALINA_OPTS"
+export JETTY_OPTS="-DDEMO=DEMO -Dopenl.home=./openl-demo -Dws.port=8080 -Dh2.bindAddress=localhost $JETTY_OPTS"
+export JAVA_OPTIONS="$JAVA_OPTS $JETTY_OPTS $JAVA_OPTIONS"
 
 echo "### Starting OpenL Tablets DEMO ..."
 echo "Memory size (gigabytes):    $memory"
 echo "Java version:               $version"
 echo "Java found in:              $used_java"
-echo "Using JAVA_OPTS:            $JAVA_OPTS"
-echo "Using CATALINA_OPTS:        $CATALINA_OPTS"
+echo "Using JAVA_OPTIONS:         $JAVA_OPTIONS"
 
 chmod +x bin/*.sh
-./bin/startup.sh
+./bin/jetty.sh start

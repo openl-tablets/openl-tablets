@@ -1,6 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<Context>
-    <!-- TODO Make all stored in session classes serializable and remove this file -->
-    <!-- Disable session persistence across Tomcat restarts as far as it is useless unless we make all stored in session classes serializable -->
-    <Manager pathname=""/>
-</Context>
