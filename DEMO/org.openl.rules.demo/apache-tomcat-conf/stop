@@ -1,7 +1,0 @@
-#!/bin/bash
-
-echo "STOP demo"
-
-cd -- "$(dirname -- "${BASH_SOURCE:-$0}")" || { echo "Failed to change directory."; exit 1; }
-
-./bin/shutdown.sh

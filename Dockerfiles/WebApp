@@ -10,28 +10,39 @@ ARG APP=target/webapp
 ENV JAVA_HOME /opt/java/openjdk
 COPY --from=jdk $JAVA_HOME $JAVA_HOME
 
-# Will be replaced on Jetty in 5.26
-# Copy Tomcat
-ENV CATALINA_HOME /usr/local/tomcat
-COPY --from=tomcat:9-jre11-temurin-focal $CATALINA_HOME $CATALINA_HOME
+ENV OPENL_DIR /opt/openl
+ENV OPENL_HOME $OPENL_DIR/local
+ENV OPENL_HOME_SHARED $OPENL_DIR/shared
+ENV OPENL_APP $OPENL_DIR/app
+ENV OPENL_LIB $OPENL_DIR/lib
 
-# Define executables
-ENV PATH $CATALINA_HOME/bin:$JAVA_HOME/bin:$PATH
+ENV JETTY_HOME $OPENL_APP
+ENV JETTY_BASE $OPENL_APP
 
-WORKDIR $CATALINA_HOME
-
-# Fix SEVERE error while running image via non-root user
-RUN mkdir -p conf/Catalina/localhost
-
-# Install fonts required for Apache POI (export into Excel with autowidth of columns)
+COPY --from=jetty:9-jre11-slim /usr/local/jetty $JETTY_HOME
+COPY --from=jetty:9-jre11-slim /var/lib/jetty $JETTY_BASE
 RUN set -eux ; \
+\
+# Create start file for Jetty with configuration options
+    mkdir $OPENL_LIB; \
+    ln -s $OPENL_LIB $JETTY_HOME/lib/ext; \
+    echo '#!/usr/bin/env bash\n\n\
+export JAVA_OPTIONS=$JAVA_OPTS\ $JAVA_OPTIONS\n \
+source $JETTY_HOME/bin/jetty.sh run\n' >> $JETTY_HOME/bin/start.sh; \
+    chmod +x $JETTY_HOME/bin/start.sh; \
+\
+# Install fonts required for Apache POI (export into Excel with autowidth of columns)
+    apt-get update; \
+    chmod +x ${JETTY_HOME}/bin/jetty.sh; \
     \
-    apt-get update ; \
     apt-get install -y --no-install-recommends \
     fontconfig ; \
     rm -rf /var/lib/apt/lists/*
 
-ENV OPENL_HOME /openl
+# Define executables
+ENV PATH $JETTY_HOME/bin:$JAVA_HOME/bin:$PATH
+
+ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
 
 # Create a system 'openl' user with home directory. Home directory is required for Java Prefs persistence to prevent
 # WARN spamming in the log.
@@ -41,15 +52,15 @@ RUN useradd -r -m -U -s /usr/sbin/nologin openl
 # It should be mounted on an external volume to persist application data between redeploying if it is required.
 # Do not confuse this with home directory of 'openl' user.
 RUN mkdir -p "$OPENL_HOME" && chown openl:openl "$OPENL_HOME"
+RUN mkdir -p "$OPENL_HOME_SHARED" && chown openl:openl "$OPENL_HOME_SHARED"
 # Will be uncomment in 5.26
 #USER openl
 
-ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
-
 EXPOSE 8080
-CMD ["catalina.sh", "run"]
+WORKDIR $JETTY_BASE
+
+CMD ["/bin/bash", "-c", "$JETTY_HOME/bin/start.sh"]
 
 COPY $APP webapps/ROOT
 
-WORKDIR $OPENL_HOME
-
+WORKDIR $OPENL_DIR
