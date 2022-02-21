@@ -10,11 +10,11 @@
     <fileSets>
         <fileSet>
             <directory>ROOT</directory>
-            <outputDirectory>${tomcat.webapps}/ROOT</outputDirectory>
+            <outputDirectory>${jetty.webapps}/ROOT</outputDirectory>
         </fileSet>
         <fileSet>
-            <directory>apache-tomcat-conf</directory>
-            <outputDirectory>${tomcat.root}</outputDirectory>
+            <directory>jetty-conf</directory>
+            <outputDirectory>${jetty.root}</outputDirectory>
             <includes>
                 <include>start</include>
                 <include>stop</include>
@@ -22,8 +22,8 @@
             <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
-            <directory>apache-tomcat-conf</directory>
-            <outputDirectory>${tomcat.root}</outputDirectory>
+            <directory>jetty-conf</directory>
+            <outputDirectory>${jetty.root}</outputDirectory>
             <excludes>
                 <exclude>start</exclude>
                 <exclude>stop</exclude>
@@ -31,7 +31,7 @@
         </fileSet>
         <fileSet>
             <directory>data</directory>
-            <outputDirectory>${tomcat.root}</outputDirectory>
+            <outputDirectory>${jetty.root}</outputDirectory>
             <excludes>
                 <exclude>openl-demo/repositories/design.git/</exclude>
             </excludes>
@@ -39,14 +39,14 @@
         <!-- .git folder is ignored by VCS and by maven-assembly-plugin. -->
         <fileSet>
             <directory>data/openl-demo/repositories/design.git</directory>
-            <outputDirectory>${tomcat.root}/openl-demo/repositories/design/.git</outputDirectory>
+            <outputDirectory>${jetty.root}/openl-demo/repositories/design/.git</outputDirectory>
         </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>org.apache.tomcat:tomcat</include>
+                    <include>org.eclipse.jetty:jetty-distribution</include>
             </includes>
             <unpack>true</unpack>
             <unpackOptions>
@@ -58,23 +58,23 @@
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>${tomcat.webapps}</outputDirectory>
+            <outputDirectory>${jetty.webapps}/webstudio</outputDirectory>
             <includes>
                 <include>org.openl.rules:org.openl.rules.webstudio</include>
             </includes>
-            <outputFileNameMapping>webstudio.war</outputFileNameMapping>
             <useProjectArtifact>false</useProjectArtifact>
+            <unpack>true</unpack>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>${tomcat.webapps}</outputDirectory>
+            <outputDirectory>${jetty.webapps}/webservice</outputDirectory>
             <includes>
                 <include>org.openl.rules:org.openl.rules.ruleservice.ws</include>
             </includes>
-            <outputFileNameMapping>webservice.war</outputFileNameMapping>
             <useProjectArtifact>false</useProjectArtifact>
+            <unpack>true</unpack>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>${tomcat.lib}</outputDirectory>
+            <outputDirectory>${jetty.lib}</outputDirectory>
             <includes>
                 <include>com.h2database:h2</include>
             </includes>
