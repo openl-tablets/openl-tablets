@@ -566,7 +566,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     MetaInfoReader metaInfoReader = tableSyntaxNode.getMetaInfoReader();
                     if (metaInfoReader instanceof BaseMetaInfoReader) {
                         SimpleNodeUsage nodeUsage = RuleRowHelper
-                            .createConstantNodeUsage(constantOpenField, 0, defaultValueCode.length() - 1);
+                            .createConstantNodeUsage(constantOpenField, 0, defaultValueCode.length());
                         ((BaseMetaInfoReader<?>) metaInfoReader).addConstant(cell, nodeUsage);
                     }
                 }

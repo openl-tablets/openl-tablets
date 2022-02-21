@@ -56,11 +56,7 @@ public class CellMetaInfo {
         this.usedNodes = usedNodes;
     }
 
-    private boolean hasNodeUsagesInCell() {
-        return CollectionUtils.isNotEmpty(getUsedNodes());
-    }
-
     public static boolean isCellContainsNodeUsages(CellMetaInfo metaInfo) {
-        return metaInfo != null && metaInfo.hasNodeUsagesInCell();
+        return metaInfo != null && CollectionUtils.isNotEmpty(metaInfo.getUsedNodes());
     }
 }

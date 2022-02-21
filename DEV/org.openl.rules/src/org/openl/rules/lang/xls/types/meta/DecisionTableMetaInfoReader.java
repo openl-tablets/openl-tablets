@@ -238,8 +238,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         int start = 0;
         int end = headerMetaInfos.size() > 1
                                              ? cellValue.indexOf(
-                                                 DecisionTableHelper.HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) - 1
-                                             : cellValue.length() - 1;
+                                                 DecisionTableHelper.HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)
+                                             : cellValue.length();
         List<SimpleNodeUsage> simpleNodeUsages = new ArrayList<>();
         for (HeaderMetaInfo headerMetaInfo : headerMetaInfos) {
             String text = headerToString.apply(headerMetaInfo);
@@ -250,7 +250,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 headerMetaInfo.getUrl() != null ? NodeType.OTHERUNDERLINED : NodeType.OTHER);
             simpleNodeUsages.add(simpleNodeUsage);
             start = end + 2;
-            end = cellValue.length() - 1;
+            end = cellValue.length();
         }
         setPreparedMetaInfo(row, col, new CellMetaInfo(JavaOpenClass.STRING, false, simpleNodeUsages));
     }
@@ -354,7 +354,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         String cellValue = grid.getCell(cellKey.getColumn(), cellKey.getRow()).getStringValue();
         if (StringUtils.isNotEmpty(cellValue)) {
             SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0,
-                cellValue.length() - 1,
+                cellValue.length(),
                 description,
                 null,
                 NodeType.OTHER);
@@ -382,7 +382,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             }
             ReturnMetaInfo returnMetaInfo = entry.getValue();
             SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(0,
-                stringValue.length() - 1,
+                stringValue.length(),
                 returnMetaInfo.getDetails(),
                 returnMetaInfo.getUri(),
                 returnMetaInfo.getUri() != null ? NodeType.OTHERUNDERLINED : NodeType.OTHER);

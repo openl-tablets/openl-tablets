@@ -46,7 +46,7 @@ final class MethodBoundNodeUsageCreator implements NodeUsageCreator {
             if (method instanceof ExecutableMethod || method instanceof MatchingOpenMethodDispatcher || method instanceof MethodDelegator) {
                 TextInfo info = new TextInfo(sourceString);
                 int pstart = location.getStart().getAbsolutePosition(info) + startIndex;
-                int pend = pstart + method.getName().length() - 1;
+                int pend = pstart + method.getName().length();
                 return Optional.of(new MethodUsage(pstart, pend, method));
             } else if (method instanceof JavaOpenConstructor && methodBoundNode.getSyntaxNode()
                 .getNumberOfChildren() > 0) {
@@ -55,11 +55,11 @@ final class MethodBoundNodeUsageCreator implements NodeUsageCreator {
                 location = methodBoundNode.getSyntaxNode().getChild(0).getSourceLocation();
                 if (location != null && location.isTextLocation()) {
                     int pstart = location.getStart().getAbsolutePosition(info) + startIndex;
-                    if (sourceString.indexOf(method.getDeclaringClass().getPackageName()) == pstart - 1) {
-                        // shift start index if constructor calling start with packageName
-                        pstart += method.getDeclaringClass().getPackageName().length() + 1;
-                    }
-                    int pend = pstart + method.getDeclaringClass().getDisplayName(INamedThing.SHORT).length() - 1;
+                    String x = sourceString.substring(pstart);
+                    int pend = pstart + x.indexOf(method.getDeclaringClass().getDisplayName(INamedThing.SHORT)) + method
+                        .getDeclaringClass()
+                        .getDisplayName(INamedThing.SHORT)
+                        .length();
                     return Optional.of(new MethodUsage(pstart, pend, method));
                 }
             }

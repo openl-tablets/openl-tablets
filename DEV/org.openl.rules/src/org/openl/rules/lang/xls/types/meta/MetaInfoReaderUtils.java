@@ -82,7 +82,7 @@ public class MetaInfoReaderUtils {
             } else {
                 metaInfoList.add(null);
             }
-            moduleStart = moduleEnd + 1;
+            moduleStart = moduleEnd + 1; // 1 - is EOL symbol between lines
         }
 
         return metaInfoList;

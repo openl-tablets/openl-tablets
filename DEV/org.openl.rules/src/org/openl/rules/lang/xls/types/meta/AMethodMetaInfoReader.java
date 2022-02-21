@@ -56,7 +56,7 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
         ILocation typeLocation = tableHeader.getTypeLocation();
         if (metaInfo != null && typeLocation != null) {
             int start = startPosition + typeLocation.getStart().getAbsolutePosition(tableHeaderText);
-            int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText);
+            int end = startPosition + typeLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because typeLocation returns 'end' inclusively
             nodeUsages.add(
                 new SimpleNodeUsage(
                     start,
@@ -84,7 +84,7 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
                 if (metaInfo != null) {
                     ILocation sourceLocation = paramTypeLocations[i];
                     int start = startPosition + sourceLocation.getStart().getAbsolutePosition(tableHeaderText);
-                    int end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText);
+                    int end = startPosition + sourceLocation.getEnd().getAbsolutePosition(tableHeaderText) + 1; // 1 - is because location returns 'end' inclusively
                     nodeUsages.add(new SimpleNodeUsage(start,
                         end,
                         metaInfo.getDisplayName(INamedThing.SHORT),
