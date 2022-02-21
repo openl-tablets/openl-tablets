@@ -5,8 +5,6 @@
 package org.openl.binding.impl;
 
 import java.lang.reflect.Modifier;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -14,6 +12,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.operator.Comparison;
+import org.openl.domain.IDomain;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -29,14 +28,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
     private static final Map<String, String> INVERSE_METHOD;
 
     static {
-        Map<String, String> inverseMethod = new HashMap<>();
-        inverseMethod.put("le", "ge");
-        inverseMethod.put("lt", "gt");
-        inverseMethod.put("ge", "le");
-        inverseMethod.put("gt", "lt");
-        inverseMethod.put("eq", "eq");
-        inverseMethod.put("add", "add");
-        INVERSE_METHOD = Collections.unmodifiableMap(inverseMethod);
+        INVERSE_METHOD = Map.of("le", "ge", "lt", "gt", "ge", "le", "gt", "lt", "eq", "eq", "add", "add");
     }
 
     public static IBoundNode bindOperator(ISyntaxNode node,
@@ -54,10 +46,15 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
 
         if (methodCaller instanceof CastingMethodCaller) {
             IOpenMethod method = methodCaller.getMethod();
-            if (("eq".equals(method.getName()) || "ne".equals(method.getName())) && method.getDeclaringClass().getInstanceClass() == Comparison.class) {
+            if (("eq".equals(method.getName()) || "ne".equals(method.getName())) && method.getDeclaringClass()
+                .getInstanceClass() == Comparison.class) {
                 IOpenClass[] parameterTypes = method.getSignature().getParameterTypes();
-                if (parameterTypes.length == 2 && parameterTypes[0].getInstanceClass() == Object.class && parameterTypes[1].getInstanceClass() == Object.class) {
-                    validateComparison(b1, b2, method, node, bindingContext);
+                if (parameterTypes.length == 2) {
+                    if (parameterTypes[0].getInstanceClass() == Object.class && parameterTypes[1]
+                        .getInstanceClass() == Object.class) {
+                        validateComparisonWithObjectIncluded(b1, b2, method, node, bindingContext);
+                    }
+                    validateComparisonLiteralWithDomainType(b1, b2, method, node, bindingContext);
                 }
             }
         }
@@ -65,7 +62,39 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
         return new BinaryOpNode(node, b1, b2, methodCaller);
     }
 
-    private static void validateComparison(IBoundNode b1, IBoundNode b2, IOpenMethod method, ISyntaxNode node, IBindingContext bindingContext) {
+    private static void validateComparisonLiteralWithDomainType(IBoundNode b1,
+            IBoundNode b2,
+            IOpenMethod method,
+            ISyntaxNode node,
+            IBindingContext bindingContext) {
+        validateComparisonLiteralWithDomainTypeInternal(b1, b2, method, node, bindingContext);
+        validateComparisonLiteralWithDomainTypeInternal(b2, b1, method, node, bindingContext);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void validateComparisonLiteralWithDomainTypeInternal(IBoundNode b1,
+            IBoundNode b2,
+            IOpenMethod method,
+            ISyntaxNode node,
+            IBindingContext bindingContext) {
+        if (b1.getType().getDomain() != null && b2 instanceof LiteralBoundNode) {
+            IDomain<Object> domain = (IDomain<Object>) b1.getType().getDomain();
+            LiteralBoundNode literalBoundNode = (LiteralBoundNode) b2;
+            if (literalBoundNode.getValue() != null && !domain.selectObject(literalBoundNode.getValue())) {
+                BindHelper.processWarn(String.format(
+                    "Warning: Object '%s' is outside of valid domain '%s'. The comparison always returns %s.",
+                    ((LiteralBoundNode) b2).getValue(),
+                    b1.getType().getName(),
+                    "ne".equals(method.getName())), node, bindingContext);
+            }
+        }
+    }
+
+    private static void validateComparisonWithObjectIncluded(IBoundNode b1,
+            IBoundNode b2,
+            IOpenMethod method,
+            ISyntaxNode node,
+            IBindingContext bindingContext) {
         IOpenClass b1Type = b1.getType();
         IOpenClass b2Type = b2.getType();
         if (!Objects.equals(b1Type, b2Type)) {
@@ -85,8 +114,11 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
             if (b2Final && b1InstanceClass.isAssignableFrom(b2InstanceClass)) {
                 return;
             }
-            BindHelper.processWarn(String.format("Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns %s.",
-                b1.getType().getName(), b2.getType().getName(), "ne".equals(method.getName())), node, bindingContext);
+            BindHelper.processWarn(String.format(
+                "Warning: Compared elements have different types ('%s', '%s'). Comparing these types always returns %s.",
+                b1.getType().getName(),
+                b2.getType().getName(),
+                "ne".equals(method.getName())), node, bindingContext);
         }
     }
 
