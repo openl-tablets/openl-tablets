@@ -564,4 +564,39 @@ public class SpreadsheetResult implements Serializable {
         }
         return v;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        SpreadsheetResult that = (SpreadsheetResult) o;
+        if (fieldsCoordinates == null) {
+            initFieldsCoordinates();
+        }
+        if (that.fieldsCoordinates == null) {
+            that.initFieldsCoordinates();
+        }
+        if (fieldsCoordinates.keySet().equals(that.fieldsCoordinates.keySet())) {
+            for (Entry<String, Point> entry : fieldsCoordinates.entrySet()) {
+                Object v = this.getFieldValue(entry.getKey());
+                Object thatV = that.getFieldValue(entry.getKey());
+                if (!Objects.deepEquals(v, thatV)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        if (fieldsCoordinates == null) {
+            initFieldsCoordinates();
+        }
+        return fieldsCoordinates.keySet().hashCode();
+    }
 }
