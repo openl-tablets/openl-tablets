@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +19,9 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 public final class OpenLFuzzyUtils {
+
+    private static final List<String> TOKENS_STRONG_MATCH = Arrays
+        .asList("at", "on", "for", "to", "with", "of", "on", "by", "from");
 
     private static final double ACCEPTABLE_SIMILARITY_VALUE = 0.86d;
     private static final int DEEP_LEVEL = 5;
@@ -384,11 +388,19 @@ public final class OpenLFuzzyUtils {
         }
 
         double[][][] distances = new double[tokensList.length][sourceTokens.length][];
+        boolean[] sm = new boolean[sourceTokens.length];
+        for (int k = 0; k < sourceTokens.length; k++) {
+            sm[k] = TOKENS_STRONG_MATCH.contains(sourceTokens[k]);
+        }
         for (int i = 0; i < tokensList.length; i++) {
             for (int k = 0; k < sourceTokens.length; k++) {
                 double[] w = new double[tokensList[i].length];
                 for (int q = 0; q < tokensList[i].length; q++) {
-                    w[q] = StringUtils.getJaroWinklerDistance(sourceTokens[k], tokensList[i][q]);
+                    if (sm[k] || TOKENS_STRONG_MATCH.contains(tokensList[i][q])) {
+                        w[q] = Objects.equals(sourceTokens[k], tokensList[i][q]) ? 1.0d : 0d;
+                    } else {
+                        w[q] = StringUtils.getJaroWinklerDistance(sourceTokens[k], tokensList[i][q]);
+                    }
                 }
                 distances[i][k] = w;
             }
