@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -11,8 +12,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Function;
@@ -29,7 +28,6 @@ import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.annotation.AnnotationUtils;
 
 /**
  * This class is similar to {@link ClassReader} from ASM framework. But it can be used only for interface generation.
@@ -219,20 +217,22 @@ public class InterfaceTransformer {
     }
 
     public static void processAnnotation(Annotation annotation, AnnotationVisitor av) {
-        Map<String, Object> annotationAttributes = AnnotationUtils.getAnnotationAttributes(annotation);
         if (av != null) {
-            for (Entry<String, Object> annotationAttribute : annotationAttributes.entrySet()) {
-                Object attributeValue = annotationAttribute.getValue();
-                Class<? extends Object> attributeType = attributeValue.getClass();
-                if (attributeType.isArray()) {
-                    AnnotationVisitor arrayVisitor = av.visitArray(annotationAttribute.getKey());
-                    Object[] array = (Object[]) attributeValue;
-                    for (Object o : array) {
-                        visitNonArrayAnnotationAttribute(arrayVisitor, null, o);
+            for (Method m : annotation.annotationType().getDeclaredMethods()) {
+                try {
+                    Object attributeValue = m.invoke(annotation);
+                    Class<? extends Object> attributeType = attributeValue.getClass();
+                    if (attributeType.isArray()) {
+                        AnnotationVisitor arrayVisitor = av.visitArray(m.getName());
+                        Object[] array = (Object[]) attributeValue;
+                        for (Object o : array) {
+                            visitNonArrayAnnotationAttribute(arrayVisitor, null, o);
+                        }
+                        arrayVisitor.visitEnd();
+                    } else {
+                        visitNonArrayAnnotationAttribute(av, m.getName(), attributeValue);
                     }
-                    arrayVisitor.visitEnd();
-                } else {
-                    visitNonArrayAnnotationAttribute(av, annotationAttribute.getKey(), annotationAttribute.getValue());
+                } catch (IllegalAccessException | InvocationTargetException ignored) {
                 }
             }
             av.visitEnd();
