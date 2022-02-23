@@ -3,7 +3,8 @@ package org.openl.rules.webstudio.service;
 import java.util.Collection;
 import java.util.List;
 
-import org.openl.rules.security.Privilege;
+import org.openl.rules.security.Group;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * External Groups service
@@ -23,7 +24,7 @@ public interface ExternalGroupService {
      * @param loginName username
      * @param externalGroups collections of new external groups.
      */
-    void mergeAllForUser(String loginName, Collection<Privilege> externalGroups);
+    void mergeAllForUser(String loginName, Collection<? extends GrantedAuthority> externalGroups);
 
     /**
      * Find all external groups for user
@@ -31,7 +32,7 @@ public interface ExternalGroupService {
      * @param loginName username
      * @return found collection of external group for user
      */
-    List<org.openl.rules.security.Group> findAllForUser(String loginName);
+    List<Group> findAllForUser(String loginName);
 
     /**
      * Count all external groups for user
@@ -47,7 +48,7 @@ public interface ExternalGroupService {
      * @param loginName username
      * @return found collection of external group for user
      */
-    List<org.openl.rules.security.Group> findMatchedForUser(String loginName);
+    List<Group> findMatchedForUser(String loginName);
 
     /**
      * Find all matched external groups for user. By matched means that the same internal groups exist
@@ -63,7 +64,7 @@ public interface ExternalGroupService {
      * @param loginName username
      * @return found collection of external group for user
      */
-    List<org.openl.rules.security.Group> findNotMatchedForUser(String loginName);
+    List<Group> findNotMatchedForUser(String loginName);
 
     /**
      * Find all not matched external groups for user. By not matched means that the same internal group doesn't exit
@@ -80,5 +81,5 @@ public interface ExternalGroupService {
      * @param limit max results number
      * @return collection of found external groups
      */
-    List<org.openl.rules.security.Group> findAllByName(String groupName, int limit);
+    List<Group> findAllByName(String groupName, int limit);
 }
