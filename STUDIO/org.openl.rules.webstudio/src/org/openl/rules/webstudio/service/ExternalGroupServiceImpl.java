@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.openl.rules.security.Group;
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.standalone.dao.ExternalGroupDao;
 import org.openl.rules.security.standalone.persistence.ExternalGroup;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,7 +38,7 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
 
     @Override
     @Transactional
-    public void mergeAllForUser(String loginName, Collection<Privilege> externalGroups) {
+    public void mergeAllForUser(String loginName, Collection<? extends GrantedAuthority> externalGroups) {
         externalGroupDao.deleteAllForUser(loginName);
         externalGroupDao.save(new BatchCreateExternalGroupCursor(loginName, externalGroups));
     }
@@ -100,16 +100,16 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
     private static class BatchCreateExternalGroupCursor implements Iterable<ExternalGroup> {
 
         private final String loginName;
-        private final Collection<Privilege> externalGroups;
+        private final Collection<? extends GrantedAuthority> externalGroups;
 
-        public BatchCreateExternalGroupCursor(String loginName, Collection<Privilege> externalGroups) {
+        public BatchCreateExternalGroupCursor(String loginName, Collection<? extends GrantedAuthority> externalGroups) {
             this.externalGroups = externalGroups;
             this.loginName = loginName;
         }
 
         @Override
         public Iterator<ExternalGroup> iterator() {
-            final Iterator<Privilege> it = externalGroups.iterator();
+            final Iterator<? extends GrantedAuthority> it = externalGroups.iterator();
             return new Iterator<ExternalGroup>() {
 
                 @Override
@@ -119,10 +119,10 @@ public class ExternalGroupServiceImpl implements ExternalGroupService {
 
                 @Override
                 public ExternalGroup next() {
-                    Privilege group = it.next();
+                    GrantedAuthority group = it.next();
                     ExternalGroup externalGroup = new ExternalGroup();
                     externalGroup.setLoginName(loginName);
-                    externalGroup.setGroupName(group.getName());
+                    externalGroup.setGroupName(group.getAuthority());
                     return externalGroup;
                 }
             };
