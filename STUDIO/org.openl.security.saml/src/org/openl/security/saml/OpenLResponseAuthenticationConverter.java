@@ -1,16 +1,18 @@
 package org.openl.security.saml;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.UserExternalFlags;
+import org.openl.rules.security.User;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.opensaml.core.xml.XMLObject;
@@ -20,6 +22,7 @@ import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
@@ -31,13 +34,16 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
  */
 public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4AuthenticationProvider.ResponseToken, Saml2Authentication> {
 
-    private final Function<SimpleUser, SimpleUser> authoritiesMapper;
+    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
+    private final Consumer<User> syncUserData;
     private final PropertyResolver propertyResolver;
 
     public OpenLResponseAuthenticationConverter(PropertyResolver propertyResolver,
-            Function<SimpleUser, SimpleUser> authoritiesMapper) {
+             Consumer<User> syncUserData,
+             BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.propertyResolver = propertyResolver;
-        this.authoritiesMapper = authoritiesMapper;
+        this.syncUserData = syncUserData;
+        this.privilegeMapper = privilegeMapper;
     }
 
     /**
@@ -49,18 +55,18 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
     @Override
     public Saml2Authentication convert(OpenSaml4AuthenticationProvider.ResponseToken responseToken) {
         Assertion assertion = responseToken.getResponse().getAssertions().iterator().next();
-        String username = assertion.getSubject().getNameID().getValue();
         SimpleUserSamlBuilder simpleUserBuilder = new SimpleUserSamlBuilder(propertyResolver);
         simpleUserBuilder.setAssertionAttributes(assertion);
+        simpleUserBuilder.setNameID(assertion.getSubject().getNameID().getValue());
         SimpleUser simpleUser = simpleUserBuilder.build();
-        simpleUser.setUsername(username);
-        simpleUser = authoritiesMapper.apply(simpleUser);
 
-        List<Privilege> privileges = new ArrayList<>(simpleUser.getAuthorities());
-        DefaultSaml2AuthenticatedPrincipal defaultSaml2AuthenticatedPrincipal = new DefaultSaml2AuthenticatedPrincipal(username, new HashMap<>());
-        defaultSaml2AuthenticatedPrincipal.setRelyingPartyRegistrationId(responseToken.getToken().getRelyingPartyRegistration().getRegistrationId());
-        return new Saml2Authentication(defaultSaml2AuthenticatedPrincipal,
-            responseToken.getToken().getSaml2Response(), privileges);
+        syncUserData.accept(simpleUser);
+
+        Collection<Privilege> privileges = privilegeMapper.apply(simpleUser.getUsername(), simpleUser.getAuthorities());
+
+        DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(simpleUser.getUsername(), Collections.emptyMap());
+        principal.setRelyingPartyRegistrationId(responseToken.getToken().getRelyingPartyRegistration().getRegistrationId());
+        return new Saml2Authentication(principal, responseToken.getToken().getSaml2Response(), privileges);
     }
 
     /**
@@ -78,6 +84,8 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
         private final String displayNameAttribute;
 
         private final Map<String, List<String>> fields = new HashMap<>();
+
+        private String username;
 
         public SimpleUserSamlBuilder(PropertyResolver propertyResolver) {
             this.usernameAttribute = propertyResolver.getProperty("security.saml.attribute.username");
@@ -111,6 +119,10 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
             }
         }
 
+        public void setNameID(String username) {
+            this.username = username;
+        }
+
         public SimpleUser build() {
             final List<Privilege> grantedAuthorities = new ArrayList<>();
             if (StringUtils.isNotBlank(groupsAttribute)) {
@@ -119,28 +131,13 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
                 }
             }
 
-            UserExternalFlags externalFlags = UserExternalFlags.builder()
-                .applyFeature(UserExternalFlags.Feature.EXTERNAL_FIRST_NAME,
-                    StringUtils.isNotBlank(getAttributeAsString(firstNameAttribute)))
-                .applyFeature(UserExternalFlags.Feature.EXTERNAL_LAST_NAME,
-                    StringUtils.isNotBlank(getAttributeAsString(lastNameAttribute)))
-                .applyFeature(UserExternalFlags.Feature.EXTERNAL_EMAIL,
-                    StringUtils.isNotBlank(getAttributeAsString(emailAttribute)))
-                .applyFeature(UserExternalFlags.Feature.EMAIL_VERIFIED,
-                    StringUtils.isNotBlank(getAttributeAsString(emailAttribute)))
-                .applyFeature(UserExternalFlags.Feature.EXTERNAL_DISPLAY_NAME,
-                    StringUtils.isNotBlank(getAttributeAsString(displayNameAttribute)))
-                .withFeature(UserExternalFlags.Feature.SYNC_EXTERNAL_GROUPS)
-                .build();
-
             return SimpleUser.builder()
                 .setFirstName(getAttributeAsString(firstNameAttribute))
                 .setLastName(getAttributeAsString(lastNameAttribute))
-                .setUsername(getAttributeAsString(usernameAttribute))
+                .setUsername(StringUtils.isBlank(usernameAttribute) ? username : getAttributeAsString(usernameAttribute))
                 .setPrivileges(grantedAuthorities)
                 .setEmail(getAttributeAsString(emailAttribute))
                 .setDisplayName(getAttributeAsString(displayNameAttribute))
-                .setExternalFlags(externalFlags)
                 .build();
         }
 

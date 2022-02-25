@@ -17,7 +17,6 @@ public class UserExternalFlagsTest {
         assertFalse(flags.isFirstNameExternal());
         assertFalse(flags.isLastNameExternal());
         assertFalse(flags.isDisplayNameExternal());
-        assertFalse(flags.isSyncExternalGroups());
         assertFalse(flags.isEmailExternal());
         assertFalse(flags.isEmailVerified());
 
@@ -32,7 +31,6 @@ public class UserExternalFlagsTest {
         assertTrue(flags.isFirstNameExternal());
         assertFalse(flags.isLastNameExternal());
         assertFalse(flags.isDisplayNameExternal());
-        assertFalse(flags.isSyncExternalGroups());
         assertFalse(flags.isEmailExternal());
         assertFalse(flags.isEmailVerified());
 
@@ -40,7 +38,6 @@ public class UserExternalFlagsTest {
         assertFalse(flags.isFirstNameExternal());
         assertTrue(flags.isLastNameExternal());
         assertFalse(flags.isDisplayNameExternal());
-        assertFalse(flags.isSyncExternalGroups());
         assertFalse(flags.isEmailExternal());
         assertFalse(flags.isEmailVerified());
 
@@ -48,15 +45,6 @@ public class UserExternalFlagsTest {
         assertFalse(flags.isFirstNameExternal());
         assertFalse(flags.isLastNameExternal());
         assertTrue(flags.isDisplayNameExternal());
-        assertFalse(flags.isSyncExternalGroups());
-        assertFalse(flags.isEmailExternal());
-        assertFalse(flags.isEmailVerified());
-
-        flags = UserExternalFlags.builder().applyFeature(Feature.SYNC_EXTERNAL_GROUPS, true).build();
-        assertFalse(flags.isFirstNameExternal());
-        assertFalse(flags.isLastNameExternal());
-        assertFalse(flags.isDisplayNameExternal());
-        assertTrue(flags.isSyncExternalGroups());
         assertFalse(flags.isEmailExternal());
         assertFalse(flags.isEmailVerified());
 
@@ -64,7 +52,6 @@ public class UserExternalFlagsTest {
         assertFalse(flags.isFirstNameExternal());
         assertFalse(flags.isLastNameExternal());
         assertFalse(flags.isDisplayNameExternal());
-        assertFalse(flags.isSyncExternalGroups());
         assertTrue(flags.isEmailExternal());
         assertFalse(flags.isEmailVerified());
 
@@ -72,7 +59,6 @@ public class UserExternalFlagsTest {
         assertFalse(flags.isFirstNameExternal());
         assertFalse(flags.isLastNameExternal());
         assertFalse(flags.isDisplayNameExternal());
-        assertFalse(flags.isSyncExternalGroups());
         assertFalse(flags.isEmailExternal());
         assertTrue(flags.isEmailVerified());
     }
@@ -81,7 +67,6 @@ public class UserExternalFlagsTest {
     public void testAllTrue() {
         UserExternalFlags flags = UserExternalFlags.builder()
             .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, true)
-            .applyFeature(Feature.SYNC_EXTERNAL_GROUPS, true)
             .applyFeature(Feature.EXTERNAL_LAST_NAME, true)
             .applyFeature(Feature.EXTERNAL_FIRST_NAME, true)
             .applyFeature(Feature.EXTERNAL_EMAIL, true)
@@ -90,7 +75,6 @@ public class UserExternalFlagsTest {
         assertTrue(flags.isFirstNameExternal());
         assertTrue(flags.isLastNameExternal());
         assertTrue(flags.isDisplayNameExternal());
-        assertTrue(flags.isSyncExternalGroups());
         assertTrue(flags.isEmailExternal());
         assertTrue(flags.isEmailVerified());
 

@@ -41,6 +41,17 @@
 
     <bean id="adminUsersInitializer" class="org.openl.rules.webstudio.service.AdminUsers" init-method="init"/>
 
+    <bean id="privilegeMapper" class="org.openl.rules.webstudio.security.GetUserPrivileges">
+        <constructor-arg name="userManagementService" ref="userManagementService"/>
+        <constructor-arg name="groupManagementService" ref="groupManagementService"/>
+    </bean>
+
+    <bean id="syncUserData" class="org.openl.rules.webstudio.security.SyncUserData">
+        <constructor-arg name="userManagementService" ref="userManagementService"/>
+        <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+        <constructor-arg name="externalGroupService" ref="externalGroupService"/>
+    </bean>
+
     <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
         <constructor-arg value="${webstudio.bcrypt.strength}"/>
     </bean>
@@ -53,14 +64,7 @@
             <bean class="org.openl.rules.webstudio.service.UserInfoUserDetailsServiceImpl">
                 <constructor-arg name="userDao" ref="openlUserDao"/>
                 <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
-                <constructor-arg name="authoritiesMapper">
-                    <bean class="org.openl.rules.webstudio.security.OpenLUserDetailsService">
-                        <constructor-arg name="userManagementService" ref="userManagementService"/>
-                        <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                        <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
-                        <constructor-arg name="externalGroupService" ref="externalGroupService"/>
-                    </bean>
-                </constructor-arg>
+                <constructor-arg name="privilegeMapper" ref="privilegeMapper"/>
             </bean>
         </property>
         <property name="hideUserNotFoundExceptions" value="false"/>

@@ -1,36 +1,41 @@
 package org.openl.security.cas;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 import org.jasig.cas.client.validation.Assertion;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.UserExternalFlags;
-import org.openl.rules.security.UserExternalFlags.Feature;
+import org.openl.rules.security.User;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.cas.userdetails.AbstractCasAssertionUserDetailsService;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertionUserDetailsService {
     private final String firstNameAttribute;
     private final String lastNameAttribute;
     private final String groupsAttribute;
-    private final Function<SimpleUser, SimpleUser> authoritiesMapper;
+    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
+    private final Consumer<User> syncUserData;
     private final String emailAttribute;
     private final String displayNameAttribute;
 
     public CASAttributesToOpenLUserDetailsService(PropertyResolver propertyResolver,
-            Function<SimpleUser, SimpleUser> authoritiesMapper) {
+            Consumer<User> syncUserData,
+            BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.firstNameAttribute = propertyResolver.getProperty("security.cas.attribute.first-name");
         this.lastNameAttribute = propertyResolver.getProperty("security.cas.attribute.last-name");
         this.groupsAttribute = propertyResolver.getProperty("security.cas.attribute.groups");
         this.emailAttribute = propertyResolver.getProperty("security.cas.attribute.email");
         this.displayNameAttribute = propertyResolver.getProperty("security.cas.attribute.display-name");
-        this.authoritiesMapper = authoritiesMapper;
+        this.syncUserData = syncUserData;
+        this.privilegeMapper = privilegeMapper;
     }
 
     @Override
@@ -87,26 +92,22 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
             }
         }
 
-        UserExternalFlags externalFlags = UserExternalFlags.builder()
-            .applyFeature(Feature.EXTERNAL_FIRST_NAME, StringUtils.isNotBlank(firstName))
-            .applyFeature(Feature.EXTERNAL_LAST_NAME, StringUtils.isNotBlank(lastName))
-            .applyFeature(Feature.EXTERNAL_EMAIL, StringUtils.isNotBlank(email))
-            .applyFeature(Feature.EMAIL_VERIFIED, StringUtils.isNotBlank(email))
-            .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, StringUtils.isNotBlank(displayName))
-            .withFeature(Feature.SYNC_EXTERNAL_GROUPS)
-            .build();
+        String username = assertion.getPrincipal().getName();
 
         SimpleUser simpleUser = SimpleUser.builder()
             .setFirstName(firstName)
             .setLastName(lastName)
-            .setUsername(assertion.getPrincipal().getName())
+            .setUsername(username)
             .setPrivileges(grantedAuthorities)
             .setEmail(email)
             .setDisplayName(displayName)
-            .setExternalFlags(externalFlags)
             .build();
 
-        return authoritiesMapper.apply(simpleUser);
+        syncUserData.accept(simpleUser);
+
+        Collection<Privilege> privileges = privilegeMapper.apply(username, simpleUser.getAuthorities());
+
+        return SimpleUser.builder(simpleUser).setPrivileges(privileges).build();
     }
 
 }

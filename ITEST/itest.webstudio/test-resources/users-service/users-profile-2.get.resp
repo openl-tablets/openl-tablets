@@ -15,7 +15,6 @@ Content-Type: application/json
   "showComplexResult": true,
   "showRealNumbers": true,
   "externalFlags": {
-    "syncExternalGroups": false,
     "lastNameExternal": false,
     "emailExternal": false,
     "emailVerified": false,

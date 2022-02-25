@@ -19,7 +19,6 @@ Content-Type: application/json
     "displayNameExternal": false,
     "emailExternal": false,
     "lastNameExternal": false,
-    "emailVerified": true,
-    "syncExternalGroups": false
+    "emailVerified": true
   }
 }

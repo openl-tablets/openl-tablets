@@ -15,7 +15,6 @@ Content-Type: application/json
     "emailExternal": false,
     "displayNameExternal": false,
     "firstNameExternal": false,
-    "syncExternalGroups": false,
     "emailVerified": false
   },
   "notMatchedExternalGroupsCount": 3,
