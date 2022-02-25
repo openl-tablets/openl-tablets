@@ -16,6 +16,13 @@ public interface Dao<T> {
     void save(T obj);
 
     /**
+     * Saves a new object or updates an existed object.
+     *
+     * @param obj object to save.
+     */
+    void saveOrUpdate(T obj);
+
+    /**
      * Updates object.
      *
      * @param obj object to update.

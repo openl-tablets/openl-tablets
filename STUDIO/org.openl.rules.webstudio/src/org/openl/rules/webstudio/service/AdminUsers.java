@@ -9,7 +9,6 @@ import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.UserExternalFlags;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -60,8 +59,8 @@ public class AdminUsers {
                 null,
                 username,
                 null,
-                null,
-                UserExternalFlags.builder().build());
+                null
+            );
             userService.updateAuthorities(username, Collections.singleton(adminGroup));
         } else if (!user.hasPrivilege(ADMIN)) {
             Set<String> groups = new HashSet<>();

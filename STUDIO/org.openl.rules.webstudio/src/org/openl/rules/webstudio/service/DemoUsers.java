@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.service;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.openl.rules.security.UserExternalFlags;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -51,8 +50,8 @@ public class DemoUsers {
             null,
             user,
             email,
-            displayName,
-            UserExternalFlags.builder().withFeature(UserExternalFlags.Feature.EMAIL_VERIFIED).build());
+            displayName
+        );
         userManagementService.updateAuthorities(user, new HashSet<>(Arrays.asList(groups)));
 
     }

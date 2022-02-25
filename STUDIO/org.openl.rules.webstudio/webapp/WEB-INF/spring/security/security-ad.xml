@@ -37,14 +37,8 @@
             <bean class="org.springframework.security.ldap.userdetails.LdapUserDetailsMapper"/>
         </constructor-arg>
         <constructor-arg name="propertyResolver" ref="environment"/>
-        <constructor-arg name="authoritiesMapper">
-            <bean class="org.openl.rules.webstudio.security.OpenLUserDetailsService">
-                <constructor-arg name="userManagementService" ref="userManagementService"/>
-                <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
-                <constructor-arg name="externalGroupService" ref="externalGroupService"/>
-            </bean>
-        </constructor-arg>
+        <constructor-arg name="syncUserData" ref="syncUserData"/>
+        <constructor-arg name="privilegeMapper" ref="privilegeMapper"/>
     </bean>
 
     <bean id="authenticationProviderWrapper"
