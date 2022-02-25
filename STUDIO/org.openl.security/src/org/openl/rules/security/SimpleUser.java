@@ -146,6 +146,19 @@ public class SimpleUser implements User {
         return new Builder();
     }
 
+    public static Builder builder(SimpleUser user) {
+        Builder builder = new Builder();
+        builder.setFirstName(user.firstName);
+        builder.setLastName(user.lastName);
+        builder.setUsername(user.username);
+        builder.setPasswordHash(user.passwordHash);
+        builder.setPrivileges(user.privileges);
+        builder.setEmail(user.email);
+        builder.setDisplayName(user.displayName);
+        builder.setExternalFlags(user.externalFlags);
+        return builder;
+    }
+
     public static class Builder {
 
         private final SimpleUser target;

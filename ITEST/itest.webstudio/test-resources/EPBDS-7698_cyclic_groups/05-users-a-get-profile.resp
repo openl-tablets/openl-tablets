@@ -14,13 +14,11 @@ Content-Type: application/json
   "showComplexResult": false,
   "showRealNumbers": false,
   "username": "usera",
-  "internalUser": true,
   "externalFlags": {
     "emailVerified": false,
     "firstNameExternal": false,
     "lastNameExternal": false,
     "emailExternal": false,
-    "displayNameExternal": false,
-    "syncExternalGroups": false
+    "displayNameExternal": false
   }
 }

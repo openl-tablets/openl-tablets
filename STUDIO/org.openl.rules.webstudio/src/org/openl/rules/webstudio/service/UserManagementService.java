@@ -60,8 +60,7 @@ public class UserManagementService {
             String lastName,
             String password,
             String email,
-            String displayName,
-            UserExternalFlags externalFlags) {
+            String displayName) {
         User persistUser = new User();
         persistUser.setLoginName(user);
         persistUser.setPasswordHash(StringUtils.isNotBlank(password) ? passwordEncoder.encode(password) : null);
@@ -69,27 +68,62 @@ public class UserManagementService {
         persistUser.setSurname(lastName);
         persistUser.setEmail(email);
         persistUser.setDisplayName(displayName);
-        persistUser.setFlags(UserExternalFlags.builder(externalFlags)
-            .withoutFeature(Feature.SYNC_EXTERNAL_GROUPS) // Disable transient feature
-            .getRawFeatures());
 
         userDao.save(persistUser);
     }
 
-    public void updateUserData(String user,
+    /**
+     * Update user info in Db by external data from the 3rd party identity providers (AD, SAML, CAS, OAuth2 etc.)
+     */
+    public void syncUserData(String user,
             String firstName,
             String lastName,
             String email,
-            String displayName,
-            UserExternalFlags externalFlags) {
+            String displayName) {
+
+        // Get
         User persistUser = userDao.getUserByName(user);
-        final UserExternalFlags currentFlags = persistUser.getUserExternalFlags();
-        persistUser.setFirstName(currentFlags.isFirstNameExternal() ? persistUser.getFirstName() : firstName);
-        persistUser.setSurname(currentFlags.isLastNameExternal() ? persistUser.getSurname() : lastName);
-        persistUser.setEmail(currentFlags.isEmailExternal() ? persistUser.getEmail() : email);
-        persistUser.setDisplayName(currentFlags.isDisplayNameExternal() ? persistUser.getDisplayName() : displayName);
-        persistUser.setFlags(UserExternalFlags.builder(externalFlags).getRawFeatures());
-        userDao.update(persistUser);
+        boolean isNewUser = persistUser == null;
+        if (isNewUser) {
+            persistUser = new User();
+            persistUser.setLoginName(user);
+        }
+        UserExternalFlags flags = UserExternalFlags.builder()
+                .applyFeature(Feature.EXTERNAL_FIRST_NAME, StringUtils.isNotBlank(firstName))
+                .applyFeature(Feature.EXTERNAL_LAST_NAME, StringUtils.isNotBlank(lastName))
+                .applyFeature(Feature.EXTERNAL_EMAIL, StringUtils.isNotBlank(email))
+                .applyFeature(Feature.EMAIL_VERIFIED, StringUtils.isNotBlank(email) || persistUser.getUserExternalFlags().isEmailVerified())
+                .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, StringUtils.isNotBlank(displayName))
+                .build();
+
+        if (!flags.isDisplayNameExternal() && !isNewUser) {
+            displayName = persistUser.getDisplayName();
+
+            // try to restore display name from previous pattern
+            String prevFirstName = StringUtils.trimToEmpty(persistUser.getFirstName());
+            String prevLastName = StringUtils.trimToEmpty(persistUser.getSurname());
+            String firstLastCase = StringUtils.trimToEmpty(prevFirstName + " " + prevLastName);
+            String lastFirstCase = StringUtils.trimToEmpty(prevLastName + " " + prevFirstName);
+            // preventing of removing existing display name pattern match by all empty fields from external service
+            if (flags.isFirstNameExternal() || flags.isLastNameExternal()) {
+                String syncFirstName = flags.isFirstNameExternal() ? firstName : prevFirstName;
+                String syncLastName = flags.isLastNameExternal() ? lastName : prevLastName;
+                if (Objects.equals(displayName, firstLastCase)) {
+                    displayName = syncFirstName + " " + syncLastName;
+                } else if (Objects.equals(displayName, lastFirstCase)) {
+                    displayName = syncLastName + " " + syncFirstName;
+                }
+            }
+            displayName = StringUtils.trimToEmpty(displayName);
+        }
+
+        persistUser.setFirstName(flags.isFirstNameExternal() ? firstName : persistUser.getFirstName());
+        persistUser.setSurname(flags.isLastNameExternal() ? lastName : persistUser.getSurname());
+        persistUser.setEmail(flags.isEmailExternal() ? email : persistUser.getEmail());
+        persistUser.setDisplayName(displayName);
+        persistUser.setPasswordHash(null); // No password is kept from the 3rd parties.
+        persistUser.setFlags(UserExternalFlags.builder(flags).getRawFeatures());
+        userDao.saveOrUpdate(persistUser);
     }
 
     public void updateUserData(String user,

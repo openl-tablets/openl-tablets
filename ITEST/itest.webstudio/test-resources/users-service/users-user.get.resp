@@ -15,7 +15,6 @@ Content-Type: application/json
   "username": "jsmith",
   "externalFlags": {
     "emailVerified": false,
-    "syncExternalGroups": false,
     "lastNameExternal": false,
     "emailExternal": false,
     "firstNameExternal": false,

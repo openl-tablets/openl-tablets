@@ -30,10 +30,6 @@ public class UserExternalFlags {
         return checkFeature(Feature.EXTERNAL_DISPLAY_NAME);
     }
 
-    public boolean isSyncExternalGroups() {
-        return checkFeature(Feature.SYNC_EXTERNAL_GROUPS);
-    }
-
     public boolean isEmailVerified() {
         return checkFeature(Feature.EMAIL_VERIFIED);
     }
@@ -72,8 +68,7 @@ public class UserExternalFlags {
         EXTERNAL_LAST_NAME(false, 1),
         EXTERNAL_EMAIL(false, 2),
         EXTERNAL_DISPLAY_NAME(false, 3),
-        EMAIL_VERIFIED(false, 4),
-        SYNC_EXTERNAL_GROUPS(false, 5);
+        EMAIL_VERIFIED(false, 4);
 
         private final int mask;
         private final boolean defaultState;

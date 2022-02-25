@@ -3,7 +3,9 @@ package org.openl.rules.webstudio.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
-import java.util.function.Function;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.naming.CompositeName;
 import javax.naming.ConfigurationException;
@@ -19,8 +21,7 @@ import javax.naming.ldap.InitialLdapContext;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.UserExternalFlags;
-import org.openl.rules.security.UserExternalFlags.Feature;
+import org.openl.rules.security.User;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,8 @@ import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     private final Logger log = LoggerFactory.getLogger(LdapToOpenLUserDetailsMapper.class);
     private final UserDetailsContextMapper delegate;
-    private final Function<SimpleUser, SimpleUser> authoritiesMapper;
+    private final Consumer<User> syncUserData;
+    private final BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper;
 
     private final String groupFilter;
 
@@ -49,10 +51,12 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     private final String searchFilter;
 
     public LdapToOpenLUserDetailsMapper(UserDetailsContextMapper delegate,
+            Consumer<User> syncUserData,
             PropertyResolver propertyResolver,
-            Function<SimpleUser, SimpleUser> authoritiesMapper) {
+            BiFunction<String, Collection<? extends GrantedAuthority>, Collection<Privilege>> privilegeMapper) {
         this.delegate = delegate;
-        this.authoritiesMapper = authoritiesMapper;
+        this.syncUserData = syncUserData;
+        this.privilegeMapper = privilegeMapper;
         String domainProperty = propertyResolver.getProperty("security.ad.domain");
         this.domain = StringUtils.isNotBlank(domainProperty) ? domainProperty.toLowerCase() : null;
         this.url = propertyResolver.getProperty("security.ad.server-url");
@@ -75,39 +79,27 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         if (StringUtils.isBlank(displayName)) {
             displayName = ctx.getStringAttribute("cn");
         }
-        UserExternalFlags externalFlags = UserExternalFlags.builder()
-            .applyFeature(Feature.EXTERNAL_FIRST_NAME, StringUtils.isNotBlank(firstName))
-            .applyFeature(Feature.EXTERNAL_LAST_NAME, StringUtils.isNotBlank(lastName))
-            .applyFeature(Feature.EXTERNAL_EMAIL, StringUtils.isNotBlank(email))
-            .applyFeature(Feature.EMAIL_VERIFIED, StringUtils.isNotBlank(email))
-            .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, StringUtils.isNotBlank(displayName))
-            .withFeature(Feature.SYNC_EXTERNAL_GROUPS)
-            .build();
 
         Collection<? extends GrantedAuthority> userAuthorities = getAuthorities(ctx,
             username,
             userDetails.getAuthorities());
 
-        Collection<Privilege> privileges = new ArrayList<>(userAuthorities.size());
-        for (GrantedAuthority authority : userAuthorities) {
-            if (authority instanceof Privilege) {
-                privileges.add((Privilege) authority);
-            } else {
-                privileges.add(new SimplePrivilege(authority.getAuthority()));
-            }
-        }
         String fixedUsername = fixCaseMatching(ctx, username);
 
         SimpleUser simpleUser = SimpleUser.builder()
             .setFirstName(firstName)
             .setLastName(lastName)
             .setUsername(fixedUsername)
-            .setPrivileges(privileges)
+            .setPrivileges(userAuthorities.stream().map(GrantedAuthority::getAuthority).map(SimplePrivilege::new).collect(Collectors.toList()))
             .setEmail(email)
             .setDisplayName(displayName)
-            .setExternalFlags(externalFlags)
             .build();
-        return authoritiesMapper.apply(simpleUser);
+
+        syncUserData.accept(simpleUser);
+
+        Collection<Privilege> privileges = privilegeMapper.apply(fixedUsername, userAuthorities);
+
+        return SimpleUser.builder(simpleUser).setPrivileges(privileges).build();
     }
 
     private String fixCaseMatching(DirContextOperations ctx, String username) {

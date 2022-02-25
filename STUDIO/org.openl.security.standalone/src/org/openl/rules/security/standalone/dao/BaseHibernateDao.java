@@ -35,6 +35,12 @@ public abstract class BaseHibernateDao<T> implements Dao<T> {
 
     @Override
     @Transactional
+    public void saveOrUpdate(T obj) {
+        getSession().saveOrUpdate(obj);
+    }
+
+    @Override
+    @Transactional
     public void update(T obj) {
         getSession().update(obj);
     }

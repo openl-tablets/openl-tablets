@@ -15,7 +15,6 @@ Content-Type: application/json
     "unsafePassword": true,
     "externalFlags": {
       "emailVerified": false,
-      "syncExternalGroups": false,
       "lastNameExternal": false,
       "emailExternal": false,
       "firstNameExternal": false,

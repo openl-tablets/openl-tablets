@@ -23,7 +23,6 @@ import org.junit.runner.RunWith;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimplePrivilege;
-import org.openl.rules.security.UserExternalFlags;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
@@ -346,13 +345,13 @@ public class GroupManagementTest {
 
     private void initOneUser() {
         userService
-            .addUser("jdoe", "Joe", "Doe", "qwerty", "jdoe@test", "Joe Doe", UserExternalFlags.builder().build());
+            .addUser("jdoe", "Joe", "Doe", "qwerty", "jdoe@test", "Joe Doe");
         QueryCountHolder.clear();
     }
 
     private void initSecondUser() {
         userService
-                .addUser("jsmith", "John", "Smith", "qwerty", "jsmith@test", "John Smith", UserExternalFlags.builder().build());
+                .addUser("jsmith", "John", "Smith", "qwerty", "jsmith@test", "John Smith");
         QueryCountHolder.clear();
     }
 

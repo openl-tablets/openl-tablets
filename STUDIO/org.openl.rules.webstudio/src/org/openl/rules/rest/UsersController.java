@@ -125,8 +125,7 @@ public class UsersController {
             userModel.getLastName(),
             canCreateInternalUsers ? userModel.getInternalPassword().getPassword() : null,
             userModel.getEmail(),
-            userModel.getDisplayName(),
-            UserExternalFlags.builder().build());
+            userModel.getDisplayName());
         userManagementService.updateAuthorities(userModel.getUsername(), userModel.getGroups());
         if (StringUtils.isNotBlank(userModel.getEmail())) {
             mailSender.sendVerificationMail(userManagementService.getUser(userModel.getUsername()), request);
