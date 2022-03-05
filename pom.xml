@@ -131,7 +131,7 @@
         <opentracing.kafka.client>0.1.15</opentracing.kafka.client>
         <opentracing.mock.version>0.33.0</opentracing.mock.version>
         <com.amazonaws.version>1.12.131</com.amazonaws.version>
-        <jgit.version>6.0.0.202202081800-r</jgit.version>
+        <jgit.version>6.0.0.202203041800-r</jgit.version>
 
 
         <!-- It needs to detect memory leaks. -->
