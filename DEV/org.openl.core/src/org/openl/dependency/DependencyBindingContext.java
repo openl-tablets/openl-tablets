@@ -23,6 +23,8 @@ public class DependencyBindingContext extends BindingContextDelegator {
 
     public static AdditionalSearchTypesInModule additionalSearchTypesInModule;
 
+    public static ExternalTypesRegistration externalTypesRegistration;
+
     private final IDependencyManager dependencyManager;
 
     private final Set<String> loadedDependencies = new HashSet<>();
@@ -102,6 +104,9 @@ public class DependencyBindingContext extends BindingContextDelegator {
             ((OpenLClassLoader) Thread.currentThread().getContextClassLoader())
                 .addClassLoader(compiledDependency.getClassLoader());
             dependencyVarsCache.put(compiledDependency, dependencyVar);
+            if (externalTypesRegistration != null) {
+                externalTypesRegistration.register(compiledDependency.getCompiledOpenClass().getOpenClassWithErrors());
+            }
         }
         return dependencyVar;
     }
