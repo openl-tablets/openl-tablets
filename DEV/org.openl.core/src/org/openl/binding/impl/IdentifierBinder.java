@@ -61,21 +61,23 @@ public class IdentifierBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-        IBoundNode caseSensitive = bindAsOpenField(node, true, bindingContext);
-        if (caseSensitive != null) {
-            return caseSensitive;
+        IBoundNode strictMatchBoundNode = bindAsOpenField(node, true, bindingContext);
+        if (strictMatchBoundNode != null) {
+            return strictMatchBoundNode;
         }
 
         IBoundNode typeBoundNode = bindAsType(node, bindingContext);
         if (typeBoundNode != null) {
             return typeBoundNode;
         }
-        FieldBoundNode caseInsensitive = bindAsOpenField(node, false, bindingContext);
-        if (caseInsensitive != null) {
-            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
-                String.format("Case insensitive matching to '%s'.", caseInsensitive.getFieldName()),
-                node));
-            return caseInsensitive;
+        FieldBoundNode nonStrictMatchBoundNode = bindAsOpenField(node, false, bindingContext);
+        if (nonStrictMatchBoundNode != null) {
+            if (!node.getText().equals(nonStrictMatchBoundNode.getFieldName().replaceAll("\\s", ""))) {
+                bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
+                    String.format("Case insensitive matching to '%s'.", nonStrictMatchBoundNode.getFieldName()),
+                    node));
+            }
+            return nonStrictMatchBoundNode;
         }
         throw new OpenlNotCheckedException(String.format("Identifier '%s' is not found.", node.getText()));
     }
