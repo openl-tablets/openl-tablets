@@ -6,8 +6,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
-import org.openl.OpenClassUtil;
-import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.DependencyType;
 import org.openl.dependency.IDependencyManager;
@@ -101,10 +99,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     protected ClassLoader buildClassLoader(AbstractDependencyManager dependencyManager) {
-        ClassLoader projectClassLoader = dependencyManager.getExternalJarsClassLoader(getProject());
-        OpenLClassLoader openLClassLoader = new OpenLClassLoader(null);
-        openLClassLoader.addClassLoader(projectClassLoader);
-        return openLClassLoader;
+        return dependencyManager.getExternalJarsClassLoader(getProject());
     }
 
     protected boolean isActualDependency() {
@@ -173,7 +168,6 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     public void reset() {
         CompiledDependency compiledDependency1 = compiledDependency;
         if (compiledDependency1 != null) {
-            OpenClassUtil.release(compiledDependency1.getCompiledOpenClass());
             onResetComplete(this, compiledDependency1);
         }
         compiledDependency = null;

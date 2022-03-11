@@ -8,7 +8,6 @@ package org.openl.binding.impl.module;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -116,7 +115,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     @Override
     public Collection<IOpenClass> getTypes() {
-        return Collections.unmodifiableSet(new HashSet<>(internalTypes.values()));
+        return Set.copyOf(internalTypes.values());
     }
 
     /**

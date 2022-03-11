@@ -4,6 +4,7 @@
 
 package org.openl.rules.lang.xls;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -455,7 +456,11 @@ public class XlsBinder implements IOpenBinder {
             if (singleImport.endsWith(".*")) {
                 String libraryClassName = singleImport.substring(0, singleImport.length() - 2);
                 try {
-                    userContext.getUserClassLoader().loadClass(libraryClassName); // try
+                    URL resource = userContext.getUserClassLoader()
+                        .getResource(libraryClassName.replaceAll("\\.", "/") + ".groovy");
+                    if (resource == null) {
+                        userContext.getUserClassLoader().loadClass(libraryClassName); // try
+                    }
                     // load
                     // class
                     libraries.add(libraryClassName);
