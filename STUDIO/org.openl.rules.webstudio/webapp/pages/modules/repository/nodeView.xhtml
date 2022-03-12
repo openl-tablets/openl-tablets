@@ -84,35 +84,18 @@
 
                 <h:panelGroup rendered="#{!artefact.deleted}">
                     <h:panelGroup>
-                        <h:panelGroup
-                                rendered="#{not (environment.getProperty('user.mode') == 'single' and artefact.opened)}">
+                        <h:panelGroup>
                             <h:commandButton id="openId1" rendered="#{repositoryTreeState.canOpen}" value="Open"
-                                             action="#{repositoryTreeController.openProject}" title="#{openMessage}"
-                                             immediate="true"
-                                             onclick="#{repositoryTreeController.hasDependencies ? rich:component('modalOpenProject').concat('.show();return false;') : ''}"/>
+                                             title="#{openMessage}" immediate="true"
+                                             onclick="openProjectModule.openProjectDialog('#{artefact.repository.id}','#{artefact.name}');return false;"/>
                             <h:commandButton id="openVersionId1" rendered="#{repositoryTreeState.canOpenOtherVersion}"
                                              value="Open Revision"
                                              type="button" onclick="openOpenVersionDialog()"
                                              title="#{openVersionMessage}"/>
                             <ui:remove><!-- We don't need forms validation when we are closing the project. So use immediate="true" to bypass validation --></ui:remove>
                             <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close"
-                                             action="#{repositoryTreeController.closeProject}" title="#{closeMessage}"
-                                             immediate="true"
-                                             onclick="#{repositoryTreeController.hasDependingProjects || repositoryTreeState.selectedProjectModified ? 'openCloseProjectDialog();return false;' : ''}"/>
-                        </h:panelGroup>
-
-                        <h:panelGroup
-                                rendered="#{environment.getProperty('user.mode') == 'single' and artefact.opened}">
-                            <h:commandButton id="openId2" rendered="#{repositoryTreeState.canOpen}" value="Open"
-                                             onclick="#{rich:component('modalOpenProject')}.show();return false;"
-                                             title="#{openMessage}"/>
-                            <h:commandButton id="openVersionId2" rendered="#{repositoryTreeState.canOpenOtherVersion}"
-                                             value="Open Revision" onclick="openOpenVersionDialog();"
-                                             type="button"
-                                             title="#{openVersionMessage}"/>
-                            <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close"
-                                             onclick="openCloseProjectDialog();return false;"
-                                             title="#{closeMessage}"/>
+                                             title="#{closeMessage}" immediate="true"
+                                             onclick="closeProjectModule.openCloseProjectDialog('#{artefact.repository.id}','#{artefact.name}');return false;"/>
                         </h:panelGroup>
 
                         <h:commandButton id="saveId1"
@@ -139,7 +122,7 @@
                         </h:commandButton>
 
                         <h:commandButton id="deployId1" rendered="#{repositoryTreeState.canRedeploy}" value="Deploy"
-                                         onclick="openSmartRedeployDialog(); return false;"
+                                         onclick="openSmartRedeployDialog('#{artefact.repository.id}', '#{artefact.name}'); return false;"
                                          title="Deploy selected deployments with the latest version of this project"/>
 
                         <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare"

@@ -1,66 +1,92 @@
 <ui:composition
-  xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:fn="http://java.sun.com/jsp/jstl/functions"
-  xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:rich="http://richfaces.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalCloseProject" minWidth="530" autosized="true">
-    <f:facet name="header">
-      <h:outputText value="Confirm Close" />
-    </f:facet>
+    <rich:popupPanel id="modalCloseProject" minWidth="530" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Confirm Close"/>
+        </f:facet>
 
-    <f:facet name="controls">
-      <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('modalCloseProject').hide();" alt="Close" />
-    </f:facet>
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('modalCloseProject').hide();"
+                            alt="Close"/>
+        </f:facet>
 
-    <h:form id="closeProjectForm">
-      <h:panelGroup id="modalCloseProjectData">
-          <h:panelGroup rendered="#{repositoryTreeState.selectedProjectModified}">
-              <div>
-                  <h:outputText value="Project '#{node.name}' is modified, if you close it, all changes will be lost." />
-              </div>
-              <div>
-                  <h:outputText value="Are you sure you want to close the project '#{node.name}' without saving?" />
-              </div>
-          </h:panelGroup>
-        <h:panelGroup rendered="#{not repositoryTreeState.selectedProjectModified}">
-            <h:outputText value="Project '#{node.name}' will be removed from the workspace." />
-        </h:panelGroup>
-        <h:panelGroup rendered="#{repositoryTreeState.canClose and repositoryTreeController.hasDependingProjects}">
-            <div>
-                <h:outputText value="NOTE: Project " rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}"/>
-                <h:outputText value="NOTE: Projects " rendered="#{fn:length(repositoryTreeController.dependingProjects) > 1}"/>
-                <ui:repeat value="#{repositoryTreeController.dependingProjects}" var="project" varStatus="i">
-                    <h:outputText value="'#{project}'#{i.last ? '' : ', '}"/>
-                </ui:repeat>
-                <h:outputText value=" which has dependency on this project is still opened." rendered="#{fn:length(repositoryTreeController.dependingProjects) == 1}"/>
-                <h:outputText value=" which have dependency on this project are still opened." rendered="#{fn:length(repositoryTreeController.dependingProjects) > 1}"/>
-            </div>
-        </h:panelGroup>
-      </h:panelGroup>
-
-      <footer>
-        <h:commandButton value="Close Project" action="#{repositoryTreeController.closeProject}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="RichFaces.$('modalCloseProject').hide();" />
-      </footer>
-
-        <a4j:jsFunction name="initCloseProjectDialog" render="@form" oncomplete="showCloseProjectDialog();" />
-
-    </h:form>
-
-  </rich:popupPanel>
+        <h:form id="closeProjectForm">
+            <h:panelGroup id="modalCloseProjectData">
+                    <div id="closeProjectMessagePanel" style="white-space: pre-wrap;">
+                    </div>
+            </h:panelGroup>
+            <footer>
+                <h:commandButton value="Close Project" onclick="closeProjectModule.closeProject(); return false;"
+                                 styleClass="button-primary"/>
+                <input type="button" value="Cancel" onclick="RichFaces.$('modalCloseProject').hide();"/>
+            </footer>
+        </h:form>
+    </rich:popupPanel>
 
     <script>
-        function openCloseProjectDialog() {
-            initCloseProjectDialog();
-        }
+        //<![CDATA[
 
-        function showCloseProjectDialog() {
-            RichFaces.$("modalCloseProject").show();
-        }
+        let closeProjectModule = (function () {
 
+            let closeRepoId;
+            let closePrName;
+
+            function openCloseProjectDialog(repositoryId, currentProjectName) {
+                closeRepoId = repositoryId;
+                closePrName = currentProjectName;
+                $j.ajax({
+                    type: "GET",
+                    url: "#{contextPath}/web/user-workspace/" + repositoryId + "/projects/" + currentProjectName + "/info"
+                }).done(function (data) {
+                    let message = "";
+                    let showDialog = false;
+                    if (data.modified) {
+                        message += "Project " + currentProjectName + " is modified, if you close it, all changes will be lost. \n" +
+                            "Are you sure you want to close the project " + currentProjectName + " without saving?";
+                        showDialog = true;
+                    } else {
+                        message += "Project " + currentProjectName + " will be removed from the workspace.";
+                    }
+                    if (!data.localOnly && data.opened && data.dependsOn) {
+                        let dependencyNames = data.dependsOn.filter(e => e.opened).map(e => e.name);
+                        if (dependencyNames.length > 0) {
+                            message += "\nNOTE: " + (dependencyNames > 1 ? "Projects " : "Project ") + dependencyNames.join(", ")
+                                + (dependencyNames.length > 1 ? " which has dependency on this project is still opened." : " which have dependency on this project are still opened.");
+                            showDialog = true;
+                        }
+                    }
+                    if (showDialog) {
+                        RichFaces.$("modalCloseProject").show();
+                        $j('#closeProjectMessagePanel').text(message);
+                    } else {
+                        closeProject();
+                    }
+                });
+            }
+
+            function closeProject() {
+                $j.ajax({
+                    type: "POST",
+                    url: "#{contextPath}/web/user-workspace/" + closeRepoId + "/projects/" + closePrName + "/close"
+                }).done(function () {
+                    // The function can be called without opening the popup,
+                    // at the end of it you still need to refresh the page
+                    $j('#closeProjectForm').submit();
+                    RichFaces.$('modalCloseProject').hide();
+                });
+            }
+
+            return {
+                openCloseProjectDialog,
+                closeProject
+            };
+
+        })();
+
+        //]]>
     </script>
-
 </ui:composition>

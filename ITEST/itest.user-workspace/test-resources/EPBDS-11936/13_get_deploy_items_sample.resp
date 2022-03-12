@@ -1,0 +1,4 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[{"selected":false,"name":"Sample1","messages":"Create deploy configuration to deploy.","styleForName":"warning","disabled":false,"canDeploy":true}]

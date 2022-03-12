@@ -1,5 +1,9 @@
 package org.openl.rules.webstudio.web.repository;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,10 +49,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.xstream.XStreamException;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
-
 public abstract class AbstractSmartRedeployController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSmartRedeployController.class);
@@ -93,15 +93,13 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public synchronized List<DeploymentProjectItem> getItems() {
-        AProject project = getSelectedProject();
-        if (project == null || currentProject == null || (project != currentProject && !project.getName()
-            .equals(currentProject.getName())) || (isSupportsBranches() && project.getLastHistoryVersion() == null)) {
+        if (currentProject == null || (isSupportsBranches() && currentProject.getLastHistoryVersion() == null)) {
             reset();
             return null;
         }
 
         if (items == null) {
-            items = getItems4Project(project, getRepositoryConfigName());
+            items = getItems4Project(currentProject, getRepositoryConfigName());
         }
         return items;
     }
@@ -119,6 +117,10 @@ public abstract class AbstractSmartRedeployController {
         }
 
         return false;
+    }
+
+    public AProject getSelectedProject() {
+        return null;
     }
 
     private AProject getDeployedProject(AProject wsProject, String deployConfigName) throws IOException {
@@ -182,7 +184,7 @@ public abstract class AbstractSmartRedeployController {
             for (ProjectDescriptor<?> descr : descriptors) {
                 if (projectName
                     .equals(descr.getProjectName()) && (descr.getRepositoryId() == null || descr.getRepositoryId()
-                        .equals(repoId)) && (descr.getPath() == null || descr.getPath().equals(path))) {
+                    .equals(repoId)) && (descr.getPath() == null || descr.getPath().equals(path))) {
                     projectDescriptor = descr;
                     break;
                 }
@@ -358,8 +360,6 @@ public abstract class AbstractSmartRedeployController {
         return false;
     }
 
-    public abstract AProject getSelectedProject();
-
     public abstract void reset();
 
     public void setPropertyResolver(PropertyResolver propertyResolver) {
@@ -367,8 +367,7 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public String redeploy() {
-        AProject project = getSelectedProject();
-        if (project == null) {
+        if (currentProject == null) {
             return UiConst.OUTCOME_FAILURE;
         }
 
@@ -380,7 +379,7 @@ public abstract class AbstractSmartRedeployController {
                 continue;
             }
 
-            ADeploymentProject deploymentProject = update(item.getName(), project);
+            ADeploymentProject deploymentProject = update(item.getName(), currentProject);
             if (deploymentProject != null && item.isCanDeploy()) {
                 // OK, it was updated
                 toDeploy.add(deploymentProject);
@@ -394,13 +393,14 @@ public abstract class AbstractSmartRedeployController {
             try {
                 DeployID id = deploymentManager.deploy(deploymentProject, repositoryConfigName);
                 String message = String.format("Project '%s' is successfully deployed with id '%s' to repository '%s'.",
-                    project.getBusinessName(),
+                    currentProject.getBusinessName(),
                     id.getName(),
                     repositoryName);
                 WebStudioUtils.addInfoMessage(message);
             } catch (Exception e) {
-                String msg = String
-                    .format("Failed to deploy '%s' to repository '%s'.", project.getBusinessName(), repositoryName);
+                String msg = String.format("Failed to deploy '%s' to repository '%s'.",
+                    currentProject.getBusinessName(),
+                    repositoryName);
                 LOG.error(msg, e);
                 WebStudioUtils.addErrorMessage(msg, e.getMessage());
             }
@@ -465,8 +465,8 @@ public abstract class AbstractSmartRedeployController {
 
             boolean sameVersion = deployConfiguration
                 .hasProjectDescriptor(project.getBusinessName()) && project.getVersion()
-                    .compareTo(
-                        deployConfiguration.getProjectDescriptor(project.getBusinessName()).getProjectVersion()) == 0;
+                .compareTo(
+                    deployConfiguration.getProjectDescriptor(project.getBusinessName()).getProjectVersion()) == 0;
 
             if (sameVersion) {
                 return deployConfiguration;
@@ -520,9 +520,8 @@ public abstract class AbstractSmartRedeployController {
     public void setRepositoryConfigName(String repositoryConfigName) {
         if (repositoryConfigName == null || !repositoryConfigName.equals(this.repositoryConfigName)) {
             this.repositoryConfigName = repositoryConfigName;
-            AProject project = getSelectedProject();
-            if (project != null && items != null) {
-                List<DeploymentProjectItem> newItems = getItems4Project(project, getRepositoryConfigName());
+            if (currentProject != null && items != null) {
+                List<DeploymentProjectItem> newItems = getItems4Project(currentProject, getRepositoryConfigName());
                 if (newItems.size() == items.size()) {
                     for (int i = 0; i < items.size(); i++) {
                         DeploymentProjectItem item = items.get(i);
@@ -604,7 +603,7 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public void setProductionRepositoriesTreeController(
-            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
+        ProductionRepositoriesTreeController productionRepositoriesTreeController) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
     }
 

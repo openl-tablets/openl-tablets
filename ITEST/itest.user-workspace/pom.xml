@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.openl.itest</groupId>
+        <artifactId>itest</artifactId>
+        <version>5.26.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>itest.user-workspace</artifactId>
+    <name>ITEST - Webstudio</name>
+    <url>https://openl-tablets.org</url>
+
+    <properties>
+        <surefire.argLine>-Xms128m -Xmx512m -Xss256k</surefire.argLine>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.itest</groupId>
+            <artifactId>server-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>apache-jsp</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <webservice-webapp>
+                            ../../STUDIO/org.openl.rules.webstudio/target/webapp
+                        </webservice-webapp>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

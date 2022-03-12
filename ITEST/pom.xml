@@ -42,6 +42,7 @@
         <module>itest.deployment-filter</module>
         <module>itest.unpackClasspathJar</module>
         <module>itest.webstudio</module>
+        <module>itest.user-workspace</module>
     </modules>
 
     <dependencyManagement>

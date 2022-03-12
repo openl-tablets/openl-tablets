@@ -4,36 +4,91 @@
         xmlns:rich="http://richfaces.org/rich"
         xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalOpenProject" minWidth="530" autosized="true">
-    <f:facet name="header">
-      <h:outputText value="Confirm Open" />
-    </f:facet>
+    <rich:popupPanel id="modalOpenProject" minWidth="530" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Confirm Open"/>
+        </f:facet>
 
-    <f:facet name="controls">
-      <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('modalOpenProject').hide();" alt="Close" />
-    </f:facet>
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close" onclick="RichFaces.$('modalOpenProject').hide();"
+                            alt="Close"/>
+        </f:facet>
 
-    <h:form id="openProjectForm">
-      <h:panelGroup id="modalOpenProjectData">
-        <h:outputText value="NOTE: Project data in the workspace will be replaced by data of the last version."  rendered="#{repositoryTreeState.canOpen and not repositoryTreeController.hasDependencies}"/>
+        <h:form id="openProjectForm">
+            <h:panelGrid columns="2">
+                <h:panelGroup id="modalOpenProjectData">
+                    <div id="openProjectMessagePanel" style="white-space: pre-wrap;">
+                    </div>
+                </h:panelGroup>
+                <h:selectBooleanCheckbox id="openDependencies" title="Open dependencies"/>
+            </h:panelGrid>
+            <footer>
+                <h:commandButton value="Open Project" onclick="openProjectModule.openProject(); return false;"
+                                 styleClass="button-primary"/>
+                <input type="button" value="Cancel" onclick="RichFaces.$('modalOpenProject').hide();"/>
+            </footer>
+        </h:form>
 
-        <h:panelGrid columns="2" rendered="#{repositoryTreeState.canOpen and repositoryTreeController.hasDependencies}">
-          <h:panelGroup>
-            <h:outputText value="Would you like to open dependecies too? Project(s) to open: "/>
-            <ui:repeat value="#{repositoryTreeController.dependencies}" var="project" varStatus="i">
-                <h:outputText value="'#{project}'#{i.last ? '' : ', '}"/>
-            </ui:repeat>
-          </h:panelGroup>
-          <h:selectBooleanCheckbox value="#{repositoryTreeController.openDependencies}" title="Open dependencies" />
-        </h:panelGrid>
-      </h:panelGroup>
+    </rich:popupPanel>
 
-      <footer>
-        <h:commandButton value="Open Project" action="#{repositoryTreeController.openProject}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalOpenProject')}.hide();" />
-      </footer>
-    </h:form>
+    <script>
+        //<![CDATA[
 
-  </rich:popupPanel>
+        let openProjectModule = (function () {
 
+            let openRepoId;
+            let openPrName;
+
+            function openProjectDialog(repositoryId, currentProjectName) {
+
+                openRepoId = repositoryId;
+                openPrName = currentProjectName;
+
+                $j.ajax({
+                    type: "GET",
+                    url: "#{contextPath}/web/user-workspace/" + repositoryId + "/projects/" + currentProjectName + "/info"
+                }).done(function (data) {
+                    let message = "";
+                    let showDialog = false;
+
+                    if (data.dependencies) {
+                        let dependencyNames = data.dependencies.filter(e => !e.localOnly && !e.openedForEditing && !e.opened && !e.deleted).map(e => e.name);
+                        if (dependencyNames.length > 0) {
+                            showDialog = true;
+                            message += "NOTE: Project data in the workspace will be replaced by data of the last version.\n" +
+                                "Would you like to open dependencies too? Project(s) to open: " + dependencyNames.join(", ");
+                        }
+                    }
+
+                    if (showDialog) {
+                        RichFaces.$("modalOpenProject").show();
+                        $j('#openProjectMessagePanel').text(message);
+                    } else {
+                        openProject();
+                    }
+                });
+            }
+
+            function openProject() {
+                let openDependencies = $j('#openProjectForm\\:openDependencies').is(":checked");
+                $j.ajax({
+                    type: "POST",
+                    url: "#{contextPath}/web/user-workspace/" + openRepoId + "/projects/" + openPrName + "/open/?open-dependencies=" + openDependencies
+                }).done(function () {
+                    // The function can be called without opening the popup,
+                    // at the end of it you still need to refresh the page
+                    $j('#openProjectForm').submit();
+                    RichFaces.$('modalOpenProject').hide();
+                });
+            }
+
+            return {
+                openProjectDialog,
+                openProject
+            };
+
+        })();
+
+        //]]>
+    </script>
 </ui:composition>

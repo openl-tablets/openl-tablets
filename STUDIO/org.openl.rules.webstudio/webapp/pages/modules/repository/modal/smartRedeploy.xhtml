@@ -89,13 +89,16 @@
             </footer>
 
             <a4j:jsFunction name="renderSmartRedeploy" render="@form"
-                            oncomplete="showSmartRedeployDialog()" action="#{smartRedeployController.initProject}"/>
+                            oncomplete="showSmartRedeployDialog()" action="#{smartRedeployController.initProject}">
+                <a4j:param name="repositoryId" assignTo="#{smartRedeployController.repositoryId}"/>
+                <a4j:param name="currentProjectName" assignTo="#{smartRedeployController.currentProjectName}"/>
+            </a4j:jsFunction>
         </h:form>
     </rich:popupPanel>
 
     <script>
-        function openSmartRedeployDialog() {
-            renderSmartRedeploy();
+        function openSmartRedeployDialog(repositoryId, currentProjectName) {
+            renderSmartRedeploy(repositoryId, currentProjectName);
         }
 
         function showSmartRedeployDialog() {
@@ -134,7 +137,7 @@
         }
 
         function resizeSmartRedeployPanel(data) {
-             // Can be "begin", "complete" or "success".
+            // Can be "begin", "complete" or "success".
             switch (data.status) {
                 case "success":
                     resizePopupPanel('modalSmartRedeploy');

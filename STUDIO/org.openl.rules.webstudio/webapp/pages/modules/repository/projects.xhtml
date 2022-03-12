@@ -87,6 +87,25 @@
                           <f:ajax listener="#{repositoryTreeController.deleteRulesProjectListener}" render=":deleteNodeForm"/>
                       </h:commandLink>
                   </h:panelGroup>
+                  <h:panelGroup rendered="#{not prj.data.project.opened}">
+                      &#160;
+                      <h:commandLink immediate="true"
+                                     onclick="openProjectModule.openProjectDialog('#{prj.data.repository.id}', '#{prj.data.name}'); return false;" title="Open project">
+                          <h:graphicImage url="/webresource/images/repository/opened.gif" styleClass="actionImage" alt="Open"/>
+                      </h:commandLink>
+                  </h:panelGroup>
+                  <h:panelGroup rendered="#{prj.data.project.opened}">
+                      &#160;
+                      <h:commandLink immediate="true"
+                                     onclick="closeProjectModule.openCloseProjectDialog('#{prj.data.repository.id}', '#{prj.data.name}'); return false;" title="Close project">
+                          <h:graphicImage url="/webresource/images/repository/closed.gif" styleClass="actionImage" alt="Close"/>
+                      </h:commandLink>
+                  </h:panelGroup>
+                    &#160;
+                    <h:commandLink immediate="true"
+                                   onclick="openSmartRedeployDialog('#{prj.data.repository.id}', '#{prj.data.name}'); return false;" title="Deploy project">
+                        <h:graphicImage url="/webresource/images/repository/upload.gif" styleClass="actionImage" alt="Deploy"/>
+                    </h:commandLink>
                 </h:panelGroup>
                 &#160;
               </rich:column>

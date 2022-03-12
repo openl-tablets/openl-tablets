@@ -1,9 +1,16 @@
 package org.openl.rules.webstudio.web.repository;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
+import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author Aleh Bykhavets
@@ -12,14 +19,8 @@ import org.springframework.stereotype.Service;
 @ViewScope
 public class SmartRedeployController extends AbstractSmartRedeployController {
 
-    @Override
-    public AProject getSelectedProject() {
-        AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
-        if (artefact instanceof AProject) {
-            return (AProject) artefact;
-        }
-        return null;
-    }
+    private String repositoryId;
+    private String currentProjectName;
 
     @Override
     public void reset() {
@@ -28,8 +29,24 @@ public class SmartRedeployController extends AbstractSmartRedeployController {
         currentProject = null;
     }
 
-    public void initProject() {
+    public void initProject() throws ProjectException {
         reset();
-        currentProject = getSelectedProject();
+        currentProject = userWorkspace.getProject(repositoryId, currentProjectName, false);
+    }
+
+    public String getRepositoryId() {
+        return repositoryId;
+    }
+
+    public void setRepositoryId(String repositoryId) {
+        this.repositoryId = repositoryId;
+    }
+
+    public String getCurrentProjectName() {
+        return currentProjectName;
+    }
+
+    public void setCurrentProjectName(String currentProjectName) {
+        this.currentProjectName = currentProjectName;
     }
 }

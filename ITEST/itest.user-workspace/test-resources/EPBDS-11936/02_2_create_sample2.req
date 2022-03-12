@@ -1,0 +1,10 @@
+PUT /web/repos/design-flat/projects/Sample2 HTTP/1.1
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="Sample2.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&Sample2.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
