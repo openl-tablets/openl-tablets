@@ -358,7 +358,8 @@ public class TableViewer {
         if (gr == null) {
             return 1;
         }
-        return IGridRegion.Tool.width(IGridRegion.Tool.intersect(reg, gr));
+        IGridRegion intersect = IGridRegion.Tool.intersect(reg, gr);
+        return intersect != null ? IGridRegion.Tool.width(intersect) : 1;
     }
 
     int getRowSpan(ICell cell) {
@@ -366,7 +367,8 @@ public class TableViewer {
         if (gr == null) {
             return 1;
         }
-        return IGridRegion.Tool.height(IGridRegion.Tool.intersect(reg, gr));
+        IGridRegion intersect = IGridRegion.Tool.intersect(reg, gr);
+        return intersect != null ? IGridRegion.Tool.height(intersect) : 1;
     }
 
     public int getWidth(ICell cell) {
