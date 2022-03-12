@@ -97,7 +97,7 @@
             <footer>
                 <ui:param name="hasTags" value="#{repositoryTreeController.hasTags}"/>
 
-                <a4j:commandButton value="Copy"
+                <a4j:commandButton id="copyProjectButton" value="Copy"
                                    onclick="copyProjectWithRequiredInfo(() => $j('#copyProjectForm\\:copyButton').click(), $j('#copyProjectForm\\:newProjectName').val()); return false;"
                                    styleClass="button-primary"/>
                 <a4j:commandButton id="copyButton"
@@ -141,7 +141,7 @@
         function showCopyProjectDialog() {
             fixInputNumberSpinner('copyProjectForm:revisionsCount');
             updateStates();
-            $j('#copyProjectForm\\:copy').prop('disabled', true);
+            $j('#copyProjectForm\\:copyProjectButton').prop('disabled', true);
             addCopyListener();
             RichFaces.$("modalCopyProject").show();
             focusElement('copyProjectForm:newProjectName');
@@ -168,7 +168,7 @@
                     projectName = $projectName.val().trim();
                 }
                 let disableCopy = !shouldSeparateProject && branchName.length === 0 || shouldSeparateProject && projectName.length === 0;
-                $j('#copyProjectForm\\:copy').prop('disabled', disableCopy);
+                $j('#copyProjectForm\\:copyProjectButton').prop('disabled', disableCopy);
             };
             var selector = '#copyProjectForm\\:newProjectName, #copyProjectForm\\:newBranchName, #copyProjectForm\\:separateProjectCheckbox';
             $j(selector).off().on('change keyup keydown cut paste click', function () {
