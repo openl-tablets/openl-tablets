@@ -56,4 +56,6 @@
         <constructor-arg name="charsetNames" value="${zip.charsets.support}"/>
         <constructor-arg name="zipFilter" ref="zipFilter"/>
     </bean>
+
+    <bean id="userWorkspaceFactory" class="org.openl.rules.webstudio.web.UserWorkspaceFactory"/>
 </beans>

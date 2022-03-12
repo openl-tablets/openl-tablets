@@ -1,6 +1,8 @@
 package org.openl.rules.project.resolving;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +72,7 @@ public class ProjectDescriptorArtefactResolver {
 
     public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException {
         ProjectDescriptor pd = getProjectDescriptor(project);
-        return pd != null ? pd.getDependencies() : null;
+        return (pd != null && pd.getDependencies() != null) ? pd.getDependencies() : Collections.emptyList();
     }
 
     public String getLogicalName(AProject project) {

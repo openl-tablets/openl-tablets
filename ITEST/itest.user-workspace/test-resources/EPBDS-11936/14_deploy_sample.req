@@ -1,0 +1,5 @@
+POST /web/user-workspace/design-flat/projects/Sample1/deploy?deploy-repo-name=production HTTP/1.1
+Content-Type: application/json
+
+["Sample1","it2"]
+

@@ -52,7 +52,7 @@ public class DependencyChecker {
         }
     }
 
-    void addProjects(ADeploymentProject deploymentProject) {
+    public void addProjects(ADeploymentProject deploymentProject) {
         UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         if (workspace == null) {
             return; // must never happen

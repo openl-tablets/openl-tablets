@@ -1,0 +1,2 @@
+POST /web/user-workspace/design-flat/projects/Sample3/open?open-dependencies=true HTTP/1.1
+

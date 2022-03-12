@@ -38,9 +38,4 @@ public class SmartRedeployEditorController extends AbstractSmartRedeployControll
         repositoryId = null;
         currentProject = null;
     }
-
-    @Override
-    public AProject getSelectedProject() {
-        return currentProject;
-    }
 }
