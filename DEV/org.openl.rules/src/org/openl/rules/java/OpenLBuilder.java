@@ -36,6 +36,7 @@ public class OpenLBuilder extends AOpenLBuilder {
             org.openl.rules.util.Product.class.getName(),
             org.openl.rules.util.Avg.class.getName(),
             org.openl.rules.util.Miscs.class.getName(),
+            org.openl.rules.util.Numbers.class.getName(),
             org.openl.rules.helpers.RulesUtils.class.getName(),
             org.openl.rules.dt.algorithm.evaluator.CtrUtils.class.getName(),
             org.openl.meta.ByteValue.class.getName(),
