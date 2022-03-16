@@ -1,0 +1,19 @@
+<project>
+    <name>sprProject1</name>
+    <comment></comment>
+    <modules>
+        <module>
+            <name>sprProject1</name>
+            <rules-root path="sprProject1.xlsx"/>
+        </module>
+        <module>
+            <name>sprProject_AL</name>
+            <rules-root path="sprProject_AL.xlsx"/>
+        </module>
+        <module>
+            <name>sprProject_NY</name>
+            <rules-root path="sprProject_NY.xlsx"/>
+        </module>
+    </modules>
+    <properties-file-name-pattern>sprProject_%state%</properties-file-name-pattern>
+</project>

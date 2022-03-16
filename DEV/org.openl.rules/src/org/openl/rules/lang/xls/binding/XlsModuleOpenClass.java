@@ -102,6 +102,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private final Map<String, List<IOpenField>> hiddenFields = new HashMap<>();
     private final Map<String, List<IOpenField>> hiddenLowerCasedFields = new HashMap<>();
+    private final Collection<XlsModuleOpenClass> externalXlsModuleOpenClasses = new HashSet<>();
 
     private final ObjectToDataOpenCastConvertor objectToDataOpenCastConvertor = new ObjectToDataOpenCastConvertor();
 
@@ -273,10 +274,17 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             collectDataTables(dependency, dataTables); // Required for
             // data tables.
             collectDependencyFields(dependency, fields);
+            addExternalXlsModuleOpenClassesFromDependency(dependency);
         }
 
         addDataTablesFromDependencies(dataTables);
         addFieldsFromDependencies(fields);
+    }
+
+    private void addExternalXlsModuleOpenClassesFromDependency(CompiledDependency dependency) {
+        ((XlsModuleOpenClass) (dependency.getCompiledOpenClass().getOpenClassWithErrors()))
+            .getExternalXlsModuleOpenClasses()
+            .forEach(this::addExternalXlsModuleOpenClass);
     }
 
     @Override
@@ -701,6 +709,16 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 }
             }
         }
+    }
+
+    public void addExternalXlsModuleOpenClass(XlsModuleOpenClass xlsModuleOpenClass) {
+        if (xlsModuleOpenClass != null) {
+            this.externalXlsModuleOpenClasses.add(xlsModuleOpenClass);
+        }
+    }
+
+    public Collection<XlsModuleOpenClass> getExternalXlsModuleOpenClasses() {
+        return Collections.unmodifiableCollection(this.externalXlsModuleOpenClasses);
     }
 
     private volatile OpenLArgumentsCloner cloner;

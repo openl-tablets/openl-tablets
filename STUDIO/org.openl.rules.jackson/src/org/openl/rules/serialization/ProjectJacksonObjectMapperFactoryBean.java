@@ -14,7 +14,7 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeployHelper;
-import org.openl.rules.serialization.jackson.NonEmptyMixIn;
+import org.openl.rules.serialization.jackson.NonNullMixIn;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
@@ -281,30 +281,36 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         return enhanceObjectMapper(delegate.createJacksonObjectMapper());
     }
 
+    private void processTypesFromXlsModuleOpenClass(ObjectMapper objectMapper, XlsModuleOpenClass xlsModuleOpenClass) {
+        for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
+            if (type instanceof CustomSpreadsheetResultOpenClass) {
+                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = ((CustomSpreadsheetResultOpenClass) type);
+                addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
+            }
+        }
+        // Check: custom spreadsheet is enabled
+        if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = xlsModuleOpenClass
+                .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                .toCustomSpreadsheetResultOpenClass();
+            addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
+        }
+        for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
+            if (type instanceof DatatypeOpenClass) {
+                addMixInAnnotationsToDatatype(objectMapper, (DatatypeOpenClass) type);
+            }
+        }
+    }
+
     protected ObjectMapper enhanceObjectMapper(ObjectMapper objectMapper) {
         if (xlsModuleOpenClass != null) {
             PropertyNamingStrategy propertyNamingStrategy = extractPropertyNamingStrategy();
             if (propertyNamingStrategy != null) {
                 objectMapper.setPropertyNamingStrategy(propertyNamingStrategy);
             }
-            for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
-                if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = ((CustomSpreadsheetResultOpenClass) type);
-                    addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
-                }
-            }
-            // Check: custom spreadsheet is enabled
-            if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = xlsModuleOpenClass
-                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                    .toCustomSpreadsheetResultOpenClass();
-                addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
-            }
-            for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
-                if (type instanceof DatatypeOpenClass) {
-                    addMixInAnnotationsToDatatype(objectMapper, (DatatypeOpenClass) type);
-                }
-            }
+            processTypesFromXlsModuleOpenClass(objectMapper, xlsModuleOpenClass);
+            xlsModuleOpenClass.getExternalXlsModuleOpenClasses()
+                .forEach(e -> processTypesFromXlsModuleOpenClass(objectMapper, e));
         }
         return objectMapper;
     }
@@ -358,7 +364,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         Class<?> sprBeanClass = customSpreadsheetResultOpenClass.getBeanClass();
         Class<?> originalMixInClass = objectMapper.findMixInClassFor(sprBeanClass);
         Class<?> mixInClass = enhanceMixInClassForSprBeanClass(
-            originalMixInClass != null ? originalMixInClass : NonEmptyMixIn.class,
+            originalMixInClass != null ? originalMixInClass : NonNullMixIn.class,
             getClassLoader());
         objectMapper.addMixIn(sprBeanClass, mixInClass);
     }
@@ -366,7 +372,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     private void addMixInAnnotationsToDatatype(ObjectMapper objectMapper, DatatypeOpenClass datatypeOpenClass) {
         Class<?> originalMixInClass = objectMapper.findMixInClassFor(datatypeOpenClass.getInstanceClass());
         Class<?> mixInClass = enhanceMixInClassForDatatypeClass(
-            originalMixInClass != null ? originalMixInClass : NonEmptyMixIn.class,
+            originalMixInClass != null ? originalMixInClass : NonNullMixIn.class,
             getClassLoader());
         objectMapper.addMixIn(datatypeOpenClass.getInstanceClass(), mixInClass);
     }

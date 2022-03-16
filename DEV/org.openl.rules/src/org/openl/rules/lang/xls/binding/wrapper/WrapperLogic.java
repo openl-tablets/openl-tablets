@@ -11,6 +11,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.lang.xls.XlsModuleOpenClassHolder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.prebind.ILazyMethod;
 import org.openl.rules.method.table.TableMethod;
@@ -49,6 +50,12 @@ public final class WrapperLogic {
                 return ((XlsModuleOpenClass) module).getSpreadsheetResultOpenClassWithResolvedFieldTypes();
             }
             return null;
+        };
+
+        DependencyBindingContext.externalTypesRegistration = (openClass) -> {
+            XlsModuleOpenClassHolder.getInstance()
+                .getXlsModuleOpenClass()
+                .addExternalXlsModuleOpenClass((XlsModuleOpenClass) openClass);
         };
     }
 

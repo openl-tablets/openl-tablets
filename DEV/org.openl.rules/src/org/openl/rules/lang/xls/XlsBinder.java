@@ -231,12 +231,15 @@ public class XlsBinder implements IOpenBinder {
             getModuleDatabase(),
             compiledDependencies,
             bindingContext);
+        XlsModuleOpenClass oldXlsModuleOpenClass = XlsModuleOpenClassHolder.getInstance().getXlsModuleOpenClass();
         try {
+            XlsModuleOpenClassHolder.getInstance().setXlsModuleOpenClass(moduleOpenClass);
             RulesModuleBindingContext rulesModuleBindingContext = moduleOpenClass.getRulesModuleBindingContext();
             IBoundNode topNode = processBinding(moduleNode, openl, rulesModuleBindingContext, moduleOpenClass);
             ValidationManager.validate(compileContext, topNode.getType(), bindingContext);
             return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getMessages());
         } finally {
+            XlsModuleOpenClassHolder.getInstance().setXlsModuleOpenClass(oldXlsModuleOpenClass);
             if (ValidationManager.isValidationEnabled() && bindingContext.isExecutionMode()) {
                 moduleOpenClass.clearForExecutionMode();
             }
