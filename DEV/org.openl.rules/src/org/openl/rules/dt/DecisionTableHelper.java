@@ -2114,8 +2114,7 @@ public final class DecisionTableHelper {
         String mergedPartsTitle;
         if (sourceTableColumn + originalTable.getSource()
             .getCell(sourceTableColumn, 0)
-            .getWidth() == firstColumnForHCondition && numberOfColumnsUnderTitleCounter
-                .get(w) == 1 && h == firstColumnHeight - 1 && (WithVerticalTitles.SLASH_IN_TITLE
+            .getWidth() == firstColumnForHCondition && h == firstColumnHeight - 1 && (WithVerticalTitles.SLASH_IN_TITLE
                     .equals(withVerticalTitles) && StringUtils.isNotBlank(
                         d) && d.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) || WithVerticalTitles.MERGED_COLUMN
                             .equals(withVerticalTitles) || WithVerticalTitles.EMPTY_COLUMN
