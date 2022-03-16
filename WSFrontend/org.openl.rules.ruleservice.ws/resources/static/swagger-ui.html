@@ -40,6 +40,7 @@
             configUrl: "admin/swagger-ui.json",
             dom_id: '#swagger-ui',
             deepLinking: true,
+            "urls.primaryName": new URLSearchParams(document.location.search).get("urls.primaryName"),
             presets: [
                 SwaggerUIBundle.presets.apis,
                 SwaggerUIStandalonePreset
