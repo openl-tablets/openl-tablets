@@ -37,7 +37,7 @@ public class TypeCastBinder extends ANodeBinder {
                 bindingContext);
         }
 
-        return new CastNode(node, children[1], cast, to);
+        return new TypeCastNode(node, children[1], cast, to);
     }
 
 }
