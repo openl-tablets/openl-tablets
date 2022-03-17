@@ -534,6 +534,17 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
+    public void testConstructorsMetaInformation_FormulaColumnForS10Step() {
+        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 11, 3);
+
+        assertNodeUsage(usedNodes.get(0), "Cell type: Object", 0, 1);
+
+        assertNodeUsage(usedNodes.get(1), "java.lang\n" + "class String", 11, 17);
+
+        assertNodeUsage(usedNodes.get(2), "java.lang\n" + "class Integer", 30, 37);
+    }
+
+    @Test
     public void testArrayBoundNodeMetaInformation() {
         List<? extends NodeUsage> usedNodes = assertMetaInfo(arrayNodeHints, 1, 2, 2);
 
