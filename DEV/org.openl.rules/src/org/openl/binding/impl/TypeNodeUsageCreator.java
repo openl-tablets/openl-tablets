@@ -28,8 +28,7 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
 
     @Override
     public boolean accept(IBoundNode boundNode) {
-        return boundNode instanceof ArrayBoundNode || boundNode instanceof ArrayInitializerNode || (boundNode instanceof CastNode && "type.cast"
-            .equals(boundNode.getSyntaxNode().getType()));
+        return boundNode instanceof ArrayBoundNode || boundNode instanceof ArrayInitializerNode || boundNode instanceof TypeCastNode;
     }
 
     @Override
@@ -50,7 +49,8 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
         IOpenClass componentOpenClass = OpenClassUtils.getRootComponentClass(type);
         TextInfo textInfo = new TextInfo(sourceString);
         int pstart = location.getStart().getAbsolutePosition(textInfo) + startIndex;
-        int pend = location.getEnd().getAbsolutePosition(textInfo) + startIndex + 1; // 1 - is because location returns 'end' inclusively
+        int pend = location.getEnd().getAbsolutePosition(textInfo) + startIndex + 1; // 1 - is because location returns
+                                                                                     // 'end' inclusively
         if (componentOpenClass instanceof JavaOpenClass) {
             StringBuilder description = new StringBuilder();
             if (StringUtils.isNotBlank(componentOpenClass.getPackageName())) {
