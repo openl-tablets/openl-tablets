@@ -37,7 +37,13 @@ source $JETTY_HOME/bin/jetty.sh run\n' >> $JETTY_HOME/bin/start.sh; \
     \
     apt-get install -y --no-install-recommends \
     fontconfig ; \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*; \
+# Permission for rootless mode (for running as non-root)
+    cd .. ; \
+    touch $JETTY_HOME/start.state; \
+    mkdir $JETTY_HOME/logs; \
+    chmod 777 $JETTY_HOME/logs $JETTY_HOME/start.state; \
+    chmod 777 -R $OPENL_LIB
 
 # Define executables
 ENV PATH $JETTY_HOME/bin:$JAVA_HOME/bin:$PATH
@@ -46,15 +52,16 @@ ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
 
 # Create a system 'openl' user with home directory. Home directory is required for Java Prefs persistence to prevent
 # WARN spamming in the log.
-RUN useradd -r -m -U -s /usr/sbin/nologin openl
+# UID=1000 as a de-facto standard in k8s examples.
+RUN useradd -r -m -U -s /usr/sbin/nologin openl -u 1000
 
 # Writable folder for 'openl' user where application files are stored.
 # It should be mounted on an external volume to persist application data between redeploying if it is required.
 # Do not confuse this with home directory of 'openl' user.
 RUN mkdir -p "$OPENL_HOME" && chown openl:openl "$OPENL_HOME"
 RUN mkdir -p "$OPENL_HOME_SHARED" && chown openl:openl "$OPENL_HOME_SHARED"
-# Will be uncomment in 5.26
-#USER openl
+# Running a container under a non-root user
+USER openl
 
 EXPOSE 8080
 WORKDIR $JETTY_BASE
