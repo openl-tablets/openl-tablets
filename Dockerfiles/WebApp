@@ -33,7 +33,13 @@ source $JETTY_HOME/bin/jetty.sh run\n' >> $JETTY_HOME/bin/start.sh; \
     \
     apt-get install -y --no-install-recommends \
     fontconfig ; \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/*; \
+# Permission for rootless mode (for running as non-root)
+    cd .. ; \
+    touch $JETTY_HOME/start.state; \
+    mkdir $JETTY_HOME/logs; \
+    chmod 777 $JETTY_HOME/logs $JETTY_HOME/start.state; \
+    chmod 777 -R $OPENL_LIB
 
 # Define executables
 ENV PATH $JETTY_HOME/bin:$JAVA_HOME/bin:$PATH
@@ -51,8 +57,8 @@ RUN useradd -r -m -U -s /usr/sbin/nologin openl
 # Do not confuse this with home directory of 'openl' user.
 RUN mkdir -p "$OPENL_HOME" && chown openl:openl "$OPENL_HOME"
 RUN mkdir -p "$OPENL_HOME_SHARED" && chown openl:openl "$OPENL_HOME_SHARED"
-# Will be uncomment in 5.26
-#USER openl
+
+USER openl
 
 EXPOSE 8080
 WORKDIR $JETTY_BASE
