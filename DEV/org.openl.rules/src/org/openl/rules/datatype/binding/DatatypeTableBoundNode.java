@@ -30,9 +30,11 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.gen.ByteCodeGenerationException;
 import org.openl.gen.FieldDescription;
 import org.openl.gen.TypeDescription;
+import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.datatype.gen.FieldDescriptionBuilder;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -44,20 +46,20 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.types.NullOpenClass;
-import org.openl.util.ParserUtils;
-import org.openl.util.TableNameChecker;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.impl.InternalDatatypeClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayUtils;
 import org.openl.util.ClassUtils;
+import org.openl.util.ParserUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.TableNameChecker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,8 +164,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
         if (errors.isEmpty() && beanClassCanBeGenerated(bindingContext)) {
             String datatypeClassName = dataType.getJavaName();
-            OpenLClassLoader classLoader = (OpenLClassLoader) Thread.currentThread()
-                .getContextClassLoader();
+            OpenLClassLoader classLoader = (OpenLClassLoader) Thread.currentThread().getContextClassLoader();
             try {
                 Class<?> beanClass = classLoader.loadClass(datatypeClassName);
                 byteCodeReadyToLoad = true;
@@ -485,10 +486,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             BindHelper.processError(errorMessage, typeCellSource, bindingContext);
             return;
         }
-        IOpenClass fieldType = OpenLManager.makeType(bindingContext.getOpenL(),
-                typeCellSource.getCode(),
-                typeCellSource,
-                bindingContext);
+        IOpenClass fieldType = OpenLManager
+            .makeType(bindingContext.getOpenL(), typeCellSource.getCode(), typeCellSource, bindingContext);
         if (fieldType == NullOpenClass.the) {
             fieldType = JavaOpenClass.OBJECT;
         }
@@ -576,6 +575,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     ICell theCellValue = row.getColumn(2).getCell(0, 0);
                     if (theCellValue.hasNativeType()) {
                         defaultValue = RuleRowHelper.loadNativeValue(theCellValue, fieldType);
+                        if (defaultValue == null && !DefaultValue.DEFAULT.equals(defaultValueCode)) {
+                            defaultValue = String2DataConvertorFactory
+                                .parse(fieldType.getInstanceClass(), defaultValueCode, bindingContext);
+                        }
                         if (defaultValue != null) {
                             fieldDescriptionBuilder.setDefaultValue(defaultValue);
                         }
@@ -587,7 +590,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
 
         try {
             fieldDescription = fieldDescriptionBuilder.build();
-            if (defaultValue != null && !(fieldDescription.hasDefaultKeyWord() && fieldDescription.isArray())) {
+            if (defaultValue != null && !fieldDescription.hasDefaultKeyWord()) {
                 // Validate not null default value
                 // The null value is allowed for alias types
                 try {
@@ -682,8 +685,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (!byteCodeReadyToLoad) {
                 return;
             }
-            OpenLClassLoader classLoader = (OpenLClassLoader) Thread.currentThread()
-                .getContextClassLoader();
+            OpenLClassLoader classLoader = (OpenLClassLoader) Thread.currentThread().getContextClassLoader();
             Class<?> datatypeClass = classLoader.loadClass(dataType.getJavaName());
             dataType.setInstanceClass(datatypeClass);
             moduleOpenClass.addType(dataType);

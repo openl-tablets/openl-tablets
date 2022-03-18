@@ -1,0 +1,2 @@
+ERROR: The value '200' is outside of valid domain 'IntAlias'. Valid values: [100, 1000]
+ERROR: The value '200' is outside of valid domain 'IntAlias[]'. Valid values: [100, 1000]
