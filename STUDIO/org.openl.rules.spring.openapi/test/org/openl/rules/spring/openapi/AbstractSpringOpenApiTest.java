@@ -52,12 +52,7 @@ public abstract class AbstractSpringOpenApiTest {
     }
 
     private static void assertJsonEquals(String expectedJson, String actualJson) throws JsonProcessingException {
-        try {
-            compareJsonObjects(OBJECT_MAPPER.readTree(expectedJson), OBJECT_MAPPER.readTree(actualJson), "");
-        } catch (AssertionError e) {
-
-            throw e;
-        }
+        compareJsonObjects(OBJECT_MAPPER.readTree(expectedJson), OBJECT_MAPPER.readTree(actualJson), "");
     }
 
     private static void compareJsonObjects(JsonNode expectedJson, JsonNode actualJson, String path) {
