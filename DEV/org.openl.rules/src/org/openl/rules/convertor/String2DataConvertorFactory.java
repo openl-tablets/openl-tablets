@@ -100,6 +100,9 @@ public class String2DataConvertorFactory {
     }
 
     public static <T> T parse(Class<T> clazz, String data, IBindingContext bindingContext) {
+        if (data == null) {
+            return null;
+        }
         IString2DataConvertor<T> convertor = getConvertor(clazz);
         if (convertor instanceof IString2DataConverterWithContext) {
             @SuppressWarnings("unchecked")
