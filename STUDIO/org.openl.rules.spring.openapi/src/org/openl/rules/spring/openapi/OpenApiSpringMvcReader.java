@@ -1,12 +1,15 @@
 package org.openl.rules.spring.openapi;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,15 +19,31 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import io.swagger.v3.oas.models.tags.Tag;
+import javax.validation.constraints.DecimalMax;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Pattern;
+
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
+import org.springframework.core.GenericTypeResolver;
+import org.springframework.core.MethodParameter;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -32,12 +51,15 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.core.util.ParameterProcessor;
 import io.swagger.v3.core.util.ReflectionUtils;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
+import io.swagger.v3.oas.models.tags.Tag;
 
 public class OpenApiSpringMvcReader {
 
@@ -123,7 +145,7 @@ public class OpenApiSpringMvcReader {
         // parse OpenAPI Tags annotations
         parseMethodTags(apiContext, method, operation);
 
-        // TODO parse OpenAPI Parameter annotation
+        // parse OpenAPI Parameter from Method Annotations
         var apiParameters = ReflectionUtils.getRepeatableAnnotations(method.getMethod(),
             io.swagger.v3.oas.annotations.Parameter.class);
         parseParameters(apiContext, apiParameters, consumesMediaTypes, operation, jsonViewAnnotation)
@@ -176,6 +198,19 @@ public class OpenApiSpringMvcReader {
                     responses.forEach(operation.getResponses()::addApiResponse);
                 }
             });
+        }
+
+        // parse OpenAPI Parameters from method parameters
+        var resolvedParameters = resolveMethodParameters(apiContext,
+            method,
+            consumesMediaTypes,
+            jsonViewAnnotation,
+            jsonViewAnnotationForRequestBody);
+        if (CollectionUtils.isEmpty(operation.getParameters()) && !resolvedParameters.parameters.isEmpty()) {
+            operation.setParameters(resolvedParameters.parameters);
+        }
+        if (operation.getRequestBody() == null) {
+            operation.setRequestBody(resolvedParameters.requestBody);
         }
 
         // register parsed operation method
@@ -252,7 +287,7 @@ public class OpenApiSpringMvcReader {
 
         if (StringUtils.isNotBlank(apiRequestBody.ref())) {
             requestBody.set$ref(apiRequestBody.ref());
-            return Optional.of(requestBody);
+            empty = false;
         }
         if (StringUtils.isNotBlank(apiRequestBody.description())) {
             requestBody.setDescription(apiRequestBody.description());
@@ -279,6 +314,166 @@ public class OpenApiSpringMvcReader {
                 .content(), new String[0], consumes, null, apiContext.getComponents(), jsonViewAnnotation)
             .ifPresent(requestBody::setContent);
         return Optional.of(requestBody);
+    }
+
+    private ResolvedParameters resolveMethodParameters(OpenApiContext apiContext,
+            HandlerMethod method,
+            String[] consumes,
+            JsonView jsonViewAnnotation,
+            JsonView jsonViewAnnotationForRequestBody) {
+        var resolvedParameters = new ResolvedParameters();
+        for (var methodParameter : method.getMethodParameters()) {
+            var apiParameter = methodParameter.getParameterAnnotation(io.swagger.v3.oas.annotations.Parameter.class);
+            if (apiParameter != null && apiParameter.hidden()) {
+                // skip hidden parameters
+                continue;
+            }
+            var parameterType = ParameterProcessor.getParameterType(apiParameter, true);
+            if (parameterType == null) {
+                parameterType = getType(methodParameter);
+            }
+            if (isFile(parameterType)) {
+                // TODO temporary skip files
+                continue;
+            }
+            var requestBodyAnno = methodParameter
+                .getParameterAnnotation(org.springframework.web.bind.annotation.RequestBody.class);
+
+            if (requestBodyAnno != null) {
+                var requestBody = new RequestBody();
+                if (requestBodyAnno.required()) {
+                    requestBody.setRequired(Boolean.TRUE);
+                }
+                if (apiParameter != null) {
+                    if (StringUtils.isNotBlank(apiParameter.ref())) {
+                        requestBody.set$ref(apiParameter.ref());
+                    }
+                    if (StringUtils.isNotBlank(apiParameter.description())) {
+                        requestBody.setDescription(apiParameter.description());
+                    }
+                    if (apiParameter.required()) {
+                        requestBody.setRequired(Boolean.TRUE);
+                    }
+                    if (apiParameter.extensions().length > 0) {
+                        AnnotationsUtils.getExtensions(apiParameter.extensions()).forEach(requestBody::addExtension);
+                    }
+                }
+                var parameter = ParameterProcessor.applyAnnotations(null,
+                    parameterType,
+                    Arrays.asList(methodParameter.getParameterAnnotations()),
+                    apiContext.getComponents(),
+                    new String[0],
+                    consumes,
+                    jsonViewAnnotationForRequestBody);
+                if (parameter.getContent() != null && !parameter.getContent().isEmpty()) {
+                    requestBody.setContent(parameter.getContent());
+                } else if (parameter.getSchema() != null) {
+                    var content = new Content();
+                    Stream.of(consumes).forEach(consume -> {
+                        var mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
+                        mediaTypeObject.setSchema(parameter.getSchema());
+                        content.addMediaType(consume, mediaTypeObject);
+                    });
+                    requestBody.setContent(content);
+                }
+                resolvedParameters.requestBody = requestBody;
+                continue;
+            }
+            var parameter = new Parameter();
+            var pathVar = methodParameter.getParameterAnnotation(PathVariable.class);
+            var requestHeader = methodParameter.getParameterAnnotation(RequestHeader.class);
+            var requestParam = methodParameter.getParameterAnnotation(RequestParam.class);
+            var cookieValue = methodParameter.getParameterAnnotation(CookieValue.class);
+
+            boolean empty = true;
+            String defaultValue = null;
+            if (pathVar != null) {
+                if (StringUtils.isNotBlank(pathVar.value())) {
+                    parameter.setName(pathVar.value());
+                }
+                parameter.in(ParameterIn.PATH.toString()).required(pathVar.required());
+                empty = false;
+            } else if (requestHeader != null) {
+                if (StringUtils.isNotBlank(requestHeader.value())) {
+                    parameter.setName(requestHeader.value());
+                }
+                defaultValue = requestHeader.defaultValue();
+                parameter.in(ParameterIn.HEADER.toString()).required(requestHeader.required());
+                empty = false;
+            } else if (cookieValue != null) {
+                if (StringUtils.isNotBlank(cookieValue.value())) {
+                    parameter.setName(cookieValue.value());
+                }
+                defaultValue = cookieValue.defaultValue();
+                parameter.in(ParameterIn.COOKIE.toString()).required(cookieValue.required());
+                empty = false;
+            } else if (requestParam != null) {
+                if (StringUtils.isNotBlank(requestParam.value())) {
+                    parameter.setName(requestParam.value());
+                }
+                defaultValue = requestParam.defaultValue();
+                parameter.in(ParameterIn.QUERY.toString()).required(requestParam.required());
+                empty = false;
+            }
+            if (empty && apiParameter == null) {
+                continue;
+            }
+            if (StringUtils.isBlank(parameter.getName())) {
+                parameter.setName(methodParameter.getParameterName());
+            }
+            if (parameter.getRequired() == Boolean.FALSE) {
+                // false to null. Because null means is not required
+                parameter.setRequired(null);
+            }
+            // TODO process enums and default values
+            ParameterProcessor.applyAnnotations(parameter,
+                parameterType,
+                Arrays.asList(methodParameter.getParameterAnnotations()),
+                apiContext.getComponents(),
+                new String[0],
+                consumes,
+                jsonViewAnnotation);
+            applyValidationAnnotations(methodParameter, parameter);
+            resolvedParameters.parameters.add(parameter);
+        }
+        return resolvedParameters;
+    }
+
+    private void applyValidationAnnotations(MethodParameter methodParameter, Parameter parameter) {
+        var min = methodParameter.getParameterAnnotation(Min.class);
+        if (min != null) {
+            parameter.getSchema().setMinimum(BigDecimal.valueOf(min.value()));
+        }
+        var max = methodParameter.getParameterAnnotation(Max.class);
+        if (max != null) {
+            parameter.getSchema().setMaximum(BigDecimal.valueOf(max.value()));
+        }
+        var decimalMin = methodParameter.getParameterAnnotation(DecimalMin.class);
+        if (decimalMin != null) {
+            parameter.getSchema().setMinimum(new BigDecimal(decimalMin.value()));
+        }
+        var decimalMax = methodParameter.getParameterAnnotation(DecimalMax.class);
+        if (decimalMax != null) {
+            parameter.getSchema().setMaximum(new BigDecimal(decimalMax.value()));
+        }
+        var pattern = methodParameter.getParameterAnnotation(Pattern.class);
+        if (pattern != null) {
+            parameter.getSchema().setPattern(pattern.regexp());
+        }
+    }
+
+    private boolean isFile(Type type) {
+        var fileClass = ResolvableType.forType(type).getRawClass();
+        if (fileClass != null) {
+            return fileClass == Resource.class || fileClass == MultipartFile.class || fileClass == MultipartRequest.class;
+        }
+        return false;
+    }
+
+    private static final class ResolvedParameters {
+        final List<Parameter> parameters = new ArrayList<>();
+        final List<Parameter> formParameters = new ArrayList<>();
+        RequestBody requestBody;
     }
 
     private List<Parameter> parseParameters(OpenApiContext apiContext,
@@ -325,6 +520,15 @@ public class OpenApiSpringMvcReader {
         return parameter;
     }
 
+    private static Type getType(MethodParameter methodParameter) {
+        var genericType = methodParameter.getGenericParameterType();
+        if (genericType instanceof ParameterizedType || genericType instanceof TypeVariable) {
+            return GenericTypeResolver.resolveType(genericType, methodParameter.getContainingClass());
+        } else {
+            return methodParameter.getParameterType();
+        }
+    }
+
     private void parseOperation(OpenApiContext apiContext,
             io.swagger.v3.oas.annotations.Operation apiOperation,
             Operation operation,
@@ -365,7 +569,8 @@ public class OpenApiSpringMvcReader {
             .forEach(operation::addParametersItem);
 
         if (apiOperation.requestBody() != null && operation.getRequestBody() == null) {
-            parseRequestBody(apiContext, apiOperation.requestBody(), consumes, jsonViewAnnotation).ifPresent(operation::setRequestBody);
+            parseRequestBody(apiContext, apiOperation.requestBody(), consumes, jsonViewAnnotation)
+                .ifPresent(operation::setRequestBody);
         }
     }
 
