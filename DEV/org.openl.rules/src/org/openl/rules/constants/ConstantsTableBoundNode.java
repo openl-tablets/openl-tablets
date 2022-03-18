@@ -121,20 +121,15 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                     }
                     if (noErrors) {
                         objectValue = compositeMethod.invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
-                    } else {
-                        objectValue = null;
                     }
                 } catch (Exception ex) {
                     BindHelper.processError(ex, defaultValueSrc, cxt);
-                    objectValue = null;
                 }
             } else if (String.class == constantType.getInstanceClass()) {
                 objectValue = value;
             } else if (value == null) {
-                objectValue = null;
             } else if (constantType.getName().startsWith("[[")) {
                 BindHelper.processError("Multi-dimensional arrays are not supported.", defaultValueSrc, cxt);
-                objectValue = null;
             } else {
                 try {
                     objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
@@ -144,7 +139,6 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 } catch (RuntimeException e) {
                 String message = String.format("Cannot parse cell value '%s'.", value);
                     BindHelper.processError(message, e, defaultValueSrc, cxt);
-                    objectValue = null;
                 }
             }
         }
