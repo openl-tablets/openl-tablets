@@ -156,7 +156,6 @@ public class RepositoryDiffController extends AbstractDiffController {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
             if (projectUW != selectedProject) {
                 projectUW = selectedProject;
-                selectedVersionRepo = projectUW.getFileData().getVersion();
                 setDiffTree(null);
 
                 if (selectedProject.isSupportsBranches()) {
