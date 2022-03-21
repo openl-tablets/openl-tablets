@@ -19,6 +19,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Max;
@@ -32,7 +35,10 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +46,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ValueConstants;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
@@ -48,6 +56,8 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
+import io.swagger.v3.core.converter.AnnotatedType;
+import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.core.util.ParameterProcessor;
 import io.swagger.v3.core.util.ReflectionUtils;
@@ -206,11 +216,162 @@ public class OpenApiSpringMvcReader {
             consumesMediaTypes,
             jsonViewAnnotation,
             jsonViewAnnotationForRequestBody);
-        if (CollectionUtils.isEmpty(operation.getParameters()) && !resolvedParameters.parameters.isEmpty()) {
-            operation.setParameters(resolvedParameters.parameters);
+        if (CollectionUtils.isEmpty(operation.getParameters())) {
+            if (!resolvedParameters.parameters.isEmpty()) {
+                operation.setParameters(resolvedParameters.parameters);
+            }
+        } else {
+            // just sync Schema's if it's not provided in Parameter annotation on method level
+            for (var resolvedParameter : resolvedParameters.parameters) {
+                var foundParam = operation.getParameters()
+                    .stream()
+                    .filter(p -> Objects.equals(p.getName(), resolvedParameter.getName()) && Objects.equals(p.getIn(),
+                        resolvedParameter.getIn()))
+                    .findFirst()
+                    .orElse(null);
+                if (foundParam == null) {
+                    continue;
+                }
+                if (foundParam.getRequired() == null && resolvedParameter.getRequired() == Boolean.TRUE) {
+                    foundParam.setRequired(Boolean.TRUE);
+                }
+                if (foundParam.get$ref() == null && foundParam.getSchema() == null && foundParam.getContent() == null) {
+                    foundParam.set$ref(resolvedParameter.get$ref());
+                    foundParam.setSchema(resolvedParameter.getSchema());
+                    foundParam.setContent(resolvedParameter.getContent());
+                }
+            }
         }
+
+        // apply request body from method parameters
         if (operation.getRequestBody() == null) {
             operation.setRequestBody(resolvedParameters.requestBody);
+        } else if (resolvedParameters.requestBody != null) {
+            // just copy schema for request body if it's missing in original definition
+            var currentContent = operation.getRequestBody().getContent();
+            for (var entry : resolvedParameters.requestBody.getContent().entrySet()) {
+                var currentMediaType = currentContent.get(entry.getKey());
+                if (currentMediaType == null) {
+                    currentContent.addMediaType(entry.getKey(), entry.getValue());
+                } else if (currentMediaType.getSchema() == null) {
+                    currentMediaType.setSchema(entry.getValue().getSchema());
+                }
+            }
+        }
+
+        // apply ApiResponse from Spring
+        var returnType = getType(method.getReturnType());
+        boolean genericResponseCode = false;
+        if (returnType instanceof ParameterizedType) {
+            var rawType = ((ParameterizedType) returnType).getRawType();
+            if (rawType == ResponseEntity.class || rawType == HttpEntity.class) {
+                returnType = ((ParameterizedType) returnType).getActualTypeArguments()[0];
+                genericResponseCode = true;
+            }
+        }
+        if (!isVoid(returnType)) {
+            var resolvedSchema = ModelConverters.getInstance()
+                .resolveAsResolvedSchema(
+                    new AnnotatedType(returnType).resolveAsRef(true).jsonViewAnnotation(jsonViewAnnotation));
+            if (resolvedSchema.schema != null) {
+                var responseStatus = method.getMethodAnnotation(ResponseStatus.class);
+                var content = new Content();
+                var mediaType = new io.swagger.v3.oas.models.media.MediaType().schema(resolvedSchema.schema);
+                AnnotationsUtils.applyTypes(new String[0], producesMediaTypes, content, mediaType);
+                if (operation.getResponses() == null) {
+                    operation.setResponses(new ApiResponses());
+                    if (genericResponseCode) {
+                        operation.getResponses()
+                            ._default(new ApiResponse().description("default response").content(content));
+                    } else {
+                        var responseCode = Optional.ofNullable(method.getMethodAnnotation(ResponseStatus.class))
+                            .map(ResponseStatus::value)
+                            .map(HttpStatus::value)
+                            .map(String::valueOf)
+                            .orElse("200");
+                        operation.getResponses().addApiResponse(responseCode, new ApiResponse().description("default response").content(content));
+                    }
+                } else {
+                    if (responseStatus != null) {
+                        var apiResponse = operation.getResponses().get(String.valueOf(responseStatus.value().value()));
+                        if (apiResponse != null) {
+                            if (StringUtils.isBlank(apiResponse.get$ref())) {
+                                if (apiResponse.getContent() == null) {
+                                    apiResponse.setContent(content);
+                                } else {
+                                    var currentContent = apiResponse.getContent();
+                                    for (var entry : currentContent.entrySet()) {
+                                        if (entry.getValue().getSchema() == null) {
+                                            entry.getValue().setSchema(resolvedSchema.schema);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            operation.getResponses()
+                                .addApiResponse(String.valueOf(responseStatus.value().value()),
+                                    new ApiResponse().description("default response").content(content));
+                        }
+                    } else {
+                        var defaultResponse = operation.getResponses().getDefault();
+                        if (defaultResponse != null) {
+                            if (StringUtils.isBlank(defaultResponse.get$ref())) {
+                                if (defaultResponse.getContent() == null) {
+                                    defaultResponse.setContent(content);
+                                } else {
+                                    var currentContent = defaultResponse.getContent();
+                                    for (var entry : currentContent.entrySet()) {
+                                        if (entry.getValue().getSchema() == null) {
+                                            entry.getValue().setSchema(resolvedSchema.schema);
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            var apiResponse = operation.getResponses().get("200");
+                            if (apiResponse != null) {
+                                if (StringUtils.isBlank(apiResponse.get$ref())) {
+                                    if (apiResponse.getContent() == null) {
+                                        apiResponse.setContent(content);
+                                    } else {
+                                        var currentContent = apiResponse.getContent();
+                                        for (var entry : currentContent.entrySet()) {
+                                            if (entry.getValue().getSchema() == null) {
+                                                entry.getValue().setSchema(resolvedSchema.schema);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if (resolvedSchema.referencedSchemas != null) {
+                    resolvedSchema.referencedSchemas
+                        .forEach((key, schema) -> apiContext.getComponents().addSchemas(key, schema));
+                }
+            }
+        } else {
+            if (genericResponseCode) {
+                if (CollectionUtils.isEmpty(operation.getResponses())) {
+                    operation.setResponses(new ApiResponses());
+                    operation.getResponses().setDefault(new ApiResponse().description("default response"));
+                }
+            } else {
+                var responseCode = Optional.ofNullable(method.getMethodAnnotation(ResponseStatus.class))
+                    .map(ResponseStatus::value)
+                    .map(HttpStatus::value)
+                    .map(String::valueOf)
+                    .orElse("200");
+                if (CollectionUtils.isEmpty(operation.getResponses())) {
+                    operation.setResponses(new ApiResponses());
+                    operation.getResponses()
+                        .addApiResponse(responseCode, new ApiResponse().description("default response"));
+                } else if (operation.getResponses().get(responseCode) == null) {
+                    operation.getResponses()
+                        .addApiResponse(responseCode, new ApiResponse().description("default response"));
+                }
+            }
         }
 
         // register parsed operation method
@@ -332,6 +493,9 @@ public class OpenApiSpringMvcReader {
             if (parameterType == null) {
                 parameterType = getType(methodParameter);
             }
+            if (isIgnorableType(parameterType)) {
+                continue;
+            }
             if (isFile(parameterType)) {
                 // TODO temporary skip files
                 continue;
@@ -369,11 +533,17 @@ public class OpenApiSpringMvcReader {
                     requestBody.setContent(parameter.getContent());
                 } else if (parameter.getSchema() != null) {
                     var content = new Content();
-                    Stream.of(consumes).forEach(consume -> {
+                    if (consumes.length == 0) {
                         var mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
                         mediaTypeObject.setSchema(parameter.getSchema());
-                        content.addMediaType(consume, mediaTypeObject);
-                    });
+                        content.addMediaType("*/*", mediaTypeObject);
+                    } else {
+                        Stream.of(consumes).forEach(consume -> {
+                            var mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
+                            mediaTypeObject.setSchema(parameter.getSchema());
+                            content.addMediaType(consume, mediaTypeObject);
+                        });
+                    }
                     requestBody.setContent(content);
                 }
                 resolvedParameters.requestBody = requestBody;
@@ -425,7 +595,7 @@ public class OpenApiSpringMvcReader {
                 // false to null. Because null means is not required
                 parameter.setRequired(null);
             }
-            // TODO process enums and default values
+            // TODO process enums
             ParameterProcessor.applyAnnotations(parameter,
                 parameterType,
                 Arrays.asList(methodParameter.getParameterAnnotations()),
@@ -433,6 +603,9 @@ public class OpenApiSpringMvcReader {
                 new String[0],
                 consumes,
                 jsonViewAnnotation);
+            if (StringUtils.isNotBlank(defaultValue) && !ValueConstants.DEFAULT_NONE.equals(defaultValue)) {
+                parameter.getSchema().setDefault(defaultValue);
+            }
             applyValidationAnnotations(methodParameter, parameter);
             resolvedParameters.parameters.add(parameter);
         }
@@ -462,10 +635,29 @@ public class OpenApiSpringMvcReader {
         }
     }
 
+    private static final Set<Class<?>> TYPES_TO_IGNORE = Set
+        .of(ServletRequest.class, ServletResponse.class, HttpSession.class);
+
+    private boolean isIgnorableType(Type type) {
+        var cl = ResolvableType.forType(type).getRawClass();
+        if (cl != null) {
+            return TYPES_TO_IGNORE.stream().anyMatch(clazz -> clazz.isAssignableFrom(cl));
+        }
+        return false;
+    }
+
     private boolean isFile(Type type) {
         var fileClass = ResolvableType.forType(type).getRawClass();
         if (fileClass != null) {
             return fileClass == Resource.class || fileClass == MultipartFile.class || fileClass == MultipartRequest.class;
+        }
+        return false;
+    }
+
+    private boolean isVoid(Type type) {
+        var cl = ResolvableType.forType(type).getRawClass();
+        if (cl != null) {
+            return cl == Void.class || cl == void.class;
         }
         return false;
     }

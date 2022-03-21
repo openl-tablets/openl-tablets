@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -92,8 +90,7 @@ public class UserController {
      *         (status code 404)
      */
     @Operation(summary = "Get user by user name", tags = { "user", })
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = User.class))),
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "successful operation"),
             @ApiResponse(responseCode = "400", description = "Invalid username supplied"),
             @ApiResponse(responseCode = "404", description = "User not found") })
     @GetMapping(value = "/user/{username}", produces = { "application/json", "application/xml" })
@@ -110,10 +107,9 @@ public class UserController {
      * @return successful operation (status code 200) or Invalid username/password supplied (status code 400)
      */
     @Operation(summary = "Logs user into the system")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(type = "string")), headers = {
-                    @Header(description = "date in UTC when token expires", name = "X-Expires-After", schema = @Schema(format = "date-time", type = "string")),
-                    @Header(description = "calls per hour allowed by the user", name = "X-Rate-Limit", schema = @Schema(format = "int32", type = "integer")) }),
+    @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "successful operation", headers = {
+            @Header(description = "date in UTC when token expires", name = "X-Expires-After", schema = @Schema(format = "date-time", type = "string")),
+            @Header(description = "calls per hour allowed by the user", name = "X-Rate-Limit", schema = @Schema(format = "int32", type = "integer")) }),
             @ApiResponse(responseCode = "400", description = "Invalid username/password supplied") })
     @GetMapping(value = "/user/login", produces = { "application/json", "application/xml" })
     public ResponseEntity<String> loginUser(
@@ -144,11 +140,10 @@ public class UserController {
     @Operation(summary = "Updated user", description = "This can only be done by the logged in user.")
     @ApiResponses(value = { @ApiResponse(responseCode = "400", description = "Invalid user supplied"),
             @ApiResponse(responseCode = "404", description = "User not found") })
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Updated user object", required = true, content = @Content(schema = @Schema(implementation = User.class)))
     @PutMapping(value = "/user/{username}", consumes = { "application/json" })
     public ResponseEntity<Void> updateUser(
-            @Parameter(description = "name that need to be updated", required = true, in = ParameterIn.PATH, name = "username", schema = @Schema(type = "string")) @PathVariable("username") String username,
-            @RequestBody User user) {
+            @Parameter(description = "name that need to be updated") @PathVariable("username") String username,
+            @Parameter(description = "Updated user object") @RequestBody User user) {
         return ResponseEntity.ok().build();
     }
 

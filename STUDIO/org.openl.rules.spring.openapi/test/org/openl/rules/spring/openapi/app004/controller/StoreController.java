@@ -17,9 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -50,7 +47,7 @@ public class StoreController {
      * @return successful operation (status code 200)
      */
     @Operation(summary = "Returns pet inventories by status", description = "Returns a map of status codes to quantities")
-    @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Map.class))))
+    @ApiResponse(responseCode = "200", description = "successful operation")
     @GetMapping(value = "/inventory", produces = { "application/json" })
     public ResponseEntity<Map<String, Integer>> getInventory() {
         return ResponseEntity.ok().build();
@@ -65,7 +62,7 @@ public class StoreController {
      *         (status code 404)
      */
     @Operation(summary = "Find purchase order by ID", description = "For valid response try integer IDs with value >= 1 and <= 10. Other values will generated exceptions", responses = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Order.class))),
+            @ApiResponse(responseCode = "200", description = "successful operation"),
             @ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @ApiResponse(responseCode = "404", description = "Order not found") })
     @GetMapping(value = "/order/{orderId}", produces = { "application/json", "application/xml" })
@@ -81,7 +78,7 @@ public class StoreController {
      * @return successful operation (status code 200) or Invalid Order (status code 400)
      */
     @Operation(summary = "Place an order for a pet", tags = { "store" }, responses = {
-            @ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Order.class))),
+            @ApiResponse(responseCode = "200", description = "successful operation"),
             @ApiResponse(responseCode = "400", description = "Invalid Order") })
     @PostMapping(value = "/order", produces = { "application/json", "application/xml" }, consumes = {
             "application/json" })
