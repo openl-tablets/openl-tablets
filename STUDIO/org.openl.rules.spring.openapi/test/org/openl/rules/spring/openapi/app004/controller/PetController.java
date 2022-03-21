@@ -71,7 +71,7 @@ public class PetController {
     @Operation(summary = "Finds Pets by status", description = "Multiple status values can be provided with comma separated strings", tags = {
             "pet" })
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pet.class)))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid status value") })
     @GetMapping(value = "/findByStatus", produces = { MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_XML_VALUE })
@@ -93,7 +93,7 @@ public class PetController {
      */
     @Operation(summary = "Finds Pets by tags", description = "Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.", deprecated = true)
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pet.class)))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid tag value") })
     @GetMapping(value = "/findByTags", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     public ResponseEntity<List<Pet>> findPetsByTags(
@@ -110,7 +110,7 @@ public class PetController {
      */
     @Operation(summary = "Find pet by ID", description = "Returns a single pet", tags = { "pet" })
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = Pet.class))),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Pet not found") })
     @GetMapping(value = "/{petId}", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
@@ -174,7 +174,7 @@ public class PetController {
      */
     @Operation(summary = "uploads an image", tags = { "pet" })
     @ApiResponses(value = {
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation", content = @Content(schema = @Schema(implementation = ApiResponse.class))) })
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation") })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/octet-stream", schema = @Schema(format = "binary", type = "string")))
     @PostMapping(value = "/{petId}/uploadImage", produces = { "application/json" }, consumes = {
             "application/octet-stream" })

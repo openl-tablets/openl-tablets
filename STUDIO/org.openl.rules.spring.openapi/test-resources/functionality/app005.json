@@ -1,0 +1,46 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenL Tablets WebStudio API",
+    "version": "*"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:##"
+    }
+  ],
+  "paths": {
+    "/greetings/sayHello": {
+      "post": {
+        "operationId": "sayHello2",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "default response"
+          }
+        }
+      }
+    },
+    "/greetings/hello": {
+      "get": {
+        "operationId": "sayHello",
+        "responses": {
+          "default": {
+            "description": "default response"
+          }
+        },
+        "deprecated": true
+      }
+    }
+  },
+  "components": {}
+}

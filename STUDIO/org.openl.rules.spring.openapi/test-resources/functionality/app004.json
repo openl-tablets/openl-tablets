@@ -310,9 +310,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
+                  "type": "object",
+                  "additionalProperties": {
+                    "format": "int32",
+                    "type": "integer"
                   }
                 }
               }
