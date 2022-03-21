@@ -1500,6 +1500,17 @@
                 <artifactId>swagger-annotations</artifactId>
                 <version>${io.swagger.core.v3.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-core</artifactId>
+                <version>${io.swagger.core.v3.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>jakarta.validation</groupId>
+                        <artifactId>jakarta.validation-api</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
             <!--Activity -->
             <dependency>
                 <groupId>org.activiti</groupId>

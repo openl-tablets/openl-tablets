@@ -121,6 +121,11 @@
     <dependencies>
         <dependency>
             <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.spring.openapi</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.tableeditor</artifactId>
         </dependency>
         <dependency>
