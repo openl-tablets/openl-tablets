@@ -1,0 +1,58 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenL Tablets WebStudio API",
+    "version": "*"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:##"
+    }
+  ],
+  "paths": {
+    "/hello": {
+      "get": {
+        "summary": "Say hello",
+        "description": "Say hello response entity.",
+        "operationId": "sayHello",
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  ]
+                },
+                "examples": {
+                  "The String example": {
+                    "description": "The String example",
+                    "value": "Foo-bar"
+                  },
+                  "The Integer example": {
+                    "description": "The Integer example",
+                    "value": 4221
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    }
+  },
+  "components": {}
+}

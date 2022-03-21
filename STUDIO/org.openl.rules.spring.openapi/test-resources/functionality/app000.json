@@ -1,0 +1,14 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenL Tablets WebStudio API",
+    "version": "*"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:##"
+    }
+  ],
+  "paths": {},
+  "components": {}
+}

@@ -2,6 +2,7 @@ package org.openl.rules.rest.config;
 
 import java.util.List;
 
+import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +32,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  * @author Vladyslav Pikus
  */
 @Configuration
-@Import(ValidationConfiguration.class)
+@Import({ValidationConfiguration.class, SpringMvcOpenApiConfiguration.class})
 @EnableWebMvc
 @ComponentScan(basePackages = "org.openl.rules.rest.common")
 public class ApiConfig implements WebMvcConfigurer {
