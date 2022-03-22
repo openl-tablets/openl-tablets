@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.rules.spring.openapi.OpenApiContext;
-import org.openl.rules.spring.openapi.OpenApiSpringMvcReader;
 import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.springframework.context.ApplicationContext;
@@ -23,16 +22,19 @@ import io.swagger.v3.oas.models.OpenAPI;
 public class OpenApiService {
 
     private final ApplicationContext context;
+    private final OpenApiSpringMvcReader openApiSpringMvcReader;
     private final SpringMvcHandlerMethodsHelper mvcHandlerMethodsHelper;
     private final Set<Class<?>> ignoreControllers;
     private volatile OpenAPI calculatedOpenApi;
 
     public OpenApiService(ApplicationContext context,
             SpringMvcHandlerMethodsHelper mvcHandlerMethodsHelper,
+            OpenApiSpringMvcReader openApiSpringMvcReader,
             Set<Class<?>> ignoreControllers) {
         this.context = context;
         this.mvcHandlerMethodsHelper = mvcHandlerMethodsHelper;
         this.ignoreControllers = ignoreControllers;
+        this.openApiSpringMvcReader = openApiSpringMvcReader;
     }
 
     public synchronized void build() {
@@ -48,8 +50,7 @@ public class OpenApiService {
             .filter(e -> !ignoreControllers.contains(e.getValue().getClass()))
             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getClass(), (a1, a2) -> a1));
 
-        var restControllerWalker = context.getBean(OpenApiSpringMvcReader.class);
-        restControllerWalker.read(openApiContext, filteredControllers);
+        openApiSpringMvcReader.read(openApiContext, filteredControllers);
         try {
             calculatedOpenApi = fromJson(asJson(openApiContext.getOpenAPI()));
         } catch (JsonProcessingException e) {

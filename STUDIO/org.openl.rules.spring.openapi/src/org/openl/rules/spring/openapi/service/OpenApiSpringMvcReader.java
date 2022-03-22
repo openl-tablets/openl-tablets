@@ -1,4 +1,4 @@
-package org.openl.rules.spring.openapi;
+package org.openl.rules.spring.openapi.service;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -28,30 +28,33 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 
+import io.swagger.v3.oas.models.media.MediaType;
+import org.openl.rules.spring.openapi.OpenApiContext;
+import org.openl.rules.spring.openapi.OpenApiUtils;
+import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
+import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.ValueConstants;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartRequest;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -65,18 +68,23 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.tags.Tag;
 
+@Component
 public class OpenApiSpringMvcReader {
 
     private final SpringMvcHandlerMethodsHelper handlerMethodsHelper;
+    private final OpenApiResponseGenerator responseBodyGenerator;
 
-    public OpenApiSpringMvcReader(SpringMvcHandlerMethodsHelper handlerMethodsHelper) {
+    public OpenApiSpringMvcReader(SpringMvcHandlerMethodsHelper handlerMethodsHelper,
+            OpenApiResponseGenerator responseBodyGenerator) {
         this.handlerMethodsHelper = handlerMethodsHelper;
+        this.responseBodyGenerator = responseBodyGenerator;
     }
 
     public void read(OpenApiContext openApiContext, Map<String, Class<?>> controllers) {
@@ -91,26 +99,12 @@ public class OpenApiSpringMvcReader {
     private void visitHandlerMethod(OpenApiContext openApiContext,
             RequestMappingInfo mappingInfo,
             HandlerMethod method) {
-        Function<Set<MediaType>, String[]> mediaTypesToStringArray = set -> set.stream()
-            .map(Object::toString)
-            .toArray(String[]::new);
-        final var consumesMediaTypes = mediaTypesToStringArray
-            .apply(mappingInfo.getConsumesCondition().getConsumableMediaTypes());
-        final var producesMediaTypes = mediaTypesToStringArray
-            .apply(mappingInfo.getProducesCondition().getProducibleMediaTypes());
+        var methodInfoBuilder = MethodInfo.Builder.from(method, mappingInfo);
         for (String pathPattern : mappingInfo.getPatternsCondition().getPatterns()) {
-            // Map<PathItem.HttpMethod, io.swagger.v3.oas.models.Operation> operationMap = null;
-            // if (paths.containsKey(pathPattern)) {
-            // operationMap = paths.get(pathPattern).readOperationsMap();
-            // }
+            methodInfoBuilder.pathPattern(pathPattern);
             for (RequestMethod requestMethod : mappingInfo.getMethodsCondition().getMethods()) {
-                parseMethod(openApiContext,
-                    mappingInfo,
-                    method,
-                    pathPattern,
-                    requestMethod,
-                    consumesMediaTypes,
-                    producesMediaTypes);
+                methodInfoBuilder.requestMethod(requestMethod);
+                parseMethod(openApiContext, methodInfoBuilder.build());
             }
         }
         if (openApiContext.getOpenAPI().getTags() != null) {
@@ -118,103 +112,69 @@ public class OpenApiSpringMvcReader {
         }
     }
 
-    private void parseMethod(OpenApiContext apiContext,
-            RequestMappingInfo mappingInfo,
-            HandlerMethod method,
-            String pathPattern,
-            RequestMethod requestMethod,
-            String[] consumesMediaTypes,
-            String[] producesMediaTypes) {
+    private void parseMethod(OpenApiContext apiContext, MethodInfo methodInfo) {
         final var operation = new Operation();
-        var apiOperation = ReflectionUtils.getAnnotation(method.getMethod(),
-            io.swagger.v3.oas.annotations.Operation.class);
 
-        JsonView jsonViewAnnotation = null;
         JsonView jsonViewAnnotationForRequestBody = null;
-        if (apiOperation == null || !apiOperation.ignoreJsonView()) {
-            jsonViewAnnotation = ReflectionUtils.getAnnotation(method.getMethod(), JsonView.class);
+        if (!methodInfo.ignoreJsonView()) {
             jsonViewAnnotationForRequestBody = (JsonView) Arrays
-                .stream(ReflectionUtils.getParameterAnnotations(method.getMethod()))
+                .stream(ReflectionUtils.getParameterAnnotations(methodInfo.getMethod()))
                 .filter(arr -> Arrays.stream(arr)
                     .anyMatch(annotation -> annotation.annotationType()
                         .equals(io.swagger.v3.oas.annotations.parameters.RequestBody.class)))
                 .flatMap(Arrays::stream)
                 .filter(annotation -> annotation.annotationType().equals(JsonView.class))
                 .reduce((a, b) -> null)
-                .orElse(jsonViewAnnotation);
+                .orElse(methodInfo.getJsonView());
         }
 
-        if (isDeprecatedMethod(method.getMethod())) {
+        if (isDeprecatedMethod(methodInfo.getMethod())) {
             operation.setDeprecated(true);
         }
 
         if (StringUtils.isBlank(operation.getOperationId())) {
-            operation.setOperationId(getOperationId(apiContext, method.getMethod().getName()));
+            operation.setOperationId(getOperationId(apiContext, methodInfo.getMethod().getName()));
         }
 
         // parse OpenAPI Tags annotations
-        parseMethodTags(apiContext, method, operation);
+        parseMethodTags(apiContext, methodInfo.getHandler(), operation);
 
         // parse OpenAPI Parameter from Method Annotations
-        var apiParameters = ReflectionUtils.getRepeatableAnnotations(method.getMethod(),
+        var apiParameters = ReflectionUtils.getRepeatableAnnotations(methodInfo.getMethod(),
             io.swagger.v3.oas.annotations.Parameter.class);
-        parseParameters(apiContext, apiParameters, consumesMediaTypes, operation, jsonViewAnnotation)
+        parseParameters(apiContext, apiParameters, methodInfo.getConsumes(), operation, methodInfo.getJsonView())
             .forEach(operation::addParametersItem);
 
         // parse OpenAPI RequestBody annotation
-        var apiRequestBody = ReflectionUtils.getAnnotation(method.getMethod(),
+        var apiRequestBody = ReflectionUtils.getAnnotation(methodInfo.getMethod(),
             io.swagger.v3.oas.annotations.parameters.RequestBody.class);
         if (apiRequestBody != null && operation.getRequestBody() == null) {
-            parseRequestBody(apiContext, apiRequestBody, consumesMediaTypes, jsonViewAnnotation)
+            parseRequestBody(apiContext, apiRequestBody, methodInfo.getConsumes(), methodInfo.getJsonView())
                 .ifPresent(operation::setRequestBody);
         }
 
-        // parse OpenAPI ApiResponses annotation on class level
-        var classResponses = apiContext.getClassApiResponses(method.getBeanType());
-        if (classResponses == null) {
-            var classApiResponses = ReflectionUtils.getRepeatableAnnotations(method.getBeanType(),
-                io.swagger.v3.oas.annotations.responses.ApiResponse.class);
-            if (classApiResponses != null) {
-                var responses = parseApiResponses(apiContext,
-                    classApiResponses,
-                    producesMediaTypes,
-                    jsonViewAnnotation);
-                if (responses.isPresent()) {
-                    apiContext.addClassApiResponses(method.getBeanType(), responses.get());
-                    classResponses = responses.get();
-                }
-            }
-        }
-        if (classResponses != null) {
-            if (operation.getResponses() == null) {
-                operation.setResponses(new ApiResponses());
-                operation.getResponses().putAll(classResponses);
-            } else {
-                classResponses.forEach(operation.getResponses()::addApiResponse);
-            }
-        }
-
         // parse OpenAPI Operation annotation
-        parseOperation(apiContext, apiOperation, operation, consumesMediaTypes, producesMediaTypes, jsonViewAnnotation);
+        parseOperation(apiContext,
+            methodInfo.getOperationAnnotation(),
+            operation,
+            methodInfo.getConsumes(),
+            methodInfo.getProduces(),
+            methodInfo.getJsonView());
 
         // parse response body
-        var apiResponses = ReflectionUtils.getRepeatableAnnotations(method.getMethod(),
-            io.swagger.v3.oas.annotations.responses.ApiResponse.class);
-        if (apiResponses != null) {
-            parseApiResponses(apiContext, apiResponses, producesMediaTypes, jsonViewAnnotation).ifPresent(responses -> {
-                if (operation.getResponses() == null) {
-                    operation.setResponses(responses);
-                } else {
-                    responses.forEach(operation.getResponses()::addApiResponse);
-                }
-            });
-        }
+        responseBodyGenerator.generate(apiContext, methodInfo).ifPresent(responses -> {
+            if (operation.getResponses() == null) {
+                operation.setResponses(responses);
+            } else {
+                responses.forEach(operation.getResponses()::addApiResponse);
+            }
+        });
 
         // parse OpenAPI Parameters from method parameters
         var resolvedParameters = resolveMethodParameters(apiContext,
-            method,
-            consumesMediaTypes,
-            jsonViewAnnotation,
+            methodInfo.getHandler(),
+            methodInfo.getConsumes(),
+            methodInfo.getJsonView(),
             jsonViewAnnotationForRequestBody);
         if (CollectionUtils.isEmpty(operation.getParameters())) {
             if (!resolvedParameters.parameters.isEmpty()) {
@@ -260,180 +220,17 @@ public class OpenApiSpringMvcReader {
         }
 
         // apply ApiResponse from Spring
-        var returnType = getType(method.getReturnType());
-        boolean genericResponseCode = false;
-        if (returnType instanceof ParameterizedType) {
-            var rawType = ((ParameterizedType) returnType).getRawType();
-            if (rawType == ResponseEntity.class || rawType == HttpEntity.class) {
-                returnType = ((ParameterizedType) returnType).getActualTypeArguments()[0];
-                genericResponseCode = true;
-            }
-        }
-        if (!isVoid(returnType)) {
-            var resolvedSchema = ModelConverters.getInstance()
-                .resolveAsResolvedSchema(
-                    new AnnotatedType(returnType).resolveAsRef(true).jsonViewAnnotation(jsonViewAnnotation));
-            if (resolvedSchema.schema != null) {
-                var responseStatus = method.getMethodAnnotation(ResponseStatus.class);
-                var content = new Content();
-                var mediaType = new io.swagger.v3.oas.models.media.MediaType().schema(resolvedSchema.schema);
-                AnnotationsUtils.applyTypes(new String[0], producesMediaTypes, content, mediaType);
-                if (operation.getResponses() == null) {
-                    operation.setResponses(new ApiResponses());
-                    if (genericResponseCode) {
-                        operation.getResponses()
-                            ._default(new ApiResponse().description("default response").content(content));
-                    } else {
-                        var responseCode = Optional.ofNullable(method.getMethodAnnotation(ResponseStatus.class))
-                            .map(ResponseStatus::value)
-                            .map(HttpStatus::value)
-                            .map(String::valueOf)
-                            .orElse("200");
-                        operation.getResponses().addApiResponse(responseCode, new ApiResponse().description("default response").content(content));
-                    }
-                } else {
-                    if (responseStatus != null) {
-                        var apiResponse = operation.getResponses().get(String.valueOf(responseStatus.value().value()));
-                        if (apiResponse != null) {
-                            if (StringUtils.isBlank(apiResponse.get$ref())) {
-                                if (apiResponse.getContent() == null) {
-                                    apiResponse.setContent(content);
-                                } else {
-                                    var currentContent = apiResponse.getContent();
-                                    for (var entry : currentContent.entrySet()) {
-                                        if (entry.getValue().getSchema() == null) {
-                                            entry.getValue().setSchema(resolvedSchema.schema);
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            operation.getResponses()
-                                .addApiResponse(String.valueOf(responseStatus.value().value()),
-                                    new ApiResponse().description("default response").content(content));
-                        }
-                    } else {
-                        var defaultResponse = operation.getResponses().getDefault();
-                        if (defaultResponse != null) {
-                            if (StringUtils.isBlank(defaultResponse.get$ref())) {
-                                if (defaultResponse.getContent() == null) {
-                                    defaultResponse.setContent(content);
-                                } else {
-                                    var currentContent = defaultResponse.getContent();
-                                    for (var entry : currentContent.entrySet()) {
-                                        if (entry.getValue().getSchema() == null) {
-                                            entry.getValue().setSchema(resolvedSchema.schema);
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            var apiResponse = operation.getResponses().get("200");
-                            if (apiResponse != null) {
-                                if (StringUtils.isBlank(apiResponse.get$ref())) {
-                                    if (apiResponse.getContent() == null) {
-                                        apiResponse.setContent(content);
-                                    } else {
-                                        var currentContent = apiResponse.getContent();
-                                        for (var entry : currentContent.entrySet()) {
-                                            if (entry.getValue().getSchema() == null) {
-                                                entry.getValue().setSchema(resolvedSchema.schema);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                if (resolvedSchema.referencedSchemas != null) {
-                    resolvedSchema.referencedSchemas
-                        .forEach((key, schema) -> apiContext.getComponents().addSchemas(key, schema));
-                }
-            }
-        } else {
-            if (genericResponseCode) {
-                if (CollectionUtils.isEmpty(operation.getResponses())) {
-                    operation.setResponses(new ApiResponses());
-                    operation.getResponses().setDefault(new ApiResponse().description("default response"));
-                }
-            } else {
-                var responseCode = Optional.ofNullable(method.getMethodAnnotation(ResponseStatus.class))
-                    .map(ResponseStatus::value)
-                    .map(HttpStatus::value)
-                    .map(String::valueOf)
-                    .orElse("200");
-                if (CollectionUtils.isEmpty(operation.getResponses())) {
-                    operation.setResponses(new ApiResponses());
-                    operation.getResponses()
-                        .addApiResponse(responseCode, new ApiResponse().description("default response"));
-                } else if (operation.getResponses().get(responseCode) == null) {
-                    operation.getResponses()
-                        .addApiResponse(responseCode, new ApiResponse().description("default response"));
-                }
-            }
-        }
+
 
         // register parsed operation method
         PathItem pathItem;
-        if (apiContext.getPaths().containsKey(pathPattern)) {
-            pathItem = apiContext.getPaths().get(pathPattern);
+        if (apiContext.getPaths().containsKey(methodInfo.getPathPattern())) {
+            pathItem = apiContext.getPaths().get(methodInfo.getPathPattern());
         } else {
             pathItem = new PathItem();
-            apiContext.getPaths().addPathItem(pathPattern, pathItem);
+            apiContext.getPaths().addPathItem(methodInfo.getPathPattern(), pathItem);
         }
-        pathItem.operation(PathItem.HttpMethod.valueOf(requestMethod.name()), operation);
-    }
-
-    private Optional<ApiResponses> parseApiResponses(OpenApiContext apiContext,
-            List<io.swagger.v3.oas.annotations.responses.ApiResponse> apiResponses,
-            String[] produces,
-            JsonView jsonViewAnnotation) {
-        if (apiResponses == null) {
-            return Optional.empty();
-        }
-        var responses = new ApiResponses();
-        for (var apiResponse : apiResponses) {
-            var response = new ApiResponse();
-            if (StringUtils.isNotBlank(apiResponse.ref())) {
-                response.set$ref(apiResponse.ref());
-                if (StringUtils.isNotBlank(apiResponse.responseCode())) {
-                    responses.addApiResponse(apiResponse.responseCode(), response);
-                } else {
-                    responses._default(response);
-                }
-                continue;
-            }
-            if (StringUtils.isNotBlank(apiResponse.description())) {
-                response.setDescription(apiResponse.description());
-            }
-            if (apiResponse.extensions().length > 0) {
-                AnnotationsUtils.getExtensions(apiResponse.extensions()).forEach(response::addExtension);
-            }
-
-            AnnotationsUtils
-                .getContent(apiResponse
-                    .content(), new String[0], produces, null, apiContext.getComponents(), jsonViewAnnotation)
-                .ifPresent(response::content);
-            AnnotationsUtils.getHeaders(apiResponse.headers(), jsonViewAnnotation).ifPresent(response::headers);
-            if (StringUtils.isNotBlank(response.getDescription()) || response.getContent() != null || response
-                .getHeaders() != null) {
-                var links = AnnotationsUtils.getLinks(apiResponse.links());
-                if (links.size() > 0) {
-                    response.setLinks(links);
-                }
-                if (StringUtils.isNotBlank(apiResponse.responseCode())) {
-                    responses.addApiResponse(apiResponse.responseCode(), response);
-                } else {
-                    responses._default(response);
-                }
-            }
-        }
-
-        if (responses.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(responses);
+        pathItem.operation(PathItem.HttpMethod.valueOf(methodInfo.getRequestMethod().name()), operation);
     }
 
     private Optional<RequestBody> parseRequestBody(OpenApiContext apiContext,
@@ -483,25 +280,68 @@ public class OpenApiSpringMvcReader {
             JsonView jsonViewAnnotation,
             JsonView jsonViewAnnotationForRequestBody) {
         var resolvedParameters = new ResolvedParameters();
-        for (var methodParameter : method.getMethodParameters()) {
+        ObjectSchema objectSchema = null;
+        MethodParameter[] methodParameters = method.getMethodParameters();
+        for (int i = 0; i < methodParameters.length; i++) {
+            MethodParameter methodParameter = methodParameters[i];
             var apiParameter = methodParameter.getParameterAnnotation(io.swagger.v3.oas.annotations.Parameter.class);
+            var requestParam = methodParameter.getParameterAnnotation(RequestParam.class);
+            var requestPart = methodParameter.getParameterAnnotation(RequestPart.class);
             if (apiParameter != null && apiParameter.hidden()) {
                 // skip hidden parameters
                 continue;
             }
             var parameterType = ParameterProcessor.getParameterType(apiParameter, true);
             if (parameterType == null) {
-                parameterType = getType(methodParameter);
+                parameterType = OpenApiUtils.getType(methodParameter);
             }
             if (isIgnorableType(parameterType)) {
                 continue;
             }
-            if (isFile(parameterType)) {
-                // TODO temporary skip files
+            if ((OpenApiUtils.isFile(parameterType) && requestParam != null) || requestPart != null) {
+                var resolvedSchema = ModelConverters.getInstance()
+                        .resolveAsResolvedSchema(
+                                new AnnotatedType(parameterType).resolveAsRef(true).jsonViewAnnotation(jsonViewAnnotation));
+                if (resolvedSchema.schema != null) {
+                    if (objectSchema == null) {
+                        objectSchema = new ObjectSchema();
+                    }
+                    String name = null;
+                    boolean required = false;
+                    if (requestParam != null) {
+                        if (StringUtils.isNotBlank(requestParam.name())) {
+                            name = requestParam.name();
+                        }
+                        required = requestParam.required();
+                    } else {
+                        if (StringUtils.isNotBlank(requestPart.name())) {
+                            name = requestPart.name();
+                        }
+                        required = requestPart.required();
+                    }
+                    if (apiParameter != null) {
+                        if (StringUtils.isNotBlank(apiParameter.name())) {
+                            name = apiParameter.name();
+                        }
+                        required = apiParameter.required();
+                    }
+                    if (name == null) {
+                        name = "arg" + i;
+                    }
+                    if (required) {
+                        objectSchema.addRequiredItem(name);
+                    }
+                    objectSchema.addProperties(name, resolvedSchema.schema);
+
+                    if (resolvedSchema.referencedSchemas != null) {
+                        resolvedSchema.referencedSchemas
+                                .forEach((key, schema) -> apiContext.getComponents().addSchemas(key, schema));
+                    }
+                }
                 continue;
             }
             var requestBodyAnno = methodParameter
-                .getParameterAnnotation(org.springframework.web.bind.annotation.RequestBody.class);
+                    .getParameterAnnotation(org.springframework.web.bind.annotation.RequestBody.class);
 
             if (requestBodyAnno != null) {
                 var requestBody = new RequestBody();
@@ -523,23 +363,23 @@ public class OpenApiSpringMvcReader {
                     }
                 }
                 var parameter = ParameterProcessor.applyAnnotations(null,
-                    parameterType,
-                    Arrays.asList(methodParameter.getParameterAnnotations()),
-                    apiContext.getComponents(),
-                    new String[0],
-                    consumes,
-                    jsonViewAnnotationForRequestBody);
+                        parameterType,
+                        Arrays.asList(methodParameter.getParameterAnnotations()),
+                        apiContext.getComponents(),
+                        new String[0],
+                        consumes,
+                        jsonViewAnnotationForRequestBody);
                 if (parameter.getContent() != null && !parameter.getContent().isEmpty()) {
                     requestBody.setContent(parameter.getContent());
                 } else if (parameter.getSchema() != null) {
                     var content = new Content();
                     if (consumes.length == 0) {
-                        var mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
+                        var mediaTypeObject = new MediaType();
                         mediaTypeObject.setSchema(parameter.getSchema());
                         content.addMediaType("*/*", mediaTypeObject);
                     } else {
                         Stream.of(consumes).forEach(consume -> {
-                            var mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
+                            var mediaTypeObject = new MediaType();
                             mediaTypeObject.setSchema(parameter.getSchema());
                             content.addMediaType(consume, mediaTypeObject);
                         });
@@ -552,7 +392,6 @@ public class OpenApiSpringMvcReader {
             var parameter = new Parameter();
             var pathVar = methodParameter.getParameterAnnotation(PathVariable.class);
             var requestHeader = methodParameter.getParameterAnnotation(RequestHeader.class);
-            var requestParam = methodParameter.getParameterAnnotation(RequestParam.class);
             var cookieValue = methodParameter.getParameterAnnotation(CookieValue.class);
 
             boolean empty = true;
@@ -589,25 +428,41 @@ public class OpenApiSpringMvcReader {
                 continue;
             }
             if (StringUtils.isBlank(parameter.getName())) {
-                parameter.setName(methodParameter.getParameterName());
+                parameter.setName("arg" + i);
             }
+
             if (parameter.getRequired() == Boolean.FALSE) {
                 // false to null. Because null means is not required
                 parameter.setRequired(null);
             }
             // TODO process enums
             ParameterProcessor.applyAnnotations(parameter,
-                parameterType,
-                Arrays.asList(methodParameter.getParameterAnnotations()),
-                apiContext.getComponents(),
-                new String[0],
-                consumes,
-                jsonViewAnnotation);
+                    parameterType,
+                    Arrays.asList(methodParameter.getParameterAnnotations()),
+                    apiContext.getComponents(),
+                    new String[0],
+                    consumes,
+                    jsonViewAnnotation);
             if (StringUtils.isNotBlank(defaultValue) && !ValueConstants.DEFAULT_NONE.equals(defaultValue)) {
                 parameter.getSchema().setDefault(defaultValue);
             }
             applyValidationAnnotations(methodParameter, parameter);
             resolvedParameters.parameters.add(parameter);
+        }
+        if (objectSchema != null) {
+            var content = new Content();
+            if (consumes.length == 0) {
+                var mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
+                mediaTypeObject.setSchema(objectSchema);
+                content.addMediaType("*/*", mediaTypeObject);
+            } else {
+                for (String consume : consumes) {
+                    var mediaTypeObject = new io.swagger.v3.oas.models.media.MediaType();
+                    mediaTypeObject.setSchema(objectSchema);
+                    content.addMediaType(consume, mediaTypeObject);
+                }
+            }
+            resolvedParameters.requestBody = new RequestBody().content(content);
         }
         return resolvedParameters;
     }
@@ -642,22 +497,6 @@ public class OpenApiSpringMvcReader {
         var cl = ResolvableType.forType(type).getRawClass();
         if (cl != null) {
             return TYPES_TO_IGNORE.stream().anyMatch(clazz -> clazz.isAssignableFrom(cl));
-        }
-        return false;
-    }
-
-    private boolean isFile(Type type) {
-        var fileClass = ResolvableType.forType(type).getRawClass();
-        if (fileClass != null) {
-            return fileClass == Resource.class || fileClass == MultipartFile.class || fileClass == MultipartRequest.class;
-        }
-        return false;
-    }
-
-    private boolean isVoid(Type type) {
-        var cl = ResolvableType.forType(type).getRawClass();
-        if (cl != null) {
-            return cl == Void.class || cl == void.class;
         }
         return false;
     }
@@ -712,15 +551,6 @@ public class OpenApiSpringMvcReader {
         return parameter;
     }
 
-    private static Type getType(MethodParameter methodParameter) {
-        var genericType = methodParameter.getGenericParameterType();
-        if (genericType instanceof ParameterizedType || genericType instanceof TypeVariable) {
-            return GenericTypeResolver.resolveType(genericType, methodParameter.getContainingClass());
-        } else {
-            return methodParameter.getParameterType();
-        }
-    }
-
     private void parseOperation(OpenApiContext apiContext,
             io.swagger.v3.oas.annotations.Operation apiOperation,
             Operation operation,
@@ -747,15 +577,6 @@ public class OpenApiSpringMvcReader {
                 .filter(tag -> operation.getTags() == null || !operation.getTags().contains(tag))
                 .forEach(operation::addTagsItem);
         }
-
-        parseApiResponses(apiContext, Arrays.asList(apiOperation.responses()), produces, jsonViewAnnotation)
-            .ifPresent(responses -> {
-                if (operation.getResponses() == null) {
-                    operation.setResponses(responses);
-                } else {
-                    responses.forEach(operation.getResponses()::addApiResponse);
-                }
-            });
 
         parseParameters(apiContext, Arrays.asList(apiOperation.parameters()), consumes, operation, jsonViewAnnotation)
             .forEach(operation::addParametersItem);
