@@ -1,12 +1,24 @@
 package org.openl.rules.spring.openapi;
 
 import org.openl.util.StringUtils;
+import org.springframework.core.GenericTypeResolver;
+import org.springframework.core.MethodParameter;
+import org.springframework.core.ResolvableType;
+import org.springframework.core.io.Resource;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartRequest;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Optional;
+import java.util.Set;
 
 public final class OpenApiUtils {
+
+    private static final Set<Class<?>> FILE_TYPES = Set.of(Resource.class, MultipartFile.class, MultipartRequest.class);
 
     private OpenApiUtils() {
 
@@ -34,6 +46,31 @@ public final class OpenApiUtils {
             return sb.toString();
         }
         return null;
+    }
+
+    public static boolean isFile(Type type) {
+        var rawClass = ResolvableType.forType(type).getRawClass();
+        if (rawClass != null) {
+            return FILE_TYPES.stream().anyMatch(clazz -> clazz.isAssignableFrom(rawClass));
+        }
+        return false;
+    }
+
+    public static boolean isVoid(Type type) {
+        var cl = ResolvableType.forType(type).getRawClass();
+        if (cl != null) {
+            return cl == Void.class || cl == void.class;
+        }
+        return false;
+    }
+
+    public static Type getType(MethodParameter methodParameter) {
+        var genericType = methodParameter.getGenericParameterType();
+        if (genericType instanceof ParameterizedType || genericType instanceof TypeVariable) {
+            return GenericTypeResolver.resolveType(genericType, methodParameter.getContainingClass());
+        } else {
+            return methodParameter.getParameterType();
+        }
     }
 
 }
