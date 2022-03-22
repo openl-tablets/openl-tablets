@@ -10,7 +10,8 @@ public final class FileTypeHelper {
             return false;
         }
         String lcFileName = fileName.toLowerCase();
-        return lcFileName.endsWith(".xls") || lcFileName.endsWith(".xlsx") || lcFileName.endsWith(".xlsm");
+        return !lcFileName.startsWith("~$")
+                && (lcFileName.endsWith(".xls") || lcFileName.endsWith(".xlsx") || lcFileName.endsWith(".xlsm"));
     }
 
     public static boolean isZipFile(String fileName) {
