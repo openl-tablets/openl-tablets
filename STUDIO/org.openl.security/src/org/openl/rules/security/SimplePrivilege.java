@@ -2,17 +2,12 @@ package org.openl.rules.security;
 
 public class SimplePrivilege implements Privilege {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
-    private String name;
-    private String displayName;
+    private final String name;
 
-    public SimplePrivilege() {
-    }
-
-    public SimplePrivilege(String name, String displayName) {
+    public SimplePrivilege(String name) {
         this.name = name;
-        this.displayName = displayName;
     }
 
     @Override
@@ -20,17 +15,9 @@ public class SimplePrivilege implements Privilege {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     @Override
     public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
+        return name;
     }
 
     @Override

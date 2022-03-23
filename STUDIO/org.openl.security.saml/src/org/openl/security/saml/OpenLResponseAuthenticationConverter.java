@@ -22,7 +22,6 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
-import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 
 /**
@@ -116,7 +115,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
             final List<Privilege> grantedAuthorities = new ArrayList<>();
             if (StringUtils.isNotBlank(groupsAttribute)) {
                 for (String name : getAttributeValues(groupsAttribute)) {
-                    grantedAuthorities.add(new SimplePrivilege(name, name));
+                    grantedAuthorities.add(new SimplePrivilege(name));
                 }
             }
 

@@ -77,12 +77,12 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
 
                     for (final Object o : list) {
                         String name = o.toString();
-                        grantedAuthorities.add(new SimplePrivilege(name, name));
+                        grantedAuthorities.add(new SimplePrivilege(name));
                     }
 
                 } else {
                     String name = value.toString();
-                    grantedAuthorities.add(new SimplePrivilege(name, name));
+                    grantedAuthorities.add(new SimplePrivilege(name));
                 }
             }
         }
