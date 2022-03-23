@@ -336,10 +336,10 @@ public class GroupManagementTest {
 
     private Set<Privilege> generatePrivilege(int count, String... defaultGroups) {
         Set<Privilege> res = new HashSet<>();
-        Stream.of(defaultGroups).map(name -> new SimplePrivilege(name, name)).forEach(res::add);
+        Stream.of(defaultGroups).map(name -> new SimplePrivilege(name)).forEach(res::add);
         for (int i = 0; i < count; i++) {
             String name = String.format(RND_GROUP, i);
-            res.add(new SimplePrivilege(name, name));
+            res.add(new SimplePrivilege(name));
         }
         return Collections.unmodifiableSet(res);
     }

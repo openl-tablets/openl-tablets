@@ -93,7 +93,7 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             if (authority instanceof Privilege) {
                 privileges.add((Privilege) authority);
             } else {
-                privileges.add(new SimplePrivilege(authority.getAuthority(), authority.getAuthority()));
+                privileges.add(new SimplePrivilege(authority.getAuthority()));
             }
         }
         String fixedUsername = fixCaseMatching(ctx, username);
