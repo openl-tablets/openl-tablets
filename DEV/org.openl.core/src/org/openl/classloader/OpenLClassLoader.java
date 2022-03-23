@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.codehaus.groovy.control.CompilerConfiguration;
 import org.openl.util.ClassUtils;
 import org.openl.util.IOUtils;
 
@@ -37,8 +38,21 @@ public class OpenLClassLoader extends GroovyClassLoader {
         this(new URL[0], parent);
     }
 
+    private static CompilerConfiguration buildOpenLConfiguration() {
+        CompilerConfiguration configuration = new CompilerConfiguration();
+        configuration.addCompilationCustomizers(OpenLGroovyCompilerCustomizer.getInstance());
+        return configuration;
+    }
+
     public OpenLClassLoader(URL[] urls, ClassLoader parent) {
-        super(parent);
+        this(urls, parent, buildOpenLConfiguration(), true);
+    }
+
+    private OpenLClassLoader(URL[] urls,
+            ClassLoader parent,
+            CompilerConfiguration config,
+            boolean useConfigurationClasspath) {
+        super(parent, config, useConfigurationClasspath);
         if (urls != null && urls.length > 0) {
             for (URL url : urls) {
                 addURL(url);
@@ -54,7 +68,7 @@ public class OpenLClassLoader extends GroovyClassLoader {
         if (classLoader instanceof GroovyClassLoader) {
             return classLoader;
         } else {
-            GroovyClassLoader groovyClassLoader = new GroovyClassLoader(classLoader);
+            GroovyClassLoader groovyClassLoader = new GroovyClassLoader(classLoader, buildOpenLConfiguration(), true);
             groovyClassLoader.setResourceLoader(new GroovyResourceLoader(groovyClassLoader.getResourceLoader()));
             if (urls != null) {
                 for (URL url : urls) {
