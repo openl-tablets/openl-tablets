@@ -35,9 +35,7 @@ import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
-import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
-import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
@@ -156,15 +154,6 @@ public class UsersController {
             .equals(currentUserInfo.getUserName(), username);
         userManagementService.updateAuthorities(username, userModel.getGroups(), leaveAdminGroups);
 
-        if (currentUserInfo.getUserName().equals(username)) {
-            updateCurrentApplicationUser(userModel.getFirstName(),
-                userModel.getLastName(),
-                userModel.getEmail(),
-                userModel.getDisplayName(),
-                userModel.getPassword(),
-                !emailChanged && dbUser.getExternalFlags().isEmailVerified());
-        }
-
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
             mailSender.sendVerificationMail(userManagementService.getUser(username), request);
         }
@@ -183,13 +172,6 @@ public class UsersController {
             null,
             userModel.getEmail(),
             userModel.getDisplayName(),
-            !emailChanged && dbUser.getExternalFlags().isEmailVerified());
-
-        updateCurrentApplicationUser(userModel.getFirstName(),
-            userModel.getLastName(),
-            userModel.getEmail(),
-            userModel.getDisplayName(),
-            null,
             !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
@@ -219,13 +201,6 @@ public class UsersController {
             userModel.isShowComplexResult(),
             userModel.getTestsPerPage(),
             userModel.isTestsFailuresOnly());
-
-        updateCurrentApplicationUser(userModel.getFirstName(),
-            userModel.getLastName(),
-            userModel.getEmail(),
-            userModel.getDisplayName(),
-            userModel.getChangePassword().getNewPassword(),
-            !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
             mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), request);
@@ -262,46 +237,10 @@ public class UsersController {
         }
     }
 
-    private void updateCurrentApplicationUser(String firstname,
-            String lastname,
-            String email,
-            String displayName,
-            String newPassword,
-            boolean emailVerified) {
-        Optional.ofNullable(currentUserInfo.getAuthentication()).map(authentication -> {
-            if (authentication.getPrincipal() instanceof SimpleUser) {
-                return (SimpleUser) authentication.getPrincipal();
-            } else if (authentication.getDetails() instanceof SimpleUser) {
-                return (SimpleUser) authentication.getDetails();
-            } else {
-                return null;
-            }
-        }).ifPresent(simpleUser -> {
-            simpleUser.setFirstName(firstname);
-            simpleUser.setLastName(lastname);
-            simpleUser.setEmail(email);
-            simpleUser.setDisplayName(displayName);
-            simpleUser.setExternalFlags(UserExternalFlags.builder(simpleUser.getExternalFlags())
-                .applyFeature(UserExternalFlags.Feature.EMAIL_VERIFIED, emailVerified)
-                .build());
-            if (StringUtils.isNotEmpty(newPassword)) {
-                simpleUser.setPassword(newPassword);
-            }
-        });
-    }
-
     @GetMapping("/profile")
     public UserProfileModel getUserProfile() {
         String username = currentUserInfo.getUserName();
-        User user = Optional.ofNullable(currentUserInfo.getAuthentication()).map(authentication -> {
-            if (authentication.getPrincipal() instanceof User) {
-                return (User) authentication.getPrincipal();
-            } else if (authentication.getDetails() instanceof User) {
-                return (User) authentication.getDetails();
-            } else {
-                return userManagementService.getUser(username);
-            }
-        }).orElse(SimpleUser.builder().setUsername(username).build());
+        User user = userManagementService.getUser(username);
 
         return new UserProfileModel().setFirstName(user.getFirstName())
             .setLastName(user.getLastName())
