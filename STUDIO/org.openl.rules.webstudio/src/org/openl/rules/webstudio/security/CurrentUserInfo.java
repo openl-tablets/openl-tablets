@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.security;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -14,20 +13,12 @@ public class CurrentUserInfo {
      * Currently logged in user.
      */
     public String getUserName() {
-        Authentication authentication = getAuthentication();
-        if (authentication == null) {
-            return null;
-        }
-
-        return authentication.getName();
-    }
-
-    public Authentication getAuthentication() {
         SecurityContext ctx = SecurityContextHolder.getContext();
-        if (ctx == null) {
+        if (ctx == null || ctx.getAuthentication() == null) {
             return null;
         }
 
-        return ctx.getAuthentication();
+        return ctx.getAuthentication().getName();
     }
+
 }
