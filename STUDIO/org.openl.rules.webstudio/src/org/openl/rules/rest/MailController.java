@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -14,9 +13,7 @@ import org.openl.rules.rest.model.MailConfigModel;
 import org.openl.rules.rest.model.NotificationModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.security.Privileges;
-import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
-import org.openl.rules.security.UserExternalFlags;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.UserManagementService;
@@ -81,26 +78,9 @@ public class MailController {
                 user.getDisplayName(),
                 true);
             userSettingManagementService.setProperty(username, MAIL_VERIFY_TOKEN, "");
-            updateCurrentUserEmailVerified();
         } else {
             throw new BadRequestException("mail.wrong.token");
         }
-    }
-
-    private void updateCurrentUserEmailVerified() {
-        Optional.ofNullable(currentUserInfo.getAuthentication()).map(authentication -> {
-            if (authentication.getPrincipal() instanceof SimpleUser) {
-                return (SimpleUser) authentication.getPrincipal();
-            } else if (authentication.getDetails() instanceof SimpleUser) {
-                return (SimpleUser) authentication.getDetails();
-            } else {
-                return null;
-            }
-        })
-            .ifPresent(
-                simpleUser -> simpleUser.setExternalFlags(UserExternalFlags.builder(simpleUser.getExternalFlags())
-                    .withFeature(UserExternalFlags.Feature.EMAIL_VERIFIED)
-                    .build()));
     }
 
     @PostMapping(value = "/send/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
