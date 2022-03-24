@@ -27,6 +27,7 @@ jobs:
 
     - name: Setup Soft
       run: |
+        sudo apt-get update
         sudo apt-get install -y --no-install-recommends libxml2-utils
         gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 902B17732F38021331F3019F82521DFA3BF8F6FC
 
