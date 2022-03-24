@@ -31,12 +31,12 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
  * @author Vladyslav Pikus
  */
 @Component
-public class OpenApiResponseGenerator {
+public class OpenApiResponseService {
 
-    private final OpenApiParameterService parameterService;
+    private final OpenApiParameterService apiParameterService;
 
-    public OpenApiResponseGenerator(OpenApiParameterService parameterService) {
-        this.parameterService = parameterService;
+    public OpenApiResponseService(OpenApiParameterService apiParameterService) {
+        this.apiParameterService = apiParameterService;
     }
 
     /**
@@ -46,7 +46,7 @@ public class OpenApiResponseGenerator {
      * @param methodInfo Spring method handler
      * @return resulted API responses or empty
      */
-    public Optional<ApiResponses> generate(OpenApiContext apiContext, MethodInfo methodInfo) {
+    public Optional<ApiResponses> parse(OpenApiContext apiContext, MethodInfo methodInfo) {
         var responses = new ApiResponses();
 
         // gather ApiResponses annotation from class level
@@ -164,7 +164,7 @@ public class OpenApiResponseGenerator {
                 }
             }
         } else {
-            var schema = parameterService.resolveSchema(returnType, components, methodInfo.getJsonView());
+            var schema = apiParameterService.resolveSchema(returnType, components, methodInfo.getJsonView());
             if (schema != null) {
                 var content = new Content();
                 var mediaType = new io.swagger.v3.oas.models.media.MediaType().schema(schema);

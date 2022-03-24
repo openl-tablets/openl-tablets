@@ -1,6 +1,5 @@
 package org.openl.rules.spring.openapi.model;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Optional;
