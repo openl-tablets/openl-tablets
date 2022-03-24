@@ -1,5 +1,13 @@
 package org.openl.rules.spring.openapi;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.openl.info.OpenLVersion;
+
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Paths;
@@ -7,15 +15,6 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
-import org.openl.info.OpenLVersion;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
 
 public final class OpenApiContext {
 
@@ -26,12 +25,10 @@ public final class OpenApiContext {
 
     public OpenApiContext() {
         this.openAPI = new OpenAPI()
-                .info(new Info()
-                        .version(OpenLVersion.getVersion())
-                        .title("OpenL Tablets WebStudio API"))
-                .addServersItem(new Server().url(OpenApiUtils.getRequestBasePath()))
-                .paths(new Paths())
-                .components(new Components());
+            .info(new Info().version(OpenLVersion.getVersion()).title("OpenL Tablets WebStudio API"))
+            .addServersItem(new Server().url(OpenApiUtils.getRequestBasePath()))
+            .paths(new Paths())
+            .components(new Components());
     }
 
     public OpenAPI getOpenAPI() {

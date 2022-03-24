@@ -24,11 +24,12 @@ public class SpringMvcHandlerMethodsHelper {
             synchronized (this) {
                 if (this.handlerMethods == null) {
                     var requestMappingHandlers = context.getBeansOfType(RequestMappingHandlerMapping.class);
-                    this.handlerMethods = requestMappingHandlers.values().stream()
-                            .map(AbstractHandlerMethodMapping::getHandlerMethods)
-                            .map(Map::entrySet)
-                            .flatMap(Collection::stream)
-                            .collect(StreamUtils.toLinkedMap(Map.Entry::getKey, Map.Entry::getValue));
+                    this.handlerMethods = requestMappingHandlers.values()
+                        .stream()
+                        .map(AbstractHandlerMethodMapping::getHandlerMethods)
+                        .map(Map::entrySet)
+                        .flatMap(Collection::stream)
+                        .collect(StreamUtils.toLinkedMap(Map.Entry::getKey, Map.Entry::getValue));
                 }
             }
         }
