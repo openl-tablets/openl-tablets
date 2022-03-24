@@ -212,7 +212,10 @@ public class OpenApiParameterService {
     }
 
     @SuppressWarnings("rawtypes")
-    private void applyValidationAnnotations(ParameterInfo paramInfo, Schema schema) {
+    public void applyValidationAnnotations(ParameterInfo paramInfo, Schema schema) {
+        if (schema == null) {
+            return;
+        }
         var min = paramInfo.getParameterAnnotation(Min.class);
         if (min != null) {
             schema.setMinimum(BigDecimal.valueOf(min.value()));
