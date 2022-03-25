@@ -282,9 +282,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private void addExternalXlsModuleOpenClassesFromDependency(CompiledDependency dependency) {
-        ((XlsModuleOpenClass) (dependency.getCompiledOpenClass().getOpenClassWithErrors()))
-            .getExternalXlsModuleOpenClasses()
-            .forEach(this::addExternalXlsModuleOpenClass);
+        if (dependency.getCompiledOpenClass().getOpenClassWithErrors() instanceof XlsModuleOpenClass) {
+            ((XlsModuleOpenClass) (dependency.getCompiledOpenClass().getOpenClassWithErrors()))
+                .getExternalXlsModuleOpenClasses()
+                .forEach(this::addExternalXlsModuleOpenClass);
+        }
     }
 
     @Override
