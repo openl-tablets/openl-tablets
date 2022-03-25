@@ -39,7 +39,8 @@ public class PetController {
      * @return Invalid input (status code 405)
      */
     @Operation(summary = "Add a new pet to the store", tags = { "pet" })
-    @ApiResponses(value = { @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Invalid input") })
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Invalid input") })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Pet object that needs to be added to the store", required = true, content = @Content(schema = @Schema(implementation = Pet.class)))
     @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     public ResponseEntity<?> addPet(@RequestBody Pet pet) {
@@ -57,7 +58,8 @@ public class PetController {
     @Parameters({
             @Parameter(in = ParameterIn.PATH, description = "Pet id to delete", name = "petId", required = true, schema = @Schema(type = "integer", format = "int64")),
             @Parameter(in = ParameterIn.HEADER, name = "api_key", schema = @Schema(type = "string")) })
-    @ApiResponses(value = { @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Pet not found") })
     @DeleteMapping(value = "/{petId}")
     public ResponseEntity<?> deletePet(@PathVariable("petId") Long petId,
@@ -98,8 +100,7 @@ public class PetController {
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "successful operation", content = @Content(array = @ArraySchema(schema = @Schema(implementation = Pet.class)))),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid tag value") })
-    @GetMapping(value = "/findByTags", produces = { MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE })
+    @GetMapping(value = "/findByTags", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     @Parameter(description = "Tags to filter by", in = ParameterIn.QUERY, name = "tags", required = true, array = @ArraySchema(schema = @Schema(type = "string")))
     public ResponseEntity<List<Pet>> findPetsByTags(@RequestParam(value = "tags") List<String> tags) {
         return ResponseEntity.ok().build();
@@ -118,8 +119,7 @@ public class PetController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Pet not found") })
     @Parameter(description = "ID of pet to return", in = ParameterIn.PATH, name = "petId", required = true, schema = @Schema(type = "integer", format = "int64"))
-    @GetMapping(value = "/{petId}", produces = { MediaType.APPLICATION_JSON_VALUE,
-            MediaType.APPLICATION_XML_VALUE })
+    @GetMapping(value = "/{petId}", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
     public ResponseEntity<Pet> getPetById(@PathVariable("petId") Long petId) {
         return ResponseEntity.ok().build();
     }
@@ -132,7 +132,8 @@ public class PetController {
      *         code 405)
      */
     @Operation(summary = "Update an existing pet", tags = { "pet" })
-    @ApiResponses(value = { @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid ID supplied"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Pet not found"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Validation exception") })
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Pet object that needs to be added to the store", required = true, content = @Content(schema = @Schema(implementation = Pet.class)))
@@ -184,7 +185,7 @@ public class PetController {
             "application/octet-stream" })
     @Parameter(description = "ID of pet to update", required = true, in = ParameterIn.PATH, name = "petId", schema = @Schema(type = "integer", format = "int64"))
     public ResponseEntity<ApiResponse> uploadFile(@PathVariable("petId") Long petId,
-                                                  @RequestBody(required = false) org.springframework.core.io.Resource body) {
+            @RequestBody(required = false) org.springframework.core.io.Resource body) {
         return ResponseEntity.ok().build();
     }
 

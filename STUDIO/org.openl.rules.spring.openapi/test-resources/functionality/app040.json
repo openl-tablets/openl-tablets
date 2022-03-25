@@ -2,11 +2,11 @@
   "openapi": "3.0.1",
   "info": {
     "title": "OpenL Tablets WebStudio API",
-    "version": "5.26.0-SNAPSHOT"
+    "version": "*"
   },
   "servers": [
     {
-      "url": "http://localhost:80"
+      "url": "http://localhost:##"
     }
   ],
   "paths": {
