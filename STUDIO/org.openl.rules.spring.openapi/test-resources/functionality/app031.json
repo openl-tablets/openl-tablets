@@ -1,0 +1,170 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenL Tablets WebStudio API",
+    "version": "*"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:##"
+    }
+  ],
+  "tags": [
+    {
+      "name": "default"
+    },
+    {
+      "name": "greetings"
+    }
+  ],
+  "paths": {
+    "/greetings/sayHello": {
+      "post": {
+        "tags": [
+          "greetings"
+        ],
+        "summary": "Say Hello",
+        "operationId": "sayHello",
+        "requestBody": {
+          "description": "Name",
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/greetings/hello": {
+      "get": {
+        "tags": [
+          "default",
+          "greetings"
+        ],
+        "summary": "Default say hello",
+        "description": "Say hello response entity.",
+        "operationId": "sayHelloDefault",
+        "deprecated": true,
+        "responses": {
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful Operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  ]
+                },
+                "examples": {
+                  "The String example": {
+                    "description": "The String example",
+                    "value": "Foo-bar"
+                  },
+                  "The Integer example": {
+                    "description": "The Integer example",
+                    "value": 4221
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "parameters": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

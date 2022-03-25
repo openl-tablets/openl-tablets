@@ -1,5 +1,6 @@
 package org.openl.rules.spring.openapi;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -14,6 +15,7 @@ import org.openl.util.StringUtils;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -77,12 +79,23 @@ public final class OpenApiUtils {
         }
     }
 
+    public static Type getReturnType(Method method) {
+        return getType(new MethodParameter(method, -1));
+    }
+
     public static boolean isIgnorableType(Type type) {
         var cl = ResolvableType.forType(type).getRawClass();
         if (cl != null) {
             return TYPES_TO_IGNORE.stream().anyMatch(clazz -> clazz.isAssignableFrom(cl));
         }
         return false;
+    }
+
+    public static boolean isHiddenApiMethod(Method method) {
+        var anno = AnnotationUtils.findAnnotation(method, io.swagger.v3.oas.annotations.Operation.class);
+        return anno != null && anno.hidden() || AnnotationUtils.findAnnotation(method,
+            io.swagger.v3.oas.annotations.Hidden.class) != null || AnnotationUtils
+                .findAnnotation(method.getDeclaringClass(), io.swagger.v3.oas.annotations.Hidden.class) != null;
     }
 
 }

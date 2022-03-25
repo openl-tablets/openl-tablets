@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.core.util.ParameterProcessor;
 import io.swagger.v3.core.util.ReflectionUtils;
-import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
@@ -40,11 +39,13 @@ public class OpenApiRequestService {
 
         RequestBody requestBody = null;
         if (methodInfo.getOperationAnnotation() != null) {
-            requestBody = parseRequestBody(methodInfo.getOperationAnnotation().requestBody(), methodInfo, apiContext.getComponents());
+            requestBody = parseRequestBody(methodInfo.getOperationAnnotation().requestBody(),
+                methodInfo,
+                apiContext.getComponents());
         }
         if (requestBody == null) {
             var apiRequestBody = ReflectionUtils.getAnnotation(methodInfo.getMethod(),
-                    io.swagger.v3.oas.annotations.parameters.RequestBody.class);
+                io.swagger.v3.oas.annotations.parameters.RequestBody.class);
             requestBody = parseRequestBody(apiRequestBody, methodInfo, apiContext.getComponents());
         }
 

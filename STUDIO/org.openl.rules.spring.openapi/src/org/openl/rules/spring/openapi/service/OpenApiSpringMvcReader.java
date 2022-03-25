@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import org.openl.rules.spring.openapi.OpenApiContext;
 import org.openl.rules.spring.openapi.OpenApiUtils;
 import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
+import org.openl.rules.spring.openapi.model.ControllerAdviceInfo;
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.model.ParameterInfo;
 import org.openl.util.StringUtils;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.ControllerAdviceBean;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
@@ -60,26 +62,43 @@ public class OpenApiSpringMvcReader {
     }
 
     public void read(OpenApiContext openApiContext, Map<String, Class<?>> controllers) {
+        var controllerAdviceInfos = handlerMethodsHelper.getControllerAdvices()
+            .values()
+            .stream()
+            .map(ControllerAdviceInfo::new)
+            .collect(Collectors.toList());
         handlerMethodsHelper.getHandlerMethods()
             .entrySet()
             .stream()
             .filter(e -> isRestControllers(e.getValue(), controllers))
-            .filter(e -> !isHiddenApiMethod(e.getValue().getMethod()))
-            .forEach(e -> visitHandlerMethod(openApiContext, e.getKey(), e.getValue()));
+            .filter(e -> !OpenApiUtils.isHiddenApiMethod(e.getValue().getMethod()))
+            .forEach(e -> visitHandlerMethod(openApiContext,
+                e.getKey(),
+                e.getValue(),
+                selectControllerAdvices(controllerAdviceInfos, e.getValue().getBeanType())));
     }
 
     private void visitHandlerMethod(OpenApiContext openApiContext,
             RequestMappingInfo mappingInfo,
-            HandlerMethod method) {
+            HandlerMethod method,
+            List<ControllerAdviceInfo> controllerAdviceInfos) {
         if (mappingInfo.getPatternsCondition() == null) {
             return;
+        }
+        for (var controllerAdviceInfo : controllerAdviceInfos) {
+            if (controllerAdviceInfo.getApiResponses().isEmpty()) {
+                apiResponseService.generateResponses(openApiContext, controllerAdviceInfo);
+            }
         }
         var methodInfoBuilder = MethodInfo.Builder.from(method, mappingInfo);
         for (String pathPattern : mappingInfo.getPatternsCondition().getPatterns()) {
             methodInfoBuilder.pathPattern(pathPattern);
             for (RequestMethod requestMethod : mappingInfo.getMethodsCondition().getMethods()) {
                 methodInfoBuilder.requestMethod(requestMethod);
-                parseMethod(openApiContext, methodInfoBuilder.build());
+                var operation = parseMethod(openApiContext, methodInfoBuilder.build());
+                for (var controllerAdviceInfo : controllerAdviceInfos) {
+                    controllerAdviceInfo.getApiResponses().forEach(operation.getResponses()::addApiResponse);
+                }
             }
         }
         if (openApiContext.getOpenAPI().getTags() != null) {
@@ -87,7 +106,7 @@ public class OpenApiSpringMvcReader {
         }
     }
 
-    private void parseMethod(OpenApiContext apiContext, MethodInfo methodInfo) {
+    private Operation parseMethod(OpenApiContext apiContext, MethodInfo methodInfo) {
         final var operation = new Operation();
 
         if (isDeprecatedMethod(methodInfo.getMethod())) {
@@ -140,7 +159,8 @@ public class OpenApiSpringMvcReader {
         apiParameterService.parse(apiContext, methodInfo, parameters).forEach(operation::addParametersItem);
 
         // parse request body
-        apiRequestService.parse(apiContext, methodInfo, formParameters, requestBodyParam).ifPresent(operation::requestBody);
+        apiRequestService.parse(apiContext, methodInfo, formParameters, requestBodyParam)
+            .ifPresent(operation::requestBody);
 
         // register parsed operation method
         PathItem pathItem;
@@ -151,6 +171,8 @@ public class OpenApiSpringMvcReader {
             apiContext.getPaths().addPathItem(methodInfo.getPathPattern(), pathItem);
         }
         pathItem.operation(PathItem.HttpMethod.valueOf(methodInfo.getRequestMethod().name()), operation);
+
+        return operation;
     }
 
     private void parseOperation(OpenApiContext apiContext,
@@ -288,15 +310,16 @@ public class OpenApiSpringMvcReader {
             ResponseBody.class) || AnnotationUtils.findAnnotation(method.getBeanType(), ResponseBody.class) != null;
     }
 
-    private static boolean isHiddenApiMethod(Method method) {
-        var anno = AnnotationUtils.findAnnotation(method, io.swagger.v3.oas.annotations.Operation.class);
-        return anno != null && anno.hidden() || AnnotationUtils.findAnnotation(method,
-            io.swagger.v3.oas.annotations.Hidden.class) != null || AnnotationUtils
-                .findAnnotation(method.getDeclaringClass(), io.swagger.v3.oas.annotations.Hidden.class) != null;
-    }
-
     private static boolean isDeprecatedMethod(Method method) {
         return AnnotationUtils.findAnnotation(method, Deprecated.class) != null || AnnotationUtils
             .findAnnotation(method.getDeclaringClass(), Deprecated.class) != null;
+    }
+
+    private static List<ControllerAdviceInfo> selectControllerAdvices(
+            Collection<ControllerAdviceInfo> controllerAdvices,
+            Class<?> beanType) {
+        return controllerAdvices.stream()
+            .filter(controllerAdvice -> new ControllerAdviceBean(controllerAdvice).isApplicableToBeanType(beanType))
+            .collect(Collectors.toList());
     }
 }
