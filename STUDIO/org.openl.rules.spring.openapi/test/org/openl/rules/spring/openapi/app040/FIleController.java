@@ -3,7 +3,6 @@ package org.openl.rules.spring.openapi.app040;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,7 +27,7 @@ public class FIleController {
     }
 
     @PostMapping(value = "/form/{name}", consumes = "multipart/form-data")
-    public ResponseEntity<Void> form(@PathVariable("name") final String name,
+    public ResponseEntity<Void> form(@CustomPathVariable("name") final String name,
             @Parameter(name = "configuration") @RequestPart(value = "configuration") final String configuration,
             @RequestPart(value = "file") final MultipartFile file) {
         return null;

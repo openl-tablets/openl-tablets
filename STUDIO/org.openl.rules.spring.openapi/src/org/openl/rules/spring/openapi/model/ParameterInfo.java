@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.openl.rules.spring.openapi.OpenApiUtils;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -24,7 +25,7 @@ public class ParameterInfo {
         this.methodInfo = methodInfo;
         this.methodParameter = methodParameter;
         this.index = index;
-        this.parameter = methodParameter.getParameterAnnotation(Parameter.class);
+        this.parameter = AnnotatedElementUtils.findMergedAnnotation(methodParameter.getParameter(), Parameter.class);
         this.jsonView = Optional.ofNullable(methodParameter.getParameterAnnotation(JsonView.class))
             .orElseGet(methodInfo::getJsonView);
         this.type = OpenApiUtils.getType(methodParameter);
