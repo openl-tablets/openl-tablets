@@ -13,12 +13,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
-import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IAggregateInfo;
@@ -349,5 +349,26 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
             this.fields = null;
             this.staticFields = null;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        if (!super.equals(o))
+            return false;
+
+        DatatypeOpenClass that = (DatatypeOpenClass) o;
+
+        return Objects.equals(module, that.module);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (module != null ? module.hashCode() : 0);
+        return result;
     }
 }

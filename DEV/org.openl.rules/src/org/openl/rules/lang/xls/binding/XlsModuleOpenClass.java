@@ -738,4 +738,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         BindHelper.processError(e, rulesModuleBindingContext);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return this == o;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }
