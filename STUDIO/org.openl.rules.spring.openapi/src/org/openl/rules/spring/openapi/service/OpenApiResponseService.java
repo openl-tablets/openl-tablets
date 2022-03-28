@@ -56,11 +56,13 @@ public class OpenApiResponseService {
     private final RequestMappingHandlerAdapter mappingHandlerAdapter;
     private final Map<Class<?>, ExceptionHandlerMethodResolver> exHandlerAdviceCache;
     private final List<String> openLRestExceptionBasePackages;
+    private final OpenApiPropertyResolver apiPropertyResolver;
 
     public OpenApiResponseService(OpenApiParameterService apiParameterService,
             RequestMappingHandlerAdapter mappingHandlerAdapter,
             SpringMvcHandlerMethodsHelper handlerMethodsHelper,
-            @Qualifier("openLRestExceptionBasePackages") List<String> openLRestExceptionBasePackages) {
+            @Qualifier("openLRestExceptionBasePackages") List<String> openLRestExceptionBasePackages,
+            OpenApiPropertyResolver apiPropertyResolver) {
         this.apiParameterService = apiParameterService;
         this.mappingHandlerAdapter = mappingHandlerAdapter;
         this.openLRestExceptionBasePackages = openLRestExceptionBasePackages;
@@ -70,6 +72,7 @@ public class OpenApiResponseService {
             .stream()
             .map(Object::getClass)
             .collect(StreamUtils.toLinkedMap(Function.identity(), ExceptionHandlerMethodResolver::new));
+        this.apiPropertyResolver = apiPropertyResolver;
     }
 
     /**
@@ -241,7 +244,7 @@ public class OpenApiResponseService {
             }
         } else {
             if (StringUtils.isNotBlank(apiResponse.description())) {
-                response.setDescription(apiResponse.description());
+                response.setDescription(apiPropertyResolver.resolve(apiResponse.description()));
             }
             if (apiResponse.extensions().length > 0) {
                 AnnotationsUtils.getExtensions(apiResponse.extensions()).forEach(response::addExtension);

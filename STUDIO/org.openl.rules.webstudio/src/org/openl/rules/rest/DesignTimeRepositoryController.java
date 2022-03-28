@@ -26,6 +26,8 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
+import org.openl.rules.rest.model.ProjectViewModel;
+import org.openl.rules.rest.model.RepositoryViewModel;
 import org.openl.rules.rest.resolver.DesignRepository;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.rest.validation.CreateUpdateProjectModelValidator;
@@ -49,8 +51,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping(value = "/repos", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "repos", description = "Design Repository API")
 public class DesignTimeRepositoryController {
 
     private final DesignTimeRepository designTimeRepository;
@@ -79,18 +89,20 @@ public class DesignTimeRepositoryController {
     }
 
     @GetMapping
-    public List<Map<String, Object>> getRepositoryList() {
+    @Operation(summary = "repos.get-repository-list.summary", description = "repos.get-repository-list.desc")
+    @ApiResponse(responseCode = "200", description = "repos.get-repository-list.200.desc")
+    public List<RepositoryViewModel> getRepositoryList() {
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
-        return designTimeRepository.getRepositories().stream().map(repository -> {
-            Map<String, Object> dest = new LinkedHashMap<>();
-            dest.put("id", repository.getId());
-            dest.put("name", repository.getName());
-            return dest;
-        }).collect(Collectors.toList());
+        return designTimeRepository.getRepositories()
+            .stream()
+            .map(repo -> new RepositoryViewModel(repo.getId(), repo.getName()))
+            .collect(Collectors.toList());
     }
 
     @GetMapping("/{repo-name}/projects")
-    public List<Map<String, Object>> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
+    @Operation(summary = "repos.get-project-list-by-repository.summary", description = "repos.get-project-list-by-repository.desc")
+    @ApiResponse(responseCode = "200", description = "repos.get-project-list-by-repository.200.desc")
+    public List<ProjectViewModel> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         return designTimeRepository.getProjects(repository.getId())
             .stream()
@@ -100,34 +112,32 @@ public class DesignTimeRepositoryController {
             .collect(Collectors.toList());
     }
 
-    private <T extends AProject> Map<String, Object> mapProjectResponse(T src, Features features) {
-        Map<String, Object> dest = new LinkedHashMap<>();
-        dest.put("name", src.getBusinessName());
-        dest.put("modifiedBy",
-            Optional.of(src.getFileData()).map(FileData::getAuthor).map(UserInfo::getName).orElse(null));
-        dest.put("modifiedAt",
-            Optional.of(src.getFileData())
-                .map(FileData::getModifiedAt)
-                .map(Date::toInstant)
-                .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
-                .orElse(null));
-        dest.put("rev", Optional.of(src.getFileData()).map(FileData::getVersion).orElse(null));
+    private <T extends AProject> ProjectViewModel mapProjectResponse(T src, Features features) {
+        var builder = ProjectViewModel.builder().name(src.getBusinessName());
+        Optional.of(src.getFileData()).map(FileData::getAuthor).map(UserInfo::getName).ifPresent(builder::modifiedBy);
+        Optional.of(src.getFileData())
+            .map(FileData::getModifiedAt)
+            .map(Date::toInstant)
+            .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
+            .ifPresent(builder::modifiedAt);
+        Optional.of(src.getFileData()).map(FileData::getVersion).ifPresent(builder::rev);
         if (features.branches()) {
-            dest.put("branch", Optional.of(src.getFileData()).map(FileData::getBranch).orElse(null));
+            Optional.of(src.getFileData()).map(FileData::getBranch).ifPresent(builder::branch);
         }
         if (features.mappedFolders()) {
-            Optional.ofNullable(src.getRealPath()).ifPresent(p -> dest.put("path", p.replace('\\', '/')));
+            Optional.ofNullable(src.getRealPath()).map(p -> p.replace('\\', '/')).ifPresent(builder::path);
         }
-        return dest;
+        return builder.build();
     }
 
     @PutMapping(value = "/{repo-name}/projects/{project-name}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "repos.create-project-from-zip.summary", description = "repos.create-project-from-zip.desc")
     public Map<String, Object> createProjectFromZip(@DesignRepository("repo-name") Repository repository,
-            @PathVariable("project-name") String projectName,
-            @RequestParam(value = "path", required = false) String path,
-            @RequestParam(value = "comment", required = false) String comment,
-            @RequestParam("template") MultipartFile file,
-            @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException {
+            @Parameter(description = "repos.create-project-from-zip.param.project-name.desc") @PathVariable("project-name") String projectName,
+            @Parameter(description = "repos.create-project-from-zip.param.path.desc") @RequestParam(value = "path", required = false) String path,
+            @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
+            @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam("template") MultipartFile file,
+            @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException {
 
         SecurityChecker.allow(overwrite ? Privileges.EDIT_PROJECTS : Privileges.CREATE_PROJECTS);
         allowedToPush(repository);

@@ -1,7 +1,9 @@
 package org.openl.rules.spring.openapi.service;
 
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -19,6 +21,7 @@ import io.swagger.v3.core.util.ParameterProcessor;
 import io.swagger.v3.core.util.ReflectionUtils;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.Encoding;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
@@ -27,9 +30,12 @@ import io.swagger.v3.oas.models.parameters.RequestBody;
 public class OpenApiRequestService {
 
     private final OpenApiParameterService apiParameterService;
+    private final OpenApiPropertyResolver propertyResolver;
 
-    public OpenApiRequestService(OpenApiParameterService apiParameterService) {
+    public OpenApiRequestService(OpenApiParameterService apiParameterService,
+            OpenApiPropertyResolver propertyResolver) {
         this.apiParameterService = apiParameterService;
+        this.propertyResolver = propertyResolver;
     }
 
     public Optional<RequestBody> parse(OpenApiContext apiContext,
@@ -81,6 +87,7 @@ public class OpenApiRequestService {
             MethodInfo methodInfo,
             Components components) {
         var objectSchema = new ObjectSchema();
+        Map<String, Encoding> encodingMap = new LinkedHashMap<>();
 
         for (var paramInfo : formParamInfos) {
             var requestParam = paramInfo.getParameterAnnotation(RequestParam.class);
@@ -117,6 +124,21 @@ public class OpenApiRequestService {
                 parameterType = paramInfo.getType();
             }
             var schema = apiParameterService.resolveSchema(parameterType, components, paramInfo.getJsonView());
+            if (apiParameter != null) {
+                if (StringUtils.isNotBlank(apiParameter.description())) {
+                    schema.setDescription(propertyResolver.resolve(apiParameter.description()));
+                }
+                if (apiParameter.schema() != null && StringUtils.isNotBlank(apiParameter.schema().defaultValue())) {
+                    schema.setDefault(apiParameter.schema().defaultValue());
+                }
+                for (var content : apiParameter.content()) {
+                    for (var encoding : content.encoding()) {
+                        if (StringUtils.isNotBlank(encoding.contentType())) {
+                            encodingMap.put(name, new Encoding().contentType(encoding.contentType()));
+                        }
+                    }
+                }
+            }
             apiParameterService.applyValidationAnnotations(paramInfo, schema);
             objectSchema.addProperties(name, schema);
         }
@@ -125,7 +147,11 @@ public class OpenApiRequestService {
         if (CollectionUtils.isNotEmpty(objectSchema.getProperties())) {
             var content = new Content();
             for (String consume : methodInfo.getConsumes()) {
-                content.addMediaType(consume, new io.swagger.v3.oas.models.media.MediaType().schema(objectSchema));
+                var mediaType = new io.swagger.v3.oas.models.media.MediaType().schema(objectSchema);
+                if (!encodingMap.isEmpty()) {
+                    mediaType.encoding(encodingMap);
+                }
+                content.addMediaType(consume, mediaType);
             }
             requestBody = new RequestBody().content(content);
         }
