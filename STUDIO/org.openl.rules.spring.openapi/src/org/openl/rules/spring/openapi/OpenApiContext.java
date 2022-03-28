@@ -21,7 +21,6 @@ public final class OpenApiContext {
     private final OpenAPI openAPI;
     private final Set<String> tagIds = new HashSet<>();
     private final Map<Class<?>, Map<String, Tag>> controllerTags = new HashMap<>();
-    private final Map<Class<?>, ApiResponses> controllerResponses = new HashMap<>();
 
     public OpenApiContext() {
         this.openAPI = new OpenAPI()
@@ -50,10 +49,6 @@ public final class OpenApiContext {
         }
     }
 
-    public void addAllTags(Collection<Tag> tags) {
-        tags.forEach(this::addTagsItem);
-    }
-
     public void addClassTags(Class<?> beanType, Collection<Tag> tagItems) {
         var tags = controllerTags.computeIfAbsent(beanType, key -> new HashMap<>());
         for (Tag tagItem : tagItems) {
@@ -66,11 +61,4 @@ public final class OpenApiContext {
         return controllerTags.get(beanType);
     }
 
-    public void addClassApiResponses(Class<?> beanType, ApiResponses responses) {
-        controllerResponses.put(beanType, responses);
-    }
-
-    public ApiResponses getClassApiResponses(Class<?> beanType) {
-        return controllerResponses.get(beanType);
-    }
 }
