@@ -1,5 +1,8 @@
 package org.openl.rules.rest.exception;
 
+import java.util.Optional;
+
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -25,13 +28,15 @@ public class RestRuntimeException extends RuntimeException {
         this.args = args;
     }
 
+    public HttpStatus getHttpStatus() {
+        return Optional.ofNullable(AnnotationUtils.findAnnotation(getClass(), ResponseStatus.class))
+            .map(ResponseStatus::code)
+            .orElse(null);
+    }
+
     public String getErrorCode() {
-        ResponseStatus status = getClass().getAnnotation(ResponseStatus.class);
-        if (status != null) {
-            return DEF_ERROR_PREFIX + status.code().value() + "." + code;
-        } else {
-            return code;
-        }
+        var httpStatus = getHttpStatus();
+        return httpStatus != null ? DEF_ERROR_PREFIX + httpStatus.value() + "." + code : code;
     }
 
     public Object[] getArgs() {

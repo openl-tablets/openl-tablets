@@ -129,6 +129,9 @@ public class OpenApiResponseService {
                 for (var candidate : candidates) {
                     try {
                         var cl = (Class<? extends Throwable>) Class.forName(candidate.getBeanClassName());
+                        if (OpenApiUtils.isHidden(cl)) {
+                            continue;
+                        }
                         Method bestMatchingMethod = exHandlerAdviceCache
                             .get(exHandlerInfo.getControllerAdviceBeanType())
                             .resolveMethodByExceptionType(cl);

@@ -1,12 +1,11 @@
 package org.openl.rules.rest.common;
 
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
+import org.openl.rules.rest.common.model.BaseError;
+import org.openl.rules.rest.common.model.ValidationError;
 import org.openl.rules.rest.exception.RestRuntimeException;
 import org.openl.rules.rest.exception.ValidationException;
 import org.openl.util.StringUtils;
@@ -30,6 +29,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.util.WebUtils;
 
 /**
  * API Exception Handler
@@ -37,6 +37,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
  * @author Vladyslav Pikus
  */
 @ControllerAdvice
+@SuppressWarnings("NullableProblems")
 public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler {
 
     private static final String DEF_ERROR_PREFIX = "openl.error.";
@@ -51,11 +52,11 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<Object> handleAllRestRuntimeExceptions(ValidationException e, WebRequest request) {
+    public ResponseEntity<ValidationError> handleAllRestRuntimeExceptions(ValidationException e, WebRequest request) {
         var code = Optional.ofNullable(AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class))
             .map(ResponseStatus::code)
             .orElse(HttpStatus.BAD_REQUEST);
-        return handleExceptionInternal(e,
+        return _handleExceptionInternal(e,
             handleBindingResult(code, e.getBindingResult()),
             new HttpHeaders(),
             code,
@@ -63,15 +64,18 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
     }
 
     @ExceptionHandler(RestRuntimeException.class)
-    public ResponseEntity<Object> handleAllRestRuntimeExceptions(RestRuntimeException e, WebRequest request) {
-        ResponseStatus status = AnnotationUtils.findAnnotation(e.getClass(), ResponseStatus.class);
-        if (status != null) {
-            final HttpStatus code = status.code();
-            return handleExceptionInternal(e, mapCommonException(code, e), new HttpHeaders(), code, request);
+    public ResponseEntity<BaseError> handleAllRestRuntimeExceptions(RestRuntimeException e, WebRequest request) {
+        var httpStatus = e.getHttpStatus();
+        if (httpStatus != null) {
+            return _handleExceptionInternal(e,
+                mapCommonException(httpStatus, e),
+                new HttpHeaders(),
+                httpStatus,
+                request);
         } else {
             HttpStatus code = HttpStatus.INTERNAL_SERVER_ERROR;
             LOG.error(e.getMessage(), e);
-            return handleExceptionInternal(e, mapCommonException(code, e), new HttpHeaders(), code, request);
+            return _handleExceptionInternal(e, mapCommonException(code, e), new HttpHeaders(), code, request);
         }
     }
 
@@ -89,7 +93,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         return handleExceptionInternal(e,
             handleBindingResult(status, e.getBindingResult()),
             new HttpHeaders(),
-                status,
+            status,
             request);
     }
 
@@ -102,23 +106,33 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         var handledEx = super.handleExceptionInternal(e, body, headers, status, request);
         if (handledEx.hasBody()) {
             var handledBody = handledEx.getBody();
-            if (handledBody instanceof Map) {
+            if (handledBody instanceof BaseError) {
                 return handledEx;
             } else {
-                Map<String, Object> dest = new LinkedHashMap<>();
-                dest.put("message",
-                    Optional.ofNullable(handledBody)
+                var builder = BaseError.builder()
+                    .message(Optional.ofNullable(handledBody)
                         .map(Object::toString)
                         .filter(StringUtils::isNotBlank)
                         .orElseGet(status::getReasonPhrase));
-                return new ResponseEntity<>(dest, handledEx.getHeaders(), handledEx.getStatusCode());
+                return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
             }
         } else {
-            Map<String, Object> dest = new LinkedHashMap<>();
-            dest.put("code", buildErrorCode(status.value() + ".default.message"));
-            dest.put("message", e.getMessage());
-            return new ResponseEntity<>(dest, handledEx.getHeaders(), handledEx.getStatusCode());
+            var builder = BaseError.builder()
+                .code(buildErrorCode(status.value() + ".default.message"))
+                .message(e.getMessage());
+            return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
         }
+    }
+
+    private <T extends BaseError> ResponseEntity<T> _handleExceptionInternal(Exception e,
+            T body,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request) {
+        if (HttpStatus.INTERNAL_SERVER_ERROR.equals(status)) {
+            request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, e, WebRequest.SCOPE_REQUEST);
+        }
+        return new ResponseEntity<>(body, headers, status);
     }
 
     @Override
@@ -131,31 +145,37 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         return new ResponseEntity<>(bindingErrorModel, handledEx.getHeaders(), handledEx.getStatusCode());
     }
 
-    private Map<String, Object> handleBindingResult(HttpStatus status, BindingResult bindingResult) {
-        Map<String, Object> dest = new LinkedHashMap<>();
+    private ValidationError handleBindingResult(HttpStatus status, BindingResult bindingResult) {
+        var builder = ValidationError.builder();
         if (bindingResult.getGlobalErrorCount() == 1 && !bindingResult.hasFieldErrors()) {
-            dest.put("code", buildErrorCode(bindingResult.getGlobalError().getCode()));
-            dest.put("message", resolveLocalMessage(bindingResult.getGlobalError()));
+            builder.code(buildErrorCode(bindingResult.getGlobalError().getCode()))
+                .message(resolveLocalMessage(bindingResult.getGlobalError()));
         } else {
-            dest.put("message", status.getReasonPhrase());
+            builder.message(status.getReasonPhrase());
             if (bindingResult.hasFieldErrors()) {
-                dest.put("fields",
-                    bindingResult.getFieldErrors()
-                        .stream()
-                        .sorted(Comparator.comparing(FieldError::getField, String.CASE_INSENSITIVE_ORDER))
-                        .map(this::mapFiledError)
-                        .collect(Collectors.toList()));
+                bindingResult.getFieldErrors()
+                    .stream()
+                    .sorted(Comparator.comparing(FieldError::getField, String.CASE_INSENSITIVE_ORDER))
+                    .map(fieldError -> org.openl.rules.rest.common.model.FieldError.builder()
+                        .code(buildErrorCode(fieldError.getCode()))
+                        .field(fieldError.getField())
+                        .rejectedValue(fieldError.getRejectedValue())
+                        .message(resolveLocalMessage(fieldError))
+                        .build())
+                    .forEach(builder::addField);
             }
             if (bindingResult.hasGlobalErrors()) {
-                dest.put("errors",
-                    bindingResult.getGlobalErrors()
-                        .stream()
-                        .sorted(Comparator.comparing(ObjectError::getCode, String.CASE_INSENSITIVE_ORDER))
-                        .map(this::mapObjectError)
-                        .collect(Collectors.toList()));
+                bindingResult.getGlobalErrors()
+                    .stream()
+                    .sorted(Comparator.comparing(ObjectError::getCode, String.CASE_INSENSITIVE_ORDER))
+                    .map(objErr -> BaseError.builder()
+                        .code(buildErrorCode(objErr.getCode()))
+                        .message(resolveLocalMessage(objErr))
+                        .build())
+                    .forEach(builder::addError);
             }
         }
-        return dest;
+        return builder.build();
     }
 
     private String resolveLocalMessage(ObjectError error) {
@@ -183,34 +203,16 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         return e.getMessage();
     }
 
-    private Map<String, Object> mapCommonException(HttpStatus status, Exception e) {
-        Map<String, Object> dest = new LinkedHashMap<>();
+    private BaseError mapCommonException(HttpStatus status, Exception e) {
+        var builder = BaseError.builder();
         if (e instanceof RestRuntimeException) {
             RestRuntimeException restEx = (RestRuntimeException) e;
-            dest.put("code", restEx.getErrorCode());
-            dest.put("message", resolveLocalMessage(restEx));
-
+            builder.code(restEx.getErrorCode()).message(resolveLocalMessage(restEx));
         } else {
-            dest.put("message",
+            builder.message(
                 Optional.ofNullable(e.getMessage()).filter(StringUtils::isNotBlank).orElseGet(status::getReasonPhrase));
         }
-        return dest;
-    }
-
-    private Map<String, Object> mapFiledError(FieldError error) {
-        Map<String, Object> dest = new LinkedHashMap<>();
-        dest.put("code", buildErrorCode(error.getCode()));
-        dest.put("field", error.getField());
-        dest.put("rejectedValue", error.getRejectedValue());
-        dest.put("message", resolveLocalMessage(error));
-        return dest;
-    }
-
-    private Map<String, Object> mapObjectError(ObjectError error) {
-        Map<String, Object> dest = new LinkedHashMap<>();
-        dest.put("code", buildErrorCode(error.getCode()));
-        dest.put("message", resolveLocalMessage(error));
-        return dest;
+        return builder.build();
     }
 
     private static String buildErrorCode(String errorSuffix) {
