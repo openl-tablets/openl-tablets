@@ -51,17 +51,20 @@ public class OpenApiSpringMvcReader {
     private final OpenApiRequestService apiRequestService;
     private final OpenApiParameterService apiParameterService;
     private final OpenApiSecurityService apiSecurityService;
+    private final OpenApiPropertyResolver apiPropertyResolver;
 
     public OpenApiSpringMvcReader(SpringMvcHandlerMethodsHelper handlerMethodsHelper,
             OpenApiResponseService apiResponseService,
             OpenApiRequestService apiRequestService,
             OpenApiParameterService apiParameterService,
-            OpenApiSecurityService apiSecurityService) {
+            OpenApiSecurityService apiSecurityService,
+            OpenApiPropertyResolver apiPropertyResolver) {
         this.handlerMethodsHelper = handlerMethodsHelper;
         this.apiResponseService = apiResponseService;
         this.apiRequestService = apiRequestService;
         this.apiParameterService = apiParameterService;
         this.apiSecurityService = apiSecurityService;
+        this.apiPropertyResolver = apiPropertyResolver;
     }
 
     public void read(OpenApiContext openApiContext, Map<String, Class<?>> controllers) {
@@ -186,10 +189,10 @@ public class OpenApiSpringMvcReader {
             return;
         }
         if (StringUtils.isNotBlank(apiOperation.summary())) {
-            operation.setSummary(apiOperation.summary());
+            operation.setSummary(apiPropertyResolver.resolve(apiOperation.summary()));
         }
         if (StringUtils.isNotBlank(apiOperation.description())) {
-            operation.setDescription(apiOperation.description());
+            operation.setDescription(apiPropertyResolver.resolve(apiOperation.description()));
         }
         if (StringUtils.isNotBlank(apiOperation.operationId())) {
             operation.setOperationId(getOperationId(apiContext, apiOperation.operationId()));

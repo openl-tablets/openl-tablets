@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Parameter(in = ParameterIn.PATH, required = true, schema = @Schema(type = "string"))
+@Parameter(description = "Unique Identifier of target Design Repository", in = ParameterIn.PATH, required = true, schema = @Schema(type = "string"))
 public @interface DesignRepository {
 
     /**

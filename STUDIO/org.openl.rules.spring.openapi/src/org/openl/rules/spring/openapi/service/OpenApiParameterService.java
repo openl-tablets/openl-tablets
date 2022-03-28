@@ -48,8 +48,12 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 @Component
 public class OpenApiParameterService {
 
+    private final OpenApiPropertyResolver apiPropertyResolver;
+
     @Autowired
-    public OpenApiParameterService(Optional<List<ModelConverter>> modelConverters) {
+    public OpenApiParameterService(Optional<List<ModelConverter>> modelConverters,
+            OpenApiPropertyResolver apiPropertyResolver) {
+        this.apiPropertyResolver = apiPropertyResolver;
         modelConverters.ifPresent(converters -> converters.forEach(ModelConverters.getInstance()::addConverter));
     }
 
@@ -137,6 +141,10 @@ public class OpenApiParameterService {
             new String[0],
             methodInfo.getConsumes(),
             methodInfo.getJsonView());
+
+        if (StringUtils.isNotBlank(parameter.getDescription())) {
+            parameter.description(apiPropertyResolver.resolve(parameter.getDescription()));
+        }
 
         return parameter;
     }

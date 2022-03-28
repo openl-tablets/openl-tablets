@@ -5,10 +5,12 @@ import java.util.List;
 import org.openl.rules.spring.openapi.conf.SpringMvcOpenApiConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -78,5 +80,13 @@ public class ApiConfig implements WebMvcConfigurer {
     @Bean
     public StandardServletMultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
+    }
+
+    @Bean("openApiMessageSource")
+    public MessageSource openApiMessageSource() {
+        var messageSource = new ReloadableResourceBundleMessageSource();
+        messageSource.setBasename("classpath:i18n/openapi");
+        messageSource.setDefaultEncoding("UTF-8");
+        return messageSource;
     }
 }
