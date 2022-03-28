@@ -94,8 +94,11 @@ public final class OpenApiUtils {
     public static boolean isHiddenApiMethod(Method method) {
         var anno = AnnotationUtils.findAnnotation(method, io.swagger.v3.oas.annotations.Operation.class);
         return anno != null && anno.hidden() || AnnotationUtils.findAnnotation(method,
-            io.swagger.v3.oas.annotations.Hidden.class) != null || AnnotationUtils
-                .findAnnotation(method.getDeclaringClass(), io.swagger.v3.oas.annotations.Hidden.class) != null;
+            io.swagger.v3.oas.annotations.Hidden.class) != null || isHidden(method.getDeclaringClass());
+    }
+
+    public static boolean isHidden(Class<?> cl) {
+        return AnnotationUtils.findAnnotation(cl, io.swagger.v3.oas.annotations.Hidden.class) != null;
     }
 
 }
