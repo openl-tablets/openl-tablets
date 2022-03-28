@@ -50,18 +50,22 @@ public class OpenApiSpringMvcReader {
     private final OpenApiResponseService apiResponseService;
     private final OpenApiRequestService apiRequestService;
     private final OpenApiParameterService apiParameterService;
+    private final OpenApiSecurityService apiSecurityService;
 
     public OpenApiSpringMvcReader(SpringMvcHandlerMethodsHelper handlerMethodsHelper,
             OpenApiResponseService apiResponseService,
             OpenApiRequestService apiRequestService,
-            OpenApiParameterService apiParameterService) {
+            OpenApiParameterService apiParameterService,
+            OpenApiSecurityService apiSecurityService) {
         this.handlerMethodsHelper = handlerMethodsHelper;
         this.apiResponseService = apiResponseService;
         this.apiRequestService = apiRequestService;
         this.apiParameterService = apiParameterService;
+        this.apiSecurityService = apiSecurityService;
     }
 
     public void read(OpenApiContext openApiContext, Map<String, Class<?>> controllers) {
+        apiSecurityService.generateGlobalSecurity(openApiContext);
         var controllerAdviceInfos = handlerMethodsHelper.getControllerAdvices()
             .values()
             .stream()
