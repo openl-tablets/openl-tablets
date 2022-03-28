@@ -26,11 +26,13 @@ import org.openl.dependency.DependencyType;
 import org.openl.dependency.IDependencyManager;
 import org.openl.dependency.ResolvedDependency;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -465,6 +467,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         queue.add(dependencyLoader);
         Set<IDependencyLoader> dependenciesToReset = new HashSet<>();
         dependenciesToReset.add(dependencyLoader);
+        Set<ProjectDescriptor> projectClassloaderToReset = new HashSet<>();
         while (!queue.isEmpty()) {
             IDependencyLoader depLoader = queue.poll();
             for (DependencyRelation dependencyReference : dependencyRelations) {
@@ -477,6 +480,30 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                     dependenciesReferencesToRemove.add(dependencyReference);
                 }
             }
+            boolean resetWholeProject = false;
+            if (depLoader.getRefToCompiledDependency() != null) {
+                CompiledDependency compiledDependency = depLoader.getRefToCompiledDependency();
+                IOpenClass openClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
+                for (IOpenClass type : openClass.getTypes()) {
+                    if (type instanceof DatatypeOpenClass) {
+                        DatatypeOpenClass domainOpenClass = (DatatypeOpenClass) type;
+                        if (domainOpenClass.getModule() == openClass) {
+                            // Datatypes are generated into the project classloader. If module contains datatype then
+                            // whole project needs to be recompiled.
+                            resetWholeProject = true;
+                            projectClassloaderToReset.add(depLoader.getProject());
+                            break;
+                        }
+                    }
+                }
+            }
+            if (resetWholeProject) {
+                for (IDependencyLoader dl : this.getDependencyLoaders()) {
+                    if (Objects.equals(dl.getProject(), depLoader.getProject()) && dependenciesToReset.add(dl)) {
+                        queue.add(dl);
+                    }
+                }
+            }
         }
         for (IDependencyLoader dependencyToReset : dependenciesToReset) {
             if (dependencyToReset.getRefToCompiledDependency() != null) {
@@ -486,6 +513,13 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
         for (DependencyRelation dependencyReference : dependenciesReferencesToRemove) {
             dependencyRelations.remove(dependencyReference);
+        }
+        for (ProjectDescriptor projectDescriptor : projectClassloaderToReset) {
+            ClassLoader cl = externalJarsClassloaders.get(projectDescriptor);
+            if (cl != null) {
+                OpenClassUtil.releaseClassLoader(cl);
+            }
+            externalJarsClassloaders.remove(projectDescriptor);
         }
     }
 
