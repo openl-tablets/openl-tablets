@@ -1,11 +1,7 @@
 <project>
-    <name>Test classpath</name>
+    <name>project1</name>
 
     <modules>
-        <module>
-            <name>datatypes</name>
-            <rules-root path="datatypes.xlsx"/>
-        </module>
         <module>
             <name>RULES</name>
             <rules-root path="rules.xlsx"/>
