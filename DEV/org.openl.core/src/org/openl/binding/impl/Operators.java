@@ -45,6 +45,9 @@ public class Operators {
     }
 
     public static Date add(Date d, int days) {
+        if (d == null) {
+            return null;
+        }
         // We should use calendar to take into account daylight saving
         Calendar c = Calendar.getInstance();
         c.setTime(d);
