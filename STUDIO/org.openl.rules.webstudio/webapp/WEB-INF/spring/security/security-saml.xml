@@ -32,6 +32,7 @@
             <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none"/>
             <security:filter-chain pattern="/faces/pages/public/**" filters="none"/>
             <security:filter-chain pattern="/web/public/**" filters="none"/>
+            <security:filter-chain pattern="/rest/api-docs/**" filters="none"/>
             <security:filter-chain pattern="/security_logout"
                                    filters="securityContextPersistenceFilter,logoutFilter"/>
             <security:filter-chain pattern="/saml2/service-provider-metadata/**"

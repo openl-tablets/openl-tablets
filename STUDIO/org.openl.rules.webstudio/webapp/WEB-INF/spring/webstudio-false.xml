@@ -28,6 +28,7 @@
             <security:filter-chain pattern="/org.richfaces.resources/**" filters="none"/>
             <security:filter-chain pattern="/faces/pages/modules/install/**" filters="none"/>
             <security:filter-chain pattern="/web/public/**" filters="none"/>
+            <security:filter-chain pattern="/rest/api-docs/**" filters="none"/>
             <security:filter-chain pattern="/**" filters="installerPage"/>
         </security:filter-chain-map>
     </bean>
