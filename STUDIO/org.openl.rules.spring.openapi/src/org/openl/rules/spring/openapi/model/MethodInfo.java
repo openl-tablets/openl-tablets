@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 public class MethodInfo {
 
-    public static final String[] DEFAULT_CONSUMES = new String[] { MediaType.ALL_VALUE };
+    public static final String[] ALL_MEDIA_TYPES = new String[] { MediaType.ALL_VALUE };
 
     private final HandlerMethod handler;
     private final RequestMethod requestMethod;
@@ -110,7 +110,7 @@ public class MethodInfo {
         private Builder(HandlerMethod handler, String[] produces, String[] consumes) {
             this.handler = handler;
             this.produces = produces;
-            this.consumes = consumes.length == 0 ? DEFAULT_CONSUMES : consumes;
+            this.consumes = consumes.length == 0 ? ALL_MEDIA_TYPES : consumes;
 
             this.operationAnnotation = ReflectionUtils.getAnnotation(handler.getMethod(), Operation.class);
             if (operationAnnotation == null || !operationAnnotation.ignoreJsonView()) {

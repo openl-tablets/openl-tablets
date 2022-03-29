@@ -75,6 +75,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.xml.sax.InputSource;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /*
  GET /projects                                       list of (Project Name, Last Version, Last Modified Date, Last Modified By, Status, Editor)
  GET /project/{Project Name}/[{version}]             (Project_Name.zip)
@@ -87,6 +89,7 @@ import org.xml.sax.InputSource;
 @RestController
 @RequestMapping(value = "/repo/", produces = MediaType.APPLICATION_JSON_VALUE)
 @Deprecated
+@Tag(name = "Design Repository")
 public class RepositoryController {
     private static final Logger LOG = LoggerFactory.getLogger(RepositoryController.class);
 

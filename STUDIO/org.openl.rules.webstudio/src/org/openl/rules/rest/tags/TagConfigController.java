@@ -11,6 +11,7 @@ import org.openl.rules.rest.SecurityChecker;
 import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.NotFoundException;
+import org.openl.rules.rest.model.GenericView;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
@@ -19,6 +20,8 @@ import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,10 +31,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 @RestController
 @RequestMapping(value = "/admin/tag-config")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Tags")
 public class TagConfigController {
 
     private final TagTypeService tagTypeService;
@@ -43,48 +55,57 @@ public class TagConfigController {
         this.tagService = tagService;
     }
 
+    @Operation(summary = "tags.get-types.summary", description = "tags.get-types.desc")
     @GetMapping(value = "/types", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<TagTypeDTO> getTypes() {
         SecurityChecker.allow(Privileges.ADMIN);
         return tagTypeService.getAll();
     }
 
+    @Operation(summary = "tags.delete-tag-type.summary", description = "tags.delete-tag-type.desc")
     @DeleteMapping(value = "/types/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> deleteTagType(@PathVariable("id") final Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTagType(@Parameter(description = "tags.tag-type.id.desc") @PathVariable("id") final Long id) {
         SecurityChecker.allow(Privileges.ADMIN);
-        if (tagTypeService.delete(id)) {
-            return ResponseEntity.noContent().build();
-        } else {
+        if (!tagTypeService.delete(id)) {
             throw new NotFoundException("tag-type.message");
         }
     }
 
+    @Operation(summary = "tags.delete-tag.summary", description = "tags.delete-tag.desc")
     @DeleteMapping("/types/{tagTypeId}/tags/{id}")
-    public ResponseEntity<?> deleteTag(@PathVariable("tagTypeId") final Long tagTypeId,
-            @PathVariable("id") final Long id) {
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTag(
+            @Parameter(description = "tags.tag-type.id.desc") @PathVariable("tagTypeId") final Long tagTypeId,
+            @Parameter(description = "tags.tag.id.desc") @PathVariable("id") final Long id) {
         SecurityChecker.allow(Privileges.ADMIN);
         final Tag tag = tagService.getById(id);
         if (tag == null || !Objects.equals(tag.getType().getId(), tagTypeId)) {
             throw new NotFoundException("tag.message");
         }
-        if (tagService.delete(id)) {
-            return ResponseEntity.noContent().build();
-        } else {
+        if (!tagService.delete(id)) {
             throw new NotFoundException("tag.message");
         }
     }
 
+    @Operation(summary = "tags.add-tag-type.summary", description = "tags.add-tag-type.desc")
     @PostMapping(value = "/types", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> addTagType(@RequestBody TagTypeDTO typeDTO, HttpServletRequest request) {
+    @ApiResponse(responseCode = "201", description = "Created", headers = @Header(name = HttpHeaders.LOCATION, required = true))
+    public ResponseEntity<Void> addTagType(@JsonView(GenericView.CreateOrUpdate.class) @RequestBody TagTypeDTO typeDTO,
+            HttpServletRequest request) {
         return addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), request);
     }
 
+    @Operation(summary = "tags.update-tag-type.summary", description = "tags.update-tag-type.desc")
     @PutMapping(value = "/types/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateTagType(@PathVariable("id") final Long id, @RequestBody TagTypeDTO typeDTO) {
+    @ApiResponse(responseCode = "204", description = "Updated")
+    public ResponseEntity<Void> updateTagType(
+            @Parameter(description = "tags.tag-type.id.desc") @PathVariable("id") final Long id,
+            @JsonView(GenericView.CreateOrUpdate.class) @RequestBody TagTypeDTO typeDTO) {
         return addOrUpdateTagType(id, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), null);
     }
 
-    private ResponseEntity<?> addOrUpdateTagType(final Long id,
+    private ResponseEntity<Void> addOrUpdateTagType(final Long id,
             final String name,
             final Boolean nullable,
             final Boolean extensible,
@@ -132,21 +153,27 @@ public class TagConfigController {
         }
     }
 
+    @Operation(summary = "tags.add-tag.summary", description = "tags.add-tag.desc")
     @PostMapping(value = "/types/{tagTypeId}/tags", consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<?> addTag(@PathVariable("tagTypeId") final Long tagTypeId,
+    @ApiResponse(responseCode = "201", description = "Created", headers = @Header(name = HttpHeaders.LOCATION, required = true))
+    public ResponseEntity<Void> addTag(
+            @Parameter(description = "tags.tag-type.id.desc") @PathVariable("tagTypeId") final Long tagTypeId,
             @RequestBody final String name,
             HttpServletRequest request) {
         return addOrUpdateTag(tagTypeId, null, name, request);
     }
 
+    @Operation(summary = "tags.update-tag.summary", description = "tags.update-tag.desc")
     @PutMapping(value = "/types/{tagTypeId}/tags/{tagId}", consumes = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<?> updateTag(@PathVariable("tagTypeId") final Long tagTypeId,
-            @PathVariable("tagId") final Long tagId,
+    @ApiResponse(responseCode = "204", description = "Updated")
+    public ResponseEntity<Void> updateTag(
+            @Parameter(description = "tags.tag-type.id.desc") @PathVariable("tagTypeId") final Long tagTypeId,
+            @Parameter(description = "tags.tag.id.desc") @PathVariable("tagId") final Long tagId,
             @RequestBody final String name) {
         return addOrUpdateTag(tagTypeId, tagId, name, null);
     }
 
-    private ResponseEntity<?> addOrUpdateTag(final Long tagTypeId,
+    private ResponseEntity<Void> addOrUpdateTag(final Long tagTypeId,
             final Long tagId,
             final String name,
             HttpServletRequest request) {
@@ -191,7 +218,7 @@ public class TagConfigController {
         }
     }
 
-    private ResponseEntity<?> created(HttpServletRequest request, Long id) {
+    private ResponseEntity<Void> created(HttpServletRequest request, Long id) {
         try {
             return ResponseEntity.created(new URI(request.getRequestURL() + "/" + id)).build();
         } catch (URISyntaxException e) {

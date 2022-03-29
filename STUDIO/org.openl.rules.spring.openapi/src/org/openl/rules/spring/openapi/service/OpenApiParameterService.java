@@ -23,6 +23,7 @@ import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.model.ParameterInfo;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -215,6 +216,10 @@ public class OpenApiParameterService {
             methodInfo.getConsumes(),
             paramInfo.getJsonView());
 
+        if (StringUtils.isNotBlank(parameter.getDescription())) {
+            parameter.description(apiPropertyResolver.resolve(parameter.getDescription()));
+        }
+
         if (parameter.getSchema() != null) {
             if (StringUtils.isNotBlank(defaultValue) && !ValueConstants.DEFAULT_NONE.equals(defaultValue)) {
                 parameter.getSchema().setDefault(defaultValue);
@@ -268,10 +273,10 @@ public class OpenApiParameterService {
     public String[] getMediaTypesForType(Class<?> cl) {
         Set<String> possibleMediaTypes = new HashSet<>();
         for (var converter : mappingHandlerAdapter.getMessageConverters()) {
-            converter.getSupportedMediaTypes(cl)
-                    .stream()
-                    .map(Object::toString)
-                    .forEach(possibleMediaTypes::add);
+            converter.getSupportedMediaTypes(cl).stream().map(Object::toString).forEach(possibleMediaTypes::add);
+        }
+        if (possibleMediaTypes.contains(MediaType.ALL_VALUE)) {
+            return MethodInfo.ALL_MEDIA_TYPES;
         }
         return possibleMediaTypes.toArray(new String[0]);
     }

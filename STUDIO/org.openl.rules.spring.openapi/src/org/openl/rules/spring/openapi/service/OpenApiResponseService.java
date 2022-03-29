@@ -257,6 +257,17 @@ public class OpenApiResponseService {
                 }
             }
         }
+        fillHeaderScheme(response);
+    }
+
+    private void fillHeaderScheme(ApiResponse apiResponse) {
+        var headers = apiResponse.getHeaders();
+        if (!CollectionUtils.isEmpty(headers)) {
+            headers.values().stream().filter(header -> header.getSchema() == null).forEach(header -> {
+                var schema = AnnotationsUtils.resolveSchemaFromType(String.class, null, null);
+                header.setSchema(schema);
+            });
+        }
     }
 
     private void decorate(MethodInfo methodInfo, ApiResponses responses, Components components) {

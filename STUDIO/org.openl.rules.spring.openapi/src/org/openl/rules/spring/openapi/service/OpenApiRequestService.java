@@ -195,7 +195,7 @@ public class OpenApiRequestService {
             components,
             new String[0],
             consumes,
-            methodInfo.getJsonView());
+            requestBodyParam.getJsonView());
         if (parameter.getContent() != null && !parameter.getContent().isEmpty()) {
             requestBody.setContent(parameter.getContent());
         } else if (parameter.getSchema() != null) {
@@ -212,7 +212,7 @@ public class OpenApiRequestService {
 
     private String[] resolveConsumes(MethodInfo methodInfo, Class<?> cl) {
         String[] consumes = methodInfo.getConsumes();
-        if (consumes == MethodInfo.DEFAULT_CONSUMES) {
+        if (consumes == MethodInfo.ALL_MEDIA_TYPES) {
             String[] possibleConsumes = apiParameterService.getMediaTypesForType(cl);
             if (possibleConsumes.length > 0) {
                 consumes = possibleConsumes;
