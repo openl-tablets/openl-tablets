@@ -1,0 +1,18 @@
+<project>
+    <name>EPBDS-7469_Alias_Duplicate</name>
+    <modules>
+        <module>
+            <name>Module-1</name>
+            <rules-root path="Module-1.xlsx"/>
+        </module>
+        <module>
+            <name>Module-2</name>
+            <rules-root path="Module-2.xlsx"/>
+        </module>
+        <module>
+            <name>Tests</name>
+            <rules-root path="Tests.xlsx"/>
+        </module>
+    </modules>
+    <properties-file-name-pattern>Module-%lob%</properties-file-name-pattern>
+</project>

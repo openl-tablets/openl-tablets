@@ -281,7 +281,11 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
         DomainOpenClass that = (DomainOpenClass) o;
 
-        return name.equals(that.name);
+        if (name.equals(that.name)) {
+            return domain.equals(that.domain);
+        } else {
+            return false;
+        }
     }
 
     @Override
