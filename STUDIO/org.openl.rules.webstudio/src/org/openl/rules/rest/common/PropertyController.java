@@ -17,11 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
 @RestController
 @RequestMapping(value = "/property", produces = MediaType.APPLICATION_JSON_VALUE)
 // TODO Think about using of {@link org.openl.config.PropertiesHolder} and {@link org.openl.config.InMemoryProperties}
 // TODO instead of custom one {@link PropertyBean}
 // TODO Refactor this API
+@Hidden
 public class PropertyController {
 
     private final PropertyBean propertyBean;
