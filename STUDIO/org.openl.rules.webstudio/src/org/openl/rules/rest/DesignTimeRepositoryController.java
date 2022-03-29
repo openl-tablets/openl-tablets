@@ -8,9 +8,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -26,6 +24,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
+import org.openl.rules.rest.model.GenericView;
 import org.openl.rules.rest.model.ProjectViewModel;
 import org.openl.rules.rest.model.RepositoryViewModel;
 import org.openl.rules.rest.resolver.DesignRepository;
@@ -51,6 +50,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -60,7 +61,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping(value = "/repos", produces = MediaType.APPLICATION_JSON_VALUE)
-@Tag(name = "repos", description = "Design Repository API")
+@Tag(name = "Design Repository")
 public class DesignTimeRepositoryController {
 
     private final DesignTimeRepository designTimeRepository;
@@ -132,7 +133,8 @@ public class DesignTimeRepositoryController {
 
     @PutMapping(value = "/{repo-name}/projects/{project-name}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "repos.create-project-from-zip.summary", description = "repos.create-project-from-zip.desc")
-    public Map<String, Object> createProjectFromZip(@DesignRepository("repo-name") Repository repository,
+    @JsonView(GenericView.CreateOrUpdate.class)
+    public ProjectViewModel createProjectFromZip(@DesignRepository("repo-name") Repository repository,
             @Parameter(description = "repos.create-project-from-zip.param.project-name.desc") @PathVariable("project-name") String projectName,
             @Parameter(description = "repos.create-project-from-zip.param.path.desc") @RequestParam(value = "path", required = false) String path,
             @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
@@ -184,13 +186,13 @@ public class DesignTimeRepositoryController {
         return new Comments(propertyResolver, repoName);
     }
 
-    private Map<String, Object> mapFileDataResponse(FileData src, Features features) {
-        Map<String, Object> dest = new LinkedHashMap<>();
+    private ProjectViewModel mapFileDataResponse(FileData src, Features features) {
+        var builder = ProjectViewModel.builder();
         if (features.branches()) {
-            dest.put("branch", src.getBranch());
+            builder.branch(src.getBranch());
         }
-        dest.put("rev", src.getVersion());
-        return dest;
+        builder.rev(src.getVersion());
+        return builder.build();
     }
 
     private String getUserName() {

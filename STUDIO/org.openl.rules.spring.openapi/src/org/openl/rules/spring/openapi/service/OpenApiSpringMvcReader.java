@@ -19,6 +19,7 @@ import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
 import org.openl.rules.spring.openapi.model.ControllerAdviceInfo;
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.model.ParameterInfo;
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -36,6 +37,8 @@ import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import io.swagger.v3.core.util.AnnotationsUtils;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.tags.Tag;
 
 /**
@@ -83,6 +86,32 @@ public class OpenApiSpringMvcReader {
                 e.getKey(),
                 e.getValue(),
                 selectControllerAdvices(controllerAdviceInfos, e.getValue().getBeanType())));
+
+        if (openApiContext.getOpenAPI().getTags() != null) {
+            openApiContext.getOpenAPI().getTags().sort(Comparator.comparing(Tag::getName));
+        }
+        if (CollectionUtils.isNotEmpty(openApiContext.getComponents().getSchemas())) {
+            for (var schema : openApiContext.getComponents().getSchemas().values()) {
+                localizeScheme(schema);
+            }
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private void localizeScheme(Schema schema) {
+        if (schema == null) {
+            return;
+        }
+        if (StringUtils.isNotBlank(schema.getDescription())) {
+            schema.setDescription(apiPropertyResolver.resolve(schema.getDescription()));
+        }
+        if (schema.getProperties() == null) {
+            return;
+        }
+        var properties = (Map<String, Schema>) schema.getProperties();
+        for (var propertyScheme : properties.values()) {
+            localizeScheme(propertyScheme);
+        }
     }
 
     private void visitHandlerMethod(OpenApiContext openApiContext,
@@ -102,18 +131,14 @@ public class OpenApiSpringMvcReader {
             methodInfoBuilder.pathPattern(pathPattern);
             for (RequestMethod requestMethod : mappingInfo.getMethodsCondition().getMethods()) {
                 methodInfoBuilder.requestMethod(requestMethod);
-                var operation = parseMethod(openApiContext, methodInfoBuilder.build());
-                for (var controllerAdviceInfo : controllerAdviceInfos) {
-                    controllerAdviceInfo.getApiResponses().forEach(operation.getResponses()::addApiResponse);
-                }
+                parseMethod(openApiContext, methodInfoBuilder.build(), controllerAdviceInfos);
             }
-        }
-        if (openApiContext.getOpenAPI().getTags() != null) {
-            openApiContext.getOpenAPI().getTags().sort(Comparator.comparing(Tag::getName));
         }
     }
 
-    private Operation parseMethod(OpenApiContext apiContext, MethodInfo methodInfo) {
+    private void parseMethod(OpenApiContext apiContext,
+            MethodInfo methodInfo,
+            List<ControllerAdviceInfo> controllerAdviceInfos) {
         final var operation = new Operation();
 
         if (isDeprecatedMethod(methodInfo.getMethod())) {
@@ -130,6 +155,17 @@ public class OpenApiSpringMvcReader {
         // parse OpenAPI Operation annotation
         parseOperation(apiContext, methodInfo.getOperationAnnotation(), operation);
 
+        // fill responses from Controller Advices
+        for (var controllerAdviceInfo : controllerAdviceInfos) {
+            if (controllerAdviceInfo.getApiResponses().isEmpty()) {
+                continue;
+            }
+            if (operation.getResponses() == null) {
+                operation.setResponses(new ApiResponses());
+            }
+            controllerAdviceInfo.getApiResponses().forEach(operation.getResponses()::addApiResponse);
+        }
+
         // parse response body
         apiResponseService.parse(apiContext, methodInfo).ifPresent(responses -> {
             if (operation.getResponses() == null) {
@@ -138,6 +174,12 @@ public class OpenApiSpringMvcReader {
                 responses.forEach(operation.getResponses()::addApiResponse);
             }
         });
+
+        if (operation.getResponses() != null && operation.getResponses().size() > 1 && operation.getResponses()
+            .get(ApiResponses.DEFAULT) != null && operation.getResponses().get("200") == null) {
+            var defaultResponse = operation.getResponses().remove(ApiResponses.DEFAULT);
+            operation.getResponses().put("200", defaultResponse);
+        }
 
         // split parameters
         List<ParameterInfo> parameters = new ArrayList<>();
@@ -178,8 +220,6 @@ public class OpenApiSpringMvcReader {
             apiContext.getPaths().addPathItem(methodInfo.getPathPattern(), pathItem);
         }
         pathItem.operation(PathItem.HttpMethod.valueOf(methodInfo.getRequestMethod().name()), operation);
-
-        return operation;
     }
 
     private void parseOperation(OpenApiContext apiContext,

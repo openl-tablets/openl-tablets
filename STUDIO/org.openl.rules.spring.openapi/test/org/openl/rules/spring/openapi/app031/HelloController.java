@@ -3,6 +3,7 @@ package org.openl.rules.spring.openapi.app031;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,6 +38,11 @@ public class HelloController {
     @PostMapping("/sayHello")
     public void sayHello(String name) {
 
+    }
+
+    @PutMapping
+    public ResponseEntity<Void> someMethod() {
+        return null;
     }
 
 }

@@ -1,28 +1,35 @@
 package org.openl.rules.rest.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.time.ZonedDateTime;
-import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonView;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public class ProjectViewModel {
 
     @Schema(description = "Project Name", required = true)
+    @JsonView(GenericView.Full.class)
     public final String name;
 
     @Schema(description = "Author of latest update", required = true)
+    @JsonView(GenericView.Full.class)
     public final String modifiedBy;
 
     @Schema(description = "Date and time of latest update", required = true)
+    @JsonView(GenericView.Full.class)
     public final ZonedDateTime modifiedAt;
 
     @Schema(description = "Branch Name. Can be absent if current repository doesn't support branches")
+    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
     public final String branch;
 
     @Schema(description = "Revision ID", required = true)
+    @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
     public final String rev;
 
     @Schema(description = "Project path in target repository. Can be absent if Design Repository is flat")
+    @JsonView(GenericView.Full.class)
     public final String path;
 
     private ProjectViewModel(Builder from) {

@@ -73,6 +73,49 @@
         }
       }
     },
+    "/greetings": {
+      "put": {
+        "tags": [
+          "greetings"
+        ],
+        "operationId": "someMethod",
+        "responses": {
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorDto"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "default response"
+          }
+        }
+      }
+    },
     "/greetings/hello": {
       "get": {
         "tags": [
