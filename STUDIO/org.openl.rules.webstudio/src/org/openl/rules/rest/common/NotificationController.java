@@ -24,8 +24,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE)
+@Tag(name = "Notification")
 public class NotificationController {
 
     private final Path NOTIFICATION_FILE;
@@ -34,6 +40,8 @@ public class NotificationController {
         this.NOTIFICATION_FILE = Paths.get(notificationFile);
     }
 
+    @Operation(summary = "notif.get-notif.summary", description = "notif.get-notif.desc")
+    @ApiResponse(responseCode = "200", description = "notif.get-notif.200.desc")
     @GetMapping("/public/notification.txt")
     public String getNotification() throws IOException {
         if (!Files.exists(NOTIFICATION_FILE)) {
@@ -44,9 +52,11 @@ public class NotificationController {
         }
     }
 
+    @Operation(summary = "notif.post-notif.summary", description = "notif.post-notif.desc")
     @PostMapping(value = "/admin/notification.txt", consumes = MediaType.TEXT_PLAIN_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void postNotification(@RequestBody(required = false) String notification) throws IOException {
+    public void postNotification(
+            @Parameter(description = "notif.post-notif.req-body.desc") @RequestBody(required = false) String notification) throws IOException {
         if (StringUtils.isBlank(notification)) {
             Files.deleteIfExists(NOTIFICATION_FILE);
         } else {
@@ -54,6 +64,8 @@ public class NotificationController {
         }
     }
 
+    @Operation(summary = "module.is-module-modified.summary", description = "module.is-module-modified.desc")
+    @ApiResponse(responseCode = "200", description = "module.is-module-modified.200.desc")
     @GetMapping("/module/isModified")
     public String isModuleModified(HttpSession httpSession) {
         WebStudio webStudio = WebStudioUtils.getWebStudio(httpSession);
