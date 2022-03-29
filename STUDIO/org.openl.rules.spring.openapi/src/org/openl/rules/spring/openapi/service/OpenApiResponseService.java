@@ -33,7 +33,6 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.ExceptionHandlerMethodResolver;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -53,18 +52,15 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
 public class OpenApiResponseService {
 
     private final OpenApiParameterService apiParameterService;
-    private final RequestMappingHandlerAdapter mappingHandlerAdapter;
     private final Map<Class<?>, ExceptionHandlerMethodResolver> exHandlerAdviceCache;
     private final List<String> openLRestExceptionBasePackages;
     private final OpenApiPropertyResolver apiPropertyResolver;
 
     public OpenApiResponseService(OpenApiParameterService apiParameterService,
-            RequestMappingHandlerAdapter mappingHandlerAdapter,
             SpringMvcHandlerMethodsHelper handlerMethodsHelper,
             @Qualifier("openLRestExceptionBasePackages") List<String> openLRestExceptionBasePackages,
             OpenApiPropertyResolver apiPropertyResolver) {
         this.apiParameterService = apiParameterService;
-        this.mappingHandlerAdapter = mappingHandlerAdapter;
         this.openLRestExceptionBasePackages = openLRestExceptionBasePackages;
 
         this.exHandlerAdviceCache = handlerMethodsHelper.getControllerAdvices()
@@ -93,14 +89,9 @@ public class OpenApiResponseService {
         for (Method method : ReflectionUtils.getAllDeclaredMethods(beanType)) {
             if (isExceptionHandlerMethod(method)) {
                 var exHandlerInfoBuilder = ExceptionHandlerInfo.Builder.from(beanType, method);
-                Set<String> possibleProduces = new HashSet<>();
-                for (var converter : mappingHandlerAdapter.getMessageConverters()) {
-                    converter.getSupportedMediaTypes((Class<?>) exHandlerInfoBuilder.getReturnType())
-                        .stream()
-                        .map(Object::toString)
-                        .forEach(possibleProduces::add);
-                }
-                var exHandlerInfo = exHandlerInfoBuilder.produces(possibleProduces.toArray(new String[0])).build();
+                var exHandlerInfo = exHandlerInfoBuilder
+                    .produces(apiParameterService.getMediaTypesForType((Class<?>) exHandlerInfoBuilder.getReturnType()))
+                    .build();
                 var methodApiResponses = new ApiResponses();
                 processApiResponses(getApiResponses(
                     method), exHandlerInfo.getProduces(), apiContext.getComponents(), methodApiResponses, null);

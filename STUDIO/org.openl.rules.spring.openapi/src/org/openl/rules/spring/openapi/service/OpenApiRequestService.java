@@ -1,5 +1,6 @@
 package org.openl.rules.spring.openapi.service;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -185,18 +186,21 @@ public class OpenApiRequestService {
         if (parameterType == null) {
             parameterType = requestBodyParam.getType();
         }
+        String[] consumes = resolveConsumes(methodInfo,
+            (Class<?>) (parameterType instanceof ParameterizedType ? ((ParameterizedType) parameterType).getRawType()
+                                                                   : parameterType));
         var parameter = ParameterProcessor.applyAnnotations(null,
             parameterType,
             apiParameter != null ? List.of(apiParameter) : Collections.emptyList(),
             components,
             new String[0],
-            methodInfo.getConsumes(),
+            consumes,
             methodInfo.getJsonView());
         if (parameter.getContent() != null && !parameter.getContent().isEmpty()) {
             requestBody.setContent(parameter.getContent());
         } else if (parameter.getSchema() != null) {
             var content = new Content();
-            Stream.of(methodInfo.getConsumes()).forEach(consume -> {
+            Stream.of(consumes).forEach(consume -> {
                 var mediaTypeObject = new MediaType();
                 mediaTypeObject.setSchema(parameter.getSchema());
                 content.addMediaType(consume, mediaTypeObject);
@@ -204,6 +208,17 @@ public class OpenApiRequestService {
             requestBody.setContent(content);
         }
         return requestBody;
+    }
+
+    private String[] resolveConsumes(MethodInfo methodInfo, Class<?> cl) {
+        String[] consumes = methodInfo.getConsumes();
+        if (consumes == MethodInfo.DEFAULT_CONSUMES) {
+            String[] possibleConsumes = apiParameterService.getMediaTypesForType(cl);
+            if (possibleConsumes.length > 0) {
+                consumes = possibleConsumes;
+            }
+        }
+        return consumes;
     }
 
     private RequestBody parseRequestBody(io.swagger.v3.oas.annotations.parameters.RequestBody apiRequestBody,
