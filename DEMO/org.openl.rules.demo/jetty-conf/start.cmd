@@ -3,6 +3,12 @@
 
 @set JAVA_EXTENSIONS_DIR=%SystemRoot%\Sun\Java\lib\ext
 
+@set JRE_HOME=%JRE_HOME:"=%
+@set JAVA_HOME=%JAVA_HOME:"=%
+
+@set "JETTY_HOME=%CD%"
+@set "JETTY_BASE=%CD%"
+
 @setlocal
 @if exist "setenv.cmd" (
 @echo ### Loading environment from setenv.cmd ...
@@ -97,8 +103,8 @@ rem SUBROUTINES
 
 :start
 @rem check JAVA installation and save valid JRE_HOME
-@if not %JAVA_HOME% == "" set "JRE_HOME=%JAVA_HOME%"
-@if not %JRE_HOME% == "" if exist "%JRE_HOME%\bin\java.exe" goto :javaFound
+@if not "%JAVA_HOME%" == "" set "JRE_HOME=%JAVA_HOME%"
+@if not "%JRE_HOME%" == "" if exist "%JRE_HOME%\bin\java.exe" goto :javaFound
 @exit /b 1 & endlocal
 :javaFound
 @set _JRE_HOME=%JRE_HOME%
@@ -198,14 +204,14 @@ echo.
 @echo ### Starting OpenL Tablets DEMO ...
 @echo.
 @set JAVA_OPTS=%JAVA_OPTS% %_JAVA_MEMORY% %_JAVA_OPTS%
-@set JETTY_OPT=-DDEMO=DEMO -Dopenl.home=./openl-demo -Dws.port=8080 -Dh2.bindAddress=localhost %JETTY_OPT%
+@set JETTY_OPT=-DDEMO=DEMO -Dopenl.home=./openl-demo -Dh2.bindAddress=localhost %JETTY_OPT%
 @echo Memory size:           "%_MEMORY%GBytes"
 @echo Java version:          "%_JAVA_VERSION%"
 @echo Using JRE_HOME:        "%_JRE_HOME%"
 @echo Using JAVA_OPTS:       "%JAVA_OPTS%"
 @echo Using JETTY_OPT:   "%JETTY_OPT%"
 
-%JRE_HOME%\bin\java.exe %JAVA_OPTS% %JETTY_OPT% -Djetty.home=. -Djetty.base=. -Djava.io.tmpdir=%TEMP% -jar start.jar jetty.state=jetty.state jetty-started.xml
+"%JRE_HOME%\bin\java.exe" %JAVA_OPTS% %JETTY_OPT% -Djetty.home="%JETTY_HOME%" -Djetty.base="%JETTY_BASE%" -Djava.io.tmpdir="%TEMP%" -jar start.jar jetty.state=jetty.state jetty-started.xml
 
 @popd
 @exit /b 0 & endlocal
