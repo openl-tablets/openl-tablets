@@ -4,11 +4,13 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ValueConstants;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -49,11 +52,14 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 public class OpenApiParameterService {
 
     private final OpenApiPropertyResolver apiPropertyResolver;
+    private final RequestMappingHandlerAdapter mappingHandlerAdapter;
 
     @Autowired
     public OpenApiParameterService(Optional<List<ModelConverter>> modelConverters,
-            OpenApiPropertyResolver apiPropertyResolver) {
+            OpenApiPropertyResolver apiPropertyResolver,
+            RequestMappingHandlerAdapter mappingHandlerAdapter) {
         this.apiPropertyResolver = apiPropertyResolver;
+        this.mappingHandlerAdapter = mappingHandlerAdapter;
         modelConverters.ifPresent(converters -> converters.forEach(ModelConverters.getInstance()::addConverter));
     }
 
@@ -257,6 +263,17 @@ public class OpenApiParameterService {
             resolvedSchema.referencedSchemas.forEach(components::addSchemas);
         }
         return resolvedSchema.schema;
+    }
+
+    public String[] getMediaTypesForType(Class<?> cl) {
+        Set<String> possibleMediaTypes = new HashSet<>();
+        for (var converter : mappingHandlerAdapter.getMessageConverters()) {
+            converter.getSupportedMediaTypes(cl)
+                    .stream()
+                    .map(Object::toString)
+                    .forEach(possibleMediaTypes::add);
+        }
+        return possibleMediaTypes.toArray(new String[0]);
     }
 
     private static final class PKey {

@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 
 public class MethodInfo {
 
-    private static final String[] DEFAULT_CONSUMES = new String[] { MediaType.ALL_VALUE };
+    public static final String[] DEFAULT_CONSUMES = new String[] { MediaType.ALL_VALUE };
 
     private final HandlerMethod handler;
     private final RequestMethod requestMethod;
