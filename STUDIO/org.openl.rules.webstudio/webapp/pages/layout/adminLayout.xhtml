@@ -9,6 +9,10 @@
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
     <h:head>
+        <!-- Need to call WebStudio initialization.
+         Workaround for logout when changing settings in the admin section. WebStudio is not initialized after login-->
+        #{mainBean.init}
+
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
