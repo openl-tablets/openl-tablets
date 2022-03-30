@@ -678,18 +678,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     public void addType(IOpenClass type) {
         validateType(type);
-        addType(type.getName(), type, true);
         if (type instanceof DomainOpenClass) {
-            return;
-        }
-        if (type instanceof CustomSpreadsheetResultOpenClass) {
-            addType(
-                Spreadsheet.SPREADSHEETRESULT_SHORT_TYPE_PREFIX + type.getName()
-                    .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()),
-                type,
-                false);
+            addType(type.getName(), type, false);
         } else {
-            addType(type.getJavaName(), type, false);
+            addType(type.getName(), type, true);
+            if (type instanceof CustomSpreadsheetResultOpenClass) {
+                addType(
+                    Spreadsheet.SPREADSHEETRESULT_SHORT_TYPE_PREFIX + type.getName()
+                        .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()),
+                    type,
+                    false);
+            } else {
+                addType(type.getJavaName(), type, false);
+            }
         }
     }
 

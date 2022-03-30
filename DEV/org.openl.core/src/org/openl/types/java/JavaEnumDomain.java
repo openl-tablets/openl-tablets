@@ -2,6 +2,7 @@ package org.openl.types.java;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
@@ -11,7 +12,7 @@ public class JavaEnumDomain implements IDomain<Object> {
     private final JavaOpenEnum enumClass;
 
     public JavaEnumDomain(JavaOpenEnum enumClass) {
-        this.enumClass = enumClass;
+        this.enumClass = Objects.requireNonNull(enumClass, "enumClass cannot be null");
     }
 
     @Override
@@ -60,4 +61,20 @@ public class JavaEnumDomain implements IDomain<Object> {
         return "[" + sb.toString() + "]";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        JavaEnumDomain objects = (JavaEnumDomain) o;
+
+        return enumClass.equals(objects.enumClass);
+    }
+
+    @Override
+    public int hashCode() {
+        return enumClass.hashCode();
+    }
 }
