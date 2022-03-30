@@ -15,7 +15,9 @@
         <h1 class="page-header">Projects<span class="filtered-mark hidden"> (filtered)</span></h1>
 
         <div class="block">
-            <rich:dataTable value="#{repositoryTreeController.rulesProjects}" var="prj" styleClass="table filtered-table">
+            <rich:dataTable value="#{repositoryTreeController.rulesProjects}" var="prj"
+                            styleClass="table filtered-table"
+                            rendered="#{not empty repositoryTreeController.rulesProjects}">
             <f:facet name="header">
               <rich:columnGroup>
                 <rich:column>
