@@ -18,7 +18,7 @@ public class ParameterInfo {
     private final MethodParameter methodParameter;
     private final int index;
     private final Type type;
-    private final Parameter parameter;
+    private Parameter parameter;
     private final JsonView jsonView;
 
     public ParameterInfo(MethodInfo methodInfo, MethodParameter methodParameter, int index) {
@@ -53,6 +53,10 @@ public class ParameterInfo {
 
     public Parameter getParameter() {
         return parameter;
+    }
+
+    public void setParameter(Parameter parameter) {
+        this.parameter = parameter;
     }
 
     public JsonView getJsonView() {

@@ -2,8 +2,10 @@ package org.openl.rules.spring.openapi.service;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,6 +37,9 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import io.swagger.v3.core.util.AnnotationsUtils;
+import io.swagger.v3.core.util.ReflectionUtils;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.Schema;
@@ -184,6 +189,14 @@ public class OpenApiSpringMvcReader {
         // split parameters
         List<ParameterInfo> parameters = new ArrayList<>();
         List<ParameterInfo> formParameters = new ArrayList<>();
+        Set<Parameter> requestBodyParams = new HashSet<>();
+        List<Parameter> allParamAnnos = new ArrayList<>();
+        Optional.ofNullable(methodInfo.getOperationAnnotation())
+            .map(io.swagger.v3.oas.annotations.Operation::parameters)
+            .ifPresent(params -> allParamAnnos.addAll(Arrays.asList(params)));
+        Optional.ofNullable(ReflectionUtils.getRepeatableAnnotations(methodInfo.getMethod(), Parameter.class))
+            .ifPresent(allParamAnnos::addAll);
+
         ParameterInfo requestBodyParam = null;
         MethodParameter[] methodParameters = methodInfo.getHandler().getMethodParameters();
         int idx = 0;
@@ -195,9 +208,24 @@ public class OpenApiSpringMvcReader {
             if (OpenApiUtils.isIgnorableType(parameterInfo.getType())) {
                 continue;
             }
-            if (parameterInfo.hasAnnotation(RequestPart.class) || (OpenApiUtils
-                .isFile(parameterInfo.getType()) && parameterInfo.hasAnnotation(RequestParam.class))) {
+            var reqPart = parameterInfo.getParameterAnnotation(RequestPart.class);
+            var reqParam = parameterInfo.getParameterAnnotation(RequestParam.class);
+            if (reqPart != null || (OpenApiUtils.isFile(parameterInfo.getType()) && reqParam != null)) {
                 formParameters.add(parameterInfo);
+                if (parameterInfo.getParameter() == null) {
+                    // Try to find Parameter annotation in other places
+                    var paramName = Optional.ofNullable(reqPart)
+                        .map(RequestPart::name)
+                        .or(() -> Optional.of(reqParam).map(RequestParam::name))
+                        .get();
+                    allParamAnnos.stream()
+                        .filter(p -> ParameterIn.DEFAULT == p.in() && paramName.equals(p.name()))
+                        .findFirst()
+                        .ifPresent(p -> {
+                            requestBodyParams.add(p);
+                            parameterInfo.setParameter(p);
+                        });
+                }
             } else if (parameterInfo.hasAnnotation(org.springframework.web.bind.annotation.RequestBody.class)) {
                 requestBodyParam = parameterInfo;
             } else {
@@ -205,7 +233,8 @@ public class OpenApiSpringMvcReader {
             }
         }
         // parse parameters
-        apiParameterService.parse(apiContext, methodInfo, parameters).forEach(operation::addParametersItem);
+        apiParameterService.parse(apiContext, methodInfo, parameters, requestBodyParams)
+            .forEach(operation::addParametersItem);
 
         // parse request body
         apiRequestService.parse(apiContext, methodInfo, formParameters, requestBodyParam)

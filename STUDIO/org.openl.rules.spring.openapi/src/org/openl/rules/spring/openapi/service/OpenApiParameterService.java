@@ -75,12 +75,16 @@ public class OpenApiParameterService {
      */
     public Collection<Parameter> parse(OpenApiContext apiContext,
             MethodInfo methodInfo,
-            List<ParameterInfo> paramInfos) {
+            List<ParameterInfo> paramInfos,
+            Set<io.swagger.v3.oas.annotations.Parameter> ignore) {
         Map<PKey, Parameter> parameters = new LinkedHashMap<>();
 
         // process Parameters from Open API Operation annotation
         if (methodInfo.getOperationAnnotation() != null) {
             for (var apiParameter : methodInfo.getOperationAnnotation().parameters()) {
+                if (ignore.contains(apiParameter)) {
+                    continue;
+                }
                 var parameter = parseParameter(methodInfo, apiParameter, apiContext.getComponents());
                 parameters.putIfAbsent(new PKey(parameter), parameter);
             }
@@ -89,9 +93,14 @@ public class OpenApiParameterService {
         // process API Parameters from method
         var apiParameters = ReflectionUtils.getRepeatableAnnotations(methodInfo.getMethod(),
             io.swagger.v3.oas.annotations.Parameter.class);
-        for (var apiParameter : apiParameters) {
-            var parameter = parseParameter(methodInfo, apiParameter, apiContext.getComponents());
-            parameters.putIfAbsent(new PKey(parameter), parameter);
+        if (apiParameters != null) {
+            for (var apiParameter : apiParameters) {
+                if (ignore.contains(apiParameter)) {
+                    continue;
+                }
+                var parameter = parseParameter(methodInfo, apiParameter, apiContext.getComponents());
+                parameters.putIfAbsent(new PKey(parameter), parameter);
+            }
         }
 
         // process method parameters

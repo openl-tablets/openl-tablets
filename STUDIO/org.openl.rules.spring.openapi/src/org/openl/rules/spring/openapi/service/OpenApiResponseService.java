@@ -243,7 +243,14 @@ public class OpenApiResponseService {
 
             AnnotationsUtils.getContent(apiResponse.content(), new String[0], produces, null, components, jsonView)
                 .ifPresent(response::content);
-            AnnotationsUtils.getHeaders(apiResponse.headers(), jsonView).ifPresent(response::headers);
+            AnnotationsUtils.getHeaders(apiResponse.headers(), jsonView).ifPresent(headers -> {
+                for (var header : headers.values()) {
+                    if (StringUtils.isNotBlank(header.getDescription())) {
+                        header.description(apiPropertyResolver.resolve(header.getDescription()));
+                    }
+                }
+                response.setHeaders(headers);
+            });
             if (StringUtils.isNotBlank(response.getDescription()) || response.getContent() != null || response
                 .getHeaders() != null) {
                 var links = AnnotationsUtils.getLinks(apiResponse.links());
