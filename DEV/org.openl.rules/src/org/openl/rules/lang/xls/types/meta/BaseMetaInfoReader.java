@@ -88,13 +88,13 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
 
     @Override
     public void prepare(IGridRegion region) {
-        // By default do nothing.
+        // By default, do nothing.
         // It can be inefficient for some tables to store meta info for all cells.
     }
 
     @Override
     public void release() {
-        // By default do nothing.
+        // By default, do nothing.
     }
 
     protected abstract TableSyntaxNode getTableSyntaxNode();
