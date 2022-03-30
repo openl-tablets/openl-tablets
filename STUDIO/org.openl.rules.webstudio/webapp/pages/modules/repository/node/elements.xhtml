@@ -5,7 +5,7 @@
   xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-  <rich:dataTable value="#{node.childNodes}" var="el" styleClass="table">
+  <rich:dataTable value="#{node.childNodes}" var="el" styleClass="table" rendered="#{not empty node.childNodes}">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column>

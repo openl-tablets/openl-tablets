@@ -19,7 +19,9 @@
 
         <div class="block">
 
-            <rich:dataTable value="#{productionRepositoriesTreeController.rulesProjects}" var="prj" styleClass="table #{node.type == 'prodrepository' ? 'filtered-table' : ''}">
+            <rich:dataTable value="#{productionRepositoriesTreeController.rulesProjects}" var="prj"
+                            styleClass="table #{node.type == 'prodrepository' ? 'filtered-table' : ''}"
+                            rendered="#{not empty productionRepositoriesTreeController.rulesProjects}">
             <f:facet name="header">
               <rich:columnGroup>
                 <rich:column>

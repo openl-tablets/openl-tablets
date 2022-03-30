@@ -6,7 +6,7 @@
 >
 
   <rich:dataTable id="descriptorTable" value="#{deploymentController.items}" var="item"
-    cellspacing="0px" styleClass="table">
+                  cellspacing="0px" styleClass="table" rendered="#{not empty deploymentController.items}">
     <f:facet name="header">
       <rich:columnGroup>
         <rich:column styleClass="action-col">
