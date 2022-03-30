@@ -27,6 +27,18 @@ public class ArrayHolder {
         this.componentType = componentType;
     }
 
+    public boolean is2DimArray() {
+        return values2 != null;
+    }
+
+    public Object[][] get2DimValues() {
+        return values2;
+    }
+
+    public Object[] getValues() {
+        return values1;
+    }
+
     public Object invoke(Object target, Object[] dtParams, IRuntimeEnv env) {
         if (values2 != null) {
             Object res = componentType.getAggregateInfo().makeIndexedAggregate(componentType, values2.length);
