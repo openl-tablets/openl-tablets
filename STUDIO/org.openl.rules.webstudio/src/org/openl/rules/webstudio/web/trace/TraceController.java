@@ -17,16 +17,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * Request scope managed bean providing logic for trace tree page of OpenL Studio.
  */
 @RestController
 @RequestMapping(value = "/trace", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Trace")
 public class TraceController {
 
+    @Operation(summary = "trace.get-nodes.summary", description = "trace.get-nodes.desc")
     @GetMapping("/nodes")
-    public List<TraceNode> getNodes(@RequestParam(value = "id", required = false) Integer id,
-            @RequestParam(value = "showRealNumbers", required = false) Boolean showRealNumbers,
+    public List<TraceNode> getNodes(
+            @Parameter(description = "trace.field.id") @RequestParam(value = "id", required = false) Integer id,
+            @Parameter(description = "trace.field.showRealNumbers") @RequestParam(value = "showRealNumbers", required = false) Boolean showRealNumbers,
             HttpServletRequest request) {
         TraceHelper traceHelper = WebStudioUtils.getTraceHelper(request.getSession());
         ITracerObject element = traceHelper.getTableTracer(id == null ? 0 : id);

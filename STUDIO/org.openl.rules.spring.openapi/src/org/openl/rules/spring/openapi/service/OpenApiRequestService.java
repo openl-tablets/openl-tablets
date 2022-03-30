@@ -93,31 +93,33 @@ public class OpenApiRequestService {
         for (var paramInfo : formParamInfos) {
             var requestParam = paramInfo.getParameterAnnotation(RequestParam.class);
             var requestPart = paramInfo.getParameterAnnotation(RequestPart.class);
-            String name = null;
+            var nameRef = new Object() {
+                String name = null;
+            };
             boolean required;
             if (requestParam != null) {
                 if (StringUtils.isNotBlank(requestParam.name())) {
-                    name = requestParam.name();
+                    nameRef.name = requestParam.name();
                 }
                 required = requestParam.required();
             } else {
                 if (StringUtils.isNotBlank(requestPart.name())) {
-                    name = requestPart.name();
+                    nameRef.name = requestPart.name();
                 }
                 required = requestPart.required();
             }
             var apiParameter = paramInfo.getParameter();
             if (apiParameter != null) {
                 if (StringUtils.isNotBlank(apiParameter.name())) {
-                    name = apiParameter.name();
+                    nameRef.name = apiParameter.name();
                 }
                 required = apiParameter.required();
             }
-            if (name == null) {
-                name = "arg" + paramInfo.getIndex();
+            if (nameRef.name == null) {
+                nameRef.name = "arg" + paramInfo.getIndex();
             }
             if (required) {
-                objectSchema.addRequiredItem(name);
+                objectSchema.addRequiredItem(nameRef.name);
             }
 
             var parameterType = ParameterProcessor.getParameterType(paramInfo.getParameter(), true);
@@ -133,15 +135,28 @@ public class OpenApiRequestService {
                     schema.setDefault(apiParameter.schema().defaultValue());
                 }
                 for (var content : apiParameter.content()) {
-                    for (var encoding : content.encoding()) {
-                        if (StringUtils.isNotBlank(encoding.contentType())) {
-                            encodingMap.put(name, new Encoding().contentType(encoding.contentType()));
+                    Stream.of(content.encoding()).map(apiEncoding -> {
+                        var encoding = new Encoding();
+                        if (StringUtils.isNotBlank(apiEncoding.contentType())) {
+                            encoding.contentType(apiEncoding.contentType());
                         }
-                    }
+                        if (StringUtils.isNotBlank(apiEncoding.style())) {
+                            encoding.style(Encoding.StyleEnum.valueOf(apiEncoding.style()));
+                        }
+                        if (apiEncoding.explode()) {
+                            encoding.setExplode(Boolean.TRUE);
+                        }
+                        if (apiEncoding.allowReserved()) {
+                            encoding.setAllowReserved(Boolean.TRUE);
+                        }
+                        AnnotationsUtils.getHeaders(apiEncoding.headers(), null).ifPresent(encoding::setHeaders);
+                        encoding.setExtensions(AnnotationsUtils.getExtensions(apiEncoding.extensions()));
+                        return encoding;
+                    }).forEach(encoding -> encodingMap.put(nameRef.name, encoding));
                 }
             }
             apiParameterService.applyValidationAnnotations(paramInfo, schema);
-            objectSchema.addProperties(name, schema);
+            objectSchema.addProperties(nameRef.name, schema);
         }
 
         RequestBody requestBody = null;

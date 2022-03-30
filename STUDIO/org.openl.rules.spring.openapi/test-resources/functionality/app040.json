@@ -33,7 +33,8 @@
                 "type": "object",
                 "properties": {
                   "configuration": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Pam-Pam"
                   },
                   "file": {
                     "type": "string",

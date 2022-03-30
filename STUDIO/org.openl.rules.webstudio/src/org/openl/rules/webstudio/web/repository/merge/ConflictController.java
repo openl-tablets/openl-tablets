@@ -40,8 +40,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/conflict")
+@Tag(name = "Conflict")
 public class ConflictController {
     private static final Logger LOG = LoggerFactory.getLogger(ConflictController.class);
 
@@ -55,9 +64,14 @@ public class ConflictController {
     }
 
     @GetMapping(value = "/repository", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<?> repository(@RequestParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
-            @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
-            @RequestParam(Constants.REQUEST_PARAM_VERSION) final String version,
+    @Operation(summary = "conflict.repository.summary", description = "conflict.repository.desc")
+    @ApiResponse(responseCode = "200", description = "conflict.repository.200.desc", headers = {
+            @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "conflict.header.content-disposition.desc", required = true),
+            @Header(name = HttpHeaders.SET_COOKIE, description = "conflict.header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
+    public ResponseEntity<?> repository(
+            @Parameter(description = "conflict.field.repo-id") @RequestParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
+            @Parameter(description = "conflict.field.name") @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
+            @Parameter(description = "conflict.field.version") @RequestParam(Constants.REQUEST_PARAM_VERSION) final String version,
             @RequestParam(value = Constants.RESPONSE_MONITOR_COOKIE, required = false) String cookieId,
             HttpServletRequest request,
             HttpServletResponse response) {
@@ -82,8 +96,13 @@ public class ConflictController {
     }
 
     @GetMapping(value = "/local", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<?> local(@RequestParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
-            @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
+    @Operation(summary = "conflict.local.summary", description = "conflict.local.desc")
+    @ApiResponse(responseCode = "200", description = "conflict.local.200.desc", headers = {
+            @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "conflict.header.content-disposition.desc", required = true),
+            @Header(name = HttpHeaders.SET_COOKIE, description = "conflict.header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
+    public ResponseEntity<?> local(
+            @Parameter(description = "conflict.field.repo-id") @RequestParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
+            @Parameter(description = "conflict.field.name") @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
             @RequestParam(value = Constants.RESPONSE_MONITOR_COOKIE, required = false) String cookieId,
             HttpServletRequest request,
             HttpServletResponse response) {
@@ -116,7 +135,12 @@ public class ConflictController {
     }
 
     @GetMapping(value = "/merged", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<?> merged(@RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
+    @Operation(summary = "conflict.merged.summary", description = "conflict.merged.desc")
+    @ApiResponse(responseCode = "200", description = "conflict.merged.200.desc", headers = {
+            @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "conflict.header.content-disposition.desc", required = true),
+            @Header(name = HttpHeaders.SET_COOKIE, description = "conflict.header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
+    public ResponseEntity<?> merged(
+            @Parameter(description = "conflict.field.name") @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
             @RequestParam(value = Constants.RESPONSE_MONITOR_COOKIE, required = false) String cookieId,
             HttpServletRequest request,
             HttpServletResponse response) {
@@ -147,14 +171,13 @@ public class ConflictController {
             String fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
             response.addCookie(newCookie(cookieName, "success", request.getContextPath()));
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
-                    .body(output.toByteArray());
+                .header(HttpHeaders.CONTENT_DISPOSITION, WebTool.getContentDispositionValue(fileName))
+                .body(output.toByteArray());
         } catch (IOException e) {
             String message = "Failed to download file.";
             LOG.error(message, e);
             response.addCookie(newCookie(cookieName, message, request.getContextPath()));
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 

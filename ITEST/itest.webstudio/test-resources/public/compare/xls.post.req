@@ -1,0 +1,17 @@
+POST /web/public/compare/xls HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file1"; filename="Main2.xlsx"
+Content-Transfer-Encoding: binary
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+&Main2.xlsx
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file2"; filename="Main.xlsx"
+Content-Transfer-Encoding: binary
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+&Main.xlsx
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
