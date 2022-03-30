@@ -23,6 +23,7 @@ import org.openl.rules.dt.DecisionTableBoundNode;
 import org.openl.rules.dt.DecisionTableHelper;
 import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.dt.IBaseCondition;
+import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
@@ -237,8 +238,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
         int start = 0;
         int end = headerMetaInfos.size() > 1
-                                             ? cellValue.indexOf(
-                                                 DecisionTableHelper.HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)
+                                             ? cellValue
+                                                 .indexOf(DecisionTableHelper.HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER)
                                              : cellValue.length();
         List<SimpleNodeUsage> simpleNodeUsages = new ArrayList<>();
         for (HeaderMetaInfo headerMetaInfo : headerMetaInfos) {
@@ -353,11 +354,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         IGrid grid = getGridTable().getGrid();
         String cellValue = grid.getCell(cellKey.getColumn(), cellKey.getRow()).getStringValue();
         if (StringUtils.isNotEmpty(cellValue)) {
-            SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0,
-                cellValue.length(),
-                description,
-                null,
-                NodeType.OTHER);
+            SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0, cellValue.length(), description, null, NodeType.OTHER);
             setPreparedMetaInfo(cellKey.getRow(),
                 cellKey.getColumn(),
                 new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage)));
@@ -448,38 +445,76 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             ILogicalTable valueCell = funcRow.getValueCell(c);
 
             for (int i = 0; i < paramsCount; i++) {
-                ICell cell = valueCell.getCell(0, i); // See EPBDS-7774 for an example when "i" is needed
-                int row = cell.getAbsoluteRow();
-                int col = cell.getAbsoluteColumn();
-
-                if (!IGridRegion.Tool.contains(region, col, row)) {
-                    continue;
-                }
 
                 Object storageValue = funcRow.getStorageValue(i, c);
                 if (storageValue instanceof CompositeMethod) {
-                    // Some expression
-                    String stringValue = cell.getStringValue();
-                    int startIndex = stringValue.indexOf('=') + 1;
-                    List<NodeUsage> nodeUsages = MetaInfoReaderUtils
-                        .getNodeUsages((CompositeMethod) storageValue, stringValue.substring(startIndex), startIndex);
-                    setPreparedMetaInfo(row, col, new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages));
-                    continue;
+                    addMetaInfoForCompositeMethod(region, valueCell, i, 0, storageValue);
+                } else if (storageValue instanceof ArrayHolder) {
+                    addMetaInfoForArrayHolder(region, valueCell, i, storageValue);
+                } else {
+                    IParameterDeclaration param = params[i];
+                    if (param == null) {
+                        continue;
+                    }
+                    IOpenClass type = param.getType();
+                    boolean multiValue = false;
+                    if (type.isArray()) {
+                        multiValue = true;
+                        type = type.getAggregateInfo().getComponentType(type);
+                    }
+                    ICell cell = valueCell.getCell(0, i); // See EPBDS-7774 for an example when "i" is needed
+                    setPreparedMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), type, multiValue);
                 }
 
-                IParameterDeclaration param = params[i];
-                if (param == null) {
-                    continue;
-                }
-                IOpenClass type = param.getType();
-                boolean multiValue = false;
-                if (type.isArray()) {
-                    multiValue = true;
-                    type = type.getAggregateInfo().getComponentType(type);
-                }
-                setPreparedMetaInfo(row, col, type, multiValue);
             }
         }
+    }
+
+    private void addMetaInfoForCompositeMethod(IGridRegion region,
+            ILogicalTable valueCell,
+            int i,
+            int j,
+            Object storageValue) {
+        ICell cell = valueCell.getCell(j, i); // See EPBDS-7774 for an example when "i" is needed
+        int row = cell.getAbsoluteRow();
+        int col = cell.getAbsoluteColumn();
+        if (IGridRegion.Tool.contains(region, col, row)) {
+            // Some expression
+            String stringValue = cell.getStringValue();
+            int startIndex = stringValue.indexOf('=') + 1;
+            List<NodeUsage> nodeUsages = MetaInfoReaderUtils
+                .getNodeUsages((CompositeMethod) storageValue, stringValue.substring(startIndex), startIndex);
+            setPreparedMetaInfo(row, col, new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages));
+        }
+    }
+
+    private void addMetaInfoForArrayHolder(IGridRegion region,
+            ILogicalTable valueCell,
+            int paramIndex,
+            Object storageValue) {
+        ArrayHolder arrayHolder = (ArrayHolder) storageValue;
+        if (arrayHolder.is2DimArray()) {
+            Object[][] values = arrayHolder.get2DimValues();
+            for (int i = 0; i < values.length; i++) {
+                for (int j = 0; j < values[i].length; j++) {
+                    if (values[i][j] instanceof CompositeMethod) {
+                        addMetaInfoForCompositeMethod(region, valueCell, paramIndex + j, i, values[i][j]);
+                    }
+                }
+            }
+        } else {
+            Object[] values = arrayHolder.getValues();
+            for (int i = 0; i < values.length; i++) {
+                if (values[i] instanceof CompositeMethod) {
+                    if (valueCell.getHeight() > 1) {
+                        addMetaInfoForCompositeMethod(region, valueCell, paramIndex + i, 0, values[i]);
+                    } else {
+                        addMetaInfoForCompositeMethod(region, valueCell, paramIndex, i, values[i]);
+                    }
+                }
+            }
+        }
+
     }
 
     private void saveExpressionMetaInfo(FunctionalRow funcRow, IGridRegion region) {
