@@ -1,0 +1,6 @@
+WARN: File 'Tests.xlsx' does not match file name pattern 'Module-%lob%'.
+WARN: Type 'Attribute' has already been defined.
+WARN: Type 'Attribute' has already been defined.
+WARN: Method 'MyRule(Attribute a)' conflicts with another method 'MyRule(Attribute a)', because of parameter types are treated by Java as identical.
+WARN: Method 'MyRule(Attribute a)' conflicts with another method 'MyRule(Attribute a)', because of parameter types are treated by Java as identical.
+ERROR: The value 'channel' is outside of valid domain 'Attribute'. Valid values: [attr1, attr2]

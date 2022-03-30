@@ -16,6 +16,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.binding.impl.module.ModuleSpecificType;
@@ -24,6 +25,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
@@ -50,6 +52,7 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -330,7 +333,16 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
         for (IOpenClass type : compiledOpenClass.getTypes()) {
             try {
-                addType(processDependencyTypeBeforeAdding(type));
+                IOpenClass openClass = processDependencyTypeBeforeAdding(type);
+                try {
+                    addType(openClass);
+                } catch (DuplicatedTypeException ex) {
+                    if (openClass instanceof DomainOpenClass) {
+                        rulesModuleBindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(ex.getMessage()));
+                    } else {
+                        addError(ex);
+                    }
+                }
             } catch (OpenlNotCheckedException e) {
                 addError(e);
             }

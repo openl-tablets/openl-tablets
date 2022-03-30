@@ -5,30 +5,27 @@
  */
 package org.openl.domain;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.LinkedHashSet;
 
 /**
  * @author snshor
  */
 public class EnumDomain<T> implements IDomain<T> {
 
-    private final T[] elements;
-    private final Map<T, Integer> indexMap;
+    private final LinkedHashSet<T> index;
+    private final Class<?> componentType;
 
     public EnumDomain(T[] elements) {
-        this.elements = elements;
-        int i = 0;
-        indexMap = new HashMap<>(elements.length);
-        for (T el : elements) {
-            indexMap.put(el, i++);
-        }
+        componentType = elements == null ? Object.class : elements.getClass().getComponentType();
+        index = new LinkedHashSet<>(elements == null ? Collections.emptyList() : Arrays.asList(elements));
     }
 
     public boolean contains(T obj) {
-        return indexMap.containsKey(obj);
+        return index.contains(obj);
     }
 
     @Override
@@ -37,12 +34,12 @@ public class EnumDomain<T> implements IDomain<T> {
     }
 
     public T[] getAllObjects() {
-        return elements;
+        return index.toArray((T[]) Array.newInstance(componentType, 0));
     }
 
     @Override
     public Iterator<T> iterator() {
-        return Arrays.asList(elements).iterator();
+        return Collections.unmodifiableSet(index).iterator();
     }
 
     @Override
@@ -51,14 +48,14 @@ public class EnumDomain<T> implements IDomain<T> {
     }
 
     public int size() {
-        return elements.length;
+        return index.size();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         boolean f = false;
-        for (Object o : elements) {
+        for (Object o : index) {
             if (f) {
                 sb.append(",");
             } else {
@@ -66,7 +63,27 @@ public class EnumDomain<T> implements IDomain<T> {
             }
             sb.append(o.toString());
         }
-        return "[" + sb.toString() + "]";
+        return "[" + sb + "]";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        EnumDomain<?> that = (EnumDomain<?>) o;
+        if (componentType.equals(that.componentType)) {
+            return index.equals(that.index);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = index.hashCode();
+        result = 31 * result + componentType.hashCode();
+        return result;
+    }
 }

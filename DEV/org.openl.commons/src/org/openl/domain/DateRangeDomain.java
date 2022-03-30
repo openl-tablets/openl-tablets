@@ -154,4 +154,25 @@ public class DateRangeDomain implements IDomain<Date> {
     public String toString() {
         return "[" + getMin() + ";" + getMax() + "]";
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        DateRangeDomain dates = (DateRangeDomain) o;
+
+        if (!min.equals(dates.min))
+            return false;
+        return max.equals(dates.max);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = min.hashCode();
+        result = 31 * result + max.hashCode();
+        return result;
+    }
 }
