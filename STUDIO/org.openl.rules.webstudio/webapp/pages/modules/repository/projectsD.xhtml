@@ -16,7 +16,9 @@
 
         <div class="block">
 
-            <rich:dataTable value="#{repositoryTreeController.deploymentProjects}" var="prj" styleClass="table filtered-table">
+            <rich:dataTable value="#{repositoryTreeController.deploymentProjects}" var="prj"
+                            styleClass="table filtered-table"
+                            rendered="#{not empty repositoryTreeController.deploymentProjects}">
             <f:facet name="header">
               <rich:columnGroup>
                 <rich:column>
