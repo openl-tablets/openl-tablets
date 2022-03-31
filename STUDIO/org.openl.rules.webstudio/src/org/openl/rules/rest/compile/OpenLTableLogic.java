@@ -1,4 +1,4 @@
-package org.openl.rules.rest;
+package org.openl.rules.rest.compile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,6 @@ import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
@@ -65,7 +64,7 @@ public class OpenLTableLogic {
     }
 
     public static List<OpenlProblemMessage> processTableProblems(List<OpenLMessage> messages,
-            ProjectModel model) {
+                                                                 ProjectModel model) {
         List<OpenlProblemMessage> problems = new ArrayList<>();
         for (OpenLMessage message : messages) {
             ILocation location = null;

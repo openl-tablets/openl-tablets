@@ -1,4 +1,4 @@
-package org.openl.rules.rest;
+package org.openl.rules.rest.compile;
 
 import org.openl.message.Severity;
 
