@@ -55,9 +55,20 @@ public class SpreadsheetContext extends ComponentBindingContext {
         }
 
         int sx = ((SpreadsheetCellField) fstart).getCell().getColumnIndex();
-        int sy = ((SpreadsheetCellField) fstart).getCell().getRowIndex();
         int ex = ((SpreadsheetCellField) fend).getCell().getColumnIndex();
+        if (sx > ex) {
+            int p = sx;
+            sx = ex;
+            ex = p;
+        }
+
+        int sy = ((SpreadsheetCellField) fstart).getCell().getRowIndex();
         int ey = ((SpreadsheetCellField) fend).getCell().getRowIndex();
+        if (sy > ey) {
+            int p = sy;
+            sy = ey;
+            ey = p;
+        }
 
         int w = ex - sx + 1;
         int h = ey - sy + 1;
@@ -82,10 +93,14 @@ public class SpreadsheetContext extends ComponentBindingContext {
         }
 
         return new SpreadsheetRangeField(key,
-            (SpreadsheetCellField) fstart,
-            (SpreadsheetCellField) fend,
+            rangeStartName + ":" + rangeEndName,
+            sx,
+            sy,
+            ex,
+            ey,
             rangeType,
-            castsCollector.getCasts());
+            castsCollector.getCasts(),
+            fstart.getDeclaringClass());
     }
 
     private void iterateThroughTheRange(int startColumn,
