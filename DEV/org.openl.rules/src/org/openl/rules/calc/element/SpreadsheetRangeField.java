@@ -1,6 +1,7 @@
 package org.openl.rules.calc.element;
 
 import java.lang.reflect.Array;
+import java.util.Objects;
 
 import org.openl.binding.impl.NodeDescriptionHolder;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -11,19 +12,29 @@ import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDescriptionHolder {
 
-    private final SpreadsheetCellField fstart;
-    private final SpreadsheetCellField fend;
+    private final int sx;
+    private final int sy;
+    private final int ex;
+    private final int ey;
     private final IOpenCast[][] casts;
     private final Class<?> rangeType;
+    private final String rangeName;
 
     public SpreadsheetRangeField(String name,
-            SpreadsheetCellField fstart,
-            SpreadsheetCellField fend,
+            String rangeName,
+            int sx,
+            int sy,
+            int ex,
+            int ey,
             IOpenClass rangeType,
-            IOpenCast[][] casts) {
-        super(fstart.getDeclaringClass(), name, rangeType.getArrayType(1));
-        this.fstart = fstart;
-        this.fend = fend;
+            IOpenCast[][] casts,
+            IOpenClass declaringClass) {
+        super(declaringClass, name, rangeType.getArrayType(1));
+        this.rangeName = Objects.requireNonNull(rangeName, "rangeName cannot be null");
+        this.sx = sx;
+        this.sy = sy;
+        this.ex = ex;
+        this.ey = ey;
         this.casts = casts;
         this.rangeType = rangeType.getInstanceClass();
     }
@@ -33,10 +44,6 @@ public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDesc
         if (target == null) {
             return getType().nullObject();
         }
-        int sx = fstart.getCell().getColumnIndex();
-        int sy = fstart.getCell().getRowIndex();
-        int ex = fend.getCell().getColumnIndex();
-        int ey = fend.getCell().getRowIndex();
 
         int w = ex - sx + 1;
         int h = ey - sy + 1;
@@ -63,6 +70,6 @@ public class SpreadsheetRangeField extends ASpreadsheetField implements NodeDesc
 
     @Override
     public String getDescription() {
-        return getType().getDisplayName(SHORT) + " " + fstart.getName() + ":" + fend.getName();
+        return getType().getDisplayName(SHORT) + " " + rangeName;
     }
 }
