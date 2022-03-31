@@ -2780,9 +2780,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             if (commit != null) {
                 String lastVersion = getVersionName(git.getRepository(), tags, commit);
                 return !baseVersion.equals(lastVersion);
-            } else {
-                throw new FileNotFoundException(
-                    String.format("Cannot find commit for path '%s' and version '%s'", path, baseVersion));
             }
         }
 
