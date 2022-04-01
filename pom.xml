@@ -83,7 +83,7 @@
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
-        <org.springframework.version>5.3.17</org.springframework.version>
+        <org.springframework.version>5.3.18</org.springframework.version>
         <org.springsecurity.version>5.6.2</org.springsecurity.version>
         <org.hibernate.version>5.6.4.Final</org.hibernate.version>
         <opensaml.version>4.1.1</opensaml.version>
