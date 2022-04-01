@@ -406,19 +406,14 @@ public final class MethodSearch {
             Iterable<IOpenMethod> methods,
             BiFunction<IOpenClass, IOpenClass, IOpenClass> func) throws AmbiguousMethodException {
         if (methods.iterator().hasNext()) {
+            IOpenClass varArgType = null;
             for (int i = params.length - 1; i >= 0; i--) {
+                varArgType = i == params.length - 1 ? params[i] : func.apply(params[i], varArgType);
+                if (varArgType == null) {
+                    return null;
+                }
                 IOpenClass[] args = new IOpenClass[i + 1];
                 System.arraycopy(params, 0, args, 0, i);
-                IOpenClass varArgType = params[i];
-                for (int j = i + 1; j < params.length; j++) {
-                    varArgType = func.apply(varArgType, params[j]);
-                    if (varArgType == null) {
-                        break;
-                    }
-                }
-                if (varArgType == null) {
-                    continue;
-                }
                 if (NullOpenClass.isAnyNull(varArgType)) {
                     args[i] = varArgType;
                 } else {
