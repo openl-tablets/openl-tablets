@@ -308,7 +308,7 @@ public class RulesProject extends UserWorkspaceProject {
                 }
             } catch (IOException ex) {
                 log.error(ex.getMessage(), ex);
-                return Collections.emptyList();
+                historyFileDatas = Collections.emptyList();
             }
         }
         return historyFileDatas;

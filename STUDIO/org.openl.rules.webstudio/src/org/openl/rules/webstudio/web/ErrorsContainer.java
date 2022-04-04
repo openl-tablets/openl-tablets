@@ -75,6 +75,10 @@ public final class ErrorsContainer {
         return result;
     }
 
+    public boolean hasErrors() {
+        return !permanentErrors.isEmpty() || !requestErrors.isEmpty();
+    }
+
     /**
      * Clear both Permanent and Request errors.
      */
