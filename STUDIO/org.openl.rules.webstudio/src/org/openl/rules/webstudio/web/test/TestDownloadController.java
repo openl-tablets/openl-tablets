@@ -28,16 +28,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/test")
+@Tag(name = "Test")
 public class TestDownloadController {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestDownloadController.class);
 
+    @Operation(summary = "test.download.summary", description = "test.download.summary")
     @GetMapping(value = "/testcase")
-    public ResponseEntity<?> download(@RequestParam(value = Constants.REQUEST_PARAM_ID, required = false) String id,
-            @RequestParam(value = Constants.REQUEST_PARAM_TEST_RANGES, required = false) String testRanges,
-            @RequestParam(value = Constants.REQUEST_PARAM_PERPAGE, required = false) Integer pp,
+    @ApiResponse(responseCode = "200", description = "OK", headers = {
+            @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
+    public ResponseEntity<?> download(
+            @Parameter(description = "test.field.test-table-id") @RequestParam(value = Constants.REQUEST_PARAM_ID, required = false) String id,
+            @Parameter(description = "test.field.test-range") @RequestParam(value = Constants.REQUEST_PARAM_TEST_RANGES, required = false) String testRanges,
+            @Parameter(description = "test.field.per-page") @RequestParam(value = Constants.REQUEST_PARAM_PERPAGE, required = false) Integer pp,
             @RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
             @RequestParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
             HttpServletRequest request,
@@ -74,7 +88,11 @@ public class TestDownloadController {
         }
     }
 
+    @Operation(summary = "test.manual.summary", description = "test.manual.summary")
     @GetMapping(value = "/rule")
+    @ApiResponse(responseCode = "200", description = "OK", headers = {
+            @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = "application/xlsx", schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> manual(@RequestParam(Constants.RESPONSE_MONITOR_COOKIE) String cookieId,
             @RequestParam(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE) Boolean currentOpenedModule,
             HttpServletRequest request,

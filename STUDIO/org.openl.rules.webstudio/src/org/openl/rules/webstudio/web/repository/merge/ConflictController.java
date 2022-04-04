@@ -66,8 +66,8 @@ public class ConflictController {
     @GetMapping(value = "/repository", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Operation(summary = "conflict.repository.summary", description = "conflict.repository.desc")
     @ApiResponse(responseCode = "200", description = "conflict.repository.200.desc", headers = {
-            @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "conflict.header.content-disposition.desc", required = true),
-            @Header(name = HttpHeaders.SET_COOKIE, description = "conflict.header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
+            @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> repository(
             @Parameter(description = "conflict.field.repo-id") @RequestParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
             @Parameter(description = "conflict.field.name") @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
@@ -98,8 +98,8 @@ public class ConflictController {
     @GetMapping(value = "/local", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Operation(summary = "conflict.local.summary", description = "conflict.local.desc")
     @ApiResponse(responseCode = "200", description = "conflict.local.200.desc", headers = {
-            @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "conflict.header.content-disposition.desc", required = true),
-            @Header(name = HttpHeaders.SET_COOKIE, description = "conflict.header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
+            @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> local(
             @Parameter(description = "conflict.field.repo-id") @RequestParam(Constants.REQUEST_PARAM_REPO_ID) final String repoId,
             @Parameter(description = "conflict.field.name") @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
@@ -137,8 +137,8 @@ public class ConflictController {
     @GetMapping(value = "/merged", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Operation(summary = "conflict.merged.summary", description = "conflict.merged.desc")
     @ApiResponse(responseCode = "200", description = "conflict.merged.200.desc", headers = {
-            @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "conflict.header.content-disposition.desc", required = true),
-            @Header(name = HttpHeaders.SET_COOKIE, description = "conflict.header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
+            @Header(name = HttpHeaders.CONTENT_DISPOSITION, description = "header.content-disposition.desc", required = true),
+            @Header(name = HttpHeaders.SET_COOKIE, description = "header.set-cookie.desc") }, content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE, schema = @Schema(type = "string", format = "binary")))
     public ResponseEntity<?> merged(
             @Parameter(description = "conflict.field.name") @RequestParam(Constants.REQUEST_PARAM_NAME) final String name,
             @RequestParam(value = Constants.RESPONSE_MONITOR_COOKIE, required = false) String cookieId,
