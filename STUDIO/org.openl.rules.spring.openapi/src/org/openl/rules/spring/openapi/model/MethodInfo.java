@@ -91,6 +91,11 @@ public class MethodInfo {
         return httpStatus;
     }
 
+    public boolean isFormRequest() {
+        return consumes.length == 1 && (MediaType.APPLICATION_FORM_URLENCODED_VALUE
+            .equals(consumes[0]) || MediaType.MULTIPART_FORM_DATA_VALUE.equals(consumes[0]));
+    }
+
     public static class Builder {
 
         private static final Function<Set<MediaType>, String[]> MEDIA_TYPES_TO_ARRAY = set -> set.stream()
