@@ -23,12 +23,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * Manages Users and Groups.
@@ -37,6 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(value = "/admin/management", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Management")
 public class ManagementController {
 
     private static final String SECURITY_DEF_GROUP_PROP = "security.default-group";
@@ -60,26 +67,31 @@ public class ManagementController {
         this.extGroupService = extGroupService;
     }
 
+    @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary")
     @GetMapping("/groups")
     public Map<String, UIGroup> getGroups() {
         SecurityChecker.allow(Privileges.ADMIN);
         return groupDao.getAllGroups().stream().collect(StreamUtils.toLinkedMap(Group::getName, UIGroup::new));
     }
 
-    @DeleteMapping(value = "/groups", consumes = MediaType.TEXT_PLAIN_VALUE)
+    @Operation(description = "mgmt.delete-group.desc", summary = "mgmt.delete-group.summary")
+    @DeleteMapping(value = "/groups/{name}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteGroup(@RequestBody final String name) {
+    public void deleteGroup(
+            @Parameter(description = "mgmt.schema.group.name") @PathVariable("name") final String name) {
         SecurityChecker.allow(Privileges.ADMIN);
         groupDao.deleteGroupByName(name);
     }
 
+    @Operation(description = "mgmt.save-group.desc", summary = "mgmt.save-group.summary")
     @PostMapping(value = "/groups", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void saveGroup(@RequestParam(value = "oldName", required = false) final String oldName,
-            @RequestParam("name") final String name,
-            @RequestParam(value = "description", required = false) final String description,
-            @RequestParam(value = "group", required = false) final Set<String> roles,
-            @RequestParam(value = "privilege", required = false) final Set<String> privileges) {
+    public void saveGroup(
+            @Parameter(description = "mgmt.schema.group.old-name") @RequestParam(value = "oldName", required = false) final String oldName,
+            @Parameter(description = "mgmt.schema.group.name", required = true) @RequestParam("name") final String name,
+            @Parameter(description = "mgmt.schema.group.description") @RequestParam(value = "description", required = false) final String description,
+            @Parameter(description = "mgmt.schema.group.sub-groups") @RequestParam(value = "group", required = false) final Set<String> roles,
+            @Parameter(description = "mgmt.schema.group.privileges") @RequestParam(value = "privilege", required = false) final Set<String> privileges) {
         SecurityChecker.allow(Privileges.ADMIN);
         if (!name.equals(oldName) && groupManagementService.isGroupExist(name)) {
             throw new ConflictException("duplicated.group.message");
@@ -92,6 +104,7 @@ public class ManagementController {
         groupManagementService.updateGroup(name, roles, privileges);
     }
 
+    @Operation(description = "mgmt.save-settings.desc", summary = "mgmt.save-settings.summary")
     @PostMapping(value = "/groups/settings", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void saveSettings(@RequestBody GroupSettingsModel request) {
@@ -100,6 +113,7 @@ public class ManagementController {
         properties.setProperty(SECURITY_DEF_GROUP_PROP, request.getDefaultGroup());
     }
 
+    @Operation(description = "mgmt.get-settings.desc", summary = "mgmt.get-settings.summary")
     @GetMapping("/groups/settings")
     public GroupSettingsModel getSettings() {
         GroupSettingsModel model = new GroupSettingsModel();
@@ -107,6 +121,7 @@ public class ManagementController {
         return model;
     }
 
+    @Operation(description = "mgmt.get-privileges.desc", summary = "mgmt.get-privileges.summary")
     @GetMapping("/privileges")
     public Map<String, String> getPrivileges() {
         SecurityChecker.allow(Privileges.ADMIN);
@@ -114,9 +129,11 @@ public class ManagementController {
             .collect(StreamUtils.toLinkedMap(Privilege::getName, Privilege::getDisplayName));
     }
 
+    @Operation(description = "mgmt.search-external-groups.desc", summary = "mgmt.search-external-groups.summary")
     @GetMapping("/groups/external")
-    public Set<String> searchExternalGroup(@RequestParam("search") String searchTerm,
-            @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
+    public Set<String> searchExternalGroup(
+            @Parameter(description = "mgmt.search-external-groups.param.search") @RequestParam("search") String searchTerm,
+            @Parameter(description = "mgmt.search-external-groups.param.page-size") @RequestParam(value = "pageSize", defaultValue = "10") int pageSize) {
         return extGroupService.findAllByName(searchTerm, pageSize)
             .stream()
             .map(org.openl.rules.security.Group::getName)
@@ -134,8 +151,13 @@ public class ManagementController {
 
         }
 
+        @Schema(description = "mgmt.schema.group.description")
         public String description;
+
+        @Schema(description = "mgmt.schema.group.sub-groups")
         public Set<String> roles;
+
+        @Schema(description = "mgmt.schema.group.privileges")
         public Set<String> privileges;
     }
 }

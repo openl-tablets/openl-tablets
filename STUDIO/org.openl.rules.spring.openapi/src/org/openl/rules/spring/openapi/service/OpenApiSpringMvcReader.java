@@ -200,6 +200,7 @@ public class OpenApiSpringMvcReader {
         ParameterInfo requestBodyParam = null;
         MethodParameter[] methodParameters = methodInfo.getHandler().getMethodParameters();
         int idx = 0;
+        boolean formRequest = methodInfo.isFormRequest();
         for (MethodParameter methodParameter : methodParameters) {
             var parameterInfo = new ParameterInfo(methodInfo, methodParameter, idx++);
             if (parameterInfo.getParameter() != null && parameterInfo.getParameter().hidden()) {
@@ -210,7 +211,9 @@ public class OpenApiSpringMvcReader {
             }
             var reqPart = parameterInfo.getParameterAnnotation(RequestPart.class);
             var reqParam = parameterInfo.getParameterAnnotation(RequestParam.class);
-            if (reqPart != null || (OpenApiUtils.isFile(parameterInfo.getType()) && reqParam != null)) {
+            if (reqPart != null || (reqParam != null && (OpenApiUtils.isFile(parameterInfo
+                .getType()) || (formRequest && parameterInfo.getParameter() != null && parameterInfo.getParameter()
+                    .in() == ParameterIn.DEFAULT)))) {
                 formParameters.add(parameterInfo);
                 if (parameterInfo.getParameter() == null) {
                     // Try to find Parameter annotation in other places

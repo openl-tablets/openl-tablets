@@ -1,0 +1,5 @@
+POST /rest/admin/management/groups HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/x-www-form-urlencoded
+
+name=Foo&description=Lorem ipsum dolor sit amet, consectetur adipiscing elit

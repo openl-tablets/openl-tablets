@@ -232,6 +232,8 @@ public class OpenApiParameterService {
         if (parameter.getSchema() != null) {
             if (StringUtils.isNotBlank(defaultValue) && !ValueConstants.DEFAULT_NONE.equals(defaultValue)) {
                 parameter.getSchema().setDefault(defaultValue);
+                //Supplying a default value implicitly sets required to false.
+                parameter.setRequired(null);
             }
             applyValidationAnnotations(paramInfo, parameter.getSchema());
         }

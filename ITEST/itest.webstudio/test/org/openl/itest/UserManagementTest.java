@@ -38,4 +38,12 @@ public class UserManagementTest {
         client.send("admin/management/groups/settings/getAll.2.json.get"); // must be as before
     }
 
+    @Test
+    public void EPBDS_7698() {
+        client.send("EPBDS-7698/add-group-1.json.post");
+        client.send("EPBDS-7698/groups-1.json.get");
+        client.send("EPBDS-7698/delete-group-1.json.post");
+        client.send("EPBDS-7698/groups.json.get");
+    }
+
 }
