@@ -11,6 +11,7 @@ import org.openl.rules.rest.exception.ValidationException;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.MessageSource;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.util.WebUtils;
 
@@ -143,6 +145,29 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
         var handledEx = super.handleBindException(e, headers, status, request);
         var bindingErrorModel = handleBindingResult(status, e.getBindingResult());
         return new ResponseEntity<>(bindingErrorModel, handledEx.getHeaders(), handledEx.getStatusCode());
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request) {
+        var handledEx = super.handleTypeMismatch(ex, headers, status, request);
+        var builder = ValidationError.builder()
+            .message(status.getReasonPhrase())
+            .addField(org.openl.rules.rest.common.model.FieldError.builder()
+                .field(getFieldName(ex))
+                .message(ex.getLocalizedMessage())
+                .rejectedValue(ex.getValue())
+                .build());
+        return new ResponseEntity<>(builder.build(), handledEx.getHeaders(), handledEx.getStatusCode());
+    }
+
+    private static String getFieldName(TypeMismatchException ex) {
+        if (ex instanceof MethodArgumentTypeMismatchException) {
+            return ((MethodArgumentTypeMismatchException) ex).getName();
+        }
+        return ex.getPropertyName();
     }
 
     private ValidationError handleBindingResult(HttpStatus status, BindingResult bindingResult) {
