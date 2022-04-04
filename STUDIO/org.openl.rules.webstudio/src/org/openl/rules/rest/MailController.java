@@ -32,8 +32,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/mail")
+@Tag(name = "Mail")
 public class MailController {
 
     public static final String MAIL_VERIFY_TOKEN = "mail.verify.token";
@@ -63,9 +68,10 @@ public class MailController {
         this.validationProvider = validationProvider;
     }
 
+    @Operation(summary = "mail.verify.summary", description = "mail.verify.desc")
     @GetMapping("/verify/{token}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void verify(@PathVariable("token") String token) {
+    public void verify(@Parameter(description = "mail.verify.param.token") @PathVariable("token") String token) {
         String username = currentUserInfo.getUserName();
         User user = userManagementService.getUser(username);
         String dbToken = userSettingManagementService.getStringProperty(username, MAIL_VERIFY_TOKEN);
@@ -83,8 +89,10 @@ public class MailController {
         }
     }
 
+    @Operation(summary = "mail.send-verification.summary", description = "mail.send-verification.desc")
     @PostMapping(value = "/send/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public NotificationModel sendVerification(HttpServletRequest request, @PathVariable("username") String username) {
+    public NotificationModel sendVerification(HttpServletRequest request,
+            @Parameter(description = "mail.send-verification.param.username") @PathVariable("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
@@ -97,6 +105,7 @@ public class MailController {
         }
     }
 
+    @Operation(summary = "mail.mail-config.summary", description = "mail.mail-config.desc")
     @GetMapping(value = "/settings", produces = MediaType.APPLICATION_JSON_VALUE)
     public MailConfigModel getMailConfig() {
         return new MailConfigModel().setUrl(propertyResolver.getProperty(MAIL_URL))
@@ -104,6 +113,7 @@ public class MailController {
             .setPassword(propertyResolver.getProperty(MAIL_PASSWORD));
     }
 
+    @Operation(summary = "mail.update-mail-config.summary", description = "mail.update-mail-config.desc")
     @PutMapping("/settings")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateMailConfig(@RequestBody MailConfigModel mailConfig) throws IOException {
