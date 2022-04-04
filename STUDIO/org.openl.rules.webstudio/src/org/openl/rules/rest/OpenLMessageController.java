@@ -14,14 +14,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping(value = "/message/", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Message")
 public class OpenLMessageController {
 
     private static final MessageHandler messageHandler = new MessageHandler();
 
+    @Operation(summary = "msg.get-stacktrace.summary", description = "msg.get-stacktrace.desc")
     @GetMapping(value = "{messageId}/stacktrace", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String messageStacktrace(@PathVariable("messageId") final long messageId) {
+    public String messageStacktrace(
+            @Parameter(description = "msg.param.message-id") @PathVariable("messageId") final long messageId) {
         return Optional.ofNullable(WebStudioUtils.getWebStudio(WebStudioUtils.getSession()))
             .map(WebStudio::getModel)
             .flatMap(model -> model.getCompilationStatus()
@@ -35,8 +42,10 @@ public class OpenLMessageController {
             .orElse(null);
     }
 
+    @Operation(summary = "msg.get-url.summary", description = "msg.get-url.desc")
     @GetMapping(value = "{messageId}/url", produces = MediaType.TEXT_PLAIN_VALUE)
-    public String messageUrl(@PathVariable("messageId") final long messageId) {
+    public String messageUrl(
+            @Parameter(description = "msg.param.message-id") @PathVariable("messageId") final long messageId) {
         return Optional.ofNullable(WebStudioUtils.getWebStudio(WebStudioUtils.getSession()))
             .flatMap(webStudio -> webStudio.getModel()
                 .getCompilationStatus()

@@ -29,6 +29,10 @@ public final class ValidationError extends BaseError {
         return fields;
     }
 
+    public List<BaseError> getErrors() {
+        return errors;
+    }
+
     public static Builder builder() {
         return new Builder();
     }

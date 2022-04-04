@@ -4,13 +4,13 @@ import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.validation.constraints.DecimalMax;
 import javax.validation.constraints.DecimalMin;
@@ -232,7 +232,7 @@ public class OpenApiParameterService {
         if (parameter.getSchema() != null) {
             if (StringUtils.isNotBlank(defaultValue) && !ValueConstants.DEFAULT_NONE.equals(defaultValue)) {
                 parameter.getSchema().setDefault(defaultValue);
-                //Supplying a default value implicitly sets required to false.
+                // Supplying a default value implicitly sets required to false.
                 parameter.setRequired(null);
             }
             applyValidationAnnotations(paramInfo, parameter.getSchema());
@@ -282,14 +282,15 @@ public class OpenApiParameterService {
     }
 
     public String[] getMediaTypesForType(Class<?> cl) {
-        Set<String> possibleMediaTypes = new HashSet<>();
+        Set<MediaType> possibleMediaTypes = new TreeSet<>(
+            MediaType.SPECIFICITY_COMPARATOR.thenComparing(MediaType.QUALITY_VALUE_COMPARATOR));
         for (var converter : mappingHandlerAdapter.getMessageConverters()) {
-            converter.getSupportedMediaTypes(cl).stream().map(Object::toString).forEach(possibleMediaTypes::add);
+            possibleMediaTypes.addAll(converter.getSupportedMediaTypes(cl));
         }
-        if (possibleMediaTypes.contains(MediaType.ALL_VALUE)) {
+        if (possibleMediaTypes.contains(MediaType.ALL)) {
             return MethodInfo.ALL_MEDIA_TYPES;
         }
-        return possibleMediaTypes.toArray(new String[0]);
+        return possibleMediaTypes.stream().map(Object::toString).toArray(String[]::new);
     }
 
     private static final class PKey {
