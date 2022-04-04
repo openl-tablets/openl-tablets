@@ -2,13 +2,18 @@ package org.openl.rules.rest.model;
 
 import org.openl.rules.rest.validation.MailConfigConstraint;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @MailConfigConstraint
 public class MailConfigModel {
 
+    @Schema(description = "Mail server url", example = "smtps://mail.example.com:1587")
     private String url;
 
+    @Schema(description = "Username for authentication on mail server", example = "jhon@mail.example.com")
     private String username;
 
+    @Schema(description = "Password for authentication on mail server", example = "qwerty")
     private String password;
 
     public MailConfigModel() {

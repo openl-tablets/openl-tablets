@@ -2,12 +2,17 @@ package org.openl.rules.rest.model;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class NotificationModel {
 
+    @Schema(description = "Localized notification message")
     private String message;
 
+    @Schema(description = "Notification code")
     private String code;
 
+    @Schema(description = "Message arguments")
     private List<Object> args;
 
     public NotificationModel(String message, String code, List<Object> args) {
