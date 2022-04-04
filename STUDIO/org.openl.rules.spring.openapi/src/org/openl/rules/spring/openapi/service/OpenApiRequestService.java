@@ -188,7 +188,7 @@ public class OpenApiRequestService {
                 requestBody.set$ref(apiParameter.ref());
             }
             if (StringUtils.isNotBlank(apiParameter.description())) {
-                requestBody.setDescription(apiParameter.description());
+                requestBody.setDescription(propertyResolver.resolve(apiParameter.description()));
             }
             if (apiParameter.required()) {
                 requestBody.setRequired(Boolean.TRUE);
