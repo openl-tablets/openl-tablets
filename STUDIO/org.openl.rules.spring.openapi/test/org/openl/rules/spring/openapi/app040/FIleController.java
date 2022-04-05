@@ -2,6 +2,8 @@ package org.openl.rules.spring.openapi.app040;
 
 import java.util.List;
 
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +33,11 @@ public class FIleController {
     public ResponseEntity<Void> form(@CustomPathVariable("name") final String name,
             @RequestPart(value = "configuration") final String configuration,
             @RequestPart(value = "file") final MultipartFile file) {
+        return null;
+    }
+
+    @PostMapping(value = "/upload", consumes = "application/zip")
+    public ResponseEntity<Void> upload(HttpEntity<InputStreamResource> zipFile) {
         return null;
     }
 

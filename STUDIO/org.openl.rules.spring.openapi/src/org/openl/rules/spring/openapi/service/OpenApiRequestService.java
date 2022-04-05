@@ -1,6 +1,7 @@
 package org.openl.rules.spring.openapi.service;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,6 +14,8 @@ import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.model.ParameterInfo;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -180,7 +183,7 @@ public class OpenApiRequestService {
             .getParameterAnnotation(org.springframework.web.bind.annotation.RequestBody.class);
         var apiParameter = requestBodyParam.getParameter();
         var requestBody = new RequestBody();
-        if (requestBodyAnno.required()) {
+        if (requestBodyAnno != null && requestBodyAnno.required()) {
             requestBody.setRequired(Boolean.TRUE);
         }
         if (apiParameter != null) {
@@ -200,6 +203,9 @@ public class OpenApiRequestService {
         var parameterType = ParameterProcessor.getParameterType(requestBodyParam.getParameter(), true);
         if (parameterType == null) {
             parameterType = requestBodyParam.getType();
+            if (isRequestBodyType(parameterType)) {
+                parameterType = ((ParameterizedType) parameterType).getActualTypeArguments()[0];
+            }
         }
         String[] consumes = resolveConsumes(methodInfo,
             (Class<?>) (parameterType instanceof ParameterizedType ? ((ParameterizedType) parameterType).getRawType()
@@ -274,5 +280,31 @@ public class OpenApiRequestService {
                 .content(), new String[0], methodInfo.getConsumes(), null, components, methodInfo.getJsonView())
             .ifPresent(requestBody::setContent);
         return requestBody;
+    }
+
+    public void mergeRequestBody(RequestBody first, RequestBody two) {
+        var oldContent = first.getContent();
+        if (oldContent == null) {
+            first.setContent(two.getContent());
+        } else if (two.getContent() != null) {
+            for (var entry : two.getContent().entrySet()) {
+                oldContent.addMediaType(entry.getKey(), entry.getValue());
+            }
+        }
+        if (StringUtils.isNotBlank(two.getDescription())) {
+            first.description(two.getDescription());
+        }
+    }
+
+    public boolean isRequestBody(ParameterInfo paramInfo) {
+        return paramInfo.hasAnnotation(org.springframework.web.bind.annotation.RequestBody.class) || isRequestBodyType(paramInfo.getType());
+    }
+
+    private boolean isRequestBodyType(Type type) {
+        if (type instanceof ParameterizedType) {
+            var rawType = ((ParameterizedType) type).getRawType();
+            return rawType == HttpEntity.class || rawType == RequestEntity.class;
+        }
+        return false;
     }
 }

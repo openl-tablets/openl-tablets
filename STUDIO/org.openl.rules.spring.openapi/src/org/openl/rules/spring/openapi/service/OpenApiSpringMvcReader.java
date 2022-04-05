@@ -144,7 +144,29 @@ public class OpenApiSpringMvcReader {
     private void parseMethod(OpenApiContext apiContext,
             MethodInfo methodInfo,
             List<ControllerAdviceInfo> controllerAdviceInfos) {
-        final var operation = new Operation();
+        final var operation = Optional.ofNullable(apiContext.getPaths().get(methodInfo.getPathPattern()))
+                .map(path -> {
+                    switch (methodInfo.getRequestMethod()) {
+                        case GET:
+                             return path.getGet();
+                        case HEAD:
+                            return path.getHead();
+                        case POST:
+                            return path.getPost();
+                        case PUT:
+                            return path.getPut();
+                        case PATCH:
+                            return path.getPatch();
+                        case DELETE:
+                            return path.getDelete();
+                        case OPTIONS:
+                            return path.getOptions();
+                        case TRACE:
+                            return path.getTrace();
+                        default:
+                            return null;
+                    }
+                }).orElseGet(Operation::new);
 
         if (isDeprecatedMethod(methodInfo.getMethod())) {
             operation.setDeprecated(true);
@@ -229,7 +251,7 @@ public class OpenApiSpringMvcReader {
                             parameterInfo.setParameter(p);
                         });
                 }
-            } else if (parameterInfo.hasAnnotation(org.springframework.web.bind.annotation.RequestBody.class)) {
+            } else if (apiRequestService.isRequestBody(parameterInfo)) {
                 requestBodyParam = parameterInfo;
             } else {
                 parameters.add(parameterInfo);
@@ -241,7 +263,13 @@ public class OpenApiSpringMvcReader {
 
         // parse request body
         apiRequestService.parse(apiContext, methodInfo, formParameters, requestBodyParam)
-            .ifPresent(operation::requestBody);
+            .ifPresent(requestBody -> {
+                if (operation.getRequestBody() != null) {
+                    apiRequestService.mergeRequestBody(operation.getRequestBody(), requestBody);
+                } else {
+                    operation.requestBody(requestBody);
+                }
+            });
 
         // register parsed operation method
         PathItem pathItem;
