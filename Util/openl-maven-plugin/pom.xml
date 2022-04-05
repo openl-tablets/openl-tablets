@@ -177,7 +177,7 @@
                             <!-- Special cases should be defined in invoker.properties file. -->
                             <!-- !!! Don't increase these parameters without special need !!! -->
                             <timeoutInSeconds>${invoker.timeoutInSeconds}</timeoutInSeconds>
-                            <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts}</mavenOpts>
+                            <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
                         </configuration>
                     </plugin>
                 </plugins>
