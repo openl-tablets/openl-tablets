@@ -9,9 +9,7 @@ import static org.openl.rules.ui.WebStudio.TEST_TESTS_PERPAGE;
 import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
 
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -61,8 +59,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Users")
 public class UsersController {
 
     private final UserManagementService userManagementService;
@@ -99,13 +103,16 @@ public class UsersController {
         this.mailSender = mailSender;
     }
 
+    @Operation(description = "users.get-users.desc", summary = "users.get-users.summary")
     @GetMapping
     public List<UserModel> getAllUsers() {
         return userManagementService.getAllUsers().stream().map(this::mapUser).collect(Collectors.toList());
     }
 
+    @Operation(description = "users.get-user.desc", summary = "users.get-user.summary")
     @GetMapping("/{username}")
-    public UserModel getUser(@PathVariable("username") String username) {
+    public UserModel getUser(
+            @Parameter(description = "users.field.username") @PathVariable("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
@@ -113,6 +120,7 @@ public class UsersController {
         return Optional.ofNullable(userManagementService.getUser(username)).map(this::mapUser).orElse(null);
     }
 
+    @Operation(description = "users.add-user.desc", summary = "users.add-user.summary")
     @PutMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addUser(HttpServletRequest request, @RequestBody UserCreateModel userModel) {
@@ -130,19 +138,20 @@ public class UsersController {
         }
     }
 
+    @Operation(description = "users.edit-user.desc", summary = "users.edit-user.summary")
     @PutMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void editUser(HttpServletRequest request,
-                         @RequestBody UserEditModel userModel,
-                         @PathVariable("username") String username) {
+            @RequestBody UserEditModel userModel,
+            @Parameter(description = "users.field.username") @PathVariable("username") String username) {
         if (!currentUserInfo.getUserName().equals(username)) {
             SecurityChecker.allow(Privileges.ADMIN);
         }
         checkUserExists(username);
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(username);
-        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
-                && !dbUser.getExternalFlags().isEmailExternal();
+        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
+            .isEmailExternal();
         userManagementService.updateUserData(username,
             userModel.getFirstName(),
             userModel.getLastName(),
@@ -159,13 +168,14 @@ public class UsersController {
         }
     }
 
+    @Operation(description = "users.edit-user-info.desc", summary = "users.edit-user-info.summary")
     @PutMapping("/info")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void editUserInfo(HttpServletRequest request, @RequestBody UserInfoModel userModel) {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
-        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
-                && !dbUser.getExternalFlags().isEmailExternal();
+        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
+            .isEmailExternal();
         userManagementService.updateUserData(currentUserInfo.getUserName(),
             userModel.getFirstName(),
             userModel.getLastName(),
@@ -179,13 +189,14 @@ public class UsersController {
         }
     }
 
+    @Operation(description = "users.edit-user-profile.desc", summary = "users.edit-user-profile.summary")
     @PutMapping("/profile")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void editUserProfile(HttpServletRequest request, @RequestBody UserProfileEditModel userModel) {
         validationProvider.validate(userModel);
         User dbUser = userManagementService.getUser(currentUserInfo.getUserName());
-        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail())
-                && !dbUser.getExternalFlags().isEmailExternal();
+        boolean emailChanged = !Objects.equals(dbUser.getEmail(), userModel.getEmail()) && !dbUser.getExternalFlags()
+            .isEmailExternal();
         userManagementService.updateUserData(dbUser.getUsername(),
             userModel.getFirstName(),
             userModel.getLastName(),
@@ -237,6 +248,7 @@ public class UsersController {
         }
     }
 
+    @Operation(description = "users.get-user-profile.desc", summary = "users.get-user-profile.summary")
     @GetMapping("/profile")
     public UserProfileModel getUserProfile() {
         String username = currentUserInfo.getUserName();
@@ -258,25 +270,29 @@ public class UsersController {
             .setExternalFlags(user.getExternalFlags());
     }
 
+    @Operation(description = "users.delete-user.desc", summary = "users.delete-user.summary")
     @DeleteMapping("/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUser(@PathVariable("username") String username) {
+    public void deleteUser(@Parameter(description = "users.field.username") @PathVariable("username") String username) {
         checkUserExists(username);
         userManagementService.deleteUser(username);
     }
 
+    @Operation(description = "users.options.desc", summary = "users.options.summary")
     @GetMapping("/options")
-    public Map<String, Object> options() {
-        HashMap<String, Object> options = new HashMap<>();
-        options.put("canCreateInternalUsers", canCreateInternalUsers);
-        options.put("userMode", environment.getProperty("user.mode"));
-        options.put("emailVerification", mailSender.isValidEmailSettings());
-        return options;
+    public UserOptions options() {
+        return UserOptions.builder()
+            .canCreateInternalUsers(canCreateInternalUsers)
+            .userMode(environment.getProperty("user.mode"))
+            .emailVerification(mailSender.isValidEmailSettings())
+            .build();
     }
 
+    @Operation(description = "users.get-user-external-groups.desc", summary = "users.get-user-external-groups.summary")
     @GetMapping("/{username}/groups/external")
-    public Set<String> getUserGroupsGroups(@PathVariable("username") String username,
-            @RequestParam(value = "matched", required = false) Boolean matched) {
+    public Set<String> getUserExternalGroups(
+            @Parameter(description = "users.field.username") @PathVariable("username") String username,
+            @Parameter(description = "users.get-user-external-groups.param.matched.username") @RequestParam(value = "matched", required = false) Boolean matched) {
         SecurityChecker.allow(Privileges.ADMIN);
         checkUserExists(username);
         List<Group> extGroups;
@@ -325,6 +341,59 @@ public class UsersController {
         if (!userManagementService.existsByName(username)) {
             throw new NotFoundException("users.message", username);
         }
+    }
+
+    private static class UserOptions {
+
+        @Schema(description = "Can create internal users")
+        public final Boolean canCreateInternalUsers;
+
+        @Schema(description = "User mode")
+        public final String userMode;
+
+        @Schema(description = "Is e-mail verification required")
+        public final Boolean emailVerification;
+
+        public UserOptions(Builder from) {
+            this.canCreateInternalUsers = from.canCreateInternalUsers;
+            this.userMode = from.userMode;
+            this.emailVerification = from.emailVerification;
+        }
+
+        public static Builder builder() {
+            return new Builder();
+        }
+
+        public static class Builder {
+
+            private Boolean canCreateInternalUsers;
+            private String userMode;
+            private Boolean emailVerification;
+
+            private Builder() {
+            }
+
+            public Builder canCreateInternalUsers(Boolean canCreateInternalUsers) {
+                this.canCreateInternalUsers = canCreateInternalUsers;
+                return this;
+            }
+
+            public Builder userMode(String userMode) {
+                this.userMode = userMode;
+                return this;
+            }
+
+            public Builder emailVerification(Boolean emailVerification) {
+                this.emailVerification = emailVerification;
+                return this;
+            }
+
+            public UserOptions build() {
+                return new UserOptions(this);
+            }
+
+        }
+
     }
 
 }

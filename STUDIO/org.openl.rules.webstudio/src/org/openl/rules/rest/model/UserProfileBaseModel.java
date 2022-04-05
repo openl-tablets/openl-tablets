@@ -1,19 +1,28 @@
 package org.openl.rules.rest.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class UserProfileBaseModel extends UserInfoModel {
 
+    @Schema(description = "Show table headers")
     private boolean showHeader;
 
+    @Schema(description = "Show formulas")
     private boolean showFormulas;
 
+    @Schema(description = "Test results per page")
     private int testsPerPage;
 
+    @Schema(description = "Test failures only")
     private boolean testsFailuresOnly;
 
+    @Schema(description = "Number of failures per test")
     private int testsFailuresPerTest;
 
+    @Schema(description = "Show complex result")
     private boolean showComplexResult;
 
+    @Schema(description = "trace.field.showRealNumbers")
     private boolean showRealNumbers;
 
     @Override

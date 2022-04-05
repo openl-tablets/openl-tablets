@@ -1,5 +1,7 @@
 package org.openl.rules.rest.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.Set;
 
 import javax.validation.constraints.Size;
@@ -7,8 +9,10 @@ import javax.validation.constraints.Size;
 public class UserEditModel extends UserInfoModel {
 
     @Size(max = 25, message = "{openl.constraints.size.max.message}")
+    @Schema(description = "Password", example = "qwerty")
     private String password;
 
+    @Schema(description = "Assigned Groups")
     private Set<String> groups;
 
     @Override
