@@ -27,16 +27,18 @@ public class User implements Serializable {
     private String loginName;
     private String passwordHash;
     private Set<Group> groups;
-    private String firstName;
-    private String surname;
     private String email;
     private String displayName;
     private int flags;
 
+    @Column(name = "firstName", length = 50)
+    private String firstName;
+    @Column(name = "surname", length = 50)
+    private String surname;
+
     /**
      * First name.
      */
-    @Column(name = "firstName", length = 50)
     public String getFirstName() {
         return firstName;
     }
@@ -71,7 +73,6 @@ public class User implements Serializable {
     /**
      * Surname.
      */
-    @Column(name = "surname", length = 50)
     public String getSurname() {
         return surname;
     }
@@ -109,7 +110,7 @@ public class User implements Serializable {
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        this.firstName = truncateIfNeeded("firstName", firstName);
     }
 
     public void setGroups(Set<Group> groups) {
@@ -125,7 +126,18 @@ public class User implements Serializable {
     }
 
     public void setSurname(String surname) {
-        this.surname = surname;
+        this.surname = truncateIfNeeded("surname", surname);
+    }
+
+    private String truncateIfNeeded(String fieldName, String field) {
+        try {
+            int size = getClass().getDeclaredField(fieldName).getAnnotation(Column.class).length();
+            if (field != null && field.length() > size) {
+                return field.substring(0, size);
+            }
+        } catch (NoSuchFieldException e) {
+        }
+        return field;
     }
 
     @Override
