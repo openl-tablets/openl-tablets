@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
-import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.ClassUtils;
+import org.openl.util.NumberUtils;
 
 public class TestResultComparatorFactory {
 

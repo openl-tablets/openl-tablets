@@ -10,7 +10,7 @@ import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.EqualsIndex;
-import org.openl.rules.helpers.NumberUtils;
+import org.openl.util.NumberUtils;
 
 /**
  * @author snshor

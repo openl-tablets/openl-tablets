@@ -3,8 +3,8 @@ package org.openl.rules.table.formatters;
 import java.util.Date;
 import java.util.Locale;
 
-import org.openl.rules.helpers.NumberUtils;
 import org.openl.util.ClassUtils;
+import org.openl.util.NumberUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.*;
 

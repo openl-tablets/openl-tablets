@@ -1,9 +1,9 @@
-package org.openl.rules.table.formatters;
+package org.openl.util.formatters;
 
 import java.math.BigDecimal;
 import java.util.Locale;
 
-import org.openl.rules.helpers.NumberUtils;
+import org.openl.util.NumberUtils;
 import org.openl.util.formatters.IFormatter;
 import org.openl.util.formatters.NumberFormatter;
 

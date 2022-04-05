@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.helpers.NumberUtils;
+import org.openl.util.NumberUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class EqualsSelector implements IIntSelector {

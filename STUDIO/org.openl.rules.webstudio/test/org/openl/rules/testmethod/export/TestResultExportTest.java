@@ -401,17 +401,23 @@ public class TestResultExportTest {
                 assertRowColors(row, HEADER, HEADER, HEADER, HEADER);
 
                 row = sheet.getRow(++rowNum);
-                assertRowText(row, "1", "Passed", "MyObjectD{ field1=2.0 field2=null }", "2");
+                assertRowText(row, "1", "Passed", "MyObjectD(id=0){\n" +
+                        "  field1=2\n" +
+                        "  }", "2");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
                 assertComments(row, 3, (String) null);
 
                 row = sheet.getRow(++rowNum);
-                assertRowText(row, "2", "Passed", "MyObjectD{ field1=4.0 field2=null }", "4");
+                assertRowText(row, "2", "Passed", "MyObjectD(id=0){\n" +
+                        "  field1=4\n" +
+                        "  }", "4");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
                 assertComments(row, 3, (String) null);
 
                 row = sheet.getRow(++rowNum);
-                assertRowText(row, "3", "Passed", "MyObjectD{ field1=5.0 field2=null }", "5");
+                assertRowText(row, "3", "Passed", "MyObjectD(id=0){\n" +
+                        "  field1=5\n" +
+                        "  }", "5");
                 assertRowColors(row, GREEN_MAIN, GREEN_MAIN, null, GREEN_FIELDS);
                 assertComments(row, 3, (String) null);
             }

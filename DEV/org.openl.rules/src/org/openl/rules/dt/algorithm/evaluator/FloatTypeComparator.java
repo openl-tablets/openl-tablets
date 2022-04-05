@@ -1,8 +1,8 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
-import java.util.Comparator;
+import org.openl.util.NumberUtils;
 
-import org.openl.rules.helpers.NumberUtils;
+import java.util.Comparator;
 
 public class FloatTypeComparator implements Comparator<Object> {
     private static final FloatTypeComparator INSTANCE = new FloatTypeComparator();

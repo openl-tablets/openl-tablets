@@ -7,7 +7,7 @@ import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.algorithm.evaluator.FloatTypeComparator;
 import org.openl.rules.dt.element.ConditionCasts;
-import org.openl.rules.helpers.NumberUtils;
+import org.openl.util.NumberUtils;
 
 public class EqualsIndex extends ARuleIndex {
 

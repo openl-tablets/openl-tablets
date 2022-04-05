@@ -15,7 +15,7 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.formatters.FormulaFormatter;
-import org.openl.rules.table.formatters.SmartNumberFormatter;
+import org.openl.util.formatters.SmartNumberFormatter;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;

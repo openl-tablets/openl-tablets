@@ -15,8 +15,8 @@ import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.index.ARuleIndex;
 import org.openl.rules.dt.index.EqualsIndex;
 import org.openl.rules.dt.type.BooleanTypeAdaptor;
-import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.NumberUtils;
 import org.openl.vm.IRuntimeEnv;
 
 /**

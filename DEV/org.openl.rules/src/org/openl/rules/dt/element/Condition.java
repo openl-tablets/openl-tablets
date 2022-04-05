@@ -18,7 +18,6 @@ import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.INumberRange;
-import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.helpers.StringRange;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.GridTableUtils;
@@ -36,6 +35,7 @@ import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.OpenFieldDelegator;
 import org.openl.util.ClassUtils;
 import org.openl.util.MessageUtils;
+import org.openl.util.NumberUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class Condition extends FunctionalRow implements ICondition {

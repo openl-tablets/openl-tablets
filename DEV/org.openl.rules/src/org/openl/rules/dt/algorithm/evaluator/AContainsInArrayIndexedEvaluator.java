@@ -14,10 +14,10 @@ import org.openl.domain.IIntSelector;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
-import org.openl.rules.helpers.NumberUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.types.IParameterDeclaration;
+import org.openl.util.NumberUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public abstract class AContainsInArrayIndexedEvaluator extends AConditionEvaluator {

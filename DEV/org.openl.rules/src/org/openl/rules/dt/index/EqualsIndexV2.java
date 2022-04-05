@@ -9,7 +9,7 @@ import org.openl.rules.dt.EqualsIndexDecisionTableRuleNode;
 import org.openl.rules.dt.IDecisionTableRuleNodeV2;
 import org.openl.rules.dt.algorithm.evaluator.FloatTypeComparator;
 import org.openl.rules.dt.element.ConditionCasts;
-import org.openl.rules.helpers.NumberUtils;
+import org.openl.util.NumberUtils;
 
 /**
  * A new implementation of Equals Index for decision tables.

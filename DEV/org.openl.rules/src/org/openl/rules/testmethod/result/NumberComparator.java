@@ -1,6 +1,6 @@
 package org.openl.rules.testmethod.result;
 
-import org.openl.rules.helpers.NumberUtils;
+import org.openl.util.NumberUtils;
 
 class NumberComparator implements TestResultComparator {
 
