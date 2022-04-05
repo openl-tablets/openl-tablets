@@ -33,6 +33,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 final class Comparators {
 
+    private static final int REGULAR_ARCHIVE_FILE_SIGN = 0x504B0304;
+    private static final int EMPTY_ARCHIVE_FILE_SIGN = 0x504B0506;
     private static final String CRLF = "\r\n";
 
     private Comparators() {
@@ -175,6 +177,7 @@ final class Comparators {
     }
 
     private static Map<String, byte[]> getZipEntries(byte[] src) throws IOException {
+        validateZipFileSign(src);
         Map<String, byte[]> dest = new HashMap<>();
         try (ZipInputStream actual = new ZipInputStream(new ByteArrayInputStream(src))) {
             ZipEntry actualEntry;
@@ -189,5 +192,15 @@ final class Comparators {
             }
         }
         return dest;
+    }
+
+    private static void validateZipFileSign(byte[] src) {
+        if (src.length < 4) {
+            fail("Incorrect zip archive");
+        }
+        int sign = ((src[0] << 24) + (src[1] << 16) + (src[2] << 8) + src[3]);
+        if (sign != REGULAR_ARCHIVE_FILE_SIGN && sign != EMPTY_ARCHIVE_FILE_SIGN) {
+            fail("Provided stream is not matched zip structure");
+        }
     }
 }
