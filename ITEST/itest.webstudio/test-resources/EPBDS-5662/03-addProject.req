@@ -1,0 +1,5 @@
+POST /rest/repo/project HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/zip
+
+&project.zip
