@@ -53,7 +53,9 @@ final class JavaDownCast implements IOpenCast {
                 return openCast.convert(from);
             }
             throw new ClassCastException(
-                String.format("Cannot cast from '%s' to '%s'.", from.getClass().getTypeName(), to.getDisplayName(0)));
+                String.format("Cannot cast from '%s' to '%s'.",
+                    from.getClass().getTypeName(),
+                    to.getInstanceClass().getTypeName()));
         }
     }
 

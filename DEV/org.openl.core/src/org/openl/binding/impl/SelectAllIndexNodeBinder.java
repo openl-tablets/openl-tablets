@@ -3,6 +3,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 
 /**
@@ -18,8 +19,9 @@ public class SelectAllIndexNodeBinder extends BaseAggregateIndexNodeBinder {
             IBoundNode targetNode,
             IBoundNode expressionNode,
             ILocalVar localVar,
+            IOpenCast openCast,
             IBindingContext bindingContext) {
         expressionNode = BindHelper.checkConditionBoundNode(expressionNode, bindingContext);
-        return new SelectAllIndexNode(node, targetNode, expressionNode, localVar);
+        return new SelectAllIndexNode(node, targetNode, expressionNode, localVar, openCast);
     }
 }

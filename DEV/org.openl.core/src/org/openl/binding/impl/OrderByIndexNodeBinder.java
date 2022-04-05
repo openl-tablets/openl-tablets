@@ -3,6 +3,7 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -20,8 +21,8 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
             IBoundNode targetNode,
             IBoundNode expressionNode,
             ILocalVar localVar,
+            IOpenCast openCast,
             IBindingContext bindingContext) {
-
         IOpenClass type = expressionNode.getType();
         if (expressionNode.getType() == NullOpenClass.the) {
             String message = "Expected a parameter for 'Order By' expression.";
@@ -35,7 +36,7 @@ public class OrderByIndexNodeBinder extends BaseAggregateIndexNodeBinder {
                 bindingContext);
         }
         boolean isDecreasing = node.getType().contains("decreasing");
-        return new OrderByIndexNode(node, targetNode, expressionNode, localVar, isDecreasing);
+        return new OrderByIndexNode(node, targetNode, expressionNode, localVar, openCast, isDecreasing);
     }
 
 }
