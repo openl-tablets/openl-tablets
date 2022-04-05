@@ -334,7 +334,7 @@ public class RepositoryController {
      *
      * @param zipFile a zipped project
      */
-    @Operation(summary = "repo.add-project.2.summary", description = "repo.add-project.2.desc")
+    @Operation(summary = "repo.add-project.1.summary", description = "repo.add-project.1.desc")
     @PostMapping(value = "project", consumes = "application/zip")
     @ApiResponse(responseCode = "201", description = "Created")
     public ResponseEntity<?> addProject(HttpServletRequest request, HttpEntity<InputStreamResource> zipFile) {
