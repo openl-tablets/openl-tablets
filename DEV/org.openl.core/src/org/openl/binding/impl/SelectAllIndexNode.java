@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -17,12 +18,30 @@ class SelectAllIndexNode extends ABoundNode {
     private final ILocalVar tempVar;
     private final IBoundNode condition;
     private final IBoundNode targetNode;
+    private final IOpenCast openCast;
+    private final Class<?> componentClass;
+    private final IOpenClass type;
 
-    SelectAllIndexNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode condition, ILocalVar tempVar) {
+    SelectAllIndexNode(ISyntaxNode syntaxNode,
+            IBoundNode targetNode,
+            IBoundNode condition,
+            ILocalVar tempVar,
+            IOpenCast openCast) {
         super(syntaxNode, targetNode, condition);
         this.tempVar = tempVar;
         this.targetNode = targetNode;
         this.condition = condition;
+        this.openCast = openCast;
+
+        if (targetNode.getType().isArray()) {
+            this.componentClass = targetNode.getType().getComponentClass().getInstanceClass();
+            this.type = targetNode.getType();
+        } else {
+            // Collection
+            this.componentClass = tempVar.getType().getInstanceClass();
+            IOpenClass componentType = tempVar.getType();
+            this.type = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
+        }
     }
 
     @Override
@@ -39,23 +58,17 @@ class SelectAllIndexNode extends ABoundNode {
             if (element == null) {
                 continue;
             }
-            tempVar.set(null, element, env);
+            Object converted = openCast != null ? openCast.convert(element) : element;
+            tempVar.set(null, converted, env);
             if (BooleanUtils.toBoolean(condition.evaluate(env))) {
                 firedElements.add(element);
             }
         }
-        Class<?> instanceClass = tempVar.getType().getInstanceClass();
-        return CollectionUtils.toArray(firedElements, instanceClass);
+        return CollectionUtils.toArray(firedElements, componentClass);
     }
 
     @Override
     public IOpenClass getType() {
-        IOpenClass type = targetNode.getType();
-        if (type.isArray()) {
-            return type;
-        }
-
-        IOpenClass componentType = tempVar.getType();
-        return componentType.getAggregateInfo().getIndexedAggregateType(componentType);
+        return type;
     }
 }

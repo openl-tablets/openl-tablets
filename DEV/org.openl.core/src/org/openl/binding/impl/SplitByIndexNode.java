@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
@@ -17,12 +18,31 @@ class SplitByIndexNode extends ABoundNode {
     private final ILocalVar tempVar;
     private final IBoundNode splitBy;
     private final IBoundNode targetNode;
+    private final IOpenCast openCast;
+    private final IOpenClass type;
+    private final IOpenClass componentType;
 
-    SplitByIndexNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode splitBy, ILocalVar tempVar) {
+    SplitByIndexNode(ISyntaxNode syntaxNode,
+            IBoundNode targetNode,
+            IBoundNode splitBy,
+            ILocalVar tempVar,
+            IOpenCast openCast) {
         super(syntaxNode, targetNode, splitBy);
         this.tempVar = tempVar;
         this.targetNode = targetNode;
         this.splitBy = splitBy;
+        this.openCast = openCast;
+
+        if (targetNode.getType().isArray()) {
+            this.componentType = targetNode.getType().getComponentClass();
+            this.type = targetNode.getType().getAggregateInfo().getIndexedAggregateType(targetNode.getType());
+        } else {
+            this.componentType = tempVar.getType();
+            // the first dimension
+            IOpenClass ct = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
+            // the second dimension
+            this.type = ct.getAggregateInfo().getIndexedAggregateType(ct);
+        }
     }
 
     @Override
@@ -46,7 +66,8 @@ class SplitByIndexNode extends ABoundNode {
             if (element == null) {
                 continue;
             }
-            tempVar.set(null, element, env);
+            Object converted = openCast != null ? openCast.convert(element) : element;
+            tempVar.set(null, converted, env);
             Object key = splitBy.evaluate(env);
 
             if (key == null) {
@@ -66,9 +87,7 @@ class SplitByIndexNode extends ABoundNode {
 
         int size = list2d.size();
 
-        IOpenClass componentType = tempVar.getType();
         IOpenClass arrayType = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
-
         Object result = Array.newInstance(arrayType.getInstanceClass(), size);
 
         for (int i = 0; i < size; i++) {
@@ -91,18 +110,6 @@ class SplitByIndexNode extends ABoundNode {
 
     @Override
     public IOpenClass getType() {
-
-        IOpenClass containerType = targetNode.getType();
-        if (containerType.isArray()) {
-            IAggregateInfo info = containerType.getAggregateInfo();
-            return info.getIndexedAggregateType(containerType);
-        }
-
-        IOpenClass componentType = tempVar.getType();
-        // the first dimension
-        componentType = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
-        // the second dimension
-        componentType = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
-        return componentType;
+        return type;
     }
 }

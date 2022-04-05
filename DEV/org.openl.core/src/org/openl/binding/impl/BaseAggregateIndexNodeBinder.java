@@ -52,6 +52,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
         String varName;
         IOpenClass varType;
         ISyntaxNode expressionNode;
+        ISyntaxNode varNode = null;
         if (numberOfChildren == 1) {
             expressionNode = node.getChild(0);
 
@@ -59,7 +60,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
             varType = componentType;
         } else {
             expressionNode = node.getChild(1);
-            ISyntaxNode varNode = node.getChild(0);
+            varNode = node.getChild(0);
 
             IBoundNode localVarDefinitionBoundNode = bindChildNode(varNode, bindingContext);
 
@@ -87,7 +88,20 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
                 String message = "Type definition cannot be used as expression for array index operator.";
                 return makeErrorNode(message, boundExpressionNode.getSyntaxNode(), bindingContext);
             }
-            return createBoundNode(node, targetNode, boundExpressionNode, localVar, bindingContext);
+            IOpenCast openCast = null;
+            if (varNode != null) {
+                IOpenClass componentType1 = targetNode.getType()
+                    .getAggregateInfo()
+                    .getComponentType(targetNode.getType());
+                openCast = bindingContext.getCast(componentType1, localVar.getType());
+                if (targetNode.getType().isArray() && (openCast == null || !openCast.isImplicit())) {
+                    String message = String.format("Cannot convert from '%s' to '%s'.",
+                        targetNode.getType().getAggregateInfo().getComponentType(targetNode.getType()).getName(),
+                        localVar.getType().getName());
+                    return makeErrorNode(message, varNode, bindingContext);
+                }
+            }
+            return createBoundNode(node, targetNode, boundExpressionNode, localVar, openCast, bindingContext);
         } finally {
             bindingContext.popLocalVarContext();
         }
@@ -98,5 +112,6 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
             IBoundNode targetNode,
             IBoundNode expressionNode,
             ILocalVar localVar,
+            IOpenCast openCast,
             IBindingContext bindingContext);
 }

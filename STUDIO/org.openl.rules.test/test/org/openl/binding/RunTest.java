@@ -49,6 +49,17 @@ public class RunTest {
         }
     }
 
+    private static void assertErrorStartWith(String expr, String expected) {
+        try {
+            runExpression(expr);
+            Assert.fail("Non-reachable");
+        } catch (CompositeOpenlException t) {
+            Assert.assertTrue(t.getErrors()[0].getMessage().startsWith(expected));
+        } catch (Exception t) {
+            Assert.assertTrue(t.getMessage().startsWith(expected));
+        }
+    }
+
     @Test
     public void testBig() {
         assertEquals("Vector x = new Vector(); x.size()", 0);
@@ -81,7 +92,8 @@ public class RunTest {
         assertEquals("String x = \"abc\";String y = \"abc\"; x < y", false);
         assertEquals("String x = \"abc\";String y = \"abc\"; x <= y", true);
 
-        assertError("String x = \"abc\";Integer y = 10; x <= y", "Operator 'le(java.lang.String, java.lang.Integer)' is not found.");
+        assertError("String x = \"abc\";Integer y = 10; x <= y",
+            "Operator 'le(java.lang.String, java.lang.Integer)' is not found.");
     }
 
     @Test
@@ -262,9 +274,9 @@ public class RunTest {
             "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list.get(0)",
             "bbccdd");
 
-        assertError(
+        assertErrorStartWith(
             "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(Date d)!@ d.getDay() < 6]",
-            "Failure in the method 'java.util.Date.getDay()'. Cause: object is not an instance of declaring class");
+            "java.lang.ClassCastException: Cannot cast from 'java.lang.String' to 'java.util.Date'.");
         assertEquals(
             "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(String s)!@ s.contains(\"ee\")]",
             "dddee");
