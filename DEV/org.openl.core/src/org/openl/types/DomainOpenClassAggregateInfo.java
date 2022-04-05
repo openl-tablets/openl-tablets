@@ -14,7 +14,7 @@ public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
     public static final IAggregateInfo DOMAIN_AGGREGATE = new DomainOpenClassAggregateInfo();
 
     /**
-     * Overriden to create aggregate type based on the domain restrictions
+     * Overridden to create aggregate type based on the domain restrictions
      */
     @Override
     public IOpenClass getIndexedAggregateType(IOpenClass componentType) {
@@ -27,7 +27,7 @@ public class DomainOpenClassAggregateInfo extends JavaArrayAggregateInfo {
     }
 
     /**
-     * Overriden to return component type based on the domain
+     * Overridden to return component type based on the domain
      */
     @Override
     public IOpenClass getComponentType(IOpenClass aggregateType) {

@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
@@ -14,17 +15,18 @@ class TransformIndexNode extends ABoundNode {
     private final ILocalVar tempVar;
     private final IBoundNode transformer;
     private final IBoundNode targetNode;
-    private final Class<?> componentClass;
-    private final IOpenClass resultType;
+    private final IOpenCast openCast;
 
-    TransformIndexNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode transformer, ILocalVar tempVar) {
+    TransformIndexNode(ISyntaxNode syntaxNode,
+            IBoundNode targetNode,
+            IBoundNode transformer,
+            ILocalVar tempVar,
+            IOpenCast openCast) {
         super(syntaxNode, targetNode, transformer);
         this.tempVar = tempVar;
         this.targetNode = targetNode;
         this.transformer = transformer;
-        IOpenClass componentType = transformer.getType();
-        this.componentClass = componentType.getInstanceClass();
-        this.resultType = componentType.getAggregateInfo().getIndexedAggregateType(componentType);
+        this.openCast = openCast;
     }
 
     @Override
@@ -37,15 +39,17 @@ class TransformIndexNode extends ABoundNode {
         ArrayList<Object> result = new ArrayList<>();
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();
+            element = openCast != null ? openCast.convert(element) : element;
             tempVar.set(null, element, env);
             Object transformed = transformer.evaluate(env);
             result.add(transformed);
         }
-        return CollectionUtils.toArray(result, componentClass);
+        return CollectionUtils.toArray(result, transformer.getType().getInstanceClass());
     }
 
     @Override
     public IOpenClass getType() {
-        return resultType;
+        IOpenClass componentType = transformer.getType();
+        return componentType.getAggregateInfo().getIndexedAggregateType(componentType);
     }
 }
