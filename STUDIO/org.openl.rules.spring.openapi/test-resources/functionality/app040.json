@@ -70,6 +70,12 @@
                   }
                 }
               }
+            },
+            "application/zip": {
+              "schema": {
+                "type": "string",
+                "format": "binary"
+              }
             }
           }
         },
