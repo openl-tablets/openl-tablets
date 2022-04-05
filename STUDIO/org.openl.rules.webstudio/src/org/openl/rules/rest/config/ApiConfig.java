@@ -14,6 +14,7 @@ import org.springframework.context.support.ReloadableResourceBundleMessageSource
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.validation.Validator;
@@ -52,6 +53,7 @@ public class ApiConfig implements WebMvcConfigurer {
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(new ByteArrayHttpMessageConverter());
+        converters.add(new ResourceHttpMessageConverter());
         converters.add(new StringHttpMessageConverter());
         var jacksonMessageConverter = new MappingJackson2HttpMessageConverter(objectMapper());
         jacksonMessageConverter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_JSON));
