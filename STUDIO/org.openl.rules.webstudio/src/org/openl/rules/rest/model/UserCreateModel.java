@@ -9,6 +9,8 @@ import javax.validation.constraints.Size;
 import org.openl.rules.rest.validation.InternalPasswordConstraint;
 import org.openl.rules.rest.validation.UsernameExistsConstraint;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class UserCreateModel extends UserEditModel {
 
     @NotBlank
@@ -17,6 +19,7 @@ public class UserCreateModel extends UserEditModel {
             @Pattern(regexp = "(.(?<![.]{2}))+", message = "{openl.constraints.username.1.message}"),
             @Pattern(regexp = "[^\\/\\\\:*?\"<>|{}~^]*", message = "{openl.constraints.username.3.message}") })
     @UsernameExistsConstraint
+    @Schema(description = "Username", example = "jdoe")
     private String username;
 
     @InternalPasswordConstraint
