@@ -21,7 +21,6 @@ import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
 import org.openl.rules.spring.openapi.model.ControllerAdviceInfo;
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.model.ParameterInfo;
-import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -42,7 +41,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.tags.Tag;
 
@@ -95,28 +93,6 @@ public class OpenApiSpringMvcReader {
         if (openApiContext.getOpenAPI().getTags() != null) {
             openApiContext.getOpenAPI().getTags().sort(Comparator.comparing(Tag::getName));
         }
-        if (CollectionUtils.isNotEmpty(openApiContext.getComponents().getSchemas())) {
-            for (var schema : openApiContext.getComponents().getSchemas().values()) {
-                localizeScheme(schema);
-            }
-        }
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void localizeScheme(Schema schema) {
-        if (schema == null) {
-            return;
-        }
-        if (StringUtils.isNotBlank(schema.getDescription())) {
-            schema.setDescription(apiPropertyResolver.resolve(schema.getDescription()));
-        }
-        if (schema.getProperties() == null) {
-            return;
-        }
-        var properties = (Map<String, Schema>) schema.getProperties();
-        for (var propertyScheme : properties.values()) {
-            localizeScheme(propertyScheme);
-        }
     }
 
     private void visitHandlerMethod(OpenApiContext openApiContext,
@@ -144,29 +120,28 @@ public class OpenApiSpringMvcReader {
     private void parseMethod(OpenApiContext apiContext,
             MethodInfo methodInfo,
             List<ControllerAdviceInfo> controllerAdviceInfos) {
-        final var operation = Optional.ofNullable(apiContext.getPaths().get(methodInfo.getPathPattern()))
-                .map(path -> {
-                    switch (methodInfo.getRequestMethod()) {
-                        case GET:
-                             return path.getGet();
-                        case HEAD:
-                            return path.getHead();
-                        case POST:
-                            return path.getPost();
-                        case PUT:
-                            return path.getPut();
-                        case PATCH:
-                            return path.getPatch();
-                        case DELETE:
-                            return path.getDelete();
-                        case OPTIONS:
-                            return path.getOptions();
-                        case TRACE:
-                            return path.getTrace();
-                        default:
-                            return null;
-                    }
-                }).orElseGet(Operation::new);
+        final var operation = Optional.ofNullable(apiContext.getPaths().get(methodInfo.getPathPattern())).map(path -> {
+            switch (methodInfo.getRequestMethod()) {
+                case GET:
+                    return path.getGet();
+                case HEAD:
+                    return path.getHead();
+                case POST:
+                    return path.getPost();
+                case PUT:
+                    return path.getPut();
+                case PATCH:
+                    return path.getPatch();
+                case DELETE:
+                    return path.getDelete();
+                case OPTIONS:
+                    return path.getOptions();
+                case TRACE:
+                    return path.getTrace();
+                default:
+                    return null;
+            }
+        }).orElseGet(Operation::new);
 
         if (isDeprecatedMethod(methodInfo.getMethod())) {
             operation.setDeprecated(true);
@@ -262,14 +237,13 @@ public class OpenApiSpringMvcReader {
             .forEach(operation::addParametersItem);
 
         // parse request body
-        apiRequestService.parse(apiContext, methodInfo, formParameters, requestBodyParam)
-            .ifPresent(requestBody -> {
-                if (operation.getRequestBody() != null) {
-                    apiRequestService.mergeRequestBody(operation.getRequestBody(), requestBody);
-                } else {
-                    operation.requestBody(requestBody);
-                }
-            });
+        apiRequestService.parse(apiContext, methodInfo, formParameters, requestBodyParam).ifPresent(requestBody -> {
+            if (operation.getRequestBody() != null) {
+                apiRequestService.mergeRequestBody(operation.getRequestBody(), requestBody);
+            } else {
+                operation.requestBody(requestBody);
+            }
+        });
 
         // register parsed operation method
         PathItem pathItem;

@@ -1,6 +1,6 @@
 package org.openl.rules.rest.common.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 
 /**
  * Field Validation Error model for handling Binding Exceptions (validation) in WebStudio REST API
@@ -10,10 +10,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public final class FieldError extends BaseError {
 
-    @Schema(description = "Affected field of the validated object")
+    @Parameter(description = "Affected field of the validated object")
     private final String field;
 
-    @Schema(description = "Rejected field value")
+    @Parameter(description = "Rejected field value")
     private final Object rejectedValue;
 
     private FieldError(Builder from) {

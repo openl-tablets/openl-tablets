@@ -1,6 +1,6 @@
 package org.openl.rules.rest.common.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 
 /**
  * Base Error model for handling Exceptions in WebStudio REST API
@@ -10,10 +10,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public class BaseError {
 
-    @Schema(description = "Error code")
+    @Parameter(description = "Error code")
     public final String code;
 
-    @Schema(description = "Localized error message")
+    @Parameter(description = "Localized error message")
     public final String message;
 
     protected BaseError(Builder from) {

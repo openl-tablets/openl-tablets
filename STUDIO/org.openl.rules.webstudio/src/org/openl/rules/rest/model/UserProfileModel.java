@@ -1,11 +1,12 @@
 package org.openl.rules.rest.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.openl.rules.security.UserExternalFlags;
+
+import io.swagger.v3.oas.annotations.Parameter;
 
 public class UserProfileModel extends UserProfileBaseModel {
 
-    @Schema(description = "Username")
+    @Parameter(description = "Username")
     private String username;
 
     private UserExternalFlags externalFlags;

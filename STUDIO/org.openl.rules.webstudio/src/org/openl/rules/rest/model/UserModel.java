@@ -4,24 +4,24 @@ import java.util.Set;
 
 import org.openl.rules.security.UserExternalFlags;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 
 public class UserModel extends UserCreateModel {
 
-    @Schema(description = "Current user marker")
+    @Parameter(description = "Current user marker")
     private boolean currentUser;
 
-    @Schema(description = "Superuser marker")
+    @Parameter(description = "Superuser marker")
     private boolean superUser;
 
-    @Schema(description = "Unsafe password marker")
+    @Parameter(description = "Unsafe password marker")
     private boolean unsafePassword;
     private UserExternalFlags externalFlags;
 
-    @Schema(description = "Number of external groups which is unknown by WebStudio")
+    @Parameter(description = "Number of external groups which is unknown by WebStudio")
     private Long notMatchedExternalGroupsCount;
 
-    @Schema(description = "User online marker")
+    @Parameter(description = "User online marker")
     private boolean online;
 
     private Set<GroupModel> userGroups;

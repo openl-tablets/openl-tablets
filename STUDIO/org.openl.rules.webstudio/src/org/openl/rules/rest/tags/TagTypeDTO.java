@@ -6,16 +6,16 @@ import org.openl.rules.rest.model.GenericView;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 
 public class TagTypeDTO {
 
     @JsonView(GenericView.Full.class)
-    @Schema(description = "tags.tag-type.id.desc", required = true)
+    @Parameter(description = "tags.tag-type.id.desc", required = true)
     private Long id;
 
     @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
-    @Schema(description = "Tag type name", required = true)
+    @Parameter(description = "Tag type name", required = true)
     private String name;
 
     @JsonView({ GenericView.CreateOrUpdate.class, GenericView.Full.class })
@@ -25,7 +25,7 @@ public class TagTypeDTO {
     private boolean nullable;
 
     @JsonView(GenericView.Full.class)
-    @Schema(description = "Nested tags")
+    @Parameter(description = "Nested tags")
     private List<TagDTO> tags;
 
     public Long getId() {

@@ -21,6 +21,7 @@ import javax.validation.constraints.Pattern;
 import org.openl.rules.spring.openapi.OpenApiContext;
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.model.ParameterInfo;
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -61,7 +62,13 @@ public class OpenApiParameterService {
             RequestMappingHandlerAdapter mappingHandlerAdapter) {
         this.apiPropertyResolver = apiPropertyResolver;
         this.mappingHandlerAdapter = mappingHandlerAdapter;
-        modelConverters.ifPresent(converters -> converters.forEach(ModelConverters.getInstance()::addConverter));
+        modelConverters.ifPresent(converters -> {
+            // iter from last to the first element because ModelConverters::addConverter always add to the first place.
+            // But we need to keep original priority order
+            for (int i = converters.size() - 1; i > -1; i--) {
+                ModelConverters.getInstance().addConverter(converters.get(i));
+            }
+        });
     }
 
     /**
@@ -275,8 +282,15 @@ public class OpenApiParameterService {
         if (resolvedSchema.schema == null) {
             return null;
         }
-        if (resolvedSchema.referencedSchemas != null) {
-            resolvedSchema.referencedSchemas.forEach(components::addSchemas);
+        if (CollectionUtils.isNotEmpty(resolvedSchema.referencedSchemas)) {
+            var schemas = components.getSchemas();
+            if (schemas == null) {
+                components.setSchemas(new LinkedHashMap<>(resolvedSchema.referencedSchemas));
+            } else {
+                for (var entry : resolvedSchema.referencedSchemas.entrySet()) {
+                    schemas.putIfAbsent(entry.getKey(), entry.getValue());
+                }
+            }
         }
         return resolvedSchema.schema;
     }

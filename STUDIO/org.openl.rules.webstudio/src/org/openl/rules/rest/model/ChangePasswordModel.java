@@ -1,16 +1,16 @@
 package org.openl.rules.rest.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 
 public class ChangePasswordModel {
 
-    @Schema(description = "New password")
+    @Parameter(description = "New password")
     private String newPassword;
 
-    @Schema(description = "Confirm password")
+    @Parameter(description = "Confirm password")
     private String confirmPassword;
 
-    @Schema(description = "Current password")
+    @Parameter(description = "Current password")
     private String currentPassword;
 
     public String getNewPassword() {

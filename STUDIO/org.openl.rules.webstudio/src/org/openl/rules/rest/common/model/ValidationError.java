@@ -3,7 +3,7 @@ package org.openl.rules.rest.common.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 
 /**
  * Validation Error model for handling Binding Exceptions (validation) in WebStudio REST API
@@ -13,10 +13,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public final class ValidationError extends BaseError {
 
-    @Schema(description = "Field errors")
+    @Parameter(description = "Field errors")
     private final List<FieldError> fields;
 
-    @Schema(description = "Additional Global Errors")
+    @Parameter(description = "Additional Global Errors")
     private final List<BaseError> errors;
 
     private ValidationError(Builder from) {
