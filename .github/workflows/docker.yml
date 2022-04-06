@@ -116,16 +116,31 @@ jobs:
         gpg --batch --verify demo.zip.asc openl-tablets-demo.zip
         rm demo.zip.asc
 
+    - name: Prepare for multi-platform docker build
+      run: |
+        echo "BUILD_PLATFORMS=linux/amd64,linux/arm64/v8" >> $GITHUB_ENV
+        docker run --privileged --rm tonistiigi/binfmt --install all
+        docker buildx create --use
+        # In order to implement atomic push-all-images functionality, build and push should be split to different 
+        # steps. However, currently Docker cannot hold multi-platform images in a local storage. Therefore, docker 
+        # cache is used in order to implement this functionality. In the subsequest steps all images are built and 
+        # docker puts all layers of those images in a cache. In the last step, when images are built, tagged, and 
+        # pushed to external repository, docker use image layers from the cache, which are created here. In case of a 
+        # build failure none of the images are pushed to the external repository.
+    
+
     - name: DEMO JDK 11
       env:
         appName : demo
       run: >
-        eval docker build $tags_11
+        eval docker buildx build $tags_11
+        --platform ${BUILD_PLATFORMS} --output type=registry,push=false
         -f ./Dockerfiles/Demo .
 
     - name: Rule Services (All) JDK 11
       run: >
-        docker build -t openltablets/ws:$version-all
+        docker buildx build -t openltablets/ws:$version-all
+        --platform ${BUILD_PLATFORMS} --output type=registry,push=false
         --build-arg APP=webservice-all
         --build-arg JDK=$JAVA11
         -f ./Dockerfiles/WebApp .
@@ -134,7 +149,8 @@ jobs:
       env:
         appName : ws
       run: >
-        eval docker build $tags_11
+        eval docker buildx build $tags_11
+        --platform ${BUILD_PLATFORMS} --output type=registry,push=false
         --build-arg APP=webservice
         --build-arg JDK=$JAVA11
         -f ./Dockerfiles/WebApp .
@@ -143,7 +159,8 @@ jobs:
       env:
         appName : webstudio
       run: >
-        eval docker build $tags_11
+        eval docker buildx build $tags_11
+        --platform ${BUILD_PLATFORMS} --output type=registry,push=false
         --build-arg APP=webstudio
         --build-arg JDK=$JAVA11
         -f ./Dockerfiles/WebApp .
@@ -151,6 +168,43 @@ jobs:
     - name: Push images
       run: |
         docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
-        docker push -a openltablets/demo
-        docker push -a openltablets/ws
-        docker push -a openltablets/webstudio
+
+        eval docker buildx build $tags_11
+        --platform ${BUILD_PLATFORMS} --push
+        -f ./Dockerfiles/Demo .
+
+        docker buildx build -t openltablets/ws:$version-jre8-all
+        --platform ${BUILD_PLATFORMS} --push
+        --build-arg APP=webservice-all
+        --build-arg JDK=$JAVA8
+        -f ./Dockerfiles/WebApp .
+
+        docker buildx build -t openltablets/ws:$version-all
+        --platform ${BUILD_PLATFORMS} --push
+        --build-arg APP=webservice-all
+        --build-arg JDK=$JAVA11
+        -f ./Dockerfiles/WebApp .
+
+        eval docker buildx build $tags_8
+        --platform ${BUILD_PLATFORMS} --push
+        --build-arg APP=webservice
+        --build-arg JDK=$JAVA8
+        -f ./Dockerfiles/WebApp .
+
+        eval docker buildx build $tags_11
+        --platform ${BUILD_PLATFORMS} --push
+        --build-arg APP=webservice
+        --build-arg JDK=$JAVA11
+        -f ./Dockerfiles/WebApp .
+
+        eval docker buildx build $tags_8
+        --platform ${BUILD_PLATFORMS} --push
+        --build-arg APP=webstudio
+        --build-arg JDK=$JAVA8
+        -f ./Dockerfiles/WebApp .
+
+        eval docker buildx build $tags_11
+        --platform ${BUILD_PLATFORMS} --push
+        --build-arg APP=webstudio
+        --build-arg JDK=$JAVA11
+        -f ./Dockerfiles/WebApp .

@@ -64,16 +64,42 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
-    - name: Build Docker images
+    - name: Prepare for multi-platform docker build
       run: |
-        repo=ghcr.io/${{ github.repository_owner }}
+        echo "BUILD_PLATFORMS=linux/amd64,linux/arm64/v8" >> $GITHUB_ENV
+        docker run --privileged --rm tonistiigi/binfmt --install all
+        docker buildx create --use
+
+    - name: Build docker images
+      run: |
         cd Dockerfiles
-        docker build -t $repo/ws:x        -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws
-        docker build -t $repo/ws:x-all    -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws.all
-        docker build -t $repo/webstudio:x -f WebApp ../STUDIO/org.openl.rules.webstudio
-        docker build -t $repo/demo:x      -f Demo   ../DEMO/org.openl.rules.demo/target
-        #
+        echo Platforms: ${BUILD_PLATFORMS}
+        
+        # In order to implement atomic push-all-images functionality, build and push should be split to different 
+        # steps. However, currently Docker cannot hold multi-platform images in a local storage. Therefore, docker 
+        # cache is used in order to implement this functionality. Here all images are built and docker puts all layers 
+        # of these images in a cache. In the following step, when images are built, tagged, and pushed to external 
+        # repository, docker use image layers from the cache, which are created here. In case of a build failure none 
+        # of the images are pushed to the external repository.
+        
+        docker buildx build -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws \
+          --platform ${BUILD_PLATFORMS} --output type=registry,push=false
+        docker buildx build -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws.all \
+          --platform ${BUILD_PLATFORMS} --output type=registry,push=false
+        docker buildx build -f WebApp ../STUDIO/org.openl.rules.webstudio \
+          --platform ${BUILD_PLATFORMS} --output type=registry,push=false
+        docker buildx build -f Demo   ../DEMO/org.openl.rules.demo/target \
+          --platform ${BUILD_PLATFORMS} --output type=registry,push=false
+    - name: Push docker images
+      run: |
+        cd Dockerfiles
+        repo=ghcr.io/${{ github.repository_owner }}
         echo ${{ github.token }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-        docker push -a $repo/demo
-        docker push -a $repo/ws
-        docker push -a $repo/webstudio
+        docker buildx build -t $repo/ws:x        -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws \
+          --platform ${BUILD_PLATFORMS} --push
+        docker buildx build -t $repo/ws:x-all    -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws.all \
+          --platform ${BUILD_PLATFORMS} --push
+        docker buildx build -t $repo/webstudio:x -f WebApp ../STUDIO/org.openl.rules.webstudio \
+          --platform ${BUILD_PLATFORMS} --push
+        docker buildx build -t $repo/demo:x      -f Demo ../DEMO/org.openl.rules.demo/target \
+          --platform ${BUILD_PLATFORMS} --push
