@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 /**
  * OpenAPI Controller
  */
@@ -27,13 +25,11 @@ public class OpenApiController {
      * Gets generated OpenAPI schema as JSON string
      * 
      * @return json string
-     * @throws JsonProcessingException in case of errors while generation
      */
     @GetMapping(value = "/openapi.json", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public String openApi() throws JsonProcessingException {
-        openApiService.build();
-        return openApiService.getOpenApiAsJson();
+    public String openApi() {
+        return openApiService.getCalculatedOpenApi();
     }
 
     /**

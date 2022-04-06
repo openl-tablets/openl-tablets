@@ -6,24 +6,32 @@ import java.util.stream.Stream;
 
 import org.openl.util.StreamUtils;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.AbstractHandlerMethodMapping;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import io.swagger.v3.oas.annotations.Hidden;
-
+/**
+ * Spring MVC Helper
+ * 
+ * @author Vladyslav Pikus
+ */
 public class SpringMvcHandlerMethodsHelper {
 
     private final ApplicationContext context;
     private volatile Map<RequestMappingInfo, HandlerMethod> handlerMethods;
+    private volatile Map<String, Object> controllerAdvices;
 
     public SpringMvcHandlerMethodsHelper(ApplicationContext context) {
         this.context = context;
     }
 
+    /**
+     * Find all Spring Methods Handlers
+     *
+     * @return found methods handlers
+     */
     public Map<RequestMappingInfo, HandlerMethod> getHandlerMethods() {
         if (this.handlerMethods == null) {
             synchronized (this) {
@@ -34,6 +42,7 @@ public class SpringMvcHandlerMethodsHelper {
                         .map(AbstractHandlerMethodMapping::getHandlerMethods)
                         .map(Map::entrySet)
                         .flatMap(Collection::stream)
+                        .filter(e -> !OpenApiUtils.isHiddenApiMethod(e.getValue().getMethod()))
                         .collect(StreamUtils.toLinkedMap(Map.Entry::getKey, Map.Entry::getValue));
                 }
             }
@@ -41,13 +50,24 @@ public class SpringMvcHandlerMethodsHelper {
         return this.handlerMethods;
     }
 
+    /**
+     * Find all public Spring Controller Advices
+     * 
+     * @return found controller advice beans
+     */
     public Map<String, Object> getControllerAdvices() {
-        Map<String, Object> controllerAdviceMap = context.getBeansWithAnnotation(ControllerAdvice.class);
-        return Stream.of(controllerAdviceMap)
-            .flatMap(mapEl -> mapEl.entrySet().stream())
-            .filter(
-                controller -> (AnnotationUtils.findAnnotation(controller.getValue().getClass(), Hidden.class) == null))
-            .collect(StreamUtils.toLinkedMap(Map.Entry::getKey, Map.Entry::getValue));
+        if (this.controllerAdvices == null) {
+            synchronized (this) {
+                if (this.controllerAdvices == null) {
+                    var controllerAdviceMap = context.getBeansWithAnnotation(ControllerAdvice.class);
+                    this.controllerAdvices = Stream.of(controllerAdviceMap)
+                        .flatMap(mapEl -> mapEl.entrySet().stream())
+                        .filter(controller -> !OpenApiUtils.isHidden(controller.getValue().getClass()))
+                        .collect(StreamUtils.toLinkedMap(Map.Entry::getKey, Map.Entry::getValue));
+                }
+            }
+        }
+        return this.controllerAdvices;
     }
 
 }

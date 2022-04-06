@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.openl.rules.spring.openapi.OpenApiContext;
 import org.openl.rules.spring.openapi.model.SecuritySchemePair;
 import org.openl.util.StringUtils;
 import org.springframework.context.ApplicationContext;
@@ -20,8 +19,13 @@ import io.swagger.v3.oas.models.security.Scopes;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
+/**
+ * OpenAPI Security schema service
+ *
+ * @author Vladyslav Pikus
+ */
 @Component
-public class OpenApiSecurityServiceImpl {
+public class OpenApiSecurityServiceImpl implements OpenApiSecurityService {
 
     private final List<io.swagger.v3.oas.annotations.security.SecurityScheme> globalSecuritySchemes;
 
@@ -35,6 +39,12 @@ public class OpenApiSecurityServiceImpl {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Resolves security schema if present
+     *
+     * @param apiContext curren OpenAPI context
+     */
+    @Override
     public void generateGlobalSecurity(OpenApiContext apiContext) {
         globalSecuritySchemes.stream().map(this::getSecurityScheme).flatMap(Optional::stream).forEach(pair -> {
             apiContext.getOpenAPI().addSecurityItem(new SecurityRequirement().addList(pair.key));
@@ -88,7 +98,7 @@ public class OpenApiSecurityServiceImpl {
         return Optional.of(new SecuritySchemePair(key, securitySchemeObject));
     }
 
-    public static Optional<OAuthFlows> getOAuthFlows(io.swagger.v3.oas.annotations.security.OAuthFlows oAuthFlows) {
+    private static Optional<OAuthFlows> getOAuthFlows(io.swagger.v3.oas.annotations.security.OAuthFlows oAuthFlows) {
         if (isEmpty(oAuthFlows)) {
             return Optional.empty();
         }
@@ -104,7 +114,7 @@ public class OpenApiSecurityServiceImpl {
         return Optional.of(oAuthFlowsObject);
     }
 
-    public static Optional<OAuthFlow> getOAuthFlow(io.swagger.v3.oas.annotations.security.OAuthFlow oAuthFlow) {
+    private static Optional<OAuthFlow> getOAuthFlow(io.swagger.v3.oas.annotations.security.OAuthFlow oAuthFlow) {
         if (isEmpty(oAuthFlow)) {
             return Optional.empty();
         }
@@ -126,7 +136,7 @@ public class OpenApiSecurityServiceImpl {
         return Optional.of(oAuthFlowObject);
     }
 
-    public static Optional<Scopes> getScopes(OAuthScope[] scopes) {
+    private static Optional<Scopes> getScopes(OAuthScope[] scopes) {
         if (isEmpty(scopes)) {
             return Optional.empty();
         }

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
  * @author Vladyslav Pikus
  */
 @Component
-public class OpenApiPropertyResolverImpl {
+public class OpenApiPropertyResolverImpl implements OpenApiPropertyResolver {
 
     private final MessageSource apiMessageSource;
 
@@ -29,6 +29,7 @@ public class OpenApiPropertyResolverImpl {
      * @param propertyValue code
      * @return resolved message
      */
+    @Override
     public String resolve(String propertyValue) {
         if (apiMessageSource == null) {
             return propertyValue;

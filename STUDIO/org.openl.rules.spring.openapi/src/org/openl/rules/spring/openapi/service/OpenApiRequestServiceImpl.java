@@ -6,10 +6,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.openl.rules.spring.openapi.OpenApiContext;
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.model.ParameterInfo;
 import org.openl.util.CollectionUtils;
@@ -30,19 +28,26 @@ import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
+/**
+ * OpenAPI RequestBody service helps to parse and build OpenAPI request bodies from API annotation and Spring
+ * declaration
+ *
+ * @author Vladyslav Pikus
+ */
 @Component
-public class OpenApiRequestServiceImpl {
+public class OpenApiRequestServiceImpl implements OpenApiRequestService {
 
     private final OpenApiParameterService apiParameterService;
-    private final OpenApiPropertyResolverImpl propertyResolver;
+    private final OpenApiPropertyResolver propertyResolver;
 
     public OpenApiRequestServiceImpl(OpenApiParameterService apiParameterService,
-            OpenApiPropertyResolverImpl propertyResolver) {
+            OpenApiPropertyResolver propertyResolver) {
         this.apiParameterService = apiParameterService;
         this.propertyResolver = propertyResolver;
     }
 
-    public Optional<RequestBody> generateRequestBody(OpenApiContext apiContext,
+    @Override
+    public RequestBody generateRequestBody(OpenApiContext apiContext,
             MethodInfo methodInfo,
             List<ParameterInfo> formParameters,
             ParameterInfo requestBodyParam) {
@@ -62,7 +67,7 @@ public class OpenApiRequestServiceImpl {
         RequestBody springRequestBody = requestBodyParam != null ? parseSpringRequestBody(requestBodyParam,
             apiContext.getComponents()) : parseFormRequestBody(formParameters, methodInfo, apiContext.getComponents());
 
-        return Optional.ofNullable(merge(requestBody, springRequestBody));
+        return merge(requestBody, springRequestBody);
     }
 
     private RequestBody merge(RequestBody first, RequestBody second) {
@@ -282,20 +287,34 @@ public class OpenApiRequestServiceImpl {
         return requestBody;
     }
 
-    public void mergeRequestBody(RequestBody first, RequestBody two) {
-        var oldContent = first.getContent();
-        if (oldContent == null) {
-            first.setContent(two.getContent());
-        } else if (two.getContent() != null) {
-            for (var entry : two.getContent().entrySet()) {
-                oldContent.addMediaType(entry.getKey(), entry.getValue());
+    /**
+     * Merges source RequestBody to target
+     * 
+     * @param target target request body
+     * @param source source request body
+     */
+    @Override
+    public void mergeRequestBody(RequestBody source, RequestBody target) {
+        var targetContent = target.getContent();
+        if (targetContent == null) {
+            target.setContent(source.getContent());
+        } else if (source.getContent() != null) {
+            for (var entry : source.getContent().entrySet()) {
+                targetContent.addMediaType(entry.getKey(), entry.getValue());
             }
         }
-        if (StringUtils.isNotBlank(two.getDescription())) {
-            first.description(two.getDescription());
+        if (StringUtils.isNotBlank(source.getDescription())) {
+            target.description(source.getDescription());
         }
     }
 
+    /**
+     * Check if current parameter is RequestBody
+     *
+     * @param paramInfo method parameter
+     * @return is request body or not
+     */
+    @Override
     public boolean isRequestBody(ParameterInfo paramInfo) {
         return paramInfo.hasAnnotation(org.springframework.web.bind.annotation.RequestBody.class) || isRequestBodyType(
             paramInfo.getType());

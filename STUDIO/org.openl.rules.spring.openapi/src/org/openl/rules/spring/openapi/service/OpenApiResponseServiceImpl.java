@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.openl.rules.spring.openapi.OpenApiContext;
 import org.openl.rules.spring.openapi.OpenApiUtils;
 import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
 import org.openl.rules.spring.openapi.model.ControllerAdviceInfo;
@@ -49,17 +48,17 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
  * @author Vladyslav Pikus
  */
 @Component
-public class OpenApiResponseServiceImpl {
+public class OpenApiResponseServiceImpl implements OpenApiResponseService {
 
     private final OpenApiParameterService apiParameterService;
     private final Map<Class<?>, ExceptionHandlerMethodResolver> exHandlerAdviceCache;
     private final List<String> openLRestExceptionBasePackages;
-    private final OpenApiPropertyResolverImpl apiPropertyResolver;
+    private final OpenApiPropertyResolver apiPropertyResolver;
 
     public OpenApiResponseServiceImpl(OpenApiParameterService apiParameterService,
             SpringMvcHandlerMethodsHelper handlerMethodsHelper,
             @Qualifier("openLRestExceptionBasePackages") List<String> openLRestExceptionBasePackages,
-            OpenApiPropertyResolverImpl apiPropertyResolver) {
+            OpenApiPropertyResolver apiPropertyResolver) {
         this.apiParameterService = apiParameterService;
         this.openLRestExceptionBasePackages = openLRestExceptionBasePackages;
 
@@ -77,6 +76,7 @@ public class OpenApiResponseServiceImpl {
      * @param apiContext current OpenApi context
      * @param controllerAdviceInfo controller advice to scan
      */
+    @Override
     public void generateResponses(OpenApiContext apiContext, ControllerAdviceInfo controllerAdviceInfo) {
         var beanType = controllerAdviceInfo.getControllerAdvice().getClass();
 
@@ -172,7 +172,8 @@ public class OpenApiResponseServiceImpl {
      * @param methodInfo Spring method handler
      * @return resulted API responses or empty
      */
-    public Optional<ApiResponses> parse(OpenApiContext apiContext, MethodInfo methodInfo) {
+    @Override
+    public ApiResponses generateResponses(OpenApiContext apiContext, MethodInfo methodInfo) {
         var responses = new ApiResponses();
 
         // gather ApiResponses annotation from class level
@@ -202,9 +203,9 @@ public class OpenApiResponseServiceImpl {
         decorate(methodInfo, responses, apiContext.getComponents());
 
         if (responses.isEmpty()) {
-            return Optional.empty();
+            return null;
         }
-        return Optional.of(responses);
+        return responses;
     }
 
     private void processApiResponses(List<io.swagger.v3.oas.annotations.responses.ApiResponse> apiResponses,

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.openl.rules.spring.openapi.OpenApiContext;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -18,22 +17,22 @@ import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.models.OpenAPI;
 
-public class OpenApiServiceImpl {
+public class OpenApiServiceImpl implements OpenApiService {
 
     private final ApplicationContext context;
-    private final OpenApiSpringMvcReaderImpl openApiSpringMvcReader;
+    private final OpenApiSpringMvcReader openApiSpringMvcReader;
     private final Set<Class<?>> ignoreControllers;
     private volatile OpenAPI calculatedOpenApi;
 
     public OpenApiServiceImpl(ApplicationContext context,
-            OpenApiSpringMvcReaderImpl openApiSpringMvcReader,
+            OpenApiSpringMvcReader openApiSpringMvcReader,
             Set<Class<?>> ignoreControllers) {
         this.context = context;
         this.ignoreControllers = ignoreControllers;
         this.openApiSpringMvcReader = openApiSpringMvcReader;
     }
 
-    public synchronized void build() {
+    private OpenAPI calculateOpenApi() {
         var openApiContext = new OpenApiContext();
 
         Map<String, Object> controllers = new HashMap<>();
@@ -48,7 +47,7 @@ public class OpenApiServiceImpl {
 
         openApiSpringMvcReader.read(openApiContext, filteredControllers);
         try {
-            calculatedOpenApi = fromJson(asJson(openApiContext.getOpenAPI()));
+            return fromJson(asJson(openApiContext.getOpenAPI()));
         } catch (JsonProcessingException e) {
             throw RuntimeExceptionWrapper.wrap("Failed to copy calculated OpenAPI schema", e);
         }
@@ -62,7 +61,24 @@ public class OpenApiServiceImpl {
         return Json.mapper().readValue(json, OpenAPI.class);
     }
 
-    public String getOpenApiAsJson() throws JsonProcessingException {
-        return asJson(calculatedOpenApi);
+    /**
+     * Gets calculated OpenAPI schema
+     *
+     * @return calculated OpenAPI schema
+     */
+    @Override
+    public String getCalculatedOpenApi() {
+        if (this.calculatedOpenApi == null) {
+            synchronized (this) {
+                if (this.calculatedOpenApi == null) {
+                    this.calculatedOpenApi = calculateOpenApi();
+                }
+            }
+        }
+        try {
+            return asJson(this.calculatedOpenApi);
+        } catch (JsonProcessingException e) {
+            throw RuntimeExceptionWrapper.wrap("Failed to copy calculated OpenAPI schema", e);
+        }
     }
 }

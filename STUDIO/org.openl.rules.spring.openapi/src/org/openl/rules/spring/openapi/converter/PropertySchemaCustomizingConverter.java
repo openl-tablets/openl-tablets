@@ -2,7 +2,7 @@ package org.openl.rules.spring.openapi.converter;
 
 import java.util.Iterator;
 
-import org.openl.rules.spring.openapi.service.OpenApiPropertyResolverImpl;
+import org.openl.rules.spring.openapi.service.OpenApiPropertyResolver;
 import org.openl.util.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -25,9 +25,9 @@ import io.swagger.v3.oas.models.media.Schema;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class PropertySchemaCustomizingConverter implements ModelConverter {
 
-    private final OpenApiPropertyResolverImpl apiPropertyResolver;
+    private final OpenApiPropertyResolver apiPropertyResolver;
 
-    public PropertySchemaCustomizingConverter(OpenApiPropertyResolverImpl apiPropertyResolver) {
+    public PropertySchemaCustomizingConverter(OpenApiPropertyResolver apiPropertyResolver) {
         this.apiPropertyResolver = apiPropertyResolver;
     }
 
