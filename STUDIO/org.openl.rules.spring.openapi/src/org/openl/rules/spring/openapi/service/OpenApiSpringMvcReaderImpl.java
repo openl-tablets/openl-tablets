@@ -50,21 +50,21 @@ import io.swagger.v3.oas.models.tags.Tag;
  * @author Vladyslav Pikus
  */
 @Component
-public class OpenApiSpringMvcReader {
+public class OpenApiSpringMvcReaderImpl {
 
     private final SpringMvcHandlerMethodsHelper handlerMethodsHelper;
-    private final OpenApiResponseService apiResponseService;
-    private final OpenApiRequestService apiRequestService;
+    private final OpenApiResponseServiceImpl apiResponseService;
+    private final OpenApiRequestServiceImpl apiRequestService;
     private final OpenApiParameterService apiParameterService;
-    private final OpenApiSecurityService apiSecurityService;
-    private final OpenApiPropertyResolver apiPropertyResolver;
+    private final OpenApiSecurityServiceImpl apiSecurityService;
+    private final OpenApiPropertyResolverImpl apiPropertyResolver;
 
-    public OpenApiSpringMvcReader(SpringMvcHandlerMethodsHelper handlerMethodsHelper,
-            OpenApiResponseService apiResponseService,
-            OpenApiRequestService apiRequestService,
+    public OpenApiSpringMvcReaderImpl(SpringMvcHandlerMethodsHelper handlerMethodsHelper,
+            OpenApiResponseServiceImpl apiResponseService,
+            OpenApiRequestServiceImpl apiRequestService,
             OpenApiParameterService apiParameterService,
-            OpenApiSecurityService apiSecurityService,
-            OpenApiPropertyResolver apiPropertyResolver) {
+            OpenApiSecurityServiceImpl apiSecurityService,
+            OpenApiPropertyResolverImpl apiPropertyResolver) {
         this.handlerMethodsHelper = handlerMethodsHelper;
         this.apiResponseService = apiResponseService;
         this.apiRequestService = apiRequestService;
@@ -233,17 +233,18 @@ public class OpenApiSpringMvcReader {
             }
         }
         // parse parameters
-        apiParameterService.parse(apiContext, methodInfo, parameters, requestBodyParams)
+        apiParameterService.generateParameters(apiContext, methodInfo, parameters, requestBodyParams)
             .forEach(operation::addParametersItem);
 
         // parse request body
-        apiRequestService.parse(apiContext, methodInfo, formParameters, requestBodyParam).ifPresent(requestBody -> {
-            if (operation.getRequestBody() != null) {
-                apiRequestService.mergeRequestBody(operation.getRequestBody(), requestBody);
-            } else {
-                operation.requestBody(requestBody);
-            }
-        });
+        apiRequestService.generateRequestBody(apiContext, methodInfo, formParameters, requestBodyParam)
+            .ifPresent(requestBody -> {
+                if (operation.getRequestBody() != null) {
+                    apiRequestService.mergeRequestBody(operation.getRequestBody(), requestBody);
+                } else {
+                    operation.requestBody(requestBody);
+                }
+            });
 
         // register parsed operation method
         PathItem pathItem;

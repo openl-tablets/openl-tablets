@@ -21,11 +21,11 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
 @Component
-public class OpenApiSecurityService {
+public class OpenApiSecurityServiceImpl {
 
     private final List<io.swagger.v3.oas.annotations.security.SecurityScheme> globalSecuritySchemes;
 
-    public OpenApiSecurityService(ApplicationContext context) {
+    public OpenApiSecurityServiceImpl(ApplicationContext context) {
         this.globalSecuritySchemes = context
             .getBeansWithAnnotation(io.swagger.v3.oas.annotations.security.SecurityScheme.class)
             .values()

@@ -12,6 +12,11 @@ import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.models.media.FileSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
+/**
+ * Creates {@link FileSchema} if current type is file
+ *
+ * @author Vladyslav Pikus
+ */
 @Component
 public class FileModelConverter implements ModelConverter {
 
