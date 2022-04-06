@@ -29,4 +29,9 @@ public class WizardTest {
         client.send("public/notification.txt.get");
     }
 
+    @Test
+    public void EPBDS_11649_openapi() {
+        client.send("EPBDS-11649_OpenAPI_Wizzard/01-openapi.json");
+    }
+
 }

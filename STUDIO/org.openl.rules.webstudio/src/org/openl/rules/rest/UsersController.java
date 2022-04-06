@@ -61,7 +61,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
@@ -345,13 +344,13 @@ public class UsersController {
 
     private static class UserOptions {
 
-        @Schema(description = "Can create internal users")
+        @Parameter(description = "Can create internal users")
         public final Boolean canCreateInternalUsers;
 
-        @Schema(description = "User mode")
+        @Parameter(description = "User mode")
         public final String userMode;
 
-        @Schema(description = "Is e-mail verification required")
+        @Parameter(description = "Is e-mail verification required")
         public final Boolean emailVerification;
 
         public UserOptions(Builder from) {

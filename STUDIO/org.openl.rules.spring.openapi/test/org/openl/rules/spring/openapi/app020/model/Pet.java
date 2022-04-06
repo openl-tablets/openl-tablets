@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 
 public class Pet {
 
@@ -23,7 +23,7 @@ public class Pet {
     private Long id;
 
     @JsonProperty("name")
-    @Schema(example = "doggie")
+    @Parameter(example = "doggie")
     @NotNull
     private String name;
 
@@ -69,7 +69,7 @@ public class Pet {
     }
 
     @JsonProperty("status")
-    @Schema(description = "pet status in the store")
+    @Parameter(description = "pet status in the store")
     private StatusEnum status;
 
     public List<Tag> getTags() {

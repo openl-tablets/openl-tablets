@@ -46,4 +46,9 @@ public class UserManagementTest {
         client.send("EPBDS-7698/groups.json.get");
     }
 
+    @Test
+    public void EPBDS_11649_openapi() {
+        client.send("EPBDS-11649_OpenAPI_Auth/01-openapi.json");
+    }
+
 }

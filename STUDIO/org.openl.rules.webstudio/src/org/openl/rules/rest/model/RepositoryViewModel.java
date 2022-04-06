@@ -1,13 +1,13 @@
 package org.openl.rules.rest.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 
 public class RepositoryViewModel {
 
-    @Schema(description = "Repository unique identifier. Used as identifier in all requests", required = true)
+    @Parameter(description = "Repository unique identifier. Used as identifier in all requests", required = true)
     private final String id;
 
-    @Schema(description = "Repository display name", required = true)
+    @Parameter(description = "Repository display name", required = true)
     private final String name;
 
     public RepositoryViewModel(String id, String name) {

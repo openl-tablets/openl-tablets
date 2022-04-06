@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
@@ -151,13 +150,13 @@ public class ManagementController {
 
         }
 
-        @Schema(description = "mgmt.schema.group.description")
+        @Parameter(description = "mgmt.schema.group.description")
         public String description;
 
-        @Schema(description = "mgmt.schema.group.sub-groups")
+        @Parameter(description = "mgmt.schema.group.sub-groups")
         public Set<String> roles;
 
-        @Schema(description = "mgmt.schema.group.privileges")
+        @Parameter(description = "mgmt.schema.group.privileges")
         public Set<String> privileges;
     }
 }

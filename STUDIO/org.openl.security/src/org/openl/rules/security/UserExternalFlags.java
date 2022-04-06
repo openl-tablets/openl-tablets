@@ -1,6 +1,6 @@
 package org.openl.rules.security;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.Parameter;
 
 /**
  * This class handles flags of user external feature. Here can be added as many flags as they can fit in {@code int}.
@@ -16,27 +16,27 @@ public class UserExternalFlags {
         this.features = features;
     }
 
-    @Schema(description = "Is first name pooled from external authentication system")
+    @Parameter(description = "Is first name pooled from external authentication system")
     public boolean isFirstNameExternal() {
         return checkFeature(Feature.EXTERNAL_FIRST_NAME);
     }
 
-    @Schema(description = "Is last name pooled from external authentication system")
+    @Parameter(description = "Is last name pooled from external authentication system")
     public boolean isLastNameExternal() {
         return checkFeature(Feature.EXTERNAL_LAST_NAME);
     }
 
-    @Schema(description = "Is e-mail pooled from external authentication system")
+    @Parameter(description = "Is e-mail pooled from external authentication system")
     public boolean isEmailExternal() {
         return checkFeature(Feature.EXTERNAL_EMAIL);
     }
 
-    @Schema(description = "Is display name pooled from external authentication system")
+    @Parameter(description = "Is display name pooled from external authentication system")
     public boolean isDisplayNameExternal() {
         return checkFeature(Feature.EXTERNAL_DISPLAY_NAME);
     }
 
-    @Schema(description = "Is e-mail verified")
+    @Parameter(description = "Is e-mail verified")
     public boolean isEmailVerified() {
         return checkFeature(Feature.EMAIL_VERIFIED);
     }
