@@ -31,18 +31,18 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
 @Component
-public class OpenApiRequestService {
+public class OpenApiRequestServiceImpl {
 
     private final OpenApiParameterService apiParameterService;
-    private final OpenApiPropertyResolver propertyResolver;
+    private final OpenApiPropertyResolverImpl propertyResolver;
 
-    public OpenApiRequestService(OpenApiParameterService apiParameterService,
-            OpenApiPropertyResolver propertyResolver) {
+    public OpenApiRequestServiceImpl(OpenApiParameterService apiParameterService,
+            OpenApiPropertyResolverImpl propertyResolver) {
         this.apiParameterService = apiParameterService;
         this.propertyResolver = propertyResolver;
     }
 
-    public Optional<RequestBody> parse(OpenApiContext apiContext,
+    public Optional<RequestBody> generateRequestBody(OpenApiContext apiContext,
             MethodInfo methodInfo,
             List<ParameterInfo> formParameters,
             ParameterInfo requestBodyParam) {
@@ -297,7 +297,8 @@ public class OpenApiRequestService {
     }
 
     public boolean isRequestBody(ParameterInfo paramInfo) {
-        return paramInfo.hasAnnotation(org.springframework.web.bind.annotation.RequestBody.class) || isRequestBodyType(paramInfo.getType());
+        return paramInfo.hasAnnotation(org.springframework.web.bind.annotation.RequestBody.class) || isRequestBodyType(
+            paramInfo.getType());
     }
 
     private boolean isRequestBodyType(Type type) {

@@ -19,6 +19,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.core.util.ReflectionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 
+/**
+ * Information holder for methods of Spring REST Controllers
+ */
 public class MethodInfo {
 
     public static final String[] ALL_MEDIA_TYPES = new String[] { MediaType.ALL_VALUE };

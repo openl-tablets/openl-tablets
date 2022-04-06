@@ -6,7 +6,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.rules.spring.openapi.OpenApiContext;
-import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -19,20 +18,17 @@ import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.models.OpenAPI;
 
-public class OpenApiService {
+public class OpenApiServiceImpl {
 
     private final ApplicationContext context;
-    private final OpenApiSpringMvcReader openApiSpringMvcReader;
-    private final SpringMvcHandlerMethodsHelper mvcHandlerMethodsHelper;
+    private final OpenApiSpringMvcReaderImpl openApiSpringMvcReader;
     private final Set<Class<?>> ignoreControllers;
     private volatile OpenAPI calculatedOpenApi;
 
-    public OpenApiService(ApplicationContext context,
-            SpringMvcHandlerMethodsHelper mvcHandlerMethodsHelper,
-            OpenApiSpringMvcReader openApiSpringMvcReader,
+    public OpenApiServiceImpl(ApplicationContext context,
+            OpenApiSpringMvcReaderImpl openApiSpringMvcReader,
             Set<Class<?>> ignoreControllers) {
         this.context = context;
-        this.mvcHandlerMethodsHelper = mvcHandlerMethodsHelper;
         this.ignoreControllers = ignoreControllers;
         this.openApiSpringMvcReader = openApiSpringMvcReader;
     }

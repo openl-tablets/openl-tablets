@@ -12,6 +12,9 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.swagger.v3.oas.annotations.Parameter;
 
+/**
+ * Information holder for parameters of methods of Spring REST Controllers
+ */
 public class ParameterInfo {
 
     private final MethodInfo methodInfo;

@@ -2,7 +2,7 @@ package org.openl.rules.spring.openapi.converter;
 
 import java.util.Iterator;
 
-import org.openl.rules.spring.openapi.service.OpenApiPropertyResolver;
+import org.openl.rules.spring.openapi.service.OpenApiPropertyResolverImpl;
 import org.openl.util.StringUtils;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -14,13 +14,20 @@ import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.models.media.Schema;
 
+/**
+ * Schema customizer. The purpose of this class is to support {@link Deprecated}, {@link Parameter} annotations when
+ * they are defined on class properties. Original v3 implementation doesn't support this case. Also, it's used for
+ * schema description localization.
+ *
+ * @author Vladyslav Pikus
+ */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class PropertySchemaCustomizingConverter implements ModelConverter {
 
-    private final OpenApiPropertyResolver apiPropertyResolver;
+    private final OpenApiPropertyResolverImpl apiPropertyResolver;
 
-    public PropertySchemaCustomizingConverter(OpenApiPropertyResolver apiPropertyResolver) {
+    public PropertySchemaCustomizingConverter(OpenApiPropertyResolverImpl apiPropertyResolver) {
         this.apiPropertyResolver = apiPropertyResolver;
     }
 

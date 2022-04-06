@@ -14,6 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+/**
+ * Information holder for methods from beans annotated with
+ * {@link org.springframework.web.bind.annotation.ControllerAdvice}
+ */
 public class ExceptionHandlerInfo {
 
     private final Class<?> controllerAdviceBeanType;

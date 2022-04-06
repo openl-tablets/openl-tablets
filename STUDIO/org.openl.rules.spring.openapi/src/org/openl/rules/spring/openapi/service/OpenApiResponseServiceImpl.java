@@ -49,17 +49,17 @@ import io.swagger.v3.oas.models.responses.ApiResponses;
  * @author Vladyslav Pikus
  */
 @Component
-public class OpenApiResponseService {
+public class OpenApiResponseServiceImpl {
 
     private final OpenApiParameterService apiParameterService;
     private final Map<Class<?>, ExceptionHandlerMethodResolver> exHandlerAdviceCache;
     private final List<String> openLRestExceptionBasePackages;
-    private final OpenApiPropertyResolver apiPropertyResolver;
+    private final OpenApiPropertyResolverImpl apiPropertyResolver;
 
-    public OpenApiResponseService(OpenApiParameterService apiParameterService,
+    public OpenApiResponseServiceImpl(OpenApiParameterService apiParameterService,
             SpringMvcHandlerMethodsHelper handlerMethodsHelper,
             @Qualifier("openLRestExceptionBasePackages") List<String> openLRestExceptionBasePackages,
-            OpenApiPropertyResolver apiPropertyResolver) {
+            OpenApiPropertyResolverImpl apiPropertyResolver) {
         this.apiParameterService = apiParameterService;
         this.openLRestExceptionBasePackages = openLRestExceptionBasePackages;
 

@@ -5,13 +5,16 @@ import java.util.List;
 
 import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
 import org.openl.rules.spring.openapi.controller.OpenApiController;
-import org.openl.rules.spring.openapi.service.OpenApiService;
-import org.openl.rules.spring.openapi.service.OpenApiSpringMvcReader;
+import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
+import org.openl.rules.spring.openapi.service.OpenApiSpringMvcReaderImpl;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Main Spring Configuration for Spring OpenAPI Generator
+ */
 @Configuration
 @ComponentScan(basePackages = { "org.openl.rules.spring.openapi.controller",
         "org.openl.rules.spring.openapi.service",
@@ -24,13 +27,9 @@ public class SpringMvcOpenApiConfiguration {
     }
 
     @Bean
-    public OpenApiService openApiService(ApplicationContext context,
-            SpringMvcHandlerMethodsHelper mvcHandlerMethodsHelper,
-            OpenApiSpringMvcReader openApiSpringMvcReader) {
-        return new OpenApiService(context,
-            mvcHandlerMethodsHelper,
-            openApiSpringMvcReader,
-            Collections.singleton(OpenApiController.class));
+    public OpenApiServiceImpl openApiService(ApplicationContext context,
+            OpenApiSpringMvcReaderImpl openApiSpringMvcReader) {
+        return new OpenApiServiceImpl(context, openApiSpringMvcReader, Collections.singleton(OpenApiController.class));
     }
 
     @Bean("openLRestExceptionBasePackages")
