@@ -54,6 +54,7 @@ public class LazyInMemoryRelyingPartyRegistrationRepository implements RelyingPa
             RelyingPartyRegistration.Builder registrationBuilder = RelyingPartyRegistrations
                 .fromMetadataLocation(propertyResolver.getProperty("security.saml.saml-server-metadata-url"))
                 .registrationId("webstudio")
+                .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
                 .entityId(propertyResolver.getProperty("security.saml.entity-id"))
                 .signingX509Credentials(c -> c.add(signing))
                 .decryptionX509Credentials(c -> c.add(decryption));
