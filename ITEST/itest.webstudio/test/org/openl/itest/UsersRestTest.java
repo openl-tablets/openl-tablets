@@ -60,6 +60,9 @@ public class UsersRestTest {
         smtpServer.setUser("username@email", "password");
         smtpServer.start();
 
+        // Most probably WebStudio loads h2 driver in its own classloader and it's not accessible from this test, so
+        // we need to register it.
+        Class.forName("org.h2.Driver");
         h2Connection = DriverManager.getConnection("jdbc:h2:tcp://localhost:9111/mem:mydb");
         h2Connection.setAutoCommit(false);
         try (Statement statement = h2Connection.createStatement()) {

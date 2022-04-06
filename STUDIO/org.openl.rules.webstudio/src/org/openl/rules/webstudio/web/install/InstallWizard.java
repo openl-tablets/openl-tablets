@@ -46,7 +46,6 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
-import org.openl.util.db.JDBCDriverRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
@@ -324,7 +323,6 @@ public class InstallWizard implements Serializable {
         Connection conn;
 
         try {
-            JDBCDriverRegister.registerDrivers();
             if (StringUtils.isBlank(login)) {
                 conn = DriverManager.getConnection(url);
             } else {

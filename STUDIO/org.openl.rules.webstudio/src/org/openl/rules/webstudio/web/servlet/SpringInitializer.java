@@ -22,6 +22,7 @@ import org.openl.rules.webstudio.Migrator;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.spring.env.PropertySourcesLoader;
+import org.openl.util.db.JDBCDriverRegister;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -61,6 +62,8 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        JDBCDriverRegister.registerDrivers();
+
         ServletContext servletContext = sce.getServletContext();
         servletContext.log("Initializing Spring root ApplicationContext");
         applicationContext = new XmlWebApplicationContext();

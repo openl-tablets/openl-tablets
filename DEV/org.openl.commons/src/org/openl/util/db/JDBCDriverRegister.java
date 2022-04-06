@@ -77,11 +77,4 @@ public class JDBCDriverRegister {
             return "UNKNOWN, because of an exception has been happened.";
         }
     }
-
-    /**
-     * For Spring initialization purposes.
-     */
-    public void init() {
-        registerDrivers();
-    }
 }
