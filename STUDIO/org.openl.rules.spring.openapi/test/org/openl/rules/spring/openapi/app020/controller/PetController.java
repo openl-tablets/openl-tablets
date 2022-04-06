@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -150,25 +151,17 @@ public class PetController {
      * @param status Updated status of the pet (optional)
      * @return Invalid input (status code 405)
      */
-    /*
-     * @Operation(summary = "Updates a pet in the store with form data", tags={ "pet"})
-     * 
-     * @ApiResponses(value = {
-     * 
-     * @ApiResponse(responseCode = "405", description = "Invalid input") })
-     * 
-     * @Parameter(description = "ID of pet that needs to be updated", in = ParameterIn.PATH, name = "petId", required =
-     * true, schema = @Schema(type = "integer", format = "int64"))
-     * 
-     * @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType =
-     * "application/x-www-form-urlencoded", schema = @Schema()))
-     * 
-     * @PostMapping( value = "/{petId}", consumes = { "application/x-www-form-urlencoded" } ) public
-     * ResponseEntity<Void> updatePetWithForm(@PathVariable("petId") Long petId,@ApiParam(value =
-     * "Updated name of the pet") @RequestPart(value = "name", required = false) String name,@ApiParam(value =
-     * "Updated status of the pet") @RequestPart(value = "status", required = false) String status) { return
-     * ResponseEntity.ok().build(); }
-     */
+    @Operation(summary = "Updates a pet in the store with form data", tags = { "pet" })
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "405", description = "Invalid input") })
+    @Parameter(description = "ID of pet that needs to be updated", in = ParameterIn.PATH, name = "petId", required = true, schema = @Schema(type = "integer", format = "int64"))
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(mediaType = "application/x-www-form-urlencoded", schema = @Schema()))
+    @PostMapping(value = "/{petId}", consumes = { "application/x-www-form-urlencoded" })
+    public ResponseEntity<Void> updatePetWithForm(@PathVariable("petId") Long petId,
+            @Parameter(description = "Updated name of the pet") @RequestPart(value = "name", required = false) String name,
+            @Parameter(description = "Updated status of the pet") @RequestPart(value = "status", required = false) String status) {
+        return ResponseEntity.ok().build();
+    }
 
     /**
      * POST /pet/{petId}/uploadImage : uploads an image
