@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.repository.git.branch.BranchesData;
@@ -109,6 +110,21 @@ public class Migrator {
         props.put("security.saml.keystore-password", null);
         props.put("security.saml.keystore-sp-alias", null);
         props.put("security.saml.keystore-sp-password", null);
+
+        List<String> uriProperties = new ArrayList<>();
+        uriProperties.add("db.url");
+        uriProperties.addAll(Arrays.stream(settings.getPropertyNames())
+            .filter(propertyName -> propertyName.endsWith(".uri"))
+            .collect(Collectors.toList()));
+
+        uriProperties.forEach(propertyName -> {
+            String uri = (String) settings.getProperty(propertyName);
+            if (uri != null && uri.startsWith("jdbc:h2:")) {
+                LOG.warn(
+                    "You have h2 database with uri '{}'. You need to migrate it yourself. See https://www.h2database.com/html/migration-to-v2.html for details.",
+                    uri);
+            }
+        });
     }
 
     // 5.24

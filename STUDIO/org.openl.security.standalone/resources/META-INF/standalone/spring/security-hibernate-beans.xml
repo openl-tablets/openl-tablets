@@ -11,10 +11,7 @@
 
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
-    <bean id="driverRegister" class="org.openl.util.db.JDBCDriverRegister" init-method="init"/>
-
-    <bean id="openlDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close"
-          depends-on="driverRegister">
+    <bean id="openlDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
         <property name="jdbcUrl" value="${db.url}"/>
         <property name="username" value="${db.user}"/>
         <property name="password" value="${db.password}"/>
