@@ -18,7 +18,6 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Pattern;
 
-import org.openl.rules.spring.openapi.OpenApiContext;
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.model.ParameterInfo;
 import org.openl.util.CollectionUtils;
@@ -53,12 +52,12 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 @Component
 public class OpenApiParameterServiceImpl implements OpenApiParameterService {
 
-    private final OpenApiPropertyResolverImpl apiPropertyResolver;
+    private final OpenApiPropertyResolver apiPropertyResolver;
     private final RequestMappingHandlerAdapter mappingHandlerAdapter;
 
     @Autowired
     public OpenApiParameterServiceImpl(Optional<List<ModelConverter>> modelConverters,
-            OpenApiPropertyResolverImpl apiPropertyResolver,
+            OpenApiPropertyResolver apiPropertyResolver,
             RequestMappingHandlerAdapter mappingHandlerAdapter) {
         this.apiPropertyResolver = apiPropertyResolver;
         this.mappingHandlerAdapter = mappingHandlerAdapter;

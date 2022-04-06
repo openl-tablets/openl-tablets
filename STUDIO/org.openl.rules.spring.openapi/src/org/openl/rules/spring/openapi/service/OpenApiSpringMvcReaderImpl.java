@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +16,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.openl.rules.spring.openapi.OpenApiContext;
 import org.openl.rules.spring.openapi.OpenApiUtils;
 import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
 import org.openl.rules.spring.openapi.model.ControllerAdviceInfo;
@@ -50,21 +50,21 @@ import io.swagger.v3.oas.models.tags.Tag;
  * @author Vladyslav Pikus
  */
 @Component
-public class OpenApiSpringMvcReaderImpl {
+public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
 
     private final SpringMvcHandlerMethodsHelper handlerMethodsHelper;
-    private final OpenApiResponseServiceImpl apiResponseService;
+    private final OpenApiResponseService apiResponseService;
     private final OpenApiRequestServiceImpl apiRequestService;
     private final OpenApiParameterService apiParameterService;
-    private final OpenApiSecurityServiceImpl apiSecurityService;
-    private final OpenApiPropertyResolverImpl apiPropertyResolver;
+    private final OpenApiSecurityService apiSecurityService;
+    private final OpenApiPropertyResolver apiPropertyResolver;
 
     public OpenApiSpringMvcReaderImpl(SpringMvcHandlerMethodsHelper handlerMethodsHelper,
-            OpenApiResponseServiceImpl apiResponseService,
+            OpenApiResponseService apiResponseService,
             OpenApiRequestServiceImpl apiRequestService,
             OpenApiParameterService apiParameterService,
-            OpenApiSecurityServiceImpl apiSecurityService,
-            OpenApiPropertyResolverImpl apiPropertyResolver) {
+            OpenApiSecurityService apiSecurityService,
+            OpenApiPropertyResolver apiPropertyResolver) {
         this.handlerMethodsHelper = handlerMethodsHelper;
         this.apiResponseService = apiResponseService;
         this.apiRequestService = apiRequestService;
@@ -73,6 +73,13 @@ public class OpenApiSpringMvcReaderImpl {
         this.apiPropertyResolver = apiPropertyResolver;
     }
 
+    /**
+     * Read OpenAPI schema for controllers from list
+     *
+     * @param openApiContext current OpenAPI context
+     * @param controllers included Spring Controllers
+     */
+    @Override
     public void read(OpenApiContext openApiContext, Map<String, Class<?>> controllers) {
         apiSecurityService.generateGlobalSecurity(openApiContext);
         var controllerAdviceInfos = handlerMethodsHelper.getControllerAdvices()
@@ -84,7 +91,6 @@ public class OpenApiSpringMvcReaderImpl {
             .entrySet()
             .stream()
             .filter(e -> isRestControllers(e.getValue(), controllers))
-            .filter(e -> !OpenApiUtils.isHiddenApiMethod(e.getValue().getMethod()))
             .forEach(e -> visitHandlerMethod(openApiContext,
                 e.getKey(),
                 e.getValue(),
@@ -169,13 +175,14 @@ public class OpenApiSpringMvcReaderImpl {
         }
 
         // parse response body
-        apiResponseService.parse(apiContext, methodInfo).ifPresent(responses -> {
+        var generatedResponses = apiResponseService.generateResponses(apiContext, methodInfo);
+        if (generatedResponses != null) {
             if (operation.getResponses() == null) {
-                operation.setResponses(responses);
+                operation.setResponses(generatedResponses);
             } else {
-                responses.forEach(operation.getResponses()::addApiResponse);
+                generatedResponses.forEach(operation.getResponses()::addApiResponse);
             }
-        });
+        }
 
         if (operation.getResponses() != null && operation.getResponses().size() > 1 && operation.getResponses()
             .get(ApiResponses.DEFAULT) != null && operation.getResponses().get("200") == null) {
@@ -237,14 +244,15 @@ public class OpenApiSpringMvcReaderImpl {
             .forEach(operation::addParametersItem);
 
         // parse request body
-        apiRequestService.generateRequestBody(apiContext, methodInfo, formParameters, requestBodyParam)
-            .ifPresent(requestBody -> {
-                if (operation.getRequestBody() != null) {
-                    apiRequestService.mergeRequestBody(operation.getRequestBody(), requestBody);
-                } else {
-                    operation.requestBody(requestBody);
-                }
-            });
+        var sourceRequestBody = apiRequestService
+            .generateRequestBody(apiContext, methodInfo, formParameters, requestBodyParam);
+        if (sourceRequestBody != null) {
+            if (operation.getRequestBody() != null) {
+                apiRequestService.mergeRequestBody(sourceRequestBody, operation.getRequestBody());
+            } else {
+                operation.requestBody(sourceRequestBody);
+            }
+        }
 
         // register parsed operation method
         PathItem pathItem;
@@ -282,25 +290,13 @@ public class OpenApiSpringMvcReaderImpl {
         }
     }
 
-    // TODO: Parse Callback, ExternalDocumentation, SecurityRequirement, Server
     private void parseMethodTags(OpenApiContext openApiContext, HandlerMethod method, Operation operation) {
-        var typeTags = openApiContext.getClassTags(method.getBeanType());
-        if (typeTags == null) {
-            processTagsFromType(openApiContext, method.getBeanType());
-            typeTags = openApiContext.getClassTags(method.getBeanType());
-        }
-        List<Stream<io.swagger.v3.oas.annotations.tags.Tag>> tags = new ArrayList<>();
-        Optional
-            .ofNullable(
-                AnnotationUtils.findAnnotation(method.getMethod(), io.swagger.v3.oas.annotations.tags.Tags.class))
-            .ifPresent(anno -> tags.add(Stream.of(anno.value())));
-        Optional
-            .ofNullable(
-                AnnotationUtils.findAnnotation(method.getMethod(), io.swagger.v3.oas.annotations.tags.Tag.class))
-            .ifPresent(anno -> tags.add(Stream.of(anno)));
-        AnnotationsUtils
-            .getTags(tags.stream().flatMap(Function.identity()).toArray(io.swagger.v3.oas.annotations.tags.Tag[]::new),
-                false)
+        var tags = Optional
+            .ofNullable(ReflectionUtils.getRepeatableAnnotations(method.getMethod(),
+                io.swagger.v3.oas.annotations.tags.Tag.class))
+            .orElseGet(Collections::emptyList);
+
+        AnnotationsUtils.getTags(tags.toArray(io.swagger.v3.oas.annotations.tags.Tag[]::new), false)
             .stream()
             .flatMap(Collection::stream)
             .forEach(tagItem -> {
@@ -310,6 +306,11 @@ public class OpenApiSpringMvcReaderImpl {
                 }
             });
 
+        var typeTags = openApiContext.getClassTags(method.getBeanType());
+        if (typeTags == null) {
+            processTagsFromType(openApiContext, method.getBeanType());
+            typeTags = openApiContext.getClassTags(method.getBeanType());
+        }
         Optional.ofNullable(typeTags)
             .map(Map::keySet)
             .stream()
@@ -324,10 +325,10 @@ public class OpenApiSpringMvcReaderImpl {
             .ofNullable(AnnotationUtils.findAnnotation(beanType, io.swagger.v3.oas.annotations.OpenAPIDefinition.class))
             .map(io.swagger.v3.oas.annotations.OpenAPIDefinition::tags)
             .ifPresent(anno -> tags.add(Stream.of(anno)));
-        Optional.ofNullable(AnnotationUtils.findAnnotation(beanType, io.swagger.v3.oas.annotations.tags.Tags.class))
-            .ifPresent(anno -> tags.add(Stream.of(anno.value())));
-        Optional.ofNullable(AnnotationUtils.findAnnotation(beanType, io.swagger.v3.oas.annotations.tags.Tag.class))
-            .ifPresent(anno -> tags.add(Stream.of(anno)));
+        Optional
+            .ofNullable(
+                ReflectionUtils.getRepeatableAnnotations(beanType, io.swagger.v3.oas.annotations.tags.Tag.class))
+            .ifPresent(anno -> tags.add(anno.stream()));
 
         AnnotationsUtils
             .getTags(tags.stream().flatMap(Function.identity()).toArray(io.swagger.v3.oas.annotations.tags.Tag[]::new),

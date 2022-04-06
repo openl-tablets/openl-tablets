@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.rules.spring.openapi.OpenApiContext;
 import org.openl.rules.spring.openapi.model.MethodInfo;
 import org.openl.rules.spring.openapi.model.ParameterInfo;
 

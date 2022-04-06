@@ -6,7 +6,7 @@ import java.util.List;
 import org.openl.rules.spring.openapi.SpringMvcHandlerMethodsHelper;
 import org.openl.rules.spring.openapi.controller.OpenApiController;
 import org.openl.rules.spring.openapi.service.OpenApiServiceImpl;
-import org.openl.rules.spring.openapi.service.OpenApiSpringMvcReaderImpl;
+import org.openl.rules.spring.openapi.service.OpenApiSpringMvcReader;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -28,7 +28,7 @@ public class SpringMvcOpenApiConfiguration {
 
     @Bean
     public OpenApiServiceImpl openApiService(ApplicationContext context,
-            OpenApiSpringMvcReaderImpl openApiSpringMvcReader) {
+            OpenApiSpringMvcReader openApiSpringMvcReader) {
         return new OpenApiServiceImpl(context, openApiSpringMvcReader, Collections.singleton(OpenApiController.class));
     }
 
