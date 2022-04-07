@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.web.servlet.ModelAndView;
 
 @RestController
 @RequestMapping("/api-docs")
@@ -22,6 +23,13 @@ public class OpenApiController {
     public String openApi() throws JsonProcessingException {
         openApiService.build();
         return openApiService.getOpenApiAsJson();
+    }
+
+    @GetMapping
+    public ModelAndView getUi() {
+        var view = new ModelAndView();
+        view.setViewName("api-ui");
+        return view;
     }
 
 }
