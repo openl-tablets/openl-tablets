@@ -20,8 +20,10 @@ import org.springframework.validation.Validator;
 import org.springframework.validation.beanvalidation.CustomValidatorBean;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.support.StandardServletMultipartResolver;
+import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,7 +36,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
  * @author Vladyslav Pikus
  */
 @Configuration
-@Import({ValidationConfiguration.class, SpringMvcOpenApiConfiguration.class})
+@Import({ ValidationConfiguration.class, SpringMvcOpenApiConfiguration.class })
 @EnableWebMvc
 @ComponentScan(basePackages = "org.openl.rules.rest.common")
 public class ApiConfig implements WebMvcConfigurer {
@@ -80,6 +82,14 @@ public class ApiConfig implements WebMvcConfigurer {
     @Bean
     public StandardServletMultipartResolver multipartResolver() {
         return new StandardServletMultipartResolver();
+    }
+
+    @Bean
+    public ViewResolver internalResourceViewResolver() {
+        InternalResourceViewResolver bean = new InternalResourceViewResolver();
+        bean.setPrefix("/pages/");
+        bean.setSuffix(".html");
+        return bean;
     }
 
     @Bean("openApiMessageSource")
