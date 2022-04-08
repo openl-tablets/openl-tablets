@@ -423,7 +423,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-    private Throwable extractInvocationTargetException(Throwable e) {
+    private static Throwable extractInvocationTargetException(Throwable e) {
         Throwable t = e;
         while (t instanceof InvocationTargetException || t instanceof UndeclaredThrowableException) {
             if (t instanceof InvocationTargetException) {
@@ -436,7 +436,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         return t;
     }
 
-    private Pair<ExceptionType, String> getExceptionDetailAndType(Exception ex) {
+    public static Pair<ExceptionType, String> getExceptionDetailAndType(Exception ex) {
         Throwable t = ex;
 
         ExceptionType type = ExceptionType.SYSTEM;
