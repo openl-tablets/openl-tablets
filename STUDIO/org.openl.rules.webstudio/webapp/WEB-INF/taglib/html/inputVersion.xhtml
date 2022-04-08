@@ -26,10 +26,10 @@
             <c:set var="isShortView" value="#{(empty shortView or (!empty shortView and (shortView eq false)))}" />
             <h:panelGrid id="versionPanel" columns="2">
                 <h:outputText value="Major" />
-                <rich:inputNumberSpinner id="versionValue_minor" value="#{data[0]}" maxValue="10000"
+                <rich:inputNumberSpinner id="versionValue_major" value="#{data[0]}" maxValue="10000"
                     inputSize="4" onchange="applyVersion(this, #{isShortView}, 0)" />
                 <h:outputText value="Minor" />
-                <rich:inputNumberSpinner id="versionValue_major" value="#{data[1]}" maxValue="100"
+                <rich:inputNumberSpinner id="versionValue_minor" value="#{data[1]}" maxValue="100"
                     inputSize="4" onchange="applyVersion(this, #{isShortView}, 1)" />
                 <c:if test="#{isShortView}">
                      <h:outputText value="Variant" />
