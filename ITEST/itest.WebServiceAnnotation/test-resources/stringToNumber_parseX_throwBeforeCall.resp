@@ -1,8 +1,4 @@
-HTTP/1.1 200
-Content-Type: application/xml
+HTTP/1.1 500
+Content-Type: application/json
 
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<myType>
-    <code>-1</code>
-    <status>ERROR</status>
-</myType>
+{"message":"java.lang.IllegalArgumentException: Service method should have at least one argument","type":"SYSTEM","details":"***"}
