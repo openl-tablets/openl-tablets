@@ -163,6 +163,8 @@ class HttpData {
                 contentType = contentType.substring(0, sep);
             }
             switch (contentType) {
+                case "text/css":
+                case "text/javascript":
                 case "text/html":
                 case "text/plain":
                     Comparators.txt("Difference", decoder.apply(expected.body), decoder.apply(this.body));
