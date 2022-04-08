@@ -26,6 +26,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
@@ -365,9 +366,10 @@ public final class KafkaService implements Runnable {
         if (exception != null) {
             dltRecord.headers()
                 .add(KafkaHeaders.DLT_EXCEPTION_FQCN, exception.getClass().getName().getBytes(StandardCharsets.UTF_8));
+            String message = ServiceInvocationAdvice.getExceptionDetailAndType(exception).getRight();
             dltRecord.headers()
                 .add(KafkaHeaders.DLT_EXCEPTION_MESSAGE,
-                    exception.getMessage() == null ? null : exception.getMessage().getBytes(StandardCharsets.UTF_8));
+                    message != null ? message.getBytes(StandardCharsets.UTF_8) : null);
             dltRecord.headers()
                 .add(KafkaHeaders.DLT_EXCEPTION_STACKTRACE,
                     ExceptionUtils.getStackTrace(exception).getBytes(StandardCharsets.UTF_8));

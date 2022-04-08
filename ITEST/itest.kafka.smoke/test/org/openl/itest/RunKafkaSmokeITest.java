@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.kafka.common.header.Header;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -70,6 +71,16 @@ public class RunKafkaSmokeITest {
         Assert.assertEquals(1, observesDlt.size());
         Assert.assertEquals("5", observesDlt.get(0).getValue());
         Assert.assertEquals("key1", observesDlt.get(0).getKey());
+
+        KeyValue<String, String> record2 = new KeyValue<>("key1", "{\"hour\": 22}");
+        cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record2)).useDefaults());
+
+        ObserveKeyValues<String, String> observeRequestDlt2 = ObserveKeyValues.on("hello-dlt-topic", 1)
+            .with("metadata.max.age.ms", 1000)
+            .build();
+        List<KeyValue<String, String>> observesDlt2 = cluster.observe(observeRequestDlt2);
+        Assert.assertEquals(2, observesDlt2.size());
+        Assert.assertEquals("fail", getHeaderValue(observesDlt2.get(1), KafkaHeaders.DLT_EXCEPTION_MESSAGE));
     }
 
     @Test
@@ -180,7 +191,10 @@ public class RunKafkaSmokeITest {
 
     private String getHeaderValue(KeyValue<?, ?> v, String key) {
         if (v.getHeaders().lastHeader(key) != null) {
-            return new String(v.getHeaders().lastHeader(key).value(), StandardCharsets.UTF_8);
+            Header h = v.getHeaders().lastHeader(key);
+            if (h != null && h.value() != null) {
+                return new String(h.value(), StandardCharsets.UTF_8);
+            }
         }
         return null;
     }
