@@ -1,0 +1,13 @@
+<project>
+  <name>EPBDS-12711</name>
+  <modules>
+    <module>
+      <name>Main</name>
+      <rules-root path="Main.xlsx"/>
+    </module>
+  </modules>
+  <openapi>
+    <path>openapi.json</path>
+    <mode>RECONCILIATION</mode>
+  </openapi>
+</project>
