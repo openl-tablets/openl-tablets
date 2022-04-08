@@ -8,14 +8,14 @@ public interface ServiceInvocationAdviceListener {
     default void beforeMethodInvocation(Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccurredException,
+            Exception ex,
             Consumer<Object> postProcessAdvice) {
     }
 
     default void afterMethodInvocation(Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccurredException,
+            Exception ex,
             Consumer<Object> postProcessAdvice) {
     }
 
@@ -23,7 +23,7 @@ public interface ServiceInvocationAdviceListener {
             Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccurredException,
+            Exception ex,
             Consumer<Object> postProcessAdvice) {
     }
 
@@ -31,7 +31,7 @@ public interface ServiceInvocationAdviceListener {
             Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccurredException,
+            Exception ex,
             Consumer<Object> postProcessAdvice) {
     }
 }

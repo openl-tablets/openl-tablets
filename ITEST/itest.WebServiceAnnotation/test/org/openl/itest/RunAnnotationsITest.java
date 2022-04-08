@@ -95,7 +95,7 @@ public class RunAnnotationsITest {
     public void call_parse4_interfaceMethod_usingCustomEndpointAndHeaders_shouldThrowErrorInBeforeInterceptor_OK() {
         client.post("/REST/v1/string/toNumber/parseX",
             "/stringToNumber_parseX_throwBeforeCall.req.txt",
-            "/stringToNumber_parseX_throwBeforeCall.resp.xml");
+                500, "/stringToNumber_parseX_throwBeforeCall.resp.json");
     }
 
     @Test
@@ -329,7 +329,7 @@ public class RunAnnotationsITest {
                 "/stringToNumber_parseX_throwBeforeCall-415.resp.txt");
         client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/parseX",
                 "/stringToNumber_parseX_throwBeforeCall.req.txt",
-                "/stringToNumber_parseX_throwBeforeCall.resp.xml");
+                500, "/stringToNumber_parseX_throwBeforeCall.resp.json");
         client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/parseX",
                 "/stringToNumber_parseX_error.req.txt", "/stringToNumber_parseX_error.resp.xml");
         client.get("/REST/v1/annotation-template-abstract-class/string/toNumber/parseXPathParam/11",

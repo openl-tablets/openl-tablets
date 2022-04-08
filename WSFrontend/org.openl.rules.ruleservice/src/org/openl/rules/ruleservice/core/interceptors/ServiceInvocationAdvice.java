@@ -132,9 +132,9 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
     }
 
     private IOpenMember findIOpenMember(Method method) {
-        for (Class<?> interf : serviceTarget.getClass().getInterfaces()) {
+        for (Class<?> clazz : serviceTarget.getClass().getInterfaces()) {
             try {
-                Method m = interf.getMethod(method.getName(), method.getParameterTypes());
+                Method m = clazz.getMethod(method.getName(), method.getParameterTypes());
                 return RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget);
             } catch (NoSuchMethodException ignored) {
             }
@@ -244,62 +244,41 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             Exception t,
             Object... args) throws Exception {
         List<ServiceMethodAfterAdvice<?>> postInterceptors = afterInterceptors.get(interfaceMethod);
+        Object ret = result;
         if (postInterceptors != null && !postInterceptors.isEmpty()) {
-            Object ret = result;
-            Exception lastOccurredException = t;
             for (ServiceMethodAfterAdvice<?> interceptor : postInterceptors) {
-                invokeBeforeServiceMethodAdviceOnListeners(interceptor,
-                    interfaceMethod,
-                    args,
-                    ret,
-                    lastOccurredException);
+                invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, result, t);
                 try {
-                    if (lastOccurredException == null) {
+                    if (t == null) {
                         ret = interceptor.afterReturning(interfaceMethod, ret, args);
                     } else {
-                        ret = interceptor.afterThrowing(interfaceMethod, lastOccurredException, args);
+                        ret = interceptor.afterThrowing(interfaceMethod, t, args);
                     }
-                    lastOccurredException = null;
+                    t = null;
                 } catch (Exception e) {
-                    lastOccurredException = e;
-                    ret = null;
+                    t = e;
                 }
-                invokeAfterServiceMethodAdviceOnListeners(interceptor,
-                    interfaceMethod,
-                    args,
-                    ret,
-                    lastOccurredException);
-            }
-            if (lastOccurredException != null) {
-                throw lastOccurredException;
-            } else {
-                return ret;
-            }
-        } else {
-            if (t != null) {
-                throw t;
-            } else {
-                return result;
+                invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, result, t);
             }
         }
+        if (t != null) {
+            throw t;
+        }
+        return ret;
     }
 
     private void invokeAfterServiceMethodAdviceOnListeners(ServiceMethodAdvice interceptor,
             Method interfaceMethod,
             Object[] args,
             Object ret,
-            Exception lastOccurredException) {
+            Exception ex) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
-            try {
-                listener.afterServiceMethodAdvice(interceptor,
-                    interfaceMethod,
-                    args,
-                    ret,
-                    lastOccurredException,
-                    e -> processAware(e, interfaceMethod));
-            } catch (Exception e1) {
-                log.error("Exception occurred.", e1);
-            }
+            listener.afterServiceMethodAdvice(interceptor,
+                interfaceMethod,
+                args,
+                ret,
+                ex,
+                e -> processAware(e, interfaceMethod));
         }
     }
 
@@ -307,18 +286,14 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             Method interfaceMethod,
             Object[] args,
             Object ret,
-            Exception lastOccurredException) {
+            Exception ex) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
-            try {
-                listener.beforeServiceMethodAdvice(interceptor,
-                    interfaceMethod,
-                    args,
-                    ret,
-                    lastOccurredException,
-                    e -> processAware(e, interfaceMethod));
-            } catch (Exception e1) {
-                log.error("Exception occurred.", e1);
-            }
+            listener.beforeServiceMethodAdvice(interceptor,
+                interfaceMethod,
+                args,
+                ret,
+                ex,
+                e -> processAware(e, interfaceMethod));
         }
     }
 
@@ -345,6 +320,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                     Thread.currentThread().setContextClassLoader(serviceClassLoader);
                     beforeInvocation(interfaceMethod, args);
                     ServiceMethodAroundAdvice<?> serviceMethodAroundAdvice = aroundInterceptors.get(interfaceMethod);
+                    Exception lastOccurredException = null;
                     try {
                         invokeBeforeMethodInvocationOnListeners(interfaceMethod, args);
                         if (serviceMethodAroundAdvice != null) {
@@ -356,24 +332,48 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                             try {
                                 result = serviceMethodAroundAdvice
                                     .around(interfaceMethod, beanMethod, serviceTarget, args);
+                            } catch (Exception e) {
+                                lastOccurredException = e;
                             } finally {
                                 invokeAfterServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
                                     interfaceMethod,
                                     args,
                                     result,
-                                    null);
+                                    lastOccurredException);
                             }
                         } else {
-                            if (beanMethod != null) {
-                                result = beanMethod.invoke(serviceTarget, args);
-                            } else {
-                                result = serviceExtraMethodInvoke(interfaceMethod, serviceTarget, args);
+                            try {
+                                if (beanMethod != null) {
+                                    result = beanMethod.invoke(serviceTarget, args);
+                                } else {
+                                    result = serviceExtraMethodInvoke(interfaceMethod, serviceTarget, args);
+                                }
+                            } catch (InvocationTargetException | UndeclaredThrowableException e) {
+                                Throwable t = extractInvocationTargetException(e);
+                                if (t instanceof Exception) {
+                                    lastOccurredException = (Exception) t;
+                                    lastOccurredException.addSuppressed(e);
+                                } else {
+                                    lastOccurredException = e;
+                                }
+                            } catch (Exception e) {
+                                lastOccurredException = e;
                             }
                         }
                     } finally {
-                        invokeAfterMethodInvocationOnListeners(interfaceMethod, args, result);
+                        try {
+                            invokeAfterMethodInvocationOnListeners(interfaceMethod,
+                                args,
+                                result,
+                                lastOccurredException);
+                        } catch (Exception e) {
+                            if (lastOccurredException != null) {
+                                e.addSuppressed(lastOccurredException);
+                            }
+                            lastOccurredException = e;
+                        }
                     }
-                    result = afterInvocation(interfaceMethod, result, null, args);
+                    result = afterInvocation(interfaceMethod, result, lastOccurredException, args);
                     // repack result if arrays inside it doesn't have the returnType as interfaceMethod
                     if (interfaceMethod.getReturnType().isArray()) {
                         result = ArrayUtils.repackArray(result, interfaceMethod.getReturnType());
@@ -381,17 +381,6 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                 } finally {
                     Thread.currentThread().setContextClassLoader(oldClassLoader);
                 }
-            } catch (InvocationTargetException e) {
-                Throwable t = extractInvocationTargetException(e);
-                if (t instanceof Exception) {
-                    result = afterInvocation(interfaceMethod, null, (Exception) t, args);
-                } else if (t instanceof Error) {
-                    throw (Error) t;
-                } else {
-                    throw new Exception(t);
-                }
-            } catch (Exception e) {
-                result = afterInvocation(interfaceMethod, null, e, args);
             } catch (Error e) {
                 throw e;
             } catch (Throwable t) {
@@ -419,39 +408,18 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-    private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod, Object[] args, Object result) {
-        RuntimeException lastOccurredEx = null;
+    private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod,
+            Object[] args,
+            Object result,
+            Exception ex) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
-            try {
-                listener
-                    .afterMethodInvocation(interfaceMethod, args, result, lastOccurredEx, e -> processAware(e, interfaceMethod));
-            } catch (RuntimeException e1) {
-                if (lastOccurredEx != null) {
-                    e1.addSuppressed(lastOccurredEx);
-                }
-                lastOccurredEx = e1;
-            }
-        }
-        if (lastOccurredEx != null) {
-            throw lastOccurredEx;
+            listener.afterMethodInvocation(interfaceMethod, args, result, ex, e -> processAware(e, interfaceMethod));
         }
     }
 
     private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod, Object[] args) {
-        RuntimeException lastOccurredEx = null;
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
-            try {
-                listener
-                    .beforeMethodInvocation(interfaceMethod, args, null, null, e -> processAware(e, interfaceMethod));
-            } catch (RuntimeException e1) {
-                if (lastOccurredEx != null) {
-                    e1.addSuppressed(lastOccurredEx);
-                }
-                lastOccurredEx = e1;
-            }
-        }
-        if (lastOccurredEx != null) {
-            throw lastOccurredEx;
+            listener.beforeMethodInvocation(interfaceMethod, args, null, null, e -> processAware(e, interfaceMethod));
         }
     }
 

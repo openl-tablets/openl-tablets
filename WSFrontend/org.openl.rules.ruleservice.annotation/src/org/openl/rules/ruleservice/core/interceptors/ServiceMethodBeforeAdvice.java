@@ -13,8 +13,8 @@ public interface ServiceMethodBeforeAdvice extends ServiceMethodAdvice {
     /**
      * If before advice defined for a service method, invokes this method.
      *
-     * @param method service method
-     * @param proxy service bean
+     * @param interfaceMethod service method
+     * @param serviceTarget service bean
      * @param args method arguments
      * @throws Throwable
      */

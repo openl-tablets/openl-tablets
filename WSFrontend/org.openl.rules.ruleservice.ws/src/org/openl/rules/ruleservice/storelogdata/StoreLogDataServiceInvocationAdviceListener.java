@@ -222,13 +222,13 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
     public void beforeMethodInvocation(Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccurredException,
+            Exception ex,
             Consumer<Object> postProcessAdvice) {
         if (getStoreLogDataManager().isEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
-                lastOccurredException,
+                ex,
                 postProcessAdvice,
                 e -> e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
         }
