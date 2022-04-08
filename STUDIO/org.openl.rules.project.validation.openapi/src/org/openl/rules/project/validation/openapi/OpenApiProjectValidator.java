@@ -1299,6 +1299,13 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             IOpenClass openClass,
             Set<KeyBySchemasRef> validatedBySchemasRef,
             Set<KeyByFieldType> validatedByFieldType) throws DifferentTypesException {
+        if (actualSchema != null && Optional.ofNullable(expectedSchema)
+            .filter(s -> s.getProperties() == null)
+            .map(Schema::getType)
+            .filter("object"::equals)
+            .isPresent()) {
+            return;
+        }
         if (expectedSchema != null && actualSchema != null && expectedSchema.get$ref() != null && actualSchema
             .get$ref() != null) {
             KeyBySchemasRef key = new KeyBySchemasRef(openClass, actualSchema.get$ref(), expectedSchema.get$ref());
