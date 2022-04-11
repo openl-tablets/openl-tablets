@@ -39,4 +39,9 @@ public class SmokeTest {
         client.send("EPBDS-11649_OpenAPI_NoAuth/01-openapi.json");
     }
 
+    @Test
+    public void EPBDS_12721_buildInfo() {
+        client.send("EPBDS-12721/admin_buildInfo.get");
+    }
+
 }
