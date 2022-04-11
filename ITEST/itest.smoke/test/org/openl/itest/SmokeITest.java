@@ -100,4 +100,9 @@ public class SmokeITest {
         client.send("admin_deploy_download.get");
         client.send("admin_deploy_delete.delete");
     }
+
+    @Test
+    public void testBuildInfo() {
+        client.send("admin_buildInfo.get");
+    }
 }

@@ -142,4 +142,10 @@ public class AdminRestController {
     private static Response okOrNotFound(Object entity) {
         return Response.status(entity == null ? Response.Status.NOT_FOUND : Response.Status.OK).entity(entity).build();
     }
+
+    @GET
+    @Path("/info/build.json")
+    public Response getBuildInfo() {
+        return Response.ok(OpenLVersion.getBuildInfo()).build();
+    }
 }

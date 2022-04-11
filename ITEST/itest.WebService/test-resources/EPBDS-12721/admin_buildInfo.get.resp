@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "openl.build.number": "*",
+  "openl.site": "*",
+  "openl.build.date": "*",
+  "openl.start.milli": "*",
+  "openl.version": "*",
+  "openl.start.time": "*",
+  "openl.email": "openltablets@eisgroup.com",
+  "openl.start.hash": "*"
+}
