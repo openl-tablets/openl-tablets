@@ -26,4 +26,10 @@ public class SysInfoService {
     public Map<String, String> getOpenLInfo() {
         return OpenLVersion.get();
     }
+
+    @GET
+    @Path("/public/info/build.json")
+    public Map<Object, Object> getBuildInfo() {
+        return OpenLVersion.getBuildInfo();
+    }
 }
