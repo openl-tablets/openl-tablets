@@ -28,4 +28,10 @@ public class SysInfoController {
     public Map<String, String> getOpenLInfo() {
         return OpenLVersion.get();
     }
+
+    @Operation(summary = "info.get-build-info.summary", description = "info.get-build-info.desc")
+    @GetMapping(value = "/public/info/build.json")
+    public Map<Object, Object> getBuildInfo() {
+        return OpenLVersion.getBuildInfo();
+    }
 }
