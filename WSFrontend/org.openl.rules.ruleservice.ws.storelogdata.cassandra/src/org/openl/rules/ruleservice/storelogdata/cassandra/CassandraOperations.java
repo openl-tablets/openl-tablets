@@ -23,8 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import com.datastax.oss.driver.api.core.CqlSession;
@@ -34,7 +32,7 @@ import com.datastax.oss.driver.api.mapper.annotations.Entity;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.cassandra.enabled")
-public class CassandraOperations implements InitializingBean, DisposableBean, RuleServicePublisherListener, ApplicationContextAware {
+public class CassandraOperations implements InitializingBean, DisposableBean, RuleServicePublisherListener {
     private static final Logger LOG = LoggerFactory.getLogger(CassandraOperations.class);
 
     private CqlSession session;
@@ -42,21 +40,21 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     @Value("${ruleservice.store.logs.cassandra.schema.create}")
     private boolean schemaCreationEnabled;
 
-    private ApplicationContext applicationContext;
     private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
         Collections.unmodifiableSet(new HashSet<>()));
     private final AtomicReference<Map<Class<?>, CassandraEntitySaver>> entitySavers = new AtomicReference<>(
         Collections.unmodifiableMap(new HashMap<>()));
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public CassandraConfigLoader configLoader;
+
+    public CassandraOperations(CassandraConfigLoader configLoader) {
+        this.configLoader = configLoader;
     }
 
     private synchronized void init() {
         if (session == null) {
             session = CqlSession.builder()
-                .withConfigLoader(ConfigLoader.fromApplicationContext(applicationContext))
+                .withConfigLoader(configLoader.getDriverConfigLoader())
                 .addTypeCodecs(TypeCodecs.ZONED_TIMESTAMP_SYSTEM)
                 .build();
         } else {
