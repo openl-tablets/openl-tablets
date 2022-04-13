@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.amazonaws.client.builder.AwsClientBuilder;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -27,6 +26,7 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
@@ -253,7 +253,7 @@ public class S3Repository implements Repository, Closeable {
                 S3Object object = s3.getObject(bucketName, name);
                 objectContent = object.getObjectContent();
             }
-            return objectContent == null ? null : new FileItem(fileData, objectContent);
+            return objectContent == null ? null : new FileItem(fileData, new DrainableInputStream(objectContent));
         } catch (SdkClientException e) {
             throw new IOException(e);
         }
@@ -423,7 +423,9 @@ public class S3Repository implements Repository, Closeable {
                             S3Object object = s3.getObject(new GetObjectRequest(bucketName, name, version));
                             content = object.getObjectContent();
                         }
-                        return content == null ? null : new FileItem(checkHistory(name, version), content);
+                        return content == null ? null
+                                               : new FileItem(checkHistory(name, version),
+                                                   new DrainableInputStream(content));
                     }
                 }
             } while (versionListing.isTruncated());
