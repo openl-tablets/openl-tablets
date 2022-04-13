@@ -171,21 +171,23 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
 
     @Override
     public void destroy() throws Exception {
-        scheduledPool.shutdown(); // Disable new tasks from being submitted
-        try {
-            // Wait a while for existing tasks to terminate
-            if (!scheduledPool.awaitTermination(retryPeriod * 3, TimeUnit.SECONDS)) {
-                scheduledPool.shutdownNow(); // Cancel currently executing tasks
-                // Wait a while for tasks to respond to being cancelled
+        if (scheduledPool != null) {
+            scheduledPool.shutdown(); // Disable new tasks from being submitted
+            try {
+                // Wait a while for existing tasks to terminate
                 if (!scheduledPool.awaitTermination(retryPeriod * 3, TimeUnit.SECONDS)) {
-                    log.warn("Unable to terminate deploy jars task.");
+                    scheduledPool.shutdownNow(); // Cancel currently executing tasks
+                    // Wait a while for tasks to respond to being cancelled
+                    if (!scheduledPool.awaitTermination(retryPeriod * 3, TimeUnit.SECONDS)) {
+                        log.warn("Unable to terminate deploy jars task.");
+                    }
                 }
+            } catch (InterruptedException e) {
+                // (Re-)Cancel if current thread also interrupted
+                scheduledPool.shutdownNow();
+                // Preserve interrupt status
+                Thread.currentThread().interrupt();
             }
-        } catch (InterruptedException e) {
-            // (Re-)Cancel if current thread also interrupted
-            scheduledPool.shutdownNow();
-            // Preserve interrupt status
-            Thread.currentThread().interrupt();
         }
     }
 }
