@@ -165,7 +165,8 @@
     </bean>
 
     <bean id="samlAuthenticationProvider"
-          class="org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider">
+          class="org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider"
+          factory-bean="openLSamlBuilder" factory-method="openSaml4AuthenticationProvider">
         <property name="responseAuthenticationConverter" ref="responseAuthenticationConverter"/>
     </bean>
 
