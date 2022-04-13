@@ -241,7 +241,7 @@ public class S3Repository implements Repository, Closeable {
                 S3Object object = s3.getObject(bucketName, name);
                 objectContent = object.getObjectContent();
             }
-            return objectContent == null ? null : new FileItem(fileData, objectContent);
+            return objectContent == null ? null : new FileItem(fileData, new DrainableInputStream(objectContent));
         } catch (SdkClientException e) {
             throw new IOException(e);
         }
@@ -410,7 +410,9 @@ public class S3Repository implements Repository, Closeable {
                             S3Object object = s3.getObject(new GetObjectRequest(bucketName, name, version));
                             content = object.getObjectContent();
                         }
-                        return content == null ? null : new FileItem(checkHistory(name, version), content);
+                        return content == null ? null
+                                               : new FileItem(checkHistory(name, version),
+                                                   new DrainableInputStream(content));
                     }
                 }
             } while (versionListing.isTruncated());
