@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -62,7 +63,7 @@ public class RunBean {
     }
 
     public List<ITestUnit> getResults() {
-        return results.getTestUnits();
+        return results != null ? results.getTestUnits() : Collections.emptyList();
     }
 
     public boolean isExpired() {
