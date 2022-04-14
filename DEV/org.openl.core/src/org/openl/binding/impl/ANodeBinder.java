@@ -55,9 +55,7 @@ public abstract class ANodeBinder implements INodeBinder {
     }
 
     public static IBoundNode bindTypeNode(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) {
-
         INodeBinder binder = findBinder(node, bindingContext);
-
         try {
             return binder.bindType(node, bindingContext, type);
         } catch (Exception | LinkageError e) {
@@ -225,9 +223,29 @@ public abstract class ANodeBinder implements INodeBinder {
             }
             BindHelper.checkOnDeprecation(node, bindingContext, varType);
             return varType;
+        } else if ("combined.type.name".equals(node.getType())) {
+            IOpenClass[] typesToCombine = new IOpenClass[node.getNumberOfChildren()];
+            boolean allTypesFound = true;
+            for (int i = 0; i < node.getNumberOfChildren(); i++) {
+                ISyntaxNode childNode = node.getChild(i);
+                String typeName = childNode.getText();
+                typesToCombine[i] = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
+                if (typesToCombine[i] == null) {
+                    allTypesFound = false;
+                    BindHelper.processError(new ClassNotFoundException(MessageUtils.getTypeNotFoundMessage(typeName)),
+                        childNode,
+                        bindingContext);
+                } else {
+                    BindHelper.checkOnDeprecation(childNode, bindingContext, typesToCombine[i]);
+                }
+            }
+            if (!allTypesFound) {
+                return NullOpenClass.the;
+            }
+            return bindingContext.combineTypes(typesToCombine);
         }
         IOpenClass arrayType = getType(node.getChild(0), bindingContext);
-        return arrayType != null ? arrayType.getAggregateInfo().getIndexedAggregateType(arrayType) : null;
+        return arrayType != null ? arrayType.getAggregateInfo().getIndexedAggregateType(arrayType) : NullOpenClass.the;
     }
 
     protected static void assertCountOfChild(String message, ISyntaxNode node, int count) {

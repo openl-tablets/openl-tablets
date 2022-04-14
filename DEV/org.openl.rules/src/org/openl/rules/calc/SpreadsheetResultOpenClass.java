@@ -96,7 +96,8 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                 } else {
                     CustomSpreadsheetResultField mergedField = null;
                     for (IOpenClass openClass : module.getTypes()) {
-                        if (openClass instanceof CustomSpreadsheetResultOpenClass && !(openClass instanceof UnifiedSpreadsheetResultOpenClass)) {
+                        if (openClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) openClass)
+                            .isSpreadsheet()) {
                             try {
                                 if (g) {
                                     SpreadsheetStructureBuilder.preventCellsLoopingOnThis.set(new Stack<>());
@@ -178,7 +179,8 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                         anySpreadsheetResultName,
                         this.module,
                         null,
-                        true);
+                        true,
+                        false);
                     for (IOpenClass openClass : module.getTypes()) {
                         if (openClass instanceof CustomSpreadsheetResultOpenClass && this.customSpreadsheetResultOpenClass == null) {
                             CustomSpreadsheetResultOpenClass csrop = (CustomSpreadsheetResultOpenClass) openClass;

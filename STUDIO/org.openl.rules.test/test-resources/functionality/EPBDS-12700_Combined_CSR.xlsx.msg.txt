@@ -1,0 +1,3 @@
+ERROR: Method 'spr3(SpreadsheetResultspr4)' is not found.
+ERROR: Cannot convert from 'SpreadsheetResultspr4' to 'SRspr1 & SRspr2'.
+ERROR: Type 'SRspr7' is not found.

@@ -14,6 +14,7 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.exception.TypesCombinationNotSupportedException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -50,6 +51,11 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     @Override
     public IOpenClass addType(String namespace, IOpenClass type) throws DuplicatedTypeException {
         return delegate.addType(namespace, type);
+    }
+
+    @Override
+    public IOpenClass combineTypes(IOpenClass... openClasses) throws TypesCombinationNotSupportedException {
+        return delegate.combineTypes(openClasses);
     }
 
     @Override

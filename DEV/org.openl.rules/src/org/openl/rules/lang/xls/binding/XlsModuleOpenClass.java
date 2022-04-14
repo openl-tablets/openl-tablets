@@ -173,6 +173,28 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return unifiedSpreadsheetResultOpenClass;
     }
 
+    public IOpenClass toModuleType(IOpenClass type) {
+        if (type instanceof SpreadsheetResultOpenClass) {
+            SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) type;
+            if (!isExternalModule(spreadsheetResultOpenClass.getModule(), new IdentityHashMap<>())) {
+                return getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+            }
+        } else if (type instanceof ModuleSpecificType) {
+            if (!isExternalModule((XlsModuleOpenClass) ((ModuleSpecificType) type).getModule(),
+                new IdentityHashMap<>())) {
+                if (type instanceof UnifiedSpreadsheetResultOpenClass) {
+                    return ((UnifiedSpreadsheetResultOpenClass) type).convertToModuleType(this, false);
+                }
+                IOpenClass p = findType(type.getName());
+                if (p == null) {
+                    return ((ModuleSpecificType) type).convertToModuleTypeAndRegister(this);
+                }
+                return p;
+            }
+        }
+        return type;
+    }
+
     public Collection<UnifiedSpreadsheetResultOpenClass> getUnifiedSpreadsheetResultOpenClasses() {
         return new ArrayList<>(unifiedSpreadsheetResultOpenClasses.values());
     }

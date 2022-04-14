@@ -5,7 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.OpenL;
-import org.openl.binding.exception.*;
+import org.openl.binding.exception.AmbiguousFieldException;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousTypeException;
+import org.openl.binding.exception.DuplicatedTypeException;
+import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.exception.TypesCombinationNotSupportedException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
@@ -48,6 +53,8 @@ public interface IBindingContext extends ICastFactory {
             IOpenClass[] parTypes) throws AmbiguousMethodException;
 
     IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException;
+
+    IOpenClass combineTypes(IOpenClass... openClasses) throws TypesCombinationNotSupportedException;
 
     /**
      * @see IOpenClass#getField(String, boolean

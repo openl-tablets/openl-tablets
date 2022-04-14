@@ -6,8 +6,10 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 
@@ -16,16 +18,8 @@ public class UnifiedSpreadsheetResultOpenClass extends CustomSpreadsheetResultOp
 
     private final Set<CustomSpreadsheetResultOpenClass> unifiedOpenClasses = new HashSet<>();
 
-    private final boolean anonymous;
-
     public UnifiedSpreadsheetResultOpenClass(XlsModuleOpenClass module) {
-        super("UnifiedSpreadsheetResult", module, null, false);
-        this.anonymous = true;
-    }
-
-    public UnifiedSpreadsheetResultOpenClass(String name, XlsModuleOpenClass module) {
-        super(name, module, null, true);
-        this.anonymous = false;
+        super("UnifiedSpreadsheetResult", module, null, false, false);
     }
 
     @Override
@@ -37,13 +31,23 @@ public class UnifiedSpreadsheetResultOpenClass extends CustomSpreadsheetResultOp
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
         if (customSpreadsheetResultOpenClass instanceof UnifiedSpreadsheetResultOpenClass) {
             UnifiedSpreadsheetResultOpenClass unifiedSpreadsheetResultOpenClass = (UnifiedSpreadsheetResultOpenClass) customSpreadsheetResultOpenClass;
-            if (unifiedSpreadsheetResultOpenClass.anonymous) {
-                unifiedOpenClasses
-                    .addAll(((UnifiedSpreadsheetResultOpenClass) customSpreadsheetResultOpenClass).unifiedOpenClasses);
-                return;
+            for (CustomSpreadsheetResultOpenClass o : unifiedSpreadsheetResultOpenClass.unifiedOpenClasses) {
+                unifiedOpenClasses.add(o);
+                o.addEventOnUpdateWithType(this::notifyChanges);
             }
+        } else {
+            unifiedOpenClasses.add(customSpreadsheetResultOpenClass);
+            customSpreadsheetResultOpenClass.addEventOnUpdateWithType(this::notifyChanges);
         }
-        unifiedOpenClasses.add(customSpreadsheetResultOpenClass);
+    }
+
+    @Override
+    public void addEventOnUpdateWithType(Consumer<CustomSpreadsheetResultOpenClass> c) {
+        throw new IllegalStateException("Update is based on CustomSpreadsheetOpenClass");
+    }
+
+    public void notifyChanges(CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
+        super.updateWithType(customSpreadsheetResultOpenClass);
     }
 
     public Collection<CustomSpreadsheetResultOpenClass> getUnifiedTypes() {
@@ -76,23 +80,53 @@ public class UnifiedSpreadsheetResultOpenClass extends CustomSpreadsheetResultOp
         return false;
     }
 
+    public CustomSpreadsheetResultOpenClass convertToModuleType(ModuleOpenClass module, boolean register) {
+        if (getModule() != module) {
+            if (register) {
+                throw new IllegalStateException("Not supported for unified spreadsheet result type.");
+            }
+            CustomSpreadsheetResultOpenClass[] customSpreadsheetResultOpenClasses = getUnifiedTypes().stream()
+                .map(((XlsModuleOpenClass) module)::toModuleType)
+                .filter(e -> e instanceof CustomSpreadsheetResultOpenClass)
+                .map(CustomSpreadsheetResultOpenClass.class::cast)
+                .toArray(CustomSpreadsheetResultOpenClass[]::new);
+            CustomSpreadsheetResultOpenClass type = ((XlsModuleOpenClass) module)
+                .buildOrGetUnifiedSpreadsheetResult(customSpreadsheetResultOpenClasses);
+            type.setMetaInfo(getMetaInfo());
+            return type;
+        }
+        return this;
+    }
+
+    public String getBeanClassName() {
+        if (beanClassName == null) {
+            synchronized (this) {
+                if (beanClassName == null) {
+                    String name = getUnifiedTypes().stream()
+                        .map(CustomSpreadsheetResultOpenClass::getName)
+                        .sorted()
+                        .collect(Collectors.joining());
+                    beanClassName = getModule().getGlobalTableProperties().getSpreadsheetResultPackage() + "." + name;
+                }
+            }
+        }
+        return beanClassName;
+    }
+
     @Override
     public String getName() {
-        if (anonymous) {
-            StringBuilder sb = new StringBuilder();
-            List<CustomSpreadsheetResultOpenClass> types = getUnifiedTypes().stream()
-                .sorted(Comparator.comparing(CustomSpreadsheetResultOpenClass::getName))
-                .collect(Collectors.toList());
-            for (CustomSpreadsheetResultOpenClass c : types) {
-                if (sb.length() > 0) {
-                    sb.append(" & ");
-                }
-                sb.append(Spreadsheet.SPREADSHEETRESULT_SHORT_TYPE_PREFIX)
-                    .append(c.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
+        StringBuilder sb = new StringBuilder();
+        List<CustomSpreadsheetResultOpenClass> types = getUnifiedTypes().stream()
+            .sorted(Comparator.comparing(CustomSpreadsheetResultOpenClass::getName))
+            .collect(Collectors.toList());
+        for (CustomSpreadsheetResultOpenClass c : types) {
+            if (sb.length() > 0) {
+                sb.append(" & ");
             }
-            return sb.toString();
+            sb.append(Spreadsheet.SPREADSHEETRESULT_SHORT_TYPE_PREFIX)
+                .append(c.getName().substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()));
         }
-        return super.getName();
+        return sb.toString();
     }
 
     @Override

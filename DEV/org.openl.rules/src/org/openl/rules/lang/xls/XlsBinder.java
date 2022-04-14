@@ -50,7 +50,6 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetNodeBinder;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.UnifiedSpreadsheetResultOpenClass;
 import org.openl.rules.cmatch.ColumnMatchNodeBinder;
 import org.openl.rules.constants.ConstantsTableBinder;
 import org.openl.rules.data.DataBase;
@@ -608,16 +607,12 @@ public class XlsBinder implements IOpenBinder {
                         .getModule()
                         .findType(sprResTypeName);
                     if (t == null) {
-                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
-                        if (XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType())) {
-                            customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(sprResTypeName,
-                                rulesModuleBindingContext.getModule(),
-                                rulesModuleBindingContext.isExecutionMode() ? null : tableSyntaxNode.getTableBody(),
-                                true);
-                        } else {
-                            customSpreadsheetResultOpenClass = new UnifiedSpreadsheetResultOpenClass(sprResTypeName,
-                                rulesModuleBindingContext.getModule());
-                        }
+                        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
+                            sprResTypeName,
+                            rulesModuleBindingContext.getModule(),
+                            rulesModuleBindingContext.isExecutionMode() ? null : tableSyntaxNode.getTableBody(),
+                            true,
+                            XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType()));
                         rulesModuleBindingContext.getModule().addType(customSpreadsheetResultOpenClass);
                         t = customSpreadsheetResultOpenClass;
                     }

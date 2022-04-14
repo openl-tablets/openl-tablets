@@ -1,13 +1,26 @@
 package org.openl.binding.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
-import org.openl.binding.exception.*;
+import org.openl.binding.exception.AmbiguousFieldException;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousTypeException;
+import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.exception.FieldNotFoundException;
+import org.openl.binding.exception.TypesCombinationNotSupportedException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
@@ -112,6 +125,11 @@ public class BindingContext implements IBindingContext {
     @Override
     public IOpenClass findType(String namespace, String typeName) throws AmbiguousTypeException {
         return binder.getTypeFactory().getType(namespace, typeName);
+    }
+
+    @Override
+    public IOpenClass combineTypes(IOpenClass... openClasses) throws TypesCombinationNotSupportedException {
+        throw new TypesCombinationNotSupportedException(Arrays.asList(openClasses));
     }
 
     @Override
