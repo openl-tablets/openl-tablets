@@ -148,6 +148,7 @@ TOKEN :
 TOKEN :
 {
   < DOT_OPERATOR : "." > : REF_IDENTIFIER
+| < AMPERSAND : "&" > : REF_IDENTIFIER
 }
 
 /* JAVA RESERVED WORDS AND LITERALS */
@@ -159,7 +160,7 @@ TOKEN :
   < BREAK : "break" >
   //| < BYTE: "byte" >
 | < CASE : "case" >
-| < CATCH : "catch" >
+  //| < CATCH : "catch" >
   //| < CHAR: "char" >
   //| < CLASS: "class" >
 | < CONST : "const" >
@@ -171,7 +172,7 @@ TOKEN :
   //| < EXTENDS : "extends" >
 | < FALSE : "false" >
   //| < FINAL : "final" >
-| < FINALLY : "finally" >
+  //| < FINALLY : "finally" >
   //| < FLOAT: "float" >
 | < FOR : "for" >
 | < GOTO : "goto" >
@@ -197,10 +198,10 @@ TOKEN :
   //| < SYNCHRONIZED : "synchronized" >
   //| < THIS: "this" >
 | < THROW : "throw" >
-| < THROWS : "throws" >
+  //| < THROWS : "throws" >
   //| < TRANSIENT : "transient" >
 | < TRUE : "true" >
-| < TRY : "try" >
+  //| < TRY : "try" >
 | < VOID : "void" >
   //| < VOLATILE : "volatile" >
 | < WHILE : "while" >
@@ -455,8 +456,8 @@ TOKEN :
 | 
   < #LETTER : 
     [ 
-    "$", 
-    "A"-"Z", 
+    "$",
+    "A"-"Z",
     "_", 
     "a"-"z", 
     "\u00c0"-"\u00d6", 
@@ -1139,7 +1140,9 @@ void parseMethodHeader() :
 void Type() :
 {}
 {
-  ClassName()
+  ( LOOKAHEAD(CombinedType()) CombinedType()
+  | LOOKAHEAD(ClassName()) ClassName()
+  )
   (
     TypeDimension()
   )*
@@ -1179,7 +1182,24 @@ void ClassName() :
     }
   )*
   {
-    identifier("type.name", pos(x1, x2), name);
+     identifier("type.name", pos(x1, x2), name);
+  }
+}
+
+void CombinedType() :
+{
+   int count = 1;
+}
+{
+  ClassName()
+  (
+    < AMPERSAND > ClassName()
+    {
+        count++;
+    }
+  )+
+  {
+    nop("combined.type.name", null, count);
   }
 }
 

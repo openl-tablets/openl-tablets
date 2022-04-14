@@ -95,13 +95,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private ILogicalTable logicalTable;
 
     private volatile byte[] beanClassByteCode;
-    private volatile String beanClassName;
+    protected volatile String beanClassName;
     volatile Map<String, List<IOpenField>> beanFieldsMap;
     volatile Map<String, String> xmlNamesMap;
     private String[] sprStructureFieldNames;
     private volatile boolean initializing;
 
     private final boolean generateBeanClass;
+    private final boolean spreadsheet;
 
     public CustomSpreadsheetResultOpenClass(String name,
             String[] rowNames,
@@ -112,7 +113,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             String[] columnTitles,
             XlsModuleOpenClass module,
             boolean tableStructureDetails,
-            boolean generateBeanClass) {
+            boolean generateBeanClass,
+            boolean spreadsheet) {
         super(name, SpreadsheetResult.class);
         this.rowNames = Objects.requireNonNull(rowNames);
         this.columnNames = Objects.requireNonNull(columnNames);
@@ -136,12 +138,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.module = module;
         this.tableStructureDetails = tableStructureDetails;
         this.generateBeanClass = generateBeanClass;
+        this.spreadsheet = spreadsheet;
     }
 
     public CustomSpreadsheetResultOpenClass(String name,
             XlsModuleOpenClass module,
             ILogicalTable logicalTable,
-            boolean generateBeanClass) {
+            boolean generateBeanClass,
+            boolean spreadsheet) {
         this(name,
             EMPTY_STRING_ARRAY,
             EMPTY_STRING_ARRAY,
@@ -151,10 +155,15 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             EMPTY_STRING_ARRAY,
             module,
             false,
-            generateBeanClass);
+            generateBeanClass,
+            spreadsheet);
         this.simpleRefByRow = true;
         this.simpleRefByColumn = true;
         this.logicalTable = logicalTable;
+    }
+
+    public boolean isSpreadsheet() {
+        return spreadsheet;
     }
 
     @Override
@@ -357,6 +366,14 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             customSpreadsheetResultOpenClass.simpleRefByRow,
             customSpreadsheetResultOpenClass.simpleRefByColumn,
             customSpreadsheetResultOpenClass.tableStructureDetails);
+
+        eventsOnUpdateWithType.forEach(e -> e.accept(this));
+    }
+
+    private final Collection<Consumer<CustomSpreadsheetResultOpenClass>> eventsOnUpdateWithType = new ArrayList<>();
+
+    public void addEventOnUpdateWithType(Consumer<CustomSpreadsheetResultOpenClass> c) {
+        eventsOnUpdateWithType.add(c);
     }
 
     @Override
@@ -371,7 +388,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             type = type.getComponentClass();
             dim++;
         }
-        IOpenClass t = toModuleType(type);
+        IOpenClass t = getModule().toModuleType(type);
         if (t != type) {
             if (dim > 0) {
                 t = t.getArrayType(dim);
@@ -389,12 +406,18 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return columnNamesForResultModel.clone();
     }
 
+    /**
+     * Convert this type to a type belongs to another module and register it in the provided module.
+     * 
+     * @param module
+     * @return converted and registered type
+     */
     @Override
     public CustomSpreadsheetResultOpenClass convertToModuleTypeAndRegister(ModuleOpenClass module) {
         return convertToModuleType(module, true);
     }
 
-    private CustomSpreadsheetResultOpenClass convertToModuleType(ModuleOpenClass module, boolean register) {
+    protected CustomSpreadsheetResultOpenClass convertToModuleType(ModuleOpenClass module, boolean register) {
         if (getModule() != module) {
             if (register && module.findType(getName()) != null) {
                 throw new IllegalStateException("Type has already exists in the module.");
@@ -408,13 +431,16 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 columnTitles,
                 (XlsModuleOpenClass) module,
                 tableStructureDetails,
-                generateBeanClass);
+                generateBeanClass,
+                spreadsheet);
             if (register) {
                 module.addType(type);
             }
             for (IOpenField field : getFields()) {
                 if (field instanceof CustomSpreadsheetResultField) {
                     type.addField(type.fixModuleFieldType(field));
+                } else {
+                    type.addField(field);
                 }
             }
             type.setMetaInfo(getMetaInfo());
@@ -610,30 +636,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     public boolean isExternalSpreadsheetResultOpenClass(SpreadsheetResultOpenClass spreadsheetResultOpenClass,
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
         return getModule().isExternalModule(spreadsheetResultOpenClass.getModule(), cache);
-    }
-
-    public IOpenClass toModuleType(IOpenClass type) {
-        if (type instanceof SpreadsheetResultOpenClass) {
-            SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) type;
-            if (!isExternalSpreadsheetResultOpenClass(spreadsheetResultOpenClass, new IdentityHashMap<>())) {
-                return getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes();
-            }
-        } else if (type instanceof ModuleSpecificType) {
-            if (!getModule().isExternalModule((XlsModuleOpenClass) ((ModuleSpecificType) type).getModule(),
-                new IdentityHashMap<>())) {
-                if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    if (!((CustomSpreadsheetResultOpenClass) type).isGenerateBeanClass()) {
-                        return getModule().getSpreadsheetResultOpenClassWithResolvedFieldTypes();
-                    }
-                }
-                IOpenClass p = getModule().findType(type.getName());
-                if (p == null) {
-                    return ((ModuleSpecificType) type).convertToModuleTypeAndRegister(getModule());
-                }
-                return p;
-            }
-        }
-        return type;
     }
 
     private void addFieldsToJavaClassBuilder(JavaBeanClassBuilder beanClassBuilder,

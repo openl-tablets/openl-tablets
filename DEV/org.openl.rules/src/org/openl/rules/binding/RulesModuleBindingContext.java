@@ -1,6 +1,7 @@
 package org.openl.rules.binding;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.DuplicatedTypeException;
+import org.openl.binding.exception.TypesCombinationNotSupportedException;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.binding.impl.module.ModuleBindingContext;
@@ -204,6 +206,28 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             }
         }
         return openClass;
+    }
+
+    @Override
+    public IOpenClass combineTypes(IOpenClass... openClasses) throws TypesCombinationNotSupportedException {
+        if (openClasses == null || Arrays.stream(openClasses).anyMatch(Objects::isNull)) {
+            throw new IllegalArgumentException("openClass cannot be null");
+        }
+        if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams())) {
+            CustomSpreadsheetResultOpenClass[] customSpreadsheetResultOpenClasses = Arrays.stream(openClasses)
+                .filter(e -> e instanceof CustomSpreadsheetResultOpenClass)
+                .map(CustomSpreadsheetResultOpenClass.class::cast)
+                .toArray(CustomSpreadsheetResultOpenClass[]::new);
+            if (customSpreadsheetResultOpenClasses.length != openClasses.length) {
+                throw new TypesCombinationNotSupportedException(Arrays.stream(openClasses)
+                    .filter(e -> !(e instanceof CustomSpreadsheetResultOpenClass))
+                    .collect(Collectors.toList()));
+            } else {
+                return getModule().buildOrGetUnifiedSpreadsheetResult(customSpreadsheetResultOpenClasses);
+            }
+        } else {
+            throw new TypesCombinationNotSupportedException(Arrays.asList(openClasses));
+        }
     }
 
     public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method) {

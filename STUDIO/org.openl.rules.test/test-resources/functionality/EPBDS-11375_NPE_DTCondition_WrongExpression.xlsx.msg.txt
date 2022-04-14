@@ -1,1 +1,1 @@
-ERROR: Lexical error at line 1, column 3.  Encountered: "a" (97), after : "&"
+ERROR: Encountered " "&" "& "" at line 1, column 2.

@@ -81,6 +81,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode {
             spreadsheet.getColumnTitles(),
             getModule(),
             spreadsheet.isTableStructureDetails(),
+            true,
             true);
 
         customSpreadsheetResultOpenClass
