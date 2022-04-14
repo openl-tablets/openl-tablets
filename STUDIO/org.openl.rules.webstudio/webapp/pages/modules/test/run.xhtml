@@ -40,19 +40,19 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <ui:repeat value="#{runBean.results}" var="result">
+                    <c:forEach items="#{runBean.results}" var="result">
                         <tr style="vertical-align: top">
                             <h:panelGroup rendered="#{!empty result.test.executionParams}">
                             <td>#{result.test.id}</td>
-                            <ui:repeat value="#{result.test.executionParams}" var="parameter">
-                            <td>
-                                <ui:include src="/pages/modules/test/parameter.xhtml">
-                                    <ui:param name="parameter" value="#{parameter}" />
-                                    <ui:param name="lazy" value="false" />
-                                    <ui:param name="requestId" value="#{mainBean.requestId}"/>
-                                </ui:include>
-                            </td>
-                            </ui:repeat>
+                                <c:forEach items="#{result.test.executionParams}" var="parameter" varStatus="loop">
+                                    <td>
+                                        <ui:include src="/pages/modules/test/parameter.xhtml">
+                                            <ui:param name="parameter" value="#{parameter}" />
+                                            <ui:param name="lazy" value="false" />
+                                            <ui:param name="requestId" value="#{mainBean.requestId}"/>
+                                        </ui:include>
+                                    </td>
+                                </c:forEach>
                             </h:panelGroup>
                             <td>
                                 <c:set var="errors" value="#{result.errors}" />
@@ -74,7 +74,7 @@
                                     </ui:include>
                                 </h:panelGroup></td>
                         </tr>
-                    </ui:repeat>
+                    </c:forEach>
                     </tbody>
                 </table>
                 </h:form>
