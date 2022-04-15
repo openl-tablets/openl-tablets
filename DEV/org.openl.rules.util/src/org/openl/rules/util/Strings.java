@@ -1,6 +1,6 @@
 package org.openl.rules.util;
 
-import java.math.BigDecimal;
+import java.text.MessageFormat;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
 import java.util.ArrayList;
@@ -847,5 +847,31 @@ public final class Strings {
             list.add(str.substring(start, len));
         }
         return list.toArray(new String[0]);
+    }
+
+    /**
+     * Format string with given pattern and the given arguments.<br/>
+     * <br/>
+     * Examples:
+     * 
+     * <pre>
+     * {@code format(null) = null}
+     * {@code format("")   = ""}
+     * {@code format("Hello, {0}!", "John") = "Hello, John!"}
+     * {@code format("{0}, {1}!", "Good evening", "John") = "Good evening, John!"}
+     * </pre>
+     * 
+     * @param pattern pattern
+     * @param args object(s) to format
+     * @return formatted string
+     * 
+     * @see MessageFormat
+     */
+    public static String format(String pattern, Object... args) {
+        if (pattern == null || isEmpty0(pattern)) {
+            return pattern;
+        }
+        MessageFormat msg = new MessageFormat(pattern, Locale.US);
+        return msg.format(args);
     }
 }

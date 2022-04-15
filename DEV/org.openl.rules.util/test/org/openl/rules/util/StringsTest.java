@@ -4,6 +4,9 @@ import static org.junit.Assert.*;
 import static org.openl.rules.util.Strings.*;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import org.junit.Test;
 
@@ -585,5 +588,27 @@ public class StringsTest {
         assertArrayEquals(new String[] {"a, b c@d?e.f"}, Strings.textSplit("[, ?.@]+", "a, b c@d?e.f"));
         assertArrayEquals(new String[] {"Lorem", "Ipsum", "is", "simply", "dummy", "text", "of", "the", "printing", "and", "typesetting", "industry"},
                 Strings.textSplit(" ", "Lorem Ipsum is simply dummy text of the printing and typesetting industry"));
+    }
+
+    @Test
+    public void testFormat() {
+        assertNull(format(null));
+        assertEquals("", format(""));
+        assertEquals("", format("", 1, 2));
+        assertEquals("Hello, John!", format("Hello, {0}!", "John"));
+        assertEquals("Good evening, John!", format("{0}, {1}!", "Good evening", "John"));
+        assertEquals("Good evening, John!", format("{0}, {1}!", "Good evening", "John", "foo"));
+
+        TimeZone defaultTz = TimeZone.getDefault();
+        try {
+            TimeZone.setDefault(TimeZone.getTimeZone("Europe/Helsinki"));
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(2022, Calendar.JANUARY, 11, 12, 13, 15);
+            calendar.set(Calendar.MILLISECOND, 0);
+            assertEquals("At 12:13:15 PM on Jan 11, 2022, there was a disturbance in the Force on planet 7.",
+                    format("At {1,time} on {1,date}, there was {2} on planet {0,number,integer}.", 7, calendar.getTime(), "a disturbance in the Force"));
+        } finally {
+            TimeZone.setDefault(defaultTz);
+        }
     }
 }
