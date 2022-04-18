@@ -855,21 +855,24 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return fields;
     }
 
+    protected String spreadsheetResultNameToBeanName(String name) {
+        if (name.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX)) {
+            if (name.length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
+                name = name.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
+            }
+            String firstLetterUppercaseName = StringUtils.capitalize(name);
+            if (getModule().findType(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + firstLetterUppercaseName) == null) {
+                name = firstLetterUppercaseName;
+            }
+        }
+        return name;
+    }
+
     public String getBeanClassName() {
         if (beanClassName == null) {
             synchronized (this) {
                 if (beanClassName == null) {
-                    String name = getName();
-                    if (name.startsWith(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX)) {
-                        if (name.length() > Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length()) {
-                            name = name.substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
-                        }
-                        String firstLetterUppercaseName = StringUtils.capitalize(name);
-                        if (getModule()
-                            .findType(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + firstLetterUppercaseName) == null) {
-                            name = firstLetterUppercaseName;
-                        }
-                    }
+                    String name = spreadsheetResultNameToBeanName(getName());
                     beanClassName = getModule().getGlobalTableProperties().getSpreadsheetResultPackage() + "." + name;
                 }
             }
@@ -918,7 +921,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             Object v = openField.get(spreadsheetResult, null);
             try {
                 if (v != null) {
-                    Object cv = SpreadsheetResult.convertSpreadsheetResult(v, field.getType());
+                    Object cv = SpreadsheetResult.convertSpreadsheetResult(v, field.getType(), openField.getType());
                     field.set(target, cv);
                     return true;
                 }

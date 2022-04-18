@@ -18,7 +18,9 @@ public class VariationResultSPRToPlainConverterAdvice extends AbstractSPRToPlain
 
         for (Map.Entry<String, SpreadsheetResult> entry : variationsResult.getVariationResults().entrySet()) {
             ret.registerResult(entry.getKey(),
-                SpreadsheetResult.convertSpreadsheetResult(entry.getValue(), getConvertToType()));
+                SpreadsheetResult.convertSpreadsheetResult(entry.getValue(),
+                    getConvertToType().getLeft(),
+                    getConvertToType().getRight()));
         }
 
         for (Map.Entry<String, String> entry : variationsResult.getVariationFailures().entrySet()) {

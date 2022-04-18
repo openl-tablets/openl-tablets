@@ -13,13 +13,20 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 
+/**
+ * This class is designed to implement a functionality of combination custom spreadsheet result types.
+ *
+ * @author Marat Kamalov
+ *
+ */
 public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultOpenClass {
     private static final int MAX_LENGTH_DISPLAY_NAME = 150;
+    public static final int MAX_BEANCLASSNAME_LENGTH = 200;
 
     private final Set<CustomSpreadsheetResultOpenClass> combinedOpenClasses = new HashSet<>();
 
     public CombinedSpreadsheetResultOpenClass(XlsModuleOpenClass module) {
-        super("CombinedSpreadsheetResult", module, null, false, false);
+        super("CombinedSpreadsheetResult", module, null, true, false);
     }
 
     @Override
@@ -80,6 +87,12 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
         return false;
     }
 
+    /**
+     * Convert this type to a type belongs to provided module.
+     * 
+     * @param module
+     * @return converted type
+     */
     public CustomSpreadsheetResultOpenClass convertToModuleType(ModuleOpenClass module, boolean register) {
         if (getModule() != module) {
             if (register) {
@@ -98,14 +111,20 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
         return this;
     }
 
+    @Override
     public String getBeanClassName() {
         if (beanClassName == null) {
             synchronized (this) {
                 if (beanClassName == null) {
                     String name = getCombinedTypes().stream()
                         .map(CustomSpreadsheetResultOpenClass::getName)
+                        .map(this::spreadsheetResultNameToBeanName)
                         .sorted()
                         .collect(Collectors.joining());
+                    if (name.length() > MAX_BEANCLASSNAME_LENGTH) {
+                        name = "CombinedType" + getModule().getCombinedSpreadsheetResultOpenClassesCounter()
+                            .incrementAndGet();
+                    }
                     beanClassName = getModule().getGlobalTableProperties().getSpreadsheetResultPackage() + "." + name;
                 }
             }

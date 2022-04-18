@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import org.openl.binding.impl.AllowOnlyStrictFieldMatchType;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.CustomJavaOpenClass;
 import org.openl.util.ClassUtils;
@@ -435,30 +436,35 @@ public class SpreadsheetResult implements Serializable {
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
             if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
+                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = spreadsheetResult
+                    .getCustomSpreadsheetResultOpenClass()
+                    .getModule()
+                    .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass();
                 return convertSpreadsheetResult(v,
-                    spreadsheetResult.getCustomSpreadsheetResultOpenClass()
-                        .getModule()
-                        .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                        .toCustomSpreadsheetResultOpenClass()
-                        .getBeanClass(),
+                    customSpreadsheetResultOpenClass.getBeanClass(),
+                    customSpreadsheetResultOpenClass,
                     toMap);
             } else {
-                return convertSpreadsheetResult(v, null, toMap);
+                return convertSpreadsheetResult(v, null, null, toMap);
             }
         }
-        return convertSpreadsheetResult(v, null, toMap);
+        return convertSpreadsheetResult(v, null, null, toMap);
     }
 
     public static Object convertSpreadsheetResult(Object v) {
-        return convertSpreadsheetResult(v, null, false);
+        return convertSpreadsheetResult(v, null, null, false);
     }
 
-    public static Object convertSpreadsheetResult(Object v, Class<?> toType) {
-        return convertSpreadsheetResult(v, toType, false);
+    public static Object convertSpreadsheetResult(Object v, Class<?> toType, IOpenClass toTypeOpenClass) {
+        return convertSpreadsheetResult(v, toType, toTypeOpenClass, false);
     }
 
     @SuppressWarnings("unchecked")
-    private static Object convertSpreadsheetResult(Object v, Class<?> toType, boolean spreadsheetResultsToMap) {
+    private static Object convertSpreadsheetResult(Object v,
+            Class<?> toType,
+            IOpenClass toTypeOpenClass,
+            boolean spreadsheetResultsToMap) {
         if (v == null) {
             return null;
         }
@@ -504,6 +510,8 @@ public class SpreadsheetResult implements Serializable {
                         i,
                         convertSpreadsheetResult(Array.get(v, i),
                             toType != null && toType.isArray() ? toType.getComponentType() : null,
+                            toTypeOpenClass != null && toTypeOpenClass.isArray() ? toTypeOpenClass.getComponentClass()
+                                                                                 : null,
                             spreadsheetResultsToMap));
                 }
                 if (toType != null && toType.isArray() && Object.class != toType.getComponentType()) {
@@ -537,7 +545,7 @@ public class SpreadsheetResult implements Serializable {
                 for (int i = 0; i < len; i++) {
                     Array.set(newArray,
                         i,
-                        convertSpreadsheetResult(Array.get(v, i), componentType, spreadsheetResultsToMap));
+                        convertSpreadsheetResult(Array.get(v, i), componentType, null, spreadsheetResultsToMap));
                 }
                 return newArray;
             } else {
@@ -558,6 +566,10 @@ public class SpreadsheetResult implements Serializable {
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
                     .createBean(spreadsheetResult);
+            } else if (toType != null && toType != spreadsheetResult.getCustomSpreadsheetResultOpenClass()
+                .getBeanClass() && toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass) {
+                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) toTypeOpenClass;
+                return customSpreadsheetResultOpenClass.createBean(spreadsheetResult);
             } else {
                 return spreadsheetResult.toPlain();
             }

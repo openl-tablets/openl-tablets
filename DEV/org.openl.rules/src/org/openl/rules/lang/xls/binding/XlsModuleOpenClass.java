@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
@@ -34,10 +35,10 @@ import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.binding.RulesModuleBindingContext;
+import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
-import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.rules.data.DataOpenField;
@@ -110,7 +111,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return rulesModuleBindingContext;
     }
 
-    public Map<CustomSpreadsheetResultOpenClassesKey, CombinedSpreadsheetResultOpenClass> combinedSpreadsheetResultOpenClasses = new HashMap<>();
+    public final Map<CustomSpreadsheetResultOpenClassesKey, CombinedSpreadsheetResultOpenClass> combinedSpreadsheetResultOpenClasses = new HashMap<>();
+    private final AtomicLong combinedSpreadsheetResultOpenClassesCounter = new AtomicLong(0);
 
     /**
      * Constructor for module with dependent modules
@@ -195,6 +197,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return type;
     }
 
+    public AtomicLong getCombinedSpreadsheetResultOpenClassesCounter() {
+        return combinedSpreadsheetResultOpenClassesCounter;
+    }
+
     public Collection<CombinedSpreadsheetResultOpenClass> getCombinedSpreadsheetResultOpenClasses() {
         return new ArrayList<>(combinedSpreadsheetResultOpenClasses.values());
     }
@@ -234,7 +240,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private void initImports(XlsModuleSyntaxNode xlsModuleSyntaxNode) {
-        imports = Collections.unmodifiableSet(new HashSet<>(xlsModuleSyntaxNode.getImports()));
+        imports = Set.copyOf(xlsModuleSyntaxNode.getImports());
     }
 
     // TODO: should be placed to ModuleOpenClass
