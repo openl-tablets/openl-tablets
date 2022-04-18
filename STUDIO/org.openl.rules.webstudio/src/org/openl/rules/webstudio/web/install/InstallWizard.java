@@ -80,7 +80,6 @@ public class InstallWizard implements Serializable {
 
     private String userMode = "demo";
 
-    @NotBlank
     private String dbUrl;
     private String dbUsername;
     private String dbPassword;
@@ -490,6 +489,18 @@ public class InstallWizard implements Serializable {
         String clientID = (String) ((UIInput) viewRoot.findComponent("step3Form:oauth2ClientId")).getSubmittedValue();
         if (StringUtils.isBlank(clientID)) {
             throw new ValidatorException(createErrorMessage("Client ID cannot be blank."));
+        }
+        String issuerUri = (String) ((UIInput) viewRoot.findComponent("step3Form:oauth2IssuerUri")).getSubmittedValue();
+        if (StringUtils.isBlank(issuerUri)) {
+            throw new ValidatorException(createErrorMessage("Issuer uri cannot be blank."));
+        }
+        String clientSecret = (String) ((UIInput) viewRoot.findComponent("step3Form:oauth2ClientSecret")).getSubmittedValue();
+        if (StringUtils.isBlank(clientSecret)) {
+            throw new ValidatorException(createErrorMessage("Client secret cannot be blank."));
+        }
+        String scope = (String) ((UIInput) viewRoot.findComponent("step3Form:oauth2Scope")).getSubmittedValue();
+        if (StringUtils.isBlank(scope)) {
+            throw new ValidatorException(createErrorMessage("Scope cannot be blank."));
         }
     }
 
