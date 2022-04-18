@@ -37,7 +37,7 @@ import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
-import org.openl.rules.calc.UnifiedSpreadsheetResultOpenClass;
+import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.rules.data.DataOpenField;
@@ -110,7 +110,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return rulesModuleBindingContext;
     }
 
-    public Map<CustomSpreadsheetResultOpenClassesKey, UnifiedSpreadsheetResultOpenClass> unifiedSpreadsheetResultOpenClasses = new HashMap<>();
+    public Map<CustomSpreadsheetResultOpenClassesKey, CombinedSpreadsheetResultOpenClass> combinedSpreadsheetResultOpenClasses = new HashMap<>();
 
     /**
      * Constructor for module with dependent modules
@@ -146,12 +146,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         initImports(xlsMetaInfo.getXlsModuleNode());
     }
 
-    public CustomSpreadsheetResultOpenClass buildOrGetUnifiedSpreadsheetResult(
+    public CustomSpreadsheetResultOpenClass buildOrGetCombinedSpreadsheetResult(
             CustomSpreadsheetResultOpenClass... customSpreadsheetResultOpenClasses) {
         Set<CustomSpreadsheetResultOpenClass> c = new HashSet<>();
         for (CustomSpreadsheetResultOpenClass t : customSpreadsheetResultOpenClasses) {
-            if (t instanceof UnifiedSpreadsheetResultOpenClass) {
-                c.addAll(((UnifiedSpreadsheetResultOpenClass) t).getUnifiedTypes());
+            if (t instanceof CombinedSpreadsheetResultOpenClass) {
+                c.addAll(((CombinedSpreadsheetResultOpenClass) t).getCombinedTypes());
             } else {
                 c.add(t);
             }
@@ -161,16 +161,16 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
         CustomSpreadsheetResultOpenClassesKey key = new CustomSpreadsheetResultOpenClassesKey(
             c.toArray(new CustomSpreadsheetResultOpenClass[0]));
-        UnifiedSpreadsheetResultOpenClass unifiedSpreadsheetResultOpenClass = unifiedSpreadsheetResultOpenClasses
+        CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass = combinedSpreadsheetResultOpenClasses
             .get(key);
-        if (unifiedSpreadsheetResultOpenClass == null) {
-            unifiedSpreadsheetResultOpenClass = new UnifiedSpreadsheetResultOpenClass(this);
+        if (combinedSpreadsheetResultOpenClass == null) {
+            combinedSpreadsheetResultOpenClass = new CombinedSpreadsheetResultOpenClass(this);
             for (CustomSpreadsheetResultOpenClass t : c) {
-                unifiedSpreadsheetResultOpenClass.updateWithType(t);
+                combinedSpreadsheetResultOpenClass.updateWithType(t);
             }
-            unifiedSpreadsheetResultOpenClasses.put(key, unifiedSpreadsheetResultOpenClass);
+            combinedSpreadsheetResultOpenClasses.put(key, combinedSpreadsheetResultOpenClass);
         }
-        return unifiedSpreadsheetResultOpenClass;
+        return combinedSpreadsheetResultOpenClass;
     }
 
     public IOpenClass toModuleType(IOpenClass type) {
@@ -182,8 +182,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         } else if (type instanceof ModuleSpecificType) {
             if (!isExternalModule((XlsModuleOpenClass) ((ModuleSpecificType) type).getModule(),
                 new IdentityHashMap<>())) {
-                if (type instanceof UnifiedSpreadsheetResultOpenClass) {
-                    return ((UnifiedSpreadsheetResultOpenClass) type).convertToModuleType(this, false);
+                if (type instanceof CombinedSpreadsheetResultOpenClass) {
+                    return ((CombinedSpreadsheetResultOpenClass) type).convertToModuleType(this, false);
                 }
                 IOpenClass p = findType(type.getName());
                 if (p == null) {
@@ -195,8 +195,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return type;
     }
 
-    public Collection<UnifiedSpreadsheetResultOpenClass> getUnifiedSpreadsheetResultOpenClasses() {
-        return new ArrayList<>(unifiedSpreadsheetResultOpenClasses.values());
+    public Collection<CombinedSpreadsheetResultOpenClass> getCombinedSpreadsheetResultOpenClasses() {
+        return new ArrayList<>(combinedSpreadsheetResultOpenClasses.values());
     }
 
     public ITableProperties getGlobalTableProperties() {

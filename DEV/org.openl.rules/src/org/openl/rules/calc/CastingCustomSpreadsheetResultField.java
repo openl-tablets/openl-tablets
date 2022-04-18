@@ -119,7 +119,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                         .map(CustomSpreadsheetResultOpenClass.class::cast)
                         .collect(Collectors.toSet());
                     if (customSpreadsheetResultOpenClasses.size() > 1) {
-                        this.type = xlsModuleOpenClass.buildOrGetUnifiedSpreadsheetResult(
+                        this.type = xlsModuleOpenClass.buildOrGetCombinedSpreadsheetResult(
                             customSpreadsheetResultOpenClasses.toArray(new CustomSpreadsheetResultOpenClass[0]));
                     } else {
                         this.type = customSpreadsheetResultOpenClasses.iterator().next();

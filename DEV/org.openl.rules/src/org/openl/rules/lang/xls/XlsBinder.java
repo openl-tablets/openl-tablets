@@ -370,13 +370,13 @@ public class XlsBinder implements IOpenBinder {
                         type.getFields().forEach(IOpenField::getType);
                     }
                 }
-                int unifiedSpreadsheetResultOpenClassesSize = 0;
-                while (unifiedSpreadsheetResultOpenClassesSize != moduleOpenClass
-                    .getUnifiedSpreadsheetResultOpenClasses()
+                int combinedSpreadsheetResultOpenClassesSize = 0;
+                while (combinedSpreadsheetResultOpenClassesSize != moduleOpenClass
+                    .getCombinedSpreadsheetResultOpenClasses()
                     .size()) {
-                    unifiedSpreadsheetResultOpenClassesSize = moduleOpenClass.getUnifiedSpreadsheetResultOpenClasses()
+                    combinedSpreadsheetResultOpenClassesSize = moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
                         .size();
-                    moduleOpenClass.getUnifiedSpreadsheetResultOpenClasses()
+                    moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
                         .forEach(e -> e.getFields().forEach(IOpenField::getType));
                 }
                 moduleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
