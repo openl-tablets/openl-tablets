@@ -129,9 +129,17 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
                 if (type instanceof DatatypeOpenClass) {
                     rootClassNamesBindingClasses.add(type.getInstanceClass());
+                } else if (type instanceof CustomSpreadsheetResultOpenClass) {
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
+                    if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
+                        rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
+                    }
                 }
-                if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    rootClassNamesBindingClasses.add(((CustomSpreadsheetResultOpenClass) type).getBeanClass());
+            }
+            for (CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass : xlsModuleOpenClass
+                .getCombinedSpreadsheetResultOpenClasses()) {
+                if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
+                    rootClassNamesBindingClasses.add(customSpreadsheetResultOpenClass.getBeanClass());
                 }
             }
             // Check: custom spreadsheet is enabled
@@ -283,21 +291,28 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     private void processTypesFromXlsModuleOpenClass(ObjectMapper objectMapper, XlsModuleOpenClass xlsModuleOpenClass) {
         for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
-            if (type instanceof CustomSpreadsheetResultOpenClass) {
+            if (type instanceof DatatypeOpenClass) {
+                addMixInAnnotationsToDatatype(objectMapper, (DatatypeOpenClass) type);
+            } else if (type instanceof CustomSpreadsheetResultOpenClass) {
                 CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = ((CustomSpreadsheetResultOpenClass) type);
-                addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
+                if (((CustomSpreadsheetResultOpenClass) type).isGenerateBeanClass()) {
+                    addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
+                }
             }
         }
         // Check: custom spreadsheet is enabled
         if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+            for (CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass : xlsModuleOpenClass
+                .getCombinedSpreadsheetResultOpenClasses()) {
+                if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
+                    addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
+                }
+            }
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = xlsModuleOpenClass
                 .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                 .toCustomSpreadsheetResultOpenClass();
-            addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
-        }
-        for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
-            if (type instanceof DatatypeOpenClass) {
-                addMixInAnnotationsToDatatype(objectMapper, (DatatypeOpenClass) type);
+            if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
+                addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
             }
         }
     }

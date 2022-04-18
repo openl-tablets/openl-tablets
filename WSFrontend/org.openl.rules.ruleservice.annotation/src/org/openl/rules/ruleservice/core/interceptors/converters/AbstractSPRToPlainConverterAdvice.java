@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.core.interceptors.converters;
 import java.lang.reflect.Array;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -16,8 +17,7 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
 
     private XlsModuleOpenClass module;
     private IOpenMember openMember;
-    private volatile Class<?> convertToType;
-    private volatile boolean convertToTypeInitialized;
+    private volatile Pair<Class<?>, IOpenClass> convertToType;
 
     protected XlsModuleOpenClass getModule() {
         return module;
@@ -38,10 +38,11 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
         this.convertToType = getConvertToType();
     }
 
-    protected Class<?> getConvertToType() {
-        if (!convertToTypeInitialized) {
+    protected Pair<Class<?>, IOpenClass> getConvertToType() {
+        if (convertToType == null) {
             synchronized (this) {
-                if (!convertToTypeInitialized) {
+                if (convertToType == null) {
+                    Pair<Class<?>, IOpenClass> convertToType1 = Pair.of(null, null);
                     IOpenClass openClass = openMember.getType();
                     int dim = 0;
                     while (openClass.isArray()) {
@@ -61,9 +62,9 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
                         if (dim > 0) {
                             t = Array.newInstance(t, dim).getClass();
                         }
-                        convertToType = t;
+                        convertToType1 = Pair.of(t, openClass);
                     }
-                    convertToTypeInitialized = true;
+                    convertToType = convertToType1;
                 }
             }
         }
