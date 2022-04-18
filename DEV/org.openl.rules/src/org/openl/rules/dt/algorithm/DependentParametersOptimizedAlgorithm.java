@@ -10,6 +10,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.ATargetBoundNode;
 import org.openl.binding.impl.BinaryOpNode;
 import org.openl.binding.impl.BinaryOpNodeAnd;
 import org.openl.binding.impl.BindHelper;
@@ -17,6 +18,7 @@ import org.openl.binding.impl.BlockNode;
 import org.openl.binding.impl.FieldBoundNode;
 import org.openl.binding.impl.IndexNode;
 import org.openl.binding.impl.LiteralBoundNode;
+import org.openl.binding.impl.MethodBoundNode;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.algorithm.evaluator.AConditionEvaluator;
 import org.openl.rules.dt.algorithm.evaluator.CombinedRangeIndexEvaluator;
@@ -205,7 +207,7 @@ class DependentParametersOptimizedAlgorithm {
         return null;
     }
 
-    private static String buildFieldName(IndexNode indexNode, IBindingContext bindingContext) {
+    private static String buildIndexNodeName(IndexNode indexNode, IBindingContext bindingContext) {
         String value = null;
         IBoundNode[] children = indexNode.getChildren();
         if (children != null && children.length == 1 && children[0] instanceof LiteralBoundNode) {
@@ -224,8 +226,11 @@ class DependentParametersOptimizedAlgorithm {
             if (indexNode.getTargetNode() instanceof FieldBoundNode) {
                 return buildFieldName((FieldBoundNode) indexNode.getTargetNode(), bindingContext) + value;
             }
+            if (indexNode.getTargetNode() instanceof MethodBoundNode) {
+                return buildMethodName((MethodBoundNode) indexNode.getTargetNode(), bindingContext) + value;
+            }
             if (indexNode.getTargetNode() instanceof IndexNode) {
-                return value + buildFieldName((IndexNode) indexNode.getTargetNode(), bindingContext);
+                return value + buildIndexNodeName((IndexNode) indexNode.getTargetNode(), bindingContext);
             }
             BindHelper.processError("Cannot parse array index.", indexNode.getSyntaxNode(), bindingContext);
         }
@@ -234,14 +239,27 @@ class DependentParametersOptimizedAlgorithm {
 
     private static String buildFieldName(FieldBoundNode field, IBindingContext bindingContext) {
         String value = field.getFieldName();
-        if (field.getTargetNode() != null) {
-            if (field.getTargetNode() instanceof FieldBoundNode) {
-                return buildFieldName((FieldBoundNode) field.getTargetNode(), bindingContext) + "." + value;
+        return getTargetName(bindingContext, value, field);
+    }
+
+    private static String buildMethodName(MethodBoundNode method, IBindingContext bindingContext) {
+        String value = method.getType().getName();
+        return getTargetName(bindingContext, value, method);
+    }
+
+    private static String getTargetName(IBindingContext bindingContext, String value, ATargetBoundNode target) {
+        IBoundNode targetNode = target.getTargetNode();
+        if (targetNode != null) {
+            if (targetNode instanceof FieldBoundNode) {
+                return buildFieldName((FieldBoundNode) targetNode, bindingContext) + "." + value;
             }
-            if (field.getTargetNode() instanceof IndexNode) {
-                return buildFieldName((IndexNode) field.getTargetNode(), bindingContext) + "." + value;
+            if (targetNode instanceof IndexNode) {
+                return buildIndexNodeName((IndexNode) targetNode, bindingContext) + "." + value;
             }
-            BindHelper.processError("Cannot parse field name.", field.getSyntaxNode(), bindingContext);
+            if (targetNode instanceof MethodBoundNode) {
+                return buildMethodName((MethodBoundNode) targetNode, bindingContext) + "." + value;
+            }
+            BindHelper.processError("Cannot parse name.", target.getSyntaxNode(), bindingContext);
         }
         return value;
     }
