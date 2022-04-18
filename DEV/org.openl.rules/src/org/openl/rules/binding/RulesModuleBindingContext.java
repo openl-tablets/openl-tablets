@@ -223,7 +223,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     .filter(e -> !(e instanceof CustomSpreadsheetResultOpenClass))
                     .collect(Collectors.toList()));
             } else {
-                return getModule().buildOrGetUnifiedSpreadsheetResult(customSpreadsheetResultOpenClasses);
+                return getModule().buildOrGetCombinedSpreadsheetResult(customSpreadsheetResultOpenClasses);
             }
         } else {
             throw new TypesCombinationNotSupportedException(Arrays.asList(openClasses));

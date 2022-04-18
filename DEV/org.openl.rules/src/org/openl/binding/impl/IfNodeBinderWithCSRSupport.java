@@ -15,7 +15,7 @@ public class IfNodeBinderWithCSRSupport extends IfNodeBinder {
             throw new IllegalStateException(
                 "Unexpected state: custom spreadsheet result types are from different modules.");
         }
-        return type1.getModule().buildOrGetUnifiedSpreadsheetResult(type1, type2);
+        return type1.getModule().buildOrGetCombinedSpreadsheetResult(type1, type2);
     }
 
     @Override

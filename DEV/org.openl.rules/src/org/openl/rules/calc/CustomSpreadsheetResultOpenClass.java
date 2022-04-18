@@ -175,7 +175,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     public IOpenClass getParentClass(ModuleSpecificType openClass) {
         if (openClass instanceof CustomSpreadsheetResultOpenClass) {
             if (!getModule().isExternalModule((XlsModuleOpenClass) openClass.getModule(), new IdentityHashMap<>())) {
-                return getModule().buildOrGetUnifiedSpreadsheetResult(this,
+                return getModule().buildOrGetCombinedSpreadsheetResult(this,
                     (CustomSpreadsheetResultOpenClass) openClass);
             } else {
                 return AnySpreadsheetResultOpenClass.INSTANCE;
@@ -196,7 +196,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        if (ioc instanceof CustomSpreadsheetResultOpenClass && !(ioc instanceof UnifiedSpreadsheetResultOpenClass)) {
+        if (ioc instanceof CustomSpreadsheetResultOpenClass && !(ioc instanceof CombinedSpreadsheetResultOpenClass)) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) ioc;
             return !getModule().isExternalModule(customSpreadsheetResultOpenClass.getModule(),
                 new IdentityHashMap<>()) && this.getName().equals(customSpreadsheetResultOpenClass.getName());
