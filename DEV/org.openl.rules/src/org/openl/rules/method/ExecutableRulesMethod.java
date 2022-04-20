@@ -31,7 +31,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     // ExecutableRulesMethod(but test table is firstly data table)
     private ATableBoundNode boundNode;
     private boolean hasAliasTypeParams;
-    private IOpenCast[] aliasDatatypesCasts;
+    private IOpenCast[] aliasDatatypeCasts;
 
     private String moduleName;
 
@@ -54,11 +54,11 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
             for (IOpenClass param : header.getSignature().getParameterTypes()) {
                 if (param instanceof DomainOpenClass) {
                     hasAliasTypeParams = true;
-                    if (aliasDatatypesCasts == null) {
-                        aliasDatatypesCasts = new IOpenCast[header.getSignature().getNumberOfParameters()];
+                    if (aliasDatatypeCasts == null) {
+                        aliasDatatypeCasts = new IOpenCast[header.getSignature().getNumberOfParameters()];
                     }
                     if (param.getInstanceClass() != null) {
-                        aliasDatatypesCasts[i] = castFactory
+                        aliasDatatypeCasts[i] = castFactory
                             .getCast(JavaOpenClass.getOpenClass(param.getInstanceClass()), param);
                     }
                 }
@@ -91,8 +91,8 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     private Object invoke2(Object target, Object[] params, IRuntimeEnv env) {
         if (hasAliasTypeParams) {
             for (int i = 0; i < getSignature().getNumberOfParameters(); i++) {
-                if (aliasDatatypesCasts[i] != null) {
-                    aliasDatatypesCasts[i].convert(params[i]); // Validate alias
+                if (aliasDatatypeCasts[i] != null) {
+                    aliasDatatypeCasts[i].convert(params[i]); // Validate alias
                     // datatypes
                 }
             }
