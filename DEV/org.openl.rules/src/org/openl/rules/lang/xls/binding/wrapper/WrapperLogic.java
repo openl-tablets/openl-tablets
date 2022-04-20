@@ -129,7 +129,13 @@ public final class WrapperLogic {
                 cache = new IdentityHashMap<>();
             }
             IOpenClass t = toModuleType(parameterTypes[i], xlsModuleOpenClass, cache);
-            parameterDeclarations[i] = new ParameterDeclaration(t, openMethod.getSignature().getParameterName(i));
+            if (openMethod.getSignature() instanceof MethodSignature) {
+                parameterDeclarations[i] = new ParameterDeclaration(t,
+                    openMethod.getSignature().getParameterName(i),
+                    ((MethodSignature) openMethod.getSignature()).getParameterDeclaration(i).getContextProperty());
+            } else {
+                parameterDeclarations[i] = new ParameterDeclaration(t, openMethod.getSignature().getParameterName(i));
+            }
         }
         return new MethodSignature(parameterDeclarations);
     }
@@ -145,7 +151,7 @@ public final class WrapperLogic {
 
         ContextPropertiesInjector contextPropertiesInjector = null;
         if (!(openMethod instanceof ILazyMethod)) {
-            contextPropertiesInjector = new ContextPropertiesInjector(openMethod.getSignature().getParameterTypes(),
+            contextPropertiesInjector = new ContextPropertiesInjector(openMethod.getSignature(),
                 xlsModuleOpenClass.getRulesModuleBindingContext());
         }
 

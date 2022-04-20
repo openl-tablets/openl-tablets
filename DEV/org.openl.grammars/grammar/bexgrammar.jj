@@ -2034,11 +2034,29 @@ void FormalParameters() :
 }
 
 void FormalParameter() :
-{}
+{
+  int count = 2;
+}
 {
   Type() VariableDeclaratorId()
+  (
+    ParameterMetaData()
+    {
+        count = count + 1;
+    }
+  )?
   {
-    nop("parameter.declaration", null, 2);
+    nop("parameter.declaration", null, count);
+  }
+}
+
+void ParameterMetaData() :
+{
+}
+{
+  ":" identifier() "." identifier()
+  {
+    nop("parameter.meta.declaration", null, 2);
   }
 }
 

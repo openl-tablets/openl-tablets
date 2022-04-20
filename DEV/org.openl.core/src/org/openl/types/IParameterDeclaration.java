@@ -19,6 +19,8 @@ public interface IParameterDeclaration extends INamedThing {
 
     IOpenClass getType();
 
+    String getContextProperty();
+
     default IOpenSourceCodeModule getModule() {
         return null;
     }

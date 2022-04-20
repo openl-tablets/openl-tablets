@@ -13,11 +13,17 @@ public class ParameterNode extends ABoundNode {
 
     protected final String name;
     protected final IOpenClass type;
+    protected final String contextProperty;
 
     ParameterNode(ISyntaxNode syntaxNode, String name, IOpenClass type) {
+        this(syntaxNode, name, type, null);
+    }
+
+    ParameterNode(ISyntaxNode syntaxNode, String name, IOpenClass type, String contextProperty) {
         super(syntaxNode);
         this.name = name;
         this.type = type;
+        this.contextProperty = contextProperty;
     }
 
     @Override
@@ -32,5 +38,9 @@ public class ParameterNode extends ABoundNode {
     @Override
     public IOpenClass getType() {
         return type;
+    }
+
+    public String getContextProperty() {
+        return contextProperty;
     }
 }

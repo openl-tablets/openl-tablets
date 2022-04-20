@@ -19,24 +19,35 @@ import org.openl.util.TableNameChecker;
  */
 public class ParameterDeclarationNodeBinder extends ANodeBinder {
 
+    protected void validateMetaData(ISyntaxNode syntaxNode, IBindingContext bindingContext) {
+    }
+
+    protected IBoundNode makeParameterNode(ISyntaxNode node,
+            String name,
+            IOpenClass type,
+            IBindingContext bindingContext) {
+        return new ParameterNode(node, name, type);
+    }
+
     /*
      * (non-Javadoc)
      *
      * @see org.openl.binding.INodeBinder#bind(org.openl.syntax.ISyntaxNode, org.openl.binding.IBindingContext)
      */
     @Override
-    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-
+    public final IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         IBoundNode typeNode = bindChildNode(node.getChild(0), bindingContext);
         IOpenClass type = typeNode.getType();
         ISyntaxNode child = node.getChild(1);
         String name = child.getText();
-
+        if (node.getNumberOfChildren() > 2) {
+            validateMetaData(node.getChild(2), bindingContext);
+        }
         if (TableNameChecker.isInvalidJavaIdentifier(name)) {
             return makeErrorNode("Illegal parameter declaration.", node, bindingContext);
         }
 
-        return new ParameterNode(node, name, type);
+        return makeParameterNode(node, name, type, bindingContext);
 
     }
 

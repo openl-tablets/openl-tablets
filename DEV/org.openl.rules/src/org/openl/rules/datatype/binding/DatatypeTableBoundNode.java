@@ -5,6 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -22,7 +23,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.SimpleNodeUsage;
-import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.module.ContextPropertyBinderUtils;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.engine.OpenLManager;
@@ -33,7 +34,6 @@ import org.openl.gen.TypeDescription;
 import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.constants.ConstantOpenField;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.datatype.gen.FieldDescriptionBuilder;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
@@ -157,7 +157,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             for (int i = 0; i < tableHeight; i++) {
                 processRow(dataTable.getRow(i), bindingContext, fields, i == 0, useTransientSuffix);
             }
-            checkInheritedFieldsDuplication(bindingContext);
+            validateInheritedFieldsDuplication(bindingContext);
+            validateContextPropertyFields(bindingContext);
         } finally {
             errors = bindingContext.popErrors();
             errors.forEach(bindingContext::addError);
@@ -188,6 +189,21 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                         datatypeClassName);
                     BindHelper.processError(errorMessage, e2, tableSyntaxNode, bindingContext);
                 }
+            }
+        }
+    }
+
+    private void validateContextPropertyFields(IBindingContext bindingContext) {
+        Map<String, Integer> contextPropertiesCounter = new HashMap<>();
+        dataType.getFields()
+            .stream()
+            .filter(f -> Objects.nonNull(f.getContextProperty()))
+            .forEach(e -> contextPropertiesCounter.merge(e.getContextProperty(), 1, Integer::sum));
+        for (Entry<String, Integer> entry : contextPropertiesCounter.entrySet()) {
+            if (entry.getValue() > 1) {
+                String errorMessage = String.format("Multiple fields refer to the same context property '%s'.",
+                    entry.getKey());
+                BindHelper.processError(errorMessage, tableSyntaxNode, bindingContext);
             }
         }
     }
@@ -493,7 +509,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
         GridCellSourceCodeModule nameCellSource = getCellSource(row, bindingContext, 1);
         final String code = nameCellSource.getCode();
-        String contextPropertyName;
+        String contextProperty;
         String[] parts = CONTEXT_SPLITTER.split(code, 2);
         String rawFieldName = parts[0];
         final boolean isTransient = useTransientSuffix ? rawFieldName.endsWith(TRANSIENT_FIELD_SUFFIX)
@@ -505,23 +521,29 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             return;
         }
         if (parts.length > 1) {
-            contextPropertyName = parts[1];
-            if (contextPropertyName.isEmpty()) {
-                contextPropertyName = fieldName;
-            } else if (contextPropertyName.startsWith(".")) {
-                contextPropertyName = StringUtils.trim(contextPropertyName.substring(1));
-                if (TableNameChecker.isInvalidJavaIdentifier(contextPropertyName)) {
-                    String errorMessage = String.format("Bad context property name: '%s'.", contextPropertyName);
+            contextProperty = parts[1];
+            if (contextProperty.isEmpty()) {
+                contextProperty = fieldName;
+            } else if (contextProperty.startsWith(".")) {
+                contextProperty = StringUtils.trim(contextProperty.substring(1));
+                if (TableNameChecker.isInvalidJavaIdentifier(contextProperty)) {
+                    String errorMessage = String.format("Bad context property name: '%s'.", contextProperty);
                     BindHelper.processError(errorMessage, nameCellSource, bindingContext);
                     return;
                 }
             }
+            String errorMessage = ContextPropertyBinderUtils
+                .validateContextProperty(contextProperty, fieldType, bindingContext);
+            if (errorMessage != null) {
+                contextProperty = null;
+                GridCellSourceCodeModule cellSource = getCellSource(row, bindingContext, 1);
+                BindHelper.processError(errorMessage, cellSource, bindingContext);
+            }
         } else {
-            contextPropertyName = null;
+            contextProperty = null;
         }
 
         FieldDescriptionBuilder fieldDescriptionBuilder;
-        validateContextPropertyName(row, contextPropertyName, fieldType, bindingContext);
         if (fields.containsKey(fieldName)) {
             String errorMessage = String.format("Field '%s' is already declared.", fieldName);
             BindHelper.processError(errorMessage, nameCellSource, bindingContext);
@@ -540,9 +562,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
         fieldDescriptionBuilder = FieldDescriptionBuilder.create(fieldType.getJavaName())
             .setTransient(isTransient)
-            .setContextPropertyName(contextPropertyName);
+            .setContextPropertyName(contextProperty);
 
-        fieldDescriptionBuilder.setContextPropertyName(contextPropertyName);
+        fieldDescriptionBuilder.setContextPropertyName(contextProperty);
 
         FieldDescription fieldDescription;
         Object defaultValue = null;
@@ -605,7 +627,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             BindHelper.processError(errorMessage, e, defaultValueCellSource, bindingContext);
         }
 
-        IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType, contextPropertyName, isTransient);
+        IOpenField field = new DatatypeOpenField(dataType, fieldName, fieldType, contextProperty, isTransient);
         dataType.addField(field);
         if (firstRow) {
             // This is done for operations like people["john"] in OpenL
@@ -627,47 +649,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     private static String extractFieldName(String fieldName) {
         return fieldName.endsWith(NON_TRANSIENT_FIELD_SUFFIX) || fieldName.endsWith(TRANSIENT_FIELD_SUFFIX) ? fieldName
             .substring(0, fieldName.length() - 1) : fieldName;
-    }
-
-    private void validateContextPropertyName(final ILogicalTable row,
-            final String contextPropertyName,
-            final IOpenClass fieldType,
-            final IBindingContext bindingContext) {
-        if (contextPropertyName != null) {
-            String errorMessage = null;
-            Class<?> contextPropertyClass = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(contextPropertyName);
-            if (contextPropertyClass == null) {
-                errorMessage = String.format("Property '%s' is not found in the context. Available properties: [%s].",
-                    contextPropertyName,
-                    String.join(", ", DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.keySet()));
-            } else if (dataType.getFields()
-                .stream()
-                .filter(f -> Objects.nonNull(f.getContextProperty()))
-                .anyMatch(f -> f.getContextProperty().equals(contextPropertyName))) {
-                errorMessage = String.format("Multiple fields refer to the same context property '%s'.",
-                    contextPropertyName);
-            } else {
-                IOpenClass contextPropertyType = JavaOpenClass.getOpenClass(contextPropertyClass);
-                IOpenCast openCast;
-                try {
-                    openCast = bindingContext.getCast(fieldType, contextPropertyType);
-                } catch (NullPointerException e) {
-                    // FIXME: fieldType instance class have to be defined to prevent multiple NPEs in CastFactory
-                    openCast = null;
-                }
-                if (openCast == null || (!openCast.isImplicit() && !contextPropertyType.getInstanceClass().isEnum())) {
-                    errorMessage = String.format(
-                        "Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
-                        contextPropertyName,
-                        fieldType.getName(),
-                        contextPropertyType.getName());
-                }
-            }
-            if (errorMessage != null) {
-                GridCellSourceCodeModule cellSource = getCellSource(row, bindingContext, 1);
-                BindHelper.processError(errorMessage, cellSource, bindingContext);
-            }
-        }
     }
 
     @Override
@@ -751,7 +732,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
     }
 
-    private void checkInheritedFieldsDuplication(final IBindingContext cxt) {
+    private void validateInheritedFieldsDuplication(final IBindingContext cxt) {
         final IOpenClass superClass = dataType.getSuperClass();
         if (superClass != null) {
             for (final IOpenField field : dataType.getDeclaredFields()) {
