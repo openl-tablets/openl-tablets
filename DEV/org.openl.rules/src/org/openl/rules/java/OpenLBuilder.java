@@ -1,6 +1,7 @@
 package org.openl.rules.java;
 
 import org.openl.OpenL;
+import org.openl.binding.impl.module.ParameterDeclarationNodeBinderWithContextParameterSupport;
 import org.openl.conf.AOpenLBuilder;
 import org.openl.conf.JavaImportTypeConfiguration;
 import org.openl.conf.JavaLibraryConfiguration;
@@ -47,11 +48,11 @@ public class OpenLBuilder extends AOpenLBuilder {
             org.openl.rules.util.Miscs.class.getName(),
             org.openl.rules.util.Numbers.class.getName(),
             org.openl.rules.helpers.RulesUtils.class.getName(),
-            org.openl.rules.dt.algorithm.evaluator.CtrUtils.class.getName()};
+            org.openl.rules.dt.algorithm.evaluator.CtrUtils.class.getName() };
 
     private static final String[] JAVA_OPERATORS_CLASSES = new String[] {
             org.openl.binding.impl.Operators.class.getName(),
-            org.openl.binding.impl.operator.Comparison.class.getName()};
+            org.openl.binding.impl.operator.Comparison.class.getName() };
 
     private static final String[] JAVA_TYPE_CAST_CLASSES = new String[] {
             org.openl.rules.helpers.IntRange.class.getName(),
@@ -81,7 +82,9 @@ public class OpenLBuilder extends AOpenLBuilder {
         String[] binders = { "function",
                 org.openl.binding.impl.ce.MethodNodeBinder.class.getName(),
                 "op.ternary.qmark",
-                org.openl.binding.impl.IfNodeBinderWithCSRSupport.class.getName() };
+                org.openl.binding.impl.IfNodeBinderWithCSRSupport.class.getName(),
+                "parameter.declaration",
+                ParameterDeclarationNodeBinderWithContextParameterSupport.class.getName(), };
 
         NodeBinderFactoryConfiguration nbc = op.createBindings();
 

@@ -40,7 +40,7 @@ public class MethodDeclarationNodeBinder extends ANodeBinder {
 
         DeferredMethod dm = new DeferredMethod(methodName,
             typeNode.getType(),
-            boundParametersNode.getSignature(),
+            boundParametersNode.getSignature(bindingContext),
             null,
             methodBodyNode);
 

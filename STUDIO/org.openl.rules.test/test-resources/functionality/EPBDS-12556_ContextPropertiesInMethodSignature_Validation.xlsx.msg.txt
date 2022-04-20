@@ -1,0 +1,6 @@
+ERROR: Property 'usStat1e' is not found in the context. Available properties: [caProvince, caRegion, country, currency, currentDate, lang, lob, nature, region, requestDate, usRegion, usState].
+ERROR: Illegal context parameter declaration.
+ERROR: Type mismatch for context property 'currentDate'. Cannot convert from 'java.lang.String' to 'java.util.Date'.
+ERROR: Type mismatch for context property 'usState'. Cannot convert from 'java.lang.Object' to 'org.openl.rules.enumeration.UsStatesEnum'.
+ERROR: Multiple method parameters refer to the same context property 'usState'.
+ERROR: Method 'main3(String state)' is already defined with another set of context parameters.

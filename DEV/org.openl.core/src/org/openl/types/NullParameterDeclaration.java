@@ -17,6 +17,11 @@ public class NullParameterDeclaration implements IParameterDeclaration {
     }
 
     @Override
+    public String getContextProperty() {
+        return null;
+    }
+
+    @Override
     public String getDisplayName(int mode) {
         return null;
     }

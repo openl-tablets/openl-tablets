@@ -1,8 +1,13 @@
 package org.openl.binding.impl.module;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ABoundNode;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -27,19 +32,29 @@ public class MethodParametersNode extends ABoundNode {
         throw new UnsupportedOperationException();
     }
 
-    public IMethodSignature getSignature() {
+    public IMethodSignature getSignature(IBindingContext bindingContext) {
         int len = children.length;
 
         ParameterDeclaration[] params = new ParameterDeclaration[len];
-
+        Map<String, Integer> checkConflicts = new HashMap<>();
         for (int i = 0; i < len; i++) {
             if (children[i] instanceof ParameterNode) {
-                params[i] = new ParameterDeclaration(children[i].getType(), ((ParameterNode) children[i]).getName());
+                ParameterNode parameterNode = (ParameterNode) children[i];
+                params[i] = new ParameterDeclaration(parameterNode.getType(),
+                    parameterNode.getName(),
+                    parameterNode.getContextProperty());
+                if (parameterNode.getContextProperty() != null) {
+                    checkConflicts.merge(parameterNode.getContextProperty(), 1, Integer::sum);
+                }
             } else {
-                params[i] = new ParameterDeclaration(children[i].getType(), null);
+                params[i] = new ParameterDeclaration(children[i].getType(), null, null, null);
             }
         }
-
+        checkConflicts.entrySet().stream().filter(e -> e.getValue() > 1).forEach(e -> {
+            bindingContext.addError(SyntaxNodeExceptionUtils.createError(
+                String.format("Multiple method parameters refer to the same context property '%s'.", e.getKey()),
+                getSyntaxNode()));
+        });
         return new MethodSignature(params);
 
     }

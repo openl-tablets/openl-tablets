@@ -1,6 +1,6 @@
 package org.openl.binding.impl.cast;
 
-final class StringToEnumCast implements IOpenCast {
+public final class StringToEnumCast implements IOpenCast {
     @SuppressWarnings("rawtypes")
     private final Class enumType;
 

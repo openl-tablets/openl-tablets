@@ -16,15 +16,32 @@ public class ParameterDeclaration implements IParameterDeclaration {
     private final IOpenClass type;
     private final String name;
     private IOpenSourceCodeModule sourceCode;
+    private final String contextProperty;
 
     public ParameterDeclaration(IOpenClass type, String name) {
-        this(type, name, null);
+        this(type, name, null, null);
+    }
+
+    public ParameterDeclaration(IOpenClass type, String name, String contextProperty) {
+        this(type, name, contextProperty, null);
     }
 
     public ParameterDeclaration(IOpenClass type, String name, IOpenSourceCodeModule sourceCode) {
+        this(type, name, null, sourceCode);
+    }
+
+    public ParameterDeclaration(IOpenClass type,
+            String name,
+            String contextProperty,
+            IOpenSourceCodeModule sourceCode) {
         this.type = type;
         this.name = name;
+        this.contextProperty = contextProperty;
         this.sourceCode = sourceCode;
+    }
+
+    public String getContextProperty() {
+        return contextProperty;
     }
 
     @Override

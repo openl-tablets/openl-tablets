@@ -38,7 +38,7 @@ public class MethodHeaderNodeBinder extends ANodeBinder {
         ISyntaxNode parametersNode = node.getChild(PARAMETERS_NODE);
         MethodParametersNode boundParametersNode = (MethodParametersNode) bindChildNode(parametersNode, bindingContext);
 
-        IMethodSignature signature = boundParametersNode.getSignature();
+        IMethodSignature signature = boundParametersNode.getSignature(bindingContext);
 
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             if (signature.getParameterName(i) == null) {

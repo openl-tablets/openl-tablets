@@ -59,10 +59,13 @@ import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.syntax.code.IParsedCode;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.DomainOpenClass;
+import org.openl.types.impl.MethodSignature;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -542,6 +545,15 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return t;
     }
 
+    private static String extractContextParameter(IMethodSignature methodSignature, int index) {
+        if (methodSignature instanceof MethodSignature) {
+            IParameterDeclaration parameterDeclaration = ((MethodSignature) methodSignature)
+                .getParameterDeclaration(index);
+            return parameterDeclaration.getContextProperty();
+        }
+        return null;
+    }
+
     /**
      * Adds method to <code>XlsModuleOpenClass</code>.
      *
@@ -584,6 +596,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     MethodUtil.printSignature(m, INamedThing.REGULAR),
                     existedMethod.getType().getDisplayName(0));
                 throw new DuplicatedMethodException(message, existedMethod, method);
+            }
+
+            IMethodSignature existedMethodSignature = existedMethod.getSignature();
+            IMethodSignature candidateMethodSignature = method.getSignature();
+            for (int i = 0; i < existedMethodSignature.getNumberOfParameters(); i++) {
+                if (!Objects.equals(extractContextParameter(existedMethodSignature, i),
+                    extractContextParameter(candidateMethodSignature, i))) {
+                    String message = String.format(
+                        "Method '%s' is already defined with another set of context parameters.",
+                        MethodUtil.printSignature(method, INamedThing.REGULAR));
+                    throw new DuplicatedMethodException(message, existedMethod, method);
+                }
             }
 
             // Checks the instance of existed method. If it's the
