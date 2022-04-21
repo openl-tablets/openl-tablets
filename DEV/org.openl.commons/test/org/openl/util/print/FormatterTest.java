@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Vector;
 
@@ -109,9 +110,9 @@ public class FormatterTest {
 
     @Test
     public void testBean() {
-        MyType myType = new MyType("foo", 0.1, Arrays.asList("foo", "bar"));
+        MyType myType = new MyType("foo", 0.1, Arrays.asList("foo", "bar"), Locale.US);
         String busStr = printBusView(myType);
-        assertEquals("FormatterTest$MyType(id=0){\n  d=0.1\n  list={\n    [0]=foo\n    [1]=bar\n    }\n  str=foo\n  }",
+        assertEquals("FormatterTest$MyType(id=0){\n  d=0.1\n  list={\n    [0]=foo\n    [1]=bar\n    }\n  locale=en-US\n  str=foo\n  }",
             busStr);
     }
 
@@ -124,12 +125,14 @@ public class FormatterTest {
 
         private final String str;
         private final Double d;
+        private final Locale locale;
         private final List<String> list;
 
-        public MyType(String str, Double d, List<String> list) {
+        public MyType(String str, Double d, List<String> list, Locale locale) {
             this.str = str;
             this.d = d;
             this.list = list;
+            this.locale = locale;
         }
 
         public String getStr() {
@@ -142,6 +145,10 @@ public class FormatterTest {
 
         public List<String> getList() {
             return list;
+        }
+
+        public Locale getLocale() {
+            return locale;
         }
     }
 }

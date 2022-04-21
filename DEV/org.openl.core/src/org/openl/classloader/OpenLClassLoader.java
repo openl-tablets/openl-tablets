@@ -10,9 +10,12 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -227,16 +230,18 @@ public class OpenLClassLoader extends GroovyClassLoader {
         return null;
     }
 
-    private Enumeration<URL> findResourcesInBundles(String name, Set<ClassLoader> c) throws IOException {
+    private void findResourcesInBundles(String name,
+            Set<ClassLoader> c,
+            List<Enumeration<URL>> queue) throws IOException {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
             if (c.contains(bundleClassLoader)) {
                 continue;
             }
             c.add(bundleClassLoader);
-            Enumeration<URL> resources;
+            Enumeration<URL> resources = null;
             if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
                 OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
-                resources = sbcl.findResourcesInBundles(name, c);
+                sbcl.findResourcesInBundles(name, c, queue);
             } else if (bundleClassLoader instanceof OpenLClassLoader) {
                 OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
                 resources = sbcl.getResources(name, c);
@@ -244,18 +249,16 @@ public class OpenLClassLoader extends GroovyClassLoader {
                 resources = bundleClassLoader.getResources(name);
             }
             if (resources != null) {
-                return resources;
+                queue.add(resources);
             }
         }
-        return null;
     }
 
     private Enumeration<URL> getResources(String name, Set<ClassLoader> c) throws IOException {
-        Enumeration<URL> resources = findResourcesInBundles(name, c);
-        if (resources != null) {
-            return resources;
-        }
-        return super.getResources(name);
+        LinkedList<Enumeration<URL>> resources = new LinkedList<>();
+        resources.add(super.getResources(name));
+        findResourcesInBundles(name, c, resources);
+        return new CompoundEnumeration(resources);
     }
 
     @Override
@@ -348,6 +351,42 @@ public class OpenLClassLoader extends GroovyClassLoader {
             super.close();
         } finally {
             groovyClassLoaders.forEach(IOUtils::closeQuietly);
+        }
+    }
+
+    /*
+     * A utility class that will enumerate over an enumerations queue.
+     */
+    private static final class CompoundEnumeration implements Enumeration<URL> {
+        private final Queue<Enumeration<URL>> queue;
+        private Enumeration<URL> cursor;
+
+        public CompoundEnumeration(Queue<Enumeration<URL>> queue) {
+            this.queue = queue;
+        }
+
+        private boolean next() {
+            if (cursor != null && cursor.hasMoreElements()) {
+                return true;
+            }
+            while (!queue.isEmpty()) {
+                cursor = queue.poll();
+                if (cursor != null && cursor.hasMoreElements()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public boolean hasMoreElements() {
+            return next();
+        }
+
+        public URL nextElement() {
+            if (!next()) {
+                throw new NoSuchElementException();
+            }
+            return cursor.nextElement();
         }
     }
 }

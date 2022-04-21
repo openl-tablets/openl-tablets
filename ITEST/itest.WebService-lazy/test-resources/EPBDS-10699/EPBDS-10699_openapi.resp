@@ -129,6 +129,9 @@ Content-Type: application/json
           "lob": {
             "type": "string"
           },
+          "locale": {
+            "type": "string"
+          },
           "nature": {
             "type": "string"
           },

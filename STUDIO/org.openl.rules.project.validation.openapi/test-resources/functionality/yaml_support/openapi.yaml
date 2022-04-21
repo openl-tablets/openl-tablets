@@ -1774,6 +1774,8 @@ components:
           format: date-time
         lob:
           type: string
+        locale:
+          type: string
         nature:
           type: string
         usState:

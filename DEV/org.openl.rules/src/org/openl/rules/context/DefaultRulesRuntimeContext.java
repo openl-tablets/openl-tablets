@@ -198,6 +198,10 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
             setCaRegion((org.openl.rules.enumeration.CaRegionsEnum) value);
             return;
         }
+        if ("locale".equals(name)) {
+            setLocale((java.util.Locale) value);
+            return;
+        }
     }
 
     private java.util.Date currentDate = null;
@@ -368,6 +372,20 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         cache = null;
     }
 
+    private java.util.Locale locale = null;
+
+    @Override
+    public java.util.Locale getLocale() {
+        return locale;
+    }
+
+    @Override
+    public void setLocale(java.util.Locale locale) {
+        this.locale = locale;
+        internalMap.put("locale", locale);
+        cache = null;
+    }
+
     public static final Map<String, Class<?>> CONTEXT_PROPERTIES;
 
     static {
@@ -384,6 +402,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
         contextFields.put("region", org.openl.rules.enumeration.RegionsEnum.class);
         contextFields.put("caProvince", org.openl.rules.enumeration.CaProvincesEnum.class);
         contextFields.put("caRegion", org.openl.rules.enumeration.CaRegionsEnum.class);
+        contextFields.put("locale", java.util.Locale.class);
         CONTEXT_PROPERTIES = Collections.unmodifiableMap(contextFields);
     }
     // <<< END INSERT >>>

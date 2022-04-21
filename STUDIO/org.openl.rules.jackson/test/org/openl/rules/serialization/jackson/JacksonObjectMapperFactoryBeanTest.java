@@ -3,6 +3,7 @@ package org.openl.rules.serialization.jackson;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -103,6 +104,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         Date date = new Date();
         context.setCurrentDate(date);
         context.setLob("LOB");
+        context.setLocale(Locale.FRANCE);
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
@@ -112,6 +114,9 @@ public class JacksonObjectMapperFactoryBeanTest {
 
         Assert.assertEquals(date, iRulesRuntimeContext.getCurrentDate());
         Assert.assertEquals("LOB", iRulesRuntimeContext.getLob());
+        Assert.assertEquals(Locale.FRANCE, iRulesRuntimeContext.getLocale());
+
+        Assert.assertEquals("fr_FR", objectMapper.readTree(text).get("locale").asText());
     }
 
     public static class Wrapper {

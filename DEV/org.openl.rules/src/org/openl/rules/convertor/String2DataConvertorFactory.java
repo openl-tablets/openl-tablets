@@ -19,6 +19,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.Lock;
@@ -86,6 +87,7 @@ public class String2DataConvertorFactory {
         convertors.put(StringRange.class, new String2StringRangeConvertor());
         convertors.put(BigInteger.class, new String2BigIntegerConvertor());
         convertors.put(BigDecimal.class, new String2BigDecimalConvertor());
+        convertors.put(Locale.class, new String2LocaleConverter());
         Lock writeLock = convertorsLock.writeLock();
         try {
             writeLock.lock();

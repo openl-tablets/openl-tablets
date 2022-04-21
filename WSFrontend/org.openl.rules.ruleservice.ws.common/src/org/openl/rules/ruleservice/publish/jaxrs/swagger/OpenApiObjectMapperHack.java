@@ -24,6 +24,7 @@ public final class OpenApiObjectMapperHack {
     public void apply(ObjectMapper objectMapper) {
         List<ModelConverter> hackedConverters = new ArrayList<>();
         hackedConverters.add(new OpenApiSupportConverter());
+        hackedConverters.add(new LocaleSupportConverter());
         oldConverters = new ArrayList<>();
         for (Object converter : converters) {
             oldConverters.add(converter);

@@ -76,6 +76,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalMethods.add(new RestoreRuntimeContextMethod());
         internalMethods.add(new SetRuntimeContextMethod());
         internalMethods.add(new ModifyRuntimeContextMethod());
+        internalMethods.add(new MessageSourceResourceMethod(module.getClassLoader()));
     }
 
     /**

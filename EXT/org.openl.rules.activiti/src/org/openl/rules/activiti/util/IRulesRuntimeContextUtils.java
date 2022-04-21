@@ -46,6 +46,7 @@ public final class IRulesRuntimeContextUtils {
         populate(context, execution, "region", org.openl.rules.enumeration.RegionsEnum.class);
         populate(context, execution, "caProvince", org.openl.rules.enumeration.CaProvincesEnum.class);
         populate(context, execution, "caRegion", org.openl.rules.enumeration.CaRegionsEnum.class);
+        populate(context, execution, "locale", java.util.Locale.class);
         // <<< END INSERT >>>
         return context;
     }

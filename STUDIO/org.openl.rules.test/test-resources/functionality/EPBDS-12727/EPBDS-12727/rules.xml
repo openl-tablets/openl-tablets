@@ -1,0 +1,18 @@
+<project>
+  <name>Parent Project</name>
+  <modules>
+    <module>
+      <name>Main</name>
+      <rules-root path="Main.xlsx"/>
+    </module>
+  </modules>
+  <dependencies>
+    <dependency>
+      <name>Child Project</name>
+      <autoIncluded>true</autoIncluded>
+    </dependency>
+  </dependencies>
+   <classpath>
+    <entry path="lib/*.jar"/>
+  </classpath>
+</project>

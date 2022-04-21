@@ -53,7 +53,8 @@ public class NicePrinterAdaptor {
             Long.class,
             Short.class,
             String.class,
-            Date.class };
+            Date.class,
+            Locale.class };
 
     private static final Comparator<Map.Entry<Object, Object>> mapComparator = new MapEntryComparator<>();
 
@@ -170,6 +171,8 @@ public class NicePrinterAdaptor {
     public void printPrimitive(Object obj, NicePrinter printer) {
         if (obj.getClass() == Double.class) {
             printer.getBuffer().append(printDouble(((Double) obj)));
+        } else if (obj.getClass() == Locale.class) {
+            printer.getBuffer().append(((Locale) obj).toLanguageTag());
         } else {
             printer.getBuffer().append(obj);
         }

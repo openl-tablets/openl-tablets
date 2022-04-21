@@ -69,6 +69,10 @@ public interface IRulesRuntimeContext extends IRuntimeContext {
 
     void setCaRegion(org.openl.rules.enumeration.CaRegionsEnum caRegion);
 
+    java.util.Locale getLocale();
+
+    void setLocale(java.util.Locale locale);
+
     // <<< END INSERT >>>
 
     IRulesRuntimeContext clone() throws CloneNotSupportedException;
