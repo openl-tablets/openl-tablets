@@ -7,10 +7,15 @@ import java.lang.reflect.Method;
 
 import org.junit.Assert;
 import org.junit.Ignore;
+import org.openl.message.OpenLMessage;
 import org.openl.rules.runtime.RulesEngineFactory;
+import org.openl.syntax.exception.CompositeOpenlException;
 
 @Ignore("Auxiliary class")
 public class TestUtils {
+
+    public static final int CYCLIC_DEPENDENCY_THRESHOLD = 100;
+
     public static void assertEx(Exception ex, String... errorMessages) {
         if (ex == null) {
             throw new RuntimeException("Exception is null! It works when should fail.");
@@ -49,6 +54,52 @@ public class TestUtils {
             }
         }
 
+    }
+
+    public static OpenLMessage[] collectErrorMessagesFromFileProcessing(String sourceFile) {
+        try {
+            RulesEngineFactory<Object> engineFactory = new RulesEngineFactory<>(sourceFile);
+            engineFactory.newEngineInstance();
+        } catch (Exception ex) {
+            Throwable throwable = ex;
+            int protectionFromCyclicDependency = 0;
+            while (protectionFromCyclicDependency < CYCLIC_DEPENDENCY_THRESHOLD
+                    && throwable != null
+                    && ! (throwable instanceof CompositeOpenlException)) {
+                throwable = throwable.getCause();
+                protectionFromCyclicDependency++;
+            }
+            if (throwable instanceof CompositeOpenlException) {
+                CompositeOpenlException compositeOpenlException = (CompositeOpenlException) throwable;
+                return compositeOpenlException.getErrorMessages();
+            }
+        }
+        return new OpenLMessage[0];
+    }
+
+    public static void assertErrorMessagesArePresent(OpenLMessage[] messages, String... expectedMessages) {
+        for (String expectedMessage: expectedMessages) {
+            boolean messageIsFound = false;
+            for (OpenLMessage message: messages) {
+                if (message.getSummary().contains(expectedMessage)) {
+                    messageIsFound = true;
+                    break;
+                }
+            }
+            if (! messageIsFound) {
+                Assert.fail("Message \"" + expectedMessage + "\" is expected, but has not been found");
+            }
+        }
+    }
+
+    public static void assertErrorMessagesAreAbsent(OpenLMessage[] messages, String... nonExpectedMessages) {
+        for (String nonExpectedMessage: nonExpectedMessages) {
+            for (OpenLMessage message: messages) {
+                if (message.getSummary().contains(nonExpectedMessage)) {
+                    Assert.fail("Message \"" + nonExpectedMessage + "\" is not expected but has been found");
+                }
+            }
+        }
     }
 
     public static void assertEx(String sourceFile, String... errorMessages) {

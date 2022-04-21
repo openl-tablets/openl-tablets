@@ -818,34 +818,39 @@ public class DataTableBindHelper {
                 continue;
             }
 
-            if (fieldIndex == 0 && StringUtils.matches(THIS_ARRAY_ACCESS_PATTERN,
-                identifier) && !(type instanceof TestMethodOpenClass) && type.isArray()) {
-                fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
-                    type.getComponentClass(),
-                    CollectionType.ARRAY);
-                loadedFieldType = type.getComponentClass();
-                continue;
-            }
+            if (fieldIndex == 0 && !(type instanceof TestMethodOpenClass)) {
+                ThisCollectionElementField collectionElementField = null;
+                IOpenClass collectionElementType = null;
+                if (StringUtils.matches(THIS_ARRAY_ACCESS_PATTERN, identifier) && type.isArray()) {
+                    collectionElementType = type.getComponentClass();
+                    collectionElementField = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
+                            collectionElementType,
+                            CollectionType.ARRAY);
+                } else if (StringUtils.matches(THIS_LIST_ACCESS_PATTERN,
+                    identifier)
+                        && ClassUtils.isAssignable(type.getInstanceClass(), List.class)) {
+                    collectionElementType = getTypeForCollection(fieldNameNode, null, bindingContext);
+                    collectionElementField = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
+                            collectionElementType,
+                            CollectionType.LIST);
+                } else if (StringUtils.matches(THIS_MAP_ACCESS_PATTERN,
+                    identifier)
+                        && ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
+                    collectionElementType = getTypeForCollection(fieldNameNode, null, bindingContext);
+                    collectionElementField = new ThisCollectionElementField(getCollectionKey(fieldNameNode),
+                            collectionElementType);
+                }
 
-            if (fieldIndex == 0 && StringUtils.matches(THIS_LIST_ACCESS_PATTERN,
-                identifier) && !(type instanceof TestMethodOpenClass) && ClassUtils
-                    .isAssignable(type.getInstanceClass(), List.class)) {
-                IOpenClass elementType = getTypeForCollection(fieldNameNode, null, bindingContext);
-                fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
-                    elementType,
-                    CollectionType.LIST);
-                loadedFieldType = elementType;
-                continue;
-            }
-
-            if (fieldIndex == 0 && StringUtils.matches(THIS_MAP_ACCESS_PATTERN,
-                identifier) && !(type instanceof TestMethodOpenClass) && ClassUtils
-                    .isAssignable(type.getInstanceClass(), Map.class)) {
-                IOpenClass elementType = getTypeForCollection(fieldNameNode, null, bindingContext);
-                fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionKey(fieldNameNode),
-                    elementType);
-                loadedFieldType = elementType;
-                continue;
+                if (collectionElementField != null) {
+                    //If type is not found, chain cannot be evaluated further
+                    if (collectionElementType != null) {
+                        fieldAccessorChain[fieldIndex] = collectionElementField;
+                        loadedFieldType = collectionElementType;
+                        continue;
+                    } else {
+                        break;
+                    }
+                }
             }
 
             if (StringUtils.matches(PRECISION_PATTERN, identifier)) {
