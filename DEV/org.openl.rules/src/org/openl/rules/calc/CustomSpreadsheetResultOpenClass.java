@@ -433,6 +433,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 tableStructureDetails,
                 generateBeanClass,
                 spreadsheet);
+            type.simpleRefByRow = this.simpleRefByRow;
+            type.simpleRefByColumn = this.simpleRefByColumn;
             if (register) {
                 module.addType(type);
             }
