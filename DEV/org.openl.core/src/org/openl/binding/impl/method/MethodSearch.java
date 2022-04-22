@@ -406,6 +406,10 @@ public final class MethodSearch {
             Iterable<IOpenMethod> methods,
             BiFunction<IOpenClass, IOpenClass, IOpenClass> func) throws AmbiguousMethodException {
         if (methods.iterator().hasNext()) {
+            NullVarArgsOpenMethod nullVarArgsOpenMethod = getNullVarArgsOpenMethod(name, params, castFactory, methods);
+            if (nullVarArgsOpenMethod != null) {
+                return nullVarArgsOpenMethod;
+            }
             IOpenClass varArgType = null;
             for (int i = params.length - 1; i >= 0; i--) {
                 varArgType = i == params.length - 1 ? params[i] : func.apply(params[i], varArgType);
@@ -441,6 +445,20 @@ public final class MethodSearch {
                     }
                 }
             }
+        }
+        return null;
+    }
+
+    private static NullVarArgsOpenMethod getNullVarArgsOpenMethod(String name,
+            IOpenClass[] params,
+            ICastFactory castFactory,
+            Iterable<IOpenMethod> methods) {
+        IOpenClass[] args = new IOpenClass[params.length + 1];
+        System.arraycopy(params, 0, args, 0, params.length);
+        args[params.length] = NullOpenClass.the;
+        IMethodCaller matchedMethod = findCastingMethod(name, args, castFactory, methods);
+        if (matchedMethod != null) {
+            return new NullVarArgsOpenMethod(matchedMethod);
         }
         return null;
     }
@@ -615,7 +633,7 @@ public final class MethodSearch {
         if (caller != null) {
             return caller;
         }
-        if (params.length == 0 || castFactory == null) {
+        if (castFactory == null) {
             return null;
         }
         if (!strictMatch) {

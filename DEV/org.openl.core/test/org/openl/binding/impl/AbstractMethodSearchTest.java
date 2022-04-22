@@ -43,7 +43,8 @@ public abstract class AbstractMethodSearchTest {
 
         TypeCastFactory typecast = openLConfiguration.createTypeCastFactory();
         for (String libName : CAST_LIBRARY_NAMES) {
-            TypeCastFactory.JavaCastComponent javaCast = typecast.new JavaCastComponent(libName, org.openl.binding.impl.cast.CastFactory.class.getName());
+            TypeCastFactory.JavaCastComponent javaCast = typecast.new JavaCastComponent(libName,
+                org.openl.binding.impl.cast.CastFactory.class.getName());
             typecast.addJavaCast(javaCast);
         }
 
@@ -77,6 +78,9 @@ public abstract class AbstractMethodSearchTest {
     }
 
     private IOpenClass[] toOpenClasses(Class<?>... classes) {
+        if (classes == null) {
+            return IOpenClass.EMPTY;
+        }
         IOpenClass[] openClasses = new IOpenClass[classes.length];
         for (int i = 0; i < classes.length; i++) {
             if (classes[i] != null) {
@@ -164,6 +168,9 @@ public abstract class AbstractMethodSearchTest {
     }
 
     private Object[] toArgs(Class<?>... classes) {
+        if (classes == null) {
+            return new Class<?>[0];
+        }
         Object[] args = new Object[classes.length];
         for (int i = 0; i < classes.length; i++) {
             args[i] = instance(classes[i]);
