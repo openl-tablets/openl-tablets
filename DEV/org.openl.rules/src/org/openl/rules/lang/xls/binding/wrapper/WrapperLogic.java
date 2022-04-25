@@ -2,7 +2,6 @@ package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.IdentityHashMap;
 
-import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.dependency.DependencyBindingContext;
 import org.openl.dependency.DependencyOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
@@ -113,18 +112,8 @@ public final class WrapperLogic {
             g = g.getComponentClass();
             dim++;
         }
-        if (g instanceof ModuleSpecificType && !xlsModuleOpenClass
-            .isExternalModule((XlsModuleOpenClass) ((ModuleSpecificType) g).getModule(), cache)) {
-            IOpenClass t = xlsModuleOpenClass.findType(g.getName());
-            return t != null ? (dim > 0 ? t.getArrayType(dim) : t) : g;
-        } else if (g instanceof SpreadsheetResultOpenClass && xlsModuleOpenClass
-            .getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null && !xlsModuleOpenClass
-                .isExternalModule(((SpreadsheetResultOpenClass) g).getModule(), cache)) {
-            IOpenClass t = xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
-            return t != null ? (dim > 0 ? t.getArrayType(dim) : t) : g;
-        } else {
-            return type;
-        }
+        IOpenClass t = xlsModuleOpenClass.toModuleType(g);
+        return t != null ? (dim > 0 ? t.getArrayType(dim) : t) : type;
     }
 
     public static IOpenClass buildMethodReturnType(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {

@@ -1,12 +1,13 @@
 package org.openl.rules.runtime;
 
+import java.lang.reflect.Array;
+
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.domain.IDomain;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.DomainUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -19,88 +20,53 @@ import org.openl.vm.IRuntimeEnv;
 class ValidationHandler {
 
     void validateProxyArguments(IMethodSignature methodSignature, IRuntimeEnv env, Object[] args) {
-        if (args == null || args.length == 0) {
-            return;
-        }
-        for (int i = 0; i < args.length; i++) {
-            Object arg = args[i];
-            if (arg == null) {
-                continue;
-            }
-            IOpenClass generatedType = methodSignature.getParameterType(i);
-            if (generatedType instanceof DomainOpenClass) {
-                validateAliasValue(arg, generatedType);
-            } else if (generatedType instanceof ComponentTypeArrayOpenClass) {
-                doValidate(env, (Object[]) arg, generatedType.getComponentClass());
-            } else if (generatedType instanceof DatatypeOpenClass) {
-                doValidate(env, arg, generatedType);
+        if (args != null) {
+            for (int i = 0; i < args.length; i++) {
+                doValidate(env, args[i], methodSignature.getParameterType(i));
             }
         }
     }
 
-    private void doValidate(IRuntimeEnv env, Object[] objs, IOpenClass openType) {
-        for (Object obj : objs) {
-            if (obj == null) {
-                continue;
-            }
-            if (openType instanceof ComponentTypeArrayOpenClass) {
-                doValidate(env, (Object[]) obj, openType.getComponentClass());
-            } else if (openType instanceof DatatypeOpenClass) {
-                doValidate(env, obj, openType);
+    private void doValidate(IRuntimeEnv env, Object obj, IOpenClass type) {
+        if (obj != null) {
+            if (type.isArray()) {
+                doValidateArray(env, obj, type);
+            } else if (type instanceof DomainOpenClass) {
+                validateAliasValue(obj, (DomainOpenClass) type);
+            } else if (type instanceof DatatypeOpenClass) {
+                doValidateDatatype(env, obj, (DatatypeOpenClass) type);
             }
         }
     }
 
-    private void doValidate(IRuntimeEnv env, Object obj, IOpenClass openType) {
-        if (!obj.getClass().equals(openType.getInstanceClass())) {
-            return;
+    private void doValidateArray(IRuntimeEnv env, Object objs, IOpenClass openType) {
+        if (objs != null) {
+            int length = Array.getLength(objs);
+            for (int i = 0; i < length; i++) {
+                Object obj = Array.get(objs, i);
+                doValidate(env, obj, openType.getComponentClass());
+            }
         }
-        for (IOpenField openField : openType.getFields()) {
-            IOpenClass openClass = openField.getType();
-            if (openClass instanceof ComponentTypeArrayOpenClass) {
+    }
+
+    private void doValidateDatatype(IRuntimeEnv env, Object obj, DatatypeOpenClass datatypeOpenClass) {
+        if (obj.getClass().equals(datatypeOpenClass.getInstanceClass())) {
+            for (IOpenField openField : datatypeOpenClass.getFields()) {
                 Object value = openField.get(obj, env);
-                if (value == null) {
-                    continue;
-                }
-                doValidate(env, (Object[]) value, openClass.getComponentClass());
-            } else if (openClass instanceof DatatypeOpenClass) {
-                Object value = openField.get(obj, env);
-                if (value == null) {
-                    continue;
-                }
-                doValidate(env, value, openClass);
-            } else if (openClass instanceof DomainOpenClass) {
-                Object value = openField.get(obj, env);
-                if (value == null) {
-                    continue;
-                }
-                validateAliasValue(value, openClass);
+                doValidate(env, value, openField.getType());
             }
         }
     }
 
-    private void validateAliasValue(Object value, IOpenClass openClass) {
-        if (openClass.isArray()) {
-            Object[] values = (Object[]) value;
-            for (Object o : values) {
-                testLookupValue(o, openClass);
-            }
-        } else {
-            testLookupValue(value, openClass);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void testLookupValue(Object o, IOpenClass openClass) {
-        IDomain domain = openClass.getDomain();
-        boolean isInDomain = domain.selectObject(o);
+    private void validateAliasValue(Object value, DomainOpenClass domainOpenClass) {
+        IDomain domain = domainOpenClass.getDomain();
+        boolean isInDomain = domain.selectObject(value);
         if (!isInDomain) {
             throw new OutsideOfValidDomainException(
                 String.format("Object '%s' is outside of valid domain '%s'. Valid values: %s",
-                    o,
-                    openClass.getName(),
+                    value,
+                    domainOpenClass.getName(),
                     DomainUtils.toString(domain)));
         }
     }
-
 }

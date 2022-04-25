@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.calc.AnySpreadsheetResultOpenClass;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.interceptors.AbstractServiceMethodAfterReturningAdvice;
@@ -49,7 +50,7 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
                         openClass = openClass.getComponentClass();
                         dim++;
                     }
-                    if (openClass instanceof SpreadsheetResultOpenClass || openClass instanceof AnySpreadsheetResultOpenClass) {
+                    if (openClass instanceof SpreadsheetResultOpenClass || openClass instanceof AnySpreadsheetResultOpenClass || openClass instanceof CustomSpreadsheetResultOpenClass) {
                         Class<?> t = Map.class;
                         if (openClass instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) openClass)
                             .getModule() != null) {
@@ -58,9 +59,13 @@ public abstract class AbstractSPRToPlainConverterAdvice<T> extends AbstractServi
                                 .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                                 .toCustomSpreadsheetResultOpenClass()
                                 .getBeanClass();
+                        } else if (openClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) openClass)
+                            .isGenerateBeanClass()) {
+                            t = ((CustomSpreadsheetResultOpenClass) openClass).getBeanClass();
                         }
                         if (dim > 0) {
                             t = Array.newInstance(t, dim).getClass();
+                            openClass = openClass.getArrayType(dim);
                         }
                         convertToType1 = Pair.of(t, openClass);
                     }

@@ -357,7 +357,8 @@ public final class RuleServiceInstantiationFactoryHelper {
                     type = type.getComponentClass();
                     dim++;
                 }
-                if (type instanceof CustomSpreadsheetResultOpenClass) {
+                if (type instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) type)
+                    .isGenerateBeanClass()) {
                     Class<?> t = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
                     return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
                 } else if (type instanceof SpreadsheetResultOpenClass) {

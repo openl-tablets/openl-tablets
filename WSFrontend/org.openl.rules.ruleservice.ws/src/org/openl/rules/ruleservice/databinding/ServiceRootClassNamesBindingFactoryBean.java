@@ -87,18 +87,26 @@ public class ServiceRootClassNamesBindingFactoryBean extends AbstractFactoryBean
                     ret.add(type.getInstanceClass().getName());
                 }
                 if (type instanceof CustomSpreadsheetResultOpenClass) {
-                    Class<?> beanClass = ((CustomSpreadsheetResultOpenClass) type).getBeanClass();
-                    sprBeanClassNames.add(beanClass.getName());
-                    if (!found) {
-                        for (Method method : serviceClass.getMethods()) {
-                            if (!found && ClassUtils.isAssignable(beanClass, method.getReturnType())) {
-                                found = true;
-                            }
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
+                    if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
+                        Class<?> beanClass = customSpreadsheetResultOpenClass.getBeanClass();
+                        sprBeanClassNames.add(beanClass.getName());
+                        if (!found) {
+                            found = foundInReturnOfMethods(serviceClass, beanClass);
                         }
                     }
                 }
             }
-            //Check: custom spreadsheet is enabled
+            for (CustomSpreadsheetResultOpenClass type : xlsModuleOpenClass.getCombinedSpreadsheetResultOpenClasses()) {
+                if (type.isGenerateBeanClass()) {
+                    Class<?> beanClass = type.getBeanClass();
+                    sprBeanClassNames.add(beanClass.getName());
+                    if (!found) {
+                        found = foundInReturnOfMethods(serviceClass, beanClass);
+                    }
+                }
+            }
+            // Check: custom spreadsheet is enabled
             if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
                 Class<?> spreadsheetResultBeanClass = xlsModuleOpenClass
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
@@ -106,11 +114,7 @@ public class ServiceRootClassNamesBindingFactoryBean extends AbstractFactoryBean
                     .getBeanClass();
                 sprBeanClassNames.add(spreadsheetResultBeanClass.getName());
                 if (!found) {
-                    for (Method method : serviceClass.getMethods()) {
-                        if (!found && ClassUtils.isAssignable(spreadsheetResultBeanClass, method.getReturnType())) {
-                            found = true;
-                        }
-                    }
+                    found = foundInReturnOfMethods(serviceClass, spreadsheetResultBeanClass);
                 }
             }
             if (found) {
@@ -118,5 +122,18 @@ public class ServiceRootClassNamesBindingFactoryBean extends AbstractFactoryBean
             }
         }
         return ret;
+    }
+
+    private boolean foundInReturnOfMethods(Class<?> serviceClass, Class<?> beanClass) {
+        for (Method method : serviceClass.getMethods()) {
+            Class<?> t = method.getReturnType();
+            while (t.isArray()) {
+                t = t.getComponentType();
+            }
+            if (ClassUtils.isAssignable(beanClass, t)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -532,7 +532,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return beanClass;
     }
 
-    public void generateBeanClass() {
+    protected void generateBeanClass() {
         if (!generateBeanClass) {
             throw new IllegalStateException("This custom spreadsheet result cannot be converted to a bean.");
         }

@@ -2,7 +2,7 @@ HTTP/1.1 422
 Content-Type: application/json
 
 {
-  "message": "Object '100' is outside of valid domain 'BrandCode[]'. Valid values: [10, 20, 30, 40]",
+  "message": "Object '100' is outside of valid domain 'BrandCode'. Valid values: [10, 20, 30, 40]",
   "type": "VALIDATION",
   "details": null
 }
