@@ -545,6 +545,16 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
+    public void testConstructorsMetaInformation_FormulaColumnForS11Step() {
+        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 12, 2);
+
+        assertNodeUsage(usedNodes.get(0), "Cell type: SpreadsheetResultmySpr", 0, 1);
+
+        assertNodeUsage(usedNodes.get(1), "org.openl.rules.calc\n" + "SpreadsheetResultmySpr ()", 6, 16);
+
+    }
+
+    @Test
     public void testArrayBoundNodeMetaInformation() {
         List<? extends NodeUsage> usedNodes = assertMetaInfo(arrayNodeHints, 1, 2, 2);
 

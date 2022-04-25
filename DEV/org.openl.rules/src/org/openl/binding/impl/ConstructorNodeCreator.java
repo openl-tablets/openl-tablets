@@ -2,7 +2,6 @@ package org.openl.binding.impl;
 
 import java.util.Optional;
 
-import org.openl.base.INamedThing;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenMethod;
@@ -34,11 +33,12 @@ public class ConstructorNodeCreator implements NodeUsageCreator {
         ILocation location = syntaxNode.getSourceLocation();
         int pstart = startIndex + location.getStart().getAbsolutePosition(info);
         int pend = pstart;
-        if (sourceString.indexOf(method.getDeclaringClass().getPackageName()) == pstart) {
-            // shift end index if constructor calling start with packageName
-            pend += method.getDeclaringClass().getPackageName().length() + 1; // +1 - is a dot
+        while (pend < sourceString.length() && sourceString.charAt(pend) != '(') {
+            pend++;
         }
-        pend += method.getDeclaringClass().getDisplayName(INamedThing.SHORT).length();
+        while (pend >= pstart && sourceString.charAt(pend) == ' ') {
+            pend--;
+        }
         return Optional.of(new ConstructorUsage(constructorNode, pstart, pend, method));
     }
 
