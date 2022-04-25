@@ -2,7 +2,7 @@
     <soap:Body>
         <soap:Fault>
             <faultcode>soap:Server</faultcode>
-            <faultstring>Object '100' is outside of valid domain 'BrandCode[]'. Valid values: [10, 20, 30, 40]</faultstring>
+            <faultstring>Object '100' is outside of valid domain 'BrandCode'. Valid values: [10, 20, 30, 40]</faultstring>
             <detail>
                 <type>VALIDATION</type>
             </detail>
