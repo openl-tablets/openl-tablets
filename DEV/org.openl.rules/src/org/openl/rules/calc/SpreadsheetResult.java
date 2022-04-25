@@ -556,7 +556,21 @@ public class SpreadsheetResult implements Serializable {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
             if (Map.class == toType || spreadsheetResultsToMap) {
                 return spreadsheetResult.toMap();
-            } else if (toType == spreadsheetResult.getCustomSpreadsheetResultOpenClass()
+            } else if (toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)
+                .isGenerateBeanClass() && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)
+                    .getBeanClass() == toType) {
+                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) toTypeOpenClass;
+                return customSpreadsheetResultOpenClass.createBean(spreadsheetResult);
+            } else if (toTypeOpenClass instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) toTypeOpenClass)
+                .toCustomSpreadsheetResultOpenClass()
+                .isGenerateBeanClass() && ((SpreadsheetResultOpenClass) toTypeOpenClass)
+                    .toCustomSpreadsheetResultOpenClass()
+                    .getBeanClass() == toType) {
+                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = ((SpreadsheetResultOpenClass) toTypeOpenClass)
+                    .toCustomSpreadsheetResultOpenClass();
+                return customSpreadsheetResultOpenClass.createBean(spreadsheetResult);
+            } else if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() != null && toType == spreadsheetResult
+                .getCustomSpreadsheetResultOpenClass()
                 .getModule()
                 .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                 .toCustomSpreadsheetResultOpenClass()
@@ -566,10 +580,6 @@ public class SpreadsheetResult implements Serializable {
                     .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                     .toCustomSpreadsheetResultOpenClass()
                     .createBean(spreadsheetResult);
-            } else if (toType != null && toType != spreadsheetResult.getCustomSpreadsheetResultOpenClass()
-                .getBeanClass() && toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass) {
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) toTypeOpenClass;
-                return customSpreadsheetResultOpenClass.createBean(spreadsheetResult);
             } else {
                 return spreadsheetResult.toPlain();
             }

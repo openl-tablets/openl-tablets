@@ -97,6 +97,6 @@ public final class StubSpreadSheetResult extends SpreadsheetResult {
 
     @Override
     public String toString() {
-        return "Stub SpreadsheetResult:\n" + values.toString();
+        return "Stub SpreadsheetResult:\n" + values;
     }
 }
