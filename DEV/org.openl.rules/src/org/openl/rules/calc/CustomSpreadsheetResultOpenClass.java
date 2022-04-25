@@ -464,6 +464,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             rowNamesForResultModel,
             columnNamesForResultModel,
             fieldsCoordinates);
+        spr.setCustomSpreadsheetResultOpenClass(this);
         spr.setLogicalTable(logicalTable);
         return spr;
     }

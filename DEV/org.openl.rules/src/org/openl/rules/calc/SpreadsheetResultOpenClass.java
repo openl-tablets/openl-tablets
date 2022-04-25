@@ -207,8 +207,12 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
 
     @Override
     public Object newInstance(IRuntimeEnv env) {
-        // Only used for tests
-        return new StubSpreadSheetResult();
+        if (getModule() != null) {
+            return toCustomSpreadsheetResultOpenClass().newInstance(env);
+        } else {
+            // Only used for tests
+            return new StubSpreadSheetResult();
+        }
     }
 
     @Override
@@ -242,6 +246,12 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     @Override
     protected IOpenMethod processConstructor(JavaOpenConstructor constructor) {
         return new AOpenMethodDelegator(super.processConstructor(constructor)) {
+
+            @Override
+            public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+                return SpreadsheetResultOpenClass.this.newInstance(env);
+            }
+
             @Override
             public IOpenClass getType() {
                 return SpreadsheetResultOpenClass.this.getModule() == null ? AnySpreadsheetResultOpenClass.INSTANCE
