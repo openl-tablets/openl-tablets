@@ -13,7 +13,7 @@ public interface GroupDao extends Dao<Group> {
 
     Group getGroupByName(String name);
 
-    void deleteGroupByName(String name);
+    void deleteGroupById(Long id);
 
     List<Group> getAllGroups();
 }

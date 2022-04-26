@@ -3,23 +3,27 @@ Content-Type: application/json
 
 {
   "Administrators": {
+    "id": 1,
     "privileges": [
       "ADMIN"
     ]
   },
   "Analysts": {
+    "id": 6,
     "roles": [
       "Developers",
       "Testers"
     ]
   },
   "Authenticated": {
+    "id": 7,
     "description": "A default group for authenticated users",
     "privileges": [
       "VIEW_PROJECTS"
     ]
   },
   "Deployers": {
+    "id": 5,
     "roles": [
       "Viewers"
     ],
@@ -32,6 +36,7 @@ Content-Type: application/json
     ]
   },
   "Developers": {
+    "id": 3,
     "roles": [
       "Viewers"
     ],
@@ -46,9 +51,11 @@ Content-Type: application/json
     ]
   },
   "Foo": {
+    "id": 8,
     "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
   },
   "Testers": {
+    "id": 4,
     "roles": [
       "Viewers"
     ],
@@ -59,6 +66,7 @@ Content-Type: application/json
     ]
   },
   "Viewers": {
+    "id": 2,
     "privileges": [
       "VIEW_PROJECTS"
     ]

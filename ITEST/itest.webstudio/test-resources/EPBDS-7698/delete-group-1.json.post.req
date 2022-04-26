@@ -1,3 +1,3 @@
-DELETE /rest/admin/management/groups/Foo HTTP/1.1
+DELETE /rest/admin/management/groups/8 HTTP/1.1
 Authorization: Basic YWRtaW46YWRtaW4=
 

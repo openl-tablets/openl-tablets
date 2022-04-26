@@ -74,12 +74,12 @@ public class ManagementController {
     }
 
     @Operation(description = "mgmt.delete-group.desc", summary = "mgmt.delete-group.summary")
-    @DeleteMapping(value = "/groups/{name}")
+    @DeleteMapping(value = "/groups/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public void deleteGroup(
-            @Parameter(description = "mgmt.schema.group.name") @PathVariable("name") final String name) {
+            @Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
         SecurityChecker.allow(Privileges.ADMIN);
-        groupDao.deleteGroupByName(name);
+        groupDao.deleteGroupById(id);
     }
 
     @Operation(description = "mgmt.save-group.desc", summary = "mgmt.save-group.summary")
@@ -141,6 +141,7 @@ public class ManagementController {
 
     public static class UIGroup {
         private UIGroup(Group group) {
+            id = group.getId();
             description = group.getDescription();
             privileges = group.getPrivileges();
             roles = group.getIncludedGroups()
@@ -149,6 +150,9 @@ public class ManagementController {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
 
         }
+
+        @Parameter(description = "mgmt.schema.group.id")
+        public Long id;
 
         @Parameter(description = "mgmt.schema.group.description")
         public String description;

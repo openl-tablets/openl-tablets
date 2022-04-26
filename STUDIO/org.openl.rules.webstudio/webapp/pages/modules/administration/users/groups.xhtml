@@ -329,7 +329,7 @@
                 var name = $j(row).find(".name").text();
                 $j.ajax({
                     type: "DELETE",
-                    url: "#{contextPath}/web/admin/management/groups/" + name
+                    url: "#{contextPath}/web/admin/management/groups/" + groups[name].id
                 }).done(function () {
                     $j('#groupsTable').trigger('refresh');
                     location.reload();
