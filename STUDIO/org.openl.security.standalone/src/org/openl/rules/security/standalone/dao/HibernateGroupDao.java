@@ -29,13 +29,13 @@ public class HibernateGroupDao extends BaseHibernateDao<Group> implements GroupD
 
     @Override
     @Transactional
-    public void deleteGroupByName(final String name) {
+    public void deleteGroupById(final Long id) {
         getSession().createNativeQuery(
-            "delete from OpenL_Group2Group where includedGroupID = (select id from OpenL_Groups where groupName = :name)")
-            .setParameter("name", name)
+            "delete from OpenL_Group2Group where includedGroupID = :id")
+            .setParameter("id", id)
             .executeUpdate();
-        getSession().createNativeQuery("delete from OpenL_Groups where groupName = :name")
-            .setParameter("name", name)
+        getSession().createNativeQuery("delete from OpenL_Groups where id = :id")
+            .setParameter("id", id)
             .executeUpdate();
     }
 

@@ -476,22 +476,23 @@ Content-Type: application/json
         }
       }
     },
-    "/admin/management/groups/{name}": {
+    "/admin/management/groups/{id}": {
       "delete": {
         "tags": [
           "Management"
         ],
         "summary": "Delete group",
-        "description": "Delete group by given name",
+        "description": "Delete group by ID",
         "operationId": "deleteGroup",
         "parameters": [
           {
-            "name": "name",
+            "name": "id",
             "in": "path",
-            "description": "Group name",
+            "description": "Group ID",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format":"int64"
             }
           }
         ],
@@ -6075,6 +6076,11 @@ Content-Type: application/json
       "UIGroup": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Group ID",
+            "format":"int64"
+          },
           "description": {
             "type": "string",
             "description": "Group description"

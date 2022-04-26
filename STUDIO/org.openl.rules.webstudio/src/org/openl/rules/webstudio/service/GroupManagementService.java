@@ -78,7 +78,7 @@ public class GroupManagementService {
         groupDao.update(persistGroup);
     }
 
-    public void deleteGroup(String name) {
-        groupDao.deleteGroupByName(name);
+    public void deleteGroup(Long id) {
+        groupDao.deleteGroupById(id);
     }
 }

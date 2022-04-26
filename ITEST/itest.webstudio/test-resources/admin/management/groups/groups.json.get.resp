@@ -3,20 +3,25 @@ Content-Type: application/json
 
 {
   "Administrators": {
+    "id": "*",
     "privileges": ["ADMIN"]
   },
   "Analysts": {
+    "id": "*",
     "roles": ["Developers", "Testers"]
   },
   "Authenticated": {
+    "id": "*",
     "description": "A default group for authenticated users",
     "privileges": ["VIEW_PROJECTS"]
   },
   "Deployers": {
+    "id": "*",
     "roles": ["Viewers"],
     "privileges": ["DELETE_DEPLOYMENT", "ERASE_DEPLOYMENT", "CREATE_DEPLOYMENT", "DEPLOY_PROJECTS", "EDIT_DEPLOYMENT"]
   },
   "Developers": {
+    "id": "*",
     "roles": ["Viewers"],
     "privileges": [
       "CREATE_PROJECTS", "CREATE_TABLES", "ERASE_PROJECTS", "REMOVE_TABLES", "EDIT_PROJECTS", "EDIT_TABLES",
@@ -24,10 +29,12 @@ Content-Type: application/json
     ]
   },
   "Testers": {
+    "id": "*",
     "roles": ["Viewers"],
     "privileges": ["TRACE", "BENCHMARK", "RUN"]
   },
   "Viewers": {
+    "id": "*",
     "privileges": ["VIEW_PROJECTS"]
   }
 }
