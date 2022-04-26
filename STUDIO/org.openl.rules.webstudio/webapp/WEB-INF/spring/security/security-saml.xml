@@ -20,6 +20,7 @@
 
     <!-- Filters for processing of SAML messages -->
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+        <property name="requestRejectedHandler" ref="requestRejectedHandler"/>
         <security:filter-chain-map request-matcher="ant">
             <security:filter-chain pattern="#{accessDeniedUrl}" filters="none"/>
             <security:filter-chain pattern="#{localLogoutSuccessUrl}" filters="none"/>

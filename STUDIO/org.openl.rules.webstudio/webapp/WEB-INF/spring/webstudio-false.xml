@@ -19,6 +19,11 @@
     </bean>
 
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+        <property name="requestRejectedHandler">
+            <bean class="org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler">
+                <constructor-arg name="httpError" value="404"/>
+            </bean>
+        </property>
         <security:filter-chain-map request-matcher="ant">
             <security:filter-chain pattern="/favicon.ico" filters="none"/>
             <security:filter-chain pattern="/css/**" filters="none"/>
