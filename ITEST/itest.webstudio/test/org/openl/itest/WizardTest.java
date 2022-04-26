@@ -30,6 +30,11 @@ public class WizardTest {
     }
 
     @Test
+    public void EPBDS_12765() {
+        client.send("EPBDS-12765/01-malicious-request");
+    }
+
+    @Test
     public void EPBDS_11649_openapi() {
         client.send("EPBDS-11649_OpenAPI_Wizzard/01-openapi.json");
     }

@@ -10,4 +10,8 @@
         <property name="staticAccessDecisionManager" ref="accessDecisionManager"/>
     </bean>
 
+    <bean id="requestRejectedHandler" class="org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler">
+        <constructor-arg name="httpError" value="404"/>
+    </bean>
+
 </beans>

@@ -51,4 +51,9 @@ public class UserManagementTest {
         client.send("EPBDS-11649_OpenAPI_Auth/01-openapi.json");
     }
 
+    @Test
+    public void EPBDS_12765() {
+        client.send("EPBDS-12765/01-malicious-request");
+    }
+
 }
