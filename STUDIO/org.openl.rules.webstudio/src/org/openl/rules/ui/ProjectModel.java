@@ -568,6 +568,8 @@ public class ProjectModel {
                         compilationStatus.addModulesCount(1);
                         if (Objects.equals(dependencyLoader.getModule().getName(), moduleInfo.getName()) && Objects
                             .equals(dependencyLoader.getProject(), moduleInfo.getProject())) {
+                            // TODO possible duplicates messages here, use getMessages() instead of getAllMessages() and
+                            // rewrite the algorithm to handle with it is required here
                             compilationStatus.addMessages(openedModuleCompiledOpenClass.getAllMessages())
                                 .addModulesCompiled(1);
                         } else {
@@ -1178,18 +1180,20 @@ public class ProjectModel {
                     this.compilationInProgress = true;
                     projectCompilationCompleted = null;
                     webStudioWorkspaceDependencyManager.loadDependencyAsync(projectDependency, (compiledDependency) -> {
-                        try {
-                            this.compiledOpenClass = this.validate();
-                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
-                                .getMetaInfo();
-                            getModuleSyntaxNodesByProject(moduleInfo.getProject().getName())
-                                .add(metaInfo1.getXlsModuleNode());
-                            redraw();
-                        } catch (Exception | LinkageError e) {
-                            onCompilationFailed(e);
+                        synchronized (ProjectModel.this) {
+                            try {
+                                this.compiledOpenClass = this.validate();
+                                XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                                    .getMetaInfo();
+                                getModuleSyntaxNodesByProject(moduleInfo.getProject().getName())
+                                    .add(metaInfo1.getXlsModuleNode());
+                                redraw();
+                            } catch (Exception | LinkageError e) {
+                                onCompilationFailed(e);
+                            }
+                            this.projectCompilationCompleted = compiledDependency.getDependency();
+                            this.compilationInProgress = false;
                         }
-                        this.projectCompilationCompleted = compiledDependency.getDependency();
-                        this.compilationInProgress = false;
                     });
                 }
             } else {
