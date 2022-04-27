@@ -370,6 +370,10 @@ public class XlsBinder implements IOpenBinder {
                         type.getFields().forEach(IOpenField::getType);
                     }
                 }
+                moduleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                    .toCustomSpreadsheetResultOpenClass()
+                    .getFields()
+                    .forEach(IOpenField::getType);
                 int combinedSpreadsheetResultOpenClassesSize = 0;
                 while (combinedSpreadsheetResultOpenClassesSize != moduleOpenClass
                     .getCombinedSpreadsheetResultOpenClasses()
@@ -379,10 +383,6 @@ public class XlsBinder implements IOpenBinder {
                     moduleOpenClass.getCombinedSpreadsheetResultOpenClasses()
                         .forEach(e -> e.getFields().forEach(IOpenField::getType));
                 }
-                moduleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-                    .toCustomSpreadsheetResultOpenClass()
-                    .getFields()
-                    .forEach(IOpenField::getType);
             }
 
             if (moduleOpenClass.isUseDecisionTableDispatcher()) {
