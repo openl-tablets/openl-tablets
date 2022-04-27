@@ -174,12 +174,13 @@
                         }
 
                         messages.forEach(function (item) {
-                            const newMessageHtml = htmlTemplate.replace(/{messageId}/g, item.id)
-                                .replace(/{messageSummary}/g, ws.utils.escapeHtml(item.summary));
+                            const newMessageHtml = htmlTemplate.replaceString(/{messageId}/g, item.id)
+                                .replaceString(/{messageSummary}/g, ws.utils.escapeHtml(item.summary));
+
                             if (item.severity === 'WARN') {
-                                warningsPanel.append(newMessageHtml.replace(/{messageTypeClass}/g, 'problem-warning'));
+                                warningsPanel.append(newMessageHtml.replaceString(/{messageTypeClass}/g,'problem-warning'));
                             } else if (item.severity === 'ERROR') {
-                                errorsPanel.append(newMessageHtml.replace(/{messageTypeClass}/g, 'problem-error'));
+                                errorsPanel.append(newMessageHtml.replaceString(/{messageTypeClass}/g, 'problem-error'));
                             }
                         });
                     }

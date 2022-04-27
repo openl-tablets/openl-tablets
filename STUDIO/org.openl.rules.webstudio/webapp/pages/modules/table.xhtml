@@ -1277,20 +1277,20 @@
                     let linkTitle = "Edit cell containing ";
                     linkTitle += item.severity == 'ERROR' ? 'error' : (item.severity == 'WARN' ? 'warning' : 'info');
                     const hasErrorCode = item.errorCode && item.errorCode.length > 0;
-                    messages += htmlTemplate.replace(/{messageBoxClass}/g, messageBoxClass)
-                        .replace(/{messageArrowStyle}/g, item.hasStacktrace ? "" : hiddenStyle)
-                        .replace(/{messageSummary}/g, ws.utils.escapeHtml(item.summary))
-                        .replace(/{messageTitle}/g, linkTitle)
-                        .replace(/{tableId}/g, item.tableId)
-                        .replace(/{messageId}/g, item.id)
-                        .replace(/{messageCell}/g, item.errorCell)
-                        .replace(/{messageLink}/g, tableUrl)
-                        .replace(/{messageBoxStyle}/g, item.hasStacktrace ? 'padding-bottom: 3px' : '')
-                        .replace(/{messageErrorCode1}/g, hasErrorCode ? item.errorCode[0] : "")
-                        .replace(/{messageErrorCode2}/g, hasErrorCode ? item.errorCode[1] : "")
-                        .replace(/{messageErrorCode3}/g, hasErrorCode ? item.errorCode[2] : "")
-                        .replace(/{messageEditStyle}/g, (!#{tableBean.canEdit} || !item.hasLinkToCell) ? hiddenStyle : "")
-                        .replace(/{messageErrorCodeStyle}/g, (!item.hasLinkToCell || !hasErrorCode) ? hiddenStyle : "");
+                    messages += htmlTemplate.replaceString(/{messageBoxClass}/g, messageBoxClass)
+                        .replaceString(/{messageArrowStyle}/g, item.hasStacktrace ? "" : hiddenStyle)
+                        .replaceString(/{messageSummary}/g, ws.utils.escapeHtml(item.summary))
+                        .replaceString(/{messageTitle}/g, linkTitle)
+                        .replaceString(/{tableId}/g, item.tableId)
+                        .replaceString(/{messageId}/g, item.id)
+                        .replaceString(/{messageCell}/g, item.errorCell)
+                        .replaceString(/{messageLink}/g, tableUrl)
+                        .replaceString(/{messageBoxStyle}/g, item.hasStacktrace ? 'padding-bottom: 3px' : '')
+                        .replaceString(/{messageErrorCode1}/g, hasErrorCode ? ws.utils.escapeHtml(item.errorCode[0]) : "")
+                        .replaceString(/{messageErrorCode2}/g, hasErrorCode ? ws.utils.escapeHtml(item.errorCode[1]) : "")
+                        .replaceString(/{messageErrorCode3}/g, hasErrorCode ? ws.utils.escapeHtml(item.errorCode[2]) : "")
+                        .replaceString(/{messageEditStyle}/g, (!#{tableBean.canEdit} || !item.hasLinkToCell) ? hiddenStyle : "")
+                        .replaceString(/{messageErrorCodeStyle}/g, (!item.hasLinkToCell || !hasErrorCode) ? hiddenStyle : "");
                 });
 
                 $j("#problems-messages-panel-id").html(htmlTemplate + messages);

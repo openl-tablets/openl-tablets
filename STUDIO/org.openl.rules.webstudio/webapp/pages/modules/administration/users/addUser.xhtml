@@ -222,9 +222,9 @@
                 $j("#user-groups-row").show();
                 const isDefaultGroup = groupsConfig.defaultGroup === i;
                 const isAdminGroup = hasPrivilege(val, "ADMIN", []);
-                groups += htmlTemplate.replace(/{userGroupValue}/g, i).replace(/{userGroupName}/g, i)
-                    .replace(/{userGroupClass}/g, isDefaultGroup ? ' disable check' : '')
-                    .replace(/{userGroupStyle}/g, isAdminGroup ? "color: red;" : "");
+                groups += htmlTemplate.replaceString(/{userGroupValue}/g, i).replaceString(/{userGroupName}/g, i)
+                    .replaceString(/{userGroupClass}/g, isDefaultGroup ? ' disable check' : '')
+                    .replaceString(/{userGroupStyle}/g, isAdminGroup ? "color: red;" : "");
             });
             $j("#user-groups").html(htmlTemplate + groups);
 
