@@ -258,10 +258,10 @@
                     let groupClass = "";
                     groupClass += (userGroups.includes(i)) || isExternalGroup || isDefaultGroup ? ' check ' : ''
                     groupClass += (isAdminGroup && (userModel.superUser === true || userModel.currentUser === true)) || isExternalGroup || isDefaultGroup ? ' disable ' : '';
-                    groups += htmlTemplate.replace(/{editUserGroupValue}/g, i)
-                        .replaceAll(/{editUserGroupName}/g, i)
-                        .replace(/{editUserGroupClass}/g, groupClass)
-                        .replace(/{editUserGroupStyle}/g, isAdminGroup ? "color: red;" : "");
+                    groups += htmlTemplate.replaceString(/{editUserGroupValue}/g, i)
+                        .replaceAllString(/{editUserGroupName}/g, i)
+                        .replaceString(/{editUserGroupClass}/g, groupClass)
+                        .replaceString(/{editUserGroupStyle}/g, isAdminGroup ? "color: red;" : "");
                 });
                 $j("#edit-user-groups").html(htmlTemplate + groups);
                 $j("#edit-user-groups-row input:checkbox").each(function() {
