@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 public class ADeploymentProject extends UserWorkspaceProject {
     private static final Logger LOG = LoggerFactory.getLogger(ADeploymentProject.class);
 
+    private final ProjectDescriptorSerializer descriptorSerializer = new ProjectDescriptorSerializer();
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
     /* this button is used for rendering the save button (only for deploy configuration) */
@@ -136,7 +137,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public void save(CommonUser user) throws ProjectException {
         synchronized (this) {
-            InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
+            InputStream inputStream = descriptorSerializer.serialize(descriptors);
             if (getRepository().supports().folders()) {
                 FileData fileData = getFileData();
                 try {
@@ -266,8 +267,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 if (source.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
                     InputStream content = null;
                     try {
-                        content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
-                        List<ProjectDescriptor> newDescriptors = ProjectDescriptorHelper.deserialize(content);
+                        content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
+                            .getContent();
+                        List<ProjectDescriptor> newDescriptors = descriptorSerializer.deserialize(content);
                         if (newDescriptors != null) {
                             descriptors = newDescriptors;
                         }
