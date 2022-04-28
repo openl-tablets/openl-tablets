@@ -1,0 +1,18 @@
+<descriptors>
+    <descriptor>
+        <repositoryId>design</repositoryId>
+        <path>project1 &amp; \ &lt;&gt;</path>
+        <projectName>project1 &amp; \ &lt;&gt;</projectName>
+        <projectVersion>3.5.11</projectVersion>
+        <branch>master</branch>
+    </descriptor>
+    <descriptor>
+        <repositoryId>design2</repositoryId>
+        <projectName>project2</projectName>
+        <projectVersion>17</projectVersion>
+    </descriptor>
+    <descriptor>
+        <projectName>project0</projectName>
+        <projectVersion>0</projectVersion>
+    </descriptor>
+</descriptors>
