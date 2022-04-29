@@ -441,31 +441,48 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             // In the case of errors params will be null
             IParameterDeclaration[] params = funcRow.getParams();
             int paramsCount = params == null ? 0 : params.length;
-
             ILogicalTable valueCell = funcRow.getValueCell(c);
-
+            ILogicalTable paramTable = funcRow.getParamsTable();
+            int offsetByParamTable = 0;
+            int offsetByValueCell = 0;
+            int j = 0;
             for (int i = 0; i < paramsCount; i++) {
-
+                offsetByParamTable = offsetByParamTable + (paramTable
+                    .isNormalOrientation() ? paramTable.getRow(i).getSource().getWidth()
+                                           : paramTable.getRow(i).getSource().getHeight());
                 Object storageValue = funcRow.getStorageValue(i, c);
-                if (storageValue instanceof CompositeMethod) {
-                    addMetaInfoForCompositeMethod(region, valueCell, i, 0, storageValue);
-                } else if (storageValue instanceof ArrayHolder) {
-                    addMetaInfoForArrayHolder(region, valueCell, i, storageValue);
+                int d = 0;
+                while (offsetByValueCell < offsetByParamTable) {
+                    offsetByValueCell = offsetByValueCell + (valueCell
+                        .isNormalOrientation() ? valueCell.getRow(j).getSource().getWidth()
+                                               : valueCell.getRow(j).getSource().getHeight());
+                    d++;
+                    j++;
+                }
+                ILogicalTable logicalTable;
+                if (valueCell.isNormalOrientation()) {
+                    logicalTable = valueCell.getSubtable(j - d, 0, j - d, valueCell.getHeight());
                 } else {
-                    IParameterDeclaration param = params[i];
-                    if (param == null) {
-                        continue;
-                    }
-                    IOpenClass type = param.getType();
-                    boolean multiValue = false;
-                    if (type.isArray()) {
-                        multiValue = true;
-                        type = type.getAggregateInfo().getComponentType(type);
-                    }
-                    ICell cell = valueCell.getCell(0, i); // See EPBDS-7774 for an example when "i" is needed
-                    setPreparedMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), type, multiValue);
+                    logicalTable = valueCell.getSubtable(0, j - d, valueCell.getWidth(), d);
                 }
 
+                if (storageValue instanceof CompositeMethod) {
+                    addMetaInfoForCompositeMethod(region, logicalTable, 0, 0, storageValue);
+                } else if (storageValue instanceof ArrayHolder) {
+                    addMetaInfoForArrayHolder(region, logicalTable, storageValue);
+                } else {
+                    IParameterDeclaration param = params[i];
+                    if (param != null) {
+                        IOpenClass type = param.getType();
+                        boolean multiValue = false;
+                        if (type.isArray()) {
+                            multiValue = true;
+                            type = type.getAggregateInfo().getComponentType(type);
+                        }
+                        ICell cell = logicalTable.getCell(0, 0);
+                        setPreparedMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), type, multiValue);
+                    }
+                }
             }
         }
     }
@@ -488,17 +505,14 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
     }
 
-    private void addMetaInfoForArrayHolder(IGridRegion region,
-            ILogicalTable valueCell,
-            int paramIndex,
-            Object storageValue) {
+    private void addMetaInfoForArrayHolder(IGridRegion region, ILogicalTable valueCell, Object storageValue) {
         ArrayHolder arrayHolder = (ArrayHolder) storageValue;
         if (arrayHolder.is2DimArray()) {
             Object[][] values = arrayHolder.get2DimValues();
             for (int i = 0; i < values.length; i++) {
                 for (int j = 0; j < values[i].length; j++) {
                     if (values[i][j] instanceof CompositeMethod) {
-                        addMetaInfoForCompositeMethod(region, valueCell, paramIndex + j, i, values[i][j]);
+                        addMetaInfoForCompositeMethod(region, valueCell, j, i, values[i][j]);
                     }
                 }
             }
@@ -507,9 +521,9 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             for (int i = 0; i < values.length; i++) {
                 if (values[i] instanceof CompositeMethod) {
                     if (valueCell.getHeight() > 1) {
-                        addMetaInfoForCompositeMethod(region, valueCell, paramIndex + i, 0, values[i]);
+                        addMetaInfoForCompositeMethod(region, valueCell, i, 0, values[i]);
                     } else {
-                        addMetaInfoForCompositeMethod(region, valueCell, paramIndex, i, values[i]);
+                        addMetaInfoForCompositeMethod(region, valueCell, 0, i, values[i]);
                     }
                 }
             }
