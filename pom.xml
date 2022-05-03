@@ -106,7 +106,7 @@
         <com.fasterxml.jackson.version>2.13.2</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.45.v20220203</jetty.server.version>
+        <jetty.server.version>9.4.46.v20220331</jetty.server.version>
         <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
         <elasticsearch.version>6.8.21</elasticsearch.version>
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
