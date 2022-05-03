@@ -83,9 +83,9 @@
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
-        <org.springframework.version>5.3.18</org.springframework.version>
-        <org.springsecurity.version>5.6.2</org.springsecurity.version>
-        <org.hibernate.version>5.6.7.Final</org.hibernate.version>
+        <org.springframework.version>5.3.19</org.springframework.version>
+        <org.springsecurity.version>5.6.3</org.springsecurity.version>
+        <org.hibernate.version>5.6.8.Final</org.hibernate.version>
         <opensaml.version>4.1.1</opensaml.version>
         <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
             At the time of writing the latest official version is 2.3.9.
@@ -342,7 +342,7 @@
                         <dependency>
                             <groupId>com.h2database</groupId>
                             <artifactId>h2</artifactId>
-                            <version>2.1.210</version>
+                            <version>2.1.212</version>
                         </dependency>
                     </dependencies>
                 </plugin>
@@ -1420,7 +1420,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.13.2.1</version>
+                <version>2.13.2.2</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
