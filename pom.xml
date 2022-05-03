@@ -117,7 +117,7 @@
         <com.icegreen.greenmail.version>1.6.5</com.icegreen.greenmail.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.45.v20220203</jetty.server.version>
+        <jetty.server.version>9.4.46.v20220331</jetty.server.version>
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
         <org.apache.avro.version>1.10.0</org.apache.avro.version>
         <org.apache.zookeeper.version>3.7.0</org.apache.zookeeper.version>
