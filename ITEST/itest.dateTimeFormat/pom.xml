@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>5.24.11</version>
+        <version>5.24.12-SNAPSHOT</version>
     </parent>
 
     <artifactId>itest.dateTimeFormat</artifactId>
