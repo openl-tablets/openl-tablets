@@ -918,6 +918,11 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>org.owasp.esapi</groupId>
+                <artifactId>esapi</artifactId>
+                <version>2.4.0.0</version>
+            </dependency>
+            <dependency>
                 <groupId>com.sdicons.jsontools</groupId>
                 <artifactId>jsontools-core</artifactId>
                 <version>1.7</version>
