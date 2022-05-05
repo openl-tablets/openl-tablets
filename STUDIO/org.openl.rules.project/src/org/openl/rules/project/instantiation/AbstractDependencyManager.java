@@ -367,10 +367,10 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             IDependencyLoader s = itr.next();
             sb.insert(0, "' -> '");
             sb.insert(0,
-                !dependencyLoader.isProjectLoader() && p.get(s.getModule().getName()).size() == 1
-                                                                                                  ? s.getModule()
-                                                                                                      .getName()
-                                                                                                  : s.getDependency());
+                    !s.isProjectLoader() && p.get(s.getModule().getName()).size() == 1
+                            ? s.getModule()
+                            .getName()
+                            : s.getDependency());
             if (Objects.equals(dependencyLoader, s)) {
                 break;
             }

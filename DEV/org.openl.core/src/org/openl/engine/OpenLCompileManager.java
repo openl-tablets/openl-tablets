@@ -122,8 +122,13 @@ public class OpenLCompileManager {
                         CompiledDependency loadedDependency = dependencyManager.loadDependency(dependency);
                         OpenLClassLoader currentClassLoader = (OpenLClassLoader) Thread.currentThread()
                             .getContextClassLoader();
-                        if (loadedDependency.getClassLoader() != currentClassLoader) {
-                            currentClassLoader.addClassLoader(loadedDependency.getClassLoader());
+                        ClassLoader dependencyClassLoader = loadedDependency.getClassLoader();
+                        if (dependencyClassLoader != currentClassLoader
+                                && !(dependencyClassLoader instanceof OpenLClassLoader
+                                    && ((OpenLClassLoader) dependencyClassLoader)
+                                        .containsClassLoader(currentClassLoader))) {
+
+                            currentClassLoader.addClassLoader(dependencyClassLoader);
                         }
                         compiledDependencies.add(loadedDependency);
 
