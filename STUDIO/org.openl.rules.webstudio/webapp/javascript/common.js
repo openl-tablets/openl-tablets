@@ -271,3 +271,12 @@ function is4xxStatus(code) {
     }
     return ~~(code / 100) === 4;
 }
+
+// () => - necessary so that the second part of the replace() is not interpreted as a regex.
+String.prototype.replaceString = function (regex, string) {
+    return this.replace(regex, () => string);
+}
+
+String.prototype.replaceAllString = function (regex, string) {
+    return this.replaceAll(regex, () => string);
+}
