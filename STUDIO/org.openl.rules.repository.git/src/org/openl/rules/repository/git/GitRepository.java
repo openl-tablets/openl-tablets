@@ -1337,10 +1337,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 .setCommit(false)
                 .call();
 
-            if (!mergeResult.getMergeStatus().isSuccessful()) {
-                validateMergeConflict(mergeResult, true);
-                throw new IOException("Cannot merge: " + mergeResult);
-            }
+            validateNonConflictingMerge(mergeResult);
+            validateMergeConflict(mergeResult, true);
+
             applyMergeCommit(mergeResult, mergeMessage, mergeAuthor);
 
         } catch (GitAPIException | IOException e) {
@@ -1368,9 +1367,23 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
+    private void validateNonConflictingMerge(MergeResult mergeResult) throws IOException {
+        log.debug("Merge result: {}", mergeResult);
+        MergeResult.MergeStatus status = mergeResult.getMergeStatus();
+        if (!status.isSuccessful()) {
+            if (status == MergeResult.MergeStatus.CONFLICTING) {
+                // Conflicting merge result is processed in validateMergeConflict().
+                return;
+            }
+
+            log.debug("Merge status: {}", mergeResult.getMergeStatus());
+            throw new IOException("Cannot merge: " + StringUtils.trim(mergeResult.toString()));
+        }
+    }
+
     private void validateMergeConflict(MergeResult mergeResult, boolean theirToOur) throws GitAPIException,
                                                                                     IOException {
-        if (mergeResult != null && mergeResult.getMergeStatus() == MergeResult.MergeStatus.CONFLICTING) {
+        if (mergeResult.getMergeStatus() == MergeResult.MergeStatus.CONFLICTING) {
             ObjectId[] mergedCommits = mergeResult.getMergedCommits();
             Repository repository = git.getRepository();
             List<Ref> tags = git.tagList().call();
@@ -2042,6 +2055,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 .setFastForward(MergeCommand.FastForwardMode.NO_FF)
                 .call();
 
+            validateNonConflictingMerge(mergeResult);
+
             if (conflictResolveData != null) {
                 resolveConflict(mergeResult, conflictResolveData, author);
             } else {
@@ -2265,6 +2280,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             ObjectIdRef.Unpeeled ref = new ObjectIdRef.Unpeeled(Ref.Storage.LOOSE, commitId.name(), commitId.copy());
             String mergeMessage = getMergeMessage(ref);
             MergeResult mergeDetached = git.merge().include(commitId).setMessage(mergeMessage).setCommit(false).call();
+            validateNonConflictingMerge(mergeDetached);
             validateMergeConflict(mergeDetached, false);
             applyMergeCommit(mergeDetached, mergeMessage, folderData.getAuthor());
         }
