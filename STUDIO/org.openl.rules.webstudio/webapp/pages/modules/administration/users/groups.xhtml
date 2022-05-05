@@ -219,10 +219,10 @@
                     });
 
                     list += htmlTemplate
-                        .replace(/{type}/g, onlyAdmin === name ? "onlyAdmin" : "")
-                        .replace(/{name}/g, ws.utils.escapeHtml(name))
-                        .replace(/{description}/g, ws.utils.escapeHtml(item.description))
-                        .replace(/{privileges}/g, privs);
+                        .replaceString(/{type}/g, onlyAdmin === name ? "onlyAdmin" : "")
+                        .replaceString(/{name}/g, ws.utils.escapeHtml(name))
+                        .replaceString(/{description}/g, ws.utils.escapeHtml(item.description))
+                        .replaceString(/{privileges}/g, privs);
                 });
                 $j('#groupsTable').append(list);
                 $j('#groupsTable').show();
