@@ -16,7 +16,7 @@ public class ArrayArgumentsMethodBinder extends org.openl.binding.impl.ArrayArgu
     }
 
     @Override
-    protected IBoundNode makeMultiCallMethodBoundNode(ISyntaxNode node,
+    protected MultiCallMethodBoundNode makeMultiCallMethodBoundNode(ISyntaxNode node,
             IBoundNode[] children,
             List<Integer> arrayArgArgumentList,
             IMethodCaller singleParameterMethodCaller) {

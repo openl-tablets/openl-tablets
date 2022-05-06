@@ -51,7 +51,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             int countOfChanged,
             MutableInt bestCountOfChanged,
             Map<MethodKey, IOpenMethod> candidates,
-            MutableObject<IBoundNode> best,
+            MutableObject<MultiCallMethodBoundNode> best,
             IOpenClass targetType) {
         if (countOfChanged > bestCountOfChanged.getValue() || arrayArgArguments.isEmpty()) {
             return;
@@ -99,12 +99,11 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             candidates.clear();
             bestCountOfChanged.setValue(countOfChanged);
 
-            BindHelper.checkOnDeprecation(node, bindingContext, singleParameterMethodCaller);
             // bound node that is going to call the single parameter method by several times on runtime and return an
             // array
             // of results.
             //
-            IBoundNode multiCallMethodBoundNode = makeMultiCallMethodBoundNode(node,
+            MultiCallMethodBoundNode multiCallMethodBoundNode = makeMultiCallMethodBoundNode(node,
                 children,
                 new ArrayList<>(arrayArgArguments),
                 singleParameterMethodCaller);
@@ -113,7 +112,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
         candidates.put(new MethodKey(singleParameterMethodCaller.getMethod()), singleParameterMethodCaller.getMethod());
     }
 
-    protected IBoundNode makeMultiCallMethodBoundNode(ISyntaxNode node,
+    protected MultiCallMethodBoundNode makeMultiCallMethodBoundNode(ISyntaxNode node,
             IBoundNode[] children,
             List<Integer> arrayArgArgumentList,
             IMethodCaller singleParameterMethodCaller) {
@@ -129,7 +128,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             int countOfChanged,
             MutableInt bestCountOfChanged,
             Map<MethodKey, IOpenMethod> candidates,
-            MutableObject<IBoundNode> best,
+            MutableObject<MultiCallMethodBoundNode> best,
             IOpenClass targetType) {
         int arrayArgumentIndex = indexesOfArrayArguments.get(indexToChange);
 
@@ -178,7 +177,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             int countOfChanged,
             MutableInt bestCountOfChanged,
             Map<MethodKey, IOpenMethod> candidates,
-            MutableObject<IBoundNode> best,
+            MutableObject<MultiCallMethodBoundNode> best,
             boolean last,
             IOpenClass targetType) {
         if (last) {
@@ -230,7 +229,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             ArrayDeque<Integer> arrayArgArguments = new ArrayDeque<>();
             Map<MethodKey, IOpenMethod> candidates = new HashMap<>();
             MutableInt bestCountOfChanges = new MutableInt(Integer.MAX_VALUE);
-            MutableObject<IBoundNode> best = new MutableObject<>(null);
+            MutableObject<MultiCallMethodBoundNode> best = new MutableObject<>(null);
             recursiveMultiCallMethodNodeSearch(node,
                 bindingContext,
                 unwrappedArgumentsTypes,
@@ -245,7 +244,11 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             if (candidates.size() > 1) {
                 throw new AmbiguousMethodException(methodName, argumentsTypes, new ArrayList<>(candidates.values()));
             }
-            return best.getValue();
+            MultiCallMethodBoundNode multiCallMethodBoundNode = best.getValue();
+            if (multiCallMethodBoundNode != null) {
+                BindHelper.checkOnDeprecation(node, bindingContext, multiCallMethodBoundNode.getMethodCaller());
+            }
+            return multiCallMethodBoundNode;
         } else {
             LOG.debug("There is no any array argument in signature for method '{}'", methodName);
         }
