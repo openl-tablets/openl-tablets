@@ -1,8 +1,11 @@
 package org.openl.rules.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -18,6 +21,7 @@ public class DatesTest {
         assertEquals(new Date(80, 6, 12), Dates.Date(1980, 7, 12));
         assertEquals(new Date(-1820, 6, 12), Dates.Date(80, 7, 12));
         assertEquals(new Date(116, 1, 29), Dates.Date(2016, 2, 29));
+        assertEquals(new Date(116, 1, 29, 11, 11, 11), Dates.Date(2016, 2, 29, 11, 11, 11));
     }
 
     @Test
@@ -33,6 +37,21 @@ public class DatesTest {
     @Test
     public void testDateWrongYear() {
         assertNull(Dates.Date(0, 1, 1));
+    }
+
+    @Test
+    public void testDateWrongHour() {
+        assertNull(Dates.Date(2022, 1, 1, 24, 1, 1));
+    }
+
+    @Test
+    public void testDateWrongMinute() {
+        assertNull(Dates.Date(2022, 1, 1, 1, 60, 1));
+    }
+
+    @Test
+    public void testDateWrongSecond() {
+        assertNull(Dates.Date(2022, 1, 1, 1, 1, 60));
     }
 
     @Test
@@ -184,6 +203,32 @@ public class DatesTest {
         assertEquals(new Double(-12.03225806451613d), Dates.dateDif(end, start, "MF"));
         assertEquals(new Double(-1.0027397260273974d), Dates.dateDif(end, start, "YF"));
         assertEquals(new Double(-0.03225806451612903d), Dates.dateDif(end, start, "YMF"));
+    }
+
+    @Test
+    public void testSetters() {
+        Date date = getDate(1, 1, 2022);
+        assertNull(Dates.setDate(date, 2022, 22, 1));
+        assertNull(Dates.setDate(date, -111, 1, 1));
+        assertNull(Dates.setDate(date, 2022, 2, 222));
+        assertNull(Dates.setTime(date, 2022, 2, 1));
+        assertNull(Dates.setTime(date, 2, 222, 1));
+        assertNull(Dates.setTime(date, 2, 2, 122));
+        assertNull(Dates.setTime(date, 2, 2, -1));
+        assertNull(Dates.setTime(date, 2, 2, 1, 1000));
+        assertNull(Dates.setTime(date, 2, 2, 1, -1));
+        assertEquals(new Date(122, 1, 3), Dates.setDate(date, 2022, 2, 3));
+        assertEquals(new Date(122, 0, 1, 11, 11, 11), Dates.setTime(date, 11, 11, 11));
+        long l = new Date(122, 0, 1, 11, 11, 11).getTime() + 11;
+        assertEquals(l, Dates.setTime(date, 11, 11, 11, 11).getTime());
+    }
+
+    @Test
+    public void isLeap(){
+        assertTrue(Dates.isLeap(Dates.Date(2016, 2, 29)));
+        assertFalse(Dates.isLeap(Dates.Date(2017, 2, 28)));
+        assertFalse(Dates.isLeap(Dates.Date(1900, 2, 28)));
+        assertTrue(Dates.isLeap(Dates.Date(2000, 2, 28)));
     }
 
     private static Date getDate(int day, int month, int year) {

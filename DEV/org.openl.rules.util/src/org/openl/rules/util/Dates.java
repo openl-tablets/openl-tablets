@@ -3,6 +3,7 @@ package org.openl.rules.util;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Year;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -32,14 +33,41 @@ public final class Dates {
      * @see SimpleDateFormat
      */
     public static Date Date(int year, int month, int day) {
+        return Date(year, month, day, 0, 0, 0, 0);
+    }
+
+    /**
+     * Creates Date object with hours,and minutes. Also validates correctness of the date.
+     *
+     * @see SimpleDateFormat
+     */
+    public static Date Date(int year, int month, int day, int hours, int minutes) {
+        return Date(year, month, day, hours, minutes, 0, 0);
+    }
+
+    /**
+     * Creates Date object with hours, minutes and seconds. Also validates correctness of the date.
+     *
+     * @see SimpleDateFormat
+     */
+    public static Date Date(int year, int month, int day, int hours, int minutes, int seconds) {
+        return Date(year, month, day, hours, minutes, seconds, 0);
+    }
+
+    /**
+     * Creates Date object with hours, minutes, seconds and milliseconds. Also validates correctness of the date.
+     *
+     * @see SimpleDateFormat
+     */
+    public static Date Date(int year, int month, int day, int hours, int minutes, int seconds, int milliseconds) {
         Calendar calendar = Calendar.getInstance();
-        calendar.set(year, month - 1, day, 0, 0, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(year, month - 1, day, hours, minutes, seconds);
+        calendar.set(Calendar.MILLISECOND, milliseconds);
         calendar.setLenient(false); // Strict matching
         try {
             return calendar.getTime();
         } catch (IllegalArgumentException ignored) {
-            //return null for invalid date arguments
+            // return null for invalid date arguments
             return null;
         }
     }
@@ -74,6 +102,119 @@ public final class Dates {
      */
     public static Date toDate(String str, String pattern) {
         return isEmpty(str) ? null : parse(str, pattern);
+    }
+
+
+    /**
+     * Set time in hh:mm:00.000 without changing the date
+     */
+    public static Date setTime(Date date, int hours, int minutes) {
+        if (date == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, hours);
+        calendar.set(Calendar.MINUTE, minutes);
+        calendar.setLenient(false);
+        try {
+            return calendar.getTime();
+        } catch (IllegalArgumentException ignored) {
+            // return null for invalid date arguments
+            return null;
+        }
+    }
+
+    /**
+     * Set time in hh:mm:ss.000 without changing the date
+     */
+    public static Date setTime(Date date, int hours, int minutes, int seconds) {
+        if (date == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, hours);
+        calendar.set(Calendar.MINUTE, minutes);
+        calendar.set(Calendar.SECOND, seconds);
+        calendar.setLenient(false);
+        try {
+            return calendar.getTime();
+        } catch (IllegalArgumentException ignored) {
+            // return null for invalid date arguments
+            return null;
+        }
+    }
+
+    /**
+     * Set time in hh:mm:ss.xxx without changing the date
+     */
+    public static Date setTime(Date date, int hours, int minutes, int seconds, int milliseconds) {
+        if (date == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, hours);
+        calendar.set(Calendar.MINUTE, minutes);
+        calendar.set(Calendar.SECOND, seconds);
+        calendar.set(Calendar.MILLISECOND, milliseconds);
+        calendar.setLenient(false);
+        try {
+            return calendar.getTime();
+        } catch (IllegalArgumentException ignored) {
+            // return null for invalid date arguments
+            return null;
+        }
+    }
+
+    /**
+     * Set date in yyyy-mm-dd without changing the time
+     */
+    public static Date setDate(Date date, int year, int month, int day) {
+        if (date == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.YEAR, year);
+        calendar.set(Calendar.MONTH, month - 1);
+        calendar.set(Calendar.DATE, day);
+        calendar.setLenient(false);
+        try {
+            return calendar.getTime();
+        } catch (IllegalArgumentException ignored) {
+            // return null for invalid date arguments
+            return null;
+        }
+    }
+
+    /**
+     * Check if date is in the leap year
+     *
+     * @param date date
+     * @return true if year is leap, otherwise false
+     */
+    public static Boolean isLeap(Date date) {
+        if (date == null) {
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return Year.isLeap(calendar.get(Calendar.YEAR));
+    }
+
+    /**
+     * Check if date is in the leap year
+     *
+     * @param year year
+     * @return true if year is leap, otherwise false
+     */
+    public static Boolean isLeap(Integer year) {
+        if (year == null) {
+            return null;
+        }
+        return Year.isLeap(year);
     }
 
     private static Date parse(String str, String pattern) {
