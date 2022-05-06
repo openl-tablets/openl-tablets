@@ -13,7 +13,7 @@ public class OldRepositoryApiTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.startWithWebXml("wcs");
+        server = JettyServer.startWithWebXml("wcsadmin");
         client = server.client();
     }
 
@@ -34,6 +34,11 @@ public class OldRepositoryApiTest {
         client.send("EPBDS-5662/07-addProject");
         client.send("EPBDS-5662/08-getProject");
         client.send("EPBDS-5662/09-getAllProjects");
+    }
+
+    @Test
+    public void EPBDS_12683() {
+        client.test("test-resources/EPBDS-12683");
     }
 
 }

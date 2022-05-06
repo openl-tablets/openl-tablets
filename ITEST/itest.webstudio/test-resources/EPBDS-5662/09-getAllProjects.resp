@@ -6,21 +6,21 @@ Content-Type: application/json
     "name": "project2",
     "version": "1",
     "modifiedAt": "*",
-    "modifiedBy": "DEFAULT",
+    "modifiedBy": "admin",
     "locked": false
   },
   {
     "name": "Sample",
     "version": "2",
     "modifiedAt": "*",
-    "modifiedBy": "DEFAULT",
+    "modifiedBy": "admin",
     "locked": false
   },
   {
     "name": "foo-bar",
     "version": "3",
     "modifiedAt": "*",
-    "modifiedBy": "DEFAULT",
+    "modifiedBy": "admin",
     "locked": false
   }
 ]
