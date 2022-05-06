@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 public class ArrayArgumentsMethodBinder extends ANodeBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArrayArgumentsMethodBinder.class);
+    private static final int MAX_COUNT_OF_ARGUMENTS_TO_MULTI_CALL = 5;
 
     private final String methodName;
     private final IOpenClass[] argumentsTypes;
@@ -61,9 +62,10 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
         try {
             if (targetType == null) {
                 singleParameterMethodCaller = bindingContext
-                        .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, methodArguments);
+                    .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, methodArguments);
             } else {
-                singleParameterMethodCaller = MethodSearch.findMethod(methodName, methodArguments, bindingContext, targetType);
+                singleParameterMethodCaller = MethodSearch
+                    .findMethod(methodName, methodArguments, bindingContext, targetType);
             }
         } catch (AmbiguousMethodException e) {
             if (countOfChanged < bestCountOfChanged.getValue()) {
@@ -133,7 +135,7 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
 
         boolean last = indexToChange == indexesOfArrayArguments.size() - 1;
 
-        // Try interpret array argument as is, not multicall
+        // Try to interpret array argument as is, not multicall
         unwrappedArgumentsTypes[arrayArgumentIndex] = argumentsTypes[arrayArgumentIndex];
         splitByLastToFindMultiCallMethodNode(node,
             bindingContext,
@@ -147,22 +149,24 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
             best,
             last,
             targetType);
-        // Try interpret array argument as multicall
-        arrayArgArguments.addLast(arrayArgumentIndex);
-        unwrappedArgumentsTypes[arrayArgumentIndex] = argumentsTypes[arrayArgumentIndex].getComponentClass();
-        splitByLastToFindMultiCallMethodNode(node,
-            bindingContext,
-            unwrappedArgumentsTypes,
-            arrayArgArguments,
-            indexesOfArrayArguments,
-            indexToChange,
-            countOfChanged + 1,
-            bestCountOfChanged,
-            candidates,
-            best,
-            last,
-            targetType);
-        arrayArgArguments.removeLast();
+        // Try to interpret array argument as multicall
+        if (countOfChanged < MAX_COUNT_OF_ARGUMENTS_TO_MULTI_CALL) {
+            arrayArgArguments.addLast(arrayArgumentIndex);
+            unwrappedArgumentsTypes[arrayArgumentIndex] = argumentsTypes[arrayArgumentIndex].getComponentClass();
+            splitByLastToFindMultiCallMethodNode(node,
+                bindingContext,
+                unwrappedArgumentsTypes,
+                arrayArgArguments,
+                indexesOfArrayArguments,
+                indexToChange,
+                countOfChanged + 1,
+                bestCountOfChanged,
+                candidates,
+                best,
+                last,
+                targetType);
+            arrayArgArguments.removeLast();
+        }
     }
 
     private void splitByLastToFindMultiCallMethodNode(ISyntaxNode node,
@@ -249,7 +253,9 @@ public class ArrayArgumentsMethodBinder extends ANodeBinder {
     }
 
     @Override
-    public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode targetNode) throws Exception {
+    public IBoundNode bindTarget(ISyntaxNode node,
+            IBindingContext bindingContext,
+            IBoundNode targetNode) throws Exception {
         IOpenClass type = targetNode.getType();
         return bindInternal(node, bindingContext, type);
     }
