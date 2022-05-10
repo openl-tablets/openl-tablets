@@ -94,7 +94,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
                     .getAggregateInfo()
                     .getComponentType(targetNode.getType());
                 openCast = bindingContext.getCast(componentType1, localVar.getType());
-                if (targetNode.getType().isArray() && (openCast == null || !openCast.isImplicit())) {
+                if (targetNode.getType().isArray() && openCast == null) {
                     String message = String.format("Cannot convert from '%s' to '%s'.",
                         targetNode.getType().getAggregateInfo().getComponentType(targetNode.getType()).getName(),
                         localVar.getType().getName());
