@@ -34,13 +34,13 @@ public class UnaryOperatorNodeBinder extends ANodeBinder {
             return methodCaller;
         }
 
-        methodCaller = MethodSearch.findMethod(methodName, IOpenClass.EMPTY, bindingContext, types[0]);
+        methodCaller = MethodSearch.findMethod(methodName, IOpenClass.EMPTY, bindingContext, types[0], false);
 
         if (methodCaller != null) {
             return methodCaller;
         }
 
-        methodCaller = MethodSearch.findMethod(methodName, types, bindingContext, types[0]);
+        methodCaller = MethodSearch.findMethod(methodName, types, bindingContext, types[0], false);
 
         return methodCaller;
     }

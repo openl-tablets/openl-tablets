@@ -1,15 +1,23 @@
 package org.openl.conf;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.NotExistNodeBinder;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -17,6 +25,7 @@ import org.openl.binding.impl.method.MethodSearch;
 import org.openl.conf.TypeCastFactory.JavaCastComponent;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.grammar.IGrammar;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -168,7 +177,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
         IOpenMethod[] mcs = getMethods(namespace, name);
 
-        return MethodSearch.findMethod(name, params, casts, Arrays.asList(mcs));
+        return MethodSearch
+            .findMethod(name, params, casts, Arrays.asList(mcs), ISyntaxConstants.THIS_NAMESPACE.equals(namespace));
     }
 
     @Override

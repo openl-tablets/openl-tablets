@@ -46,7 +46,8 @@ public class ModuleSpecificOpenMethod extends AOpenMethodDelegator {
             boolean constructor,
             IBindingContext bindingContext) {
         IMethodCaller methodCaller = constructor ? MethodSearch.findConstructor(types, bindingContext, type)
-                                                 : MethodSearch.findMethod(methodName, types, bindingContext, type);
+                                                 : MethodSearch
+                                                     .findMethod(methodName, types, bindingContext, type, true);
         if (type instanceof WrapModuleSpecificTypes && methodCaller == null) {
             IOpenClass[] nullModuleSpecificTypes = Arrays.copyOf(types, types.length);
             for (int i = 0; i < nullModuleSpecificTypes.length; i++) {
@@ -57,7 +58,7 @@ public class ModuleSpecificOpenMethod extends AOpenMethodDelegator {
             try {
                 IMethodCaller mc = constructor ? MethodSearch.findConstructor(nullModuleSpecificTypes,
                     bindingContext,
-                    type) : MethodSearch.findMethod(methodName, nullModuleSpecificTypes, bindingContext, type);
+                    type) : MethodSearch.findMethod(methodName, nullModuleSpecificTypes, bindingContext, type, true);
                 if (mc != null && isMatchToParamsModuleSpecificTypesByNames(mc.getMethod(), types)) {
                     methodCaller = mc;
                 }

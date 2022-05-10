@@ -6,12 +6,14 @@ import java.math.MathContext;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.openl.binding.impl.method.IgnoreVarargsMatching;
 import org.openl.rules.util.dates.DateInterval;
 
 /**
  * @author snshor
  *
  */
+@IgnoreVarargsMatching
 public class Operators {
 
     // Add

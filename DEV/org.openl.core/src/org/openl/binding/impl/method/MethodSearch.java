@@ -9,11 +9,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.CastsLinkageCast;
+import org.openl.binding.impl.cast.IArrayOneElementCast;
 import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.types.IMethodCaller;
@@ -37,38 +40,54 @@ public final class MethodSearch {
     private MethodSearch() {
     }
 
-    private static final int[] NO_MATCH = new int[0];
+    private static final Match NO_MATCH = new Match(null, null, null, null, null, null, null, null, false, null);
 
-    private static int[] calcMatch(JavaOpenMethod method,
-            IOpenClass[] methodParam,
+    private static Match calcMatch(IOpenMethod method,
+            IOpenClass[] originalCallParams,
             IOpenClass[] callParam,
             ICastFactory castFactory,
-            IOpenCast[] castHolder,
-            IOpenCast[] returnCastHolder,
-            IOpenClass[] returnTypeHolder) {
-        Integer[] castHolderDistance = new Integer[callParam.length];
-        if (method != null) {
+            boolean vararg,
+            IOpenClass varargElementType,
+            boolean allowMultiCallParams) {
+        final IOpenClass[] methodParam = method.getSignature().getParameterTypes();
+        JavaOpenMethod javaOpenMethod = null;
+        if (method instanceof JavaOpenMethod) {
+            javaOpenMethod = (JavaOpenMethod) method;
+        }
+
+        int size = vararg ? originalCallParams.length + 1 : originalCallParams.length;
+
+        final boolean[] multiCallParams = allowMultiCallParams ? new boolean[size] : null;
+        final IOpenCast[] paramCasts = new IOpenCast[size];
+        IOpenCast returnCast = null;
+        IOpenClass returnType = null;
+        Integer[] castDistances = new Integer[size];
+        if (javaOpenMethod != null) {
             Map<String, IOpenClass> genericTypes = new HashMap<>();
-            String[] typeNames = new String[method.getParameterTypes().length];
-            int[] arrayDims = new int[method.getParameterTypes().length];
+            int countOfParameters = javaOpenMethod.getParameterTypes().length;
+            String[] typeNames = new String[countOfParameters];
+            int[] arrayDims = new int[countOfParameters];
             int i = 0;
-            for (Type type : method.getJavaMethod().getGenericParameterTypes()) {
+            for (Type type : javaOpenMethod.getJavaMethod().getGenericParameterTypes()) {
                 typeNames[i] = JavaGenericsUtils.getGenericTypeName(type);
                 if (typeNames[i] != null) {
+                    IOpenClass t = callParam[i];
+                    if (NullOpenClass.isAnyNull(t)) {
+                        continue;
+                    }
                     arrayDims[i] = JavaGenericsUtils.getGenericTypeDim(type);
                     int arrayDim = arrayDims[i];
-                    IOpenClass t = callParam[i];
-
-                    if (t.getInstanceClass() != null && t.getInstanceClass().isPrimitive()) {
-                        t = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(t.getInstanceClass()));
-                    }
-
                     while (t.isArray() && arrayDim > 0) {
                         arrayDim--;
                         t = t.getComponentClass();
                     }
                     if (arrayDim > 0) {
-                        return NO_MATCH;
+                        if (arrayDim == 1 && allowMultiCallParams && callParam[i]
+                            .isArray() && (!vararg || i != callParam.length - 1)) {
+                            multiCallParams[i] = true;
+                        } else {
+                            return NO_MATCH;
+                        }
                     }
                     t = unwrapPrimitiveClassIfNeeded(t);
                     if (genericTypes.containsKey(typeNames[i])) {
@@ -83,98 +102,177 @@ public final class MethodSearch {
             }
 
             for (i = 0; i < callParam.length; i++) {
-                if (typeNames[i] != null) {
+                if (typeNames[i] != null && genericTypes.containsKey(typeNames[i])) {
                     IOpenClass type = genericTypes.get(typeNames[i]);
                     type = arrayDims[i] > 0 ? type.getArrayType(arrayDims[i]) : type;
 
-                    IOpenCast tCast = castFactory.getCast(callParam[i], type);
-                    if (tCast == null || !tCast.isImplicit()) {
-                        return NO_MATCH;
+                    IOpenClass cp = callParam[i];
+                    if (allowMultiCallParams && multiCallParams[i]) {
+                        cp = cp.getComponentClass();
                     }
 
-                    if (callParam[i] != type) {
-                        IOpenCast gCast = castFactory.getCast(callParam[i], type);
-                        if (gCast == null || !gCast.isImplicit()) {
+                    IOpenCast gCast = castFactory.getCast(cp, type);
+                    if (gCast == null || !gCast
+                        .isImplicit() || allowMultiCallParams && gCast instanceof IArrayOneElementCast) {
+                        if (allowMultiCallParams && cp
+                            .isArray() && !multiCallParams[i] && (!vararg || i != callParam.length - 1)) {
+                            cp = cp.getComponentClass();
+                            gCast = castFactory.getCast(cp, type);
+                            if (gCast == null || !gCast.isImplicit() || gCast instanceof IArrayOneElementCast) {
+                                return NO_MATCH;
+                            }
+                            multiCallParams[i] = true;
+                        } else {
                             return NO_MATCH;
                         }
+                    }
+                    if (!NullOpenClass.isAnyNull(cp) && !Objects.equals(cp, type)) {
                         if (!Objects.equals(type, methodParam[i])) {
                             IOpenCast cast = castFactory.getCast(type, methodParam[i]);
                             if (cast == null || !cast.isImplicit()) {
                                 return NO_MATCH;
                             }
-                            castHolder[i] = new CastsLinkageCast(gCast, cast);
+                            paramCasts[i] = new CastsLinkageCast(gCast, cast);
                         } else {
-                            castHolder[i] = gCast;
+                            paramCasts[i] = gCast;
                         }
-                        castHolderDistance[i] = castHolder[i].getDistance();
+                        castDistances[i] = paramCasts[i].getDistance();
                     } else {
-                        if (callParam[i] != methodParam[i]) {
-                            castHolder[i] = castFactory.getCast(callParam[i], methodParam[i]);
-                            if (castHolder[i] == null || !castHolder[i].isImplicit()) {
-                                return NO_MATCH;
+                        if (!Objects.equals(cp, methodParam[i])) {
+                            paramCasts[i] = castFactory.getCast(cp, methodParam[i]);
+                            if (paramCasts[i] == null || !paramCasts[i]
+                                .isImplicit() || allowMultiCallParams && paramCasts[i] instanceof IArrayOneElementCast) {
+                                if (allowMultiCallParams && cp
+                                    .isArray() && !multiCallParams[i] && (!vararg || i != callParam.length - 1)) {
+                                    cp = cp.getComponentClass();
+                                    paramCasts[i] = castFactory.getCast(cp, methodParam[i]);
+                                    if (paramCasts[i] == null || !paramCasts[i]
+                                        .isImplicit() || paramCasts[i] instanceof IArrayOneElementCast) {
+                                        return NO_MATCH;
+                                    }
+                                    multiCallParams[i] = true;
+                                } else {
+                                    return NO_MATCH;
+                                }
                             }
                         }
                     }
                 } else {
-                    if (callParam[i] != methodParam[i]) {
+                    IOpenClass cp = callParam[i];
+                    if (!Objects.equals(cp, methodParam[i])) {
                         if (IOpenClass.class.isAssignableFrom(methodParam[i].getInstanceClass()) && methodParam[i]
                             .getInstanceClass()
-                            .isAssignableFrom(callParam[i].getClass())) {
-                            castHolder[i] = castFactory.getCast(callParam[i], JavaOpenClass.OBJECT);
+                            .isAssignableFrom(cp.getClass())) {
+                            paramCasts[i] = castFactory.getCast(cp, JavaOpenClass.OBJECT);
                         } else {
-                            castHolder[i] = castFactory.getCast(callParam[i], methodParam[i]);
+                            paramCasts[i] = castFactory.getCast(cp, methodParam[i]);
                         }
-                        if (castHolder[i] == null || !castHolder[i].isImplicit()) {
-                            return NO_MATCH;
+                        if (paramCasts[i] == null || !paramCasts[i]
+                            .isImplicit() || allowMultiCallParams && paramCasts[i] instanceof IArrayOneElementCast) {
+                            if (allowMultiCallParams && cp
+                                .isArray() && !multiCallParams[i] && (!vararg || i != callParam.length - 1)) {
+                                cp = cp.getComponentClass();
+                                if (IOpenClass.class.isAssignableFrom(
+                                    methodParam[i].getInstanceClass()) && methodParam[i].getInstanceClass()
+                                        .isAssignableFrom(cp.getClass())) {
+                                    paramCasts[i] = castFactory.getCast(cp, JavaOpenClass.OBJECT);
+                                } else {
+                                    paramCasts[i] = castFactory.getCast(cp, methodParam[i]);
+                                }
+                                if (paramCasts[i] == null || !paramCasts[i]
+                                    .isImplicit() || paramCasts[i] instanceof IArrayOneElementCast) {
+                                    return NO_MATCH;
+                                }
+                                multiCallParams[i] = true;
+                            } else {
+                                return NO_MATCH;
+                            }
                         }
                     }
                 }
             }
+            String returnTypeName = JavaGenericsUtils
+                .getGenericTypeName(javaOpenMethod.getJavaMethod().getGenericReturnType());
 
-            String returnType = JavaGenericsUtils.getGenericTypeName(method.getJavaMethod().getGenericReturnType());
-
-            if (returnType != null && genericTypes.containsKey(returnType)) {
-                int dim = JavaGenericsUtils.getGenericTypeDim(method.getJavaMethod().getGenericReturnType());
-                IOpenClass type = genericTypes.get(returnType);
+            if (returnTypeName != null && genericTypes.containsKey(returnTypeName)) {
+                int dim = JavaGenericsUtils.getGenericTypeDim(javaOpenMethod.getJavaMethod().getGenericReturnType());
+                IOpenClass type = genericTypes.get(returnTypeName);
                 if (dim > 0) {
                     type = type.getArrayType(dim);
                 }
-                IOpenCast returnCast = castFactory.getCast(method.getType(), type);
+                returnCast = castFactory.getCast(javaOpenMethod.getType(), type);
                 if (returnCast == null) {
                     return NO_MATCH;
                 }
-                returnCastHolder[0] = returnCast;
-                returnTypeHolder[0] = type;
+                returnType = type;
             }
         } else {
             for (int i = 0; i < callParam.length; i++) {
-                if (callParam[i] != methodParam[i]) {
+                IOpenClass cp = callParam[i];
+                if (cp != methodParam[i]) {
                     IOpenCast cast = castFactory.getCast(callParam[i], methodParam[i]);
+                    if (cast == null || !cast
+                        .isImplicit() || allowMultiCallParams && cast instanceof IArrayOneElementCast) {
+                        if (allowMultiCallParams && cp.isArray() && !multiCallParams[i]) {
+                            cp = cp.getComponentClass();
+                            cast = castFactory.getCast(cp, methodParam[i]);
+                            if (cast == null || !cast.isImplicit() || cast instanceof IArrayOneElementCast) {
+                                return NO_MATCH;
+                            }
+                            multiCallParams[i] = true;
+                        } else {
+                            return NO_MATCH;
+                        }
+                    }
+                    paramCasts[i] = cast;
+                }
+            }
+        }
+
+        if (vararg) {
+            for (int i = callParam.length - 1; i < size - 1; i++) {
+                if (varargElementType != originalCallParams[i]) {
+                    IOpenCast cast = castFactory.getCast(originalCallParams[i], varargElementType);
                     if (cast == null || !cast.isImplicit()) {
                         return NO_MATCH;
                     }
-                    castHolder[i] = cast;
+                    paramCasts[i + 1] = cast;
                 }
             }
         }
 
-        int[] m = new int[callParam.length];
+        int[] m = new int[size];
+        Arrays.fill(m, CastFactory.NO_CAST_DISTANCE);
 
-        for (int i = 0; i < callParam.length; i++) {
-            if (castHolder[i] != null) {
-                if (castHolderDistance[i] == null) {
-                    m[i] = castHolder[i].getDistance();
+        for (int i = 0; i < size; i++) {
+            if (paramCasts[i] != null) {
+                if (castDistances[i] == null) {
+                    m[i] = paramCasts[i].getDistance();
                 } else {
-                    m[i] = castHolderDistance[i];
+                    m[i] = castDistances[i];
                 }
             }
         }
 
-        if (castHolder.length > 0 && castHolder[castHolder.length - 1] instanceof IOneElementArrayCast) {
-            return NO_MATCH;
+        Arrays.sort(m);
+
+        if (vararg && NullOpenClass.isAnyNull(
+            varargElementType) && originalCallParams.length >= method.getSignature().getNumberOfParameters()) {
+            int lastParameterIndex = method.getSignature().getNumberOfParameters() - 1;
+            varargElementType = method.getSignature().getParameterType(lastParameterIndex).getComponentClass();
         }
 
-        return m;
+        return new Match(method,
+            originalCallParams,
+            callParam,
+            paramCasts,
+            multiCallParams,
+            returnCast,
+            returnType,
+            m,
+            vararg,
+            varargElementType);
+
     }
 
     private static IOpenClass unwrapPrimitiveClassIfNeeded(IOpenClass clazz) {
@@ -184,9 +282,9 @@ public final class MethodSearch {
         return clazz;
     }
 
-    private static boolean zeroCasts(int[] m) {
+    private static boolean isNoCastDistances(int[] m) {
         for (int value : m) {
-            if (value != 0) {
+            if (value != CastFactory.NO_CAST_DISTANCE) {
                 return false;
             }
         }
@@ -202,190 +300,511 @@ public final class MethodSearch {
         return dim;
     }
 
-    private static boolean lq(IOpenMethod method,
-            List<IOpenMethod> matchingMethods,
-            IOpenClass[] callParams,
-            int[] m1,
-            int[] m2) {
-        if (matchingMethods == null || matchingMethods.isEmpty()) {
-            return true;
+    private static int countMultiCallParams(Match match) {
+        if (match == NO_MATCH || match.multiCallParams == null) {
+            return Integer.MAX_VALUE;
         }
-        IOpenMethod m = matchingMethods.get(0);
-        int[] dims1 = new int[method.getSignature().getNumberOfParameters()];
-        int[] dims2 = new int[method.getSignature().getNumberOfParameters()];
-        for (int i = 0; i < method.getSignature().getNumberOfParameters(); i++) {
-            int cpDim = getTypeDim(callParams[i]);
-            if (!NullOpenClass.isAnyNull(callParams[i])) {
-                IOpenClass openClass = method.getSignature().getParameterType(i);
-                int dim = 0;
-                while (openClass.isArray()) {
-                    openClass = openClass.getComponentClass();
-                    dim++;
-                }
-                dims1[i] = Math.abs(dim - cpDim);
-                dim = 0;
-                openClass = m.getSignature().getParameterType(i);
-                while (openClass.isArray()) {
-                    openClass = openClass.getComponentClass();
-                    dim++;
-                }
-                dims2[i] = Math.abs(dim - cpDim);
+        return countTrues(match.multiCallParams);
+    }
+
+    private static int countTrues(boolean[] x) {
+        if (x == null) {
+            return 0;
+        }
+        int count = 0;
+        for (boolean b : x) {
+            if (b) {
+                count++;
             }
         }
-        Arrays.sort(dims1);
-        Arrays.sort(dims2);
-        for (int i = dims1.length - 1; i >= 0; i--) {
-            if (dims1[i] != dims2[i]) {
-                return dims1[i] < dims2[i];
+        return count;
+    }
+
+    private static boolean lq(Match match, Match bestMethodMatch) {
+        if (bestMethodMatch == NO_MATCH) {
+            return true;
+        }
+        if (match == NO_MATCH) {
+            return false;
+        }
+        int[] dims1 = match.getSortedDims();
+        int[] dims2 = bestMethodMatch.getSortedDims();
+        int x = Math.max(dims1.length, dims2.length);
+        for (int i = 0; i < x; i++) {
+            int p1 = i < dims1.length ? dims1[dims1.length - 1 - i] : 0;
+            int p2 = i < dims2.length ? dims2[dims2.length - 1 - i] : 0;
+
+            if (p1 != p2) {
+                return p1 < p2;
             }
         }
 
-        if (m1 == NO_MATCH) {
+        // FIXME REMOVE IT
+        if (match.isVararg() && !bestMethodMatch.isVararg()) {
             return false;
         }
-        if (m2 == NO_MATCH) {
+        if (!bestMethodMatch.isVararg() && match.isVararg()) {
             return true;
         }
-        int[] d1 = m1.clone();
-        int[] d2 = m2.clone();
-        Arrays.sort(d1);
-        Arrays.sort(d2);
-        for (int i = d1.length - 1; i >= 0; i--) {
-            if (d1[i] < d2[i]) {
+        // END FIXME
+
+        int[] d1 = match.getSortedDistances();
+        int[] d2 = bestMethodMatch.getSortedDistances();
+        x = Math.max(d1.length, d2.length);
+        for (int i = 0; i < x; i++) {
+            int p1 = i < d1.length ? d1[d1.length - 1 - i] : CastFactory.NO_CAST_DISTANCE;
+            int p2 = i < d2.length ? d2[d2.length - 1 - i] : CastFactory.NO_CAST_DISTANCE;
+
+            if (p1 < p2) {
                 return true;
             }
-            if (d1[i] > d2[i]) {
+            if (p1 > p2) {
                 return false;
             }
         }
         return false;
     }
 
-    private static boolean eq(int[] distances1, int[] distances2) {
-        if (distances1 == distances2) {
-            return true;
+    private static boolean eq(Match match1, Match match2) {
+        int[] dims1 = match1.getSortedDims();
+        int[] dims2 = match2.getSortedDims();
+        int x = Math.max(dims1.length, dims2.length);
+        for (int i = 0; i < x; i++) {
+            int p1 = i < dims1.length ? dims1[dims1.length - 1 - i] : 0;
+            int p2 = i < dims2.length ? dims2[dims2.length - 1 - i] : 0;
+            if (p1 != p2) {
+                return false;
+            }
         }
-        if (distances1.length != distances2.length) {
-            return false;
-        }
-        int[] d1 = distances1.clone();
-        int[] d2 = distances2.clone();
-        Arrays.sort(d1);
-        Arrays.sort(d2);
-        for (int i = d1.length - 1; i >= 0; i--) {
-            if (d1[i] != d2[i]) {
+        int[] d1 = match1.getSortedDistances();
+        int[] d2 = match2.getSortedDistances();
+        x = Math.max(d1.length, d2.length);
+        for (int i = 0; i < x; i++) {
+            int p1 = i < d1.length ? d1[d1.length - 1 - i] : CastFactory.NO_CAST_DISTANCE;
+            int p2 = i < d2.length ? d2[d2.length - 1 - i] : CastFactory.NO_CAST_DISTANCE;
+            if (p1 != p2) {
                 return false;
             }
         }
         return true;
     }
 
-    private static IMethodCaller findCastingMethod(final String name,
-            IOpenClass[] params,
-            ICastFactory castFactory,
-            Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
-        final int nParams = params.length;
-        Iterable<IOpenMethod> filtered = methods == null ? Collections.emptyList()
-                                                         : CollectionUtils.findAll(methods,
-                                                             method -> method.getName()
-                                                                 .equals(name) && method.getSignature()
-                                                                     .getParameterTypes().length == nParams);
+    private static class Match {
+        private final IOpenMethod method;
+        private final IOpenClass[] callParams;
+        private final IOpenClass[] originalCallParams;
+        private final IOpenCast[] paramCasts;
+        private final boolean[] multiCallParams;
+        private final IOpenClass varargElementType;
+        private final IOpenCast returnCast;
+        private final IOpenClass returnType;
+        private final int[] sortedDistances;
+        private int[] sortedDims;
+        private final boolean vararg;
 
-        List<IOpenMethod> matchingMethods = new ArrayList<>();
-        List<IOpenCast[]> matchingMethodsCastHolder = new ArrayList<>();
-        List<IOpenCast> matchingMethodsReturnCast = new ArrayList<>();
-        List<IOpenClass> matchingMethodsReturnType = new ArrayList<>();
-        int[] bestMatch = NO_MATCH;
-        for (IOpenMethod method : filtered) {
-            IOpenCast[] castHolder = new IOpenCast[nParams];
-            IOpenCast[] returnCastHolder = new IOpenCast[1];
-            IOpenClass[] returnTypeHolder = new IOpenClass[1];
-            int[] match;
-            if (method instanceof JavaOpenMethod) { // Process Java Generics
-                JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
-                match = calcMatch(javaOpenMethod,
-                    method.getSignature().getParameterTypes(),
-                    params,
-                    castFactory,
-                    castHolder,
-                    returnCastHolder,
-                    returnTypeHolder);
+        private IOpenClass[] mostSpecificParamsToCompare;
+
+        private Match(IOpenMethod method,
+                IOpenClass[] originalCallParams,
+                IOpenClass[] callParams,
+                IOpenCast[] paramCasts,
+                boolean[] multiCallParams,
+                IOpenCast returnCast,
+                IOpenClass returnType,
+                int[] distances,
+                boolean vararg,
+                IOpenClass varargElementType) {
+            this.method = method;
+            this.originalCallParams = originalCallParams;
+            this.paramCasts = paramCasts;
+            this.callParams = callParams;
+            this.multiCallParams = multiCallParams;
+            this.returnCast = returnCast;
+            this.returnType = returnType;
+            this.sortedDistances = distances;
+            this.vararg = vararg;
+            this.varargElementType = varargElementType;
+        }
+
+        public IOpenClass[] getVariableArityParameters() {
+            if (mostSpecificParamsToCompare == null) {
+                int size = originalCallParams.length;
+                if (vararg && getMethod().getSignature().getNumberOfParameters() > originalCallParams.length) {
+                    size++;
+                }
+                IOpenClass[] ret = new IOpenClass[size];
+                if (ret.length > 0) {
+                    int i = 0;
+                    IOpenClass lastParameter = method.getSignature()
+                        .getParameterType(method.getSignature().getNumberOfParameters() - 1);
+                    while (i < ret.length) {
+                        if (i < method.getSignature().getNumberOfParameters() - (vararg ? 1 : 0)) {
+                            ret[i] = method.getSignature().getParameterType(i);
+                        } else if (vararg) {
+                            if (getMethod().getSignature().getNumberOfParameters() > originalCallParams.length) {
+                                ret[i] = NullOpenClass.the;
+                            } else {
+                                ret[i] = lastParameter.getComponentClass();
+                            }
+                        } else {
+                            ret[i] = lastParameter;
+                        }
+                        i++;
+                    }
+                }
+                mostSpecificParamsToCompare = ret;
+            }
+            return mostSpecificParamsToCompare;
+        }
+
+        private boolean isMoreSpecific(Match other, ICastFactory casts) {
+            IOpenClass[] firstParams = this.getVariableArityParameters();
+            IOpenClass[] secondParams = other.getVariableArityParameters();
+            int x = Math.min(firstParams.length, secondParams.length);
+            boolean differenceInArgTypes = false;
+            // more specific arg types
+            for (int i = 0; i < x; i++) {
+                IOpenClass firstArgType = firstParams[i];
+                IOpenClass secondArgType = secondParams[i];
+                if (!firstArgType.equals(secondArgType)) {
+                    differenceInArgTypes = true;
+                    IOpenCast cast = casts.getCast(firstArgType, secondArgType);
+                    if (cast == null || !cast.isImplicit()) {
+                        return false;
+                    }
+                }
+            }
+            if (!differenceInArgTypes) {
+                if (this.isVararg() && !other.isVararg()) {
+                    return false;
+                }
+                if (!this.isVararg() && other.isVararg()) {
+                    return true;
+                }
+                // more specific declaring class
+                IOpenClass firstDeclaringClass = this.getMethod().getDeclaringClass();
+                IOpenClass secondDeclaringClass = other.getMethod().getDeclaringClass();
+                return !firstDeclaringClass.equals(secondDeclaringClass) && secondDeclaringClass
+                    .isAssignableFrom(firstDeclaringClass);
             } else {
-                match = calcMatch(null,
-                    method.getSignature().getParameterTypes(),
-                    params,
-                    castFactory,
-                    castHolder,
-                    returnCastHolder,
-                    returnTypeHolder);
-            }
-            if (match == NO_MATCH) {
-                continue;
-            }
-            if (lq(method, matchingMethods, params, match, bestMatch)) {
-                bestMatch = match;
-                matchingMethods.clear();
-                matchingMethodsCastHolder.clear();
-                matchingMethodsReturnCast.clear();
-                matchingMethodsReturnType.clear();
-                matchingMethods.add(method);
-                matchingMethodsCastHolder.add(castHolder);
-                matchingMethodsReturnCast.add(returnCastHolder[0]);
-                matchingMethodsReturnType.add(returnTypeHolder[0]);
-                continue;
-            }
-
-            if (eq(match, bestMatch)) {
-                matchingMethods.add(method);
-                matchingMethodsCastHolder.add(castHolder);
-                matchingMethodsReturnCast.add(returnCastHolder[0]);
-                matchingMethodsReturnType.add(returnTypeHolder[0]);
+                return true;
             }
         }
 
-        switch (matchingMethods.size()) {
-            case 0:
-                return null;
-            case 1:
-                IOpenMethod m = matchingMethods.get(0);
-                if (!zeroCasts(bestMatch)) {
-                    CastingMethodCaller methodCaller = new CastingMethodCaller(m, matchingMethodsCastHolder.get(0));
-                    return buildMethod(matchingMethodsReturnCast.get(0),
-                        matchingMethodsReturnType.get(0),
-                        m,
-                        methodCaller);
-                } else {
-                    return buildMethod(matchingMethodsReturnCast.get(0), matchingMethodsReturnType.get(0), m, m);
+        public IOpenClass[] getOriginalCallParams() {
+            return originalCallParams;
+        }
+
+        public IOpenClass getVarargElementType() {
+            return varargElementType;
+        }
+
+        public boolean isVararg() {
+            return vararg;
+        }
+
+        public IOpenMethod getMethod() {
+            return method;
+        }
+
+        public int[] getSortedDistances() {
+            return sortedDistances;
+        }
+
+        public boolean[] getMultiCallParams() {
+            return multiCallParams;
+        }
+
+        public IOpenCast getReturnCast() {
+            return returnCast;
+        }
+
+        public IOpenClass getReturnType() {
+            return returnType;
+        }
+
+        public IOpenCast[] getParamCasts() {
+            return paramCasts;
+        }
+
+        public int[] getSortedDims() {
+            if (sortedDims == null) {
+                IOpenClass[] variableArityParameters = getVariableArityParameters();
+                int[] dims = new int[variableArityParameters.length];
+                for (int i = 0; i < variableArityParameters.length; i++) {
+                    if (i < originalCallParams.length) {
+                        if (!NullOpenClass.isAnyNull(originalCallParams[i])) {
+                            int cpDim = getTypeDim(originalCallParams[i]);
+                            IOpenClass openClass = variableArityParameters[i];
+                            int dim = 0;
+                            while (openClass.isArray()) {
+                                openClass = openClass.getComponentClass();
+                                dim++;
+                            }
+                            dims[i] = Math.abs(dim - cpDim);
+                        }
+                        // FIXME REMOVE IT
+                        if (vararg && i >= callParams.length - 1) {
+                            dims[i]++;
+                        }
+                        // END FIXME
+                    }
                 }
+                Arrays.sort(dims);
+                sortedDims = dims;
+            }
+            return sortedDims;
+        }
+
+        public IOpenClass[] getCallParams() {
+            return callParams;
+        }
+    }
+
+    private static IMethodCaller findCastingMethod(final String name,
+            IOpenClass[] callParams,
+            ICastFactory castFactory,
+            Iterable<IOpenMethod> methods,
+            boolean allowMultiCallParams) throws AmbiguousMethodException {
+        final int nParams = callParams.length;
+        Iterable<IOpenMethod> filtered = methods == null ? Collections.emptyList()
+                                                         : CollectionUtils.findAll(methods,
+                                                             method -> method.getName().equals(name) && (method
+                                                                 .getSignature()
+                                                                 .getNumberOfParameters() == nParams || method
+                                                                     .getSignature()
+                                                                     .getNumberOfParameters() > 0 && method
+                                                                         .getSignature()
+                                                                         .getNumberOfParameters() <= callParams.length + 1 && method
+                                                                             .getSignature()
+                                                                             .getParameterType(method.getSignature()
+                                                                                 .getNumberOfParameters() - 1)
+                                                                             .isArray()));
+        if (!filtered.iterator().hasNext()) {
+            return null;
+        }
+        List<Match> matchingResult = new ArrayList<>();
+        Match bestMethodMatch = NO_MATCH;
+        long bestOneElementToArrayCastCount = Integer.MAX_VALUE;
+        int bestMultiCallParamsCount = allowMultiCallParams ? Integer.MAX_VALUE : 0;
+        LazyVarargTypeCalculator lazyVarargTypeCalculatorParentClass = new LazyVarargTypeCalculator(callParams,
+            castFactory::findParentClass);
+        LazyVarargTypeCalculator lazyVarargTypeCalculatorClosestClass = new LazyVarargTypeCalculator(callParams,
+            castFactory::findClosestClass);
+        for (IOpenMethod method : filtered) {
+            List<Match> matches = new ArrayList<>();
+            if (method.getSignature().getNumberOfParameters() == callParams.length) {
+                Match noVarargMatch = calcMatch(method,
+                    callParams,
+                    callParams,
+                    castFactory,
+                    false,
+                    null,
+                    allowMultiCallParams);
+                matches.add(noVarargMatch);
+            }
+            if (method.getSignature()
+                .getNumberOfParameters() > 0 && method.getSignature()
+                    .getParameterTypes()[method.getSignature().getNumberOfParameters() - 1].isArray() && allowVarargs(
+                        method)) {
+                IOpenClass varargElementTypeByParentClass = lazyVarargTypeCalculatorParentClass
+                    .getElementType(method.getSignature().getNumberOfParameters() - 1);
+                if (varargElementTypeByParentClass != null) {
+                    matches.add(calcMatch(method,
+                        callParams,
+                        lazyVarargTypeCalculatorParentClass
+                            .getVarargMethodCallParams(method.getSignature().getNumberOfParameters() - 1),
+                        castFactory,
+                        true,
+                        varargElementTypeByParentClass,
+                        allowMultiCallParams));
+                }
+
+                IOpenClass varargElementTypeByClosestClass = lazyVarargTypeCalculatorClosestClass
+                    .getElementType(method.getSignature().getNumberOfParameters() - 1);
+                if (varargElementTypeByClosestClass != null && varargElementTypeByClosestClass != varargElementTypeByParentClass) {
+                    matches.add(calcMatch(method,
+                        callParams,
+                        lazyVarargTypeCalculatorClosestClass
+                            .getVarargMethodCallParams(method.getSignature().getNumberOfParameters() - 1),
+                        castFactory,
+                        true,
+                        varargElementTypeByClosestClass,
+                        allowMultiCallParams));
+                }
+            }
+            boolean f = false;
+            for (Match match : matches) {
+                if (match == NO_MATCH) {
+                    continue;
+                }
+                long oneElementToArrayCastCount = Arrays.stream(match.paramCasts)
+                    .filter(e -> e instanceof IOneElementArrayCast)
+                    .count();
+                int multiCallParamsHolderCount = allowMultiCallParams ? countMultiCallParams(match) : 0;
+                if (oneElementToArrayCastCount < bestOneElementToArrayCastCount || oneElementToArrayCastCount == bestOneElementToArrayCastCount && multiCallParamsHolderCount < bestMultiCallParamsCount || oneElementToArrayCastCount == bestOneElementToArrayCastCount && multiCallParamsHolderCount == bestMultiCallParamsCount && lq(
+                    match,
+                    bestMethodMatch)) {
+                    bestMethodMatch = match;
+                    bestMultiCallParamsCount = multiCallParamsHolderCount;
+                    bestOneElementToArrayCastCount = oneElementToArrayCastCount;
+                    matchingResult.clear();
+                    matchingResult.add(match);
+                    f = true;
+                    continue;
+                }
+
+                if (oneElementToArrayCastCount == bestOneElementToArrayCastCount && multiCallParamsHolderCount == bestMultiCallParamsCount && eq(
+                    match,
+                    bestMethodMatch)) {
+                    if (!f) {
+                        matchingResult.add(match);
+                        f = true;
+                    }
+                }
+            }
+        }
+
+        IMethodCaller methodCaller = null;
+        Match selectedMatch = null;
+        switch (matchingResult.size()) {
+            case 0:
+                break;
+            case 1:
+                selectedMatch = matchingResult.get(0);
+                IOpenMethod m = selectedMatch.getMethod();
+                if (!isNoCastDistances(selectedMatch.getSortedDistances())) {
+                    IOpenCast[] paramCasts = getParamCastsAndTruncateIfNeed(selectedMatch);
+                    CastingMethodCaller methodCaller1 = new CastingMethodCaller(m, paramCasts);
+                    methodCaller = buildMethod(selectedMatch.getReturnCast(),
+                        selectedMatch.getReturnType(),
+                        m,
+                        methodCaller1);
+                } else {
+                    methodCaller = buildMethod(selectedMatch.getReturnCast(), selectedMatch.getReturnType(), m, m);
+                }
+                break;
             default:
-                IOpenMethod mostSpecificMethod = findMostSpecificMethod(name, params, matchingMethods, castFactory);
+                int mostSpecificMatchIndex = findMostSpecific(name, callParams, matchingResult, castFactory);
+                selectedMatch = matchingResult.get(mostSpecificMatchIndex);
+                IOpenMethod method = selectedMatch.getMethod();
                 boolean f = true;
                 for (int i = 0; i < nParams; i++) {
-                    if (!params[i].equals(mostSpecificMethod.getSignature().getParameterType(i))) {
+                    if (!callParams[i].equals(method.getSignature().getParameterType(i))) {
                         f = false;
                         break;
                     }
                 }
                 if (f) {
-                    return mostSpecificMethod;
+                    methodCaller = method;
                 } else {
-                    int k = 0;
-                    for (int i = 0; i < matchingMethods.size(); i++) {
-                        if (matchingMethods.get(i) == mostSpecificMethod) {
-                            k = i;
-                            break;
-                        }
-                    }
-                    CastingMethodCaller methodCaller = new CastingMethodCaller(mostSpecificMethod,
-                        matchingMethodsCastHolder.get(k));
-                    IOpenCast c = matchingMethodsReturnCast.get(k);
-                    IOpenClass t = matchingMethodsReturnType.get(k);
-                    if (c != null && t != mostSpecificMethod.getType()) {
-                        return new AutoCastableResultOpenMethod(methodCaller, t, c);
+                    IOpenCast[] paramCasts = getParamCastsAndTruncateIfNeed(selectedMatch);
+                    CastingMethodCaller methodCaller1 = new CastingMethodCaller(method, paramCasts);
+                    if (selectedMatch.getReturnCast() != null && selectedMatch.getReturnType() != method.getType()) {
+                        methodCaller = new AutoCastableResultOpenMethod(methodCaller1,
+                            selectedMatch.getReturnType(),
+                            selectedMatch.getReturnCast());
                     } else {
-                        return methodCaller;
+                        methodCaller = methodCaller1;
                     }
                 }
+        }
+        if (methodCaller != null) {
+            if (selectedMatch.isVararg()) {
+                IOpenCast[] paramCasts = new IOpenCast[callParams.length - selectedMatch.getCallParams().length + 1];
+                System.arraycopy(selectedMatch.getParamCasts(),
+                    selectedMatch.getCallParams().length,
+                    paramCasts,
+                    0,
+                    callParams.length - selectedMatch.getCallParams().length + 1);
+                if (selectedMatch.getCallParams().length <= callParams.length) {
+                    methodCaller = new VarArgsOpenMethod(methodCaller,
+                        selectedMatch.getVarargElementType().getInstanceClass(),
+                        selectedMatch.getCallParams().length - 1,
+                        paramCasts);
+                } else {
+                    methodCaller = new NullVarArgsOpenMethod(methodCaller);
+                }
+            }
+            if (selectedMatch.getMultiCallParams() != null && countTrues(selectedMatch.getMultiCallParams()) > 0) {
+                return new MultiCallOpenMethod(methodCaller, selectedMatch.getMultiCallParams());
+            } else {
+                return methodCaller;
+            }
+        }
+        return null;
+    }
+
+    private static IOpenCast[] getParamCastsAndTruncateIfNeed(Match selectedMatch) {
+        IOpenCast[] paramCasts = selectedMatch.getParamCasts();
+        if (paramCasts.length != selectedMatch.getCallParams().length) {
+            paramCasts = new IOpenCast[selectedMatch.getCallParams().length];
+            System.arraycopy(selectedMatch.getParamCasts(), 0, paramCasts, 0, selectedMatch.getCallParams().length);
+        }
+        return paramCasts;
+    }
+
+    private static boolean allowVarargs(IOpenMethod method) {
+        if (method instanceof JavaOpenMethod) {
+            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
+            if (javaOpenMethod.getJavaMethod().isAnnotationPresent(IgnoreVarargsMatching.class)) {
+                return false;
+            }
+            return !javaOpenMethod.getJavaMethod().getDeclaringClass().isAnnotationPresent(IgnoreVarargsMatching.class);
+        }
+        return true;
+    }
+
+    private static class LazyVarargTypeCalculator {
+        private final IOpenClass[] callParams;
+        private final BiFunction<IOpenClass, IOpenClass, IOpenClass> func;
+        private final IOpenClass[] varArgElementTypes;
+        private int lastCalculated;
+        private IOpenClass lastVarArgElementType;
+        private final IOpenClass[][] varargMethodCallParamsCache;
+
+        public LazyVarargTypeCalculator(IOpenClass[] callParams, BiFunction<IOpenClass, IOpenClass, IOpenClass> func) {
+            this.callParams = callParams;
+            this.varArgElementTypes = new IOpenClass[callParams.length + 1];
+            this.varArgElementTypes[varArgElementTypes.length - 1] = NullOpenClass.the;
+            this.lastCalculated = callParams.length;
+            this.varargMethodCallParamsCache = new IOpenClass[callParams.length + 1][];
+            this.func = func;
+        }
+
+        private IOpenClass getElementType(int index) {
+            if (lastCalculated > index) {
+                for (int i = lastCalculated - 1; i >= 0; i--) {
+                    this.lastVarArgElementType = i == callParams.length - 1 ? callParams[i]
+                                                                            : func.apply(callParams[i],
+                                                                                lastVarArgElementType);
+                    if (lastVarArgElementType == null) {
+                        lastCalculated = 0;
+                        return null;
+                    } else {
+                        varArgElementTypes[i] = this.lastVarArgElementType;
+                    }
+                }
+            }
+            return varArgElementTypes[index];
+        }
+
+        public IOpenClass[] getVarargMethodCallParams(int index) {
+            if (varargMethodCallParamsCache[index] == null) {
+                IOpenClass[] varargMethodCallParams = new IOpenClass[index + 1];
+                System.arraycopy(this.callParams, 0, varargMethodCallParams, 0, index);
+                IOpenClass varargElementType = getElementType(index);
+                if (varargElementType == null || NullOpenClass.isAnyNull(varargElementType)) {
+                    varargMethodCallParams[index] = varargElementType;
+                } else {
+                    varargMethodCallParams[index] = varargElementType.getAggregateInfo()
+                        .getIndexedAggregateType(varargElementType);
+                }
+                this.varargMethodCallParamsCache[index] = varargMethodCallParams;
+                return varargMethodCallParams;
+            } else {
+                return varargMethodCallParamsCache[index];
+            }
         }
     }
 
@@ -400,69 +819,6 @@ public final class MethodSearch {
         }
     }
 
-    private static IMethodCaller findVarArgMethod(final String name,
-            IOpenClass[] params,
-            ICastFactory castFactory,
-            Iterable<IOpenMethod> methods,
-            BiFunction<IOpenClass, IOpenClass, IOpenClass> func) throws AmbiguousMethodException {
-        if (methods.iterator().hasNext()) {
-            NullVarArgsOpenMethod nullVarArgsOpenMethod = getNullVarArgsOpenMethod(name, params, castFactory, methods);
-            if (nullVarArgsOpenMethod != null) {
-                return nullVarArgsOpenMethod;
-            }
-            IOpenClass varArgType = null;
-            for (int i = params.length - 1; i >= 0; i--) {
-                varArgType = i == params.length - 1 ? params[i] : func.apply(params[i], varArgType);
-                if (varArgType == null) {
-                    return null;
-                }
-                IOpenClass[] args = new IOpenClass[i + 1];
-                System.arraycopy(params, 0, args, 0, i);
-                if (NullOpenClass.isAnyNull(varArgType)) {
-                    args[i] = varArgType;
-                } else {
-                    args[i] = varArgType.getAggregateInfo().getIndexedAggregateType(varArgType);
-                }
-
-                IMethodCaller matchedMethod = findCastingMethod(name, args, castFactory, methods);
-                if (matchedMethod != null) {
-                    IOpenCast[] parameterCasts = new IOpenCast[params.length - i];
-                    for (int j = 0; j < params.length - i; j++) {
-                        parameterCasts[j] = castFactory.getCast(params[i + j], varArgType);
-                    }
-                    if (NullOpenClass.isAnyNull(varArgType)) {
-                        int lastParameterIndex = matchedMethod.getMethod().getSignature().getNumberOfParameters() - 1;
-                        return new VarArgsOpenMethod(matchedMethod,
-                            matchedMethod.getMethod()
-                                .getSignature()
-                                .getParameterType(lastParameterIndex)
-                                .getComponentClass()
-                                .getInstanceClass(),
-                            i,
-                            parameterCasts);
-                    } else {
-                        return new VarArgsOpenMethod(matchedMethod, varArgType.getInstanceClass(), i, parameterCasts);
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static NullVarArgsOpenMethod getNullVarArgsOpenMethod(String name,
-            IOpenClass[] params,
-            ICastFactory castFactory,
-            Iterable<IOpenMethod> methods) {
-        IOpenClass[] args = new IOpenClass[params.length + 1];
-        System.arraycopy(params, 0, args, 0, params.length);
-        args[params.length] = NullOpenClass.the;
-        IMethodCaller matchedMethod = findCastingMethod(name, args, castFactory, methods);
-        if (matchedMethod != null) {
-            return new NullVarArgsOpenMethod(matchedMethod);
-        }
-        return null;
-    }
-
     /**
      * Choosing the most specific method according to:
      *
@@ -472,38 +828,40 @@ public final class MethodSearch {
      *
      * @param name The name of the method.
      * @param params Argument types of the method.
-     * @param matchingMethods All matching methods for this argument types.
+     * @param matches All matching methods for this argument types.
      * @param casts OpenL cast factory.
      *
      * @return The most specific method from matching methods collection.
      *
      * @throws AmbiguousMethodException Exception will be thrown if most specific method cannot be determined.
      */
-    private static IOpenMethod findMostSpecificMethod(String name,
+    private static int findMostSpecific(String name,
             IOpenClass[] params,
-            List<IOpenMethod> matchingMethods,
+            List<Match> matches,
             ICastFactory casts) throws AmbiguousMethodException {
-        List<IOpenMethod> moreSpecificMethods = new ArrayList<>();
-        for (IOpenMethod res : matchingMethods) {
+        List<Integer> moreSpecificIndexes = new ArrayList<>();
+        for (int i = 0; i < matches.size(); i++) {
+            Match res = matches.get(i);
             boolean f = true;
-            for (IOpenMethod next : matchingMethods) {
-                if (res != next && !isMoreSpecificMethod(res, next, params, casts)) {
+            for (Match next : matches) {
+                if (res != next && !res.isMoreSpecific(next, casts)) {
                     f = false;
                     break;
                 }
             }
             if (f) {
-                moreSpecificMethods.add(res);
+                moreSpecificIndexes.add(i);
             }
         }
 
-        if (moreSpecificMethods.size() == 1) {
-            return moreSpecificMethods.get(0);
+        if (moreSpecificIndexes.size() == 1) {
+            return moreSpecificIndexes.get(0);
         } else {
-            List<IOpenMethod> mostSpecificMethods = new ArrayList<>();
+            List<Integer> mostSpecificIndexes = new ArrayList<>();
             int best1 = Integer.MAX_VALUE;
             int best2 = Integer.MAX_VALUE;
-            for (IOpenMethod m : moreSpecificMethods) {
+            for (Integer index : moreSpecificIndexes) {
+                IOpenMethod m = matches.get(index).getMethod();
                 int penalty1 = 0;
                 int penalty2 = 0;
                 if (m.getSignature().getNumberOfParameters() == params.length) {
@@ -528,62 +886,35 @@ public final class MethodSearch {
                 if (penalty1 < best1) {
                     best1 = penalty1;
                     best2 = penalty2;
-                    mostSpecificMethods.clear();
-                    mostSpecificMethods.add(m);
+                    mostSpecificIndexes.clear();
+                    mostSpecificIndexes.add(index);
                 } else {
                     if (penalty1 == best1) {
                         if (penalty2 < best2) {
                             best2 = penalty2;
-                            mostSpecificMethods.clear();
-                            mostSpecificMethods.add(m);
+                            mostSpecificIndexes.clear();
+                            mostSpecificIndexes.add(index);
                         } else {
                             if (penalty2 == best2) {
-                                mostSpecificMethods.add(m);
+                                mostSpecificIndexes.add(index);
                             }
                         }
                     }
                 }
             }
 
-            int countOfFoundMethods = mostSpecificMethods.size();
+            int countOfFoundMethods = mostSpecificIndexes.size();
             if (countOfFoundMethods == 1) {
-                return mostSpecificMethods.get(0);
+                return mostSpecificIndexes.get(0);
             } else if (countOfFoundMethods == 0) {
-                throw new AmbiguousMethodException(name, params, matchingMethods);
+                throw new AmbiguousMethodException(name,
+                    params,
+                    matches.stream().map(Match::getMethod).collect(Collectors.toList()));
             } else {
-                throw new AmbiguousMethodException(name, params, mostSpecificMethods);
+                throw new AmbiguousMethodException(name,
+                    params,
+                    moreSpecificIndexes.stream().map(matches::get).map(Match::getMethod).collect(Collectors.toList()));
             }
-        }
-    }
-
-    private static boolean isMoreSpecificMethod(IOpenMethod first,
-            IOpenMethod second,
-            IOpenClass[] params,
-            ICastFactory casts) {
-        if (first.getSignature().getNumberOfParameters() != second.getSignature().getNumberOfParameters()) {
-            return false;
-        }
-        boolean differenceInArgTypes = false;
-        // more specific arg types
-        for (int i = 0; i < first.getSignature().getNumberOfParameters(); i++) {
-            IOpenClass firstArgType = first.getSignature().getParameterType(i);
-            IOpenClass secondArgType = second.getSignature().getParameterType(i);
-            if (!firstArgType.equals(secondArgType) && !NullOpenClass.isAnyNull(params[i])) {
-                differenceInArgTypes = true;
-                IOpenCast cast = casts.getCast(firstArgType, secondArgType);
-                if (cast == null || !cast.isImplicit()) {
-                    return false;
-                }
-            }
-        }
-        if (!differenceInArgTypes) {
-            // more specific declaring class
-            IOpenClass firstDeclaringClass = first.getDeclaringClass();
-            IOpenClass secondDeclaringClass = second.getDeclaringClass();
-            return !firstDeclaringClass.equals(secondDeclaringClass) && secondDeclaringClass
-                .isAssignableFrom(firstDeclaringClass);
-        } else {
-            return true;
         }
     }
 
@@ -596,8 +927,9 @@ public final class MethodSearch {
     public static IMethodCaller findMethod(String name,
             IOpenClass[] params,
             ICastFactory castFactory,
-            IMethodFactory factory) throws AmbiguousMethodException {
-        return findMethod(name, params, castFactory, factory, false);
+            IMethodFactory factory,
+            boolean allowMultiCalls) throws AmbiguousMethodException {
+        return findMethod(name, params, castFactory, factory, false, allowMultiCalls);
     }
 
     public static IMethodCaller findConstructor(IOpenClass[] params,
@@ -615,14 +947,15 @@ public final class MethodSearch {
         if (params.length == 0 || casts == null) {
             return null;
         }
-        return findCastingMethod("<init>", params, casts, factory.constructors());
+        return findCastingMethod("<init>", params, casts, factory.constructors(), false);
     }
 
     public static IMethodCaller findMethod(String name,
             IOpenClass[] params,
             ICastFactory castFactory,
             IMethodFactory factory,
-            boolean strictMatch) throws AmbiguousMethodException {
+            boolean strictMatch,
+            boolean allowMultiCalls) throws AmbiguousMethodException {
         IMethodCaller caller;
         if (factory instanceof ADynamicClass) {
             ADynamicClass aDynamicClass = (ADynamicClass) factory;
@@ -637,7 +970,7 @@ public final class MethodSearch {
             return null;
         }
         if (!strictMatch) {
-            return findMethod(name, params, castFactory, factory.methods(name));
+            return findMethod(name, params, castFactory, factory.methods(name), allowMultiCalls);
         }
         return null;
     }
@@ -645,24 +978,8 @@ public final class MethodSearch {
     public static IMethodCaller findMethod(String name,
             IOpenClass[] params,
             ICastFactory castFactory,
-            Iterable<IOpenMethod> methods) throws AmbiguousMethodException {
-        IMethodCaller caller = findCastingMethod(name, params, castFactory, methods);
-        if (caller != null) {
-            return caller;
-        }
-        Iterable<IOpenMethod> filtered = methods == null ? Collections.emptyList()
-                                                         : CollectionUtils.findAll(methods,
-                                                             method -> method.getName()
-                                                                 .equals(name) && method.getSignature()
-                                                                     .getNumberOfParameters() > 0 && method
-                                                                         .getSignature()
-                                                                         .getParameterType(method.getSignature()
-                                                                             .getNumberOfParameters() - 1)
-                                                                         .isArray());
-        caller = findVarArgMethod(name, params, castFactory, filtered, castFactory::findParentClass);
-        if (caller != null) {
-            return caller;
-        }
-        return findVarArgMethod(name, params, castFactory, filtered, castFactory::findClosestClass);
+            Iterable<IOpenMethod> methods,
+            boolean allowMultiCalls) throws AmbiguousMethodException {
+        return findCastingMethod(name, params, castFactory, methods, allowMultiCalls);
     }
 }

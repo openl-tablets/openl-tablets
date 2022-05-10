@@ -39,7 +39,7 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
         System.arraycopy(methodParameters, 0, modifiedParameters, 0, indexOfFirstVarArg);
 
         // all the parameters of the same type in the tail of parameters
-        // sequence,
+        // sequences,
         // should be wrapped by array of this type
         //
         modifiedParameters[parametersCount - 1] = buildVarArgsParameter(methodParameters);
@@ -54,7 +54,10 @@ public class VarArgsOpenMethod extends AOpenMethodDelegator {
             if (parameterCasts == null) {
                 Array.set(params, i, methodParameters[i + indexOfFirstVarArg]);
             } else {
-                Array.set(params, i, parameterCasts[i].convert(methodParameters[i + indexOfFirstVarArg]));
+                Array.set(params,
+                    i,
+                    parameterCasts[i] != null ? parameterCasts[i].convert(methodParameters[i + indexOfFirstVarArg])
+                                              : methodParameters[i + indexOfFirstVarArg]);
             }
         }
         return params;

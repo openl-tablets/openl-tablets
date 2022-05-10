@@ -59,7 +59,7 @@ public abstract class AbstractMethodSearchTest {
 
         IOpenClass[] openClasses = toOpenClasses(classes);
 
-        IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass);
+        IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass, true);
 
         assertNotNull("Method " + methodDescriptor(methodName, openClasses) + " has not been matched.", method);
         Object targetInstance = instance(target);
@@ -87,7 +87,7 @@ public abstract class AbstractMethodSearchTest {
 
         IOpenClass[] openClasses = toOpenClasses(classes);
 
-        IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass);
+        IMethodCaller method = MethodSearch.findMethod(methodName, openClasses, castFactory, aClass, true);
 
         assertNull("Method " + methodDescriptor(methodName, openClasses) + " has been matched.", method);
     }
@@ -96,7 +96,7 @@ public abstract class AbstractMethodSearchTest {
         try {
             JavaOpenClass aClass = JavaOpenClass.getOpenClass(target);
             IOpenClass[] openClasses = toOpenClasses(classes);
-            MethodSearch.findMethod(methodName, openClasses, castFactory, aClass);
+            MethodSearch.findMethod(methodName, openClasses, castFactory, aClass, true);
             fail("AmbiguousMethodException should be thrown for " + methodDescriptor(methodName, openClasses));
         } catch (AmbiguousMethodException ex) {
             // expected

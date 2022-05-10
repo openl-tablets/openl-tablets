@@ -10,24 +10,6 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 
 public class MethodNodeBinder extends org.openl.binding.impl.MethodNodeBinder {
-    @Override
-    protected IBoundNode makeArrayArgumentsMethod(ISyntaxNode methodNode,
-            IBindingContext bindingContext,
-            String methodName,
-            IOpenClass[] argumentTypes,
-            IBoundNode[] children) throws Exception {
-        return new ArrayArgumentsMethodBinder(methodName, argumentTypes, children).bind(methodNode, bindingContext);
-    }
-
-    @Override
-    protected IBoundNode makeTargetArrayArgumentsMethod(ISyntaxNode methodNode,
-                                                        IBindingContext bindingContext,
-                                                        String methodName,
-                                                        IOpenClass[] argumentTypes,
-                                                        IBoundNode[] children,
-                                                        IBoundNode target) throws Exception {
-        return new ArrayArgumentsMethodBinder(methodName, argumentTypes, children).bindTarget(methodNode, bindingContext, target);
-    }
 
     @Override
     protected FieldBoundNode bindAsFieldBoundNode(ISyntaxNode methodNode,
