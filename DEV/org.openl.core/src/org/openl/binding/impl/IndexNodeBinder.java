@@ -71,7 +71,7 @@ public class IndexNodeBinder extends ANodeBinder {
 
         if (reader == null) {
             IOpenClass[] params = { types[1] };
-            reader = MethodSearch.findMethod(INDEX_METHOD_NAME, params, bindingContext, types[0]);
+            reader = MethodSearch.findMethod(INDEX_METHOD_NAME, params, bindingContext, types[0], false);
         }
 
         if (reader == null) {
@@ -86,7 +86,7 @@ public class IndexNodeBinder extends ANodeBinder {
 
         if (writer == null) {
             IOpenClass[] params = { types[1], returnType };
-            writer = MethodSearch.findMethod(INDEX_METHOD_NAME, params, bindingContext, types[0]);
+            writer = MethodSearch.findMethod(INDEX_METHOD_NAME, params, bindingContext, types[0], false);
         }
 
         return new MethodBasedIndex(reader, writer);

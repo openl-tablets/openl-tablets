@@ -17,6 +17,7 @@ import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.exception.TypesCombinationNotSupportedException;
 import org.openl.binding.impl.method.MethodSearch;
+import org.openl.binding.impl.method.MultiCallOpenMethod;
 import org.openl.binding.impl.method.NullVarArgsOpenMethod;
 import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.binding.impl.module.ModuleBindingContext;
@@ -105,7 +106,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             e -> Objects.equals(methodName, e.getName()));
         IMethodCaller method;
         try {
-            method = MethodSearch.findMethod(methodName, parTypes, this, select);
+            method = MethodSearch.findMethod(methodName, parTypes, this, select, true);
             if (method != null) {
                 RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(method);
                 if (openMethodBinder.isPreBindStarted()) {
@@ -119,7 +120,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     if (method == null) {
                         Iterable<IOpenMethod> internalSelect = CollectionUtils.findAll(internalMethods,
                             e -> Objects.equals(methodName, e.getName()));
-                        method = MethodSearch.findMethod(methodName, parTypes, this, internalSelect);
+                        method = MethodSearch.findMethod(methodName, parTypes, this, internalSelect, false);
                     }
                     if (method != null) {
                         return method;
@@ -140,7 +141,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (method == null) {
             Iterable<IOpenMethod> internalSelect = CollectionUtils.findAll(internalMethods,
                 e -> Objects.equals(methodName, e.getName()));
-            method = MethodSearch.findMethod(methodName, parTypes, this, internalSelect);
+            method = MethodSearch.findMethod(methodName, parTypes, this, internalSelect, false);
         }
         return method;
     }
@@ -154,6 +155,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             return (RecursiveOpenMethodPreBinder) ((VarArgsOpenMethod) method).getDelegate();
         } else if (method instanceof NullVarArgsOpenMethod) {
             return (RecursiveOpenMethodPreBinder) ((NullVarArgsOpenMethod) method).getDelegate();
+        } else if (method instanceof MultiCallOpenMethod) {
+            return (RecursiveOpenMethodPreBinder) ((MultiCallOpenMethod) method).getDelegate();
         }
         throw new IllegalStateException("It should not happen.");
     }

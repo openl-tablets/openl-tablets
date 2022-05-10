@@ -8,12 +8,10 @@ final class ArrayCast implements IOpenCast {
 
     private final IOpenClass toComponentType;
     private final IOpenCast openCast;
-    private final int distance;
 
     ArrayCast(IOpenClass to, IOpenCast openCast) {
         this.toComponentType = to;
         this.openCast = openCast;
-        this.distance = CastFactory.ARRAY_CAST_DISTANCE + openCast.getDistance();
     }
 
     @Override
@@ -39,7 +37,7 @@ final class ArrayCast implements IOpenCast {
 
     @Override
     public int getDistance() {
-        return distance;
+        return openCast.getDistance();
     }
 
     @Override

@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.openl.binding.impl.NumericStringComparator;
+import org.openl.binding.impl.method.IgnoreVarargsMatching;
 
 /**
  * Contains comparison operators for:
@@ -27,6 +28,7 @@ import org.openl.binding.impl.NumericStringComparator;
  *
  * @author Yury Molchan
  */
+@IgnoreVarargsMatching
 public class Comparison {
 
     private static final BigDecimal HALF = new BigDecimal("0.5");

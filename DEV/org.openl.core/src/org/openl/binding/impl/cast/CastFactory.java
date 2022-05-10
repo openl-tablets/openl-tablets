@@ -56,7 +56,7 @@ public class CastFactory implements ICastFactory {
     // USE ONLY EVEN NUMBERS FOR DISTANCES
 
     public static final int TYPE_TO_ALIAS_CAST_DISTANCE = 2;
-    public static final int JAVA_UP_ARRAY_TO_ARRAY_CAST_DISTANCE = 4;
+    public static final int JAVA_UP_ARRAY_TO_ARRAY_CAST_DISTANCE = 6;
     public static final int JAVA_UP_CAST_DISTANCE = 6;
 
     public static final int THROWABLE_VOID_CAST_DISTANCE = 8;
@@ -87,7 +87,6 @@ public class CastFactory implements ICastFactory {
     public static final int NONPRIMITIVE_TO_PRIMITIVE_CAST_DISTANCE = 66;
     public static final int PRIMITIVE_TO_NONPRIMITIVE_CAST_DISTANCE = 68;
 
-    public static final int ARRAY_CAST_DISTANCE = 1000;
     public static final int ONE_ELEMENT_ARRAY_CAST_DISTANCE = 2000;
     public static final int ARRAY_ONE_ELEMENT_CAST_DISTANCE = 3000;
 
@@ -579,7 +578,7 @@ public class CastFactory implements ICastFactory {
             if (isPrimitive(to)) {
                 return JavaUnboxingNullCast.getInstance(to.getInstanceClass());
             } else {
-                return JavaUpCast.getInstance();
+                return JavaNoCast.getInstance();
             }
         }
 
@@ -668,6 +667,9 @@ public class CastFactory implements ICastFactory {
     }
 
     private static IOpenCast getUpCast(Class<?> from, Class<?> to) {
+        if (from == to) {
+            return JavaNoCast.getInstance();
+        }
         if (from.isArray() && to.isArray()) {
             return JavaUpArrayCast.getInstance();
         }

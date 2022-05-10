@@ -4,8 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
-import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousFieldException;
+import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.module.RootDictionaryContext;
 import org.openl.binding.impl.module.VariableInContextFinder;
@@ -96,7 +96,7 @@ public class TypeBindingContext extends BindingContextDelegator {
         IMethodCaller res = null;
         // IOpenMethod method = null;
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {
-            res = MethodSearch.findMethod(name, parTypes, this, localVar.getType());
+            res = MethodSearch.findMethod(name, parTypes, this, localVar.getType(), true);
 
             // method = localVar.getType().getMatchingMethod(name, parTypes);
             if (res != null) {

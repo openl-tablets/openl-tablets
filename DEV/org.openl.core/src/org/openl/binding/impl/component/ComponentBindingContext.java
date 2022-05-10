@@ -86,7 +86,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
 
         IMethodCaller imc = null;
         if (ISyntaxConstants.THIS_NAMESPACE.equals(namespace)) {
-            imc = MethodSearch.findMethod(methodName, parTypes, this, componentOpenClass);
+            imc = MethodSearch.findMethod(methodName, parTypes, this, componentOpenClass, true);
         }
 
         return imc != null ? imc : super.findMethodCaller(namespace, methodName, parTypes);

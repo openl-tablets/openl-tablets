@@ -2,6 +2,6 @@ HTTP/1.1 200
 Content-Type: application/json
 
 [
-  "Method 'addAll(null-Class, null-Class)' is not found.",
-  "Method 'addAll(null-Class, null-Class)' is not found."
+  "Method 'addAll1(null-Class, null-Class)' is not found.",
+  "Method 'addAll1(null-Class, null-Class)' is not found."
 ]
