@@ -14,6 +14,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.method.MethodSearch;
+import org.openl.binding.impl.method.NullVarArgsOpenMethod;
 import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleSpecificType;
@@ -145,6 +146,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             return (RecursiveOpenMethodPreBinder) method.getMethod();
         } else if (method instanceof VarArgsOpenMethod) {
             return (RecursiveOpenMethodPreBinder) ((VarArgsOpenMethod) method).getDelegate();
+        } else if (method instanceof NullVarArgsOpenMethod) {
+            return (RecursiveOpenMethodPreBinder) ((NullVarArgsOpenMethod) method).getDelegate();
         }
         throw new IllegalStateException("It should not happen.");
     }
