@@ -18,6 +18,7 @@ import org.openl.binding.impl.cast.AutoCastReturnType;
 import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
+import org.openl.binding.impl.method.NullVarArgsOpenMethod;
 import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificOpenField;
 import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
@@ -60,6 +61,13 @@ public class MethodNodeBinder extends ANodeBinder {
             VarArgsOpenMethod varArgsOpenMethod = (VarArgsOpenMethod) methodCaller;
             if (varArgsOpenMethod.getDelegate() instanceof JavaOpenMethod) {
                 method = (JavaOpenMethod) varArgsOpenMethod.getDelegate();
+            }
+        }
+
+        if (methodCaller instanceof NullVarArgsOpenMethod) {
+            NullVarArgsOpenMethod nullVarArgsOpenMethod = (NullVarArgsOpenMethod) methodCaller;
+            if (nullVarArgsOpenMethod.getDelegate() instanceof JavaOpenMethod) {
+                method = (JavaOpenMethod) nullVarArgsOpenMethod.getDelegate();
             }
         }
 
