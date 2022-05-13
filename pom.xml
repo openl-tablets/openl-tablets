@@ -1942,6 +1942,12 @@
                 <artifactId>groovy</artifactId>
                 <version>${groovy.version}</version>
             </dependency>
+            <!-- Spring 5.x, needed for JBoss metadata scanning  https://issues.jboss.org/browse/JBEAP-10163 -->
+            <dependency>
+                <groupId>org.reactivestreams</groupId>
+                <artifactId>reactive-streams</artifactId>
+                <version>1.0.3</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
     <dependencies>
