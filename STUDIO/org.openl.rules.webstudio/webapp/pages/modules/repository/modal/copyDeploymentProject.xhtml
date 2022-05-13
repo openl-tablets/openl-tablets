@@ -30,8 +30,13 @@
       </h:panelGroup>
 
       <footer>
+        <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
+         Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.
+         It encodes all \\, \', \", which makes unparseable JS in the result.
+         But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
+         --></ui:remove>
         <h:commandButton
-                onclick="withCommitInfoRequired('#{studio.currentUsername}', () => copyDeploymentRepositoryType === 'repo-git', () => $j('#copyDeploymentProjectForm\\:copyDProject').click()); return false;"
+                onclick="modalCopyDeploymentProjectDeployAction(); return false;"
                 value="Copy" styleClass="button-primary"/>
         <h:commandButton id="copyDProject" action="#{repositoryTreeController.copyDeploymentProject}" styleClass="hidden"/>
         <input type="button" value="Cancel" onclick="clearCopyDeploymentProjectForm(); RichFaces.$('modalCopyDeploymentProject').hide();" />
@@ -40,6 +45,10 @@
   </rich:popupPanel>
 
   <script>
+    function modalCopyDeploymentProjectDeployAction() {
+      withCommitInfoRequired('#{studio.currentUsername}', () => copyDeploymentRepositoryType === 'repo-git', () => $j('#copyDeploymentProjectForm\\:copyDProject').click());
+    }
+
     $j("#copyDeploymentProjectForm\\:copyDProject").prop("disabled", true);
 
     let copyDeploymentRepositoryType = undefined;

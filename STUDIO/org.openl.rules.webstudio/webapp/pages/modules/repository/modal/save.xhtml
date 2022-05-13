@@ -47,9 +47,14 @@
       </h:panelGroup>
 
       <footer>
+        <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
+         Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.
+         It encodes all \\, \', \", which makes unparseable JS in the result.
+         But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
+         --></ui:remove>
         <a4j:commandButton value="Save"
                            styleClass="button-primary"
-                           onclick="withCommitInfoRequired('#{studio.currentUsername}', () => saveRepositoryType === 'repo-git', () => $j('#saveForm\\:saveButton').click()); return false;"/>
+                           onclick="modalSaveSaveAction(); return false;"/>
         <a4j:commandButton id="saveButton"
                            action="#{repositoryTreeController.saveProject}"
                            styleClass="hidden"
@@ -69,6 +74,9 @@
   </rich:popupPanel>
 
   <script>
+    function modalSaveSaveAction() {
+      withCommitInfoRequired('#{studio.currentUsername}', () => saveRepositoryType === 'repo-git', () => $j('#saveForm\\:saveButton').click());
+    }
     let saveRepositoryType = undefined;
     function openSaveDialog(repositoryType) {
       saveRepositoryType = repositoryType;

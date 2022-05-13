@@ -21,8 +21,13 @@
       </h:panelGrid>
 
       <footer>
+        <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
+         Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.
+         It encodes all \\, \', \", which makes unparseable JS in the result.
+         But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
+         --></ui:remove>
         <h:commandButton id="createBtn" value="Create"
-                         onclick="withCommitInfoRequired('#{studio.currentUsername}', () => '#{repositoryTreeController.currentDeployConfigRepositoryType}' === 'repo-git', () => $j('#newDProjectForm\\:create').click()); return false;"
+                         onclick="createDeployConfigurationAction(); return false;"
                          styleClass="button-primary" />
         <h:commandButton id="create"
                          action="#{repositoryTreeController.createDeploymentConfiguration}"
@@ -33,6 +38,9 @@
   </rich:popupPanel>
 
   <script>
+    function createDeployConfigurationAction() {
+      withCommitInfoRequired('#{studio.currentUsername}', () => '#{repositoryTreeController.currentDeployConfigRepositoryType}' === 'repo-git', () => $j('#newDProjectForm\\:create').click());
+    }
     function openNewDeploymentProjectDialog() {
       RichFaces.$('modalNewDProject').show();
       focusElement("newDProjectForm:projectName");

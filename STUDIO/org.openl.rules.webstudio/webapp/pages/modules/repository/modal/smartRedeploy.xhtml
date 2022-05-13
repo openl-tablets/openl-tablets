@@ -78,8 +78,13 @@
             </h:panelGrid>
 
             <footer>
+                <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
+                 Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.
+                 It encodes all \\, \', \", which makes unparseable JS in the result.
+                 But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
+                 --></ui:remove>
                 <h:commandButton value="Deploy"
-                                 onclick="withCommitInfoRequired('#{studio.currentUsername}', () => JSON.parse('#{smartRedeployController.repositoryTypes}')[$j('#smartRedeployForm\\:redeploySmartRepository option:selected').val()] === 'repo-git' || '#{smartRedeployController.deployConfigRepositoryType}' === 'repo-git', () => $j('#smartRedeployForm\\:smartRedeployBtn').click()); return false;"
+                                 onclick="modalSmartRedeployDeployAction(); return false;"
                                  disabled="#{!smartRedeployController.projectHasSelectedItems or smartRedeployController.protectedDeployRepository}"
                                  styleClass="button-primary"/>
                 <h:commandButton id="smartRedeployBtn" onclick="return startSmartRedeploy();"
@@ -97,6 +102,10 @@
     </rich:popupPanel>
 
     <script>
+        function modalSmartRedeployDeployAction() {
+            withCommitInfoRequired('#{studio.currentUsername}', () => JSON.parse('#{smartRedeployController.repositoryTypes}')[$j('#smartRedeployForm\\:redeploySmartRepository option:selected').val()] === 'repo-git' || '#{smartRedeployController.deployConfigRepositoryType}' === 'repo-git', () => $j('#smartRedeployForm\\:smartRedeployBtn').click());
+        }
+
         function openSmartRedeployDialog(repositoryId, currentProjectName) {
             renderSmartRedeploy(repositoryId, currentProjectName);
         }

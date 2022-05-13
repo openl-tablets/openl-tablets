@@ -48,8 +48,13 @@
       <footer>
         <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
                 Now errors are shown after dialog is closed. -->
+        <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
+         Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.
+         It encodes all \\, \', \", which makes unparseable JS in the result.
+         But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
+         --></ui:remove>
         <h:commandButton value="Erase" styleClass="button-primary"
-                         onclick="withCommitInfoRequired('#{studio.currentUsername}', () => eraseProjectRepositoryType === 'repo-git', () => $j('#eraseProjectForm\\:eraseProjectButton').click()); return false;"/>
+                         onclick="modalEraseProjectEraseAction(); return false;"/>
         <h:commandButton id="eraseProjectButton" action="#{repositoryTreeController.eraseProject}" styleClass="hidden" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalEraseProject')}.hide();" />
       </footer>
@@ -57,6 +62,9 @@
   </rich:popupPanel>
 
   <script>
+      function modalEraseProjectEraseAction() {
+        withCommitInfoRequired('#{studio.currentUsername}', () => eraseProjectRepositoryType === 'repo-git', () => $j('#eraseProjectForm\\:eraseProjectButton').click());
+      }
       let eraseProjectRepositoryType = undefined;
       function confirmEraseProject(repositoryType) {
         eraseProjectRepositoryType = repositoryType;

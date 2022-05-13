@@ -69,8 +69,13 @@
             </h:panelGroup>
 
             <footer>
+                <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
+                 Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.
+                 It encodes all \\, \', \", which makes unparseable JS in the result.
+                 But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
+                 --></ui:remove>
                 <a4j:commandButton value="Delete" styleClass="button-primary"
-                                   onclick="withCommitInfoRequired('#{studio.currentUsername}', () => deleteNodeRepositoryType === 'repo-git', () => $j('#deleteNodeForm\\:deleteNodeButton').click()); return false;"/>
+                                   onclick="modalDeleteNodeDeleteAction(); return false;"/>
                 <a4j:commandButton action="#{repositoryTreeController.deleteNode}" id="deleteNodeButton"
                                    styleClass="hidden" render="projectTree nodeView @form"
                                    oncomplete="if(#{!facesContext.validationFailed}) RichFaces.$('modalDeleteNode').hide()"/>
@@ -84,6 +89,11 @@
 
     <script>
         //<![CDATA[
+
+        function modalDeleteNodeDeleteAction() {
+            withCommitInfoRequired('#{studio.currentUsername}', () => deleteNodeRepositoryType === 'repo-git', () => $j('#deleteNodeForm\\:deleteNodeButton').click());
+        }
+
         let deleteNodeRepositoryType = undefined;
 
         function onShowModalDeleteNode(repositoryType) {

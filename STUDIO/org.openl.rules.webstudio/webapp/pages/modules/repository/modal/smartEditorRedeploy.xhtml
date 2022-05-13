@@ -78,9 +78,14 @@
             </h:panelGrid>
 
             <footer>
+                <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
+                 Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.
+                 It encodes all \\, \', \", which makes unparseable JS in the result.
+                 But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
+                 --></ui:remove>
                 <a4j:commandButton value="Deploy"
                                    disabled="#{!smartRedeployEditorController.projectHasSelectedItems or smartRedeployEditorController.protectedDeployRepository}"
-                                   onclick="withCommitInfoRequired('#{studio.currentUsername}', () => JSON.parse('#{smartRedeployEditorController.repositoryTypes}')[$j('#smartRedeployEditorForm\\:redeploySmartEditorRepository option:selected').val()] === 'repo-git' || '#{smartRedeployEditorController.deployConfigRepositoryType}' === 'repo-git',  () => $j('#smartRedeployEditorForm\\:smartRedeployBtn').click()); return false;"
+                                   onclick="modalSmartEditorRedeployDeployAction(); return false;"
                                    styleClass="button-primary"/>
                 <a4j:commandButton id="smartRedeployBtn"
                                    action="#{smartRedeployEditorController.redeploy}"
@@ -105,6 +110,9 @@
     </rich:popupPanel>
 
     <script>
+        function modalSmartEditorRedeployDeployAction() {
+            withCommitInfoRequired('#{studio.currentUsername}', () => JSON.parse('#{smartRedeployEditorController.repositoryTypes}')[$j('#smartRedeployEditorForm\\:redeploySmartEditorRepository option:selected').val()] === 'repo-git' || '#{smartRedeployEditorController.deployConfigRepositoryType}' === 'repo-git',  () => $j('#smartRedeployEditorForm\\:smartRedeployBtn').click());
+        }
 
         let project;
 
