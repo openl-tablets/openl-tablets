@@ -73,11 +73,15 @@ If not, please use `Receive their updates` button and test that everything works
             </h:panelGroup>
 
             <footer>
-
+                <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
+                 Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.
+                 It encodes all \\, \', \", which makes unparseable JS in the result.
+                 But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
+                 --></ui:remove>
                 <a4j:commandButton id="importButton"
                                    value="Receive their updates"
                                    title="Receive the latest updates from '#{branchesBean.branchToMerge}' to '#{branchesBean.currentBranch}'"
-                                   onclick="withCommitInfoRequired('#{studio.currentUsername}', isMergeBranchesGitRepository, () => $j('#mergeBranchesForm\\:importButtonHdn').click()); return false;"
+                                   onclick="modalMergeBranchesImportButtonAction(); return false;"
                                    styleClass="button-primary"
                                    disabled="#{theirBranchMerged or yourBranchProtected}"/>
                 <a4j:commandButton id="importButtonHdn"
@@ -91,7 +95,7 @@ If not, please use `Receive their updates` button and test that everything works
                                    title="Send updates from '#{branchesBean.currentBranch}' to '#{branchesBean.branchToMerge}'"
                                    styleClass="button-primary"
                                    disabled="#{mergedOrLocked or theirBranchProtected}"
-                                   onclick="withCommitInfoRequired('#{studio.currentUsername}', isMergeBranchesGitRepository, () => $j('#mergeBranchesForm\\:exportButtonHdn').click()); return false;"/>
+                                   onclick="modalMergeBranchesExportButtonAction(); return false;"/>
                 <a4j:commandButton id="exportButtonHdn"
                                    data="#{studio.mergeConflict}"
                                    render="projectTree nodeView @form"
@@ -118,6 +122,12 @@ If not, please use `Receive their updates` button and test that everything works
 
     <script>
         //<![CDATA[
+        function modalMergeBranchesImportButtonAction() {
+            withCommitInfoRequired('#{studio.currentUsername}', isMergeBranchesGitRepository, () => $j('#mergeBranchesForm\\:importButtonHdn').click());
+        }
+        function modalMergeBranchesExportButtonAction() {
+            withCommitInfoRequired('#{studio.currentUsername}', isMergeBranchesGitRepository, () => $j('#mergeBranchesForm\\:exportButtonHdn').click());
+        }
         let mergeBranchesRepositoryType = undefined;
         function isMergeBranchesGitRepository() {
             return mergeBranchesRepositoryType === 'repo-git';

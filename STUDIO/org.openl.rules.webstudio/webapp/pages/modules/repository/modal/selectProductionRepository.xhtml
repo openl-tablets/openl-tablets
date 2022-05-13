@@ -26,9 +26,14 @@
                 style="margin: 25px 0"/>
       </h:panelGroup>
       <footer>
+        <ui:remove><!-- onclick attribute doesn't work properly in JBoss when JS snippet has #{...} and 'foo\\:bar' at the same time.
+         Because JBoss uses incorrect and outdated https://github.com/javaee/el-spec/blob/master/impl/src/main/java/com/sun/el/parser/AstLiteralExpression.java#L75 class.
+         It encodes all \\, \', \", which makes unparseable JS in the result.
+         But tomcat works properly because https://github.com/apache/tomcat/blob/main/java/org/apache/el/parser/AstLiteralExpression.java#L56 doesn't encode \\, \', \" fragments.
+         --></ui:remove>
         <h:commandButton value="Deploy"
                          disabled="#{deploymentController.protectedDeployRepository}"
-                         onclick="withCommitInfoRequired('#{studio.currentUsername}', () => JSON.parse('#{deploymentController.repositoryTypes}')[$j('#selectRepositoryForm\\:redeployRepository option:selected').val()] === 'repo-git',  () => $j('#selectRepositoryForm\\:deployBtn').click()); return false;"
+                         onclick="modalSelectRepositoryDeployAction(); return false;"
                          styleClass="button-primary"/>
         <h:commandButton id="deployBtn"
                          action="#{deploymentController.deploy}"
@@ -39,6 +44,9 @@
   </rich:popupPanel>
 
   <script>
+    function modalSelectRepositoryDeployAction() {
+      withCommitInfoRequired('#{studio.currentUsername}', () => JSON.parse('#{deploymentController.repositoryTypes}')[$j('#selectRepositoryForm\\:redeployRepository option:selected').val()] === 'repo-git',  () => $j('#selectRepositoryForm\\:deployBtn').click());
+    }
     function openSelectRepositoryDialog() {
       RichFaces.$('modalSelectRepository').show();
       window._deployInProgress = false;
