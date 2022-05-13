@@ -326,7 +326,6 @@
         <dependency>
             <groupId>org.reactivestreams</groupId>
             <artifactId>reactive-streams</artifactId>
-            <version>1.0.1</version>
         </dependency>
         <!--added for fix problem webstudio failure on Websphere, due to new JSF version-->
         <dependency>
