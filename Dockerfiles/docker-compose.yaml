@@ -1,4 +1,4 @@
-version: '2.2'
+version: '3.9'
 
 services:
 
@@ -9,6 +9,14 @@ services:
     container_name: webstudio
     ports:
       - "8181:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 32M
 
   ws:
     build:
@@ -17,6 +25,14 @@ services:
     container_name: ws
     ports:
       - "8182:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 32M
 
   ws-all:
     build:
@@ -25,6 +41,14 @@ services:
     container_name: ws-all
     ports:
       - "8183:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
+        reservations:
+          cpus: '0.25'
+          memory: 32M
 
   demo:
     build:
@@ -33,3 +57,11 @@ services:
     container_name: demo
     ports:
       - "8184:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 640M
+        reservations:
+          cpus: '0.25'
+          memory: 32M
