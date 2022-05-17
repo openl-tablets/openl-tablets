@@ -923,10 +923,10 @@
                 <version>${org.springsecurity.version}</version>
             </dependency>
             <dependency>
-                <!--Get rid of the vulnerability, poi 5.1.0 uses xmlsec version 2.2.3, opensaml - 2.0.10.-->
+                <!--poi and opensaml -->
                 <groupId>org.apache.santuario</groupId>
                 <artifactId>xmlsec</artifactId>
-                <version>2.2.3</version>
+                <version>2.3.0</version>
             </dependency>
             <dependency>
                 <groupId>com.sdicons.jsontools</groupId>
