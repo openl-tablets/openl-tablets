@@ -114,7 +114,7 @@
         <org.bouncycastle.version>1.70</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.13.3</com.fasterxml.jackson.version>
         <jakarta.mail.version>1.6.7</jakarta.mail.version>
-        <com.icegreen.greenmail.version>1.6.5</com.icegreen.greenmail.version>
+        <com.icegreen.greenmail.version>1.6.9</com.icegreen.greenmail.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.46.v20220331</jetty.server.version>
