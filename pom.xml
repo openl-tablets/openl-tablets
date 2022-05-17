@@ -1356,7 +1356,7 @@
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>2.1.210</version>
+                <version>2.1.212</version>
             </dependency>
             <!-- Flyway: The agile database migration framework for Java. -->
             <dependency>
