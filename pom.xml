@@ -78,7 +78,7 @@
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
-        <org.springframework.version>5.3.19</org.springframework.version>
+        <org.springframework.version>5.3.20</org.springframework.version>
         <org.springsecurity.version>5.6.3</org.springsecurity.version>
         <org.hibernate.version>5.4.33.Final</org.hibernate.version>
         <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
@@ -93,7 +93,7 @@
         <cassandra.driver.version>4.13.0</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.11.0</cassandra.unit.driver.version>
-        <org.apache.cxf.version>3.5.1</org.apache.cxf.version>
+        <org.apache.cxf.version>3.5.2</org.apache.cxf.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-frontend-jaxrs:jar -->
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-databinding-aegis:jar -> org.apache.cxf:cxf-core -> org.glassfish.jaxb:jaxb-runtime -->
@@ -103,7 +103,7 @@
         <org.slf4j.version>1.7.36</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
         <org.bouncycastle.version>1.70</org.bouncycastle.version>
-        <com.fasterxml.jackson.version>2.13.2</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.13.3</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.46.v20220331</jetty.server.version>
@@ -1136,7 +1136,7 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>4.9.1</version>
+                <version>4.10.3</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -1460,7 +1460,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.13.2.2</version>
+                <version>${com.fasterxml.jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
