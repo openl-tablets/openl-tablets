@@ -124,7 +124,7 @@
         <org.apache.thrift.version>0.13.0</org.apache.thrift.version>
         <org.apache.ant.version>1.10.12</org.apache.ant.version>
         <io.netty.version>4.1.77.Final</io.netty.version>
-        <owasp.version>7.0.1</owasp.version>
+        <owasp.version>7.1.0</owasp.version>
         <groovy.version>3.0.10</groovy.version>
         <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
         <jaeger.client.version>1.8.0</jaeger.client.version>
