@@ -30,7 +30,7 @@ public final class Booleans {
         return Boolean.TRUE.equals(and(values));
     }
 
-    public static boolean allTrue(Boolean[] values) {
+    public static boolean allTrue(Boolean... values) {
         return Boolean.TRUE.equals(and(values));
     }
 
@@ -38,7 +38,7 @@ public final class Booleans {
         return Boolean.TRUE.equals(or(values));
     }
 
-    public static boolean anyTrue(Boolean[] values) {
+    public static boolean anyTrue(Boolean... values) {
         return Boolean.TRUE.equals(or(values));
     }
 
@@ -46,7 +46,7 @@ public final class Booleans {
         return Boolean.FALSE.equals(or(values));
     }
 
-    public static boolean allFalse(Boolean[] values) {
+    public static boolean allFalse(Boolean... values) {
         return Boolean.FALSE.equals(or(values));
     }
 
@@ -54,7 +54,7 @@ public final class Booleans {
         return Boolean.FALSE.equals(and(values));
     }
 
-    public static boolean anyFalse(Boolean[] values) {
+    public static boolean anyFalse(Boolean... values) {
         return Boolean.FALSE.equals(and(values));
     }
 
@@ -63,7 +63,7 @@ public final class Booleans {
         return allTrue(values);
     }
 
-    public static boolean allYes(Boolean[] values) {
+    public static boolean allYes(Boolean... values) {
         return allTrue(values);
     }
 
@@ -71,7 +71,7 @@ public final class Booleans {
         return allFalse(values);
     }
 
-    public static boolean allNo(Boolean[] values) {
+    public static boolean allNo(Boolean... values) {
         return allFalse(values);
     }
 
@@ -79,7 +79,7 @@ public final class Booleans {
         return anyTrue(values);
     }
 
-    public static boolean anyYes(Boolean[] values) {
+    public static boolean anyYes(Boolean... values) {
         return anyTrue(values);
     }
 
@@ -87,7 +87,7 @@ public final class Booleans {
         return anyFalse(values);
     }
 
-    public static boolean anyNo(Boolean[] values) {
+    public static boolean anyNo(Boolean... values) {
         return anyFalse(values);
     }
 
