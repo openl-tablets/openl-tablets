@@ -19,6 +19,18 @@ public final class Product {
     /**
      * Returns the product of values.
      */
+    public static <T extends Number> Double product(T... values) {
+        return process(values, new Result<>() {
+            @Override
+            public void processNonNull(T value) {
+                result = result == null ? value.doubleValue() : result * value.doubleValue();
+            }
+        });
+    }
+
+    /**
+     * Returns the product of values.
+     */
     public static Double product(Double... values) {
         return process(values, new Result<Double, Double>() {
             @Override
