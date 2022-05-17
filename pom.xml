@@ -127,11 +127,11 @@
         <owasp.version>7.0.1</owasp.version>
         <groovy.version>3.0.10</groovy.version>
         <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
-        <jaeger.client.version>1.6.0</jaeger.client.version>
+        <jaeger.client.version>1.8.0</jaeger.client.version>
         <opentracing.kafka.client>0.1.15</opentracing.kafka.client>
         <opentracing.mock.version>0.33.0</opentracing.mock.version>
         <com.amazonaws.version>1.12.131</com.amazonaws.version>
-        <jgit.version>6.0.0.202203041800-r</jgit.version>
+        <jgit.version>6.1.0.202205052100-r</jgit.version>
 
 
         <!-- It needs to detect memory leaks. -->
@@ -1310,6 +1310,11 @@
                 <artifactId>org.eclipse.jgit.lfs</artifactId>
                 <version>${jgit.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>2.9.0</version>
+            </dependency>
             <!-- The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms. This jar
             contains JCE provider and lightweight API for the Bouncy Castle Cryptography APIs for JDK 1.5 to JDK 1.8.
             Used by jgit and saml. -->
@@ -1622,12 +1627,12 @@
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-stdlib</artifactId>
-                <version>1.4.32</version>
+                <version>1.6.21</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-stdlib-common</artifactId>
-                <version>1.4.32</version>
+                <version>1.6.21</version>
             </dependency>
             <!-- //jaeger -->
             <!-- OpenL modules -->
