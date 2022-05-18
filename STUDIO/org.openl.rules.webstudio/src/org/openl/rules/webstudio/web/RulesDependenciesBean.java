@@ -7,7 +7,7 @@ import java.util.Set;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.dependency.graph.DirectedEdge;
 import org.openl.rules.lang.xls.syntax.TableUtils;
-import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.impl.ExecutableMethod;
 import org.springframework.stereotype.Service;
@@ -18,16 +18,13 @@ import org.springframework.web.context.annotation.RequestScope;
  */
 @Service
 @RequestScope
+//TODO Can be replaced with Rest API
 public class RulesDependenciesBean {
 
-    public DependencyRulesGraph getDependencyGraph() {
-        ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        return projectModel.getDependencyGraph();
-    }
-
     public List<Table> getTablesWithDependencies() {
+        WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         List<Table> tables = new ArrayList<>();
-        DependencyRulesGraph graph = getDependencyGraph();
+        DependencyRulesGraph graph = webStudio.getModel().getDependencyGraph();
 
         for (ExecutableMethod rulesMethod : graph.vertexSet()) {
             Table table = new Table();
@@ -35,6 +32,7 @@ public class RulesDependenciesBean {
             String tableUri = rulesMethod.getSourceUrl();
             String tableId = TableUtils.makeTableId(tableUri);
             table.setId(tableId);
+            table.setUrl(webStudio.url("table", tableUri));
 
             Set<DirectedEdge<ExecutableMethod>> outgoingEdges = graph.outgoingEdgesOf(rulesMethod);
             List<String> dependencies = table.getDependencies();
@@ -59,6 +57,7 @@ public class RulesDependenciesBean {
 
         private String name;
         private String id;
+        private String url;
 
         private List<String> dependencies = new ArrayList<>();
 
@@ -84,6 +83,14 @@ public class RulesDependenciesBean {
 
         public void setDependencies(List<String> dependencies) {
             this.dependencies = dependencies;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
         }
 
         @Override

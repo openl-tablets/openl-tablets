@@ -1,4 +1,4 @@
-function init(data, tableUrl) {
+function init(data) {
     var rgraph = new $jit.ForceDirected({
         injectInto: 'rulesDepsPanel',
 
@@ -83,7 +83,7 @@ function init(data, tableUrl) {
         //Add node click handler and some styles.
         //This method is called only once for each node/label crated.
         onCreateLabel: function(domElement, node) {
-            domElement.innerHTML = "<a href='" + tableUrl + "?id=" + node.id + "'>" + node.name + "</a>";
+            domElement.innerHTML = "<a href='" + node.data.tableUrl + "?id=" + node.id + "'>" + node.name + "</a>";
             var style = domElement.style;
             style.cursor = 'pointer';
             style.fontSize = "0.8em";
