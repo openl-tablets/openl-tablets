@@ -41,7 +41,7 @@ public class SystemSettingsValidator {
     public void timeFormatValidator(FacesContext context, UIComponent toValidate, Object value) {
         String timeFormat = (String) value;
 
-        validateNotBlank(timeFormat, "Date format");
+        validateNotBlank(timeFormat, "Time Format");
 
         try {
             SimpleDateFormat format = new SimpleDateFormat("MM/dd/yyyy " + timeFormat);
