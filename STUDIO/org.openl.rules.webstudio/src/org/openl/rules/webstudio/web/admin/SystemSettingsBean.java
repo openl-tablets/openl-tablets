@@ -32,6 +32,7 @@ import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
 /**
@@ -66,13 +67,16 @@ public class SystemSettingsBean {
             DeploymentManager deploymentManager,
             DesignTimeRepository designTimeRepository,
             RepositoryTreeState repositoryTreeState,
-            InMemoryProperties properties) {
+            PropertyResolver propertyResolver) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
         this.deploymentManager = deploymentManager;
         this.designTimeRepository = designTimeRepository;
         this.repositoryTreeState = repositoryTreeState;
 
-        this.properties = properties;
+        // We don't want to use application-scoped InMemoryProperties singleton, because we need to destroy all
+        // unsaved changes when a user leaves the page. So we create a new InMemoryProperties in view-scoped
+        // SystemSettingsBean constructor.
+        this.properties = new InMemoryProperties(propertyResolver);
 
         try {
             deployConfigRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DEPLOY_CONFIG.getId(), properties);
@@ -303,7 +307,6 @@ public class SystemSettingsBean {
 
     private RepositoryConfiguration createRepositoryConfiguration(RepositoryMode repositoryMode) {
         List<RepositoryConfiguration> configurations;
-        String configName;
         String accessType;
 
         switch (repositoryMode) {
@@ -319,14 +322,11 @@ public class SystemSettingsBean {
             default:
                 throw new IllegalArgumentException("Unsupported repository mode " + repositoryMode);
         }
-        configName = repositoryMode.getId();
-        RepositoryConfiguration templateConfig = new RepositoryConfiguration(configName, properties);
-        templateConfig.setType(accessType);
 
         String newConfigName = RepositoryEditor.getNewConfigName(configurations, repositoryMode);
 
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, templateConfig,
-            RepositoryEditor.createValueFinder(configurations, repositoryMode));
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, accessType,
+                RepositoryEditor.createValueFinder(configurations, repositoryMode), repositoryMode);
         repoConfig.commit();
         return repoConfig;
     }

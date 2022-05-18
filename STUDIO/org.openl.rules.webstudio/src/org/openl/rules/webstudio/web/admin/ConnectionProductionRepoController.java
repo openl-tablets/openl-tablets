@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
+ * Used in Install Wizard only.
+ *
  * @author Pavel Tarasevich
  *
  */
@@ -18,7 +20,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
 
     @Override
     public void save() {
-        RepositoryConfiguration repoConfig = createRepositoryConfiguration();
+        RepositoryConfiguration repoConfig = getRepositoryConfiguration();
 
         if (isInputParamInvalid(repoConfig)) {
             return;

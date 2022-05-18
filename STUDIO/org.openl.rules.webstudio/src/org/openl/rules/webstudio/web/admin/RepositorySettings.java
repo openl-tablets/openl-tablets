@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 
 public abstract class RepositorySettings {
     private final String USE_CUSTOM_COMMENTS;
@@ -207,30 +208,27 @@ public abstract class RepositorySettings {
         load(properties);
     }
 
-    protected void onTypeChanged(RepositoryType newRepositoryType) {
-    }
-
-    public void copyContent(RepositorySettings other) {
-        setUseCustomComments(other.isUseCustomComments());
-        setCommentValidationPattern(other.getCommentValidationPattern());
-        setCommentTemplate(other.getCommentTemplate());
-        setCommentTemplateOld(other.getCommentTemplateOld());
-        setInvalidCommentMessage(other.getInvalidCommentMessage());
-        setDefaultCommentSave(other.getDefaultCommentSave());
-        setDefaultCommentCreate(other.getDefaultCommentCreate());
-        setDefaultCommentArchive(other.getDefaultCommentArchive());
-        setDefaultCommentRestore(other.getDefaultCommentRestore());
-        setDefaultCommentErase(other.getDefaultCommentErase());
-        setDefaultCommentCopiedFrom(other.getDefaultCommentCopiedFrom());
-        setDefaultCommentRestoredFrom(other.getDefaultCommentRestoredFrom());
-        setBasePath(other.getBasePath());
-    }
-
     /**
      * Change repository settings to distinguish from other repository. Used when create a new repository based on
      * template.
      */
-    public void applyRepositorySuffix(FreeValueFinder valueFinder) {
+    public void loadDefaults(PropertiesHolder properties, RepositoryMode repoMode, FreeValueFinder valueFinder) {
+        String configPrefix = "repo-default." + repoMode.getId();
+
+        useCustomComments = Boolean.parseBoolean(configPrefix + ".comment-template.use-custom-comments");
+        commentValidationPattern = properties.getProperty(configPrefix + ".comment-template.comment-validation-pattern");
+        invalidCommentMessage = properties.getProperty(configPrefix + ".comment-template.invalid-comment-message");
+        commentTemplate = properties.getProperty(configPrefix + ".comment-template");
+        commentTemplateOld = properties.getProperty(configPrefix + ".comment-template-old");
+        defaultCommentSave = properties.getProperty(configPrefix + ".comment-template.user-message.default.save");
+        defaultCommentCreate = properties.getProperty(configPrefix + ".comment-template.user-message.default.create");
+        defaultCommentArchive = properties.getProperty(configPrefix + ".comment-template.user-message.default.archive");
+        defaultCommentRestore = properties.getProperty(configPrefix + ".comment-template.user-message.default.restore");
+        defaultCommentErase = properties.getProperty(configPrefix + ".comment-template.user-message.default.erase");
+        defaultCommentCopiedFrom = properties.getProperty(configPrefix + ".comment-template.user-message.default.copied-from");
+        defaultCommentRestoredFrom = properties.getProperty(configPrefix + ".comment-template.user-message.default.restored-from");
+
+        basePath = properties.getProperty(configPrefix + ".base.path");
     }
 
     public RepositorySettingsValidators getValidators() {

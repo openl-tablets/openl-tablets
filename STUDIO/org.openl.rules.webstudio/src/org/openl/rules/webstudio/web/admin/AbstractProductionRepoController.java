@@ -1,7 +1,5 @@
 package org.openl.rules.webstudio.web.admin;
 
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
-
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -38,8 +36,8 @@ public abstract class AbstractProductionRepoController {
     @PostConstruct
     public void afterPropertiesSet() {
         setProductionRepositoryConfigurations(systemSettingsBean.getProductionRepositoryConfigurations());
-        setProperties(systemSettingsBean.getProperties(), PRODUCTION_REPOSITORY_CONFIGS);
-        repositoryConfiguration = createDummyRepositoryConfiguration();
+        setProperties(systemSettingsBean.getProperties());
+        repositoryConfiguration = createRepositoryConfiguration();
         systemSettingsBean = null;
     }
 
@@ -56,8 +54,8 @@ public abstract class AbstractProductionRepoController {
         this.productionRepositoryConfigurations = productionRepositoryConfigurations;
     }
 
-    public void setProperties(PropertiesHolder properties, String repoListConfig) {
-        this.properties = RepositoryEditor.createPropertiesWrapper(properties, repoListConfig);
+    public void setProperties(PropertiesHolder properties) {
+        this.properties = properties;
     }
 
     public RepositoryConfiguration getRepositoryConfiguration() {
@@ -67,28 +65,22 @@ public abstract class AbstractProductionRepoController {
     protected RepositoryConfiguration createRepositoryConfiguration() {
         final List<RepositoryConfiguration> configurations = getProductionRepositoryConfigurations();
         String newConfigName = RepositoryEditor.getNewConfigName(configurations, RepositoryMode.PRODUCTION);
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, repositoryConfiguration,
-            RepositoryEditor.createValueFinder(configurations, RepositoryMode.PRODUCTION));
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, RepositoryType.DB.factoryId,
+                RepositoryEditor.createValueFinder(configurations, RepositoryMode.PRODUCTION), RepositoryMode.PRODUCTION);
         repoConfig.commit();
         return repoConfig;
     }
 
     public void clearForm() {
-        repositoryConfiguration = createDummyRepositoryConfiguration();
+        repositoryConfiguration = createRepositoryConfiguration();
         errorMessage = "";
-    }
-
-    private RepositoryConfiguration createDummyRepositoryConfiguration() {
-        RepositoryConfiguration rc = new RepositoryConfiguration(RepositoryMode.PRODUCTION.getId(), properties);
-        rc.setType(RepositoryType.DB.factoryId);
-        return rc;
     }
 
     public boolean isInputParamInvalid(RepositoryConfiguration prodConfig) {
         try {
             RepositoryValidators.validate(prodConfig, getProductionRepositoryConfigurations());
 
-            RepositorySettings settings = repositoryConfiguration.getSettings();
+            RepositorySettings settings = prodConfig.getSettings();
             if (settings instanceof CommonRepositorySettings) {
                 CommonRepositorySettings s = (CommonRepositorySettings) settings;
                 if (s.isSecure() && (StringUtils.isEmpty(s.getLogin()) || StringUtils.isEmpty(s.getPassword()))) {

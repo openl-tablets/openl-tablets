@@ -5,7 +5,7 @@ import java.util.Map;
 import org.springframework.core.env.PropertyResolver;
 
 public class ReadOnlyPropertiesHolder implements PropertiesHolder {
-    protected final PropertyResolver propertyResolver;
+    protected PropertyResolver propertyResolver;
 
     public ReadOnlyPropertiesHolder(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;

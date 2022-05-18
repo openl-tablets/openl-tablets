@@ -247,7 +247,11 @@ public class DeploymentController {
     }
 
     public boolean isProtectedDeployRepository() {
-        Repository repo = deploymentManager.repositoryFactoryProxy.getRepositoryInstance(getRepositoryConfigName());
+        if (repositoryConfigName == null) {
+            return false;
+        }
+
+        Repository repo = deploymentManager.repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
         return isMainBranchProtected(repo);
     }
 

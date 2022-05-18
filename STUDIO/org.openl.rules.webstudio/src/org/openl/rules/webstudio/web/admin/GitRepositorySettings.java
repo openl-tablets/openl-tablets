@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.admin;
 import java.util.Optional;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 
@@ -18,9 +19,9 @@ public class GitRepositorySettings extends RepositorySettings {
     private String newBranchRegex;
     private String newBranchRegexError;
     private String tagPrefix;
-    private int listenerTimerPeriod;
-    private int connectionTimeout;
-    private int failedAuthenticationSeconds;
+    private Integer listenerTimerPeriod;
+    private Integer connectionTimeout;
+    private Integer failedAuthenticationSeconds;
     private Integer maxAuthenticationAttempts;
     private String protectedBranches;
 
@@ -76,18 +77,17 @@ public class GitRepositorySettings extends RepositorySettings {
         localRepositoryPath = defaultLocalPath;
         branch = properties.getProperty(BRANCH);
         tagPrefix = properties.getProperty(TAG_PREFIX);
-        listenerTimerPeriod = Integer.parseInt(Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD))
-            .orElse(properties.getProperty("repo-git.listener-timer-period")));
-        connectionTimeout = Integer.parseInt(Optional.ofNullable(properties.getProperty(CONNECTION_TIMEOUT))
-            .orElse(properties.getProperty("repo-git.connection-timeout")));
-        failedAuthenticationSeconds = Integer
-            .parseInt(Optional.ofNullable(properties.getProperty(FAILED_AUTHENTICATION_SECONDS))
-                .orElse(properties.getProperty("repo-git.failed-authentication-seconds")));
-        String authsAttempts = Optional.ofNullable(properties.getProperty(MAX_AUTHENTICATION_ATTEMPTS))
-            .orElse(properties.getProperty("repo-git.max-authentication-attempts"));
-        if (StringUtils.isNotBlank(authsAttempts)) {
-            maxAuthenticationAttempts = Integer.parseInt(authsAttempts);
-        }
+        listenerTimerPeriod = Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD)).map(Integer::parseInt)
+            .orElse(null);
+        connectionTimeout = Optional.ofNullable(properties.getProperty(CONNECTION_TIMEOUT)).map(Integer::parseInt)
+            .orElse(null);
+        failedAuthenticationSeconds = Optional.ofNullable(properties.getProperty(FAILED_AUTHENTICATION_SECONDS))
+                .map(Integer::parseInt)
+                .orElse(null);
+        maxAuthenticationAttempts = Optional.ofNullable(properties.getProperty(MAX_AUTHENTICATION_ATTEMPTS))
+                .filter(StringUtils::isNotBlank)
+                .map(Integer::parseInt)
+                .orElse(null);
         newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
         newBranchRegex = properties.getProperty(NEW_BRANCH_REGEX);
         newBranchRegexError = properties.getProperty(NEW_BRANCH_REGEX_ERROR);
@@ -152,11 +152,11 @@ public class GitRepositorySettings extends RepositorySettings {
         this.tagPrefix = tagPrefix;
     }
 
-    public int getListenerTimerPeriod() {
+    public Integer getListenerTimerPeriod() {
         return listenerTimerPeriod;
     }
 
-    public void setListenerTimerPeriod(int listenerTimerPeriod) {
+    public void setListenerTimerPeriod(Integer listenerTimerPeriod) {
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
@@ -269,39 +269,16 @@ public class GitRepositorySettings extends RepositorySettings {
     }
 
     @Override
-    public void copyContent(RepositorySettings other) {
-        super.copyContent(other);
+    public void loadDefaults(PropertiesHolder properties, RepositoryMode repoMode, FreeValueFinder valueFinder) {
+        super.loadDefaults(properties, repoMode, valueFinder);
 
-        if (other instanceof GitRepositorySettings) {
-            GitRepositorySettings otherSettings = (GitRepositorySettings) other;
-            setUri(otherSettings.getUri());
-            setLogin(otherSettings.getLogin());
-            setPassword(otherSettings.getPassword());
-            setLocalRepositoryPath(otherSettings.getLocalRepositoryPath());
-            setBranch(otherSettings.getBranch());
-            setNewBranchTemplate(otherSettings.getNewBranchTemplate());
-            setNewBranchRegex(otherSettings.getNewBranchRegex());
-            setNewBranchRegexError(otherSettings.getNewBranchRegexError());
-            setTagPrefix(otherSettings.getTagPrefix());
-            setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
-            setConnectionTimeout(otherSettings.getConnectionTimeout());
-            setFailedAuthenticationSeconds(otherSettings.getFailedAuthenticationSeconds());
-            setMaxAuthenticationAttempts(otherSettings.getMaxAuthenticationAttempts());
-            setCommentTemplate(otherSettings.getCommentTemplate());
-            setRemoteRepository(otherSettings.isRemoteRepository());
-            setProtectedBranches(otherSettings.getProtectedBranches());
-        }
-    }
+        String configPrefix = "repo-default." + repoMode.getId();
+        newBranchTemplate = properties.getProperty(configPrefix + ".new-branch.pattern");
+        newBranchRegex = properties.getProperty(configPrefix + ".new-branch.regex");
+        newBranchRegexError = properties.getProperty(configPrefix + ".new-branch.regex-error");
 
-    @Override
-    public void applyRepositorySuffix(FreeValueFinder valueFinder) {
-        super.applyRepositorySuffix(valueFinder);
-        String path = getLocalRepositoryPath();
-        if (path.endsWith("/")) {
-            path = path.substring(0, path.length() - 1);
-        }
         final String paramNameSuffix = LOCAL_REPOSITORY_PATH.substring(CONFIG_PREFIX.length() + 1);
-        setLocalRepositoryPath(valueFinder.find(paramNameSuffix, path));
+        setLocalRepositoryPath(valueFinder.find(paramNameSuffix));
     }
 
     @Override

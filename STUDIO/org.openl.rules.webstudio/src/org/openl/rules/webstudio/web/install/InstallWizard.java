@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.install;
 
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DESIGN_REPOSITORY_CONFIGS;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -759,7 +758,7 @@ public class InstallWizard implements Serializable {
         productionRepositoryEditor = new RepositoryEditor(productionRepositoryFactoryProxy, properties);
 
         connectionProductionRepoController = new ConnectionProductionRepoController();
-        connectionProductionRepoController.setProperties(properties, PRODUCTION_REPOSITORY_CONFIGS);
+        connectionProductionRepoController.setProperties(properties);
         connectionProductionRepoController.setProductionRepositoryFactoryProxy(productionRepositoryFactoryProxy);
         connectionProductionRepoController
             .setProductionRepositoryConfigurations(getProductionRepositoryConfigurations());
