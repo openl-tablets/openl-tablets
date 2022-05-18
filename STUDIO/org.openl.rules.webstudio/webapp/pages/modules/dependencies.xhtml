@@ -7,7 +7,7 @@
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
     <script src="#{contextPath}/javascript/vendor/jit-yc.js"></script>
-    <script src="#{contextPath}/javascript/rulesDependencies.js"></script>
+    <script src="#{contextPath}/javascript/rulesDependencies.js?1"></script>
 
     <div id="rulesDepsPanel"></div>
 
@@ -20,6 +20,9 @@
             var node = {
                 id: '<h:outputText value="#{table.id}" />',
                 name: '<h:outputText value="#{table.name}" />',
+                data: {
+                    tableUrl: '<h:outputText value="#{table.url}" />',
+                },
                 adjacencies: []
             }
 
@@ -36,7 +39,7 @@
             nodes.push(node);
         </ui:repeat>
 
-        init(nodes, "#{studio.url('table')}");
+        init(nodes);
 
         </h:panelGroup>
     </script>
