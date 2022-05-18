@@ -1,7 +1,11 @@
 package org.openl.rules.binding;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -37,6 +41,14 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode constructors;
     private TableSyntaxNode arrayNodeHints;
     private TableSyntaxNode ternaryOpHints;
+    private TableSyntaxNode tab;
+    private TableSyntaxNode tabs;
+    private TableSyntaxNode tabs1;
+    private TableSyntaxNode tabs1t;
+    private TableSyntaxNode tabs2;
+    private TableSyntaxNode tabs2t;
+    private TableSyntaxNode tabs4;
+    private TableSyntaxNode tabs4t;
 
     public NodeUsagesMetaInfoTest() {
         super(SRC);
@@ -67,6 +79,14 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         constructors = findTable("Spreadsheet SpreadsheetResult constructorHints()");
         arrayNodeHints = findTable("Spreadsheet SpreadsheetResult arrayNodeHints()");
         ternaryOpHints = findTable("Spreadsheet SpreadsheetResult ternaryOp (String spreadsheetResult)");
+        tab = findTable("SmartRules String Tab(String componentID)");
+        tabs = findTable("SmartRules Tabs Tabs(String componentID)");
+        tabs1 = findTable("SmartRules Tabs Tabs1(String componentID)");
+        tabs1t = findTable("SmartRules Tabs Tabs1t(String componentID)");
+        tabs2 = findTable("SmartRules Tabs Tabs2(String componentID)");
+        tabs2t = findTable("SmartRules Tabs Tabs2t(String componentID)");
+        tabs4 = findTable("SmartRules Tabs Tabs4(String componentID)");
+        tabs4t = findTable("SmartRules Tabs Tabs4t(String componentID)");
     }
 
     @Test
@@ -590,6 +610,74 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertNodeUsage(usedNodes.get(1), "org.openl.rules.calc\nclass SpreadsheetResult",9, 26);
     }
 
+    @Test
+    public void testDTArrays() {
+        // Tab
+        List<? extends NodeUsage> usedNodes = assertMetaInfo(tabs, 1, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs, 1, 3, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        assertMetaInfo(tabs, 2, 2, 0);
+        assertMetaInfo(tabs, 2, 3, 0);
+
+        // Tab1
+        usedNodes = assertMetaInfo(tabs1, 1, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs1, 2, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        assertMetaInfo(tabs1, 3, 2, 0);
+
+        // Tab1t
+        usedNodes = assertMetaInfo(tabs1t, 1, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs1t, 1, 3, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        assertMetaInfo(tabs1t, 1, 4, 0);
+
+        // Tab2
+        usedNodes = assertMetaInfo(tabs2, 1, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs2, 1, 3, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs2, 2, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs2, 2, 3, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        assertMetaInfo(tabs2, 3, 2, 0);
+        assertMetaInfo(tabs2, 3, 3, 0);
+
+        // Tab2t
+        usedNodes = assertMetaInfo(tabs2t, 1, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs2t, 1, 3, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        assertMetaInfo(tabs2t, 1, 4, 0);
+        assertMetaInfo(tabs2t, 1, 5, 0);
+
+        // Tab4
+        usedNodes = assertMetaInfo(tabs4, 1, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs4, 2, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs4, 3, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs4, 4, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        assertMetaInfo(tabs4, 5, 2, 0);
+
+        // Tab4t
+        usedNodes = assertMetaInfo(tabs4t, 1, 2, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs4t, 1, 3, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs4t, 1, 4, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        usedNodes = assertMetaInfo(tabs4t, 1, 5, 1);
+        assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
+        assertMetaInfo(tabs4t, 1, 6, 0);
+
+    }
+
     private static void assertCellType(TableSyntaxNode node, int column, int row, String type) {
         MetaInfoReader metaInfoReader = node.getMetaInfoReader();
         ICell cell = node.getGridTable().getCell(column, row);
@@ -602,10 +690,16 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
     private static List<? extends NodeUsage> assertMetaInfo(TableSyntaxNode node, int column, int row, int size) {
         MetaInfoReader metaInfoReader = node.getMetaInfoReader();
-        ICell cell = node.getGridTable().getCell(column, row);
+        ICell cell = node.getGridTable().getCell(column, row).getTopLeftCellFromRegion();
         CellMetaInfo cellMetaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
-        assertNotNull(cellMetaInfo);
-        List<? extends NodeUsage> usedNodes = cellMetaInfo.getUsedNodes();
+        if (size > 0) {
+            assertNotNull(cellMetaInfo);
+        }
+        List<? extends NodeUsage> usedNodes = cellMetaInfo != null ? cellMetaInfo.getUsedNodes()
+                                                                   : Collections.emptyList();
+        if (usedNodes == null) {
+            usedNodes = Collections.emptyList();
+        }
         assertEquals(size, usedNodes.size());
         return usedNodes;
     }
