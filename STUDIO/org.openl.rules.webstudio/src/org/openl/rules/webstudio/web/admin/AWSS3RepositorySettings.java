@@ -11,7 +11,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private String regionName;
     private String accessKey;
     private String secretKey;
-    private int listenerTimerPeriod;
+    private Integer listenerTimerPeriod;
 
     private final String serviceEndpointPath;
     private final String bucketNamePath;
@@ -38,10 +38,9 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         regionName = properties.getProperty(regionNamePath);
         accessKey = properties.getProperty(accessKeyPath);
         secretKey = properties.getProperty(secretKeyPath);
-        listenerTimerPeriod = Integer.parseInt(
-                Optional.ofNullable(properties.getProperty(listenerTimerPeriodPath))
-                        .orElse(properties.getProperty("repo-aws-s3.listener-timer-period"))
-        );
+        listenerTimerPeriod = Optional.ofNullable(properties.getProperty(listenerTimerPeriodPath))
+            .map(Integer::parseInt)
+            .orElse(null);
     }
 
     public String getServiceEndpoint() {
@@ -88,11 +87,11 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         this.secretKey = secretKey;
     }
 
-    public int getListenerTimerPeriod() {
+    public Integer getListenerTimerPeriod() {
         return listenerTimerPeriod;
     }
 
-    public void setListenerTimerPeriod(int listenerTimerPeriod) {
+    public void setListenerTimerPeriod(Integer listenerTimerPeriod) {
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
@@ -121,20 +120,5 @@ public class AWSS3RepositorySettings extends RepositorySettings {
                 listenerTimerPeriodPath
         );
         load(properties);
-    }
-
-    @Override
-    public void copyContent(RepositorySettings other) {
-        super.copyContent(other);
-
-        if (other instanceof AWSS3RepositorySettings) {
-            AWSS3RepositorySettings otherSettings = (AWSS3RepositorySettings) other;
-            setServiceEndpoint(otherSettings.getServiceEndpoint());
-            setBucketName(otherSettings.getBucketName());
-            setRegionName(otherSettings.getRegionName());
-            setAccessKey(otherSettings.getAccessKey());
-            setSecretKey(otherSettings.getSecretKey());
-            setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
-        }
     }
 }

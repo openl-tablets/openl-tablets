@@ -8,14 +8,12 @@ public class CommonRepositorySettings extends RepositorySettings {
     private String password;
     private String uri;
     private boolean secure;
-    private final RepositoryType repositoryType;
     private final String uriPath;
     private final String loginPath;
     private final String passwordPath;
 
-    public CommonRepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryType repositoryType) {
+    public CommonRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
-        this.repositoryType = repositoryType;
         uriPath = configPrefix + ".uri";
         loginPath = configPrefix + ".login";
         passwordPath = configPrefix + ".password";
@@ -31,13 +29,6 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     public String getPath() {
-        // Default values
-        if (StringUtils.isEmpty(uri)) {
-            String defaultPath = getDefaultPath(repositoryType);
-            if (defaultPath != null) {
-                return defaultPath;
-            }
-        }
         return uri;
     }
 
@@ -69,17 +60,6 @@ public class CommonRepositorySettings extends RepositorySettings {
         this.secure = secure;
     }
 
-    private String getDefaultPath(RepositoryType repositoryType) {
-        switch (repositoryType) {
-            case DB:
-                return "jdbc:mysql://localhost:3306/repository";
-            case JNDI:
-                return "java:comp/env/jdbc/DB";
-            default:
-                return null;
-        }
-    }
-
     @Override
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
@@ -102,24 +82,6 @@ public class CommonRepositorySettings extends RepositorySettings {
 
         properties.revertProperties(uriPath, loginPath, passwordPath);
         load(properties);
-    }
-
-    @Override
-    protected void onTypeChanged(RepositoryType newRepositoryType) {
-        super.onTypeChanged(newRepositoryType);
-        uri = getDefaultPath(newRepositoryType);
-    }
-
-    @Override
-    public void copyContent(RepositorySettings other) {
-        super.copyContent(other);
-        if (other instanceof CommonRepositorySettings) {
-            CommonRepositorySettings otherSettings = (CommonRepositorySettings) other;
-            setPath(otherSettings.getPath());
-            setLogin(otherSettings.getLogin());
-            setPassword(otherSettings.getPassword());
-            setSecure(otherSettings.isSecure());
-        }
     }
 
 }

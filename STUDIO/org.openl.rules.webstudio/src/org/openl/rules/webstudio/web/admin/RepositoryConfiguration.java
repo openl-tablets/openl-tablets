@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.math.BigInteger;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,6 +11,7 @@ import org.openl.config.PropertiesHolder;
 import org.openl.config.ReadOnlyPropertiesHolder;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
@@ -24,6 +26,7 @@ public class RepositoryConfiguration {
     private final String configName;
 
     private final String REPOSITORY_FACTORY;
+    private final String REPOSITORY_REF;
     private final String REPOSITORY_NAME;
 
     private RepositorySettings settings;
@@ -32,8 +35,9 @@ public class RepositoryConfiguration {
     private final PropertiesHolder properties;
     private final String nameWithPrefix;
 
-    private RepositoryConfiguration configToClone;
+    private boolean newRepository = false;
     private FreeValueFinder valueFinder;
+    private RepositoryMode repoMode;
 
     public RepositoryConfiguration(String configName, PropertyResolver propertiesResolver) {
         this(configName, new ReadOnlyPropertiesHolder(propertiesResolver));
@@ -44,25 +48,29 @@ public class RepositoryConfiguration {
         this.properties = properties;
         nameWithPrefix = Comments.REPOSITORY_PREFIX + configName.toLowerCase();
         REPOSITORY_FACTORY = nameWithPrefix + ".factory";
+        REPOSITORY_REF = nameWithPrefix + ".$ref";
         REPOSITORY_NAME = nameWithPrefix + ".name";
 
         load();
     }
 
     public RepositoryConfiguration(String configName,
-            PropertiesHolder properties,
-            RepositoryConfiguration configToClone,
-            FreeValueFinder valueFinder) {
+                                   PropertiesHolder properties,
+                                   String type,
+                                   FreeValueFinder valueFinder,
+                                   RepositoryMode repoMode) {
         this(configName, properties);
-        this.configToClone = configToClone;
         this.valueFinder = valueFinder;
-        // do not copy configName, only content
-        setName(valueFinder.find("name", configToClone.getName()));
+        this.repoMode = repoMode;
+
+        // Create not existed before repository
+        newRepository = true;
+
+        setName(valueFinder.find("name"));
         oldName = name;
 
-        setType(configToClone.getType());
-        settings.copyContent(configToClone.getSettings());
-        settings.applyRepositorySuffix(valueFinder);
+        repoType = ""; // To force "type is changed" event in the next step
+        setType(type);
     }
 
     public PropertiesHolder getProperties() {
@@ -73,7 +81,7 @@ public class RepositoryConfiguration {
         String factoryClassName = properties.getProperty(REPOSITORY_FACTORY);
         repoType = RepositoryInstatiator.getRefID(factoryClassName);
         RepositoryType repositoryType = RepositoryType.findByFactory(repoType);
-        if (repoType == null) {
+        if (repositoryType == null) {
             // Fallback to default value
             repositoryType = RepositoryType.GIT;
             repoType = repositoryType.factoryId;
@@ -105,7 +113,7 @@ public class RepositoryConfiguration {
                 newSettings = new LocalRepositorySettings(properties, configPrefix);
                 break;
             default:
-                newSettings = new CommonRepositorySettings(properties, configPrefix, repositoryType);
+                newSettings = new CommonRepositorySettings(properties, configPrefix);
                 break;
         }
 
@@ -114,12 +122,15 @@ public class RepositoryConfiguration {
 
     private void store(PropertiesHolder propertiesHolder) {
         propertiesHolder.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
-        propertiesHolder.setProperty(REPOSITORY_FACTORY, repoType);
+
+        String factoryId = Objects.requireNonNull(RepositoryType.findByFactory(repoType)).factoryId;
+        propertiesHolder.setProperty(REPOSITORY_REF, factoryId);
+
         settings.store(propertiesHolder);
     }
 
     public void revert() {
-        properties.revertProperties(REPOSITORY_NAME, REPOSITORY_FACTORY);
+        properties.revertProperties(REPOSITORY_NAME, REPOSITORY_REF);
         load();
         settings.revert(properties);
     }
@@ -170,16 +181,15 @@ public class RepositoryConfiguration {
             }
             repoType = newRepoType;
             errorMessage = null;
-            RepositorySettings newSettings = createSettings(newRepositoryType, properties, nameWithPrefix);
-            if (configToClone != null) {
-                configToClone.setType(newRepoType);
-                newSettings.copyContent(configToClone.getSettings());
-                newSettings.applyRepositorySuffix(valueFinder);
-            } else {
-                newSettings.copyContent(settings);
+
+            properties.setProperty(REPOSITORY_REF, newRepositoryType.factoryId);
+            settings = createSettings(newRepositoryType, properties, nameWithPrefix);
+
+            if (newRepository) {
+                // Load defaults only for a new repository.
+                // For existing repository we don't want to override stored values with defaults.
+                settings.loadDefaults(properties, repoMode, valueFinder);
             }
-            settings = newSettings;
-            settings.onTypeChanged(newRepositoryType);
         }
     }
 

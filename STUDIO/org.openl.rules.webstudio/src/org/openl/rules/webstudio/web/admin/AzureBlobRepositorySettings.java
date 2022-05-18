@@ -8,7 +8,7 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
     private String uri;
     private String accountName;
     private String accountKey;
-    private int listenerTimerPeriod;
+    private Integer listenerTimerPeriod;
 
     private final String uriProperty;
     private final String accountNameProperty;
@@ -29,10 +29,9 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
         uri = properties.getProperty(uriProperty);
         accountName = properties.getProperty(accountNameProperty);
         accountKey = properties.getProperty(accountKeyProperty);
-        listenerTimerPeriod = Integer.parseInt(
-                Optional.ofNullable(properties.getProperty(listenerTimerPeriodProperty))
-                        .orElse(properties.getProperty("repo-azure-blob.listener-timer-period"))
-        );
+        listenerTimerPeriod = Optional.ofNullable(properties.getProperty(listenerTimerPeriodProperty))
+                .map(Integer::parseInt)
+                .orElse(null);
     }
 
     public String getUri() {
@@ -59,11 +58,11 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
         this.accountKey = accountKey;
     }
 
-    public int getListenerTimerPeriod() {
+    public Integer getListenerTimerPeriod() {
         return listenerTimerPeriod;
     }
 
-    public void setListenerTimerPeriod(int listenerTimerPeriod) {
+    public void setListenerTimerPeriod(Integer listenerTimerPeriod) {
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
@@ -83,16 +82,5 @@ public class AzureBlobRepositorySettings extends RepositorySettings {
 
         properties.revertProperties(uriProperty, accountNameProperty, accountKeyProperty, listenerTimerPeriodProperty);
         load(properties);
-    }
-
-    @Override
-    public void copyContent(RepositorySettings other) {
-        super.copyContent(other);
-
-        if (other instanceof AzureBlobRepositorySettings) {
-            AzureBlobRepositorySettings otherSettings = (AzureBlobRepositorySettings) other;
-            setUri(otherSettings.getUri());
-            setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
-        }
     }
 }

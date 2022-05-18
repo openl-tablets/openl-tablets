@@ -10,7 +10,6 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.webstudio.web.admin.RepositoryEditor;
 import org.openl.util.IOUtils;
 import org.springframework.core.env.PropertyResolver;
 
@@ -38,7 +37,7 @@ public class RepositoryFactoryProxy {
             default:
                 throw new IllegalArgumentException("Repository mode " + mode + " isn't supported");
         }
-        this.propertyResolver = RepositoryEditor.createPropertiesWrapper(propertyResolver, repoListConfig);
+        this.propertyResolver = propertyResolver;
     }
 
     public String getRepoListConfig() {
@@ -59,11 +58,10 @@ public class RepositoryFactoryProxy {
 
     public void releaseRepository(String configName) {
         synchronized (this) {
-            Repository repository = factories.get(configName);
+            Repository repository = factories.remove(configName);
             if (repository != null) {
                 // Close repo connection after validation
                 IOUtils.closeQuietly(repository);
-                factories.remove(configName);
             }
         }
     }

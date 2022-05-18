@@ -4,12 +4,12 @@ import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySources;
 
-class RefPropertySource extends PropertySource<Object> {
+public class RefPropertySource extends PropertySource<Object> {
     static final String PROPS_NAME = "References to properties";
     private static final String REF = ".$ref";
     private final PropertySources propertySources;
 
-    RefPropertySource(PropertySources propertySources) {
+    public RefPropertySource(PropertySources propertySources) {
         super(PROPS_NAME);
         this.propertySources = propertySources;
     }
