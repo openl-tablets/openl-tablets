@@ -23,6 +23,12 @@ jobs:
 
     steps:
 
+    - name: Configure GIT
+      run: |
+        git config --global user.name "OpenL Tablets"
+        git config --global user.email openltablets@gmail.com
+        git config --global core.autocrlf false
+
     - name: Checkout ${{ github.event.inputs.branch }}
       uses: actions/checkout@v2
       with:

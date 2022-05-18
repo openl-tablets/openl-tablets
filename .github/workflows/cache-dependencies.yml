@@ -24,6 +24,12 @@ jobs:
 
     steps:
 
+    - name: Configure GIT
+      run: |
+        git config --global user.name "OpenL Tablets"
+        git config --global user.email openltablets@gmail.com
+        git config --global core.autocrlf false
+
     - uses: actions/checkout@v2
 
     - name: Set environment variables

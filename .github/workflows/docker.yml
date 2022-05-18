@@ -31,6 +31,12 @@ jobs:
         sudo apt-get install -y --no-install-recommends libxml2-utils
         gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 902B17732F38021331F3019F82521DFA3BF8F6FC
 
+    - name: Configure GIT
+      run: |
+        git config --global user.name "OpenL Tablets"
+        git config --global user.email openltablets@gmail.com
+        git config --global core.autocrlf false
+
     - name: Checkout
       uses: actions/checkout@v2
 
