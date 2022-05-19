@@ -277,8 +277,8 @@ public class GitRepositorySettings extends RepositorySettings {
         newBranchRegex = properties.getProperty(configPrefix + ".new-branch.regex");
         newBranchRegexError = properties.getProperty(configPrefix + ".new-branch.regex-error");
 
-        final String paramNameSuffix = LOCAL_REPOSITORY_PATH.substring(CONFIG_PREFIX.length() + 1);
-        setLocalRepositoryPath(valueFinder.find(paramNameSuffix));
+        String defValue = properties.getProperty(configPrefix + ".local-repository-path");
+        setLocalRepositoryPath(valueFinder.find("local-repository-path", defValue));
     }
 
     @Override

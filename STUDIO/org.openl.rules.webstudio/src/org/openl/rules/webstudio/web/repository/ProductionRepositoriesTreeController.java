@@ -37,6 +37,10 @@ public class ProductionRepositoriesTreeController {
         this.productionRepositoriesTreeState = productionRepositoriesTreeState;
     }
 
+    public boolean hasDeploymentRepository() {
+        return productionRepositoriesTreeState.getDeploymentManager().hasDeploymentRepository();
+    }
+
     /**
      * Gets all rules projects from a rule repository.
      *

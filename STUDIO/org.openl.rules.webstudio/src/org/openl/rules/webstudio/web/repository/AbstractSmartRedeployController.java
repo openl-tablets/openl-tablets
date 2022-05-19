@@ -7,6 +7,7 @@ import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -143,11 +144,19 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public boolean isProtectedDeployRepository() {
-        Repository repo = deploymentManager.repositoryFactoryProxy.getRepositoryInstance(getRepositoryConfigName());
+        String configName = getRepositoryConfigName();
+        if (StringUtils.isBlank(configName)) {
+            return false;
+        }
+        Repository repo = deploymentManager.repositoryFactoryProxy.getRepositoryInstance(configName);
         return isMainBranchProtected(repo);
     }
 
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {
+        if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()) {
+            return Collections.emptyList();
+        }
+
         String projectName = project.getBusinessName();
         String repoId = project.getRepository().getId();
         String path = project.getRealPath();

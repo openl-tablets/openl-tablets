@@ -141,18 +141,19 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             String rpName = "Projects";
             rulesRepository = new TreeRepository(projectsTreeId, rpName, filter, UiConst.TYPE_REPOSITORY);
             rulesRepository.setData(null);
-
-            String deploymentsTreeId = "2nd - Deploy Configurations";
-            String dpName = "Deploy Configurations";
-            deploymentRepository = new TreeRepository(deploymentsTreeId,
-                dpName,
-                filter,
-                UiConst.TYPE_DEPLOYMENT_REPOSITORY);
-            deploymentRepository.setData(null);
-
-            // Such keys are used for correct order of repositories.
             root.add(rulesRepository);
-            root.add(deploymentRepository);
+
+            boolean hasDeployConfigRepo = userWorkspace.getDesignTimeRepository().hasDeployConfigRepo();
+            if (hasDeployConfigRepo) {
+                String deploymentsTreeId = "2nd - Deploy Configurations";
+                String dpName = "Deploy Configurations";
+                deploymentRepository = new TreeRepository(deploymentsTreeId,
+                        dpName,
+                        filter,
+                        UiConst.TYPE_DEPLOYMENT_REPOSITORY);
+                deploymentRepository.setData(null);
+                root.add(deploymentRepository);
+            }
 
             Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
 
@@ -252,13 +253,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
 
             try {
-                List<ADeploymentProject> deployConfigurations = userWorkspace.getDDProjects();
-                for (ADeploymentProject project : deployConfigurations) {
-                    addDeploymentProjectToTree(project);
-                }
-                if (deployConfigurations.isEmpty()) {
-                    // Initialize content of empty node
-                    deploymentRepository.getElements();
+                if (hasDeployConfigRepo) {
+                    List<ADeploymentProject> deployConfigurations = userWorkspace.getDDProjects();
+                    for (ADeploymentProject project : deployConfigurations) {
+                        addDeploymentProjectToTree(project);
+                    }
+                    if (deployConfigurations.isEmpty()) {
+                        // Initialize content of empty node
+                        deploymentRepository.getElements();
+                    }
                 }
                 errorsContainer.addPermanentErrors(userWorkspace.getDesignTimeRepository().getExceptions());
             } catch (ProjectException e) {
@@ -738,8 +741,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanCreateDeployment() {
-        return isGranted(CREATE_DEPLOYMENT) && !isMainBranchProtected(
-            userWorkspace.getDesignTimeRepository().getDeployConfigRepository());
+        return isGranted(CREATE_DEPLOYMENT)
+                && userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()
+                && !isMainBranchProtected(userWorkspace.getDesignTimeRepository().getDeployConfigRepository());
     }
 
     private boolean isMainBranchProtected(Repository repo) {
@@ -906,6 +910,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean canRedeployProject(UserWorkspaceProject selectedProject) {
         try {
+            if (deploymentRepository == null) {
+                return false;
+            }
+
             if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject.isModified()) {
                 return false;
             }

@@ -421,16 +421,21 @@
                                                     onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                                     onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"/>
                                         </li>
+
+                                        <ui:fragment rendered="#{not empty productionRepos}">
                                         <li class="tab-group">
                                             <div>
                                                 <span>Deploy configuration repository</span>
                                             </div>
                                         </li>
+
                                         <li class="sub-repo-item tab-element">
                                             <a href="#repo-deploy-config">
                                                 <span><h:outputText value="Deploy configuration"/></span>
                                             </a>
                                         </li>
+                                        </ui:fragment>
+
                                         <li class="tab-group">
                                             <div>
                                                 <span>Deployment repositories</span>
@@ -447,7 +452,6 @@
                                                             title="Delete Deployment Repository Connection"
                                                             styleClass="toolbarButton menuButton delete-icon"
                                                             render="repoSettings"
-                                                            rendered="#{productionRepos.size() > 1}"
                                                             onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
                                                             oncomplete="switchToRepositoryTab();initSettingsPage();"
                                                             onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
@@ -556,6 +560,7 @@
                                                 </div>
                                             </a4j:repeat>
                                         </section>
+                                        <ui:fragment rendered="#{not empty productionRepos}">
                                         <section>
                                             <c:set var="deployConfigRepo"
                                                    value="#{systemSettingsBean.deployConfigRepositoryConfiguration}"/>
@@ -687,6 +692,8 @@
                                                 </table>
                                             </div>
                                         </section>
+                                        </ui:fragment>
+
                                         <section>
                                             <div class="repositoryConfig">
                                                 <ui:param name="productionRepos"

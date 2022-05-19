@@ -230,7 +230,7 @@ public class SystemSettingsBean {
             designRepositoryEditor.validate();
             designRepositoryEditor.save();
 
-            if (!isUseDesignRepo()) {
+            if (!isUseDesignRepo() && !getProductionRepositoryConfigurations().isEmpty()) {
                 RepositoryValidators.validate(deployConfigRepositoryConfiguration);
                 RepositoryValidators.validateConnection(deployConfigRepositoryConfiguration);
             }
@@ -251,7 +251,7 @@ public class SystemSettingsBean {
     }
 
     private void saveSystemConfig() throws IOException {
-        if (!isUseDesignRepo()) {
+        if (!isUseDesignRepo() && !getProductionRepositoryConfigurations().isEmpty()) {
             deployConfigRepositoryConfiguration.commit();
         }
 

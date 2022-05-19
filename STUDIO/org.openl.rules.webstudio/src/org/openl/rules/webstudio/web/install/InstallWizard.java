@@ -147,7 +147,7 @@ public class InstallWizard implements Serializable {
                     RepositoryValidators.validate(designRepositoryConfiguration);
                     RepositoryValidators.validateConnection(designRepositoryConfiguration);
 
-                    if (!isUseDesignRepo()) {
+                    if (!isUseDesignRepo() && !getProductionRepositoryConfigurations().isEmpty()) {
                         RepositoryValidators.validate(deployConfigRepositoryConfiguration);
                         RepositoryValidators.validateConnection(deployConfigRepositoryConfiguration);
                     }
@@ -314,7 +314,7 @@ public class InstallWizard implements Serializable {
 
 
             designRepositoryConfiguration.commit();
-            if (!isUseDesignRepo()) {
+            if (!isUseDesignRepo() && !getProductionRepositoryConfigurations().isEmpty()) {
                 deployConfigRepositoryConfiguration.commit();
             }
             properties.setProperty("webstudio.configured", true);

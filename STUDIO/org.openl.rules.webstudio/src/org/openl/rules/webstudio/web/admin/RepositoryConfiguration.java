@@ -66,7 +66,8 @@ public class RepositoryConfiguration {
         // Create not existed before repository
         newRepository = true;
 
-        setName(valueFinder.find("name"));
+        String defValue = properties.getProperty(("repo-default." + repoMode.getId()) + ".name");
+        setName(valueFinder.find("name", defValue));
         oldName = name;
 
         repoType = ""; // To force "type is changed" event in the next step

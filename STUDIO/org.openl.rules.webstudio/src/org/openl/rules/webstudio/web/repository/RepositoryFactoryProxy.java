@@ -5,6 +5,7 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCT
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -45,7 +46,7 @@ public class RepositoryFactoryProxy {
      }
 
     public Repository getRepositoryInstance(String configName) {
-        if (!factories.containsKey(configName)) {
+        if (!factories.containsKey(Objects.requireNonNull(configName))) {
             synchronized (this) {
                 if (!factories.containsKey(configName)) {
                     factories.put(configName, RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName, propertyResolver::getProperty));

@@ -73,5 +73,7 @@ public interface DesignTimeRepository extends ProjectsContainer {
 
     List<String> getExceptions();
 
+    boolean hasDeployConfigRepo();
+
     Repository getDeployConfigRepository();
 }

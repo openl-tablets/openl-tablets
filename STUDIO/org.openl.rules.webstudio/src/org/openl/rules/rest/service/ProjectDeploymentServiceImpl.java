@@ -6,6 +6,7 @@ import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -66,6 +67,10 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
     public List<DeploymentProjectItem> getDeploymentProjectItems(AProject project,
             String deployRepoName) throws ProjectException {
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+        if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()) {
+            return Collections.emptyList();
+        }
+
         String projectName = project.getBusinessName();
         String repoId = project.getRepository().getId();
         String path = project.getRealPath();
