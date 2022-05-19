@@ -46,7 +46,7 @@
         <dependencySet>
             <outputDirectory>/</outputDirectory>
             <includes>
-                    <include>org.eclipse.jetty:jetty-distribution</include>
+                    <include>org.eclipse.jetty:jetty-home</include>
             </includes>
             <unpack>true</unpack>
             <unpackOptions>
