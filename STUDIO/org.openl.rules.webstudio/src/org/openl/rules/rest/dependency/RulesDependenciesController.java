@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
+import org.jgrapht.traverse.TopologicalOrderIterator;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.ui.WebStudio;
@@ -34,7 +35,9 @@ public class RulesDependenciesController {
         List<Table> tables = new ArrayList<>();
         DependencyRulesGraph graph = webStudio.getModel().getDependencyGraph();
 
-        for (ExecutableMethod rulesMethod : graph.vertexSet()) {
+        var levelIterator = new TopologicalOrderIterator<>(graph);
+        while (levelIterator.hasNext()) {
+            ExecutableMethod rulesMethod = levelIterator.next();
             Table table = new Table();
             table.setName(rulesMethod.getName());
             String tableUri = rulesMethod.getSourceUrl();
@@ -47,12 +50,7 @@ public class RulesDependenciesController {
                 .filter(depId -> !depId.equals(table.getId()))
                 .forEach(table.getDependencies()::add);
 
-            if (!outgoingEdges.isEmpty()) {
-                // Tables with dependencies should be in the top of list
-                tables.add(0, table);
-            } else {
-                tables.add(table);
-            }
+            tables.add(table);
         }
 
         return tables;
