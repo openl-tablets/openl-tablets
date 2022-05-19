@@ -55,6 +55,11 @@ public class WorkspaceCompileServiceTest {
         assertTrue(projectError.startsWith("Error: There can be only one active table."));
     }
 
+    @Test
+    public void EPBDS_12366() {
+        client.test("test-resources/EPBDS-12366");
+    }
+
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();

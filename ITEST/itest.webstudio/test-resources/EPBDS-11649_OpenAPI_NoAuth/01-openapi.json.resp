@@ -44,6 +44,9 @@ Content-Type: application/json
       "name": "Project Compilation"
     },
     {
+      "name": "Project Tables"
+    },
+    {
       "name": "Tags"
     },
     {
@@ -57,6 +60,91 @@ Content-Type: application/json
     }
   ],
   "paths": {
+    "/project/tables": {
+      "get": {
+        "tags": [
+          "Project Tables"
+        ],
+        "summary": "Get project tables",
+        "description": "Gets the list of tables with their dependencies from currently opened project",
+        "operationId": "getTablesWithDependencies",
+        "responses": {
+          "200": {
+            "description": "default response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Table"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            }
+          },
+          "423": {
+            "description": "Locked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BaseError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/public/info/build.json": {
       "get": {
         "tags": [
@@ -6960,6 +7048,36 @@ Content-Type: application/json
           "rev": {
             "type": "string",
             "description": "Revision ID"
+          }
+        }
+      },
+      "Table": {
+        "required": [
+          "id",
+          "name",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Table name"
+          },
+          "id": {
+            "type": "string",
+            "description": "Table ID"
+          },
+          "url": {
+            "type": "string",
+            "description": "Table URL"
+          },
+          "dependencies": {
+            "uniqueItems": true,
+            "type": "array",
+            "description": "Dependent tables if any",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }

@@ -1,0 +1,2 @@
+GET /rest/project/tables HTTP/1.1
+

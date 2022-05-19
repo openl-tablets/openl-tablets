@@ -1,10 +1,8 @@
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:c="http://java.sun.com/jsp/jstl/core"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
 
     <script src="#{contextPath}/javascript/vendor/jit-yc.js"></script>
     <script src="#{contextPath}/javascript/rulesDependencies.js?1"></script>
@@ -12,36 +10,32 @@
     <div id="rulesDepsPanel"></div>
 
     <script>
-        <c:set var="tables" value="#{rulesDependenciesBean.tablesWithDependencies}"></c:set>
-        <h:panelGroup rendered="#{not empty tables}">
-
-        var nodes = [];
-        <ui:repeat var="table" value="#{tables}">
-            var node = {
-                id: '<h:outputText value="#{table.id}" />',
-                name: '<h:outputText value="#{table.name}" />',
-                data: {
-                    tableUrl: '<h:outputText value="#{table.url}" />',
-                },
-                adjacencies: []
+        //<![CDATA[
+        $jq.ajax({
+            type: "GET",
+            url: "#{contextPath}/web/project/tables",
+            datatype: "json"
+        }).done(data => {
+            if (Array.isArray(data) && data.length) {
+                let nodes = [];
+                data.forEach(table => {
+                    let node = {
+                        id: table.id,
+                        name: table.name,
+                        data: {
+                            tableUrl: table.url
+                        },
+                        adjacencies: []
+                    }
+                    table.dependencies?.forEach(depId => node.adjacencies.push(depId));
+                    nodes.push(node);
+                });
+                init(nodes);
             }
-
-            var adjacencies = [];
-            <ui:repeat var="depId" value="#{table.dependencies}">
-                var adjacency = {
-                    nodeTo: '<h:outputText value="#{depId}" />'
-                }
-                adjacencies.push(adjacency);
-            </ui:repeat>
-
-            node.adjacencies = adjacencies;
-
-            nodes.push(node);
-        </ui:repeat>
-
-        init(nodes);
-
-        </h:panelGroup>
+        }).fail(() => {
+            ws.ui.error("Failed to fetch dependency graph!");
+        });
+        //]]>
     </script>
 
 </ui:composition>
