@@ -1507,7 +1507,11 @@ public class RepositoryTreeController {
      * @return list of deployments projects
      */
     public List<TreeNode> getDeploymentProjects() {
-        return repositoryTreeState.getDeploymentRepository().getChildNodes();
+        TreeRepository deploymentRepository = repositoryTreeState.getDeploymentRepository();
+        if (deploymentRepository == null) {
+            return null;
+        }
+        return deploymentRepository.getChildNodes();
     }
 
     public String getFileName() {

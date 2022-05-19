@@ -25,7 +25,7 @@ public class RepositoryEditor {
     private final RepositoryFactoryProxy repositoryFactoryProxy;
     private final String repoListConfig;
 
-    private final List<RepositoryConfiguration> repositoryConfigurations = new ArrayList<>();
+    private List<RepositoryConfiguration> repositoryConfigurations;
     private final List<RepositoryConfiguration> deletedConfigurations = new ArrayList<>();
 
     private final PropertiesHolder properties;
@@ -35,6 +35,7 @@ public class RepositoryEditor {
         this.repositoryFactoryProxy = repositoryFactoryProxy;
         this.repoListConfig = repositoryFactoryProxy.getRepoListConfig();
         this.properties = properties;
+        reload();
     }
 
     public static String getNewConfigName(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
@@ -60,7 +61,7 @@ public class RepositoryEditor {
     }
 
     public static FreeValueFinder createValueFinder(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
-        return (paramNameSuffix) -> {
+        return (paramNameSuffix, defValue) -> {
             AtomicInteger max = new AtomicInteger(0);
             String configName = repoMode.getId();
             Set<String> configNames = configurations.stream().map(RepositoryConfiguration::getConfigName).collect(Collectors
@@ -70,16 +71,6 @@ public class RepositoryEditor {
             String existingConfigNames = Props.getEnvironment().getProperty(configName + "-repository-configs");
             if (StringUtils.isNotEmpty(existingConfigNames)) {
                 configNames.addAll(Arrays.asList(existingConfigNames.split(",")));
-            }
-
-            String defValue;
-            if (!configurations.isEmpty()) {
-                RepositoryConfiguration configuration = configurations.get(0);
-                String defCode = configuration.getConfigName();
-                defValue = configuration.getPropertiesToValidate()
-                        .getProperty(Comments.REPOSITORY_PREFIX + defCode + "." + paramNameSuffix);
-            } else {
-                defValue = "";
             }
 
             configNames.forEach(rc -> configurations.forEach(configuration -> {
@@ -105,15 +96,11 @@ public class RepositoryEditor {
     }
 
     public List<RepositoryConfiguration> getRepositoryConfigurations() {
-        if (repositoryConfigurations.isEmpty()) {
-            reload();
-        }
-
         return repositoryConfigurations;
     }
 
     public void reload() {
-        repositoryConfigurations.clear();
+        repositoryConfigurations = new ArrayList<>();
 
         String[] repositoryConfigNames = split(properties.getProperty(repoListConfig));
         for (String configName : repositoryConfigNames) {

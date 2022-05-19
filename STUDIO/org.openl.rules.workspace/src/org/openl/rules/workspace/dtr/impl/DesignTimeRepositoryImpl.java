@@ -49,6 +49,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private static final Logger LOG = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
     private static final String DESIGN_REPOSITORIES = "design-repository-configs";
+
+    private static final String PRODUCTION_REPOSITORIES = "production-repository-configs";
     public static final String USE_REPOSITORY_FOR_DEPLOY_CONFIG = "repository.deploy-config.use-repository";
     private static final String RULES_LOCATION_CONFIG_NAME = "repository.design.base.path";
     private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "repository.deploy-config.base.path";
@@ -120,34 +122,36 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     .sorted(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER))
                     .collect(Collectors.toList());
 
-            deploymentConfigurationLocation = propertyResolver
-                .getProperty(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
-            if (!deploymentConfigurationLocation.isEmpty() && !deploymentConfigurationLocation.endsWith("/")) {
-                deploymentConfigurationLocation += "/";
-            }
-            String repositoryForDeployConfig = propertyResolver.getProperty(USE_REPOSITORY_FOR_DEPLOY_CONFIG);
-            boolean separateDeployConfigRepo = StringUtils.isBlank(repositoryForDeployConfig);
-            boolean flatDeployConfig = Boolean
-                .parseBoolean(propertyResolver.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
-            if (!separateDeployConfigRepo) {
-                Repository repository = getRepository(repositoryForDeployConfig);
-                if (repository != null) {
-                    if (!(repository.supports().mappedFolders())) {
-                        deployConfigRepository = repository;
+            if (StringUtils.isNotBlank(propertyResolver.getProperty(PRODUCTION_REPOSITORIES))) {
+                deploymentConfigurationLocation = propertyResolver
+                        .getProperty(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
+                if (!deploymentConfigurationLocation.isEmpty() && !deploymentConfigurationLocation.endsWith("/")) {
+                    deploymentConfigurationLocation += "/";
+                }
+                String repositoryForDeployConfig = propertyResolver.getProperty(USE_REPOSITORY_FOR_DEPLOY_CONFIG);
+                boolean separateDeployConfigRepo = StringUtils.isBlank(repositoryForDeployConfig);
+                boolean flatDeployConfig = Boolean
+                        .parseBoolean(propertyResolver.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
+                if (!separateDeployConfigRepo) {
+                    Repository repository = getRepository(repositoryForDeployConfig);
+                    if (repository != null) {
+                        if (!(repository.supports().mappedFolders())) {
+                            deployConfigRepository = repository;
+                        } else {
+                            // Deploy config repository currently supports only flat folder structure.
+                            deployConfigRepository = ((FolderMapper) repository).getDelegate();
+                        }
                     } else {
-                        // Deploy config repository currently supports only flat folder structure.
-                        deployConfigRepository = ((FolderMapper) repository).getDelegate();
+                        throw new RepositoryException(String.format("Cannot read the deploy repository '%s'.", repositoryForDeployConfig));
                     }
                 } else {
-                    throw new RepositoryException(String.format("Cannot read the deploy repository '%s'.", repositoryForDeployConfig));
+                    deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.getId(),
+                            flatDeployConfig, deploymentConfigurationLocation);
                 }
-            } else {
-                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.getId(),
-                    flatDeployConfig, deploymentConfigurationLocation);
-            }
 
-            if (separateDeployConfigRepo) {
-                deployConfigRepository.setListener(callback);
+                if (separateDeployConfigRepo) {
+                    deployConfigRepository.setListener(callback);
+                }
             }
         }
     }
@@ -224,6 +228,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
+        if (!hasDeployConfigRepo()) {
+            return Collections.emptyList();
+        }
         LinkedList<ADeploymentProject> result = new LinkedList<>();
         Repository repository = getDeployConfigRepository();
 
@@ -418,6 +425,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public boolean hasDDProject(String name) {
         try {
+            if (!hasDeployConfigRepo()) {
+                return false;
+            }
             return getDeployConfigRepository().check(deploymentConfigurationLocation + name) != null;
         } catch (IOException ex) {
             return false;
@@ -491,6 +501,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public List<Repository> getRepositories() {
         return repositories;
+    }
+
+    @Override
+    public boolean hasDeployConfigRepo() {
+        return getDeployConfigRepository() != null;
     }
 
     @Override

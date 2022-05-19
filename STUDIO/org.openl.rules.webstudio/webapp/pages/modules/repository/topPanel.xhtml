@@ -10,10 +10,12 @@
             <h:commandLink id="designRepoLink" value="Design" oncomplete="goToRepo('design', 'production')"
                  action="#{repositoryTreeState.rulesRepositorySelection}"
                  styleClass="view-header-link" title="Design Repository" />
-            <span class="delimeter delimeter-dash"></span>
-            <h:commandLink id="productionRepoLink" value="Deployment" oncomplete="goToRepo('production', 'design')"
-                 action="#{productionRepositoriesTreeController.openTab()}"
-                 styleClass="view-header-link view-header-link-inactive" style="margin-left: 3px" />
+            <h:panelGroup rendered="#{productionRepositoriesTreeController.hasDeploymentRepository()}">
+                <span class="delimeter delimeter-dash"></span>
+                <h:commandLink id="productionRepoLink" value="Deployment" oncomplete="goToRepo('production', 'design')"
+                               action="#{productionRepositoriesTreeController.openTab()}"
+                               styleClass="view-header-link view-header-link-inactive" style="margin-left: 3px" />
+            </h:panelGroup>
 
             <a4j:commandLink id="designRepoRefresh" title="Refresh" action="#{repositoryTreeController.refreshTree}"
                  immediate="true"

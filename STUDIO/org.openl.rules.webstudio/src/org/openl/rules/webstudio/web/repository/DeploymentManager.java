@@ -68,6 +68,10 @@ public class DeploymentManager implements InitializingBean {
         return deployers;
     }
 
+    public boolean hasDeploymentRepository() {
+        return !deployers.isEmpty();
+    }
+
     public DeployID deploy(ADeploymentProject project, String repositoryConfigName) throws ProjectException {
         if (!deployers.contains(repositoryConfigName)) {
             throw new IllegalArgumentException(String.format("No such repository '%s'", repositoryConfigName));

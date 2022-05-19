@@ -135,6 +135,8 @@
                                     </td></tr></table>
                                 </div>
                             </div>
+
+                            <ui:fragment rendered="#{not empty installWizard.productionRepositoryConfigurations}">
                             <h3>
                                 Deploy Configuration Repository
                                 <div class="field-description">
@@ -214,6 +216,7 @@
                                     </td></tr></table>
                                 </div>
                             </div>
+                            </ui:fragment>
                         </div>
                         <div class="wizard-block" id="productionRepositoryBlock">
                             <h3>
@@ -286,7 +289,7 @@
                                                 <td class="repositoryConfigButton">
                                                     <a4j:commandLink action="#{installWizard.deleteProductionRepository(repository.configName)}"
                                                                      title="Delete Deployment Repository Connection" styleClass="toolbarButton menuButton delete-icon"
-                                                                     render="repositoryProps" rendered="#{productionRepos.size() > 1}"
+                                                                     render="repositoryProps"
                                                                      onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
                                                                      onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                                                      onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})" />
