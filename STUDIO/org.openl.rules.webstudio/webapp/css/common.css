@@ -1,3 +1,14 @@
+@charset "UTF-8";
+/*
+Needs to set up @charset "UTF-8" to force browser to select a required charset.
+If charset is not defined browser can select an incorrect charset and the specials symbols like "✔" will not be read
+properly.
+For example, the symbol "✔" is U+2713 in unicode, which in UTF-8 is coded as E2 9C 93. But somehow the file
+is read as Windows-1252 where E2 is â, 9C is œ, and 93 is “. And as result it will be displayed as "âœ“" on UI
+
+See: https://www.w3.org/International/questions/qa-css-charset
+*/
+
 body {
     color: #171717;
     background: #fff;
