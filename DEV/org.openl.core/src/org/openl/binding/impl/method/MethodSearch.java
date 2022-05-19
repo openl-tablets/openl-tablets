@@ -346,7 +346,7 @@ public final class MethodSearch {
         if (match.isVararg() && !bestMethodMatch.isVararg()) {
             return false;
         }
-        if (!bestMethodMatch.isVararg() && match.isVararg()) {
+        if (bestMethodMatch.isVararg() && !match.isVararg()) {
             return true;
         }
         // END FIXME

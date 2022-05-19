@@ -5,22 +5,26 @@ import java.lang.reflect.Array;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.util.OpenClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class MultiCallOpenMethod extends AOpenMethodDelegator {
 
-    private final IMethodCaller methodCaller;
-    private final Integer[] multiCallParameterIndexes;
-    private final IOpenClass type;
-    private final Class<?> componentType;
+    protected IMethodCaller methodCaller;
+    protected Integer[] multiCallParameterIndexes;
+    protected IOpenClass type;
+    protected Class<?> componentType;
+
+    protected MultiCallOpenMethod(IMethodCaller methodCaller) {
+        super(methodCaller.getMethod());
+    }
 
     public MultiCallOpenMethod(IMethodCaller methodCaller, boolean[] multiCallParameters) {
         super(methodCaller.getMethod());
         this.methodCaller = methodCaller;
         this.multiCallParameterIndexes = initMultiCallParameterIndexes(multiCallParameters);
         IOpenClass originalType = methodCaller.getMethod().getType();
-        if (!JavaOpenClass.VOID.equals(originalType) && !JavaOpenClass.CLS_VOID.equals(originalType)) {
+        if (!OpenClassUtils.isVoid(originalType)) {
             this.type = methodCaller.getMethod().getType().getArrayType(1);
             this.componentType = methodCaller.getMethod().getType().getInstanceClass();
         } else {
@@ -50,14 +54,14 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
 
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        int length = 1;
+        int resultLength = 1;
         for (Integer arrayArgArgument : multiCallParameterIndexes) {
             Object v = params[arrayArgArgument];
             if (v == null) {
-                length = 0;
+                resultLength = 0;
                 break;
             }
-            length *= Array.getLength(v);
+            resultLength *= Array.getLength(v);
         }
 
         Object[] callParameters = (Object[]) Array.newInstance(Object.class, params.length);
@@ -65,11 +69,11 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
 
         Object result = null;
         if (componentType != null) {
-            result = Array.newInstance(componentType, length);
+            result = Array.newInstance(componentType, resultLength);
         }
 
-        if (length > 0) {
-            callDelegateAndPopulateResult(target, env, params, callParameters, 0, result, 0);
+        if (resultLength > 0) {
+            callDelegateAndPopulateResult(target, env, params, callParameters, 0, result, resultLength, 0);
         }
 
         return result;
@@ -81,6 +85,7 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
             Object[] callParameters,
             int iteratedArg,
             Object result,
+            int resultLength,
             int callIndex) {
         int iteratedParamNum = multiCallParameterIndexes[iteratedArg];
         Object iteratedParameter = params[iteratedParamNum];
@@ -94,9 +99,10 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
                     callParameters,
                     iteratedArg + 1,
                     result,
+                    resultLength,
                     callIndex);
             } else {
-                invokeMethodAndSetResultToArray(target, env, callParameters, result, callIndex);
+                invokeMethodAndSetResultToArray(target, env, callParameters, result, resultLength, callIndex);
                 callIndex++;
             }
         }
@@ -105,10 +111,11 @@ public class MultiCallOpenMethod extends AOpenMethodDelegator {
     }
 
     @SuppressWarnings("unchecked")
-    private void invokeMethodAndSetResultToArray(Object target,
+    protected void invokeMethodAndSetResultToArray(Object target,
             IRuntimeEnv env,
             Object[] callParameters,
             Object results,
+            int resultLength,
             int index) {
         Object value;
         if (ArrayUtils.indexOf(callParameters, null) >= 0) {

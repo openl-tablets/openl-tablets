@@ -34,6 +34,10 @@ public class MethodNodeBinder extends ANodeBinder {
 
     private final Logger log = LoggerFactory.getLogger(MethodNodeBinder.class);
 
+    protected IMethodCaller processFoundMethodCaller(IMethodCaller methodCaller) {
+        return methodCaller;
+    }
+
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
@@ -51,66 +55,74 @@ public class MethodNodeBinder extends ANodeBinder {
 
         bindingContext.pushErrors();
         bindingContext.pushMessages();
-        IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
-        List<SyntaxNodeException> syntaxNodeExceptions = bindingContext.popErrors();
-        Collection<OpenLMessage> openLMessages = bindingContext.popMessages();
+        boolean errorsAndMessagesPopped = false;
+        try {
+            IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
+            List<SyntaxNodeException> syntaxNodeExceptions = bindingContext.popErrors();
+            Collection<OpenLMessage> openLMessages = bindingContext.popMessages();
+            errorsAndMessagesPopped = true;
 
-        if (syntaxNodeExceptions.isEmpty()) {
+            if (syntaxNodeExceptions.isEmpty()) {
 
-            parameterTypes = getTypes(children);
+                parameterTypes = getTypes(children);
 
-            IMethodCaller methodCaller = bindingContext
-                .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
-
-            BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
-
-            if (methodCaller != null) {
-                bindingContext.addMessages(openLMessages);
-                log(methodName, parameterTypes, "entirely appropriate by signature method");
-                return new MethodBoundNode(node, methodCaller, children);
-            }
-
-            // can`t find directly the method with given name and parameters. so,
-            // if there are any parameters, try to bind it some additional ways
-            // someMethod( parameter1, ... )
-            //
-            if (childrenCount > 1) {
-                // Get the root component type and dimension of the array.
-                IOpenClass argumentType = parameterTypes[0];
-                int dims = 0;
-                while (argumentType.isArray()) {
-                    dims++;
-                    argumentType = argumentType.getComponentClass();
-                }
-                IBoundNode field = bindAsFieldBoundNode(node,
-                    methodName,
-                    parameterTypes,
-                    children,
-                    childrenCount,
-                    argumentType,
-                    dims,
-                    bindingContext);
-                if (field != null) {
+                IMethodCaller methodCaller = bindingContext
+                    .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
+                BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
+                if (methodCaller != null) {
+                    methodCaller = processFoundMethodCaller(methodCaller);
                     bindingContext.addMessages(openLMessages);
-                    return field;
+                    log(methodName, parameterTypes, "entirely appropriate by signature method");
+                    return new MethodBoundNode(node, methodCaller, children);
+                }
+
+                // can`t find directly the method with given name and parameters. so,
+                // if there are any parameters, try to bind it some additional ways
+                // someMethod( parameter1, ... )
+                //
+                if (childrenCount > 1) {
+                    // Get the root component type and dimension of the array.
+                    IOpenClass argumentType = parameterTypes[0];
+                    int dims = 0;
+                    while (argumentType.isArray()) {
+                        dims++;
+                        argumentType = argumentType.getComponentClass();
+                    }
+                    IBoundNode field = bindAsFieldBoundNode(node,
+                        methodName,
+                        parameterTypes,
+                        children,
+                        childrenCount,
+                        argumentType,
+                        dims,
+                        bindingContext);
+                    if (field != null) {
+                        bindingContext.addMessages(openLMessages);
+                        return field;
+                    }
                 }
             }
-        }
 
-        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, methodName);
-        Optional<IBoundNode> iBoundNode = Optional.ofNullable(type)
-            .map(t -> makeDatatypeConstructor(node, bindingContext, t));
-        if (iBoundNode.isPresent()) {
-            return iBoundNode.get();
-        }
+            IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, methodName);
+            Optional<IBoundNode> iBoundNode = Optional.ofNullable(type)
+                .map(t -> makeDatatypeConstructor(node, bindingContext, t));
+            if (iBoundNode.isPresent()) {
+                return iBoundNode.get();
+            }
 
-        bindingContext.addMessages(openLMessages);
-        if (!syntaxNodeExceptions.isEmpty()) {
-            syntaxNodeExceptions.forEach(bindingContext::addError);
-            return new ErrorBoundNode(node);
-        }
+            bindingContext.addMessages(openLMessages);
+            if (!syntaxNodeExceptions.isEmpty()) {
+                syntaxNodeExceptions.forEach(bindingContext::addError);
+                return new ErrorBoundNode(node);
+            }
 
-        throw new MethodNotFoundException(methodName, parameterTypes);
+            throw new MethodNotFoundException(methodName, parameterTypes);
+        } finally {
+            if (!errorsAndMessagesPopped) {
+                bindingContext.popErrors();
+                bindingContext.popMessages();
+            }
+        }
     }
 
     private IBoundNode makeDatatypeConstructor(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) {
@@ -162,10 +174,6 @@ public class MethodNodeBinder extends ANodeBinder {
             bindingContext.popLocalVarContext();
         }
         return null;
-    }
-
-    private boolean isAllowParallelInvocation(IMethodCaller singleParameterMethodCaller) {
-        return false;
     }
 
     protected FieldBoundNode bindAsFieldBoundNode(ISyntaxNode methodNode,
