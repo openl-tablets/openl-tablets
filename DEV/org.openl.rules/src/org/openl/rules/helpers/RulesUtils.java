@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.openl.binding.impl.cast.AutoCastReturnType;
-import org.openl.binding.impl.cast.DefaultAutoCastFactory.ReturnType;
+import org.openl.binding.impl.cast.MethodCallerWrapper;
+import org.openl.binding.impl.cast.DefaultMethodCallerWrapperFactory.ReturnType;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
@@ -3567,7 +3567,7 @@ public final class RulesUtils {
 
     // <<< replace functions for Strings >>>
 
-    @AutoCastReturnType(FlattenAutoCastFactory.class)
+    @MethodCallerWrapper(FlattenMethodCallerWrapperFactory.class)
     public static Object[] flatten(@ReturnType Object... data) {
         if (data == null) {
             return null;
@@ -3612,7 +3612,7 @@ public final class RulesUtils {
         }
     }
 
-    @AutoCastReturnType(RulesUtilsGetValuesAutoCastFactory.class)
+    @MethodCallerWrapper(RulesUtilsGetValuesMethodCallerWrapperFactory.class)
     public static Object getValues(StaticDomainOpenClass staticDomainOpenClass) {
         IDomain<?> domain = staticDomainOpenClass.getDomain();
         int size = 0;

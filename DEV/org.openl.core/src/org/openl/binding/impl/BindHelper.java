@@ -11,6 +11,7 @@ import java.util.Collections;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -129,6 +130,8 @@ public final class BindHelper {
             }
         } else if (caller instanceof CastingMethodCaller) {
             checkOnDeprecation(node, context, caller.getMethod());
+        } else if (caller instanceof AOpenMethodDelegator) {
+            checkOnDeprecation(node, context, ((AOpenMethodDelegator) caller).getDelegate());
         }
     }
 

@@ -1,5 +1,6 @@
 package org.openl.binding.impl.method;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +20,8 @@ import org.openl.binding.impl.cast.CastsLinkageCast;
 import org.openl.binding.impl.cast.IArrayOneElementCast;
 import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.cast.MethodCallerWrapper;
+import org.openl.binding.impl.cast.MethodCallerWrapperFactory;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -726,6 +729,11 @@ public final class MethodSearch {
                     methodCaller = new NullVarArgsOpenMethod(methodCaller);
                 }
             }
+
+            if (selectedMatch.getMethod() instanceof JavaOpenMethod) {
+                methodCaller = processJavaAnnotationsOnMethod(callParams, castFactory, methodCaller, selectedMatch);
+            }
+
             if (selectedMatch.getMultiCallParams() != null && countTrues(selectedMatch.getMultiCallParams()) > 0) {
                 return new MultiCallOpenMethod(methodCaller, selectedMatch.getMultiCallParams());
             } else {
@@ -733,6 +741,24 @@ public final class MethodSearch {
             }
         }
         return null;
+    }
+
+    private static IMethodCaller processJavaAnnotationsOnMethod(IOpenClass[] callParams,
+            ICastFactory castFactory,
+            IMethodCaller methodCaller,
+            Match selectedMatch) {
+        JavaOpenMethod javaOpenMethod = (JavaOpenMethod) selectedMatch.getMethod();
+        Method javaMethod = javaOpenMethod.getJavaMethod();
+        MethodCallerWrapper methodCallerWrapper = javaMethod.getAnnotation(MethodCallerWrapper.class);
+        if (methodCallerWrapper != null) {
+            Class<? extends MethodCallerWrapperFactory> clazz = methodCallerWrapper.value();
+            try {
+                MethodCallerWrapperFactory methodCallerWrapperFactory = clazz.newInstance();
+                methodCaller = methodCallerWrapperFactory.build(castFactory, methodCaller, javaOpenMethod, callParams);
+            } catch (InstantiationException | IllegalAccessException ignored) {
+            }
+        }
+        return methodCaller;
     }
 
     private static IOpenCast[] getParamCastsAndTruncateIfNeed(Match selectedMatch) {

@@ -7,6 +7,6 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface AutoCastReturnType {
-    Class<? extends AutoCastFactory> value() default DefaultAutoCastFactory.class;
+public @interface MethodCallerWrapper {
+    Class<? extends MethodCallerWrapperFactory> value() default DefaultMethodCallerWrapperFactory.class;
 }
