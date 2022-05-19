@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
-import org.openl.binding.IBindingContext;
+import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.method.AutoCastableResultOpenMethod;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
@@ -16,7 +16,7 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
 
-public class DefaultAutoCastFactory implements AutoCastFactory {
+public class DefaultMethodCallerWrapperFactory implements MethodCallerWrapperFactory {
 
     protected IOpenClass extractSimpleReturnType(IOpenClass type, Integer arrayDim) {
         IOpenClass simpleReturnType = type;
@@ -36,52 +36,48 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
         return simpleReturnType;
     }
 
-    protected IOpenClass findTypeForVarargs(IOpenClass[] types, IBindingContext bindingContext) {
+    protected IOpenClass findTypeForVarargs(IOpenClass[] types, ICastFactory castFactory) {
         if (types == null || types.length == 0) {
             throw new IllegalArgumentException("types cannot be empty or null");
         }
         IOpenClass type = types[0];
         for (int i = 1; i < types.length; i++) {
-            type = bindingContext.findParentClass(type, types[i]);
+            type = castFactory.findParentClass(type, types[i]);
         }
         return type;
     }
 
     @Override
-    public IMethodCaller build(IBindingContext bindingContext,
+    public IMethodCaller build(ICastFactory castFactory,
             IMethodCaller methodCaller,
             JavaOpenMethod javaOpenMethod,
-            IOpenClass[] parameterTypes) {
+            IOpenClass[] callParams) {
         Method javaMethod = javaOpenMethod.getJavaMethod();
-        AutoCastReturnType autoCastReturnType = javaMethod.getAnnotation(AutoCastReturnType.class);
-        if (autoCastReturnType != null) {
-            int i = 0;
-            for (Annotation[] parameterAnnotations : javaMethod.getParameterAnnotations()) {
-                for (Annotation annotation : parameterAnnotations) {
-                    if (annotation instanceof ReturnType) {
-                        ReturnType returnType = (ReturnType) annotation;
-                        IOpenClass type;
-                        if (i < javaOpenMethod.getNumberOfParameters() - 1) {
-                            type = parameterTypes[i];
-                        } else {
-                            type = findTypeForVarargs(Arrays.copyOfRange(parameterTypes, i, parameterTypes.length),
-                                bindingContext);
-                        }
-                        return buildAutoCastResultOpenMethod(bindingContext,
-                            methodCaller,
-                            javaOpenMethod,
-                            extractSimpleReturnType(type,
-                                returnType.arrayDimension() >= 0 ? returnType.arrayDimension() : null));
-
+        int i = 0;
+        for (Annotation[] parameterAnnotations : javaMethod.getParameterAnnotations()) {
+            for (Annotation annotation : parameterAnnotations) {
+                if (annotation instanceof ReturnType) {
+                    ReturnType returnType = (ReturnType) annotation;
+                    IOpenClass type;
+                    if (i < javaOpenMethod.getNumberOfParameters() - 1) {
+                        type = callParams[i];
+                    } else {
+                        type = findTypeForVarargs(Arrays.copyOfRange(callParams, i, callParams.length), castFactory);
                     }
+                    return buildAutoCastResultOpenMethod(castFactory,
+                        methodCaller,
+                        javaOpenMethod,
+                        extractSimpleReturnType(type,
+                            returnType.arrayDimension() >= 0 ? returnType.arrayDimension() : null));
+
                 }
-                i++;
             }
+            i++;
         }
         return methodCaller;
     }
 
-    protected IMethodCaller buildAutoCastResultOpenMethod(IBindingContext bindingContext,
+    protected IMethodCaller buildAutoCastResultOpenMethod(ICastFactory castFactory,
             IMethodCaller methodCaller,
             JavaOpenMethod method,
             IOpenClass simpleReturnType) {
@@ -89,7 +85,7 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
             return methodCaller;
         }
         if (!method.getType().isArray()) {
-            IOpenCast cast = bindingContext.getCast(method.getType(), simpleReturnType);
+            IOpenCast cast = castFactory.getCast(method.getType(), simpleReturnType);
             if (cast != null) {
                 return new AutoCastableResultOpenMethod(methodCaller, simpleReturnType, cast);
             }
@@ -102,7 +98,7 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
             }
 
             IOpenClass arrayOpenClass = simpleReturnType.getArrayType(dims);
-            IOpenCast cast = bindingContext.getCast(method.getType(), arrayOpenClass);
+            IOpenCast cast = castFactory.getCast(method.getType(), arrayOpenClass);
             if (cast != null) {
                 return new AutoCastableResultOpenMethod(methodCaller, arrayOpenClass, cast);
             }

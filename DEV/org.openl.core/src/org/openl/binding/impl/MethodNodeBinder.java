@@ -1,11 +1,9 @@
 package org.openl.binding.impl;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.openl.binding.IBindingContext;
@@ -13,13 +11,7 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.MethodNotFoundException;
-import org.openl.binding.impl.cast.AutoCastFactory;
-import org.openl.binding.impl.cast.AutoCastReturnType;
-import org.openl.binding.impl.cast.IOneElementArrayCast;
-import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
-import org.openl.binding.impl.method.NullVarArgsOpenMethod;
-import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificOpenField;
 import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificType;
@@ -32,8 +24,6 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
-import org.openl.types.impl.CastingMethodCaller;
-import org.openl.types.java.JavaOpenMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,54 +33,6 @@ import org.slf4j.LoggerFactory;
 public class MethodNodeBinder extends ANodeBinder {
 
     private final Logger log = LoggerFactory.getLogger(MethodNodeBinder.class);
-
-    private IMethodCaller autoCastReturnTypeWrap(IBindingContext bindingContext,
-            IMethodCaller methodCaller,
-            IOpenClass[] parameterTypes) {
-
-        JavaOpenMethod method = null;
-
-        if (methodCaller instanceof CastingMethodCaller) {
-            CastingMethodCaller castingMethodCaller = (CastingMethodCaller) methodCaller;
-            if (castingMethodCaller.getMethod() instanceof JavaOpenMethod) {
-                method = (JavaOpenMethod) castingMethodCaller.getMethod();
-            }
-        }
-
-        if (methodCaller instanceof VarArgsOpenMethod) {
-            VarArgsOpenMethod varArgsOpenMethod = (VarArgsOpenMethod) methodCaller;
-            if (varArgsOpenMethod.getDelegate() instanceof JavaOpenMethod) {
-                method = (JavaOpenMethod) varArgsOpenMethod.getDelegate();
-            }
-        }
-
-        if (methodCaller instanceof NullVarArgsOpenMethod) {
-            NullVarArgsOpenMethod nullVarArgsOpenMethod = (NullVarArgsOpenMethod) methodCaller;
-            if (nullVarArgsOpenMethod.getDelegate() instanceof JavaOpenMethod) {
-                method = (JavaOpenMethod) nullVarArgsOpenMethod.getDelegate();
-            }
-        }
-
-        if (methodCaller instanceof JavaOpenMethod) {
-            method = (JavaOpenMethod) methodCaller;
-        }
-
-        if (method != null) {
-            Method javaMethod = method.getJavaMethod();
-            AutoCastReturnType autoCastReturnType = javaMethod.getAnnotation(AutoCastReturnType.class);
-            if (autoCastReturnType != null) {
-                Class<? extends AutoCastFactory> clazz = autoCastReturnType.value();
-                try {
-                    AutoCastFactory autoCastFactory = clazz.newInstance();
-                    return autoCastFactory.build(bindingContext, methodCaller, method, parameterTypes);
-                } catch (InstantiationException | IllegalAccessException e) {
-                    return method;
-                }
-            }
-        }
-
-        return methodCaller;
-    }
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
@@ -121,9 +63,8 @@ public class MethodNodeBinder extends ANodeBinder {
                 .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
 
             BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
-            methodCaller = autoCastReturnTypeWrap(bindingContext, methodCaller, parameterTypes);
 
-            if (methodCaller != null && noArrayOneElementCast(methodCaller)) {
+            if (methodCaller != null) {
                 bindingContext.addMessages(openLMessages);
                 log(methodName, parameterTypes, "entirely appropriate by signature method");
                 return new MethodBoundNode(node, methodCaller, children);
@@ -134,13 +75,6 @@ public class MethodNodeBinder extends ANodeBinder {
             // someMethod( parameter1, ... )
             //
             if (childrenCount > 1) {
-
-                if (methodCaller != null) {
-                    bindingContext.addMessages(openLMessages);
-                    log(methodName, parameterTypes, "entirely appropriate by signature method");
-                    return new MethodBoundNode(node, methodCaller, children);
-                }
-
                 // Get the root component type and dimension of the array.
                 IOpenClass argumentType = parameterTypes[0];
                 int dims = 0;
@@ -230,19 +164,6 @@ public class MethodNodeBinder extends ANodeBinder {
         return null;
     }
 
-    private boolean noArrayOneElementCast(IMethodCaller methodCaller) {
-        Objects.requireNonNull(methodCaller, "methodCaller cannot be null");
-        if (methodCaller instanceof CastingMethodCaller) {
-            CastingMethodCaller castingMethodCaller = (CastingMethodCaller) methodCaller;
-            for (IOpenCast openCast : castingMethodCaller.getCasts()) {
-                if (openCast instanceof IOneElementArrayCast) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     private boolean isAllowParallelInvocation(IMethodCaller singleParameterMethodCaller) {
         return false;
     }
@@ -303,7 +224,7 @@ public class MethodNodeBinder extends ANodeBinder {
             .findMethodCaller(type, methodName, paramTypes, bindingContext);
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
-        if (methodCaller != null && noArrayOneElementCast(methodCaller)) {
+        if (methodCaller != null) {
             errorNode = validateMethod(node, bindingContext, target, methodCaller);
             if (errorNode != null) {
                 return errorNode;
