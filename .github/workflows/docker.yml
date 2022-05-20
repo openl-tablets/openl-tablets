@@ -139,13 +139,15 @@ jobs:
       env:
         appName : demo
       run: >
-        eval docker buildx build $tags_11
+        eval docker buildx build
+        $tags_11
         --platform ${BUILD_PLATFORMS} --output type=registry,push=false
         -f ./Dockerfiles/Demo .
 
     - name: Rule Services (All) JDK 11
       run: >
-        docker buildx build -t openltablets/ws:$version-all
+        docker buildx build
+        -t openltablets/ws:$version-all
         --platform ${BUILD_PLATFORMS} --output type=registry,push=false
         --build-arg APP=webservice-all
         --build-arg JDK=$JAVA11
@@ -155,7 +157,8 @@ jobs:
       env:
         appName : ws
       run: >
-        eval docker buildx build $tags_11
+        eval docker buildx build
+        $tags_11
         --platform ${BUILD_PLATFORMS} --output type=registry,push=false
         --build-arg APP=webservice
         --build-arg JDK=$JAVA11
@@ -165,51 +168,47 @@ jobs:
       env:
         appName : webstudio
       run: >
-        eval docker buildx build $tags_11
+        eval docker buildx build
+        $tags_11
         --platform ${BUILD_PLATFORMS} --output type=registry,push=false
         --build-arg APP=webstudio
         --build-arg JDK=$JAVA11
         -f ./Dockerfiles/WebApp .
 
-    - name: Push images
+
+    - name: Push DEMO
+      env:
+        appName : demo
       run: |
         docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
+        eval docker buildx build $tags_11 --platform ${BUILD_PLATFORMS} --push -f ./Dockerfiles/Demo .
 
-        eval docker buildx build $tags_11
-        --platform ${BUILD_PLATFORMS} --push
-        -f ./Dockerfiles/Demo .
-
-        docker buildx build -t openltablets/ws:$version-jre8-all
-        --platform ${BUILD_PLATFORMS} --push
-        --build-arg APP=webservice-all
-        --build-arg JDK=$JAVA8
-        -f ./Dockerfiles/WebApp .
-
-        docker buildx build -t openltablets/ws:$version-all
+    - name: Push Rule Services (All)
+      run: >
+        docker buildx build
+        -t openltablets/ws:$version-all
         --platform ${BUILD_PLATFORMS} --push
         --build-arg APP=webservice-all
         --build-arg JDK=$JAVA11
         -f ./Dockerfiles/WebApp .
 
-        eval docker buildx build $tags_8
-        --platform ${BUILD_PLATFORMS} --push
-        --build-arg APP=webservice
-        --build-arg JDK=$JAVA8
-        -f ./Dockerfiles/WebApp .
-
-        eval docker buildx build $tags_11
+    - name: Push Rule Services
+      env:
+        appName : ws
+      run: >
+        eval docker buildx build
+        $tags_11
         --platform ${BUILD_PLATFORMS} --push
         --build-arg APP=webservice
         --build-arg JDK=$JAVA11
         -f ./Dockerfiles/WebApp .
 
-        eval docker buildx build $tags_8
-        --platform ${BUILD_PLATFORMS} --push
-        --build-arg APP=webstudio
-        --build-arg JDK=$JAVA8
-        -f ./Dockerfiles/WebApp .
-
-        eval docker buildx build $tags_11
+    - name: Push WebStudio
+      env:
+        appName : webstudio
+      run: >
+        eval docker buildx build
+        $tags_11
         --platform ${BUILD_PLATFORMS} --push
         --build-arg APP=webstudio
         --build-arg JDK=$JAVA11
