@@ -360,7 +360,7 @@
                 <version>3.0.0</version>
                 <configuration>
                     <timestampPropertyName>build.date</timestampPropertyName>
-                    <timestampFormat>{0,date,yyyy-MM-dd}</timestampFormat>
+                    <timestampFormat>yyyy-MM-dd</timestampFormat>
                     <revisionOnScmFailure>UNKNOWN</revisionOnScmFailure>
                     <shortRevisionLength>12</shortRevisionLength>
                     <format>{0}</format>
@@ -516,7 +516,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.3.2</version>
+                        <version>3.4.0</version>
                         <configuration>
                             <!-- To skip invalid HTML4 tags -->
                             <!-- http://openjdk.java.net/jeps/172 -->

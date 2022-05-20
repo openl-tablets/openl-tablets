@@ -58,7 +58,6 @@ public class CollectionUtils {
      *
      * @param array the checked array.
      * @return return {@code true} if the array does not contain any elements.
-     * @see T[].length
      */
     public static <T> boolean isEmpty(T[] array) {
         return array == null || array.length == 0;
