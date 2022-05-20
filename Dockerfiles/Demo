@@ -27,7 +27,8 @@ RUN set -eux ; \
 # Permission for rootless mode (for running as non-root)
     cd .. ; \
     touch jetty.state; \
-    chmod 777 logs jetty.state; \
+    chmod 777 jetty.state; \
+    mkdir logs; \
     chmod 777 logs; \
     chmod 777 -R openl-demo
 
