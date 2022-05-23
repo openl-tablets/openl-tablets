@@ -81,7 +81,7 @@
             <div class="align-middle" attr="users-firstname"></div>
             <div class="align-middle" attr="users-lastname"></div>
             <div class="align-middle">
-                <span attr="users-email">{usersEmail}</span>
+                <span attr="users-email"></span>
                 <span class="warning-icon" title="Email not verified" attr="users-email-not-verified"/>
             </div>
             <div class="align-middle" attr="users-displayname"></div>
@@ -145,8 +145,7 @@
                 $notMatchedUserGroups.remove();
                 data.forEach((extGroup) => {
                     let $userGroup = $userGroupTemplate.clone();
-                    $userGroup.find('[attr=users-group]')
-                        .text(ws.utils.escapeHtml(extGroup));
+                    $userGroup.find('[attr=users-group]').text(extGroup);
                     $userGroups.append($userGroup);
                 })
             }).fail(function (data) {
@@ -198,7 +197,7 @@
                         } else {
                             $innerGroup.addClass('badge-info');
                         }
-                        $innerGroup.text(ws.utils.escapeHtml(group.name));
+                        $innerGroup.text(group.name);
                         appendUserGroup($userGroup);
                     });
 
@@ -207,7 +206,7 @@
                         $userGroup.find('[attr=users-group]')
                             .addClass('badge-info')
                             .attr("title", "Default group")
-                            .text(ws.utils.escapeHtml(groupsConfig.defaultGroup));
+                            .text(groupsConfig.defaultGroup);
                         appendUserGroup($userGroup);
                     }
 
@@ -216,7 +215,7 @@
                         $userGroup.find('[attr=users-group]')
                             .addClass("clickable")
                             .attr("title", "Expand not matched external groups")
-                            .text(ws.utils.escapeHtml('+' + user.notMatchedExternalGroupsCount));
+                            .text('+' + user.notMatchedExternalGroupsCount);
                         $userGroup.click(() => {
                             fetchNotMatchedUserGroups(user.username, $userGroup);
                         });
@@ -231,18 +230,18 @@
                     $userName.click(() => {
                         showEditUserForm(user);
                     });
-                    $userName.text(ws.utils.escapeHtml(user.username));
+                    $userName.text(user.username);
                     if (!user.unsafePassword) {
                         $userRow.find('[attr=users-unsafe-default-password]').remove();
                     }
-                    $userRow.find('[attr=users-firstname]').text(ws.utils.escapeHtml(user.firstName));
-                    $userRow.find('[attr=users-lastname]').text(ws.utils.escapeHtml(user.lastName));
-                    $userRow.find('[attr=users-email]').text(ws.utils.escapeHtml(user.email));
+                    $userRow.find('[attr=users-firstname]').text(user.firstName);
+                    $userRow.find('[attr=users-lastname]').text(user.lastName);
+                    $userRow.find('[attr=users-email]').text(user.email);
                     const emailExists = user.email && user.email.trim() !== '';
                     if (!emailExists || user.externalFlags.emailVerified) {
                         $userRow.find('[attr=users-email-not-verified]').remove();
                     }
-                    $userRow.find('[attr=users-displayname]').text(ws.utils.escapeHtml(user.displayName));
+                    $userRow.find('[attr=users-displayname]').text(user.displayName);
 
                     const $userDelete = $userRow.find('[attr=users-delete]');
                     if (user.superUser || user.currentUser) {
