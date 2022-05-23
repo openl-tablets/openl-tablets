@@ -190,7 +190,7 @@
                           $j.each(data, function (name, item) {
                               const field = $targetForm.find(fieldSelector(name));
                               if (field.length > 0) {
-                                  field.val(ws.utils.escapeHtml(item));
+                                  field.val(item);
                               }
                           });
                           options.onSuccess(data);
@@ -249,7 +249,7 @@
                                       json.fields.forEach(item => {
                                           const error = $targetForm.find(fieldErrorSelector(item.field));
                                           if (error.length > 0) {
-                                              error.text(ws.utils.escapeHtml(item.message));
+                                              error.text(item.message);
                                           }
                                       });
                                   } else if (json?.message != null) {
@@ -330,7 +330,7 @@
                               items = items || [];
                               items.forEach((item, i) => {
                                   const $item = $j("<div>");
-                                  $item.text(ws.utils.escapeHtml(item.value));
+                                  $item.text(item.value);
                                   $item.click(() => {
                                       $input.val(item.value);
                                       // Close the list of autocompleted values, (or any other open lists of autocompleted values:
