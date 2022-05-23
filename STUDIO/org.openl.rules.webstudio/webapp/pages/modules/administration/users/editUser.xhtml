@@ -258,8 +258,8 @@
                     let groupClass = "";
                     groupClass += (userGroups.includes(i)) || isExternalGroup || isDefaultGroup ? ' check ' : ''
                     groupClass += (isAdminGroup && (userModel.superUser === true || userModel.currentUser === true)) || isExternalGroup || isDefaultGroup ? ' disable ' : '';
-                    groups += htmlTemplate.replaceString(/{editUserGroupValue}/g, i)
-                        .replaceAllString(/{editUserGroupName}/g, i)
+                    groups += htmlTemplate.replaceString(/{editUserGroupValue}/g, ws.utils.escapeHtml(i))
+                        .replaceAllString(/{editUserGroupName}/g, ws.utils.escapeHtml(i))
                         .replaceString(/{editUserGroupClass}/g, groupClass)
                         .replaceString(/{editUserGroupStyle}/g, isAdminGroup ? "color: red;" : "");
                 });
