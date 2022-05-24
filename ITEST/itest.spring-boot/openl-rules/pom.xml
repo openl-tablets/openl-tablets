@@ -4,7 +4,7 @@
     <parent>
         <artifactId>itest.spring-boot</artifactId>
         <groupId>org.openl.itest</groupId>
-        <version>5.25.11</version>
+        <version>5.25.12-SNAPSHOT</version>
     </parent>
 
     <artifactId>itest.spring-boot.openl-rules</artifactId>
