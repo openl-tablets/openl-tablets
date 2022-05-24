@@ -13,10 +13,12 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -59,6 +61,9 @@ public class Migrator {
         if (stringFromVersion.compareTo("5.26.0") < 0) {
             migrateTo5_26_0(settings, props);
         }
+        if (stringFromVersion.compareTo("5.26.1") < 0) {
+            migrateTo5_26_1(settings, props);
+        }
 
         if ("saml".equals(Props.text("user.mode"))) {
             // Generating required a private key and its certificate if they are missed
@@ -79,6 +84,62 @@ public class Migrator {
             settings.reloadIfModified();
         } catch (IOException e) {
             LOG.error("Migration of properties failed.", e);
+        }
+    }
+
+    private static void migrateTo5_26_1(DynamicPropertySource settings, HashMap<String, String> props) {
+        // Production repository was mandatory in previous versions. In a new version defaults for it were removed.
+
+        final String configListProp = "production-repository-configs";
+        // Absent production repository configs assumes default setting: production-repository-configs = production
+        String configList = (String) settings.getProperty(configListProp);
+
+        // Another case: production-repository-configs = production, production1, production2
+        List<String> repositories = Optional.ofNullable(configList).map(s -> Arrays
+                .asList(StringUtils.split(s, ','))).orElse(Collections.emptyList());
+        boolean severalReposIncludingProduction = repositories.size() > 1 && repositories
+            .contains("production");
+
+        // Default Repository URI in previous version
+        String defaultRepoUri = "jdbc:h2:mem:repo;DB_CLOSE_DELAY=-1";
+
+        // Check, if URI for repository with id "production" was changed
+        String repoUriProp = "repository.production.uri";
+        String uri = (String) settings.getProperty(repoUriProp);
+        boolean uriIsChanged = uri != null && !uri.equals(defaultRepoUri);
+
+        // 1) If had only defaulted repository and its uri was not changed in configuration, we assume, it
+        // wasn't used and can be removed in the latest WebStudio. Don't restore any defaults.
+        // 2) If default repository was reconfigured (URI was changed), then it was used, we need to restore only absent
+        // defaults for repository with id "production".
+        // 3) If several repositories existed but default repository with id "production" wasn't changed (including
+        // URI), we restore all its defaults including URI.
+        if (uriIsChanged || severalReposIncludingProduction) {
+            if (configList == null) {
+                // Restore default repository id
+                props.put(configListProp, "production");
+            }
+
+            final String repoNameProp = "repository.production.name";
+            if (!settings.containsProperty(repoNameProp)) {
+                // Restore default repository name
+                props.put(repoNameProp, "Deployment");
+            }
+
+            // Replace repository factory with repository ref.
+            String factory = ((String) settings.getProperty("repository.production.factory"));
+            if (StringUtils.isBlank(factory)) {
+                factory = "repo-jdbc";
+            }
+            props.put("repository.production.$ref", factory);
+
+            // base.path is a mandatory setting for now, need to restore default value.
+            props.put("repository.production.base.path.$ref", "repo-default.production.base.path");
+
+            if (severalReposIncludingProduction && !uriIsChanged && "repo-jdbc".equals(factory)) {
+                // Restore property as it was in previous WebStudio.
+                props.put(repoUriProp, defaultRepoUri);
+            }
         }
     }
 
