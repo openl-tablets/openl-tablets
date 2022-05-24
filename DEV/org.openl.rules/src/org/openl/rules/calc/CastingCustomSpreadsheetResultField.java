@@ -18,6 +18,8 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.NullOpenClass;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 
 public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResultField {
@@ -137,8 +139,17 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                     this.casts = new ArrayList<>();
                     this.type = t;
                     for (IOpenClass type : types) {
-                        IOpenCast cast = xlsModuleOpenClass.getRulesModuleBindingContext().getCast(type, this.type);
-                        this.casts.add(Pair.of(type, cast));
+                        if (!NullOpenClass.isAnyNull(type)) {
+                            IOpenCast cast = xlsModuleOpenClass.getRulesModuleBindingContext().getCast(type, this.type);
+                            IOpenClass x = type;
+                            if (type.getInstanceClass() != null && type.getInstanceClass().isPrimitive()) {
+                                x = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(type.getInstanceClass()));
+                            }
+                            this.casts.add(Pair.of(x, cast));
+                        }
+                    }
+                    if (this.casts.isEmpty()) {
+                        this.casts = null;
                     }
                 }
             }

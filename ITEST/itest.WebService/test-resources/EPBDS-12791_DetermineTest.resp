@@ -1,0 +1,4 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{"Value":[{"Formula_tierStep":{"Formula_Step1":1.0,"Formula_Step2":[1.0]}}],"Factor":{}}
