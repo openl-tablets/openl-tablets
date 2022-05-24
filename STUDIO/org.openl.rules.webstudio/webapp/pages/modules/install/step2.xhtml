@@ -301,7 +301,7 @@
                             </div>
 
                             <div class="addRepositoryConfig">
-                                <a4j:commandButton onclick="#{rich:component('modalAddRepoConnection')}.show();return false;"
+                                <a4j:commandButton onclick="openAddRepoConnectionDialog();return false;"
                                                    title="Add connection to deployment repository"
                                                    styleClass="toolbarButton menuButton" render="repositoryProps"
                                                    value="Connect To Deployment Repository">
