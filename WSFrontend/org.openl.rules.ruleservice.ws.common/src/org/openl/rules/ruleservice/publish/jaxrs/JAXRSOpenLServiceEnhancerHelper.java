@@ -38,7 +38,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
 import org.objectweb.asm.AnnotationVisitor;
@@ -72,6 +71,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.servers.Server;
 
 public class JAXRSOpenLServiceEnhancerHelper {
@@ -117,7 +117,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final boolean provideRuntimeContext;
         private final boolean provideVariations;
         private final boolean authenticationEnabled;
-        private Set<String> usedSwaggerComponentNamesWithRequestParameterSuffix = null;
         private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix = null;
         private final ObjectMapper openApiObjectMapper;
 
@@ -393,10 +392,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         i++;
                     }
                     if (!originalMethod.isAnnotationPresent(Path.class)) {
-                        String path = "/" + originalMethod.getName() + sb.toString();
+                        String path = "/" + originalMethod.getName() + sb;
                         int c = 1;
                         while (getUsedPaths().contains(normalizePath(path))) {
-                            path = "/" + originalMethod.getName() + (c++) + sb.toString();
+                            path = "/" + originalMethod.getName() + (c++) + sb;
                         }
                         getUsedPaths().add(normalizePath(path));
                         addPathAnnotation(mv, originalMethod, path);
