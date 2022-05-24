@@ -37,8 +37,11 @@ public abstract class AbstractProductionRepoController {
     public void afterPropertiesSet() {
         setProductionRepositoryConfigurations(systemSettingsBean.getProductionRepositoryConfigurations());
         setProperties(systemSettingsBean.getProperties());
-        repositoryConfiguration = createRepositoryConfiguration();
         systemSettingsBean = null;
+    }
+
+    public void init() {
+        repositoryConfiguration = createRepositoryConfiguration();
     }
 
     protected void addProductionRepoToMainConfig(RepositoryConfiguration repoConf) {
@@ -72,7 +75,7 @@ public abstract class AbstractProductionRepoController {
     }
 
     public void clearForm() {
-        repositoryConfiguration = createRepositoryConfiguration();
+        repositoryConfiguration = null;
         errorMessage = "";
     }
 

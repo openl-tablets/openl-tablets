@@ -86,7 +86,20 @@
                          value="Cancel" render="modalAddRepoConnectionPanel productionParameters securePanel repositoryProps"
                          oncomplete="#{rich:component('modalAddRepoConnection')}.hide();"/>
         </footer>
+        <a4j:jsFunction name="renderModalAddRepoConnectionForm" action="#{connectionProductionRepoController.init()}" render="@form" oncomplete="showAddRepoConnectionDialog()"/>
     </h:form>
 
   </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        function openAddRepoConnectionDialog() {
+            renderModalAddRepoConnectionForm();
+        }
+
+        function showAddRepoConnectionDialog() {
+            RichFaces.$("modalAddRepoConnection").show();
+        }
+        //]]>
+    </script>
 </ui:composition>
