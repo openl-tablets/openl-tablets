@@ -500,7 +500,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             String stringValue = cell.getStringValue();
             int startIndex = stringValue.indexOf('=') + 1;
             List<NodeUsage> nodeUsages = MetaInfoReaderUtils
-                .getNodeUsages((CompositeMethod) storageValue, stringValue.substring(startIndex), startIndex);
+                .getNodeUsages((CompositeMethod) storageValue, stringValue, startIndex);
             setPreparedMetaInfo(row, col, new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages));
         }
     }
