@@ -372,6 +372,15 @@
                         requestId = newRequestId;
                     },
                     unloadPage: function() {
+                        // Search all visible popup panels in the page and hide them
+                        $j('.rf-pp-cntr:visible').each(function() {
+                            let id = $j(this).attr('id');
+                            let suffix = '_container';
+                            if (id && id.endsWith(suffix)) {
+                                api.ui.hide(id.substring(0, id.length - suffix.length));
+                            }
+                        });
+
                         if (requestId !== null && requestId !== '') {
                             onPageUnload(requestId);
                             requestId = null;
