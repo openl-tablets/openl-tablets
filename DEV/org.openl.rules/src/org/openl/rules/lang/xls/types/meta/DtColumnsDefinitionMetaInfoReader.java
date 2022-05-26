@@ -59,7 +59,7 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
                 CompositeMethod method = value.getKey();
                 int startIndex = 0;
                 List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils
-                    .getNodeUsages(method, stringValue.substring(startIndex), startIndex);
+                    .getNodeUsages(method, stringValue, startIndex);
                 nodeUsages = new ArrayList<>(parsedNodeUsages);
                 return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages, false);
             }

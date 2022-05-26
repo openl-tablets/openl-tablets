@@ -49,6 +49,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode tabs2t;
     private TableSyntaxNode tabs4;
     private TableSyntaxNode tabs4t;
+    private TableSyntaxNode myDatatype;
+    private TableSyntaxNode myDatatypeRule;
 
     public NodeUsagesMetaInfoTest() {
         super(SRC);
@@ -87,6 +89,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         tabs2t = findTable("SmartRules Tabs Tabs2t(String componentID)");
         tabs4 = findTable("SmartRules Tabs Tabs4(String componentID)");
         tabs4t = findTable("SmartRules Tabs Tabs4t(String componentID)");
+        myDatatype = findTable("Datatype MyDatatype");
+        myDatatypeRule = findTable("SmartRules MyDatatype[] myDatatypeRule(int a)");
     }
 
     @Test
@@ -691,6 +695,12 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertNodeUsage(tab.getUri(), usedNodes.get(0), "String Tab(String componentID)", 1, 4);
         assertMetaInfo(tabs4t, 1, 6, 0);
 
+    }
+
+    @Test
+    public void testDTLink() {
+        List<? extends NodeUsage> usedNodes = assertMetaInfo(myDatatypeRule, 1, 3, 1);
+        assertNodeUsage(myDatatype.getUri(), usedNodes.get(0), "MyDatatype ()", 6, 16);
     }
 
     private static void assertCellType(TableSyntaxNode node, int column, int row, String type) {
