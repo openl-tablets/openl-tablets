@@ -78,9 +78,6 @@
 						"format": "int32"
 					},
 					"numAccidents": {
-							"type": "boolean"
-					},
-					"numAccidents": {
 							"$ref": "#/components/schemas/Pokemon"
 					},
 					"numAccidents2": {
