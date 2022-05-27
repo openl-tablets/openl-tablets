@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
@@ -88,6 +89,26 @@ public class Migrator {
     }
 
     private static void migrateTo5_26_1(DynamicPropertySource settings, HashMap<String, String> props) {
+        migrateRepositoryFactories(settings, props);
+        migrateProductionRepository(settings, props);
+    }
+
+    private static void migrateRepositoryFactories(DynamicPropertySource settings, HashMap<String, String> props) {
+        String factorySuffix = ".factory";
+
+        Arrays.stream(settings.getPropertyNames())
+            .filter(propertyName -> propertyName.startsWith("repository.") && propertyName.endsWith(factorySuffix))
+            .forEach(factoryKey -> {
+                String factory = (String) settings.getProperty(factoryKey);
+                if (StringUtils.isNotBlank(factory)) {
+                    String refKey = factoryKey.substring(0, factoryKey.length() - factorySuffix.length()) + ".$ref";
+                    props.put(refKey, RepositoryInstatiator.getRefID(factory));
+                    props.put(factoryKey, null);
+                }
+            });
+    }
+
+    private static void migrateProductionRepository(DynamicPropertySource settings, HashMap<String, String> props) {
         // Production repository was mandatory in previous versions. In a new version defaults for it were removed.
 
         final String configListProp = "production-repository-configs";
@@ -130,8 +151,8 @@ public class Migrator {
             String factory = ((String) settings.getProperty("repository.production.factory"));
             if (StringUtils.isBlank(factory)) {
                 factory = "repo-jdbc";
+                props.put("repository.production.$ref", factory);
             }
-            props.put("repository.production.$ref", factory);
 
             // base.path is a mandatory setting for now, need to restore default value.
             props.put("repository.production.base.path.$ref", "repo-default.production.base.path");
