@@ -1,3 +1,4 @@
+![Vulneribilities](https://img.shields.io/snyk/vulnerabilities/github/openl-tablets/openl-tablets)
 ![Build](https://github.com/openl-tablets/openl-tablets/workflows/Build/badge.svg)
 ![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.openl/org.openl.core/badge.svg)
 ![Commit activity](https://img.shields.io/github/commit-activity/m/openl-tablets/openl-tablets)
