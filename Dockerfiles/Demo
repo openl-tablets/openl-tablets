@@ -50,11 +50,11 @@ RUN set -eux ; \
 RUN useradd -r -m -U -s /usr/sbin/nologin openl
 USER openl
 
-ENV JAVA_OPTIONS "$JAVA_OPTIONS $JAVA_OPTS -XX:MaxRAMPercentage=90.0"
+ENV JAVA_OPTS "-Xms64m -XX:MaxRAMPercentage=90.0"
 
 EXPOSE 8080
 #Start Jetty
-CMD export JETTY_ARGS="-Dopenl.home=./openl-demo -Dws.port=8080 $JETTY_ARGS" && bin/jetty.sh run && tail -f /dev/null
+CMD /demo/start
 
 COPY --from=0 /demo /demo
 WORKDIR /demo
