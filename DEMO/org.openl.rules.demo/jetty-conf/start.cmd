@@ -114,19 +114,6 @@ rem SUBROUTINES
 @FOR /f "tokens=3" %%G IN ('bin\java.exe -version 2^>^&1 ^| find "version"') DO set _JAVA_VERSION=%%~G
 @popd
 @if "%_JAVA_VERSION%" == "" set _JAVA_VERSION=UNKNOWN
-@if "%_JAVA_VERSION:~0,3%" == "1.6" echo Java version %_JAVA_VERSION% is not supported. & exit /b 4 & endlocal
-
-@if not defined _JAVA_OPTS (
-@rem set parameters for Java 9
-@if "%_JAVA_VERSION%" == "9" set _JAVA_OPTS=--add-modules java.se.ee --patch-module java.xml.ws.annotation=lib/annotations-api.jar --add-exports=java.xml.ws.annotation/javax.annotation.security=ALL-UNNAMED
-@if "%_JAVA_VERSION:~0,2%" == "9." set _JAVA_OPTS=--add-modules java.se.ee --patch-module java.xml.ws.annotation=lib/annotations-api.jar --add-exports=java.xml.ws.annotation/javax.annotation.security=ALL-UNNAMED
-
-@rem set parameters for Java 8
-@if "%_JAVA_VERSION:~0,3%" == "1.8" set _JAVA_OPTS=-XX:+UseParNewGC -XX:+UseConcMarkSweepGC
-
-@rem set parameters for Java 7
-@if "%_JAVA_VERSION:~0,3%" == "1.7" set _JAVA_OPTS=-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:PermSize=128m -XX:MaxPermSize=512m
-)
 
 @rem Determine memory size
 @for /f %%G in ('wmic ComputerSystem get TotalPhysicalMemory ^| findstr [0123456789]') do set _MEMORY=%%G

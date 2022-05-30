@@ -23,13 +23,6 @@ fi
 
 if [[ "$_java" ]]; then
     version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
-    if [[ "$version" = "9" ]] || [[ "${version:0:2}" == "9." ]]; then
-        JAVA_OPTS="$JAVA_OPTS --add-modules java.se.ee --patch-module java.xml.ws.annotation=lib/annotations-api.jar --add-exports=java.xml.ws.annotation/javax.annotation.security=ALL-UNNAMED"
-    elif [[ "${version:0:3}" == "1.8" ]]; then
-        JAVA_OPTS="$JAVA_OPTS -XX:+UseParNewGC -XX:+UseConcMarkSweepGC"
-    elif [[ "${version:0:3}" == "1.7" ]]; then
-        JAVA_OPTS="$JAVA_OPTS -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:PermSize=128m -XX:MaxPermSize=512mC"
-    fi
 fi
 
 if [[ $(uname -s) == "Darwin" ]]; then
