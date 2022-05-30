@@ -16,39 +16,36 @@ ENV OPENL_HOME_SHARED $OPENL_DIR/shared
 ENV OPENL_APP $OPENL_DIR/app
 ENV OPENL_LIB $OPENL_DIR/lib
 
-ENV JETTY_HOME $OPENL_APP
-ENV JETTY_BASE $OPENL_APP
-
-COPY --from=jetty:9-jre11-slim /usr/local/jetty $JETTY_HOME
-COPY --from=jetty:9-jre11-slim /var/lib/jetty $JETTY_BASE
+COPY --from=jetty:9-jre11-slim /usr/local/jetty $OPENL_APP
+COPY --from=jetty:9-jre11-slim /var/lib/jetty $OPENL_APP
 RUN set -eux ; \
 \
 # Create start file for Jetty with configuration options
     echo '#!/usr/bin/env bash\n\n\
 export JAVA_OPTIONS=$JAVA_OPTS\ $JAVA_OPTIONS\n \
-source $JETTY_HOME/bin/jetty.sh run\n' >> $JETTY_HOME/bin/start.sh; \
-    chmod +x $JETTY_HOME/bin/start.sh; \
+export JETTY_HOME=$OPENL_APP\n\
+source $JETTY_HOME/bin/jetty.sh run\n' >> $OPENL_APP/start.sh; \
+    chmod +x $OPENL_APP/start.sh; \
 \
 # Install fonts required for Apache POI (export into Excel with autowidth of columns)
     apt-get update; \
-    chmod +x ${JETTY_HOME}/bin/jetty.sh; \
     \
     apt-get install -y --no-install-recommends \
     fontconfig ; \
     rm -rf /var/lib/apt/lists/*; \
 # Permission for rootless mode (for running as non-root)
-    touch $JETTY_HOME/start.state; \
-    chmod o=u $JETTY_HOME/start.state; \
+    touch $OPENL_APP/start.state; \
+    chmod o=u $OPENL_APP/start.state; \
     \
-    mkdir $JETTY_HOME/logs; \
-    chmod o=u $JETTY_HOME/logs; \
+    mkdir $OPENL_APP/logs; \
+    chmod o=u $OPENL_APP/logs; \
     \
     mkdir $OPENL_LIB; \
-    ln -s $OPENL_LIB $JETTY_HOME/lib/ext; \
+    ln -s $OPENL_LIB $OPENL_APP/lib/ext; \
     chmod o=u -R $OPENL_LIB
 
 # Define executables
-ENV PATH $JETTY_HOME/bin:$JAVA_HOME/bin:$PATH
+ENV PATH $JAVA_HOME/bin:$PATH
 
 ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
 
@@ -66,10 +63,9 @@ RUN mkdir -p "$OPENL_HOME_SHARED" && chown openl:openl "$OPENL_HOME_SHARED"
 USER openl
 
 EXPOSE 8080
-WORKDIR $JETTY_BASE
 
-CMD ["/bin/bash", "-c", "$JETTY_HOME/bin/start.sh"]
+CMD ["/bin/bash", "-c", "$OPENL_APP/start.sh"]
 
-COPY $APP webapps/ROOT
+COPY $APP $OPENL_APP/webapps/ROOT
 
 WORKDIR $OPENL_DIR
