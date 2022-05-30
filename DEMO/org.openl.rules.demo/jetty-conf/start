@@ -56,6 +56,7 @@ fi
 
 JAVA_OPTS="$JETTY_OPTS $_JAVA_MEMORY $JAVA_OPTS"
 OPENL_HOME=${OPENL_HOME:-./openl-demo}
+JETTY_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 echo "### Starting OpenL Tablets DEMO ..."
 echo "Memory size (gigabytes):    $memory"
@@ -64,8 +65,4 @@ echo "Java found in:              $used_java"
 echo "Using JAVA_OPTS:            $JAVA_OPTS"
 echo "Using OPENL_HOME:           $OPENL_HOME"
 
-TMPDIR=${TMPDIR:-/tmp}
-JETTY_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-JETTY_BASE=$JETTY_HOME
-
-exec "$_java" -DDEMO=DEMO -Dh2.bindAddress=localhost -Dopenl.home="$OPENL_HOME" $JAVA_OPTS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="$TMPDIR" -jar "$JETTY_HOME/start.jar" jetty.state=jetty.state jetty-started.xml
+exec "$_java" -DDEMO=DEMO -Dh2.bindAddress=localhost -Dopenl.home="$OPENL_HOME" $JAVA_OPTS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="${TMPDIR:-/tmp}" -jar "$JETTY_HOME/start.jar" jetty.state=jetty.state jetty-started.xml

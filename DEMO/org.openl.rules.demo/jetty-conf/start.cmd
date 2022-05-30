@@ -4,9 +4,6 @@
 @set JRE_HOME=%JRE_HOME:"=%
 @set JAVA_HOME=%JAVA_HOME:"=%
 
-@set "JETTY_HOME=%CD%"
-@set "JETTY_BASE=%CD%"
-
 @setlocal
 @set errorcode=0
 @set delay=20
@@ -178,8 +175,9 @@ echo.
 @rem Apply security policy for demo
 @if exist demo-java.policy set JETTY_OPT=-Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=%SystemRoot%\Sun\Java\lib\ext
 
-@if not defined OPENL_HOME set OPENL_HOME=./openl-demo
 @set JAVA_OPTS=%JETTY_OPT%  %_JAVA_MEMORY% %JAVA_OPTS%
+@if not defined OPENL_HOME set OPENL_HOME=./openl-demo
+@set JETTY_HOME="%CD%"
 
 @echo ### Starting OpenL Tablets DEMO ...
 @echo Memory size:           "%_MEMORY%GBytes"
@@ -188,7 +186,7 @@ echo.
 @echo Using JAVA_OPTS:       "%JAVA_OPTS%"
 @echo Using OPENL_HOME:      "%OPENL_HOME%"
 
-"%JRE_HOME%\bin\java.exe" -DDEMO=DEMO -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% -Djetty.home="%JETTY_HOME%" -Djetty.base="%JETTY_BASE%" -Djava.io.tmpdir="%TEMP%" -jar start.jar jetty.state=jetty.state jetty-started.xml
+"%JRE_HOME%\bin\java.exe" -DDEMO=DEMO -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% -Djetty.home="%JETTY_HOME%" -Djetty.base="%JETTY_HOME%" -Djava.io.tmpdir="%TEMP%" -jar start.jar jetty.state=jetty.state jetty-started.xml
 
 @popd
 @exit /b 0 & endlocal
