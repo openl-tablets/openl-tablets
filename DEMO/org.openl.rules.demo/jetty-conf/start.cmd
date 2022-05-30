@@ -8,12 +8,6 @@
 @set "JETTY_BASE=%CD%"
 
 @setlocal
-@if exist "setenv.cmd" (
-@echo ### Loading environment from setenv.cmd ...
-@echo.
-@call setenv.cmd
-@echo.
-)
 @set errorcode=0
 @set delay=20
 @echo ### Checking Java environment ...
