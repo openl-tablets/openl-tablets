@@ -64,54 +64,8 @@ echo "Java version:               $version"
 echo "Java found in:              $used_java"
 echo "Using JAVA_OPTIONS:         $JAVA_OPTIONS"
 
-
-findDirectory()
-{
-  local L OP=$1
-  shift
-  for L in "$@"; do
-    [ "$OP" "$L" ] || continue
-    printf %s "$L"
-    break
-  done
-}
-
 TMPDIR=${TMPDIR:-/tmp}
 JETTY_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 JETTY_BASE=$JETTY_HOME
 
-if [ -z "$JETTY_RUN" ]
-then
-  JETTY_RUN=$(findDirectory -w /var/run /usr/var/run $JETTY_BASE /tmp)/jetty
-  [ -d "$JETTY_RUN" ] || mkdir $JETTY_RUN
-fi
-
-#####################################################
-# Find a pid and state file
-#####################################################
-if [ -z "$JETTY_PID" ]
-then
-  JETTY_PID="$JETTY_RUN/jetty.pid"
-fi
-
-running()
-{
-  if [ -f "$1" ]
-  then
-    local PID=$(cat "$1" 2>/dev/null) || return 1
-    kill -0 "$PID" 2>/dev/null
-    return
-  fi
-  rm -f "$1"
-  return 1
-}
-
-if running $JETTY_PID
-then
-  echo "Already Running $(cat $JETTY_PID)!"
-  exit 1
-fi
-
-("$_java" $JAVA_OPTIONS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="$TMPDIR" -jar "$JETTY_HOME/start.jar" jetty.state=jetty.state jetty-started.xml > /dev/null) &
-disown $!
-echo $! > $JETTY_PID
+exec "$_java" $JAVA_OPTIONS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="$TMPDIR" -jar "$JETTY_HOME/start.jar" jetty.state=jetty.state jetty-started.xml
