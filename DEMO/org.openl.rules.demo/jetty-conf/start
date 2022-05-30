@@ -55,7 +55,6 @@ fi
 [[ -f demo-java.policy ]] && JETTY_OPTS="-Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=/usr/java/packages/lib/ext"
 
 export JAVA_OPTS="$JAVA_OPTS $_JAVA_MEMORY"
-export JETTY_OPTS="-DDEMO=DEMO -Dh2.bindAddress=localhost $JETTY_OPTS"
 export JAVA_OPTIONS="$JAVA_OPTS $JETTY_OPTS $JAVA_OPTIONS"
 OPENL_HOME=${OPENL_HOME:-./openl-demo}
 
@@ -70,4 +69,4 @@ TMPDIR=${TMPDIR:-/tmp}
 JETTY_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 JETTY_BASE=$JETTY_HOME
 
-exec "$_java" -Dopenl.home="$OPENL_HOME" $JAVA_OPTIONS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="$TMPDIR" -jar "$JETTY_HOME/start.jar" jetty.state=jetty.state jetty-started.xml
+exec "$_java" -DDEMO=DEMO -Dh2.bindAddress=localhost -Dopenl.home="$OPENL_HOME" $JAVA_OPTIONS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="$TMPDIR" -jar "$JETTY_HOME/start.jar" jetty.state=jetty.state jetty-started.xml

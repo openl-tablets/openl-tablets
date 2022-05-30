@@ -185,15 +185,13 @@ echo.
 @echo ### Starting OpenL Tablets DEMO ...
 @echo.
 @set JAVA_OPTS=%JAVA_OPTS% %_JAVA_MEMORY% %_JAVA_OPTS%
-@set JETTY_OPT=-DDEMO=DEMO -Dh2.bindAddress=localhost %JETTY_OPT%
 @echo Memory size:           "%_MEMORY%GBytes"
 @echo Java version:          "%_JAVA_VERSION%"
 @echo Using JRE_HOME:        "%_JRE_HOME%"
 @echo Using JAVA_OPTS:       "%JAVA_OPTS%"
-@echo Using JETTY_OPT:   "%JETTY_OPT%"
 @echo Using OPENL_HOME:      "%OPENL_HOME%"
 
-"%JRE_HOME%\bin\java.exe" -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% %JETTY_OPT% -Djetty.home="%JETTY_HOME%" -Djetty.base="%JETTY_BASE%" -Djava.io.tmpdir="%TEMP%" -jar start.jar jetty.state=jetty.state jetty-started.xml
+"%JRE_HOME%\bin\java.exe" -DDEMO=DEMO -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% %JETTY_OPT% -Djetty.home="%JETTY_HOME%" -Djetty.base="%JETTY_BASE%" -Djava.io.tmpdir="%TEMP%" -jar start.jar jetty.state=jetty.state jetty-started.xml
 
 @popd
 @exit /b 0 & endlocal
