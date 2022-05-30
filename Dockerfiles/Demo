@@ -27,10 +27,10 @@ RUN set -eux ; \
 # Permission for rootless mode (for running as non-root)
     cd .. ; \
     touch jetty.state; \
-    chmod 777 jetty.state; \
+    chmod o=u jetty.state; \
     mkdir logs; \
-    chmod 777 logs; \
-    chmod 777 -R openl-demo
+    chmod o=u logs; \
+    chmod o=u -R openl-demo
 
 FROM ubuntu:focal
 

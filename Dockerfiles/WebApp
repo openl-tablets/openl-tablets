@@ -24,8 +24,6 @@ COPY --from=jetty:9-jre11-slim /var/lib/jetty $JETTY_BASE
 RUN set -eux ; \
 \
 # Create start file for Jetty with configuration options
-    mkdir $OPENL_LIB; \
-    ln -s $OPENL_LIB $JETTY_HOME/lib/ext; \
     echo '#!/usr/bin/env bash\n\n\
 export JAVA_OPTIONS=$JAVA_OPTS\ $JAVA_OPTIONS\n \
 source $JETTY_HOME/bin/jetty.sh run\n' >> $JETTY_HOME/bin/start.sh; \
@@ -39,11 +37,15 @@ source $JETTY_HOME/bin/jetty.sh run\n' >> $JETTY_HOME/bin/start.sh; \
     fontconfig ; \
     rm -rf /var/lib/apt/lists/*; \
 # Permission for rootless mode (for running as non-root)
-    cd .. ; \
     touch $JETTY_HOME/start.state; \
+    chmod o=u $JETTY_HOME/start.state; \
+    \
     mkdir $JETTY_HOME/logs; \
-    chmod 777 $JETTY_HOME/logs $JETTY_HOME/start.state; \
-    chmod 777 -R $OPENL_LIB
+    chmod o=u $JETTY_HOME/logs; \
+    \
+    mkdir $OPENL_LIB; \
+    ln -s $OPENL_LIB $JETTY_HOME/lib/ext; \
+    chmod o=u -R $OPENL_LIB
 
 # Define executables
 ENV PATH $JETTY_HOME/bin:$JAVA_HOME/bin:$PATH
