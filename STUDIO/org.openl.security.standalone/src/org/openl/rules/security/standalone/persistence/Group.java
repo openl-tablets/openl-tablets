@@ -62,7 +62,7 @@ public class Group implements Serializable {
      *
      * @return
      */
-    @Column(length = 40, name = "groupName", unique = true, nullable = false)
+    @Column(length = 65, name = "groupName", unique = true, nullable = false)
     public String getName() {
         return name;
     }
