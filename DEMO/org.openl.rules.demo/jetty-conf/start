@@ -55,17 +55,19 @@ fi
 [[ -f demo-java.policy ]] && JETTY_OPTS="-Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=/usr/java/packages/lib/ext"
 
 export JAVA_OPTS="$JAVA_OPTS $_JAVA_MEMORY"
-export JETTY_OPTS="-DDEMO=DEMO -Dopenl.home=./openl-demo -Dh2.bindAddress=localhost $JETTY_OPTS"
+export JETTY_OPTS="-DDEMO=DEMO -Dh2.bindAddress=localhost $JETTY_OPTS"
 export JAVA_OPTIONS="$JAVA_OPTS $JETTY_OPTS $JAVA_OPTIONS"
+OPENL_HOME=${OPENL_HOME:-./openl-demo}
 
 echo "### Starting OpenL Tablets DEMO ..."
 echo "Memory size (gigabytes):    $memory"
 echo "Java version:               $version"
 echo "Java found in:              $used_java"
 echo "Using JAVA_OPTIONS:         $JAVA_OPTIONS"
+echo "Using OPENL_HOME:           $OPENL_HOME"
 
 TMPDIR=${TMPDIR:-/tmp}
 JETTY_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 JETTY_BASE=$JETTY_HOME
 
-exec "$_java" $JAVA_OPTIONS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="$TMPDIR" -jar "$JETTY_HOME/start.jar" jetty.state=jetty.state jetty-started.xml
+exec "$_java" -Dopenl.home="$OPENL_HOME" $JAVA_OPTIONS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="$TMPDIR" -jar "$JETTY_HOME/start.jar" jetty.state=jetty.state jetty-started.xml
