@@ -1,8 +1,6 @@
 @rem set JRE_HOME=C:\Program Files\Java\jre1.8.0_92
 @rem set _JAVA_MEMORY=-Xms512m -Xmx2g
 
-@set JAVA_EXTENSIONS_DIR=%SystemRoot%\Sun\Java\lib\ext
-
 @set JRE_HOME=%JRE_HOME:"=%
 @set JAVA_HOME=%JAVA_HOME:"=%
 
@@ -184,7 +182,7 @@ echo.
 @pushd %~dp0
 
 @rem Apply security policy for demo
-@if exist demo-java.policy set JETTY_OPT=%JETTY_OPT% -Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=%JAVA_EXTENSIONS_DIR%
+@if exist demo-java.policy set JETTY_OPT=-Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=%SystemRoot%\Sun\Java\lib\ext
 
 @rem Run Jetty
 @echo.
