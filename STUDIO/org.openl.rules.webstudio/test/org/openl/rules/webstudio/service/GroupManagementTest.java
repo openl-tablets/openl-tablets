@@ -314,6 +314,22 @@ public class GroupManagementTest {
         assertEquals(1, queryCount.getTotal());
     }
 
+    @Test
+    public void testSaveLongGroupName() {
+        initOneUser();
+        externalGroupService.mergeAllForUser("jdoe", Collections.singleton(new SimplePrivilege("foo-bar".repeat(9))));
+        QueryCount queryCount = QueryCountHolder.getGrandTotal();
+        assertEquals(1, queryCount.getInsert());
+        assertEquals(1, queryCount.getDelete());
+        assertEquals(2, queryCount.getTotal());
+
+        QueryCountHolder.clear();
+        groupService.addGroup("foo-bar".repeat(9), "Long Group Name");
+        queryCount = QueryCountHolder.getGrandTotal();
+        assertEquals(1, queryCount.getInsert());
+        assertEquals(1, queryCount.getTotal());
+    }
+
     private static <T, R> void assertCollectionEquals(Collection<R> expected,
             Collection<T> actual,
             Function<T, R> attr) {
@@ -335,7 +351,7 @@ public class GroupManagementTest {
 
     private Set<Privilege> generatePrivilege(int count, String... defaultGroups) {
         Set<Privilege> res = new HashSet<>();
-        Stream.of(defaultGroups).map(name -> new SimplePrivilege(name)).forEach(res::add);
+        Stream.of(defaultGroups).map(SimplePrivilege::new).forEach(res::add);
         for (int i = 0; i < count; i++) {
             String name = String.format(RND_GROUP, i);
             res.add(new SimplePrivilege(name));

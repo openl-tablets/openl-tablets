@@ -16,7 +16,7 @@ public class ExternalGroup implements Serializable {
     private static final long serialVersionUID = 5117085519399896506L;
 
     @Id
-    @Column(name = "groupName", length = 50)
+    @Column(name = "groupName", length = 65)
     private String groupName;
 
     @Id
