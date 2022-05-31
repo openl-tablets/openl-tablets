@@ -26,18 +26,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -102,18 +123,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -176,18 +218,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -249,18 +312,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -323,18 +407,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -397,18 +502,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -473,18 +599,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -547,18 +694,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -621,18 +789,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -684,18 +873,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -758,18 +968,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -832,18 +1063,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -906,18 +1158,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -980,18 +1253,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1054,18 +1348,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1127,18 +1442,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1201,18 +1537,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1274,18 +1631,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1348,18 +1726,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1422,18 +1821,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1496,18 +1916,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1570,18 +2011,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1644,18 +2106,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1718,18 +2201,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1792,18 +2296,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1868,18 +2393,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -1942,18 +2488,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -2018,18 +2585,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -2092,18 +2680,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -2166,18 +2775,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -2240,18 +2870,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -2314,18 +2965,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -2388,18 +3060,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -2462,18 +3155,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -2536,18 +3250,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -2610,18 +3345,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -2684,18 +3440,39 @@
         },
         "responses": {
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "400": {
             "content": {
@@ -2746,6 +3523,33 @@
   },
   "components": {
     "schemas": {
+      "JAXRSLocalizedErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "code": {
+            "type": "string"
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
       "JAXRSErrorResponse": {
         "properties": {
           "message": {

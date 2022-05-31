@@ -99,6 +99,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private static final String UNPROCESSABLE_ENTITY_MESSAGE = "Custom user errors in rules or validation errors in input parameters";
         private static final String UNPROCESSABLE_ENTITY_EXAMPLE = "{\"message\": \"Some message\", \"type\": \"USER_ERROR\"}";
+        private static final String UNPROCESSABLE_ENTITY_EXAMPLE2 = "{\"message\": \"Some message\", \"code\": \"code.example\", \"args\": [], \"type\": \"USER_ERROR\"}";
         private static final String BAD_REQUEST_MESSAGE = "Invalid request format e.g. missing required field, unparseable JSON value, etc.";
         private static final String BAD_REQUEST_EXAMPLE = "{\"message\": \"Cannot parse 'bar' to JSON\", \"type\": \"BAD_REQUEST\"}";
         private static final String INTERNAL_SERVER_ERROR_MESSAGE = "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.";
@@ -269,7 +270,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
             String nonConflictedRequestParameterName = requestParameterName;
             StringBuilder s = new StringBuilder("0");
-            while (getUsedOpenApiComponentNamesWithRequestParameterSuffix().contains(nonConflictedRequestParameterName)) {
+            while (getUsedOpenApiComponentNamesWithRequestParameterSuffix()
+                .contains(nonConflictedRequestParameterName)) {
                 nonConflictedRequestParameterName = StringUtils
                     .capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX + s + (suffix > 0 ? suffix : "");
                 s.insert(0, "0");
@@ -719,7 +721,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
             addOpenApiResponseAnnotation(arrayAv,
                 ExceptionResponseDto.UNPROCESSABLE_ENTITY,
                 UNPROCESSABLE_ENTITY_MESSAGE,
-                UNPROCESSABLE_ENTITY_EXAMPLE);
+                UNPROCESSABLE_ENTITY_EXAMPLE,
+                UNPROCESSABLE_ENTITY_EXAMPLE2);
             addOpenApiResponseAnnotation(arrayAv,
                 ExceptionResponseDto.BAD_REQUEST,
                 BAD_REQUEST_MESSAGE,
@@ -732,7 +735,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
             av.visitEnd();
         }
 
-        private void addOpenApiResponseAnnotation(AnnotationVisitor av, int code, String message, String jsonExample) {
+        private void addOpenApiResponseAnnotation(AnnotationVisitor av,
+                int code,
+                String message,
+                String... jsonExamples) {
             AnnotationVisitor apiResponseAv = av.visitAnnotation(null,
                 Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponse.class));
             apiResponseAv.visit("responseCode", String.valueOf(code));
@@ -742,15 +748,31 @@ public class JAXRSOpenLServiceEnhancerHelper {
             AnnotationVisitor contentAv = contentArrayAv.visitAnnotation(null, Type.getDescriptor(Content.class));
             contentAv.visit("mediaType", MediaType.APPLICATION_JSON);
 
-            AnnotationVisitor schemaAv = contentAv.visitAnnotation("schema", Type.getDescriptor(Schema.class));
-            schemaAv.visit("implementation", Type.getType(JAXRSErrorResponse.class));
-            schemaAv.visitEnd();
+            if (code != ExceptionResponseDto.UNPROCESSABLE_ENTITY) {
+                AnnotationVisitor schemaAv = contentAv.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+                schemaAv.visit("implementation", Type.getType(JAXRSErrorResponse.class));
+                schemaAv.visitEnd();
+            } else {
+                AnnotationVisitor schemaAv = contentAv.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+                AnnotationVisitor oneOf = schemaAv.visitArray("oneOf");
+                oneOf.visit(null, Type.getType(JAXRSLocalizedErrorResponse.class));
+                oneOf.visit(null, Type.getType(JAXRSErrorResponse.class));
+                oneOf.visitEnd();
+                schemaAv.visitEnd();
+            }
 
             AnnotationVisitor examplesArrAv = contentAv.visitArray("examples");
-            AnnotationVisitor exampleObjectAv = examplesArrAv.visitAnnotation(null,
-                Type.getDescriptor(ExampleObject.class));
-            exampleObjectAv.visit("value", jsonExample);
-            exampleObjectAv.visitEnd();
+            int exampleCnt = 1;
+            for (String jsonExample : jsonExamples) {
+                AnnotationVisitor exampleObjectAv = examplesArrAv.visitAnnotation(null,
+                    Type.getDescriptor(ExampleObject.class));
+                exampleObjectAv.visit("value", jsonExample);
+                if (jsonExamples.length > 1) {
+                    // if more than one example then add name
+                    exampleObjectAv.visit("name", "Example " + exampleCnt++);
+                }
+                exampleObjectAv.visitEnd();
+            }
             examplesArrAv.visitEnd();
 
             contentAv.visitEnd();

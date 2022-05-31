@@ -34,11 +34,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -107,11 +128,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -180,11 +222,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -253,11 +316,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -329,11 +413,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -402,11 +507,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -478,11 +604,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -551,11 +698,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -627,11 +795,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -703,11 +892,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -779,11 +989,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -855,11 +1086,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -928,11 +1180,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -1001,11 +1274,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -1077,11 +1371,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -1153,11 +1468,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -1226,11 +1562,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -1299,11 +1656,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -1375,11 +1753,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -1448,11 +1847,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -1524,11 +1944,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -1597,11 +2038,32 @@ Content-Type: application/json
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
                 },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "args": [],
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
             }
@@ -1656,6 +2118,33 @@ Content-Type: application/json
   },
   "components": {
     "schemas": {
+      "JAXRSLocalizedErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "code": {
+            "type": "string"
+          },
+          "args": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
       "JAXRSErrorResponse": {
         "type": "object",
         "properties": {

@@ -18,16 +18,27 @@ paths:
             schema:
               $ref: "#/components/schemas/SetNonZeroValuesRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -62,16 +73,27 @@ paths:
             schema:
               $ref: "#/components/schemas/QuickRatioScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -112,16 +134,27 @@ paths:
             schema:
               $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -163,16 +196,27 @@ paths:
             schema:
               $ref: "#/components/schemas/BankRatingGroupRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -213,16 +257,27 @@ paths:
             schema:
               $ref: "#/components/schemas/EquityScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -264,16 +319,27 @@ paths:
             schema:
               $ref: "#/components/schemas/TotalBalanceScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -315,16 +381,27 @@ paths:
             schema:
               $ref: "#/components/schemas/BankLimitIndexRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -365,16 +442,27 @@ paths:
             schema:
               $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -416,16 +504,27 @@ paths:
             schema:
               $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -468,16 +567,27 @@ paths:
             schema:
               $ref: "#/components/schemas/ProfitDynamicScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -519,16 +629,27 @@ paths:
             schema:
               $ref: "#/components/schemas/LiquidityDynamicScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -571,16 +692,27 @@ paths:
             schema:
               $ref: "#/components/schemas/BankRatingCalculationRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -622,16 +754,27 @@ paths:
             schema:
               $ref: "#/components/schemas/IsAdequateMaxCreditRiskScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -673,16 +816,27 @@ paths:
             schema:
               $ref: "#/components/schemas/LiabilitiesToCustomersDynamicScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -724,16 +878,27 @@ paths:
             schema:
               $ref: "#/components/schemas/CapitalAdequacyScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -775,16 +940,27 @@ paths:
             schema:
               $ref: "#/components/schemas/OtherAssetsRatioScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -826,16 +1002,27 @@ paths:
             schema:
               $ref: "#/components/schemas/LiquidityRatioScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -877,16 +1064,27 @@ paths:
             schema:
               $ref: "#/components/schemas/NegativeHistoryRelationsScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -927,16 +1125,27 @@ paths:
             schema:
               $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -979,16 +1188,27 @@ paths:
             schema:
               $ref: "#/components/schemas/LossesInThisYearScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1030,16 +1250,27 @@ paths:
             schema:
               $ref: "#/components/schemas/HighLiquidityRatioScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1081,16 +1312,27 @@ paths:
             schema:
               $ref: "#/components/schemas/IsAdequateLiquidityRatioScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1132,16 +1374,27 @@ paths:
             schema:
               $ref: "#/components/schemas/ClaimsOnCustomerRatioScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1185,16 +1438,27 @@ paths:
             schema:
               $ref: "#/components/schemas/BalanceQualityIndexCalculationRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1235,16 +1499,27 @@ paths:
             schema:
               $ref: "#/components/schemas/NegativeMassMediaScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1286,16 +1561,27 @@ paths:
             schema:
               $ref: "#/components/schemas/CapitalDynamicScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1337,16 +1623,27 @@ paths:
             schema:
               $ref: "#/components/schemas/DowngradesOfBankRatingScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1387,16 +1684,27 @@ paths:
             schema:
               $ref: "#/components/schemas/DefaultRulesRuntimeContext"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1440,16 +1748,27 @@ paths:
             schema:
               $ref: "#/components/schemas/BalanceDynamicIndexCalculationRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1491,16 +1810,27 @@ paths:
             schema:
               $ref: "#/components/schemas/IsAdequateCoreCapitalRatioScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1542,16 +1872,27 @@ paths:
             schema:
               $ref: "#/components/schemas/BankQualitativeIndexCalculationRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1593,16 +1934,27 @@ paths:
             schema:
               $ref: "#/components/schemas/CreditPortfolioQualityScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1644,16 +1996,27 @@ paths:
             schema:
               $ref: "#/components/schemas/NetMoneyMarketLiabilitiesScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1696,16 +2059,27 @@ paths:
             schema:
               $ref: "#/components/schemas/LiabilitiesToCustomersOnDemandRatioScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1747,16 +2121,27 @@ paths:
             schema:
               $ref: "#/components/schemas/IsAdequateNormativeIndexCalculationRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1799,16 +2184,27 @@ paths:
             schema:
               $ref: "#/components/schemas/NegativeInfoShareHoldersOrManagementScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1851,16 +2247,27 @@ paths:
             schema:
               $ref: "#/components/schemas/SecuredByPropertyChargesClaimsRatioScoreRequest"
       responses:
-        "422":
-          description: "Custom user errors in rules or validation errors in input\
-            \ parameters"
+        '422':
+          description: Custom user errors in rules or validation errors in input parameters
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/JAXRSErrorResponse"
-              example:
-                message: "Some message"
-                type: "USER_ERROR"
+                oneOf:
+                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSErrorResponse'
+              examples:
+                Example 1:
+                  description: Example 1
+                  value:
+                    message: Some message
+                    type: USER_ERROR
+                Example 2:
+                  description: Example 2
+                  value:
+                    message: Some message
+                    code: code.example
+                    args: [ ]
+                    type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
             \ JSON value, etc."
@@ -1892,6 +2299,30 @@ paths:
                 format: "double"
 components:
   schemas:
+    JAXRSLocalizedErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+          enum:
+            - USER_ERROR
+            - RULES_RUNTIME
+            - COMPILATION
+            - SYSTEM
+            - BAD_REQUEST
+            - VALIDATION
+        details:
+          type: array
+          items:
+            type: string
+        code:
+          type: string
+        args:
+          type: array
+          items:
+            type: object
     JAXRSErrorResponse:
       type: "object"
       properties:

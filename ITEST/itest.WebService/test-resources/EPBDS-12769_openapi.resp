@@ -4,6 +4,33 @@ Content-Type: application/json
 {
     "components": {
         "schemas": {
+          "JAXRSLocalizedErrorResponse": {
+            "type": "object",
+            "properties": {
+              "message": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+              },
+              "details": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "code": {
+                "type": "string"
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              }
+            }
+          },
             "JAXRSErrorResponse": {
                 "properties": {
                     "details": {
@@ -150,20 +177,41 @@ Content-Type: application/json
                         },
                         "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
                     },
-                    "422": {
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                },
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                }
+                  "422": {
+                    "description": "Custom user errors in rules or validation errors in input parameters",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "oneOf": [
+                            {
+                              "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                            },
+                            {
+                              "$ref": "#/components/schemas/JAXRSErrorResponse"
                             }
+                          ]
                         },
-                        "description": "Custom user errors in rules or validation errors in input parameters"
-                    },
+                        "examples": {
+                          "Example 1": {
+                            "description": "Example 1",
+                            "value": {
+                              "message": "Some message",
+                              "type": "USER_ERROR"
+                            }
+                          },
+                          "Example 2": {
+                            "description": "Example 2",
+                            "value": {
+                              "message": "Some message",
+                              "code": "code.example",
+                              "args": [],
+                              "type": "USER_ERROR"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
                     "500": {
                         "content": {
                             "application/json": {
@@ -226,20 +274,41 @@ Content-Type: application/json
                         },
                         "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
                     },
-                    "422": {
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                },
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                }
+                  "422": {
+                    "description": "Custom user errors in rules or validation errors in input parameters",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "oneOf": [
+                            {
+                              "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                            },
+                            {
+                              "$ref": "#/components/schemas/JAXRSErrorResponse"
                             }
+                          ]
                         },
-                        "description": "Custom user errors in rules or validation errors in input parameters"
-                    },
+                        "examples": {
+                          "Example 1": {
+                            "description": "Example 1",
+                            "value": {
+                              "message": "Some message",
+                              "type": "USER_ERROR"
+                            }
+                          },
+                          "Example 2": {
+                            "description": "Example 2",
+                            "value": {
+                              "message": "Some message",
+                              "code": "code.example",
+                              "args": [],
+                              "type": "USER_ERROR"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
                     "500": {
                         "content": {
                             "application/json": {
@@ -299,20 +368,41 @@ Content-Type: application/json
                         },
                         "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
                     },
-                    "422": {
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                },
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                }
+                  "422": {
+                    "description": "Custom user errors in rules or validation errors in input parameters",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "oneOf": [
+                            {
+                              "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                            },
+                            {
+                              "$ref": "#/components/schemas/JAXRSErrorResponse"
                             }
+                          ]
                         },
-                        "description": "Custom user errors in rules or validation errors in input parameters"
-                    },
+                        "examples": {
+                          "Example 1": {
+                            "description": "Example 1",
+                            "value": {
+                              "message": "Some message",
+                              "type": "USER_ERROR"
+                            }
+                          },
+                          "Example 2": {
+                            "description": "Example 2",
+                            "value": {
+                              "message": "Some message",
+                              "code": "code.example",
+                              "args": [],
+                              "type": "USER_ERROR"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
                     "500": {
                         "content": {
                             "application/json": {
@@ -375,20 +465,41 @@ Content-Type: application/json
                         },
                         "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
                     },
-                    "422": {
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                },
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                }
+                  "422": {
+                    "description": "Custom user errors in rules or validation errors in input parameters",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "oneOf": [
+                            {
+                              "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                            },
+                            {
+                              "$ref": "#/components/schemas/JAXRSErrorResponse"
                             }
+                          ]
                         },
-                        "description": "Custom user errors in rules or validation errors in input parameters"
-                    },
+                        "examples": {
+                          "Example 1": {
+                            "description": "Example 1",
+                            "value": {
+                              "message": "Some message",
+                              "type": "USER_ERROR"
+                            }
+                          },
+                          "Example 2": {
+                            "description": "Example 2",
+                            "value": {
+                              "message": "Some message",
+                              "code": "code.example",
+                              "args": [],
+                              "type": "USER_ERROR"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
                     "500": {
                         "content": {
                             "application/json": {
@@ -439,20 +550,41 @@ Content-Type: application/json
                         },
                         "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
                     },
-                    "422": {
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                },
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                }
+                  "422": {
+                    "description": "Custom user errors in rules or validation errors in input parameters",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "oneOf": [
+                            {
+                              "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                            },
+                            {
+                              "$ref": "#/components/schemas/JAXRSErrorResponse"
                             }
+                          ]
                         },
-                        "description": "Custom user errors in rules or validation errors in input parameters"
-                    },
+                        "examples": {
+                          "Example 1": {
+                            "description": "Example 1",
+                            "value": {
+                              "message": "Some message",
+                              "type": "USER_ERROR"
+                            }
+                          },
+                          "Example 2": {
+                            "description": "Example 2",
+                            "value": {
+                              "message": "Some message",
+                              "code": "code.example",
+                              "args": [],
+                              "type": "USER_ERROR"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
                     "500": {
                         "content": {
                             "application/json": {
@@ -512,20 +644,41 @@ Content-Type: application/json
                         },
                         "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
                     },
-                    "422": {
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "message": "Some message",
-                                    "type": "USER_ERROR"
-                                },
-                                "schema": {
-                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
-                                }
+                  "422": {
+                    "description": "Custom user errors in rules or validation errors in input parameters",
+                    "content": {
+                      "application/json": {
+                        "schema": {
+                          "oneOf": [
+                            {
+                              "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                            },
+                            {
+                              "$ref": "#/components/schemas/JAXRSErrorResponse"
                             }
+                          ]
                         },
-                        "description": "Custom user errors in rules or validation errors in input parameters"
-                    },
+                        "examples": {
+                          "Example 1": {
+                            "description": "Example 1",
+                            "value": {
+                              "message": "Some message",
+                              "type": "USER_ERROR"
+                            }
+                          },
+                          "Example 2": {
+                            "description": "Example 2",
+                            "value": {
+                              "message": "Some message",
+                              "code": "code.example",
+                              "args": [],
+                              "type": "USER_ERROR"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
                     "500": {
                         "content": {
                             "application/json": {
