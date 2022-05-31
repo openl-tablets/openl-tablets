@@ -1,8 +1,6 @@
-package org.openl.rules.testmethod;
+package org.openl.exception;
 
-import org.openl.exception.OpenLRuntimeException;
-
-public final class OpenLUserRuntimeException extends OpenLRuntimeException {
+public class OpenLUserRuntimeException extends OpenLRuntimeException {
 
     private static final long serialVersionUID = -6327856390127472928L;
 
