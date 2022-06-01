@@ -74,9 +74,5 @@
 			<artifactId>java-driver-mapper-processor</artifactId>
 		</dependency>
 		<!-- OpenL -->
-		<dependency>
-			<groupId>org.openl.rules</groupId>
-			<artifactId>org.openl.rules.project</artifactId>
-		</dependency>
 	</dependencies>
 </project>
