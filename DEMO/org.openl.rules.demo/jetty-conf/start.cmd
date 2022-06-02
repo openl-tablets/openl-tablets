@@ -1,33 +1,22 @@
 @rem set JRE_HOME=C:\Program Files\Java\jre1.8.0_92
 @rem set _JAVA_MEMORY=-Xms512m -Xmx2g
 
-@set JRE_HOME=%JRE_HOME:"=%
-@set JAVA_HOME=%JAVA_HOME:"=%
-
 @setlocal
 @set errorcode=0
-@set delay=20
 @echo ### Checking Java environment ...
 @echo.
-@call :start & if not errorlevel 1 goto :end
-@set delay=120
-
-@rem Try to detect installed Java
-@where /Q java.exe
-@if errorlevel 1 (
-  @echo       Probably, you have not installed Java...
-) else (
-  @for /f "tokens=*" %%i in ('@where java.exe') do @call :startJava "%%i" & echo. & if not errorlevel 1 goto :end
-)
 
 @rem Try to all known locations of java
+@call :tryJava "%JRE_HOME%" & if not errorlevel 1 goto :end
+@call :tryJava "%JAVA_HOME%" & if not errorlevel 1 goto :end
+@call :startJava "java" & if not errorlevel 1 goto :end
 @call :findJava "%ProgramW6432%\Java" & if not errorlevel 1 goto :end
 @call :findJava "%ProgramFiles%\Java" & if not errorlevel 1 goto :end
 @call :findJava "%ProgramFiles(x86)%\Java" & if not errorlevel 1 goto :end
 
 @set errorcode=1
 @echo       Check JRE_HOME and JAVA_HOME environment variables.
-@echo       JRE_HOME should point to the directory where Java was installed.
+@echo       JRE_HOME or JAVA_HOME should point to the directory where Java was installed.
 @echo.
 
 @if "%JRE_HOME%" == "" @if "%JAVA_HOME%" == "" (
@@ -50,64 +39,43 @@
 @if "%JAVA_HOME%" neq "" @echo           set JAVA_HOME=%JAVA_HOME%
 @if "%JRE_HOME%" neq ""  @echo           set JRE_HOME=%JRE_HOME%
 
-goto :end
+@goto :end
 
 rem SUBROUTINES
-@rem errorlevel=0 JRE has been found and executed successfully
-@rem errorlevel=1 JRE_HOME is not valid
+@rem errorlevel=0 java.exe has been found and executed successfully
 @rem errorlevel=2 java.exe has not been found
 @rem errorlevel=3 java.exe is not suitable
 @rem errorlevel=4 Not suitable Java version
 
+
 :findJava
+@rem Find java installations in the folder. E.g. C:\Program Files\Java\[jre1.8.0_92]
 @if not exist "%~1" exit /b 2
-@for /f "tokens=*" %%i in ('dir "%~1" /O-D /AD /B') do @call :startJava "%~1\%%~i\bin\java.exe" & echo. & if not errorlevel 1 exit /b 0
+@for /f "tokens=*" %%i in ('dir "%~1" /O-D /AD /B') do @call :tryJava "%~1\%%~i" & echo. & if not errorlevel 1 exit /b 0
 @exit /b 2
 
+:tryJava
+@rem Check if folder exists and it contains executable java.exe file
+@if not exist "%~1" exit /b 2
+@if not exist "%~1\bin\java.exe" exit /b 2
+@call :startJava "%~1\bin\java.exe" & if not errorlevel 1 exit /b 0
+@exit /b 3
 
 :startJava
-@setlocal
-@if not exist "%~1" exit /b 2 & endlocal
-@set _ARG=%~1
-@echo ### Found executable java.exe is located at:
-@echo        %_ARG%
+@"%~1" -version >nul 2>&1
+@IF ERRORLEVEL 1 exit /b 3
+@set _JAVA="%~1"
+@echo ### Found executable Java at: %_JAVA%
 
-@rem Try to resolve JRE_HOME from the found executable java.
-@call :startJRE "%_ARG%" & if not errorlevel 1 exit /b 0 & endlocal
-
-@rem Try to resolve JRE_HOME from the symlink on the found executable java.
-@for /f "tokens=2 delims=[]" %%i in ('@dir "%_ARG%" ^| findstr /l \bin\java.exe') do @set _VAR=%%i
-@if "%_VAR%" == "" exit /b 3 & endlocal
-@echo ### Resolving symlink...
-@call :startJRE "%_VAR%" & if not errorlevel 1 exit /b 0 & endlocal
-@exit /b 3 & endlocal
-
-:startJRE
-@setlocal
-@set _ARG=%~1
-@echo ### Composing JRE_HOME from %_ARG% ...
-@if "%_ARG:~-13%" neq "\bin\java.exe" @echo ###    ... it does not match & exit /b 3 & endlocal
-@set JRE_HOME=%_ARG:~0,-13%
-@echo ### Trying to use JRE_HOME=%JRE_HOME% ...
-
-:start
-@rem check JAVA installation and save valid JRE_HOME
-@if not "%JAVA_HOME%" == "" set "JRE_HOME=%JAVA_HOME%"
-@if not "%JRE_HOME%" == "" if exist "%JRE_HOME%\bin\java.exe" goto :javaFound
-@exit /b 1 & endlocal
-:javaFound
-@set _JRE_HOME=%JRE_HOME%
 
 @rem Determine Java version
-@pushd "%_JRE_HOME%"
-@FOR /f "tokens=3" %%G IN ('bin\java.exe -version 2^>^&1 ^| find "version"') DO set _JAVA_VERSION=%%~G
-@popd
+@FOR /f "tokens=3" %%G IN ('call %_JAVA% -version 2^>^&1 ^| find "version"') DO @set _JAVA_VERSION=%%~G
 @if "%_JAVA_VERSION%" == "" set _JAVA_VERSION=UNKNOWN
 
 @rem Determine memory size
-@for /f %%G in ('wmic ComputerSystem get TotalPhysicalMemory ^| findstr [0123456789]') do set _MEMORY=%%G
+@for /f %%G in ('wmic ComputerSystem get TotalPhysicalMemory ^| findstr [0123456789]') do @set _MEMORY=%%G
 @if "%_MEMORY%" == "" set _MEMORY=0
-set _MEMORY=%_MEMORY:~0,-9%
+@set _MEMORY=%_MEMORY:~0,-9%
 
 @if not defined _JAVA_MEMORY (
 @rem default memory settings
@@ -144,8 +112,7 @@ set _MEMORY=%_MEMORY:~0,-9%
 @if %_MEMORY% GEQ 48 set _JAVA_MEMORY=-Xms4g -Xmx42g
 
 @rem reset to safe settings for 32bit
-@pushd "%_JRE_HOME%"
-@if %_MEMORY% GEQ 4 bin\java.exe -version 2>&1 | find "64-Bit" >nul || (
+@if %_MEMORY% GEQ 4 %_JAVA% -version 2>&1 | find "64-Bit" >nul || (
 set _JAVA_MEMORY=-Xms512m -Xmx1024m
 echo.
 echo.
@@ -159,15 +126,12 @@ echo      ************************************************
 echo.
 echo.
 )
-@popd
 )
 
 @rem Show Java version
-@pushd "%_JRE_HOME%"
-@bin\java.exe %_JAVA_MEMORY% -version
+@%_JAVA% %_JAVA_MEMORY% -version
 @echo.
 @echo -------------------------------
-@popd
 
 @setlocal
 @pushd %~dp0
@@ -177,16 +141,15 @@ echo.
 
 @set JAVA_OPTS=%JETTY_OPT%  %_JAVA_MEMORY% %JAVA_OPTS%
 @if not defined OPENL_HOME set OPENL_HOME=./openl-demo
-@set JETTY_HOME="%CD%"
 
 @echo ### Starting OpenL Tablets DEMO ...
 @echo Memory size:           "%_MEMORY%GBytes"
 @echo Java version:          "%_JAVA_VERSION%"
-@echo Using JRE_HOME:        "%_JRE_HOME%"
+@echo Java found in:         "%_JAVA%"
 @echo Using JAVA_OPTS:       "%JAVA_OPTS%"
 @echo Using OPENL_HOME:      "%OPENL_HOME%"
 
-"%JRE_HOME%\bin\java.exe" -DDEMO=DEMO -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% -Djetty.home="%JETTY_HOME%" -Djetty.base="%JETTY_HOME%" -Djava.io.tmpdir="%TEMP%" -jar start.jar jetty.state=jetty.state jetty-started.xml
+%_JAVA% -DDEMO=DEMO -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% -Djetty.home="%CD%" -Djetty.base="%CD%" -Djava.io.tmpdir="%TEMP%" -jar start.jar jetty.state=jetty.state jetty-started.xml
 
 @popd
 @exit /b 0 & endlocal
@@ -199,5 +162,4 @@ echo.
 @echo.
 @echo       https://openl-tablets.org/documentation/user-guides
 @echo.
-@echo %delay% seconds delay before closing this window.
-@choice /C C /T %delay% /D C /N /M "Press [C] key to Close this windows immediatly." & endlocal & exit /b %errorcode%
+@exit /b %errorcode% & endlocal
