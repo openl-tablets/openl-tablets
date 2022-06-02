@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.loader;
 import static org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -96,6 +97,16 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         processResources(prpr.getResources(createClasspathPattern(DeploymentDescriptor.XML.getFileName())));
         processResources(prpr.getResources(createClasspathPattern(DeploymentDescriptor.YAML.getFileName())));
 
+        Resource[] archives;
+        try {
+            archives = prpr.getResources("/openl/*.zip");
+        } catch (FileNotFoundException ignored) {
+            archives = null;
+        }
+        if (archives != null) {
+            processResources(archives);
+        }
+
         scheduledPool = Executors.newSingleThreadScheduledExecutor();
         scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
     }
@@ -116,6 +127,8 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
                     // This reflection implementation for JBoss vfs
                     deployJarForJboss(resourceURL);
                     continue;
+                } else if ("file".equals(resourceURL.getProtocol())) {
+                    file = org.springframework.util.ResourceUtils.getFile(resourceURL);
                 } else {
                     throw new RuleServiceRuntimeException(
                         "Protocol for URL is not supported! URL: " + resourceURL);
