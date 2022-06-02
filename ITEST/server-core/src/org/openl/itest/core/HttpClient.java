@@ -30,6 +30,11 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
  */
 public class HttpClient {
 
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_BLACK_BOLD = "\u001B[1;30m";
+    public static final String ANSI_RED_BOLD = "\u001B[1;31m";
+    public static final String ANSI_GREEN_BOLD = "\u001B[1;32m";
+
     private final RestTemplate rest;
     private final URL baseURL;
     private final ThreadLocal<String> cookie = new ThreadLocal<>();
@@ -89,16 +94,16 @@ public class HttpClient {
     public void test(String path) {
         try (Stream<Path> walk = Files.walk(Paths.get(path))) {
             long errors = walk.map(Path::toString).filter(p -> p.endsWith(".req")).map(p -> p.substring(0, p.length() - 4)).sorted().map(p -> {
-                System.out.print(p + " - ");
+                System.out.print(ANSI_BLACK_BOLD + p + ANSI_RESET + " - ");
                 long start = System.currentTimeMillis();
                 try {
                     send(p + ".req", p + ".resp");
                     long end = System.currentTimeMillis();
-                    System.out.println("OK (" + (end-start) + "ms)");
+                    System.out.println(ANSI_GREEN_BOLD + "OK" + ANSI_RESET + " (" + (end-start) + "ms)");
                     return false;
                 } catch (Exception ex) {
                     long end = System.currentTimeMillis();
-                    System.out.println("FAIL (" + (end-start) + "ms)");
+                    System.out.println(ANSI_RED_BOLD + "FAIL" + ANSI_RESET + " (" + (end-start) + "ms)");
                     ex.printStackTrace();
                     return true;
                 }
