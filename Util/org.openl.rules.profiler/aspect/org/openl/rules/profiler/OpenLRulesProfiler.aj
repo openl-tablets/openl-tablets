@@ -57,7 +57,7 @@ public aspect OpenLRulesProfiler {
             new ClassReader(Thread.currentThread()
                     .getContextClassLoader()
                     .getResourceAsStream(superclass.getName().replace('.', '/') + ".class"))
-                    .accept(new ExecutableRulesMethodVisitor(Opcodes.ASM5, cw, superclass), ClassReader.EXPAND_FRAMES);
+                    .accept(new ExecutableRulesMethodVisitor(Opcodes.ASM7, cw, superclass), ClassReader.EXPAND_FRAMES);
             cw.visitEnd();
 
             return ClassUtils
@@ -65,15 +65,15 @@ public aspect OpenLRulesProfiler {
         }
     }
 
-    DecisionTable around(IOpenMethodHeader header, AMethodBasedNode boundNode): call(DecisionTable.new(IOpenMethodHeader, AMethodBasedNode)) && args(header, boundNode) {
+    DecisionTable around(IOpenMethodHeader header, AMethodBasedNode boundNode, boolean typeCustomSpreadsheetResult): call(DecisionTable.new(IOpenMethodHeader, AMethodBasedNode, boolean)) && args(header, boundNode, typeCustomSpreadsheetResult) {
         try {
             final String wrapperClassName = getWrapperClassName(header, boundNode);
             Class<?> subClass = makeWrapperClass(wrapperClassName, DecisionTable.class);
-            return (DecisionTable) subClass.getConstructor(IOpenMethodHeader.class, AMethodBasedNode.class)
-                    .newInstance(header, boundNode);
+            return (DecisionTable) subClass.getConstructor(IOpenMethodHeader.class, AMethodBasedNode.class, boolean.class)
+                    .newInstance(header, boundNode, typeCustomSpreadsheetResult);
         } catch (Exception e) {
             log.error("OpenLRulesProfiler: InstantiationError!", e);
-            return proceed(header, boundNode);
+            return proceed(header, boundNode, typeCustomSpreadsheetResult);
         }
     }
 
