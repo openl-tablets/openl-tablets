@@ -155,6 +155,7 @@
         <module>Util/openl-openapi-model-scaffolding</module>
         <module>Util/openl-openapi-parser</module>
         <module>Util/openl-excel-builder</module>
+        <module>Util/org.openl.rules.profiler</module>
     </modules>
     <build>
         <defaultGoal>clean verify</defaultGoal>

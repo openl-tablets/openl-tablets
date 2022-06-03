@@ -1,0 +1,28 @@
+<aspectj>
+    <aspects>
+        <!-- declare two existing aspects to the weaver -->
+        <aspect name="org.openl.rules.profiler.OpenLRulesProfiler"/>
+    </aspects>
+
+    <weaver options="-verbose">
+        <!-- Weave types that are within the javax.* or org.aspectj.*
+             packages. Also weave all types in the foo package that do
+             not have the @NoWeave annotation. -->
+        <include within="javax.*"/>
+        <include within="org.aspectj.*"/>
+        <include within="org.openl.rules.dt.*"/>
+        <include within="org.openl.rules.calc.*"/>
+        <include within="org.openl.rules.method.table.*"/>
+        <include within="org.openl.rules.cmatch.*"/>
+        <include within="org.openl.rules.tbasic.*"/>
+
+        <!-- Do not weave types within the "bar" pakage -->
+        <exclude within="bar.*"/>
+
+        <!-- Dump all types within the "somepack" package,
+             both before are after they are woven,
+             to the "./_ajdump" folder on disk (for diagnostic purposes) -->
+        <!--<dump within="somepack.*" />-->
+    </weaver>
+
+</aspectj>
