@@ -84,6 +84,9 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     @Override
     public String getMessage() {
+        if (super.getMessage() == null) {
+            return null;
+        }
         StringWriter messageWriter = new StringWriter();
         PrintWriter pw = new PrintWriter(messageWriter);
         if (location != null) {
