@@ -2319,10 +2319,6 @@ components:
             type: string
         code:
           type: string
-        args:
-          type: array
-          items:
-            type: object
     JAXRSErrorResponse:
       type: "object"
       properties:

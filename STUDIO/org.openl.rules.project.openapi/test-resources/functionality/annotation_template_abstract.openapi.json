@@ -1567,12 +1567,6 @@
           },
           "code": {
             "type": "string"
-          },
-          "args": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
           }
         }
       },

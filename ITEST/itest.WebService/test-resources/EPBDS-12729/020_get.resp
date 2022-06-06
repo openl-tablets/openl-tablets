@@ -2,13 +2,8 @@ HTTP/1.1 422 OK
 Content-Type: application/json
 
 {
-  "message": "null",
+  "message": null,
   "type": "USER_ERROR",
   "details": null,
-  "code": "foo.bar",
-  "args": [
-    1,
-    2,
-    3
-  ]
+  "code": "foo.bar"
 }

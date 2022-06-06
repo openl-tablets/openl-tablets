@@ -4,19 +4,16 @@ public class ExceptionDetails {
 
     private final String code;
     private final String message;
-    private final Object[] args;
 
     /**
      * Initialize rule service exception details
      *
      * @param code error message code
      * @param message the message of error
-     * @param args error message argument
      */
-    public ExceptionDetails(String code, String message, Object[] args) {
+    public ExceptionDetails(String code, String message) {
         this.code = code;
         this.message = message;
-        this.args = args;
     }
 
     /**
@@ -25,7 +22,7 @@ public class ExceptionDetails {
      * @param message the message of error
      */
     public ExceptionDetails(String message) {
-        this(null, message, null);
+        this(null, message);
     }
 
     public String getCode() {
@@ -36,7 +33,4 @@ public class ExceptionDetails {
         return message;
     }
 
-    public Object[] getArgs() {
-        return args;
-    }
 }

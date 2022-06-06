@@ -438,7 +438,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                 type = ExceptionType.USER_ERROR;
                 if (t instanceof OpenLUserLocalizedRuntimeException) {
                     OpenLUserLocalizedRuntimeException uex = (OpenLUserLocalizedRuntimeException) t;
-                    exceptionDetails = new ExceptionDetails(uex.getCode(), uex.getMessage(), uex.getArgs());
+                    exceptionDetails = new ExceptionDetails(uex.getCode(), uex.getMessage());
                 } else {
                     exceptionDetails = new ExceptionDetails(t.getMessage());
                 }

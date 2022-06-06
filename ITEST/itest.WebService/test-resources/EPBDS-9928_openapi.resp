@@ -5125,12 +5125,6 @@ Content-Type: application/json
           },
           "code": {
             "type": "string"
-          },
-          "args": {
-            "type": "array",
-            "items": {
-              "type": "object"
-            }
           }
         }
       },

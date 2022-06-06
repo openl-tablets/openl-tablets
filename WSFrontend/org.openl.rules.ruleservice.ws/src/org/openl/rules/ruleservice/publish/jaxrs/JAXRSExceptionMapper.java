@@ -20,9 +20,9 @@ public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
             .orElse(null);
 
         JAXRSErrorResponse errorResponse;
-        if (dto.getCode() != null || dto.getArgs() != null) {
+        if (dto.getCode() != null) {
             errorResponse = new JAXRSLocalizedErrorResponse(dto
-                .getMessage(), dto.getCode(), dto.getArgs(), dto.getType(), details);
+                .getMessage(), dto.getCode(), dto.getType(), details);
         } else {
             // old style error when no localization properties
             errorResponse = new JAXRSErrorResponse(dto.getMessage(), dto.getType(), details);

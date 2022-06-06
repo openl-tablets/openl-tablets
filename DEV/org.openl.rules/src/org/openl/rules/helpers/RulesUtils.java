@@ -1359,8 +1359,8 @@ public final class RulesUtils {
         throw new OpenLUserRuntimeException(msg);
     }
 
-    public static ThrowableVoid error(String code, String message, Object... args) {
-        throw new OpenLUserLocalizedRuntimeException(code, message, args);
+    public static ThrowableVoid error(String code, String message) {
+        throw new OpenLUserLocalizedRuntimeException(code, message);
     }
 
     /**
