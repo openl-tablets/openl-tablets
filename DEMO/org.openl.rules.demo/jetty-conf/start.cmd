@@ -149,6 +149,9 @@ echo.
 @echo Using JAVA_OPTS:       "%JAVA_OPTS%"
 @echo Using OPENL_HOME:      "%OPENL_HOME%"
 
+@set TEMP=.\tmp
+@if not exist %TEMP% mkdir -p %TEMP%
+
 %_JAVA% -DDEMO=DEMO -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% -Djetty.home="%CD%" -Djetty.base="%CD%" -Djava.io.tmpdir="%TEMP%" -jar start.jar jetty.state=jetty.state jetty-started.xml
 
 @popd
