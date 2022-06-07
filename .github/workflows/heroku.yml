@@ -1,0 +1,117 @@
+# This workflow will build and deploys docker images to Heroku dynos
+
+name: Heroku App
+
+on:
+  schedule:
+    # Every day at 05:00 UTC
+    - cron:  '0 5 * * *'
+  # Manual run from the GitHub action page
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Ref to build'
+        required: false
+
+jobs:
+  publish:
+
+    name: Publish ${{ github.event.inputs.branch }} branch to Heroku APP
+
+    runs-on: ubuntu-20.04
+
+    steps:
+
+    - name: Configure GIT
+      run: |
+        git config --global user.name "OpenL Tablets"
+        git config --global user.email openltablets@gmail.com
+        git config --global core.autocrlf false
+
+    - uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.inputs.ref }}
+
+    - name: Setup Java 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: 11
+        distribution: 'temurin'
+
+    - name: Set environment variables
+      run: |
+        echo "WEEK=$(date +%U)" >> $GITHUB_ENV
+        echo "DAY=$(date +%w)" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Cache local Maven repository
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2/repository
+        key: maven-x${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          maven-${{ env.WEEK }}-${{ env.DAY }}
+          maven-${{ env.WEEK }}
+          maven-
+
+    - name: Maven version
+      run: mvn -v
+
+    - name: Build with Maven
+      run: mvn -B package -DskipTests -T 1C
+
+    - name: Build DEMO
+      run:  |
+        docker build -t registry.heroku.com/openl-demo/web -f Dockerfiles/Demo DEMO/org.openl.rules.demo/target
+
+    - name: Build WebStudio
+      run:  |
+        docker build -t registry.heroku.com/openl-webstudio/web -f Dockerfiles/WebApp STUDIO/org.openl.rules.webstudio
+
+    - name: Build RuleServices
+      run:  |
+        docker build -t registry.heroku.com/openl-ruleservices/web -f Dockerfiles/WebApp WSFrontend/org.openl.rules.ruleservice.ws
+
+    - name: Build RuleServices (ALL)
+      run:  |
+        docker build -t registry.heroku.com/openl-ruleservices-all/web -f Dockerfiles/WebApp WSFrontend/org.openl.rules.ruleservice.ws.all
+
+    - name: Push images to Heroku
+      run:  |
+        docker login -u ${{ secrets.HEROKU_LOGIN }} -p ${{ secrets.HEROKU_TOKEN }} registry.heroku.com
+        docker push registry.heroku.com/openl-demo/web
+        docker push registry.heroku.com/openl-webstudio/web
+        docker push registry.heroku.com/openl-ruleservices/web
+        docker push registry.heroku.com/openl-ruleservices-all/web
+
+    - name: Deploy DEMO
+      run:  |
+        SHA=$(docker inspect registry.heroku.com/openl-demo/web --format={{.Id}})
+        curl -X PATCH https://api.heroku.com/apps/openl-demo/formation -d "{ \"updates\": [{ \"type\": \"web\", \"docker_image\": \"$SHA\" }]}" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
+            -u "${{ secrets.HEROKU_LOGIN }}:${{ secrets.HEROKU_TOKEN }}"
+
+    - name: Deploy WebStudio
+      run:  |
+        SHA=$(docker inspect registry.heroku.com/openl-webstudio/web --format={{.Id}})
+        curl -X PATCH https://api.heroku.com/apps/openl-webstudio/formation -d "{ \"updates\": [{ \"type\": \"web\", \"docker_image\": \"$SHA\" }]}" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
+            -u "${{ secrets.HEROKU_LOGIN }}:${{ secrets.HEROKU_TOKEN }}"
+
+    - name: Deploy RuleServices
+      run:  |
+        SHA=$(docker inspect registry.heroku.com/openl-ruleservices/web --format={{.Id}})
+        curl -X PATCH https://api.heroku.com/apps/openl-ruleservices/formation -d "{ \"updates\": [{ \"type\": \"web\", \"docker_image\": \"$SHA\" }]}" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
+            -u "${{ secrets.HEROKU_LOGIN }}:${{ secrets.HEROKU_TOKEN }}"
+
+    - name: Deploy RuleServices (ALL)
+      run:  |
+        SHA=$(docker inspect registry.heroku.com/openl-ruleservices-all/web --format={{.Id}})
+        curl -X PATCH https://api.heroku.com/apps/openl-ruleservices-all/formation -d "{ \"updates\": [{ \"type\": \"web\", \"docker_image\": \"$SHA\" }]}" \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/vnd.heroku+json; version=3.docker-releases" \
+            -u "${{ secrets.HEROKU_LOGIN }}:${{ secrets.HEROKU_TOKEN }}"

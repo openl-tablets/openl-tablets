@@ -55,6 +55,7 @@ fi
 [[ -f demo-java.policy ]] && JETTY_OPTS="-Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=/usr/java/packages/lib/ext"
 
 JAVA_OPTS="$JETTY_OPTS $_JAVA_MEMORY $JAVA_OPTS"
+JAVA_OPTS=$(eval echo "$JAVA_OPTS") #Evaluate environment variables are put trough strings placeholders
 OPENL_HOME=${OPENL_HOME:-./openl-demo}
 JETTY_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 

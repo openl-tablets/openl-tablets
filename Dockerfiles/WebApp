@@ -22,7 +22,7 @@ RUN set -eux ; \
 \
 # Create start file for Jetty with configuration options
     echo '#!/usr/bin/env bash\n\n\
-export JAVA_OPTIONS=$JAVA_OPTS\n\
+export JAVA_OPTIONS=$(eval echo "$JAVA_OPTS")\n\
 export JETTY_HOME=$OPENL_APP\n\
 source $JETTY_HOME/bin/jetty.sh run\n' >> $OPENL_APP/start.sh; \
     chmod +x $OPENL_APP/start.sh; \
