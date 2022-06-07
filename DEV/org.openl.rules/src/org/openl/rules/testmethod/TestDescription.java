@@ -17,6 +17,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DynamicObject;
+import org.openl.types.impl.ThisField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,15 +30,18 @@ public class TestDescription {
     private final DynamicObject testObject;
     private int index;
     private List<IOpenField> fields = new ArrayList<>();
+    private List<IOpenField> errorFields = new ArrayList<>();
 
     public TestDescription(IOpenMethod testedMethod,
             DynamicObject testObject,
             List<IOpenField> fields,
+            List<IOpenField> errorFields,
             ITableModel dataModel,
             IDataBase db) {
         this.testedMethod = testedMethod;
         this.testObject = testObject;
         this.fields = fields;
+        this.errorFields = errorFields;
         executionParams = initExecutionParams(testedMethod, testObject, db, dataModel);
     }
 
@@ -47,7 +51,9 @@ public class TestDescription {
         executionParams = initExecutionParams(testedMethod, testObject, db, null);
     }
 
-    private static DynamicObject createTestObject(IOpenMethod testedMethod, IRulesRuntimeContext context, Object[] arguments) {
+    private static DynamicObject createTestObject(IOpenMethod testedMethod,
+            IRulesRuntimeContext context,
+            Object[] arguments) {
         // TODO should be created OpenClass like in TestSuiteMethod
         DynamicObject testObj = new DynamicObject();
         if (context != null) {
@@ -149,8 +155,8 @@ public class TestDescription {
         return testObject.containsField(TestMethodHelper.EXPECTED_ERROR);
     }
 
-    public String getExpectedError() {
-        return (String) getArgumentValue(TestMethodHelper.EXPECTED_ERROR);
+    public TestError getExpectedError() {
+        return (TestError) getArgumentValue(TestMethodHelper.EXPECTED_ERROR);
     }
 
     public boolean isRuntimeContextDefined() {
@@ -199,6 +205,10 @@ public class TestDescription {
         return fields;
     }
 
+    public List<IOpenField> getErrorFields() {
+        return errorFields;
+    }
+
     protected static IOpenField getKeyField(String paramName,
             IOpenClass type,
             Object value,
@@ -239,5 +249,15 @@ public class TestDescription {
         }
 
         return foreignKeyField;
+    }
+
+    /**
+     * Checks if test description has only one error column with _error_ header.
+     *
+     * @return true or false
+     */
+    public boolean isEmptyOrNewStyleErrorDescription() {
+        return errorFields
+            .size() == 0 || (errorFields.size() == 1 && ThisField.THIS.equals(errorFields.get(0).getName()));
     }
 }

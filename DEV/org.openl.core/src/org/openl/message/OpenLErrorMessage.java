@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
+import org.openl.exception.OpenLUserLocalizedRuntimeException;
 import org.openl.util.StringUtils;
 
 /**
@@ -72,6 +73,10 @@ public class OpenLErrorMessage extends OpenLMessage {
             t = t.getCause();
         }
 
-        return cause.getMessage();
+        if (cause instanceof OpenLUserLocalizedRuntimeException) {
+            return ((OpenLUserLocalizedRuntimeException) cause).getFullMessage();
+        } else {
+            return cause.getMessage();
+        }
     }
 }

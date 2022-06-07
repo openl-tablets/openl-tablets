@@ -157,6 +157,7 @@
                                   value="#{(test.hasDescription() ? 1 : 0) + (test.hasContext() ? fn:length(test.contextColumnDisplayNames) : 0) + fn:length(test.testDataColumnDisplayNames) + fn:length(test.testResultColumnDisplayNames)}"/>
                         <ui:param name="filteredTests" value="#{test.getFilteredTestUnits(failuresOnly,failuresPerTest)}"/>
                         <ui:param name="testsToRender" value="#{testBean.getTestsToRender(filteredTests, columnCount)}"/>
+                        <ui:param name="testResultShiftLen" value="#{fn:length(test.testResultColumnDisplayNames) * 2 + (testBean.hasComplexResults(test) ? 1 : 0)}"/>
 
                         <table class="table">
                         <thead>
@@ -179,17 +180,21 @@
                             <h:panelGroup rendered="#{complexResult and testBean.hasComplexResults(test)}">
                                 <th>Compound Result</th>
                             </h:panelGroup>
+                            <ui:repeat value="#{test.testErrorColumnDisplayNames}" var="errorHeader">
+                                <th colspan="2">#{errorHeader}</th>
+                            </ui:repeat>
                         </tr>
                         </thead>
 
                         <tbody>
                         <ui:repeat value="#{testsToRender}" var="testCase">
                         <ui:param name="compareResult" value="#{testCase.resultStatus}" />
+                        <ui:param name="testDesc" value="#{testCase.test}" />
                         <h:panelGroup>
                             <tr>
                                 <td>
                                     <div style="display:flex">
-                                        <span style="min-height: 15px; padding-right: 3px; display: inline-block;">#{testCase.test.id}</span>
+                                        <span style="min-height: 15px; padding-right: 3px; display: inline-block;">#{testDesc.id}</span>
                                         <span style="min-height: 15px;  display: inline-block;"
                                               class="#{testCase.getResultStatus() == 'TR_OK' ? 'case-success' : 'case-error'}">
                                         <h:panelGroup rendered="#{testCase.getResultStatus() != 'TR_OK'}">
@@ -210,7 +215,7 @@
                                         </ui:include></td>
                                     </ui:repeat>
                                 </h:panelGroup>
-                                <ui:repeat value="#{testCase.test.executionParams}" var="parameter">
+                                <ui:repeat value="#{testDesc.executionParams}" var="parameter">
                                 <td>
                                     <ui:include src="/pages/modules/test/parameter.xhtml">
                                         <ui:param name="parameter" value="#{parameter}" />
@@ -219,14 +224,16 @@
                                 </ui:repeat>
                                 <h:panelGroup rendered="#{compareResult != 'TR_EXCEPTION'}">
                                     <h:panelGroup>
+                                        <h:panelGroup rendered="#{testBean.isResultThrowable(testCase) and testResultShiftLen > 0}">
+                                            <td colspan="#{testResultShiftLen}"/>
+                                        </h:panelGroup>
                                         <ui:repeat value="#{testCase.resultParams}" var="resultParam">
                                             <td>
                                                 <div class="case-result #{!test.runmethod ? (resultParam.status == 'TR_OK' ? 'case-success' : 'case-error') : ''}">
-                                                    <h:panelGroup rendered="#{!testBean.isResultThrowable(testCase)}">
+                                                    <h:panelGroup rendered="#{!testBean.isResultThrowable(testCase) || (testBean.isResultThrowable(testCase) and !testDesc.isEmptyOrNewStyleErrorDescription())}">
                                                         <h:panelGroup rendered="#{helper.isSpreadsheetResult(resultParam.actualValue.value)}">
                                                             <h:outputText value="#{testBean.getFormattedSpreadsheetResult(resultParam.actualValue.value)}"
                                                                               escape="false" />
-
                                                         </h:panelGroup>
                                                         <h:panelGroup rendered="#{!helper.isSpreadsheetResult(resultParam.actualValue.value)}">
                                                                 <ui:include src="/pages/modules/test/parameter.xhtml">
@@ -235,7 +242,7 @@
                                                                 </ui:include>
                                                         </h:panelGroup>
                                                     </h:panelGroup>
-                                                    <h:panelGroup rendered="#{testBean.isResultThrowable(testCase)}">
+                                                    <h:panelGroup rendered="#{testBean.isResultThrowable(testCase) and testDesc.isEmptyOrNewStyleErrorDescription()}">
                                                         <ui:repeat value="#{testCase.errors}" var="message">
                                                             <span>#{message.summary}</span><br />
                                                         </ui:repeat>
@@ -258,7 +265,7 @@
                                     </h:panelGroup>
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{compareResult == 'TR_EXCEPTION'}">
-                                    <td colspan="#{fn:length(test.testResultColumnDisplayNames) * 2 + (testBean.hasComplexResults(test) ? 1 : 0)}">
+                                    <td colspan="#{fn:length(test.testErrorColumnDisplayNames) * 2 + testResultShiftLen}">
                                         <ui:include src="/pages/modules/messages.xhtml">
                                             <ui:param name="messages" value="#{testCase.errors}" />
                                             <ui:param name="editable" value="#{studio.model.editable}" />

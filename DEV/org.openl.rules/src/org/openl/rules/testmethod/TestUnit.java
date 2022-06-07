@@ -15,7 +15,7 @@ import org.openl.rules.testmethod.result.ComparedResult;
 public class TestUnit extends BaseTestUnit {
 
     private final Object expectedResult;
-    private final String expectedError;
+    private final TestError expectedError;
 
     private final Object actualResult;
 

@@ -7,9 +7,11 @@ import static org.openl.rules.testmethod.TestStatus.TR_OK;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
+import org.openl.exception.OpenLUserLocalizedRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.data.PrecisionFieldChain;
@@ -34,7 +36,7 @@ public class BaseTestUnit implements ITestUnit {
         this.test = test;
         this.executionTime = executionTime;
         Object expectedResult = test.getExpectedResult();
-        String expectedError = test.getExpectedError();
+        TestError expectedError = test.getExpectedError();
         if (expectedError != null && expectedResult != null) {
             // Force testcase failure
             this.actualError = new IllegalArgumentException(
@@ -95,11 +97,32 @@ public class BaseTestUnit implements ITestUnit {
     /**
      * Return the comparison of the expected result and actual.
      */
-    private TestStatus compareResult(String expectedError, Object expectedResult, Object actualResult) {
+    private TestStatus compareResult(TestError expectedError, Object expectedResult, Object actualResult) {
         if (actualError != null) {
+            String oldStyleMessage = Optional.ofNullable(expectedError).map(TestError::getMessage).orElse(null);
             Throwable rootCause = ExceptionUtils.getRootCause(actualError);
-            if (rootCause instanceof OpenLUserRuntimeException || rootCause instanceof OutsideOfValidDomainException) {
-                return compareMessageAndGetResult(expectedError, rootCause.getMessage(), expectedResult);
+            if (rootCause instanceof OpenLUserLocalizedRuntimeException) {
+                if (test.isEmptyOrNewStyleErrorDescription()) {
+                    // to support old behaviour
+                    return compareMessageAndGetResult(oldStyleMessage,
+                        ((OpenLUserLocalizedRuntimeException) rootCause).getFullMessage(),
+                        expectedResult);
+                } else {
+                    return compareMessageAndGetResult(expectedError,
+                        TestError.from((OpenLUserLocalizedRuntimeException) rootCause),
+                        expectedResult,
+                        ((OpenLUserLocalizedRuntimeException) rootCause).getFullMessage());
+                }
+            } else if (rootCause instanceof OpenLUserRuntimeException || rootCause instanceof OutsideOfValidDomainException) {
+                if (test.isEmptyOrNewStyleErrorDescription()) {
+                    // to support old behaviour
+                    return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
+                } else {
+                    return compareMessageAndGetResult(expectedError,
+                        TestError.from(rootCause),
+                        expectedResult,
+                        rootCause.getMessage());
+                }
             } else {
                 ComparedResult results = new ComparedResult(null,
                     expectedError == null ? expectedResult : expectedError,
@@ -115,7 +138,7 @@ public class BaseTestUnit implements ITestUnit {
                 addComparisonResult(results);
                 return TR_NEQ;
             } else {
-                return compareAndGetResult(expectedResult, actualResult);
+                return compareAndGetResult(expectedResult, actualResult, test.getFields());
             }
         }
     }
@@ -146,10 +169,23 @@ public class BaseTestUnit implements ITestUnit {
         return status;
     }
 
-    private TestStatus compareAndGetResult(Object expectedResult, Object actualResult) {
+    private TestStatus compareMessageAndGetResult(TestError expectedError,
+            TestError actualError,
+            Object expectedResult,
+            String actualErrorMessage) {
+        if (expectedResult == null) {
+            return compareAndGetResult(expectedError, actualError, test.getErrorFields());
+        } else {
+            ComparedResult results = new ComparedResult(null, expectedResult, actualErrorMessage, TR_NEQ);
+            addComparisonResult(results);
+            return TR_NEQ;
+        }
+    }
+
+    private TestStatus compareAndGetResult(Object expectedResult, Object actualResult, List<IOpenField> fieldsToTest) {
         boolean success = true;
 
-        for (IOpenField field : test.getFields()) {
+        for (IOpenField field : fieldsToTest) {
             Object actualFieldValue = getFieldValueOrNull(actualResult, field);
             Object expectedFieldValue = getFieldValueOrNull(expectedResult, field);
             success &= isFieldEqual(field, expectedFieldValue, actualFieldValue);

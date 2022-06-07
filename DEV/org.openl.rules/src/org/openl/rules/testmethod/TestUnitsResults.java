@@ -185,6 +185,10 @@ public class TestUnitsResults implements INamedThing {
         return getColumnDisplayNames(TestMethodHelper.EXPECTED_RESULT_NAME);
     }
 
+    public String[] getTestErrorColumnDisplayNames() {
+        return getColumnDisplayNames(TestMethodHelper.EXPECTED_ERROR);
+    }
+
     public String[] getTestDataColumnHeaders() {
         IMethodSignature testMethodSignature = testSuite.getTestedMethod().getSignature();
 

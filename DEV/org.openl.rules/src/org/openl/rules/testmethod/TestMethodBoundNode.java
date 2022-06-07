@@ -2,6 +2,7 @@ package org.openl.rules.testmethod;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.rules.data.ColumnDescriptor;
 import org.openl.rules.data.DataTableBoundNode;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -11,6 +12,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.impl.DynamicObject;
 
 /**
@@ -45,15 +47,22 @@ public class TestMethodBoundNode extends DataTableBoundNode {
             if (testCase.getFieldValue(TestMethodHelper.EXPECTED_ERROR) != null && testCase
                 .getFieldValue(TestMethodHelper.EXPECTED_RESULT_NAME) != null) {
                 ITable table = getTable();
-                int row = table.getRowIndex(testCase);
-                int column = table.getColumnIndex(TestMethodHelper.EXPECTED_ERROR);
-                IGridTable cell = table.getRowTable(row).getColumn(column);
-                IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell, cxt);
+                for (int i = 0; i < table.getNumberOfColumns(); i++) {
+                    ColumnDescriptor descriptor = table.getColumnDescriptor(i);
+                    IdentifierNode[] identifiers = descriptor.getFieldChainTokens();
+                    if (identifiers.length > 0 && TestMethodHelper.EXPECTED_ERROR
+                        .equals(identifiers[0].getIdentifier()) && descriptor.getColumnValue(testCase) != null) {
+                        int row = table.getRowIndex(testCase);
+                        int column = table.getColumnIndex(descriptor.getDisplayName());
+                        IGridTable cell = table.getRowTable(row).getColumn(column);
+                        IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell, cxt);
 
-                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
-                    "Ambiguous expectation in the test case. Both expected result and expected error have been declared.",
-                    cellSourceCodeModule);
-                cxt.addError(error);
+                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
+                            "Ambiguous expectation in the test case. Both expected result and expected error have been declared.",
+                            cellSourceCodeModule);
+                        cxt.addError(error);
+                    }
+                }
             }
         }
     }

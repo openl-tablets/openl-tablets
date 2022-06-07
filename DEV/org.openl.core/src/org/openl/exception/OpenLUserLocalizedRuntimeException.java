@@ -13,4 +13,8 @@ public class OpenLUserLocalizedRuntimeException extends OpenLUserRuntimeExceptio
         return code;
     }
 
+    public String getFullMessage() {
+        return String.format("%s: %s", code, super.getMessage());
+    }
+
 }
