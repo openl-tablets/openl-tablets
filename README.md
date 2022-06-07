@@ -3,6 +3,9 @@
 ![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.openl/org.openl.core/badge.svg)
 ![Commit activity](https://img.shields.io/github/commit-activity/m/openl-tablets/openl-tablets)
 
+[![DEMO](https://img.shields.io/website?label=DEMO&url=https%3A%2F%2Fdemo.openl-tablets.org)](https://demo.openl-tablets.org)
+[![WebSite](https://img.shields.io/website?label=WebSite&url=https%3A%2F%2Fopenl-tablets.org)](https://openl-tablets.org)
+
 # Easy Business Rules
 
 **OpenL Tablets** targets the infamous gap between business requirements (rules and policies) and software implementation.
