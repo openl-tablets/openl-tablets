@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.rest;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -137,5 +138,13 @@ public class AdminRestController {
     @Path("/info/build.json")
     public Response getBuildInfo() {
         return Response.ok(OpenLVersion.getBuildInfo()).build();
+    }
+
+    @GET
+    @Path("/config/application.properties")
+    @Produces(MediaType.TEXT_PLAIN)
+    public Response getApplicationProperties() {
+        InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream("application-example.properties");
+        return Response.ok(resourceAsStream).build();
     }
 }

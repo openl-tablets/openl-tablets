@@ -440,6 +440,86 @@ Content-Type: application/json
         }
       }
     },
+    "/config/application.properties":{
+      "get":{
+        "summary":"Download application.properties file",
+        "description":"Downloads `application.properties` file with description of all properties.",
+        "operationId":"getApplicationProperties",
+        "responses":{
+          "423":{
+            "description":"Locked",
+            "content":{
+              "application/json":{
+                "schema":{
+                  "$ref":"#/components/schemas/BaseError"
+                }
+              }
+            }
+          },
+          "500":{
+            "description":"Internal Server Error",
+            "content":{
+              "application/json":{
+                "schema":{
+                  "$ref":"#/components/schemas/BaseError"
+                }
+              }
+            }
+          },
+          "403":{
+            "description":"Forbidden",
+            "content":{
+              "application/json":{
+                "schema":{
+                  "$ref":"#/components/schemas/BaseError"
+                }
+              }
+            }
+          },
+          "404":{
+            "description":"Not Found",
+            "content":{
+              "application/json":{
+                "schema":{
+                  "$ref":"#/components/schemas/BaseError"
+                }
+              }
+            }
+          },
+          "409":{
+            "description":"Conflict",
+            "content":{
+              "application/json":{
+                "schema":{
+                  "$ref":"#/components/schemas/BaseError"
+                }
+              }
+            }
+          },
+          "400":{
+            "description":"Bad Request",
+            "content":{
+              "application/json":{
+                "schema":{
+                  "$ref":"#/components/schemas/ValidationError"
+                }
+              }
+            }
+          },
+          "200":{
+            "description":"default response",
+            "content":{
+              "text/plain":{
+                "schema":{
+                  "type":"string",
+                  "format":"binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/public/info/openl.json": {
       "get": {
         "tags": [

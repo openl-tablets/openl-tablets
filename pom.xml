@@ -564,7 +564,7 @@
                                     <resource>
                                         <directory>target</directory>
                                         <includes>
-                                            <include>application.properties</include>
+                                            <include>application-example.properties</include>
                                         </includes>
                                         <targetPath>WEB-INF/classes</targetPath>
                                     </resource>
@@ -617,8 +617,7 @@
 
                                 def targetDir = new File(project.build.directory);
                                 targetDir.mkdirs();
-                                def out = new File(targetDir, "application.properties");
-                                out.write("### This file was generated!\n\r\n\r")
+                                def out = new File(targetDir, "application-example.properties");
                                 def write = {
                                     String text -&gt;
                                         out.append(text)
@@ -628,12 +627,25 @@
                                         log.debug("   | {}", text)
                                 }
 
+                                write("#############################################################################################");
+                                write("###   ***  This file was generated!  ***                                                  ###");
+                                write("###   It is a composition of all default settings are used in the application.            ###");
+                                write("###   To customize settings, you can define it as an application.properties located at:   ###");
+                                write("###     * User's home directory:  ~/application.properties                                ###");
+                                write("###     * Working directory:      ./application.properties                                ###");
+                                write("###   Also all properties can be defined via:                                             ###");
+                                write("###     * Java system properties, like:                 -Dopenl.home=/home/openl          ###");
+                                write("###     * System environment variable as is:       export openl.home=/home/openl          ###");
+                                write("###     * or in the upper case with underscores:   export OPENL_HOME=/home/openl          ###");
+                                write("#############################################################################################");
+                                write("")
+
                                 resources.each {
                                     def url = it.getURL()
                                     log.info("  {}", url)
-                                    write "###"
+                                    write "#-------------------------------------------------------------------------------------------#"
                                     write "### From: ${(url =~ /([^\/]+(!\/.*)?)$/)[0][1]}"
-                                    write "###"
+                                    write "#-------------------------------------------------------------------------------------------#"
                                     it.getInputStream().eachLine {
                                         if (StringUtils.isBlank(it)) {
                                             write ""

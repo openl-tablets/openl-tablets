@@ -24,6 +24,7 @@ public class SmokeTest {
 
     @Test
     public void smoke() {
+        client.send("public/info/application.properties.get");
         client.send("public/info/sys.info.get");
         client.send("public/info/openl.json.get");
         client.send("public/notification.txt.get");
