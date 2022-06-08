@@ -67,6 +67,10 @@
             right: 0;
         }
 
+        #footer .copyright {
+            margin-left: -180px;
+        }
+
         #footer .site {
             text-decoration: none;
             color: #666;
@@ -82,9 +86,18 @@
             cursor: default;
         }
 
+        #footer .link {
+            color: #ccc;
+            text-decoration: none;
+            float: left;
+            margin-right: 15px;
+        }
+
         #footer .version {
             font-style: italic;
+            text-decoration: none;
             float: right;
+            color: #666;
         }
 
         .note {
@@ -158,10 +171,13 @@
 <div id="header">OpenL Tablets Rule Services</div>
 <div id="main"></div>
 <div id="footer" style="display: none;">
+    <a class="link" target="_blank" href="admin/config/application.properties" title="Default properties example">Properties</a>
+    <a class="link" target="_blank" href="${url}/files/openl-tablets/${version}/OpenL%20Tablets%20-%20Installation%20Guide.pdf" title="Installation Guide">Installation Guide</a>
+    <a class="link" target="_blank" href="${url}/files/openl-tablets/${version}/OpenL%20Tablets%20-%20Rule%20Services%20Usage%20and%20Customization%20Guide.pdf" title="Rule Services Usage and Customization Guide">Customization Guide</a>
     <span class="copyright">© ${year}</span>
     <a class="site" href="${url}" target="_blank">OpenL Tablets</a>
     <a class="email" href="mailto:${email}?subject=OpenL Tablets v${version} Feedback">Report a problem</a>
-    <span class="version" title="Built on ${buildDate}">v${version}</span>
+    <a class="version" href="${url}/release-notes?ver=${version}" target="_blank" title="Built on ${buildDate}">v${version}</a>
 </div>
 <script>
     // <![CDATA[
