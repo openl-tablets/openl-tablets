@@ -236,6 +236,13 @@ public class Action extends FunctionalRow implements IAction {
         IOpenClass methodType = JavaOpenClass.VOID;
         if (isReturnAction()) {
             methodType = header.getType();
+            if (decisionTable.isTypeCustomSpreadsheetResult()) {
+                if (decisionTable.getDim() > 0) {
+                    methodType = DTColumnSpreadsheetResultOpenClass.INSTANCE.getArrayType(decisionTable.getDim());
+                } else {
+                    methodType = DTColumnSpreadsheetResultOpenClass.INSTANCE;
+                }
+            }
         } else {
             if (isCollectReturnAction()) {
                 methodType = extractMethodTypeForCollectReturnAction(tableSyntaxNode, header.getType(), bindingContext);

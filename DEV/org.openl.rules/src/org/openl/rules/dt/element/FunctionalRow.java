@@ -222,7 +222,6 @@ public abstract class FunctionalRow implements IDecisionRow {
             IOpenClass ruleExecutionType,
             TableSyntaxNode tableSyntaxNode) throws Exception {
         this.ruleExecutionType = ruleExecutionType;
-
         IOpenSourceCodeModule source = getExpressionSource(tableSyntaxNode,
             signature,
             methodType,
@@ -341,25 +340,42 @@ public abstract class FunctionalRow implements IDecisionRow {
                 boolean anySpreadsheetResult = false;
                 for (int j = 0; j < storage[i].size(); j++) {
                     if (storage[i].getValue(j) instanceof CompositeMethod) {
-                        CompositeMethod compositeMethod = (CompositeMethod) storage[i].getValue(j);
-                        IOpenClass methodBodyType = compositeMethod.getBodyType();
-                        int methodTypeDim = 0;
-                        while (methodBodyType.isArray()) {
-                            methodBodyType = methodBodyType.getComponentClass();
-                            methodTypeDim++;
+                        anySpreadsheetResult = processCompositeMethod((CompositeMethod) storage[i].getValue(j),
+                            customSpreadsheetResultOpenClasses,
+                            paramDim,
+                            anySpreadsheetResult);
+                        if (anySpreadsheetResult) {
+                            break;
                         }
-                        if (paramDim == methodTypeDim) {
-                            if (methodBodyType instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) methodBodyType)
-                                .getModule() != null) {
-                                customSpreadsheetResultOpenClasses.add(
-                                    ((SpreadsheetResultOpenClass) methodBodyType).toCustomSpreadsheetResultOpenClass());
-                            } else if (methodBodyType instanceof CustomSpreadsheetResultOpenClass) {
-                                customSpreadsheetResultOpenClasses
-                                    .add((CustomSpreadsheetResultOpenClass) methodBodyType);
-                            } else if (methodBodyType instanceof AnySpreadsheetResultOpenClass || methodBodyType instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) methodBodyType)
-                                .getModule() == null) {
-                                anySpreadsheetResult = true;
-                                break;
+                    } else if (storage[i].getValue(j) instanceof ArrayHolder) {
+                        ArrayHolder arrayHolder = (ArrayHolder) storage[i].getValue(j);
+                        if (paramDim > 1 && arrayHolder.is2DimArray()) {
+                            Object[][] values = arrayHolder.get2DimValues();
+                            for (Object[] value : values) {
+                                for (Object o : value) {
+                                    if (o instanceof CompositeMethod) {
+                                        anySpreadsheetResult = processCompositeMethod((CompositeMethod) o,
+                                            customSpreadsheetResultOpenClasses,
+                                            paramDim - 2,
+                                            anySpreadsheetResult);
+                                        if (anySpreadsheetResult) {
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        } else if (paramDim > 0) {
+                            Object[] values = arrayHolder.getValues();
+                            for (Object o : values) {
+                                if (o instanceof CompositeMethod) {
+                                    anySpreadsheetResult = processCompositeMethod((CompositeMethod) o,
+                                        customSpreadsheetResultOpenClasses,
+                                        paramDim - 1,
+                                        anySpreadsheetResult);
+                                    if (anySpreadsheetResult) {
+                                        break;
+                                    }
+                                }
                             }
                         }
                     }
@@ -380,6 +396,31 @@ public abstract class FunctionalRow implements IDecisionRow {
             }
         }
 
+    }
+
+    private boolean processCompositeMethod(CompositeMethod o,
+            Set<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClasses,
+            int expectedDim,
+            boolean anySpreadsheetResult) {
+        IOpenClass methodBodyType = o.getBodyType();
+        int methodTypeDim = 0;
+        while (methodBodyType.isArray()) {
+            methodBodyType = methodBodyType.getComponentClass();
+            methodTypeDim++;
+        }
+        if (methodTypeDim == expectedDim) {
+            if (methodBodyType instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) methodBodyType)
+                .getModule() != null) {
+                customSpreadsheetResultOpenClasses
+                    .add(((SpreadsheetResultOpenClass) methodBodyType).toCustomSpreadsheetResultOpenClass());
+            } else if (methodBodyType instanceof CustomSpreadsheetResultOpenClass) {
+                customSpreadsheetResultOpenClasses.add((CustomSpreadsheetResultOpenClass) methodBodyType);
+            } else if (methodBodyType instanceof AnySpreadsheetResultOpenClass || methodBodyType instanceof SpreadsheetResultOpenClass && ((SpreadsheetResultOpenClass) methodBodyType)
+                .getModule() == null) {
+                return true;
+            }
+        }
+        return anySpreadsheetResult;
     }
 
     private IStorageBuilder<?>[] makeStorageBuilders(int len, IParameterDeclaration[] paramDecl) {

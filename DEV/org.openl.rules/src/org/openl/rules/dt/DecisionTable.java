@@ -101,6 +101,10 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         this.dim = dim;
     }
 
+    public int getDim() {
+        return dim;
+    }
+
     @Override
     public IOpenClass getType() {
         if (isTypeCustomSpreadsheetResult()) {
