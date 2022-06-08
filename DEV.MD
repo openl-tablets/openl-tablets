@@ -4,7 +4,7 @@
 [![RuleServices](https://img.shields.io/website?label=RuleServices&url=https%3A%2F%2Fopenl-ruleservices.herokuapp.com)](https://openl-ruleservices.herokuapp.com)
 [![RuleServices (ALL)](https://img.shields.io/website?label=RuleServices(ALL)&url=https%3A%2F%2Fopenl-ruleservices-all.herokuapp.com)](https://openl-ruleservices-all.herokuapp.com)
 
-To deploy or redeploy applications these applications, run [Heroku App](https://github.com/openl-tablets/openl-tablets/actions/workflows/heroku.yml) action.
+To deploy or redeploy these applications, run [Heroku App](https://github.com/openl-tablets/openl-tablets/actions/workflows/heroku.yml) action.
 You can specify a branch, a tag or a sha-1 hash in the 'Ref to build' input field. If the value is not specified, then the HEAD of the branch will be used.
 
 ## OpenL artifacts
