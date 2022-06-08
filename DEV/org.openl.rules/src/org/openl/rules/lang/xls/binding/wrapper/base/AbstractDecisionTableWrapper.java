@@ -167,6 +167,11 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
     }
 
     @Override
+    public int getDim() {
+        return super.getDim();
+    }
+
+    @Override
     public int getNumberOfConditions() {
         return delegate.getNumberOfConditions();
     }
