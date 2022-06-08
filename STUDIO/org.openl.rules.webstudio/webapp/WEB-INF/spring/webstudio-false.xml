@@ -17,6 +17,16 @@
         <property name="redirectPage" value="/faces/pages/modules/install/index.xhtml"/>
     </bean>
 
+    <!-- Allow unrestricted access  -->
+    <bean id="accessDecisionManager" class="org.springframework.security.access.AccessDecisionManager">
+        <lookup-method name="decide" bean="voidValue"/>
+        <lookup-method name="supports" bean="trueValue"/>
+    </bean>
+    <bean id="voidValue" class="java.lang.Void"/>
+    <bean id="trueValue" class="java.lang.Boolean" factory-method="valueOf">
+        <constructor-arg value="true"/>
+    </bean>
+
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
         <property name="requestRejectedHandler">
             <bean class="org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler">
@@ -33,7 +43,7 @@
             <security:filter-chain pattern="/org.richfaces.resources/**" filters="none"/>
             <security:filter-chain pattern="/faces/pages/modules/install/**" filters="none"/>
             <security:filter-chain pattern="/web/public/**" filters="none"/>
-            <security:filter-chain pattern="/rest/api-docs/**" filters="none"/>
+            <security:filter-chain pattern="/rest/**" filters="none"/>
             <security:filter-chain pattern="/**" filters="installerPage"/>
         </security:filter-chain-map>
     </bean>
