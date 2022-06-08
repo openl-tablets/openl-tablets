@@ -24,7 +24,6 @@ import org.openl.validation.ValidationResult;
 
 public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
 
-    private static final String MSG_FOR_TYPES = "Method '%s' conflicts with another method '%s', because of parameter types are treated by Java as identical.";
     private static final String MSG_FOR_NAMES = "Method '%s' conflicts with another method '%s', because of parameter names are different.";
 
     private interface ParameterKey {
@@ -53,36 +52,6 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
         @Override
         public int hashCode() {
             return Objects.hash(name);
-        }
-
-        @Override
-        public IOpenMethod getMethod() {
-            return method;
-        }
-    }
-
-    private static class ParameterTypeKey implements ParameterKey {
-        IOpenClass type;
-        IOpenMethod method;
-
-        public ParameterTypeKey(IOpenClass type, IOpenMethod method) {
-            this.type = Objects.requireNonNull(type, "type cannot be null");
-            this.method = Objects.requireNonNull(method, "method cannot be null");
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
-            ParameterTypeKey that = (ParameterTypeKey) o;
-            return type.equals(that.type);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(type);
         }
 
         @Override
@@ -125,10 +94,8 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
                 List<IOpenMethod> candidates = openMethodDispatcher.getCandidates();
                 int parameterCount = candidates.iterator().next().getSignature().getNumberOfParameters();
                 Set<ParameterNameKey>[] parameterKeysByName = new HashSet[parameterCount];
-                Set<ParameterTypeKey>[] parameterKeysByType = new HashSet[parameterCount];
                 for (int i = 0; i < parameterCount; i++) {
                     parameterKeysByName[i] = new HashSet<>();
-                    parameterKeysByType[i] = new HashSet<>();
                 }
                 for (IOpenMethod candidate : candidates) {
                     IMethodSignature signature = candidate.getSignature();
@@ -136,16 +103,10 @@ public class UniqueMethodParameterNamesValidator implements IOpenLValidator {
                         if (signature.getParameterName(j) != null) {
                             parameterKeysByName[j].add(new ParameterNameKey(signature.getParameterName(j), candidate));
                         }
-                        if (signature.getParameterType(j) != null) {
-                            parameterKeysByType[j].add(new ParameterTypeKey(signature.getParameterType(j), candidate));
-                        }
                     }
                 }
                 for (MethodPairKey methodPair : buildMethodPairs(parameterKeysByName, parameterCount)) {
                     addWarnForMethods(methodPair.methodA, methodPair.methodB, messages, MSG_FOR_NAMES);
-                }
-                for (MethodPairKey methodPair : buildMethodPairs(parameterKeysByType, parameterCount)) {
-                    addWarnForMethods(methodPair.methodA, methodPair.methodB, messages, MSG_FOR_TYPES);
                 }
             }
         }
