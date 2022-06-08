@@ -86,6 +86,13 @@ jobs:
 
     - name: Deploy DEMO
       run:  |
+        curl -X PATCH https://api.heroku.com/apps/openl-demo/config-vars -d '{
+              "JAVA_OPTS":
+              "-Xms16M -Xmx192M -Djetty.http.port=$PORT -Dproduction-repository.uri=${OPENL_HOME}/repo -Dxxx.yyy=jdbc:sqr://www.cloud:1433;db=ab -Dxxx=$YYY"
+            }' \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/vnd.heroku+json; version=3' \
+            -u "${{ secrets.HEROKU_LOGIN }}:${{ secrets.HEROKU_TOKEN }}"
         SHA=$(docker inspect registry.heroku.com/openl-demo/web --format={{.Id}})
         curl -X PATCH https://api.heroku.com/apps/openl-demo/formation -d "{ \"updates\": [{ \"type\": \"web\", \"docker_image\": \"$SHA\" }]}" \
             -H "Content-Type: application/json" \
@@ -94,6 +101,13 @@ jobs:
 
     - name: Deploy WebStudio
       run:  |
+        curl -X PATCH https://api.heroku.com/apps/openl-webstudio/config-vars -d '{
+              "JAVA_OPTS":
+              "-Xms16M -Xmx256M -Djetty.http.port=$PORT -Dwebstudio.configured=true -Dproduction-repository.uri=${OPENL_HOME}/repo -Dxxx.yyy=jdbc:sqr://www.cloud:1433;db=ab -Dxxx=$YYY"
+            }' \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/vnd.heroku+json; version=3' \
+            -u "${{ secrets.HEROKU_LOGIN }}:${{ secrets.HEROKU_TOKEN }}"
         SHA=$(docker inspect registry.heroku.com/openl-webstudio/web --format={{.Id}})
         curl -X PATCH https://api.heroku.com/apps/openl-webstudio/formation -d "{ \"updates\": [{ \"type\": \"web\", \"docker_image\": \"$SHA\" }]}" \
             -H "Content-Type: application/json" \
@@ -102,6 +116,13 @@ jobs:
 
     - name: Deploy RuleServices
       run:  |
+        curl -X PATCH https://api.heroku.com/apps/openl-ruleservices/config-vars -d '{
+              "JAVA_OPTS":
+              "-Xms16M -Xmx64M -Djetty.http.port=$PORT -Druleservice.deployer.enabled=true -Dproduction-repository.factory=repo-file -Dproduction-repository.uri=${OPENL_HOME}/repo -Dxxx.yyy=jdbc:sqr://www.cloud:1433;db=ab -Dxxx=$YYY"
+            }' \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/vnd.heroku+json; version=3' \
+            -u "${{ secrets.HEROKU_LOGIN }}:${{ secrets.HEROKU_TOKEN }}"
         SHA=$(docker inspect registry.heroku.com/openl-ruleservices/web --format={{.Id}})
         curl -X PATCH https://api.heroku.com/apps/openl-ruleservices/formation -d "{ \"updates\": [{ \"type\": \"web\", \"docker_image\": \"$SHA\" }]}" \
             -H "Content-Type: application/json" \
@@ -110,6 +131,13 @@ jobs:
 
     - name: Deploy RuleServices (ALL)
       run:  |
+        curl -X PATCH https://api.heroku.com/apps/openl-ruleservices/config-vars -d '{
+              "JAVA_OPTS":
+              "-Xms16M -Xmx128M -Djetty.http.port=$PORT -Druleservice.deployer.enabled=true -Dproduction-repository.factory=repo-file -Dproduction-repository.uri=${OPENL_HOME}/repo -Dxxx.yyy=jdbc:sqr://www.cloud:1433;db=ab -Dxxx=$YYY"
+            }' \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/vnd.heroku+json; version=3' \
+            -u "${{ secrets.HEROKU_LOGIN }}:${{ secrets.HEROKU_TOKEN }}"
         SHA=$(docker inspect registry.heroku.com/openl-ruleservices-all/web --format={{.Id}})
         curl -X PATCH https://api.heroku.com/apps/openl-ruleservices-all/formation -d "{ \"updates\": [{ \"type\": \"web\", \"docker_image\": \"$SHA\" }]}" \
             -H "Content-Type: application/json" \
