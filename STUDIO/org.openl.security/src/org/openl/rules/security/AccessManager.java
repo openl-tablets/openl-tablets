@@ -2,6 +2,7 @@ package org.openl.rules.security;
 
 import java.util.Collection;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
@@ -9,15 +10,25 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 /**
  * A utility class for privilege checking.
  *
  * @author Yury Molchan.
  */
+@Component
 public final class AccessManager {
 
     private static AccessDecisionManager accessDecisionManager;
+
+    /**
+     * Sets static <code>accessDecisionManager</code> property for further use in <code>check</code> methods. It is used
+     * in the Spring configuration.
+     */
+    public AccessManager(@Autowired AccessDecisionManager accessDecisionManager) {
+        AccessManager.accessDecisionManager = accessDecisionManager;
+    }
 
     /**
      * Inquires whether current user has specified privilege.
@@ -37,15 +48,5 @@ public final class AccessManager {
         }
         // seem OK
         return true;
-    }
-
-    /**
-     * Sets static <code>accessDecisionManager</code> property for further use in <code>check</code> methods. It is used
-     * in the Spring configuration.
-     *
-     * @param accessDecisionManager <code>AccessDecisionManager</code> instance.
-     */
-    public void setStaticAccessDecisionManager(AccessDecisionManager accessDecisionManager) {
-        AccessManager.accessDecisionManager = accessDecisionManager;
     }
 }
