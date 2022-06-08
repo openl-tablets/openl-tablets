@@ -23,11 +23,13 @@
                 <div class="block-content">
                     <ul class="enum links">
                         <c:set var="guidesPath" value="#{versionProperties.getUrl()}/files/openl-tablets/#{versionProperties.getVersion()}" />
+                        <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
                         <li><a href="#{guidesPath}/OpenL Tablets - Installation Guide.pdf" target="_blank">#{msg['ws.home.doc.install_guide']}</a></li>
                         <li><a href="#{guidesPath}/OpenL Tablets - Reference Guide.pdf" target="_blank">#{msg['ws.home.doc.ref_guide']}</a></li>
                         <li><a href="#{guidesPath}/OpenL Tablets - Developer Guide.pdf" target="_blank">#{msg['ws.home.doc.dev_guide']}</a></li>
                         <li><a href="#{guidesPath}/OpenL Tablets - WebStudio User Guide.pdf" target="_blank">#{msg['ws.home.doc.ws_guide']}</a></li>
                         <li><a href="#{guidesPath}/OpenL Tablets - Rule Services Usage and Customization Guide.pdf" target="_blank">#{msg['ws.home.doc.service_guide']}</a></li>
+                        <li><a href="#{contextPath}/web/config/application.properties" target="_blank">#{msg['ws.home.doc.properties']}</a></li>
                     </ul>
                 </div>
             </div>
