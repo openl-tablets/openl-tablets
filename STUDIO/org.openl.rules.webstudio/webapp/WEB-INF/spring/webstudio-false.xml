@@ -10,7 +10,7 @@
 
     <context:property-placeholder/>
     <context:component-scan
-            base-package="org.openl.rules.webstudio.web.install org.openl.rules.webstudio.web.admin org.openl.rules.webstudio.web.util org.openl.rules.rest.config"/>
+            base-package="org.openl.rules.webstudio.web.install org.openl.rules.webstudio.web.admin org.openl.rules.webstudio.web.util org.openl.rules.rest.config org.openl.rules.rest.common"/>
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
 
     <bean id="installerPage" class="org.openl.rules.webstudio.filter.RedirectFilter">

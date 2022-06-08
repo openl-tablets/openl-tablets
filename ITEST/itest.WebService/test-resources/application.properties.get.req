@@ -1,0 +1,2 @@
+GET /admin/config/application.properties HTTP/1.1
+

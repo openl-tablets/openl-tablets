@@ -1,0 +1,2 @@
+GET /rest/config/application.properties HTTP/1.1
+
