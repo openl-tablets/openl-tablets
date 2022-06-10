@@ -99,7 +99,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private static final String UNPROCESSABLE_ENTITY_MESSAGE = "Custom user errors in rules or validation errors in input parameters";
         private static final String UNPROCESSABLE_ENTITY_EXAMPLE = "{\"message\": \"Some message\", \"type\": \"USER_ERROR\"}";
-        private static final String UNPROCESSABLE_ENTITY_EXAMPLE2 = "{\"message\": \"Some message\", \"code\": \"code.example\", \"args\": [], \"type\": \"USER_ERROR\"}";
+        private static final String USER_ERROR_EXAMPLE = "{\"message\": \"Some message\", \"code\": \"code.example\", \"type\": \"USER_ERROR\"}";
         private static final String BAD_REQUEST_MESSAGE = "Invalid request format e.g. missing required field, unparseable JSON value, etc.";
         private static final String BAD_REQUEST_EXAMPLE = "{\"message\": \"Cannot parse 'bar' to JSON\", \"type\": \"BAD_REQUEST\"}";
         private static final String INTERNAL_SERVER_ERROR_MESSAGE = "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.";
@@ -722,7 +722,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 ExceptionResponseDto.UNPROCESSABLE_ENTITY,
                 UNPROCESSABLE_ENTITY_MESSAGE,
                 UNPROCESSABLE_ENTITY_EXAMPLE,
-                UNPROCESSABLE_ENTITY_EXAMPLE2);
+                    USER_ERROR_EXAMPLE);
             addOpenApiResponseAnnotation(arrayAv,
                 ExceptionResponseDto.BAD_REQUEST,
                 BAD_REQUEST_MESSAGE,
@@ -755,7 +755,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             } else {
                 AnnotationVisitor schemaAv = contentAv.visitAnnotation("schema", Type.getDescriptor(Schema.class));
                 AnnotationVisitor oneOf = schemaAv.visitArray("oneOf");
-                oneOf.visit(null, Type.getType(JAXRSLocalizedErrorResponse.class));
+                oneOf.visit(null, Type.getType(JAXRSUserErrorResponse.class));
                 oneOf.visit(null, Type.getType(JAXRSErrorResponse.class));
                 oneOf.visitEnd();
                 schemaAv.visitEnd();

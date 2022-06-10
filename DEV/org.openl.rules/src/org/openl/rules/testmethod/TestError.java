@@ -2,7 +2,7 @@ package org.openl.rules.testmethod;
 
 import java.util.Objects;
 
-import org.openl.exception.OpenLUserLocalizedRuntimeException;
+import org.openl.exception.OpenLUserDetailedRuntimeException;
 
 public class TestError {
 
@@ -60,7 +60,7 @@ public class TestError {
         }
     }
 
-    public static TestError from(OpenLUserLocalizedRuntimeException ex) {
+    public static TestError from(OpenLUserDetailedRuntimeException ex) {
         var error = new TestError();
         error.setMessage(ex.getMessage());
         error.setCode(ex.getCode());

@@ -17,7 +17,7 @@ import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.exception.OpenLUserLocalizedRuntimeException;
+import org.openl.exception.OpenLUserDetailedRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.rules.ruleservice.core.ExceptionDetails;
 import org.openl.rules.ruleservice.core.ExceptionType;
@@ -436,8 +436,8 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             t = extractInvocationTargetException(t);
             if (t instanceof OpenLUserRuntimeException) {
                 type = ExceptionType.USER_ERROR;
-                if (t instanceof OpenLUserLocalizedRuntimeException) {
-                    OpenLUserLocalizedRuntimeException uex = (OpenLUserLocalizedRuntimeException) t;
+                if (t instanceof OpenLUserDetailedRuntimeException) {
+                    OpenLUserDetailedRuntimeException uex = (OpenLUserDetailedRuntimeException) t;
                     exceptionDetails = new ExceptionDetails(uex.getCode(), uex.getMessage());
                 } else {
                     exceptionDetails = new ExceptionDetails(t.getMessage());

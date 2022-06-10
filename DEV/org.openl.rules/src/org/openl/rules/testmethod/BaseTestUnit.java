@@ -11,7 +11,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
-import org.openl.exception.OpenLUserLocalizedRuntimeException;
+import org.openl.exception.OpenLUserDetailedRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.data.PrecisionFieldChain;
@@ -101,17 +101,17 @@ public class BaseTestUnit implements ITestUnit {
         if (actualError != null) {
             String oldStyleMessage = Optional.ofNullable(expectedError).map(TestError::getMessage).orElse(null);
             Throwable rootCause = ExceptionUtils.getRootCause(actualError);
-            if (rootCause instanceof OpenLUserLocalizedRuntimeException) {
+            if (rootCause instanceof OpenLUserDetailedRuntimeException) {
                 if (test.isEmptyOrNewStyleErrorDescription()) {
                     // to support old behaviour
                     return compareMessageAndGetResult(oldStyleMessage,
-                        ((OpenLUserLocalizedRuntimeException) rootCause).getFullMessage(),
+                        ((OpenLUserDetailedRuntimeException) rootCause).getFullMessage(),
                         expectedResult);
                 } else {
                     return compareMessageAndGetResult(expectedError,
-                        TestError.from((OpenLUserLocalizedRuntimeException) rootCause),
+                        TestError.from((OpenLUserDetailedRuntimeException) rootCause),
                         expectedResult,
-                        ((OpenLUserLocalizedRuntimeException) rootCause).getFullMessage());
+                        ((OpenLUserDetailedRuntimeException) rootCause).getFullMessage());
                 }
             } else if (rootCause instanceof OpenLUserRuntimeException || rootCause instanceof OutsideOfValidDomainException) {
                 if (test.isEmptyOrNewStyleErrorDescription()) {

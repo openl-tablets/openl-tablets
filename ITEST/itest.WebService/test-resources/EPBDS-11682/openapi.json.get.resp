@@ -36,7 +36,7 @@ Content-Type: application/json
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
                     },
                     {
                       "$ref": "#/components/schemas/JAXRSErrorResponse"
@@ -56,7 +56,6 @@ Content-Type: application/json
                     "value": {
                       "message": "Some message",
                       "code": "code.example",
-                      "args": [],
                       "type": "USER_ERROR"
                     }
                   }
@@ -120,7 +119,7 @@ Content-Type: application/json
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
                     },
                     {
                       "$ref": "#/components/schemas/JAXRSErrorResponse"
@@ -140,7 +139,6 @@ Content-Type: application/json
                     "value": {
                       "message": "Some message",
                       "code": "code.example",
-                      "args": [],
                       "type": "USER_ERROR"
                     }
                   }
@@ -215,7 +213,7 @@ Content-Type: application/json
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
                     },
                     {
                       "$ref": "#/components/schemas/JAXRSErrorResponse"
@@ -235,7 +233,6 @@ Content-Type: application/json
                     "value": {
                       "message": "Some message",
                       "code": "code.example",
-                      "args": [],
                       "type": "USER_ERROR"
                     }
                   }
@@ -299,7 +296,7 @@ Content-Type: application/json
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
                     },
                     {
                       "$ref": "#/components/schemas/JAXRSErrorResponse"
@@ -319,7 +316,6 @@ Content-Type: application/json
                     "value": {
                       "message": "Some message",
                       "code": "code.example",
-                      "args": [],
                       "type": "USER_ERROR"
                     }
                   }
@@ -393,7 +389,7 @@ Content-Type: application/json
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
                     },
                     {
                       "$ref": "#/components/schemas/JAXRSErrorResponse"
@@ -413,7 +409,6 @@ Content-Type: application/json
                     "value": {
                       "message": "Some message",
                       "code": "code.example",
-                      "args": [],
                       "type": "USER_ERROR"
                     }
                   }
@@ -485,7 +480,7 @@ Content-Type: application/json
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
                     },
                     {
                       "$ref": "#/components/schemas/JAXRSErrorResponse"
@@ -505,7 +500,6 @@ Content-Type: application/json
                     "value": {
                       "message": "Some message",
                       "code": "code.example",
-                      "args": [],
                       "type": "USER_ERROR"
                     }
                   }
@@ -579,7 +573,7 @@ Content-Type: application/json
                 "schema": {
                   "oneOf": [
                     {
-                      "$ref": "#/components/schemas/JAXRSLocalizedErrorResponse"
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
                     },
                     {
                       "$ref": "#/components/schemas/JAXRSErrorResponse"
@@ -599,7 +593,6 @@ Content-Type: application/json
                     "value": {
                       "message": "Some message",
                       "code": "code.example",
-                      "args": [],
                       "type": "USER_ERROR"
                     }
                   }
@@ -654,7 +647,7 @@ Content-Type: application/json
   },
   "components": {
     "schemas": {
-      "JAXRSLocalizedErrorResponse": {
+      "JAXRSUserErrorResponse": {
         "type": "object",
         "properties": {
           "message": {
@@ -663,12 +656,6 @@ Content-Type: application/json
           "type": {
             "type": "string",
             "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
-          },
-          "details": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           },
           "code": {
             "type": "string"

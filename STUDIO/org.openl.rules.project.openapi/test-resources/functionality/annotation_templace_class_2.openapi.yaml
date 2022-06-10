@@ -24,7 +24,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -37,7 +37,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -79,7 +78,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -92,7 +91,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -140,7 +138,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -153,7 +151,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -202,7 +199,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -215,7 +212,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -263,7 +259,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -276,7 +272,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -325,7 +320,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -338,7 +333,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -387,7 +381,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -400,7 +394,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -448,7 +441,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -461,7 +454,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -510,7 +502,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -523,7 +515,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -573,7 +564,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -586,7 +577,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -635,7 +625,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -648,7 +638,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -698,7 +687,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -711,7 +700,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -760,7 +748,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -773,7 +761,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -822,7 +809,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -835,7 +822,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -884,7 +870,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -897,7 +883,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -946,7 +931,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -959,7 +944,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1008,7 +992,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1021,7 +1005,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1070,7 +1053,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1083,7 +1066,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1131,7 +1113,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1144,7 +1126,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1194,7 +1175,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1207,7 +1188,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1256,7 +1236,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1269,7 +1249,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1318,7 +1297,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1331,7 +1310,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1380,7 +1358,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1393,7 +1371,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1444,7 +1421,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1457,7 +1434,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1505,7 +1481,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1518,7 +1494,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1567,7 +1542,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1580,7 +1555,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1629,7 +1603,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1642,7 +1616,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1690,7 +1663,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1703,7 +1676,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1754,7 +1726,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1767,7 +1739,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1816,7 +1787,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1829,7 +1800,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1878,7 +1848,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1891,7 +1861,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -1940,7 +1909,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -1953,7 +1922,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -2002,7 +1970,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -2015,7 +1983,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -2065,7 +2032,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -2078,7 +2045,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -2127,7 +2093,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -2140,7 +2106,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -2190,7 +2155,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -2203,7 +2168,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -2253,7 +2217,7 @@ paths:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/JAXRSLocalizedErrorResponse'
+                  - $ref: '#/components/schemas/JAXRSUserErrorResponse'
                   - $ref: '#/components/schemas/JAXRSErrorResponse'
               examples:
                 Example 1:
@@ -2266,7 +2230,6 @@ paths:
                   value:
                     message: Some message
                     code: code.example
-                    args: [ ]
                     type: USER_ERROR
         "400":
           description: "Invalid request format e.g. missing required field, unparseable\
@@ -2299,7 +2262,7 @@ paths:
                 format: "double"
 components:
   schemas:
-    JAXRSLocalizedErrorResponse:
+    JAXRSUserErrorResponse:
       type: object
       properties:
         message:
@@ -2313,10 +2276,6 @@ components:
             - SYSTEM
             - BAD_REQUEST
             - VALIDATION
-        details:
-          type: array
-          items:
-            type: string
         code:
           type: string
     JAXRSErrorResponse:

@@ -14,17 +14,15 @@ public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
     public Response toResponse(Exception e) {
         ExceptionResponseDto dto = ExceptionResponseDto.createFrom(e);
 
-        String[] details = Optional.ofNullable(dto.getDetail())
-            .map(s -> s.replaceAll("\t", "    "))
-            .map(s -> s.split(System.lineSeparator()))
-            .orElse(null);
-
-        JAXRSErrorResponse errorResponse;
+        Object errorResponse;
         if (dto.getCode() != null) {
-            errorResponse = new JAXRSLocalizedErrorResponse(dto
-                .getMessage(), dto.getCode(), dto.getType(), details);
+            errorResponse = new JAXRSUserErrorResponse(dto.getMessage(), dto.getCode(), dto.getType());
         } else {
             // old style error when no localization properties
+            String[] details = Optional.ofNullable(dto.getDetail())
+                .map(s -> s.replaceAll("\t", "    "))
+                .map(s -> s.split(System.lineSeparator()))
+                .orElse(null);
             errorResponse = new JAXRSErrorResponse(dto.getMessage(), dto.getType(), details);
         }
 

@@ -31,7 +31,7 @@ import org.openl.binding.impl.cast.DefaultMethodCallerWrapperFactory.ReturnType;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.exception.OpenLUserLocalizedRuntimeException;
+import org.openl.exception.OpenLUserDetailedRuntimeException;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.types.impl.StaticDomainOpenClass;
@@ -1360,7 +1360,7 @@ public final class RulesUtils {
     }
 
     public static ThrowableVoid error(String code, String message) {
-        throw new OpenLUserLocalizedRuntimeException(code, message);
+        throw new OpenLUserDetailedRuntimeException(code, message);
     }
 
     /**
