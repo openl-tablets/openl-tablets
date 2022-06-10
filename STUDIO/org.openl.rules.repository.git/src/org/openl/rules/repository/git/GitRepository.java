@@ -67,6 +67,7 @@ import org.eclipse.jgit.errors.NoRemoteRepositoryException;
 import org.eclipse.jgit.hooks.CommitMsgHook;
 import org.eclipse.jgit.hooks.PreCommitHook;
 import org.eclipse.jgit.hooks.PrePushHook;
+import org.eclipse.jgit.internal.storage.file.LockFile;
 import org.eclipse.jgit.lfs.BuiltinLFS;
 import org.eclipse.jgit.lfs.LfsBlobFilter;
 import org.eclipse.jgit.lib.ConfigConstants;
@@ -731,6 +732,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             if (credentialsProvider != null) {
                 credentialsProvider.successAuthentication(GitActionType.INIT);
             }
+            tryToUnlockIndex();
         } catch (Exception e) {
             if (git != null) {
                 try {
@@ -747,6 +749,18 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         } finally {
             writeLock.unlock();
             log.debug("initialize(): unlock");
+        }
+    }
+
+    /**
+     * NOTE: It will not work properly, If multiple Git instances will be configured to the same folder. We assume, that
+     * only ONE git instance will be configured to the same repo folder at the same time! Because it will be deleted and
+     * may result unexpected behaviour!
+     */
+    private void tryToUnlockIndex() {
+        // try to unlock index if locked
+        if (!LockFile.unlock(git.getRepository().getIndexFile())) {
+            log.warn("Failed to unlock index for '{}' repository", name);
         }
     }
 
