@@ -16,7 +16,7 @@ on:
 jobs:
   publish:
 
-    name: Publish ${{ github.event.inputs.branch }} branch to Heroku APP
+    name: Working on ${{ github.ref_name }}
 
     runs-on: ubuntu-20.04
 
@@ -28,7 +28,8 @@ jobs:
         git config --global user.email openltablets@gmail.com
         git config --global core.autocrlf false
 
-    - uses: actions/checkout@v3
+    - name: Checkout ${{ github.event.inputs.branch }}
+      uses: actions/checkout@v3
       with:
         ref: ${{ github.event.inputs.ref }}
 
