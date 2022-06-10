@@ -11,13 +11,10 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.jetty.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.webapp.Configuration;
+import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.eclipse.jetty.webapp.WebInfConfiguration;
-import org.eclipse.jetty.webapp.WebXmlConfiguration;
 
 /**
  * Simple wrapper for Jetty Server
@@ -28,7 +25,7 @@ public class JettyServer {
 
     private final Server server;
 
-    private JettyServer(String explodedWar, boolean sharedClassloader, boolean useWebXml, String[] profiles) {
+    private JettyServer(String explodedWar, boolean sharedClassloader, boolean useWebXml, String[] profiles) throws IOException {
         this.server = new Server(0);
         this.server.setStopAtShutdown(true);
         WebAppContext webAppContext = new WebAppContext();
@@ -39,19 +36,10 @@ public class JettyServer {
             webAppContext.setInitParameter("spring.profiles.active", String.join(",", profiles));
         }
 
-        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern",
-            ".*/classes/.*|.*ruleservice.ws[^/]*\\.jar$");
+        webAppContext.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*/classes/.*" +
+                "|.*ruleservice.ws[^/]*\\.jar$" + // For RuleService (ALL) which does not contain classes folder
+                "|.*javax\\.faces[^/]*\\.jar$"); // Mojarra Injection SPI for JSF in WebStudio
 
-        Configuration[] configurations;
-        if (useWebXml) {
-            // Temporary for WebStudio only
-            configurations = new Configuration[] { new AnnotationConfiguration(),
-                    new WebInfConfiguration(),
-                    new WebXmlConfiguration() };
-        } else {
-            configurations = new Configuration[] { new AnnotationConfiguration(), new WebInfConfiguration() };
-        }
-        webAppContext.setConfigurations(configurations);
 
         if (sharedClassloader) {
             webAppContext.setClassLoader(JettyServer.class.getClassLoader());
