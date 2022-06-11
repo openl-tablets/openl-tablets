@@ -34,9 +34,6 @@ source $JETTY_HOME/bin/jetty.sh run\n' >> $OPENL_APP/start.sh; \
     fontconfig ; \
     rm -rf /var/lib/apt/lists/*; \
 # Permission for rootless mode (for running as non-root)
-    touch $OPENL_APP/start.state; \
-    chmod o=u $OPENL_APP/start.state; \
-    \
     mkdir $OPENL_APP/logs; \
     chmod o=u $OPENL_APP/logs; \
     \
