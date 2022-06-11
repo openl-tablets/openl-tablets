@@ -17,15 +17,15 @@ ENV OPENL_APP $OPENL_DIR/app
 ENV OPENL_LIB $OPENL_DIR/lib
 
 COPY --from=jetty:10-jre11-slim /usr/local/jetty $OPENL_APP
-COPY --from=jetty:10-jre11-slim /var/lib/jetty $OPENL_APP
 RUN set -eux ; \
 \
 # Create start file for Jetty with configuration options
     echo '#!/usr/bin/env bash\n\n\
-export JAVA_OPTIONS=$(eval echo "$JAVA_OPTS")\n\
-export JETTY_HOME=$OPENL_APP\n\
-source $JETTY_HOME/bin/jetty.sh run\n' >> $OPENL_APP/start.sh; \
-    chmod +x $OPENL_APP/start.sh; \
+JAVA_OPTS=$(eval echo "$JAVA_OPTS")\n\
+exec java $JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
+-jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy --lib="$OPENL_LIB/*.jar" "$@"\n\
+' >> $OPENL_DIR/start.sh; \
+    chmod +x $OPENL_DIR/start.sh; \
 \
 # Install fonts required for Apache POI (export into Excel with autowidth of columns)
     apt-get update; \
@@ -34,15 +34,14 @@ source $JETTY_HOME/bin/jetty.sh run\n' >> $OPENL_APP/start.sh; \
     fontconfig ; \
     rm -rf /var/lib/apt/lists/*; \
 # Permission for rootless mode (for running as non-root)
-    mkdir $OPENL_APP/logs; \
-    chmod o=u $OPENL_APP/logs; \
+    mkdir $OPENL_DIR/logs; \
+    chmod o=u $OPENL_DIR/logs; \
     \
     mkdir $OPENL_LIB; \
-    ln -s $OPENL_LIB $OPENL_APP/lib/ext; \
     chmod o=u -R $OPENL_LIB
 
 # Define executables
-ENV PATH $JAVA_HOME/bin:$PATH
+ENV PATH .:$JAVA_HOME/bin:$PATH
 
 ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
 
@@ -61,8 +60,8 @@ USER openl
 
 EXPOSE 8080
 
-CMD ["/bin/bash", "-c", "$OPENL_APP/start.sh"]
+WORKDIR $OPENL_DIR
+
+CMD ["start.sh"]
 
 COPY $APP $OPENL_APP/webapps/ROOT
-
-WORKDIR $OPENL_DIR
