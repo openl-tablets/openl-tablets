@@ -19,6 +19,9 @@ jobs:
 
     name: Deploy
 
+    permissions:
+      packages: write
+
     runs-on: ubuntu-latest
 
     steps:
