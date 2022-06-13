@@ -1,0 +1,21 @@
+<cache2k xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+         xmlns='https://cache2k.org/schema/v2.x'
+         xsi:schemaLocation="https://cache2k.org/schema/v2.x https://cache2k.org/schema/cache2k-v2.x.xsd">
+    <version>1.0</version>
+    <skipCheckOnStartup>true</skipCheckOnStartup>
+    <properties>
+        <smallCacheCapacity>12_000</smallCacheCapacity>
+        <userHome>${env.HOME}</userHome>
+    </properties>
+    <defaults>
+        <cache>
+            <entryCapacity>100_000</entryCapacity>
+        </cache>
+    </defaults>
+
+    <caches>
+        <cache>
+            <name>aclCache</name>
+        </cache>
+    </caches>
+</cache2k>

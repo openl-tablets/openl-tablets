@@ -23,10 +23,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.security.core.session.SessionRegistry;
-
-import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import net.ttddyy.dsproxy.support.ProxyDataSourceBuilder;
 
 @Configuration
 @ImportResource("classpath:META-INF/standalone/spring/security-hibernate-beans.xml")
