@@ -5,7 +5,14 @@
 
 name: Check
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+      - master
+      - '*.*.x'
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   check:
