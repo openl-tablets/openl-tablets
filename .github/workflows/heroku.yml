@@ -12,6 +12,11 @@ on:
       ref:
         description: 'Ref to build'
         required: false
+      merge:
+        description: "Merge 'Ref'?"
+        required: true
+        type: boolean
+        default: true
 
 jobs:
   build:
@@ -54,6 +59,19 @@ jobs:
           maven-${{ env.WEEK }}-${{ env.DAY }}
           maven-${{ env.WEEK }}
           maven-
+
+    - name: Merge
+      env:
+        MERGE_MSG: "Merge ${{ github.ref_name }} into ${{ inputs.ref }}"
+        DEPTH: 300
+      if: >-
+        inputs.ref != '' &&
+        inputs.merge &&
+        inputs.ref != github.ref_name
+      run: |
+        git fetch --no-tags --no-recurse-submodules --progress --deepen=$DEPTH origin '+${{ inputs.ref }}'
+        git fetch --no-tags --no-recurse-submodules --progress --depth=$DEPTH origin '+${{ github.ref_name }}'
+        git merge FETCH_HEAD -m "$MERGE_MSG"
 
     - name: Maven version
       run: mvn -v
