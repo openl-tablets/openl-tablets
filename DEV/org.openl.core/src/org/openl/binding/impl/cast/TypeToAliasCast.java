@@ -17,7 +17,7 @@ import org.openl.util.DomainUtils;
  *
  * @see IOpenCast
  */
-final class TypeToAliasCast implements IOpenCast {
+final class TypeToAliasCast implements IOpenCast, INestedCastOpenCast {
 
     /**
      * Result type of object after conversion.
@@ -36,6 +36,16 @@ final class TypeToAliasCast implements IOpenCast {
         this.typeCast = typeCast;
         this.distance = typeCast.getDistance() - 1;// This cast has higher priority
         this.implicit = typeCast.isImplicit();
+    }
+
+    @Override
+    public IOpenCast getNestedOpenCast() {
+        return typeCast;
+    }
+
+    @Override
+    public boolean hasNestedOpenCast() {
+        return typeCast != null;
     }
 
     @Override

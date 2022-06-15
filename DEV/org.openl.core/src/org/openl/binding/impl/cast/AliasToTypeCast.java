@@ -1,6 +1,6 @@
 package org.openl.binding.impl.cast;
 
-final class AliasToTypeCast implements IOpenCast {
+final class AliasToTypeCast implements IOpenCast, INestedCastOpenCast {
     private static final AliasToTypeCast INSTANCE = new AliasToTypeCast();
 
     private IOpenCast typeCast;
@@ -18,6 +18,16 @@ final class AliasToTypeCast implements IOpenCast {
         this.typeCast = typeCast;
         this.distance = typeCast.getDistance() - 1;// This cast has higher priority
         this.implicit = typeCast.isImplicit();
+    }
+
+    @Override
+    public IOpenCast getNestedOpenCast() {
+        return typeCast;
+    }
+
+    @Override
+    public boolean hasNestedOpenCast() {
+        return typeCast != null;
     }
 
     @Override
