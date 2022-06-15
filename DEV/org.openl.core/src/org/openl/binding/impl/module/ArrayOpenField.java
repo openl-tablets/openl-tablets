@@ -10,12 +10,11 @@ import org.openl.vm.IRuntimeEnv;
 public class ArrayOpenField implements IOpenField {
 
     private final IOpenField field;
-    private final IOpenClass type;
+    private IOpenClass type;
     private final int dimension;
 
     public ArrayOpenField(IOpenField field, int dimension) {
         this.field = field;
-        this.type = field.getType().getArrayType(dimension);
         this.dimension = dimension;
     }
 
@@ -72,6 +71,9 @@ public class ArrayOpenField implements IOpenField {
 
     @Override
     public IOpenClass getType() {
+        if (type == null) {
+            type = field.getType().getArrayType(dimension);
+        }
         return type;
     }
 
