@@ -480,7 +480,6 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                     dependenciesReferencesToRemove.add(dependencyReference);
                 }
             }
-            boolean resetWholeProject = false;
             if (depLoader.getRefToCompiledDependency() != null) {
                 CompiledDependency compiledDependency = depLoader.getRefToCompiledDependency();
                 IOpenClass openClass = compiledDependency.getCompiledOpenClass().getOpenClassWithErrors();
@@ -490,17 +489,29 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                         if (domainOpenClass.getModule() == openClass) {
                             // Datatypes are generated into the project classloader. If module contains datatype then
                             // whole project needs to be recompiled.
-                            resetWholeProject = true;
-                            projectClassloaderToReset.add(depLoader.getProject());
+                            Deque<ProjectDescriptor> queue1 = new ArrayDeque<>();
+                            queue1.add(dependencyLoader.getProject());
+                            while (!queue1.isEmpty()) {
+                                ProjectDescriptor pd = queue1.poll();
+                                if (projectClassloaderToReset.add(pd)) {
+                                    for (IDependencyLoader dl : this.getDependencyLoaders()) {
+                                        if (Objects.equals(dl.getProject(), pd)) {
+                                            if (dependenciesToReset.add(dl)) {
+                                                queue.add(dl);
+                                            }
+                                        }
+                                        if (dl.isProjectLoader() && dl.getProject().getDependencies() != null) {
+                                            for (ProjectDependencyDescriptor pdd : dl.getProject().getDependencies()) {
+                                                if (Objects.equals(pdd.getName(), pd.getName())) {
+                                                    queue1.add(dl.getProject());
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                             break;
                         }
-                    }
-                }
-            }
-            if (resetWholeProject) {
-                for (IDependencyLoader dl : this.getDependencyLoaders()) {
-                    if (Objects.equals(dl.getProject(), depLoader.getProject()) && dependenciesToReset.add(dl)) {
-                        queue.add(dl);
                     }
                 }
             }
