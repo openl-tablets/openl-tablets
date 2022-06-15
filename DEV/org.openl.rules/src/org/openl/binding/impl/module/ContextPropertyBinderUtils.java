@@ -2,6 +2,7 @@ package org.openl.binding.impl.module;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.cast.EnumToStringCast;
+import org.openl.binding.impl.cast.INestedCastOpenCast;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.StringToEnumCast;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
@@ -29,8 +30,9 @@ public final class ContextPropertyBinderUtils {
                 openCast = bindingContext.getCast(expectedType, contextPropertyType);
             } catch (NullPointerException ignored) {
             }
-            if (openCast == null || !openCast
-                .isImplicit() && !(openCast instanceof EnumToStringCast) && !(openCast instanceof StringToEnumCast)) {
+            if (openCast == null || !openCast.isImplicit() && !(extractIfNestedOpenCast(
+                openCast) instanceof EnumToStringCast) && !(extractIfNestedOpenCast(
+                    openCast) instanceof StringToEnumCast)) {
                 errorMessage = String.format(
                     "Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
                     contextProperty,
@@ -39,6 +41,16 @@ public final class ContextPropertyBinderUtils {
             }
         }
         return errorMessage;
+    }
+
+    private static Object extractIfNestedOpenCast(IOpenCast openCast) {
+        if (openCast instanceof INestedCastOpenCast) {
+            INestedCastOpenCast nestedCastOpenCast = (INestedCastOpenCast) openCast;
+            if (nestedCastOpenCast.hasNestedOpenCast()) {
+                return nestedCastOpenCast.getNestedOpenCast();
+            }
+        }
+        return openCast;
     }
 
 }
