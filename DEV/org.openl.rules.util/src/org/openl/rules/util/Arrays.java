@@ -1,6 +1,7 @@
 package org.openl.rules.util;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -184,6 +185,40 @@ public final class Arrays {
         @SuppressWarnings("unchecked") // OK, because array is of type T
         T[] subarray = (T[]) subarray(values, startIndexInclusive, endIndexExclusive);
         return subarray;
+    }
+
+    /**
+     * Removes the first occurrence of the specified element from the specified array. All subsequent elements are
+     * shifted to the left (substracts one from their indices). If the array does not contains such an element, no
+     * elements are removed from the array. <br />
+     * <br />
+     * <p/>
+     * This method returns a new array with the same elements of the input array except the first occurrence of the
+     * specified element. The component type of the returned array is always the same as that of the input array. <br />
+     * <br />
+     * <p/>
+     * <code>
+     * ArrayUtils.removeElement(null, "a")            = null        <br />
+     * ArrayUtils.removeElement([], "a")              = []          <br />
+     * ArrayUtils.removeElement(["a"], "b")           = ["a"]       <br />
+     * ArrayUtils.removeElement(["a", "b"], "a")      = ["b"]       <br />
+     * ArrayUtils.removeElement(["a", "b", "a"], "a") = ["b", "a"]  <br />
+     * </code>
+     *
+     * @param array the array to remove the element from, may be null
+     * @param elements
+     * @return the element to be removed
+     */
+    public static <T, E extends T> T[] removeElement(T[] array, E... elements) {
+        if (array == null) {
+            return null;
+        }
+        if (elements == null) {
+            return array;
+        }
+        ArrayList<T> result = new ArrayList<>(java.util.Arrays.asList(array));
+        java.util.Arrays.stream(elements).forEach(result::remove);
+        return (T[]) result.toArray();
     }
 
     private static Object subarray(Object array, int beginIndex, int endIndex) {
