@@ -68,9 +68,7 @@
                       &#160;
                       <h:commandLink immediate="true"
                           onclick="openDeploymentUnlockDialog('#{prj.name}');return false;"
-                          title="Unlock Deploy Configuration">
-                          <h:graphicImage url="/webresource/images/unlock.png" styleClass="actionImage" alt="Unlock"/>
-                      </h:commandLink>
+                          title="Unlock Deploy Configuration" styleClass="lock-icon"/>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{repositoryTreeController.canDeleteDeployment and not prj.data.branchProtected and (not prj.data.locked or prj.data.lockedByMe)}">
                     &#160;

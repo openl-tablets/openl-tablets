@@ -73,9 +73,7 @@
                       &#160;
                       <h:commandLink immediate="true"
                           onclick="openProjectUnlockDialog('#{prj.data.repository.id}', '#{prj.data.name}');return false;"
-                          title="Unlock project">
-                          <h:graphicImage url="/webresource/images/unlock.png" styleClass="actionImage" alt="Unlock"/>
-                      </h:commandLink>
+                          title="Unlock project" styleClass="lock-icon"/>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{repositoryTreeController.canDelete and not prj.data.branchProtected and (not prj.data.locked or prj.data.lockedByMe)}">
                       &#160;

@@ -1607,6 +1607,12 @@ option[value=""]:disabled + option[value=""]:disabled {
     font-weight: bold;
 }
 
+.lock-icon:after {
+    content: "🔒";
+    color: #aaa;
+    font-weight: bold;
+}
+
 .warning-icon:after {
     content: "⚠";
     color: #a00;
@@ -1637,6 +1643,7 @@ option[value=""]:disabled + option[value=""]:disabled {
     color: black;
 }
 
+.lock-icon,
 .warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon, .close-icon, .empty-icon, .dropdown-icon {
     display: inline-block;
     padding: 0 2px;
