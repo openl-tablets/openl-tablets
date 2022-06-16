@@ -35,7 +35,6 @@ import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.types.impl.StaticDomainOpenClass;
 import org.openl.util.ArrayTool;
-import org.openl.util.CollectionUtils;
 import org.openl.util.DateTool;
 import org.openl.util.IOUtils;
 import org.openl.util.math.MathUtils;
@@ -1354,10 +1353,6 @@ public final class RulesUtils {
     }
 
     // --------------------------------------
-
-    public static boolean noNulls(Object[] values) {
-        return CollectionUtils.isNotEmpty(values) && !CollectionUtils.hasNull(values);
-    }
 
     public static ThrowableVoid error(String msg) {
         throw new OpenLUserRuntimeException(msg);
