@@ -183,9 +183,41 @@ public final class Arrays {
     }
 
     public static <T> T[] slice(T[] values, int startIndexInclusive, int endIndexExclusive) {
-        @SuppressWarnings("unchecked") // OK, because array is of type T
-        T[] subarray = (T[]) subarray(values, startIndexInclusive, endIndexExclusive);
-        return subarray;
+        if (isEmpty(values)) {
+            return values;
+        }
+        // handle negatives
+        int size = values.length;
+        if (endIndexExclusive < 0) {
+            endIndexExclusive = size + endIndexExclusive; // remember end is negative
+        }
+        if (startIndexInclusive < 0) {
+            startIndexInclusive = size + startIndexInclusive; // remember start is negative
+
+        }
+
+        // check length next
+        if (endIndexExclusive > size) {
+            endIndexExclusive = size;
+        }
+
+        if (startIndexInclusive < 0) {
+            startIndexInclusive = 0;
+        }
+        if (endIndexExclusive < 0) {
+            endIndexExclusive = 0;
+        }
+
+        final int newSize = endIndexExclusive - startIndexInclusive;
+        if (newSize == size && startIndexInclusive == 0) {
+            return values;
+        }
+
+        if (newSize <= 0) {
+            return (T[]) Array.newInstance(values.getClass().getComponentType(), 0);
+        } else {
+            return java.util.Arrays.copyOfRange(values, startIndexInclusive, endIndexExclusive);
+        }
     }
 
     /**
@@ -298,45 +330,4 @@ public final class Arrays {
         return sortedArray;
     }
 
-    private static Object subarray(Object array, int beginIndex, int endIndex) {
-        if (array == null) {
-            return null;
-        }
-        // handle negatives
-        int size = Array.getLength(array);
-        if (size == 0) {
-            return array;
-        }
-        if (endIndex < 0) {
-            endIndex = size + endIndex; // remember end is negative
-        }
-        if (beginIndex < 0) {
-            beginIndex = size + beginIndex; // remember start is negative
-
-        }
-
-        // check length next
-        if (endIndex > size) {
-            endIndex = size;
-        }
-
-        if (beginIndex < 0) {
-            beginIndex = 0;
-        }
-        if (endIndex < 0) {
-            endIndex = 0;
-        }
-
-        final int newSize = endIndex - beginIndex;
-        if (newSize == size && beginIndex == 0) {
-            return array;
-        }
-        final Class<?> type = array.getClass().getComponentType();
-        if (newSize <= 0) {
-            return Array.newInstance(type, 0);
-        }
-        final Object subarray = Array.newInstance(type, newSize);
-        System.arraycopy(array, beginIndex, subarray, 0, newSize);
-        return subarray;
-    }
 }
