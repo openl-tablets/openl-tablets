@@ -221,6 +221,43 @@ public final class Arrays {
         return (T[]) result.toArray();
     }
 
+    /**
+     * Return a new array without null elements
+     *
+     * @param elements whose null elements should be removed
+     * @return array without null elements
+     */
+    public static <T> T[] removeNulls(T... elements) {
+        if (isEmpty(elements)) {
+            return elements;
+        }
+
+        // Count non-nulls elements to create an array with appropriate size.
+        int count = 0;
+        for (T value : elements) {
+            if (value != null) {
+                count++;
+            }
+        }
+
+        if (count == elements.length) {
+            // No null elements, so return the same array.
+            return elements;
+        }
+
+        // Copy non-null elements to the result array.
+        Class<?> componentType = elements.getClass().getComponentType();
+        T[] result = (T[]) Array.newInstance(componentType, count);
+        int i = 0;
+        for (T value : elements) {
+            if (value != null) {
+                result[i] = value;
+                i++;
+            }
+        }
+        return result;
+    }
+
     private static Object subarray(Object array, int beginIndex, int endIndex) {
         if (array == null) {
             return null;
