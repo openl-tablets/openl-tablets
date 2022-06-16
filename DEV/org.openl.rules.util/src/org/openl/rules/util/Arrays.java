@@ -2,6 +2,7 @@ package org.openl.rules.util;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Objects;
 
 /**
@@ -256,6 +257,30 @@ public final class Arrays {
             }
         }
         return result;
+    }
+
+    /**
+     * Returns a copy of the specified array into ascending order, according to the {@linkplain Comparable natural ordering}
+     * of its elements. All elements in the array must implement the {@link Comparable} interface. Furthermore, all
+     * elements in the array must be <i>mutually comparable</i> (that is, {@code e1.compareTo(e2)} must not throw a
+     * {@code ClassCastException} for any elements {@code e1} and {@code e2} in the array).
+     * <p/>
+     * {@code null} values are kept in the tail.
+     * <p/>
+     * <p/>
+     * This sort is guaranteed to be <i>stable</i>: equal elements will not be reordered as a result of the sort.
+     *
+     * @param values the array to be sorted
+     * @return a sorted array
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Comparable<T>> T[] sort(T... values) {
+        if (isEmpty(values)) {
+            return values;
+        }
+        T[] sortedArray = values.clone();
+        java.util.Arrays.sort(sortedArray, Comparator.nullsLast(Comparator.naturalOrder()));
+        return sortedArray;
     }
 
     private static Object subarray(Object array, int beginIndex, int endIndex) {
