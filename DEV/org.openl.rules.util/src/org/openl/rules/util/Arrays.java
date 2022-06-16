@@ -1,8 +1,6 @@
 package org.openl.rules.util;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -82,40 +80,7 @@ public final class Arrays {
      */
     @SuppressWarnings("unchecked")
     public static <T> T[] add(T[] array, T... elements) {
-        if (array == null) {
-            return clone(elements);
-        } else if (elements == null) {
-            return clone(array);
-        }
-        Object res = Array.newInstance(
-            elements.getClass().getComponentType() == array.getClass().getComponentType()
-                                                                                          ? array.getClass()
-                                                                                              .getComponentType()
-                                                                                          : Object.class,
-            array.length + elements.length);
-        System.arraycopy(array, 0, res, 0, array.length);
-        for (int i = 0; i < elements.length; i++) {
-            Array.set(res, array.length + i, elements[i]);
-        }
-        return (T[]) res;
-    }
-
-    public static <T> T[] add(T[] array, T element) {
-        Object res;
-        if (array != null) {
-            res = Array.newInstance(
-                element != null && element.getClass() == array.getClass().getComponentType()
-                                                                                             ? array.getClass()
-                                                                                                 .getComponentType()
-                                                                                             : Object.class,
-                array.length + 1);
-            System.arraycopy(array, 0, res, 0, array.length);
-            Array.set(res, array.length, element);
-        } else {
-            res = Array.newInstance(element != null ? element.getClass() : Object.class, 1);
-            Array.set(res, 0, element);
-        }
-        return (T[]) res;
+        return add(array, length(array), elements);
     }
 
     /**
@@ -146,15 +111,20 @@ public final class Arrays {
         if (arrays == null) {
             return null;
         }
+        Class<?> componentType = arrays.getClass().getComponentType().getComponentType();
         return (T[]) java.util.Arrays.stream(arrays)
             .filter(Objects::nonNull)
             .flatMap(java.util.Arrays::stream)
-            .map(e -> arrays.getClass().getComponentType().getComponentType().cast(e))
+            .map(componentType::cast)
             .toArray();
     }
 
     public static <T> T[] addAll(T[] a1, T[] a2) {
         return add(a1, a2);
+    }
+
+    public static <T> T[] add(T[] array, T element) {
+        return Arrays.<T> add(array, length(array), element);
     }
 
     /**
@@ -189,25 +159,20 @@ public final class Arrays {
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
      */
     public static <T> T[] add(T[] array, int index, T... elements) {
-        Class<?> type = null;
-        int length = 0;
-        if (elements != null) {
-            type = elements.getClass().getComponentType();
-            length = elements.length;
+        if (elements == null) {
+            return array;
         }
-        if (array != null) {
-            type = array.getClass().getComponentType();
-            length += array.length;
+        if (array == null) {
+            return elements;
         }
+        Class<?> componentType = array.getClass().getComponentType();
+        Class<?> commonType = elements.getClass().getComponentType() == componentType ? componentType : Object.class;
+        Object result = Array.newInstance(commonType, array.length + elements.length);
+        System.arraycopy(array, 0, result, 0, index);
+        System.arraycopy(elements, 0, result, index, elements.length);
+        System.arraycopy(array, index, result, index + elements.length, array.length - index);
 
-        ArrayList<T> arr = new ArrayList<>(length);
-        if (array != null) {
-            Collections.addAll(arr, array);
-        }
-        if (isNotEmpty(elements)) {
-            arr.addAll(index, java.util.Arrays.asList(elements));
-        }
-        return type == null ? null : arr.toArray((T[]) Array.newInstance(type, 0));
+        return (T[]) result;
     }
 
     // SLICE
@@ -261,9 +226,5 @@ public final class Arrays {
         final Object subarray = Array.newInstance(type, newSize);
         System.arraycopy(array, beginIndex, subarray, 0, newSize);
         return subarray;
-    }
-
-    private static <T> T[] clone(final T[] array) {
-        return array == null ? null : array.clone();
     }
 }
