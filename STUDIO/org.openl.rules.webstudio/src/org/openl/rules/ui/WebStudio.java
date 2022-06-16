@@ -1327,7 +1327,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public boolean getCanRedeploy() {
         UserWorkspaceProject selectedProject = getCurrentProject();
+        return getCanRedeploy(selectedProject);
+    }
 
+    public boolean getCanRedeploy(UserWorkspaceProject selectedProject) {
         if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject.isModified()) {
             return false;
         }
