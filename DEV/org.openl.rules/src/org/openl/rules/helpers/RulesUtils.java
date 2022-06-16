@@ -1784,16 +1784,6 @@ public final class RulesUtils {
     // Math functions
 
     /**
-     * Return a new array without null elements
-     *
-     * @param array whose null elements should be removed
-     * @return new array without null elements
-     */
-    public static <T> T[] removeNulls(T[] array) {
-        return ArrayTool.removeNulls(array);
-    }
-
-    /**
      * Returns the absolute value of a {@code double} value. If the argument is not negative, the argument is returned.
      * If the argument is negative, the negation of the argument is returned. Special cases:
      * <ul>
