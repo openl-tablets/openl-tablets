@@ -67,8 +67,9 @@ runs:
         JAVA_OPTS: ${{ inputs.javaOpts }}
       run: |
         SHA=$(docker inspect "registry.heroku.com/$APP_NAME/web" --format={{.Id}})
+        echo "Deploy image: $SHA"
         curl -X PATCH "https://api.heroku.com/apps/$APP_NAME/formation" \
             -d "{ \"updates\": [{ \"type\": \"web\", \"docker_image\": \"$SHA\" }]}" \
             -H 'Content-Type: application/json' \
-            -H 'Accept: Accept: application/vnd.heroku+json; version=3' \
+            -H 'Accept: Accept: application/vnd.heroku+json; version=3.docker-releases' \
             -u "$LOGIN:$TOKEN"
