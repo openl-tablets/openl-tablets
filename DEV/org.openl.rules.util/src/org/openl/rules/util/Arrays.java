@@ -260,6 +260,21 @@ public final class Arrays {
     }
 
     /**
+     * Returns {@code true} if the input elements exist, and they do not contain {@code null} elements.
+     */
+    public static <T> boolean noNulls(T... values) {
+        if (isEmpty(values)) {
+            return false;
+        }
+        for (T item : values) {
+            if (item == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Returns a copy of the specified array into ascending order, according to the {@linkplain Comparable natural ordering}
      * of its elements. All elements in the array must implement the {@link Comparable} interface. Furthermore, all
      * elements in the array must be <i>mutually comparable</i> (that is, {@code e1.compareTo(e2)} must not throw a
