@@ -96,7 +96,13 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     protected IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
             Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
-        return new OpenLMethodHandler(openClassInstance, runtimeEnv, methodMap);
+        OpenLMethodHandler openLMethodHandler = new OpenLMethodHandler(openClassInstance,
+            methodMap,
+            getRuntimeEnvBuilder());
+        if (runtimeEnv != null) {
+            openLMethodHandler.setRuntimeEnv(runtimeEnv);
+        }
+        return openLMethodHandler;
     }
 
     public String getOpenlName() {

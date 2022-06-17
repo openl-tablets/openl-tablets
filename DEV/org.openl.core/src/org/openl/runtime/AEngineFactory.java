@@ -19,7 +19,7 @@ public abstract class AEngineFactory {
     private static final String INCORRECT_RET_TYPE_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
 
     public final Object newInstance() {
-        return newInstance(getRuntimeEnvBuilder().buildRuntimeEnv());
+        return prepareInstance(null);
     }
 
     protected final Object prepareProxyInstance(Object openClassInstance,
@@ -35,11 +35,7 @@ public abstract class AEngineFactory {
     }
 
     public final Object newInstance(IRuntimeEnv runtimeEnv) {
-        if (runtimeEnv == null) {
-            return prepareInstance(getRuntimeEnvBuilder().buildRuntimeEnv());
-        } else {
-            return prepareInstance(runtimeEnv);
-        }
+        return prepareInstance(runtimeEnv);
     }
 
     protected abstract Object prepareInstance(IRuntimeEnv runtimeEnv);
@@ -128,9 +124,9 @@ public abstract class AEngineFactory {
         boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, interfaceReturnType);
         if (!isAssignable) {
             String message = String.format(INCORRECT_RET_TYPE_MSG,
-                    openClassReturnType.getName(),
-                    interfaceMethod.getName(),
-                    interfaceReturnType.getName());
+                openClassReturnType.getName(),
+                interfaceMethod.getName(),
+                interfaceReturnType.getName());
             throw new ClassCastException(message);
         }
     }

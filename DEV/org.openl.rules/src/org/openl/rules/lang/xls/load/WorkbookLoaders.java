@@ -1,5 +1,7 @@
 package org.openl.rules.lang.xls.load;
 
+import java.util.Objects;
+
 import org.openl.source.IOpenSourceCodeModule;
 
 public final class WorkbookLoaders {
@@ -8,8 +10,7 @@ public final class WorkbookLoaders {
     }
 
     private static final WorkbookLoaderFactory DEFAULT_FACTORY = new LazyWorkbookLoaderFactory(true);
-    private static final ThreadLocal<WorkbookLoaderFactory> workbookLoaderFactoryHolder = ThreadLocal
-        .withInitial(() -> DEFAULT_FACTORY);
+    private static final ThreadLocal<WorkbookLoaderFactory> workbookLoaderFactoryHolder = new ThreadLocal<>();
 
     public static void setCurrentFactory(WorkbookLoaderFactory factory) {
         workbookLoaderFactoryHolder.set(factory);
@@ -20,6 +21,7 @@ public final class WorkbookLoaders {
     }
 
     public static WorkbookLoader getWorkbookLoader(IOpenSourceCodeModule fileSource) {
-        return workbookLoaderFactoryHolder.get().createWorkbookLoader(fileSource);
+        WorkbookLoaderFactory workbookLoaderFactory = workbookLoaderFactoryHolder.get();
+        return Objects.requireNonNullElse(workbookLoaderFactory, DEFAULT_FACTORY).createWorkbookLoader(fileSource);
     }
 }

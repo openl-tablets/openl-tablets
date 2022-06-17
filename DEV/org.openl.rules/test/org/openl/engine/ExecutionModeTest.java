@@ -1,6 +1,8 @@
 package org.openl.engine;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,7 +12,6 @@ import org.junit.Test;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.context.IRulesRuntimeContextProvider;
 import org.openl.rules.overload.OverloadTest.ITestI;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.rules.tbasic.Algorithm;
@@ -144,7 +145,7 @@ public class ExecutionModeTest {
 
         ITestI instance = (ITestI) engineFactory.newInstance();
 
-        IRulesRuntimeContext context = ((IRulesRuntimeContextProvider) instance).getRuntimeContext();
+        IRulesRuntimeContext context = instance.getRuntimeContext();
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(2003, 5, 15);
@@ -152,16 +153,16 @@ public class ExecutionModeTest {
         context.setCurrentDate(calendar.getTime());
 
         Double res1 = instance.driverRiskScoreOverloadTest("High Risk Driver");
-        assertEquals(120.0, res1.doubleValue(), 0);
+        assertEquals(120.0, res1, 0);
 
         calendar.set(2008, 5, 15);
         context.setCurrentDate(calendar.getTime());
 
         Double res2 = instance.driverRiskScoreOverloadTest("High Risk Driver");
-        assertEquals(100.0, res2.doubleValue(), 0);
+        assertEquals(100.0, res2, 0);
 
         Double res3 = instance.driverRiskScoreNoOverloadTest("High Risk Driver");
-        assertEquals(200.0, res3.doubleValue(), 0);
+        assertEquals(200.0, res3, 0);
     }
 
     @Test

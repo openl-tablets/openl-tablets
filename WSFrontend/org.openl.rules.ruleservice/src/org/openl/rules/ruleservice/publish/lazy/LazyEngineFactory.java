@@ -124,7 +124,8 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
         try {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClass();
-            Object openClassInstance = openClass.newInstance(runtimeEnv);
+            Object openClassInstance = openClass
+                .newInstance(runtimeEnv == null ? getRuntimeEnvBuilder().buildRuntimeEnv() : runtimeEnv);
             Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
 
             return prepareProxyInstance(openClassInstance,

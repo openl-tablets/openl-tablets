@@ -9,21 +9,19 @@ import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-import org.openl.vm.SimpleVM;
 
 public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMember>, IEngineWrapper {
 
     private final Object openlInstance;
     private final Map<Method, IOpenMember> methodMap;
+    private final IRuntimeEnvBuilder runtimeEnvBuilder;
 
-    public OpenLMethodHandler(Object openlInstance, Map<Method, IOpenMember> methodMap) {
+    public OpenLMethodHandler(Object openlInstance,
+            Map<Method, IOpenMember> methodMap,
+            IRuntimeEnvBuilder runtimeEnvBuilder) {
         this.openlInstance = openlInstance;
         this.methodMap = methodMap;
-    }
-
-    public OpenLMethodHandler(Object openlInstance, IRuntimeEnv runtimeEnv, Map<Method, IOpenMember> methodMap) {
-        this(openlInstance, methodMap);
-        setRuntimeEnv(runtimeEnv);
+        this.runtimeEnvBuilder = runtimeEnvBuilder;
     }
 
     @Override
@@ -36,11 +34,7 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
         return methodMap.get(key);
     }
 
-    private final ThreadLocal<IRuntimeEnv> env = ThreadLocal.withInitial(this::makeRuntimeEnv);
-
-    public IRuntimeEnv makeRuntimeEnv() {
-        return new SimpleVM().getRuntimeEnv();
-    }
+    private final ThreadLocal<IRuntimeEnv> env = new ThreadLocal<>();
 
     @Override
     public Object getInstance() {
@@ -54,7 +48,13 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
 
     @Override
     public IRuntimeEnv getRuntimeEnv() {
-        return env.get();
+        IRuntimeEnv runtimeEnv = env.get();
+        if (runtimeEnv == null) {
+            IRuntimeEnv x = runtimeEnvBuilder.buildRuntimeEnv();
+            env.set(x);
+            return x;
+        }
+        return runtimeEnv;
     }
 
     public void setRuntimeEnv(IRuntimeEnv runtimeEnv) {
@@ -92,9 +92,8 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
             } else {
                 IOpenField openField = (IOpenField) member;
                 Object ret = openField.get(openlInstance, getRuntimeEnv());
-                if (method.getReturnType() != void.class && openField.getType() == JavaOpenClass.VOID || openField.getType() == JavaOpenClass.CLS_VOID && method
-                    .getReturnType()
-                    .isPrimitive()) {
+                if (method.getReturnType() != void.class && openField.getType() == JavaOpenClass.VOID || openField
+                    .getType() == JavaOpenClass.CLS_VOID && method.getReturnType().isPrimitive()) {
                     return Array.get(Array.newInstance(method.getReturnType(), 1), 0);
                 }
                 return ret;
