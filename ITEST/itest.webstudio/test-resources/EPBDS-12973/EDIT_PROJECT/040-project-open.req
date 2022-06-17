@@ -1,0 +1,3 @@
+POST /web/user-workspace/design/projects/EPBDS-12973/open?open-dependencies=false HTTP/1.1
+Authorization: Basic RVBCRFNfMTI5NzNfMjpwYXNz
+

@@ -46,6 +46,32 @@
           //<![CDATA[
             var $j = $.noConflict();
 
+          // Common setup for all AJAX
+          $j.ajaxSetup({
+              beforeSend: showLoader,
+              complete: hideLoader,
+              error: function (data, textStatus, errorThrown) {
+                  if (data.status === 399) { // Session Timeout
+                      location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
+                  } else if (data.readyState === 4) {
+                      let json = (function (rawJson) {
+                          try {
+                              return JSON.parse(rawJson);
+                          } catch (e) {
+                              return null;
+                          }
+                      })(data.responseText);
+                      if (json?.message != null) {
+                          ws.ui.error(ws.utils.escapeHtml(json.message));
+                      } else {
+                          ws.ui.error("#{msg['ws.common.error.500']}");
+                      }
+                  } else {
+                      ws.ui.error("#{msg['ws.common.error.500']}");
+                  }
+              }
+          });
+
             // Handle JSF / Richfaces AJAX errors
             var onError = function onError(data) {
                 if (data.errorName
@@ -98,6 +124,11 @@
                             ws.ui.loaderOpened = 0;
                             console.warn('hideLoader() without showLoader() is called.');
                         }
+                    }
+                },
+                utils: {
+                    escapeHtml: function (string) {
+                        return $j('<div/>').text(string).html();
                     }
                 }
             };
