@@ -1,5 +1,10 @@
 package org.openl.rules.ui;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
+import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
+import static org.openl.rules.security.Privileges.VIEW_PROJECTS;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -93,11 +98,6 @@ import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.thoughtworks.xstream.XStreamException;
-
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
-import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
-import static org.openl.rules.security.Privileges.VIEW_PROJECTS;
 
 /**
  * TODO Remove JSF dependency TODO Separate user session from app session TODO Move settings to separate UserSettings
@@ -453,7 +453,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return projects;
     }
 
-    public void compile() {
+    public synchronized void compile() {
         needCompile = true;
     }
 
@@ -495,7 +495,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return !isAutoCompile() && needCompile;
     }
 
-    public void invokeManualCompile() {
+    public synchronized void invokeManualCompile() {
         manualCompile = true;
     }
 
