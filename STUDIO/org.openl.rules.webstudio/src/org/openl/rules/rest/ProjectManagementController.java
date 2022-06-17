@@ -13,9 +13,10 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.NotFoundException;
+import org.openl.rules.rest.project.ProjectStateValidator;
 import org.openl.rules.rest.resolver.DesignRepository;
-import org.openl.rules.rest.service.ProjectDependencyResolverImpl;
-import org.openl.rules.rest.service.ProjectDeploymentServiceImpl;
+import org.openl.rules.rest.service.ProjectDependencyResolver;
+import org.openl.rules.rest.service.ProjectDeploymentService;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
@@ -39,22 +40,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/user-workspace", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProjectManagementController {
 
-    private final ProjectDependencyResolverImpl projectDependencyResolverImpl;
-    private final ProjectDeploymentServiceImpl projectDeploymentServiceImpl;
+    private final ProjectDependencyResolver projectDependencyResolver;
+    private final ProjectDeploymentService projectDeploymentService;
     private final DeploymentManager deploymentManager;
-
+    private final ProjectStateValidator projectStateValidator;
 
     @Autowired
-    public ProjectManagementController(ProjectDependencyResolverImpl projectDependencyResolverImpl,
-            ProjectDeploymentServiceImpl projectDeploymentServiceImpl,
-            DeploymentManager deploymentManager) {
-        this.projectDependencyResolverImpl = projectDependencyResolverImpl;
-        this.projectDeploymentServiceImpl = projectDeploymentServiceImpl;
+    public ProjectManagementController(ProjectDependencyResolver projectDependencyResolver,
+            ProjectDeploymentService projectDeploymentService,
+            DeploymentManager deploymentManager,
+            ProjectStateValidator projectStateValidator) {
+        this.projectDependencyResolver = projectDependencyResolver;
+        this.projectDeploymentService = projectDeploymentService;
         this.deploymentManager = deploymentManager;
+        this.projectStateValidator = projectStateValidator;
     }
 
     @Lookup
-    public UserWorkspace getUserWorkspace(){
+    public UserWorkspace getUserWorkspace() {
         return null;
     }
 
@@ -66,17 +69,16 @@ public class ProjectManagementController {
      * @return project info.
      */
     @GetMapping("/{repo-name}/projects/{proj-name}/info")
-    public ProjectInfo getInfo(@DesignRepository("repo-name") Repository repo,
-            @PathVariable("proj-name") String name)  {
+    public ProjectInfo getInfo(@DesignRepository("repo-name") Repository repo, @PathVariable("proj-name") String name) {
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
             ProjectInfo info = new ProjectInfo(project);
-            info.dependsOn = projectDependencyResolverImpl.getDependsOnProject(project)
+            info.dependsOn = projectDependencyResolver.getDependsOnProject(project)
                 .stream()
                 .map(ProjectInfo::new)
                 .collect(Collectors.toList());
-            info.dependencies = projectDependencyResolverImpl.getProjectDependencies(project)
+            info.dependencies = projectDependencyResolver.getProjectDependencies(project)
                 .stream()
                 .map(ProjectInfo::new)
                 .collect(Collectors.toList());
@@ -100,7 +102,7 @@ public class ProjectManagementController {
             @PathVariable("deploy-repo-name") String deployRepoName) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            return projectDeploymentServiceImpl.getDeploymentProjectItems(project, deployRepoName);
+            return projectDeploymentService.getDeploymentProjectItems(project, deployRepoName);
         } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
         }
@@ -118,9 +120,12 @@ public class ProjectManagementController {
             @PathVariable("proj-name") String name,
             HttpSession session) {
         WebStudio webStudio = WebStudioUtils.getWebStudio(session);
-        SecurityChecker.allow(Privileges.EDIT_PROJECTS);
+        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
+            if (!projectStateValidator.canClose(project)) {
+                throw new ConflictException("project.close.conflict.message");
+            }
             ProjectHistoryService.deleteHistory(project.getBusinessName());
             // We must release module info because it can hold jars.
             // We cannot rely on studio.getProject() to determine if closing project is compiled inside
@@ -149,9 +154,12 @@ public class ProjectManagementController {
             HttpSession session) {
         UserWorkspace userWorkspace = getUserWorkspace();
         WebStudio webStudio = WebStudioUtils.getWebStudio(session);
-        SecurityChecker.allow(Privileges.EDIT_PROJECTS);
+        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         try {
             RulesProject project = userWorkspace.getProject(repo.getId(), name);
+            if (!projectStateValidator.canOpen(project)) {
+                throw new ConflictException("project.open.conflict.message");
+            }
             if (userWorkspace.isOpenedOtherProject(project)) {
                 throw new ConflictException("open.duplicated.project");
             }
@@ -180,18 +188,20 @@ public class ProjectManagementController {
             @PathVariable("proj-name") String name,
             @RequestParam("deploy-repo-name") String deployRepoName,
             @RequestBody String[] items) {
-        SecurityChecker.allow(Privileges.EDIT_PROJECTS);
+        SecurityChecker.allow(Privileges.DEPLOY_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            List<DeploymentProjectItem> deploymentProjectItems = projectDeploymentServiceImpl
+            if (!projectStateValidator.canDeploy(project)) {
+                throw new ConflictException("project.deploy.conflict.message");
+            }
+            List<DeploymentProjectItem> deploymentProjectItems = projectDeploymentService
                 .getDeploymentProjectItems(project, repo.getId());
             for (String item : items) {
                 Optional<DeploymentProjectItem> deploymentProjectItem = deploymentProjectItems.stream()
                     .filter(p -> p.getName().equals(item))
                     .findFirst();
                 if (deploymentProjectItem.isPresent() && deploymentProjectItem.get().isCanDeploy()) {
-                    ADeploymentProject deploymentProject = projectDeploymentServiceImpl
-                        .update(item, project, repo.getId());
+                    ADeploymentProject deploymentProject = projectDeploymentService.update(item, project, repo.getId());
                     deploymentManager.deploy(deploymentProject, deployRepoName);
                 }
             }
@@ -201,7 +211,7 @@ public class ProjectManagementController {
     }
 
     private void openAllDependencies(RulesProject project) throws ProjectException {
-        for (RulesProject rulesProject : projectDependencyResolverImpl.getProjectDependencies(project)) {
+        for (RulesProject rulesProject : projectDependencyResolver.getProjectDependencies(project)) {
             rulesProject.open();
         }
     }
