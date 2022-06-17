@@ -44,8 +44,7 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
     VariationInstantiationStrategyEnhancerInvocationHandler(Map<Method, Method> methodsMap,
             Object serviceClassInstance) {
         this.methodsMap = Objects.requireNonNull(methodsMap, "methodMap cannot be null");
-        this.serviceClassInstance = Objects.requireNonNull(serviceClassInstance,
-            "serviceClassInstance cannot be null");
+        this.serviceClassInstance = Objects.requireNonNull(serviceClassInstance, "serviceClassInstance cannot be null");
     }
 
     @Override
@@ -167,31 +166,14 @@ class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOp
             Object[] arguments,
             SimpleRulesRuntimeEnv parentRuntimeEnv) {
         final Collection<VariationCalculationTask> tasks = new ArrayList<>(variationsPack.getVariations().size());
-        boolean f = false;
+        if (!ASMProxyFactory.isProxy(serviceClassInstance)) {
+            log.warn("Variation features are not supported for Wrapper classes. This functionality is deprecated.");
+        }
         for (Variation variation : variationsPack.getVariations()) {
-            final IRuntimeEnv runtimeEnv = parentRuntimeEnv.clone();
-
-            if (ASMProxyFactory.isProxy(serviceClassInstance)) {
-                final OpenLRulesMethodHandler handler = (OpenLRulesMethodHandler) ASMProxyFactory
-                    .getProxyHandler(serviceClassInstance);
-                handler.setRuntimeEnv(runtimeEnv);
-                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) runtimeEnv;
-                simpleRulesRuntimeEnv.changeMethodArgumentsCacheMode(org.openl.rules.vm.CacheMode.READ_ONLY);
-                simpleRulesRuntimeEnv.setOriginalCalculation(false);
-                simpleRulesRuntimeEnv.setIgnoreRecalculate(true);
-                simpleRulesRuntimeEnv.getArgumentCachingStorage().initCurrentStep();
-            } else {
-                if (!f) {
-                    log.warn(
-                        "Variation features are not supported for Wrapper classes. This functionality is deprecated.");
-                    f = true;
-                }
-            }
-
             final VariationCalculationTask item = new VariationCalculationTask(member,
                 cloner.deepClone(arguments),
                 variation,
-                runtimeEnv);
+                parentRuntimeEnv.clone());
             tasks.add(item);
         }
         return tasks.toArray(new VariationCalculationTask[] {});

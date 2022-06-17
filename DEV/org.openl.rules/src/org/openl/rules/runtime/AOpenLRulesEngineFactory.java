@@ -44,6 +44,12 @@ public abstract class AOpenLRulesEngineFactory extends AOpenLEngineFactory {
     protected final IOpenLMethodHandler prepareMethodHandler(Object openClassInstance,
             Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
-        return new OpenLRulesMethodHandler(openClassInstance, runtimeEnv, methodMap);
+        OpenLRulesMethodHandler openLRulesMethodHandler = new OpenLRulesMethodHandler(openClassInstance,
+            methodMap,
+            getRuntimeEnvBuilder());
+        if (runtimeEnv != null) {
+            openLRulesMethodHandler.setRuntimeEnv(runtimeEnv);
+        }
+        return openLRulesMethodHandler;
     }
 }

@@ -122,7 +122,8 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
             compiledOpenClass = getCompiledOpenClass();
             IOpenClass openClass = compiledOpenClass.getOpenClass();
             Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
-            Object openClassInstance = openClass.newInstance(runtimeEnv);
+            Object openClassInstance = openClass
+                .newInstance(runtimeEnv == null ? getRuntimeEnvBuilder().buildRuntimeEnv() : runtimeEnv);
             return prepareProxyInstance(openClassInstance, methodMap, runtimeEnv, getInterfaceClass().getClassLoader());
         } catch (OpenlNotCheckedException ex) {
             throw ex;
