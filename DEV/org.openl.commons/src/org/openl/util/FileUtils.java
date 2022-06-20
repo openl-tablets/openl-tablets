@@ -288,17 +288,31 @@ public class FileUtils {
         if (!Files.exists(root)) {
             throw new FileNotFoundException("Path does not exist: " + root);
         }
-        Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+        Files.walkFileTree(root, new SimpleFileVisitor<>() {
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
+                delete0(file);
                 return FileVisitResult.CONTINUE;
             }
 
             public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                Files.delete(dir);
+                delete0(dir);
                 return FileVisitResult.CONTINUE;
             }
         });
+    }
+
+    /**
+     * Delete file or directory using old API. Because {@link Files#delete(Path)} throws sometimes
+     * {@link java.nio.file.AccessDeniedException} by unknown reason on Windows environment
+     *
+     * @param path path to delete
+     * @throws IOException if failed to delete
+     */
+    private static void delete0(Path path) throws IOException {
+        File toDelete = path.toFile();
+        if (!toDelete.delete()) {
+            throw new IOException("Failed to delete: " + path);
+        }
     }
 
     /**
