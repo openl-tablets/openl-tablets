@@ -8,6 +8,7 @@ import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
@@ -67,14 +68,20 @@ public class ParameterTreeBuilder {
         if (canConstruct(config.getType())) {
             return new ComplexParameterTreeNode(config);
         } else {
-            UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(config.getFieldNameInParent(),
-                config.getValue(),
-                config.getType(),
-                config.getParent());
-            node.setWarnMessage(String.format(
-                "Cannot construct bean of type '%s'. Make sure that it has public constructor without parameters.",
-                config.getType().getDisplayName(INamedThing.SHORT)));
-            return node;
+            var convertor = String2DataConvertorFactory.getConvertor(config.getType().getInstanceClass());
+            if (convertor != null) {
+                // Create simple node if Complex Type has StringToData convertor
+                return createSimpleNode(config);
+            } else {
+                UnmodifiableParameterTreeNode node = new UnmodifiableParameterTreeNode(config.getFieldNameInParent(),
+                    config.getValue(),
+                    config.getType(),
+                    config.getParent());
+                node.setWarnMessage(String.format(
+                    "Cannot construct bean of type '%s'. Make sure that it has public constructor without parameters.",
+                    config.getType().getDisplayName(INamedThing.SHORT)));
+                return node;
+            }
         }
     }
 
