@@ -874,4 +874,16 @@ public final class Strings {
         MessageFormat msg = new MessageFormat(pattern, Locale.US);
         return msg.format(args);
     }
+
+    /**
+     * Convert string locale to {@link Locale}
+     * @param localeStr locale as string
+     * @return parsed {@link Locale} object
+     */
+    public static Locale toLocale(String localeStr) {
+        if (isEmpty0(localeStr)) {
+            return null;
+        }
+        return Locale.forLanguageTag(localeStr);
+    }
 }

@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.Locale;
+
 
 import org.junit.Test;
 
@@ -610,5 +612,12 @@ public class StringsTest {
         } finally {
             TimeZone.setDefault(defaultTz);
         }
+    }
+    
+    @Test
+    public void testToLocale() {
+        assertNull(toLocale(null));
+        assertNull(toLocale(""));
+        assertEquals(new Locale("fr", "FR"), toLocale("fr-FR"));
     }
 }
