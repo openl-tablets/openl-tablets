@@ -56,6 +56,7 @@ public final class JavaOpenClassCache {
         javaClassCache.put(Date.class, new JavaOpenClass(Date.class, true));
         javaClassCache.put(BigInteger.class, new JavaOpenClass(BigInteger.class, true));
         javaClassCache.put(BigDecimal.class, new JavaOpenClass(BigDecimal.class, true));
+        javaClassCache.put(Locale.class, new JavaOpenClass(Locale.class, true));
         return javaClassCache;
     }
 
