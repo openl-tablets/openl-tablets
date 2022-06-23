@@ -7,6 +7,7 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.EnumToStringCast;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.StringToEnumCast;
+import org.openl.binding.impl.module.ContextPropertyBinderUtils;
 import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
@@ -90,8 +91,7 @@ class ContextPropertiesInjector {
         }
         IOpenClass contextTypeOpenClass = JavaOpenClass.getOpenClass(contextType);
         IOpenCast openCast = castFactory.getCast(field.getType(), contextTypeOpenClass);
-        if (openCast == null || !openCast
-            .isImplicit() && !(openCast instanceof EnumToStringCast) && !(openCast instanceof StringToEnumCast)) {
+        if (ContextPropertyBinderUtils.isNonValidCastForContextProperty(openCast)) {
             throw new IllegalStateException(String.format(
                 "Type mismatch for context property '%s' for field '%s' in class '%s'. " + "Cannot convert from '%s' to '%s'.",
                 field.getContextProperty(),

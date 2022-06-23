@@ -30,9 +30,7 @@ public final class ContextPropertyBinderUtils {
                 openCast = bindingContext.getCast(expectedType, contextPropertyType);
             } catch (NullPointerException ignored) {
             }
-            if (openCast == null || !openCast.isImplicit() && !(extractIfNestedOpenCast(
-                openCast) instanceof EnumToStringCast) && !(extractIfNestedOpenCast(
-                    openCast) instanceof StringToEnumCast)) {
+            if (isNonValidCastForContextProperty(openCast)) {
                 errorMessage = String.format(
                     "Type mismatch for context property '%s'. Cannot convert from '%s' to '%s'.",
                     contextProperty,
@@ -43,7 +41,12 @@ public final class ContextPropertyBinderUtils {
         return errorMessage;
     }
 
-    private static Object extractIfNestedOpenCast(IOpenCast openCast) {
+    public static boolean isNonValidCastForContextProperty(IOpenCast openCast) {
+        return openCast == null || !openCast.isImplicit() && !(extractIfNestedOpenCast(
+            openCast) instanceof EnumToStringCast) && !(extractIfNestedOpenCast(openCast) instanceof StringToEnumCast);
+    }
+
+    private static IOpenCast extractIfNestedOpenCast(IOpenCast openCast) {
         if (openCast instanceof INestedCastOpenCast) {
             INestedCastOpenCast nestedCastOpenCast = (INestedCastOpenCast) openCast;
             if (nestedCastOpenCast.hasNestedOpenCast()) {
