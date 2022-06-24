@@ -4,8 +4,7 @@ import java.util.Optional;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.IBoundNode;
-import org.openl.binding.impl.method.NullVarArgsOpenMethod;
-import org.openl.binding.impl.method.VarArgsOpenMethod;
+import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenMethod;
@@ -37,11 +36,10 @@ final class MethodBoundNodeUsageCreator implements NodeUsageCreator {
         IMethodCaller methodCaller = methodBoundNode.getMethodCaller();
         if (methodCaller != null && location != null && location.isTextLocation()) {
             IOpenMethod method;
-            if (methodCaller instanceof NullVarArgsOpenMethod) {
-                method = ((NullVarArgsOpenMethod) methodCaller).getDelegate();
-            } else if (methodCaller instanceof VarArgsOpenMethod) {
-                method = ((VarArgsOpenMethod) methodCaller).getDelegate();
-            } else if (methodCaller instanceof IOpenMethod) {
+            while (methodCaller instanceof AOpenMethodDelegator) {
+                methodCaller = ((AOpenMethodDelegator) methodCaller).getDelegate();
+            }
+            if (methodCaller instanceof IOpenMethod) {
                 method = (IOpenMethod) methodCaller;
             } else {
                 method = methodCaller.getMethod();

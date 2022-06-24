@@ -51,6 +51,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode tabs4t;
     private TableSyntaxNode myDatatype;
     private TableSyntaxNode myDatatypeRule;
+    private TableSyntaxNode main;
+    private TableSyntaxNode mySpr1;
 
     public NodeUsagesMetaInfoTest() {
         super(SRC);
@@ -91,6 +93,8 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         tabs4t = findTable("SmartRules Tabs Tabs4t(String componentID)");
         myDatatype = findTable("Datatype MyDatatype");
         myDatatypeRule = findTable("SmartRules MyDatatype[] myDatatypeRule(int a)");
+        main = findTable("Spreadsheet SpreadsheetResult main ()");
+        mySpr1 = findTable("Spreadsheet String mySpr1(String x)");
     }
 
     @Test
@@ -627,6 +631,12 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         usedNodes = assertMetaInfo(ternaryOpHints, 1, 3, 4);
 
         assertNodeUsage(usedNodes.get(1), "org.openl.rules.calc\nclass SpreadsheetResult", 9, 26);
+    }
+
+    @Test
+    public void testMain() {
+        List<? extends NodeUsage> usedNodes = assertMetaInfo(main, 1, 2, 3);
+        assertNodeUsage(mySpr1.getUri(), usedNodes.get(1), "String mySpr1(String x)", 2, 8);
     }
 
     @Test
