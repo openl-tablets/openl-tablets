@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Objects;
 
+import org.openl.binding.impl.method.NonNullLiteral;
+
 /**
  * A set of util methods to work with arrays.
  *
@@ -81,7 +83,7 @@ public final class Arrays {
      *         of the input array (unless null), in which case it will have the same type as the element.
      */
     @SuppressWarnings("unchecked")
-    public static <T> T[] add(T[] array, T... elements) {
+    public static <T> T[] add(T[] array, @NonNullLiteral T... elements) {
         return add(array, length(array), elements);
     }
 
@@ -307,10 +309,10 @@ public final class Arrays {
     }
 
     /**
-     * Returns a copy of the specified array into ascending order, according to the {@linkplain Comparable natural ordering}
-     * of its elements. All elements in the array must implement the {@link Comparable} interface. Furthermore, all
-     * elements in the array must be <i>mutually comparable</i> (that is, {@code e1.compareTo(e2)} must not throw a
-     * {@code ClassCastException} for any elements {@code e1} and {@code e2} in the array).
+     * Returns a copy of the specified array into ascending order, according to the {@linkplain Comparable natural
+     * ordering} of its elements. All elements in the array must implement the {@link Comparable} interface.
+     * Furthermore, all elements in the array must be <i>mutually comparable</i> (that is, {@code e1.compareTo(e2)} must
+     * not throw a {@code ClassCastException} for any elements {@code e1} and {@code e2} in the array).
      * <p/>
      * {@code null} values are kept in the tail.
      * <p/>
