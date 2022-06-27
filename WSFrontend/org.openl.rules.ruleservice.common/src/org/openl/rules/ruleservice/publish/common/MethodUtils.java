@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.publish.common;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -91,21 +91,18 @@ public final class MethodUtils {
             String[] parameterNames = GenUtils
                 .getParameterNames(method, openClass, provideRuntimeContext, provideVariations);
             int i = 0;
-            for (Annotation[] annotations : method.getParameterAnnotations()) {
-                for (Annotation annotation : annotations) {
-                    if (annotation instanceof Name) {
-                        Name name = (Name) annotation;
-                        if (!name.value().isEmpty()) {
-                            parameterNames[i] = name.value();
-                        } else {
-                            Logger log = LoggerFactory.getLogger(MethodUtils.class);
-                            if (log.isWarnEnabled()) {
-                                log.warn(
-                                    "Invalid parameter name '{}' is used in @Name annotation for the method '{}.{}'.",
-                                    name.value(),
-                                    method.getClass().getTypeName(),
-                                    MethodUtil.printMethod(method.getName(), method.getParameterTypes()));
-                            }
+            for (Parameter parameter : method.getParameters()) {
+                Name name = parameter.getAnnotation(Name.class);
+                if (name != null) {
+                    if (!name.value().isEmpty()) {
+                        parameterNames[i] = name.value();
+                    } else {
+                        Logger log = LoggerFactory.getLogger(MethodUtils.class);
+                        if (log.isWarnEnabled()) {
+                            log.warn("Invalid parameter name '{}' is used in @Name annotation for the method '{}.{}'.",
+                                name.value(),
+                                method.getClass().getTypeName(),
+                                MethodUtil.printMethod(method.getName(), method.getParameterTypes()));
                         }
                     }
                 }

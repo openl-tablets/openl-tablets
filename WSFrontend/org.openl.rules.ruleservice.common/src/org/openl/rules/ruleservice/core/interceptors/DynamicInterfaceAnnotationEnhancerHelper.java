@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.core.interceptors;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -92,36 +93,35 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                             boolean isCompatible = true;
                             for (int i = 0; i < typesInCurrentMethod.length; i++) {
                                 if (!typesInCurrentMethod[i].equals(typesInTemplateMethod[i])) {
-                                    Annotation[] annotations = method.getParameterAnnotations()[i];
+                                    Parameter parameter = method.getParameters()[i];
                                     boolean isCompatibleParameter = false;
-                                    for (Annotation annotation : annotations) {
-                                        if (annotation instanceof AnyType) {
-                                            AnyType anyTypeAnnotation = (AnyType) annotation;
-                                            String pattern = anyTypeAnnotation.value();
-                                            if (pattern.isEmpty()) {
+                                    AnyType anyType = parameter.getAnnotation(AnyType.class);
+                                    if (anyType != null) {
+                                        String pattern = anyType.value();
+                                        if (pattern.isEmpty()) {
+                                            isCompatibleParameter = true;
+                                        } else {
+                                            if (Pattern.matches(pattern, typesInCurrentMethod[i].getClassName())) {
                                                 isCompatibleParameter = true;
-                                            } else {
-                                                if (Pattern.matches(pattern, typesInCurrentMethod[i].getClassName())) {
-                                                    isCompatibleParameter = true;
-                                                }
                                             }
-                                        } else if (annotation instanceof RulesType) {
-                                            RulesType rulesType = (RulesType) annotation;
-                                            try {
-                                                Class<?> type = RuleServiceInstantiationFactoryHelper
-                                                    .findOrLoadType(rulesType, openClass, classLoader);
-                                                String d = typesInCurrentMethod[i].getDescriptor();
-                                                while (d.startsWith("[")) {
-                                                    d = d.substring(1);
-                                                }
-                                                if (Objects.equals(Type.getType(type), Type.getType(d))) {
-                                                    isCompatibleParameter = true;
-                                                }
-                                            } catch (ClassNotFoundException e) {
-                                                throw new InstantiationException(String.format(
-                                                    "Failed to apply annotation template class to the service class. Failed to load type '%s' that used in @RulesType annotation.",
-                                                    rulesType.value()));
+                                        }
+                                    }
+                                    RulesType rulesType = parameter.getAnnotation(RulesType.class);
+                                    if (rulesType != null) {
+                                        try {
+                                            Class<?> type = RuleServiceInstantiationFactoryHelper
+                                                .findOrLoadType(rulesType, openClass, classLoader);
+                                            String d = typesInCurrentMethod[i].getDescriptor();
+                                            while (d.startsWith("[")) {
+                                                d = d.substring(1);
                                             }
+                                            if (Objects.equals(Type.getType(type), Type.getType(d))) {
+                                                isCompatibleParameter = true;
+                                            }
+                                        } catch (ClassNotFoundException e) {
+                                            throw new InstantiationException(String.format(
+                                                "Failed to apply annotation template class to the service class. Failed to load type '%s' that used in @RulesType annotation.",
+                                                rulesType.value()));
                                         }
                                     }
                                     if (!isCompatibleParameter) {
@@ -158,12 +158,10 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                     }
                     int i = 0;
                     for (Annotation[] parameterAnnotations : templateMethod.getParameterAnnotations()) {
-                        if (parameterAnnotations.length > 0) {
-                            for (Annotation annotation : parameterAnnotations) {
-                                AnnotationVisitor annotationVisitor = mv
-                                    .visitParameterAnnotation(i, Type.getDescriptor(annotation.annotationType()), true);
-                                InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
-                            }
+                        for (Annotation annotation : parameterAnnotations) {
+                            AnnotationVisitor annotationVisitor = mv
+                                .visitParameterAnnotation(i, Type.getDescriptor(annotation.annotationType()), true);
+                            InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
                         }
                         i++;
                     }

@@ -1,11 +1,11 @@
 package org.openl.binding.impl.cast;
 
-import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
 import org.openl.binding.ICastFactory;
@@ -54,23 +54,20 @@ public class DefaultMethodCallerWrapperFactory implements MethodCallerWrapperFac
             IOpenClass[] callParams) {
         Method javaMethod = javaOpenMethod.getJavaMethod();
         int i = 0;
-        for (Annotation[] parameterAnnotations : javaMethod.getParameterAnnotations()) {
-            for (Annotation annotation : parameterAnnotations) {
-                if (annotation instanceof ReturnType) {
-                    ReturnType returnType = (ReturnType) annotation;
-                    IOpenClass type;
-                    if (i < javaOpenMethod.getNumberOfParameters() - 1) {
-                        type = callParams[i];
-                    } else {
-                        type = findTypeForVarargs(Arrays.copyOfRange(callParams, i, callParams.length), castFactory);
-                    }
-                    return buildAutoCastResultOpenMethod(castFactory,
-                        methodCaller,
-                        javaOpenMethod,
-                        extractSimpleReturnType(type,
-                            returnType.arrayDimension() >= 0 ? returnType.arrayDimension() : null));
-
+        for (Parameter parameterAnnotations : javaMethod.getParameters()) {
+            if (parameterAnnotations.isAnnotationPresent(ReturnType.class)) {
+                ReturnType returnType = parameterAnnotations.getAnnotation(ReturnType.class);
+                IOpenClass type;
+                if (i < javaOpenMethod.getNumberOfParameters() - 1) {
+                    type = callParams[i];
+                } else {
+                    type = findTypeForVarargs(Arrays.copyOfRange(callParams, i, callParams.length), castFactory);
                 }
+                return buildAutoCastResultOpenMethod(castFactory,
+                    methodCaller,
+                    javaOpenMethod,
+                    extractSimpleReturnType(type,
+                        returnType.arrayDimension() >= 0 ? returnType.arrayDimension() : null));
             }
             i++;
         }

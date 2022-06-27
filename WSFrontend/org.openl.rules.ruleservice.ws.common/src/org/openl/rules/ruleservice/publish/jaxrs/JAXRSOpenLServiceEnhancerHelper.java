@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.publish.jaxrs;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +17,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -269,7 +269,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
             String nonConflictedRequestParameterName = requestParameterName;
             StringBuilder s = new StringBuilder("0");
-            while (getUsedOpenApiComponentNamesWithRequestParameterSuffix().contains(nonConflictedRequestParameterName)) {
+            while (getUsedOpenApiComponentNamesWithRequestParameterSuffix()
+                .contains(nonConflictedRequestParameterName)) {
                 nonConflictedRequestParameterName = StringUtils
                     .capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX + s + (suffix > 0 ? suffix : "");
                 s.insert(0, "0");
@@ -313,16 +314,18 @@ public class JAXRSOpenLServiceEnhancerHelper {
             return path.replaceAll("\\{[^}]*}", "{}");
         }
 
-        boolean isJAXRSParamAnnotation(Annotation annotation) {
-            return annotation instanceof Multipart || annotation instanceof PathParam || annotation instanceof QueryParam || annotation instanceof CookieParam || annotation instanceof FormParam || annotation instanceof BeanParam || annotation instanceof HeaderParam || annotation instanceof MatrixParam;
+        boolean isJAXRSParamAnnotation(Parameter parameter) {
+            return parameter.isAnnotationPresent(Multipart.class) || parameter
+                .isAnnotationPresent(PathParam.class) || parameter.isAnnotationPresent(QueryParam.class) || parameter
+                    .isAnnotationPresent(CookieParam.class) || parameter.isAnnotationPresent(
+                        FormParam.class) || parameter.isAnnotationPresent(BeanParam.class) || parameter
+                            .isAnnotationPresent(HeaderParam.class) || parameter.isAnnotationPresent(MatrixParam.class);
         }
 
         boolean isJAXRSParamAnnotationUsedInMethod(Method method) {
-            for (Annotation[] paramAnnotations : method.getParameterAnnotations()) {
-                for (Annotation paramAnnotation : paramAnnotations) {
-                    if (isJAXRSParamAnnotation(paramAnnotation)) {
-                        return true;
-                    }
+            for (Parameter parameter : method.getParameters()) {
+                if (isJAXRSParamAnnotation(parameter)) {
+                    return true;
                 }
             }
             return false;
@@ -366,17 +369,12 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 addGetAnnotation(mv, originalMethod);
                 if (!originalMethod.isAnnotationPresent(Path.class)) {
                     Set<String> usedPathParamValues = getUsedValuesInParamAnnotations(originalMethod,
-                        e -> e instanceof PathParam,
-                        e -> ((PathParam) e).value());
+                        PathParam.class,
+                        PathParam::value);
                     int i = 0;
                     for (String paramName : parameterNames) {
-                        Annotation[] paramAnnotations = originalMethod.getParameterAnnotations()[i];
-                        PathParam pathParam = null;
-                        for (Annotation paramAnnotation : paramAnnotations) {
-                            if (paramAnnotation instanceof PathParam) {
-                                pathParam = (PathParam) paramAnnotation;
-                            }
-                        }
+                        Parameter parameter = originalMethod.getParameters()[i];
+                        PathParam pathParam = parameter.getAnnotation(PathParam.class);
                         if (pathParam == null) {
                             String p = paramName;
                             int j = 1;
@@ -402,18 +400,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     }
                 } else {
                     Set<String> usedQueryParamValues = getUsedValuesInParamAnnotations(originalMethod,
-                        e -> e instanceof QueryParam,
-                        e -> ((QueryParam) e).value());
+                        QueryParam.class,
+                        QueryParam::value);
                     int i = 0;
                     for (String paramName : parameterNames) {
-                        Annotation[] paramAnnotations = originalMethod.getParameterAnnotations()[i];
-                        boolean jaxrsAnnotationPresented = false;
-                        for (Annotation annotation : paramAnnotations) {
-                            if (isJAXRSParamAnnotation(annotation)) {
-                                jaxrsAnnotationPresented = true;
-                                break;
-                            }
-                        }
+                        boolean jaxrsAnnotationPresented = isJAXRSParamAnnotation(originalMethod.getParameters()[i]);
                         if (!jaxrsAnnotationPresented) {
                             String p = paramName;
                             int j = 1;
@@ -482,16 +473,15 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         .isAnnotationPresent(OPTIONS.class) || originalMethod.isAnnotationPresent(HEAD.class));
         }
 
-        private Set<String> getUsedValuesInParamAnnotations(Method originalMethod,
-                Predicate<Annotation> predicate,
-                Function<Annotation, String> func) {
+        private <T extends Annotation> Set<String> getUsedValuesInParamAnnotations(Method originalMethod,
+                Class<T> annotationClass,
+                Function<T, String> func) {
             Set<String> usedPathParamValues = new HashSet<>();
-            for (Annotation[] paramAnnotations : originalMethod.getParameterAnnotations()) {
-                for (Annotation paramAnnotation : paramAnnotations) {
-                    if (predicate.test(paramAnnotation)) {
-                        usedPathParamValues.add(func.apply(paramAnnotation));
-                        break;
-                    }
+            for (Parameter parameter : originalMethod.getParameters()) {
+                T annotation = parameter.getAnnotation(annotationClass);
+                if (annotation != null) {
+                    usedPathParamValues.add(func.apply(annotation));
+                    break;
                 }
             }
             return usedPathParamValues;
