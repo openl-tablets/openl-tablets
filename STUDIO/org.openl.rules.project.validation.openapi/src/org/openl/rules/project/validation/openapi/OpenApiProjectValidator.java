@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
+import java.util.function.Function;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.CookieParam;
@@ -375,7 +375,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     }
 
     private void getAndValidateOperation(Context context,
-            java.util.function.Function<PathItem, Operation> func,
+            Function<PathItem, Operation> func,
             Class<? extends Annotation> operationAnnotation) {
         Method method = findMethodByPathAndMethod(context.getServiceClass(),
             context.getActualPath(),
@@ -811,28 +811,37 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     }
 
     private int findParameterIndex(Method method, String in, String name) {
-        Predicate<Annotation> predicate;
+        int index;
         if ("path".equalsIgnoreCase(in)) {
-            predicate = e -> e instanceof PathParam && Objects.equals(((PathParam) e).value(), name);
+            index = getIndex(method, PathParam.class, PathParam::value, name);
         } else if ("query".equalsIgnoreCase(in)) {
-            predicate = e -> e instanceof QueryParam && Objects.equals(((QueryParam) e).value(), name);
+            index = getIndex(method, QueryParam.class, QueryParam::value, name);
         } else if ("header".equalsIgnoreCase(in)) {
-            predicate = e -> e instanceof HeaderParam && Objects.equals(((HeaderParam) e).value(), name);
+            index = getIndex(method, HeaderParam.class, HeaderParam::value, name);
         } else if ("cookie".equalsIgnoreCase(in)) {
-            predicate = e -> e instanceof CookieParam && Objects.equals(((CookieParam) e).value(), name);
+            index = getIndex(method, CookieParam.class, CookieParam::value, name);
         } else {
             throw new IllegalStateException("Parameter type is not resolved");
         }
+        if (index >= 0) {
+            return index;
+        }
+        throw new IllegalStateException("Failed to resolve parameter index");
+    }
+
+    private <T extends Annotation> int getIndex(Method method,
+            Class<T> annotationClass,
+            Function<T, String> f,
+            String name) {
         int index = 0;
-        for (Annotation[] paramAnnotations : method.getParameterAnnotations()) {
-            for (Annotation paramAnnotation : paramAnnotations) {
-                if (predicate.test(paramAnnotation)) {
-                    return index;
-                }
+        for (java.lang.reflect.Parameter parameter : method.getParameters()) {
+            T annotation = parameter.getAnnotation(annotationClass);
+            if (annotation != null && Objects.equals(f.apply(annotation), name)) {
+                return index;
             }
             index++;
         }
-        throw new IllegalStateException("Failed to resolve parameter index");
+        return -1;
     }
 
     private void validateResponse(Context context) {
@@ -976,8 +985,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 }
             }
         } else {
-            if (method.getParameterCount() == 1 && isJAXRSBeanParamAnnotationPresented(
-                method.getParameterAnnotations()[0])) {
+            if (method.getParameterCount() == 1 && method.getParameters()[0].isAnnotationPresent(BeanParam.class)) {
                 validateMethodParameter(context,
                     methodName,
                     null,
@@ -989,8 +997,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     expectedSchema);
             } else if (method.getParameterCount() > 0) {
                 int i = 0;
-                for (Annotation[] parameterAnnotations : method.getParameterAnnotations()) {
-                    if (!isJAXRSParameterAnnotationPresented(parameterAnnotations)) {
+                for (java.lang.reflect.Parameter parameter1 : method.getParameters()) {
+                    if (!isJAXRSParameterAnnotationPresented(parameter1)) {
                         Pair<String, IOpenClass> parameter = findParameter(context, method, i);
                         validateMethodParameter(context,
                             methodName,
@@ -1004,7 +1012,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     i++;
                 }
                 for (i = 0; i < method.getParameterCount(); i++) {
-                    String name = getJAXRSFormParamAnnotation(method.getParameterAnnotations()[i]);
+                    String name = getJAXRSFormParamAnnotationValue(method.getParameters()[i]);
                     if (name != null) {
                         Schema<?> actualParameterSchema = allPropertiesOfActualSchema.get(name);
                         Schema<?> expectedParameterSchema = allPropertiesOfExpectedSchema.get(name);
@@ -1117,32 +1125,19 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         }
     }
 
-    private boolean isJAXRSParameterAnnotationPresented(Annotation[] annotations) {
-        for (Annotation annotation : annotations) {
-            if (annotation instanceof PathParam || annotation instanceof QueryParam || annotation instanceof CookieParam || annotation instanceof FormParam || annotation instanceof BeanParam || annotation instanceof HeaderParam || annotation instanceof MatrixParam) {
-                return true;
-            }
-        }
-        return false;
+    private boolean isJAXRSParameterAnnotationPresented(java.lang.reflect.Parameter parameter) {
+        return parameter.isAnnotationPresent(PathParam.class) || parameter
+            .isAnnotationPresent(QueryParam.class) || parameter
+                .isAnnotationPresent(CookieParam.class) || parameter.isAnnotationPresent(FormParam.class) ||
+
+                parameter.isAnnotationPresent(BeanParam.class) || parameter
+                    .isAnnotationPresent(HeaderParam.class) || parameter.isAnnotationPresent(MatrixParam.class);
+
     }
 
-    private String getJAXRSFormParamAnnotation(Annotation[] annotations) {
-        for (Annotation annotation : annotations) {
-            if (annotation instanceof FormParam) {
-                FormParam formParam = (FormParam) annotation;
-                return formParam.value();
-            }
-        }
-        return null;
-    }
-
-    private boolean isJAXRSBeanParamAnnotationPresented(Annotation[] annotations) {
-        for (Annotation annotation : annotations) {
-            if (annotation instanceof BeanParam) {
-                return true;
-            }
-        }
-        return false;
+    private String getJAXRSFormParamAnnotationValue(java.lang.reflect.Parameter parameter) {
+        FormParam formParam = parameter.getAnnotation(FormParam.class);
+        return formParam != null ? formParam.value() : null;
     }
 
     private static final List<String> ORDER_TYPES1 = Arrays.asList("Integer", "Long", "BigInteger", "BigDecimal");
@@ -1215,10 +1210,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             return type != null ? type + "[]" : null;
         }
         return null;
-    }
-
-    interface Function {
-        void run();
     }
 
     private IOpenClass getSuperClass(IOpenClass openClass) {
@@ -1402,7 +1393,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         .resolveAllProperties(resolvedActualSchema);
                 }
 
-                List<Function> wrongFields = new ArrayList<>();
+                List<Runnable> wrongFields = new ArrayList<>();
                 int countOfValidFields = 0;
                 for (Map.Entry<String, Schema> entry : propertiesOfExpectedSchema.entrySet()) {
                     Schema<?> fieldActualSchema = propertiesOfActualSchema.get(entry.getKey());
@@ -1538,7 +1529,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         throw new DifferentTypesException();
                     }
                 }
-                wrongFields.forEach(Function::run);
+                wrongFields.forEach(Runnable::run);
             }
         } finally {
             context.setType(oldType);

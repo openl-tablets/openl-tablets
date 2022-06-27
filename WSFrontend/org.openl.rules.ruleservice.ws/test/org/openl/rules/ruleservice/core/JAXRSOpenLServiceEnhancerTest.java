@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.core;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -107,13 +108,11 @@ public class JAXRSOpenLServiceEnhancerTest {
                 getAnnotationExists = true;
             }
         }
-        for (Annotation[] annotations : someMethod.getParameterAnnotations()) {
-            for (Annotation annotation : annotations) {
-                if (annotation instanceof PathParam) {
-                    pathParamAnnotationExists = true;
-                    PathParam param = (PathParam) annotation;
-                    Assert.assertNotNull("Method parameter required @PathParam annotation", param.value());
-                }
+        for (Parameter parameter : someMethod.getParameters()) {
+            PathParam param = parameter.getAnnotation(PathParam.class);
+            if (param != null) {
+                pathParamAnnotationExists = true;
+                Assert.assertNotNull("Method parameter required @PathParam annotation", param.value());
             }
         }
         if (!pathParamAnnotationExists) {
@@ -142,19 +141,14 @@ public class JAXRSOpenLServiceEnhancerTest {
         Assert.assertEquals("/someMethod/{arg1}", path.value());
         Assert.assertNotNull(someMethod.getAnnotation(GET.class));
         Assert.assertNull(someMethod.getAnnotation(POST.class));
-        int i = 0;
-        for (Annotation[] parameterAnnotation : someMethod.getParameterAnnotations()) {
-            if (parameterAnnotation.length == 1) {
-                if (i == 0) {
-                    Assert.assertEquals("arg1", ((PathParam) parameterAnnotation[0]).value());
-                } else {
-                    Assert.assertEquals("arg1", ((QueryParam) parameterAnnotation[0]).value());
-                }
-            } else {
-                Assert.fail("Expected @PathParam annotation");
-            }
-            i++;
-        }
+        Parameter parameter1 = someMethod.getParameters()[0];
+        PathParam pathParam = parameter1.getAnnotation(PathParam.class);
+        Assert.assertNotNull("Expected @PathParam annotation", pathParam);
+        Assert.assertEquals("arg1", pathParam.value());
+        Parameter parameter2 = someMethod.getParameters()[1];
+        QueryParam queryParam = parameter2.getAnnotation(QueryParam.class);
+        Assert.assertNotNull("Expected @QueryParam annotation", queryParam);
+        Assert.assertEquals("arg1", queryParam.value());
     }
 
     public interface TestAnnotatedInterface2 {
@@ -253,13 +247,11 @@ public class JAXRSOpenLServiceEnhancerTest {
                 Assert.assertEquals("@Consumes annotation requires defined values.", 1, consumes.value().length);
             }
         }
-        for (Annotation[] annotations : someMethod.getParameterAnnotations()) {
-            for (Annotation annotation : annotations) {
-                if (annotation instanceof PathParam) {
-                    pathParamAnnotationExists = true;
-                    PathParam param = (PathParam) annotation;
-                    Assert.assertEquals("Method parameter required @PathParam annotation", "arg", param.value());
-                }
+        for (Parameter parameter : someMethod.getParameters()) {
+            PathParam param = parameter.getAnnotation(PathParam.class);
+            if (param != null) {
+                pathParamAnnotationExists = true;
+                Assert.assertEquals("Method parameter required @PathParam annotation", "arg", param.value());
             }
         }
         if (!pathParamAnnotationExists) {

@@ -1,8 +1,8 @@
 package org.openl.rules.ruleservice.core;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -468,24 +468,22 @@ public final class RuleServiceInstantiationFactoryHelper {
         Class<?>[] methodParamTypes = new Class<?>[method.getParameterCount()];
         boolean f = false;
         int i = 0;
-        for (Annotation[] annotations : method.getParameterAnnotations()) {
+        for (Parameter parameter : method.getParameters()) {
             methodParamTypes[i] = method.getParameterTypes()[i];
-            for (Annotation a : annotations) {
-                if (a instanceof RulesType) {
-                    try {
-                        Class<?> loadedType = findOrLoadType((RulesType) a, openClass, classLoader);
-                        Class<?> t = method.getParameterTypes()[i];
-                        while (t.isArray()) {
-                            t = t.getComponentType();
-                            loadedType = Array.newInstance(loadedType, 0).getClass();
-                        }
-                        methodParamTypes[i] = loadedType;
-                        f = true;
-                    } catch (ClassNotFoundException e) {
-                        throw new InstantiationException(
-                            String.format("Failed to load type '%s' that used in @RulesType annotation.",
-                                ((RulesType) a).value()));
+            RulesType rulesType = parameter.getAnnotation(RulesType.class);
+            if (rulesType != null) {
+                try {
+                    Class<?> loadedType = findOrLoadType(rulesType, openClass, classLoader);
+                    Class<?> t = method.getParameterTypes()[i];
+                    while (t.isArray()) {
+                        t = t.getComponentType();
+                        loadedType = Array.newInstance(loadedType, 0).getClass();
                     }
+                    methodParamTypes[i] = loadedType;
+                    f = true;
+                } catch (ClassNotFoundException e) {
+                    throw new InstantiationException(String
+                        .format("Failed to load type '%s' that used in @RulesType annotation.", rulesType.value()));
                 }
             }
             i++;
