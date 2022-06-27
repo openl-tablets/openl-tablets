@@ -16,4 +16,10 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
+    <dependencies>
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.core.annotations</artifactId>
+        </dependency>
+    </dependencies>
 </project>
