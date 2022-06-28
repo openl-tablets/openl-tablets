@@ -58,18 +58,18 @@ jobs:
           maven-
 
     - name: Build with Maven
-      run: mvn -B package -DskipTests
+      run: mvn package -DskipTests
 
     - name: Deploy Maven artifacts
       run: |
         cd STUDIO/org.openl.rules.webstudio
-        mvn -B deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webstudio.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
+        mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webstudio.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
         cd ../../WSFrontend/org.openl.rules.ruleservice.ws
-        mvn -B deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
+        mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
         cd ../../WSFrontend/org.openl.rules.ruleservice.ws.all
-        mvn -B deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice-all.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
+        mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/webservice-all.war -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
         cd ../../DEMO/org.openl.rules.demo
-        mvn -B deploy:deploy-file -DpomFile=pom.xml -Dfile=target/openl-tablets-demo.zip -Dpackaging=zip -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
+        mvn deploy:deploy-file -DpomFile=pom.xml -Dfile=target/openl-tablets-demo.zip -Dpackaging=zip -Durl=https://maven.pkg.github.com/openl-tablets/openl-tablets -DrepositoryId=github
       env:
         GITHUB_TOKEN: ${{ github.token }}
 
