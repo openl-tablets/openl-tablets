@@ -58,7 +58,7 @@ jobs:
           maven-
 
     - name: Build with Maven
-      run: mvn package -DskipTests
+      run: mvn package -DskipTests -Dstyle.color=always
 
     - name: Deploy Maven artifacts
       run: |
