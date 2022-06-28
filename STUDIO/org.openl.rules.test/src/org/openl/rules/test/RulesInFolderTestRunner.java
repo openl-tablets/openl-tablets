@@ -256,14 +256,14 @@ public class RulesInFolderTestRunner {
     private void ok(long startTime, String sourceFile) {
         final long ms = duration(startTime);
         // Green ANSI color
-        log.info("\u001B[1;32mOK\u001B[1;97m {}\u001B[0m ({} ms)", sourceFile, ms);
+        log.info("\u001B[1;32mOK\u001B[2;36m {}\u001B[0m ({} ms)", sourceFile, ms);
     }
 
     private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
         if (count == 0) {
             final long ms = duration(startTime);
             // Red ANSI color
-            log.error("\u001B[1;31mFAILURE\u001B[1;97m {}\u001B[0m ({} ms)", sourceFile, ms);
+            log.error("\u001B[1;31mFAILURE\u001B[2;36m {}\u001B[0m ({} ms)", sourceFile, ms);
         }
         log.error(msg, args);
     }

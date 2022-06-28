@@ -31,7 +31,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 public class HttpClient {
 
     public static final String ANSI_RESET = "\u001B[0m";
-    public static final String ANSI_BLACK_BOLD = "\u001B[1;30m";
+    public static final String ANSI_BLACK_BOLD = "\u001B[2;36m";
     public static final String ANSI_RED_BOLD = "\u001B[1;31m";
     public static final String ANSI_GREEN_BOLD = "\u001B[1;32m";
 
