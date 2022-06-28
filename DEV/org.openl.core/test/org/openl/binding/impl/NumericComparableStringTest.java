@@ -1,10 +1,10 @@
 package org.openl.binding.impl;
 
-import org.junit.Test;
-
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
+
+import org.junit.Test;
 
 public class NumericComparableStringTest {
 
@@ -147,6 +147,8 @@ public class NumericComparableStringTest {
         assertTrue(compare("01.002", ".01") > 0);
         assertTrue(compare("01A002", "A01") < 0);
         assertEquals(0, compare("0.1", "0.01"));
+
+        assertTrue(compare("0", "0 - 24") < 0);
     }
 
     private NumericComparableString increment(String value) {
