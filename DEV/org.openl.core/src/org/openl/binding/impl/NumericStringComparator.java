@@ -4,6 +4,7 @@ import java.util.Comparator;
 
 /**
  * Compares Strings with numbers in the math order of numbers.
+ * 
  * <pre>
  *     "01"
  *     "2"
@@ -43,13 +44,13 @@ public class NumericStringComparator implements Comparator<CharSequence> {
             }
 
             // Searching begin of the number to compare
-            while (isZero(ch1) && i1 < length1 - 1) {
+            while (isZero(ch1) && i1 < length1 - 1 && Character.isDigit(str1.charAt(i1 + 1))) {
                 // Skip insignificant zero.
                 i1++;
                 ch1 = str1.charAt(i1);
             }
 
-            while (isZero(ch2) && i2 < length2 - 1) {
+            while (isZero(ch2) && i2 < length2 - 1 && Character.isDigit(str2.charAt(i2 + 1))) {
                 // Skip insignificant zero.
                 i2++;
                 ch2 = str2.charAt(i2);
@@ -101,8 +102,8 @@ public class NumericStringComparator implements Comparator<CharSequence> {
     }
 
     /**
-     * Calculates a hash according to the same algorithm of {@linkplain #compare} method.
-     * So If {@linkplain #compare} returns zero then both string have the same hash.
+     * Calculates a hash according to the same algorithm of {@linkplain #compare} method. So If {@linkplain #compare}
+     * returns zero then both string have the same hash.
      */
     public static int hashCode(CharSequence value) {
         final int prime = 31;
