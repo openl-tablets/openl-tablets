@@ -24,7 +24,7 @@ public class LockTest {
 
     private Lock lock;
     private Path tempDirectoryPath;
-    static final int MAX_THREADS = Runtime.getRuntime().availableProcessors() * 2;
+    static final int MAX_THREADS = Math.min(12, Runtime.getRuntime().availableProcessors() * 2);
 
     @Before
     public void setUp() throws IOException {

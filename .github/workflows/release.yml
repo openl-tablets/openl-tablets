@@ -51,7 +51,7 @@ jobs:
     - name: Prepare release
       working-directory: ./release
       run: >
-        mvn -B release:prepare
+        mvn release:prepare
         -DdevelopmentVersion=${{ github.event.inputs.snapshot }}
         -DreleaseVersion=${{ github.event.inputs.release }}
         -DautoVersionSubmodules=true
@@ -77,7 +77,7 @@ jobs:
 
     - name: Build & Deploy to local staging repository
       run: >
-        mvn -B -f ./build/pom.xml
+        mvn -f ./build/pom.xml
         deploy
         -Psources,gpg-sign
         -DnoPerf
@@ -93,7 +93,7 @@ jobs:
 
     - name: Deploy to https://oss.sonatype.org/
       run: >
-        mvn -B
+        mvn
         org.sonatype.plugins:nexus-staging-maven-plugin:deploy-staged-repository
         -DrepositoryDirectory=mvn-staging
         -DnexusUrl=https://oss.sonatype.org/
