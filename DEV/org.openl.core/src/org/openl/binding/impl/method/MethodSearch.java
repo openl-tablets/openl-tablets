@@ -1,5 +1,6 @@
 package org.openl.binding.impl.method;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -21,7 +22,8 @@ import org.openl.binding.impl.cast.IArrayOneElementCast;
 import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.MethodCallerWrapper;
-import org.openl.binding.impl.cast.MethodCallerWrapperFactory;
+import org.openl.binding.impl.cast.MethodFilter;
+import org.openl.binding.impl.cast.MethodSearchTuner;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -599,13 +601,14 @@ public final class MethodSearch {
         Match bestMethodMatch = NO_MATCH;
         long bestOneElementToArrayCastCount = Integer.MAX_VALUE;
         int bestMultiCallParamsCount = allowMultiCallParams ? Integer.MAX_VALUE : 0;
-        LazyVarargTypeCalculator lazyVarargTypeCalculatorParentClass = new LazyVarargTypeCalculator(callParams,
-            castFactory::findParentClass);
         LazyVarargTypeCalculator lazyVarargTypeCalculatorClosestClass = new LazyVarargTypeCalculator(callParams,
             castFactory::findClosestClass);
         for (IOpenMethod method : filtered) {
+            if (!isSuitableMethod(method, callParams, castFactory)) {
+                continue;
+            }
             List<Match> matches = new ArrayList<>();
-            if (method.getSignature().getNumberOfParameters() == callParams.length) {
+            if (method.getSignature().getNumberOfParameters() == callParams.length && isNonVarargSupported(method)) {
                 Match noVarargMatch = calcMatch(method,
                     callParams,
                     callParams,
@@ -615,30 +618,37 @@ public final class MethodSearch {
                     allowMultiCallParams);
                 matches.add(noVarargMatch);
             }
-            if (allowVarargs(method)) {
-                IOpenClass varargElementTypeByParentClass = lazyVarargTypeCalculatorParentClass
-                    .getElementType(method.getSignature().getNumberOfParameters() - 1);
-                if (varargElementTypeByParentClass != null) {
+            if (isVarargsSupported(method)) {
+                boolean isGeneric = isGenericVararg(method);
+                if (isGeneric) {
+                    IOpenClass varargElementType = lazyVarargTypeCalculatorClosestClass
+                        .getElementType(method.getSignature().getNumberOfParameters() - 1);
+                    if (varargElementType != null) {
+                        matches.add(calcMatch(method,
+                            callParams,
+                            lazyVarargTypeCalculatorClosestClass
+                                .getVarargMethodCallParams(method.getSignature().getNumberOfParameters() - 1),
+                            castFactory,
+                            true,
+                            varargElementType,
+                            allowMultiCallParams));
+                    }
+                } else {
+                    int lastParameterIndex = method.getSignature().getNumberOfParameters() - 1;
+                    IOpenClass varargElementType = method.getSignature().getParameterTypes()[lastParameterIndex]
+                        .getComponentClass();
+                    IOpenClass[] varargMethodCallParams = new IOpenClass[method.getSignature().getNumberOfParameters()];
+                    System.arraycopy(callParams, 0, varargMethodCallParams, 0, lastParameterIndex);
+                    varargMethodCallParams[lastParameterIndex] = (varargElementType == null || NullOpenClass
+                        .isAnyNull(varargElementType)) ? varargElementType
+                                                       : varargElementType.getAggregateInfo()
+                                                           .getIndexedAggregateType(varargElementType);
                     matches.add(calcMatch(method,
                         callParams,
-                        lazyVarargTypeCalculatorParentClass
-                            .getVarargMethodCallParams(method.getSignature().getNumberOfParameters() - 1),
+                        varargMethodCallParams,
                         castFactory,
                         true,
-                        varargElementTypeByParentClass,
-                        allowMultiCallParams));
-                }
-
-                IOpenClass varargElementTypeByClosestClass = lazyVarargTypeCalculatorClosestClass
-                    .getElementType(method.getSignature().getNumberOfParameters() - 1);
-                if (varargElementTypeByClosestClass != null && varargElementTypeByClosestClass != varargElementTypeByParentClass) {
-                    matches.add(calcMatch(method,
-                        callParams,
-                        lazyVarargTypeCalculatorClosestClass
-                            .getVarargMethodCallParams(method.getSignature().getNumberOfParameters() - 1),
-                        castFactory,
-                        true,
-                        varargElementTypeByClosestClass,
+                        varargElementType,
                         allowMultiCallParams));
                 }
             }
@@ -746,19 +756,54 @@ public final class MethodSearch {
         return null;
     }
 
+    private static boolean isSuitableMethod(IOpenMethod method, IOpenClass[] callParams, ICastFactory castFactory) {
+        if (method instanceof JavaOpenMethod) {
+            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
+            Method javaMethod = javaOpenMethod.getJavaMethod();
+            MethodSearchTuner methodSearchTuner = javaMethod.getAnnotation(MethodSearchTuner.class);
+            if (methodSearchTuner != null) {
+                Class<? extends MethodFilter> clazz = methodSearchTuner.methodFilter();
+                if (clazz != MethodSearchTuner.DefaultMethodFilter.class) {
+                    try {
+                        MethodFilter methodFilter = clazz.getDeclaredConstructor().newInstance();
+                        return methodFilter.predicate(javaOpenMethod, callParams, castFactory);
+                    } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
+                            | InvocationTargetException ignored) {
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean isGenericVararg(IOpenMethod method) {
+        if (method instanceof JavaOpenMethod && method.getSignature().getNumberOfParameters() > 0 && method
+            .getSignature()
+            .getParameterTypes()[method.getSignature().getNumberOfParameters() - 1].isArray()) {
+            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
+            Type lastParameterType = javaOpenMethod.getJavaMethod()
+                .getGenericParameterTypes()[javaOpenMethod.getNumberOfParameters() - 1];
+            return JavaGenericsUtils.getGenericTypeName(lastParameterType) != null;
+        }
+        return false;
+    }
+
     private static IMethodCaller processJavaAnnotationsOnMethod(IOpenClass[] callParams,
             ICastFactory castFactory,
             IMethodCaller methodCaller,
             Match selectedMatch) {
         JavaOpenMethod javaOpenMethod = (JavaOpenMethod) selectedMatch.getMethod();
         Method javaMethod = javaOpenMethod.getJavaMethod();
-        MethodCallerWrapper methodCallerWrapper = javaMethod.getAnnotation(MethodCallerWrapper.class);
-        if (methodCallerWrapper != null) {
-            Class<? extends MethodCallerWrapperFactory> clazz = methodCallerWrapper.value();
-            try {
-                MethodCallerWrapperFactory methodCallerWrapperFactory = clazz.newInstance();
-                methodCaller = methodCallerWrapperFactory.build(castFactory, methodCaller, javaOpenMethod, callParams);
-            } catch (InstantiationException | IllegalAccessException ignored) {
+        MethodSearchTuner methodSearchTuner = javaMethod.getAnnotation(MethodSearchTuner.class);
+        if (methodSearchTuner != null) {
+            Class<? extends MethodCallerWrapper> clazz = methodSearchTuner.wrapper();
+            if (clazz != MethodSearchTuner.DefaultMethodCallerWrapper.class) {
+                try {
+                    MethodCallerWrapper methodCallerWrapper = clazz.getDeclaredConstructor().newInstance();
+                    methodCaller = methodCallerWrapper.handle(methodCaller, javaOpenMethod, callParams, castFactory);
+                } catch (InstantiationException | IllegalAccessException | NoSuchMethodException
+                        | InvocationTargetException ignored) {
+                }
             }
         }
         return methodCaller;
@@ -773,7 +818,7 @@ public final class MethodSearch {
         return paramCasts;
     }
 
-    private static boolean allowVarargs(IOpenMethod method) {
+    private static boolean isVarargsSupported(IOpenMethod method) {
         if (method.getSignature().getNumberOfParameters() > 0 && method.getSignature()
             .getParameterTypes()[method.getSignature().getNumberOfParameters() - 1].isArray()) {
             if (method instanceof JavaOpenMethod) {
@@ -781,15 +826,26 @@ public final class MethodSearch {
                 if (javaOpenMethod.getJavaMethod().isAnnotationPresent(IgnoreVarargsMatching.class)) {
                     return false;
                 }
-                if (javaOpenMethod.getJavaMethod()
+                return !javaOpenMethod.getJavaMethod()
                     .getDeclaringClass()
-                    .isAnnotationPresent(IgnoreVarargsMatching.class)) {
-                    return false;
-                }
+                    .isAnnotationPresent(IgnoreVarargsMatching.class);
             }
             return true;
         }
         return false;
+    }
+
+    private static boolean isNonVarargSupported(IOpenMethod method) {
+        if (method instanceof JavaOpenMethod) {
+            JavaOpenMethod javaOpenMethod = (JavaOpenMethod) method;
+            if (javaOpenMethod.getJavaMethod().isAnnotationPresent(IgnoreNonVarargsMatching.class)) {
+                return false;
+            }
+            return !javaOpenMethod.getJavaMethod()
+                .getDeclaringClass()
+                .isAnnotationPresent(IgnoreNonVarargsMatching.class);
+        }
+        return true;
     }
 
     private static class LazyVarargTypeCalculator {

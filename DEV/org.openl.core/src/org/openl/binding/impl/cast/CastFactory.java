@@ -31,6 +31,7 @@ import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.OpenClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,24 +57,25 @@ public class CastFactory implements ICastFactory {
     // USE ONLY EVEN NUMBERS FOR DISTANCES
 
     public static final int TYPE_TO_ALIAS_CAST_DISTANCE = 2;
-    public static final int JAVA_UP_ARRAY_TO_ARRAY_CAST_DISTANCE = 6;
-    public static final int JAVA_UP_CAST_DISTANCE = 6;
 
-    public static final int THROWABLE_VOID_CAST_DISTANCE = 8;
+    public static final int PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 4;
 
-    public static final int PRIMITIVE_TO_PRIMITIVE_AUTOCAST_DISTANCE = 10;
+    public static final int JAVA_BOXING_CAST_DISTANCE = 6;
 
-    public static final int STRING_ENUM_TO_CAST_DISTANCE = 12;
+    public static final int JAVA_UP_ARRAY_TO_ARRAY_CAST_DISTANCE = 8;
+    public static final int JAVA_UP_CAST_DISTANCE = 8;
 
-    public static final int JAVA_BOXING_CAST_DISTANCE = 14;
+    public static final int JAVA_BOXING_UP_CAST_DISTANCE = 10;
 
-    public static final int JAVA_BOXING_UP_CAST_DISTANCE = 16;
+    public static final int THROWABLE_VOID_CAST_DISTANCE = 12;
+
+    public static final int STRING_ENUM_TO_CAST_DISTANCE = 16;
 
     public static final int PRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 18;
 
-    public static final int JAVA_UNBOXING_CAST_DISTANCE = 22;
+    public static final int NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 22;
 
-    public static final int NONPRIMITIVE_TO_NONPRIMITIVE_AUTOCAST_DISTANCE = 24;
+    public static final int JAVA_UNBOXING_CAST_DISTANCE = 24;
 
     public static final int ENUM_TO_STRING_CAST_DISTANCE = 26;
 
@@ -115,13 +117,6 @@ public class CastFactory implements ICastFactory {
         return findClosestClass(openClass1, openClass2, this, autocastMethods);
     }
 
-    private static IOpenClass getWrapperIfPrimitive(IOpenClass openClass) {
-        if (openClass.getInstanceClass() != null && openClass.getInstanceClass().isPrimitive()) {
-            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(openClass.getInstanceClass()));
-        }
-        return openClass;
-    }
-
     public static IOpenClass findClosestClass(IOpenClass openClass1,
             IOpenClass openClass2,
             ICastFactory casts,
@@ -134,10 +129,10 @@ public class CastFactory implements ICastFactory {
         }
 
         if (NullOpenClass.the.equals(openClass1)) {
-            return getWrapperIfPrimitive(openClass2);
+            return OpenClassUtils.toWrapperIfPrimitive(openClass2);
         }
         if (NullOpenClass.the.equals(openClass2)) {
-            return getWrapperIfPrimitive(openClass1);
+            return OpenClassUtils.toWrapperIfPrimitive(openClass1);
         }
 
         if (ThrowableVoid.class.equals(openClass1.getInstanceClass())) {

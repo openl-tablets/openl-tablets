@@ -21,19 +21,23 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.openl.binding.impl.cast.MethodCallerWrapper;
-import org.openl.binding.impl.cast.DefaultMethodCallerWrapperFactory.ReturnType;
+import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.cast.MethodDetailsMethodCaller;
+import org.openl.binding.impl.cast.MethodSearchTuner;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
+import org.openl.binding.impl.method.IgnoreNonVarargsMatching;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenLUserDetailedRuntimeException;
-import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.exception.OpenLUserRuntimeException;
+import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.types.impl.StaticDomainOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateTool;
@@ -2677,6 +2681,7 @@ public final class RulesUtils {
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
      */
+    @Deprecated
     public static <T> T[] addIgnoreNull(T[] array, int index, T element) {
         if (element != null) {
             return ArrayUtils.add(array, index, element);
@@ -2714,6 +2719,7 @@ public final class RulesUtils {
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
      */
+    @Deprecated
     public static <T> T[] addIgnoreNull(T[] array, T element) {
         if (element != null) {
             return ArrayUtils.add(array, element);
@@ -3092,52 +3098,106 @@ public final class RulesUtils {
 
     // <<< replace functions for Strings >>>
 
-    @MethodCallerWrapper(FlattenMethodCallerWrapperFactory.class)
-    public static Object[] flatten(@ReturnType Object... data) {
-        if (data == null) {
+    @MethodSearchTuner(wrapper = FlattenMethodCallerWrapper.class, methodFilter = FlattenMethodFilter.class)
+    @IgnoreNonVarargsMatching
+    public static Object[] flatten(Object... data) {
+        FlattenMethodDetails flattenMethodDetails = (FlattenMethodDetails) MethodDetailsMethodCaller.getMethodDetails();
+        int[] dims = flattenMethodDetails.getDims();
+        List<Object> values = new ArrayList<>();
+        for (int i = 0; i < data.length; i++) {
+            IOpenCast openCast = flattenMethodDetails.getOpenCasts()[i];
+            values
+                .addAll(flattenInternal(dims[i], data[i]).stream().map(openCast::convert).collect(Collectors.toList()));
+        }
+        Object[] result = (Object[]) Array
+            .newInstance(flattenMethodDetails.getType().getComponentClass().getInstanceClass(), 0);
+        return values.toArray(result);
+    }
+
+    private static List<Object> flattenInternal(int dim, Object v) {
+        if (dim == 0) {
+            return Collections.singletonList(v);
+        } else {
+            if (v == null || Array.getLength(v) == 0) {
+                return Collections.emptyList();
+            }
+            List<Object> values = new ArrayList<>();
+            for (int i = 0; i < Array.getLength(v); i++) {
+                values.addAll(flattenInternal(dim - 1, Array.get(v, i)));
+            }
+            return values;
+        }
+    }
+
+    /**
+     * <p>
+     * Adds all the elements of the given arrays into a new array.
+     * </p>
+     * <p>
+     * The new array contains all of the element of <code>arrays</code>. When an array is returned, it is always a new
+     * array.
+     * </p>
+     * <p/>
+     *
+     * <pre>
+     * RuleUtils.addAll(null, null)     = [null, null]
+     * RuleUtils.addAll(array1, null)   = cloned copy of array1 with additional null element in the end of array
+     * RuleUtils.addAll(null, array2)   = cloned copy of array2 with additional null element in the beginning of the array
+     * RuleUtils.addAll([], [])         = []
+     * RuleUtils.addAll([null], [null]) = [null, null]
+     * RuleUtils.addAll(["a", "b", "c"], ["1", "2", "3"]) = ["a", "b", "c", "1", "2", "3"]
+     * </pre>
+     *
+     * @param arrays the arrays whose elements are added to the new array, may be <code>null</code>
+     * @return The new array, <code>null</code> if both arrays are <code>null</code>. The type of the new array is the
+     *         same type of the arrays.
+     */
+    @MethodSearchTuner(wrapper = AddAllMethodCallerWrapper.class, methodFilter = AddAllMethodFilter.class)
+    @IgnoreNonVarargsMatching
+    public static Object addAll(Object... arrays) {
+        if (arrays == null || arrays.length == 0) {
             return null;
         }
-        List<Object> values = new ArrayList<>();
-        Class<?> type = Void.class;
-        for (Object obj : data) {
-            if (obj == null) {
-                values.add(null);
-            } else if (obj.getClass().isArray()) {
-                for (int i = 0; i < Array.getLength(obj); i++) {
-                    Object o = Array.get(obj, i);
-                    Object[] flatten = flatten(o);
-                    values.addAll(Arrays.asList(flatten));
-                    type = getCommonSuperClass(type, flatten.getClass().getComponentType());
+        AddAllMethodDetails addAllMethodDetails = (AddAllMethodDetails) MethodDetailsMethodCaller.getMethodDetails();
+        int totalLength = 0;
+        for (int i = 0; i < arrays.length; i++) {
+            if (!addAllMethodDetails.getParamsAsElement()[i]) {
+                if (arrays[i] != null) {
+                    totalLength = totalLength + Array.getLength(arrays[i]);
                 }
             } else {
-                values.add(obj);
-                type = getCommonSuperClass(type, obj.getClass());
+                totalLength++;
             }
         }
-
-        Object[] result = (Object[]) Array.newInstance(type, 0);
-        result = values.toArray(result);
+        Object result = Array.newInstance(addAllMethodDetails.getType().getComponentClass().getInstanceClass(),
+            totalLength);
+        int p = 0;
+        for (int i = 0; i < arrays.length; i++) {
+            if (!addAllMethodDetails.getParamsAsElement()[i]) {
+                if (arrays[i] != null) {
+                    int length = Array.getLength(arrays[i]);
+                    for (int j = 0; j < length; j++) {
+                        IOpenCast openCast = addAllMethodDetails.getOpenCasts()[i];
+                        Object v = Array.get(arrays[i], j);
+                        Array.set(result, p, openCast != null ? openCast.convert(v) : v);
+                        p++;
+                    }
+                }
+            } else {
+                IOpenCast openCast = addAllMethodDetails.getOpenCasts()[i];
+                Array.set(result, p, openCast != null ? openCast.convert(arrays[i]) : arrays[i]);
+                p++;
+            }
+        }
         return result;
     }
 
-    public static Class<?> getCommonSuperClass(Class<?> classA, Class<?> classB) {
-        if (classA == Void.class) {
-            return classB;
-        } else if (classB == Void.class) {
-            return classA;
-        } else if (classA.isAssignableFrom(classB)) { // The most expected
-            // branch
-            return classA;
-        } else {
-            Class<?> commonClass = classB;
-            while (!commonClass.isAssignableFrom(classA)) {
-                commonClass = commonClass.getSuperclass();
-            }
-            return commonClass;
-        }
+    @MethodSearchTuner(wrapper = AddAllMethodCallerWrapper.class, methodFilter = AddAllMethodFilter.class)
+    public static Object add(Object... arrays) {
+        return addAll(arrays);
     }
 
-    @MethodCallerWrapper(RulesUtilsGetValuesMethodCallerWrapperFactory.class)
+    @MethodSearchTuner(wrapper = GetValuesMethodCallerWrapper.class)
     public static Object getValues(StaticDomainOpenClass staticDomainOpenClass) {
         IDomain<?> domain = staticDomainOpenClass.getDomain();
         int size = 0;
