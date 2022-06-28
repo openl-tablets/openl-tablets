@@ -33,11 +33,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RulesInFolderTestRunner {
-    private final Logger log = LoggerFactory.getLogger(RulesInFolderTestRunner.class);
+    private final Logger log;
     private final boolean executionMode;
     private final boolean allTestsMustFails;
 
     public RulesInFolderTestRunner(boolean allTestsMustFails, boolean executionMode) {
+        log = LoggerFactory.getLogger(executionMode ? "Compile Rules" : "Test Rules");
         this.executionMode = executionMode;
         this.allTestsMustFails = allTestsMustFails;
     }
@@ -246,22 +247,28 @@ public class RulesInFolderTestRunner {
             if (messagesCount != 0) {
                 testsFailed = true;
             } else {
-                ok(startTime, executionMode, sourceFile);
+                ok(startTime, sourceFile);
             }
         }
         return testsFailed;
     }
 
-    private void ok(long startTime, boolean executionMode, String sourceFile) {
-        final long ms = (System.nanoTime() - startTime) / 1000000;
-        log.info("{} - in [{}] ({} ms)", executionMode ? "EXECUTION MODE COMPILED" : "SUCCESS", sourceFile, ms);
+    private void ok(long startTime, String sourceFile) {
+        final long ms = duration(startTime);
+        // Green ANSI color
+        log.info("\u001B[1;32mOK\u001B[1;97m {}\u001B[0m ({} ms)", sourceFile, ms);
     }
 
     private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
         if (count == 0) {
-            final long ms = (System.nanoTime() - startTime) / 1000000;
-            log.error("FAILURE - in [{}] ({} ms)", sourceFile, ms);
+            final long ms = duration(startTime);
+            // Red ANSI color
+            log.error("\u001B[1;31mFAILURE\u001B[1;97m {}\u001B[0m ({} ms)", sourceFile, ms);
         }
         log.error(msg, args);
+    }
+
+    private long duration(long startTime) {
+        return (System.nanoTime() - startTime) / 1000000;
     }
 }
