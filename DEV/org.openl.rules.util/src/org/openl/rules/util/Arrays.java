@@ -3,7 +3,6 @@ package org.openl.rules.util;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Objects;
 
 import org.openl.binding.impl.method.NonNullLiteral;
 
@@ -47,91 +46,6 @@ public final class Arrays {
     // ADD
 
     /**
-     * Just concatenates the given elements to the array.
-     */
-    public static <T> T[] add(T... elements) {
-        return elements;
-    }
-
-    /**
-     * <p>
-     * Copies the given array and adds the given elements at the end of the new array.
-     * </p>
-     * <p/>
-     * <p>
-     * The new array contains the same elements of the input array plus the given elements in the last position. The
-     * component type of the new array is the same as that of the input array.
-     * </p>
-     * <p/>
-     * <p>
-     * If the input array is <code>null</code>, a new one element array is returned whose component type is the same as
-     * the element, unless the element itself is null, in which case the return type is Object[]
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * Arrays.add(null, null)      = [null]
-     * Arrays.add(null, "a")       = ["a"]
-     * Arrays.add(["a"], null)     = ["a", null]
-     * Arrays.add(["a"], "b")      = ["a", "b"]
-     * Arrays.add(["a", "b"], "c") = ["a", "b", "c"]
-     * </pre>
-     *
-     * @param array the array to "add" the element to, may be <code>null</code>
-     * @param elements the objects to add
-     * @return A new array containing the existing elements plus the new elements. The returned array type will be that
-     *         of the input array (unless null), in which case it will have the same type as the element.
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T[] add(T[] array, @NonNullLiteral T... elements) {
-        return add(array, length(array), elements);
-    }
-
-    /**
-     * <p>
-     * Adds all the elements of the given arrays into a new array.
-     * </p>
-     * <p>
-     * The new array contains all of the element of <code>arrays</code>. When an array is returned, it is always a new
-     * array.
-     * </p>
-     * <p/>
-     *
-     * <pre>
-     * Arrays.add(null, null)     = null
-     * Arrays.add(array1, null)   = cloned copy of array1
-     * Arrays.add(null, array2)   = cloned copy of array2
-     * Arrays.add([], [])         = []
-     * Arrays.add([null], [null]) = [null, null]
-     * Arrays.add(["a", "b", "c"], ["1", "2", "3"]) = ["a", "b", "c", "1", "2", "3"]
-     * </pre>
-     *
-     * @param arrays the arrays whose elements are added to the new array, may be <code>null</code>
-     * @return The new array, <code>null</code> if both arrays are <code>null</code>. The type of the new array is the
-     *         same type of the arrays.
-     */
-    @SuppressWarnings("unchecked")
-    public static <T> T[] add(T[]... arrays) {
-        if (arrays == null) {
-            return null;
-        }
-        Class<?> componentType = arrays.getClass().getComponentType().getComponentType();
-        return (T[]) java.util.Arrays.stream(arrays)
-            .filter(Objects::nonNull)
-            .flatMap(java.util.Arrays::stream)
-            .map(componentType::cast)
-            .toArray();
-    }
-
-    public static <T> T[] addAll(T[] a1, T[] a2) {
-        return add(a1, a2);
-    }
-
-    public static <T> T[] add(T[] array, T element) {
-        return Arrays.<T> add(array, length(array), element);
-    }
-
-    /**
      * <p>
      * Inserts the specified element at the specified position in the array. Shifts the element currently at that
      * position (if any) and any subsequent elements to the right (adds one to their indices).
@@ -162,21 +76,41 @@ public final class Arrays {
      * @return A new array containing the existing elements and the new element
      * @throws IndexOutOfBoundsException if the index is out of range (index < 0 || index > array.length).
      */
-    public static <T> T[] add(T[] array, int index, T... elements) {
+    public static <T> T[] addElement(T[] array, int index, @NonNullLiteral T... elements) {
         if (elements == null) {
             return array;
         }
         if (array == null) {
             return elements;
         }
-        Class<?> componentType = array.getClass().getComponentType();
-        Class<?> commonType = elements.getClass().getComponentType() == componentType ? componentType : Object.class;
-        Object result = Array.newInstance(commonType, array.length + elements.length);
+        Class<?> componentType;
+        Class<?> arrayComponentType = array.getClass().getComponentType();
+        Class<?> elementsComponentType = elements.getClass().getComponentType();
+        if (arrayComponentType.isAssignableFrom(elementsComponentType)) {
+            componentType = arrayComponentType;
+        } else if (elementsComponentType.isAssignableFrom(arrayComponentType)) {
+            componentType = elementsComponentType;
+        } else {
+            componentType = Object.class;
+        }
+        Object[] result = (Object[]) Array.newInstance(componentType, array.length + elements.length);
         System.arraycopy(array, 0, result, 0, index);
         System.arraycopy(elements, 0, result, index, elements.length);
         System.arraycopy(array, index, result, index + elements.length, array.length - index);
 
         return (T[]) result;
+    }
+
+    public static <T> T[] addElement(T[] array, int index, T element) {
+        if (array == null && element == null) {
+            return null;
+        }
+        Object oneElementArray = Array
+            .newInstance(element != null ? element.getClass() : array.getClass().getComponentType(), 1);
+        if (element != null) {
+            Array.set(oneElementArray, 0, element);
+        }
+        return addElement(array, index, (T[]) oneElementArray);
     }
 
     // SLICE

@@ -1,12 +1,19 @@
 package org.openl.binding.impl.cast;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.openl.binding.ICastFactory;
+import org.openl.types.IMethodCaller;
+import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenMethod;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface MethodCallerWrapper {
-    Class<? extends MethodCallerWrapperFactory> value() default DefaultMethodCallerWrapperFactory.class;
+/**
+ * This interface is designed to be used along with @{@link MethodSearchTuner} annotation. All methods marked
+ * with @{@link MethodSearchTuner} with non default implementation can add addition logic to the method by wrapping
+ * {@link org.openl.types.impl.MethodCaller} with additional logic.
+ */
+public interface MethodCallerWrapper {
+
+    IMethodCaller handle(IMethodCaller methodCaller,
+            JavaOpenMethod javaOpenMethod,
+            IOpenClass[] callParams,
+            ICastFactory castFactory);
 }

@@ -461,13 +461,43 @@ public class Operators {
     }
 
     @Deprecated
+    public static Byte dec(Byte x) {
+        return subtract(x, Byte.valueOf((byte) 1));
+    }
+
+    @Deprecated
+    public static Short dec(Short x) {
+        return subtract(x, Short.valueOf((byte) 1));
+    }
+
+    @Deprecated
+    public static Integer dec(Integer x) {
+        return subtract(x, Integer.valueOf(1));
+    }
+
+    @Deprecated
+    public static Long dec(Long x) {
+        return subtract(x, Long.valueOf(1));
+    }
+
+    @Deprecated
+    public static Float dec(Float x) {
+        return subtract(x, Float.valueOf(1f));
+    }
+
+    @Deprecated
+    public static Double dec(Double x) {
+        return subtract(x, Double.valueOf(1d));
+    }
+
+    @Deprecated
     public static BigInteger dec(BigInteger x) {
-        return x.subtract(BigInteger.ONE);
+        return subtract(x, BigInteger.ONE);
     }
 
     @Deprecated
     public static BigDecimal dec(BigDecimal x) {
-        return x.subtract(BigDecimal.ONE);
+        return subtract(x, BigDecimal.ONE);
     }
 
     @Deprecated
@@ -501,13 +531,43 @@ public class Operators {
     }
 
     @Deprecated
+    public static Byte inc(Byte x) {
+        return add(x, Byte.valueOf((byte) 1));
+    }
+
+    @Deprecated
+    public static Short inc(Short x) {
+        return add(x, Short.valueOf((byte) 1));
+    }
+
+    @Deprecated
+    public static Integer inc(Integer x) {
+        return add(x, Integer.valueOf(1));
+    }
+
+    @Deprecated
+    public static Long inc(Long x) {
+        return add(x, Long.valueOf(1));
+    }
+
+    @Deprecated
+    public static Float inc(Float x) {
+        return add(x, Float.valueOf(1f));
+    }
+
+    @Deprecated
+    public static Double inc(Double x) {
+        return add(x, Double.valueOf(1d));
+    }
+
+    @Deprecated
     public static BigInteger inc(BigInteger x) {
-        return x.add(BigInteger.ONE);
+        return add(x, BigInteger.ONE);
     }
 
     @Deprecated
     public static BigDecimal inc(BigDecimal x) {
-        return x.add(BigDecimal.ONE);
+        return add(x, BigDecimal.ONE);
     }
 
     @Deprecated

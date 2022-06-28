@@ -1,6 +1,7 @@
 package org.openl.binding.impl;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 
 import org.junit.Test;
 import org.openl.binding.exception.AmbiguousMethodException;
@@ -14,6 +15,7 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("M2", ClassWithMethods.class, "method1", byte.class, byte.class);
         assertInvoke("M3", ClassWithMethods.class, "method2", byte.class, byte.class);
         assertNotFound(ClassWithMethods.class, "method3", int.class, double.class);
+        assertInvoke("m1-BigInteger", ClassWithMethods.class, "m1", Long.class);
 
         assertInvoke("M4", SecondClassWithMethods.class, "method1", int.class, double.class);
         assertInvoke("M4", SecondClassWithMethods.class, "method1", int.class, int.class);
@@ -125,6 +127,14 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
 
         public String method2(int arg1, double arg2) {
             return "M3";
+        }
+
+        public String m1(long x) {
+            return "m1-long";
+        }
+
+        public String m1(BigInteger x) {
+            return "m1-BigInteger";
         }
     }
 

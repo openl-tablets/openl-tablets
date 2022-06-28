@@ -17,18 +17,18 @@ final class JavaDownCast implements IOpenCast {
         this.castFactory = Objects.requireNonNull(castFactory, "castFactory cannot be null");
     }
 
-    private int calcArrayDim(Object from) {
+    private int calcArrayMinDim(Object from) {
         if (from != null && from.getClass().isArray()) {
             int arrayLength = Array.getLength(from);
             if (arrayLength > 0) {
-                int dim = Integer.MAX_VALUE;
+                int minDim = Integer.MAX_VALUE;
                 for (int i = 0; i < arrayLength; i++) {
-                    int p = calcArrayDim(Array.get(from, i));
-                    if (dim > p) {
-                        dim = p;
+                    int p = calcArrayMinDim(Array.get(from, i));
+                    if (minDim > p) {
+                        minDim = p;
                     }
                 }
-                return dim + 1;
+                return minDim + 1;
             }
         }
         return 0;
@@ -44,18 +44,21 @@ final class JavaDownCast implements IOpenCast {
         } else {
             Class<?> fromClass = from.getClass();
             IOpenClass fromOpenClass = JavaOpenClass.getOpenClass(fromClass);
-            if (fromClass.isArray() && fromClass.getComponentType() == Object.class) {
-                int dim = calcArrayDim(from);
+            IOpenClass t = fromOpenClass;
+            int d = 0;
+            while (t.isArray()) {
+                t = t.getComponentClass();
+                d++;
+            }
+            if (d > 0 && t.getInstanceClass() == Object.class) {
+                int dim = calcArrayMinDim(from);
                 fromOpenClass = JavaOpenClass.OBJECT.getArrayType(dim);
             }
             IOpenCast openCast = castFactory.getCast(fromOpenClass, to);
             if (openCast != null && !(openCast instanceof JavaDownCast)) {
                 return openCast.convert(from);
             }
-            throw new ClassCastException(
-                String.format("Cannot cast from '%s' to '%s'.",
-                    from.getClass().getTypeName(),
-                    to.getInstanceClass().getTypeName()));
+            return to.getInstanceClass().cast(from);
         }
     }
 

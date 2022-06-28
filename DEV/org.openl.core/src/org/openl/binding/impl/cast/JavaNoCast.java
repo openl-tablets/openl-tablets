@@ -1,6 +1,6 @@
 package org.openl.binding.impl.cast;
 
-final class JavaNoCast implements IOpenCast {
+public final class JavaNoCast implements IOpenCast {
 
     private static final JavaNoCast INSTANCE = new JavaNoCast();
 
@@ -8,7 +8,7 @@ final class JavaNoCast implements IOpenCast {
         // Use JavaNoCast.getInstance().
     }
 
-    static JavaNoCast getInstance() {
+    public static JavaNoCast getInstance() {
         return INSTANCE;
     }
 

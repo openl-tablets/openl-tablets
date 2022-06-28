@@ -274,7 +274,7 @@ public class RunTest {
 
         assertErrorStartWith(
             "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(Date d)!@ d.getDay() < 6]",
-            "java.lang.ClassCastException: Cannot cast from 'java.lang.String' to 'java.util.Date'.");
+            "java.lang.ClassCastException: Cannot cast java.lang.String to java.util.Date");
         assertEquals(
             "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(String s)!@ s.contains(\"ee\")]",
             "dddee");
