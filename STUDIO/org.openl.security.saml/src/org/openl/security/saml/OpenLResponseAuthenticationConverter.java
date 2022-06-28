@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -16,6 +17,7 @@ import org.openl.rules.security.User;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSString;
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
@@ -26,6 +28,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
+import org.w3c.dom.Node;
 
 /**
  * Creates Saml2Authentication and SimpleUser based on the ResponseToken from the IDP.
@@ -108,7 +111,7 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
                     if (fields.containsKey(attribute.getName())) {
                         List<String> attributeValues = new ArrayList<>();
                         for (XMLObject xmlObject : attribute.getAttributeValues()) {
-                            String attributeValue = getXmlObjectValue(xmlObject);
+                            String attributeValue = getAttributeValue(xmlObject);
                             if (attributeValue != null) {
                                 attributeValues.add(attributeValue);
                             }
@@ -151,11 +154,16 @@ public class OpenLResponseAuthenticationConverter implements Converter<OpenSaml4
         }
 
         // The resulting fields are used to create a SimpleUser, only strings are expected.
-        private String getXmlObjectValue(XMLObject xmlObject) {
+        private String getAttributeValue(XMLObject xmlObject) {
+            String textContent;
             if (xmlObject instanceof XSString) {
-                return ((XSString) xmlObject).getValue();
+                textContent = ((XSString) xmlObject).getValue();
+            } else if (xmlObject instanceof XSAny) {
+                textContent = ((XSAny) xmlObject).getTextContent();
+            } else {
+                textContent = Optional.ofNullable(xmlObject.getDOM()).map(Node::getTextContent).orElse(null);
             }
-            return null;
+            return StringUtils.trimToNull(textContent);
         }
 
     }
