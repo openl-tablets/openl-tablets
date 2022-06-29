@@ -15,7 +15,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -38,6 +37,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
@@ -52,10 +52,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private static final String PRODUCTION_REPOSITORIES = "production-repository-configs";
     public static final String USE_REPOSITORY_FOR_DEPLOY_CONFIG = "repository.deploy-config.use-repository";
-    private static final String RULES_LOCATION_CONFIG_NAME = "repository.design.base.path";
-    private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "repository.deploy-config.base.path";
-    private static final String PROJECTS_FLAT_FOLDER_STRUCTURE = "repository.%s.folder-structure.flat";
-    private static final String DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE = "repository.deploy-config.folder-structure.flat";
 
     private volatile List<Repository> repositories;
     private volatile Repository deployConfigRepository;
@@ -93,19 +89,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             repositories = new ArrayList<>();
             RepositoryListener callback = new RepositoryListener(listeners);
 
-            rulesLocation = propertyResolver.getProperty(RULES_LOCATION_CONFIG_NAME);
-            if (!rulesLocation.isEmpty() && !rulesLocation.endsWith("/")) {
-                rulesLocation += "/";
-            }
-
+            rulesLocation = getBasePath("design");
             String[] designRepositories =
                     Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES)).split("\\s*,\\s*");
-            for (String designRepositoryId : designRepositories) {
-                boolean flatProjects = Boolean.parseBoolean(
-                        propertyResolver.getProperty(String.format(PROJECTS_FLAT_FOLDER_STRUCTURE, designRepositoryId))
-                );
+            for (String repoId : designRepositories) {
 
-                Repository repository = createRepo(designRepositoryId, flatProjects, rulesLocation);
+                Repository repository = createRepo(repoId, rulesLocation);
 
                 repositories.add(repository);
 
@@ -123,15 +112,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     .collect(Collectors.toList());
 
             if (StringUtils.isNotBlank(propertyResolver.getProperty(PRODUCTION_REPOSITORIES))) {
-                deploymentConfigurationLocation = propertyResolver
-                        .getProperty(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
-                if (!deploymentConfigurationLocation.isEmpty() && !deploymentConfigurationLocation.endsWith("/")) {
-                    deploymentConfigurationLocation += "/";
-                }
+                deploymentConfigurationLocation = getBasePath (RepositoryMode.DEPLOY_CONFIG.getId());
                 String repositoryForDeployConfig = propertyResolver.getProperty(USE_REPOSITORY_FOR_DEPLOY_CONFIG);
                 boolean separateDeployConfigRepo = StringUtils.isBlank(repositoryForDeployConfig);
-                boolean flatDeployConfig = Boolean
-                        .parseBoolean(propertyResolver.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
                 if (!separateDeployConfigRepo) {
                     Repository repository = getRepository(repositoryForDeployConfig);
                     if (repository != null) {
@@ -145,8 +128,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         throw new RepositoryException(String.format("Cannot read the deploy repository '%s'.", repositoryForDeployConfig));
                     }
                 } else {
-                    deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.getId(),
-                            flatDeployConfig, deploymentConfigurationLocation);
+                    deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.getId(), deploymentConfigurationLocation);
                 }
 
                 if (separateDeployConfigRepo) {
@@ -156,10 +138,20 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         }
     }
 
-    private Repository createRepo(String configName, boolean flatStructure, String baseFolder) {
+    private String getBasePath(String configName) {
+        String repoPrefix = Comments.REPOSITORY_PREFIX + configName;
+        var basePath = propertyResolver.getProperty(repoPrefix + ".base.path");
+        if (StringUtils.isNotEmpty(basePath) && !basePath.endsWith("/")) {
+            basePath += "/";
+        }
+        return basePath;
+    }
+
+    private Repository createRepo(String configName, String baseFolder) {
         Repository repo = null;
         try {
-            repo = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName, propertyResolver::getProperty);
+            String repoPrefix = Comments.REPOSITORY_PREFIX + configName;
+            repo = RepositoryInstatiator.newRepository(repoPrefix, propertyResolver::getProperty);
             if (repositorySettings != null) {
                 String setter = "setRepositorySettings";
                 try {
@@ -169,6 +161,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     LOG.debug(e.getMessage(), e);
                 }
             }
+
+            boolean flatStructure = Boolean.parseBoolean(propertyResolver.getProperty(repoPrefix + ".folder-structure.flat"));
 
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
