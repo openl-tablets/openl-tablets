@@ -6,6 +6,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.rules.ruleservice.core.ExceptionDetails;
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 
@@ -16,15 +17,17 @@ public class ExceptionResponseDto {
     public static final int UNPROCESSABLE_ENTITY = 422;
 
     private final String message;
+    private final String code;
     private final int statusCode;
     private final ExceptionType type;
     private final String detail;
 
-    private ExceptionResponseDto(String message, int statusCode, ExceptionType type, String detail) {
-        this.message = message;
+    private ExceptionResponseDto(ExceptionDetails exDetails, int statusCode, ExceptionType type, String detail) {
+        this.message = exDetails.getMessage();
         this.statusCode = statusCode;
         this.type = type;
         this.detail = detail;
+        this.code = exDetails.getCode();
     }
 
     public String getMessage() {
@@ -43,6 +46,10 @@ public class ExceptionResponseDto {
         return detail;
     }
 
+    public String getCode() {
+        return code;
+    }
+
     public static ExceptionResponseDto createFrom(Exception e) {
         Throwable t = e;
         while (t instanceof InvocationTargetException || t instanceof UndeclaredThrowableException) {
@@ -57,11 +64,11 @@ public class ExceptionResponseDto {
         int status = INTERNAL_SERVER_ERROR_CODE;
         ExceptionType type = ExceptionType.SYSTEM;
         String detail = null;
-        String message;
+        ExceptionDetails exceptionDetails;
 
         if (t instanceof RuleServiceWrapperException) {
             RuleServiceWrapperException wrapperException = (RuleServiceWrapperException) t;
-            message = wrapperException.getSimpleMessage();
+            exceptionDetails = wrapperException.getDetails();
             type = wrapperException.getType();
             if (isUserErrorType(type)) {
                 status = UNPROCESSABLE_ENTITY;
@@ -69,7 +76,7 @@ public class ExceptionResponseDto {
                 detail = ExceptionUtils.getStackTrace(wrapperException.getCause());
             }
         } else {
-            message = ExceptionUtils.getRootCauseMessage(e);
+            exceptionDetails = new ExceptionDetails(ExceptionUtils.getRootCauseMessage(e));
             detail = ExceptionUtils.getStackTrace(e);
             try {
                 Class<?> jsonProcessingException = Thread.currentThread()
@@ -83,7 +90,7 @@ public class ExceptionResponseDto {
             }
         }
 
-        return new ExceptionResponseDto(message, status, type, detail);
+        return new ExceptionResponseDto(exceptionDetails, status, type, detail);
     }
 
     private static boolean isUserErrorType(ExceptionType type) {

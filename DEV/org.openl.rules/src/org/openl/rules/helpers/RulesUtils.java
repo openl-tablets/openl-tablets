@@ -31,8 +31,9 @@ import org.openl.binding.impl.cast.DefaultMethodCallerWrapperFactory.ReturnType;
 import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.exception.OpenLUserDetailedRuntimeException;
 import org.openl.rules.table.OpenLArgumentsCloner;
-import org.openl.rules.testmethod.OpenLUserRuntimeException;
+import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.types.impl.StaticDomainOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateTool;
@@ -1356,6 +1357,10 @@ public final class RulesUtils {
 
     public static ThrowableVoid error(String msg) {
         throw new OpenLUserRuntimeException(msg);
+    }
+
+    public static ThrowableVoid error(String code, String message) {
+        throw new OpenLUserDetailedRuntimeException(code, message);
     }
 
     /**

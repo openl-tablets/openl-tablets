@@ -17,6 +17,9 @@ import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.exception.OpenLUserDetailedRuntimeException;
+import org.openl.exception.OpenLUserRuntimeException;
+import org.openl.rules.ruleservice.core.ExceptionDetails;
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
@@ -27,7 +30,6 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
-import org.openl.rules.testmethod.OpenLUserRuntimeException;
 import org.openl.runtime.ASMProxyHandler;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.types.IOpenClass;
@@ -375,9 +377,9 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             }
             return result;
         } catch (Exception t) {
-            Pair<ExceptionType, String> p = getExceptionDetailAndType(t);
+            Pair<ExceptionType, ExceptionDetails> p = getExceptionDetailAndType(t);
             if (ExceptionType.isServerError(p.getLeft())) {
-                log.error(p.getRight(), t);
+                log.error(p.getRight().getMessage(), t);
             }
             throw new RuleServiceWrapperException(p.getRight(),
                 p.getLeft(),
@@ -423,27 +425,32 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         return t;
     }
 
-    public static Pair<ExceptionType, String> getExceptionDetailAndType(Exception ex) {
+    public static Pair<ExceptionType, ExceptionDetails> getExceptionDetailAndType(Exception ex) {
         Throwable t = ex;
 
         ExceptionType type = ExceptionType.SYSTEM;
-        String message = ex.getMessage();
+        ExceptionDetails exceptionDetails = new ExceptionDetails(ex.getMessage());
 
         boolean f = true;
         while (f) {
             t = extractInvocationTargetException(t);
             if (t instanceof OpenLUserRuntimeException) {
                 type = ExceptionType.USER_ERROR;
-                message = t.getMessage();
+                if (t instanceof OpenLUserDetailedRuntimeException) {
+                    OpenLUserDetailedRuntimeException uex = (OpenLUserDetailedRuntimeException) t;
+                    exceptionDetails = new ExceptionDetails(uex.getCode(), uex.getMessage());
+                } else {
+                    exceptionDetails = new ExceptionDetails(t.getMessage());
+                }
             } else if (t instanceof OutsideOfValidDomainException) {
                 type = ExceptionType.VALIDATION;
-                message = ((OutsideOfValidDomainException) t).getOriginalMessage();
+                exceptionDetails = new ExceptionDetails(((OutsideOfValidDomainException) t).getOriginalMessage());
             } else if (t instanceof OpenLRuntimeException) {
                 type = ExceptionType.RULES_RUNTIME;
-                message = ((OpenLRuntimeException) t).getOriginalMessage();
+                exceptionDetails = new ExceptionDetails(((OpenLRuntimeException) t).getOriginalMessage());
             } else if (t instanceof OpenLCompilationException || t instanceof RuleServiceOpenLCompilationException) {
                 type = ExceptionType.COMPILATION;
-                message = t.getMessage();
+                exceptionDetails = new ExceptionDetails(t.getMessage());
             }
             if (t.getCause() == null) {
                 f = false;
@@ -451,7 +458,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                 t = t.getCause();
             }
         }
-        return new ImmutablePair<>(type, message);
+        return new ImmutablePair<>(type, exceptionDetails);
     }
 
     private String getExceptionMessage(Method method, Throwable ex, Object... args) {

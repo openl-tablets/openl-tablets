@@ -4,6 +4,21 @@ Content-Type: application/json
 {
   "components": {
     "schemas": {
+      "JAXRSUserErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+          },
+          "code": {
+            "type": "string"
+          }
+        }
+      },
       "DefaultRulesRuntimeContext": {
         "properties": {
           "caProvince": {
@@ -191,18 +206,38 @@ Content-Type: application/json
             "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
           },
           "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
               "application/json": {
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                },
                 "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/JAXRSUserErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/JAXRSErrorResponse"
+                    }
+                  ]
+                },
+                "examples": {
+                  "Example 1": {
+                    "description": "Example 1",
+                    "value": {
+                      "message": "Some message",
+                      "type": "USER_ERROR"
+                    }
+                  },
+                  "Example 2": {
+                    "description": "Example 2",
+                    "value": {
+                      "message": "Some message",
+                      "code": "code.example",
+                      "type": "USER_ERROR"
+                    }
+                  }
                 }
               }
-            },
-            "description": "Custom user errors in rules or validation errors in input parameters"
+            }
           },
           "500": {
             "content": {

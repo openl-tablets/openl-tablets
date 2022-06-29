@@ -4,8 +4,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Objects;
 
-import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
+import org.openl.exception.OpenLUserDetailedRuntimeException;
 import org.openl.util.StringUtils;
 
 /**
@@ -72,6 +72,10 @@ public class OpenLErrorMessage extends OpenLMessage {
             t = t.getCause();
         }
 
-        return cause.getMessage();
+        if (cause instanceof OpenLUserDetailedRuntimeException) {
+            return ((OpenLUserDetailedRuntimeException) cause).getFullMessage();
+        } else {
+            return cause.getMessage();
+        }
     }
 }

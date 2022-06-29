@@ -84,10 +84,17 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             precision = Integer.parseInt(properties.get(PRECISION_PARAM).toString());
         }
         IOpenMethod testedMethod = getTestedMethod();
-        List<IOpenField> fields = createFieldsToTest(testedMethod, getDataModel(), precision);
+        List<IOpenField> fieldsToTest = new ArrayList<>();
+        List<IOpenField> errorFieldsToTest = new ArrayList<>();
+        createFieldsToTest(fieldsToTest, errorFieldsToTest, testedMethod, getDataModel(), precision);
 
         for (int i = 0; i < tests.length; i++) {
-            tests[i] = new TestDescription(testedMethod, testObjects[i], fields, getDataModel(), db);
+            tests[i] = new TestDescription(testedMethod,
+                testObjects[i],
+                fieldsToTest,
+                errorFieldsToTest,
+                getDataModel(),
+                db);
             tests[i].setIndex(i);
             indexes.put(tests[i].getId(), i);
         }
@@ -285,17 +292,29 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         }
     }
 
-    private static List<IOpenField> createFieldsToTest(IOpenMethod testedMethod,
+    private static void createFieldsToTest(List<IOpenField> fieldsToTest,
+            List<IOpenField> errorFieldsToTest,
+            IOpenMethod testedMethod,
             ITableModel dataModel,
             Integer testTablePrecision) {
-        IOpenClass resultType = testedMethod.getType();
-        List<IOpenField> fieldsToTest = new ArrayList<>();
         for (int colNum = 0; colNum < dataModel.getColumnCount(); colNum++) {
             ColumnDescriptor columnDescriptor = dataModel.getDescriptor(colNum);
             if (columnDescriptor != null) {
+                List<IOpenField> toAdd;
+                IOpenClass resultType;
                 IdentifierNode[] nodes = columnDescriptor.getFieldChainTokens();
-                if (nodes.length == 0 || !nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
-                    // skip empty or non-'_res_' columns
+                if (nodes.length == 0) {
+                    // skip empty
+                    continue;
+                }
+                if (nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+                    toAdd = fieldsToTest;
+                    resultType = testedMethod.getType();
+                } else if (nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_ERROR)) {
+                    toAdd = errorFieldsToTest;
+                    resultType = JavaOpenClass.getOpenClass(TestError.class);
+                } else {
+                    // skip non-'_res_' and non-'_error_' columns
                     continue;
                 }
                 Integer fieldPrecision = testTablePrecision;
@@ -395,9 +414,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     if (fieldSequence.length == 0) {
                         if (columnDescriptor.isReference()) {
                             if (resultType.isSimple() || resultType.isArray()) {
-                                fieldsToTest.add(new ThisField(resultType));
+                                toAdd.add(new ThisField(resultType));
                             } else {
-                                fieldsToTest.addAll(resultType.getFields());
+                                toAdd.addAll(resultType.getFields());
                             }
                             continue;
                         } else {
@@ -405,7 +424,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                         }
                     }
                     if (fieldPrecision != null) {
-                        fieldsToTest.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
+                        toAdd.add(new PrecisionFieldChain(currentType, fieldSequence, fieldPrecision));
                     } else {
                         if (fieldSequence.length > 1) {
                             boolean hasNull = false;
@@ -416,19 +435,18 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                                 }
                             }
                             if (!hasNull) {
-                                fieldsToTest.add(new FieldChain(currentType, fieldSequence));
+                                toAdd.add(new FieldChain(currentType, fieldSequence));
                             }
                         } else {
                             IOpenField field = fieldSequence[0];
                             if (field != null) {
-                                fieldsToTest.add(field);
+                                toAdd.add(field);
                             }
                         }
                     }
                 }
             }
         }
-        return fieldsToTest;
     }
 
     private static boolean isCollectionType(String identifier) {
