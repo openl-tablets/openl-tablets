@@ -56,6 +56,6 @@ jobs:
       run: mvn -v
 
     - name: Build with Maven
-      run: mvn -Dstyle.color=always
+      run: mvn "-Dstyle.color=always"
       env:
         MAVEN_OPTS: -Dmaven.wagon.httpconnectionManager.ttlSeconds=120 -Dmaven.wagon.http.retryHandler.count=3

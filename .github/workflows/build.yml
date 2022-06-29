@@ -68,4 +68,4 @@ jobs:
       run: mvn -v
 
     - name: Build with Maven
-      run: mvn -Dstyle.color=always ${{ github.event.inputs.mavenArgs }}
+      run: mvn "-Dstyle.color=always" ${{ github.event.inputs.mavenArgs }}
