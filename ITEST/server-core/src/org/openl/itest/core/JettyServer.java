@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -104,7 +105,7 @@ public class JettyServer {
     /**
      * Starts Jetty Server and executes a set of http requests.
      */
-    public static void test(String profile) throws Exception {
+    public static void test(String profile, long testStartDelayMs) throws Exception {
         String[] profiles = profile == null ? new String[0] : new String[] { profile };
         String testFolder = profile == null ? "test-resources" : ("test-resources-" + profile);
         JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, false, profiles);
@@ -119,6 +120,9 @@ public class JettyServer {
 
             jetty.server.start();
             try {
+                if (testStartDelayMs > 0) {
+                    TimeUnit.MILLISECONDS.sleep(testStartDelayMs);
+                }
                 jetty.client().test(testFolder);
             } finally {
                 jetty.stop();
@@ -127,6 +131,10 @@ public class JettyServer {
             Locale.setDefault(DEFAULT_LOCALE);
             TimeZone.setDefault(DEFAULT_TIMEZONE);
         }
+    }
+
+    public static void test(String profile) throws Exception {
+        test(profile, -1);
     }
 
     public static void test() throws Exception {
