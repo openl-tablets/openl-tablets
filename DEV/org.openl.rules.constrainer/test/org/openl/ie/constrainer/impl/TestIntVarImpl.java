@@ -75,31 +75,6 @@ public class TestIntVarImpl extends TestCase {
         assertEquals(11, intvar2.max());
     }
 
-    public void testPropagate() {
-        TestUtils.TestObserver observer1 = TestUtils.createTestObserver(), observer2 = TestUtils.createTestObserver();
-        IntVar intvar = new IntVarImpl(C, 0, 10);
-        intvar.attachObserver(observer1);
-        intvar.attachObserver(observer2);
-        try {
-            intvar.setMin(1);
-            intvar.propagate();
-        } catch (Failure f) {
-            fail("test failed");
-        }
-        assertEquals(1, observer1.updtCounter());
-        assertEquals(1, observer2.updtCounter());
-
-        intvar.detachObserver(observer2);
-        try {
-            intvar.setMax(9);
-            intvar.propagate();
-        } catch (Failure f) {
-            fail("test failed");
-        }
-        assertEquals(2, observer1.updtCounter());
-        assertEquals(1, observer2.updtCounter());
-    }
-
     public void testRemoveValue() {
         Undo[] bit_fastUndo = new Undo[bit_fast.size() / 2 + 1], bit_smallUndo = new Undo[bit_fast.size() / 2 + 1],
                 plainUndo = new Undo[bit_fast.size() / 2 + 1];

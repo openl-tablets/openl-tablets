@@ -28,11 +28,4 @@ package org.openl.ie.constrainer;
  */
 public interface Constraint extends Goal {
 
-    /**
-     * Makes the constraint active.
-     *
-     * @throws Failure if the constraint cannot be satisfied.
-     */
-    void post() throws Failure;
-
 }

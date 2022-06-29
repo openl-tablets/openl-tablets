@@ -43,33 +43,6 @@ public class GoalAnd extends GoalImpl {
         _g2 = g2;
     }
 
-    /**
-     * Constructor of two arguments
-     */
-    public GoalAnd(Goal g1, Goal g2, Goal g3) {
-        this(g1, new GoalAnd(g2, g3));
-    }
-
-    /**
-     * Constructor of two arguments
-     */
-    public GoalAnd(Goal g1, Goal g2, Goal g3, Goal g4) {
-        this(g1, new GoalAnd(g2, g3, g4));
-    }
-
-    /**
-     * Constructor of two arguments
-     */
-    public GoalAnd(Goal g1, Goal g2, Goal g3, Goal g4, Goal g5) {
-        this(g1, new GoalAnd(g2, g3, g4, g5));
-    }
-
-    /**
-     * Constructor of two arguments
-     */
-    public GoalAnd(Goal g1, Goal g2, Goal g3, Goal g4, Goal g5, Goal g6) {
-        this(g1, new GoalAnd(g2, g3, g4, g5, g6));
-    }
 
     /**
      * Executes this goal.

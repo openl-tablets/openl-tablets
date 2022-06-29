@@ -96,11 +96,6 @@ public interface IntExp extends Expression {
     Constraint equals(int value);
 
     /**
-     * Returns the constraint: <code>(this == exp)</code>.
-     */
-    Constraint equals(IntExp exp);
-
-    /**
      * Returns the boolean expression: <code>(this >= value)</code>.
      */
     IntBoolExp ge(int value);

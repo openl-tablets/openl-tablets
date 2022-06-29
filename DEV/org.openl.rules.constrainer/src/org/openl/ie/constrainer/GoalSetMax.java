@@ -27,22 +27,11 @@ public class GoalSetMax extends GoalImpl {
      * Invokes <code>GoalSetMax(exp,exp.max())</code>
      *
      * @param exp The variable of type IntExp
-     * @see #GoalSetMax(IntExp,int)
      */
     public GoalSetMax(IntExp exp) {
-        this(exp, exp.max());
-    }
-
-    /**
-     * Creates a goal that is ready to change the upper bound of a domain of it's exp
-     *
-     * @param exp The variable of type IntExp
-     * @param max The variable of type int
-     */
-    public GoalSetMax(IntExp exp, int max) {
         super(exp.constrainer(), "max");
         _exp = exp;
-        _max = max;
+        _max = exp.max();
         // _maxI = _constrainer.addUndoableInt(max,"max");
     }
 

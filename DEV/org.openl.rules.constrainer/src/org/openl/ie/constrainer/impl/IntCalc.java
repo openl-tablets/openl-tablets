@@ -22,70 +22,6 @@ import org.openl.ie.constrainer.IntExp;
  * A helper for the integer arithmetic.
  */
 final class IntCalc {
-    /**
-     * Searches the specified array of ints for the specified value using the binary search algorithm. The array
-     * <strong>must</strong> be sorted (as by the <tt>sort</tt> method, above) prior to making this call. If it is not
-     * sorted, the results are undefined. If the array contains multiple elements with the specified value, there is no
-     * guarantee which one will be found.
-     *
-     * @param a the array to be searched.
-     * @param key the value to be searched for.
-     * @return index of the search key, if it is contained in the list; otherwise,
-     *         <tt>(-(<i>insertion point</i>) - 1)</tt>. The <i>insertion point</i> is defined as the point at which the
-     *         key would be inserted into the list: the index of the first element greater than the key, or
-     *         <tt>list.size()</tt>, if all elements in the list are less than the specified key. Note that this
-     *         guarantees that the return value will be &gt;= 0 if and only if the key is found.
-     * @see #sort(int[])
-     */
-    public static int binarySearch(int[] a, int key) {
-        return java.util.Arrays.binarySearch(a, key);
-
-        // int low = 0;
-        // int high = a.length-1;
-        //
-        // while (low <= high)
-        // {
-        // int mid =(low + high)/2;
-        // int midVal = a[mid];
-        //
-        // if (midVal < key)
-        // low = mid + 1;
-        // else if (midVal > key)
-        // high = mid - 1;
-        // else
-        // return mid; // key found
-        // }
-        // return -(low + 1); // key not found.
-    }
-
-    /**
-     * Returns sorted v without duplicates.
-     */
-    public static int[] differentSortedValues(int[] v) {
-        if (isDiffSorted(v)) {
-            return v;
-        }
-
-        java.util.Arrays.sort(v);
-
-        // remove duplicates
-        int dst = 0;
-        for (int src = 1; src < v.length; ++src) {
-            if (v[src] != v[dst]) {
-                v[++dst] = v[src];
-            }
-        }
-
-        int size = dst + 1;
-
-        if (size == v.length) {
-            return v; // no duplicates
-        }
-
-        int[] v1 = new int[size];
-        System.arraycopy(v, 0, v1, 0, size);
-        return v1;
-    }
 
     /**
      * Returns <code>x1 / x2</code> truncated towards negative infinity.
@@ -121,27 +57,6 @@ final class IntCalc {
 
         // v is truncated to zero -> -inf when vIsPositive and +inf otherwise
         return vIsPositive ? v + 1 : v;
-    }
-
-    /**
-     * Returns <code>x1 / x2</code> truncated towards zero.
-     */
-    static public int divTruncToZero(int x1, int x2) {
-        // According to JLS, "integer division in Java rounds towards zero".
-        // Note: "rounds" should be changed to "truncates".
-        return x1 / x2;
-    }
-
-    /**
-     * Returns true if v is sorted and without duplicates.
-     */
-    static boolean isDiffSorted(int[] v) {
-        for (int i = 0; i + 1 < v.length; ++i) {
-            if (v[i] >= v[i + 1]) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
@@ -370,39 +285,6 @@ final class IntCalc {
                 exp2.setMin(min2);
             }
         }
-    }
-
-    /**
-     * Returns the expression: <code>max(sqr(min),sqr(max))</code>.
-     */
-    static public int sqrMax(int min, int max) {
-        return Math.max(min * min, max * max);
-    }
-
-    /**
-     * Returns the expression: <code>min(sqr(min),sqr(max))</code>.
-     */
-    static public int sqrMin(int min, int max) {
-        // min >= 0 && max >= 0
-        if (min >= 0) {
-            return min * min;
-        }
-
-        // min < 0 && max >= 0
-        if (max >= 0) {
-            return 0;
-        }
-
-        // min < 0 && max > 0
-        return max * max;
-    }
-
-    /**
-     * Returns sqrt(value) if value if a square, -1 otherwise.
-     */
-    static public int sqrtInt(int value) {
-        int sqrtValue = (int) Math.sqrt(value);
-        return sqrtValue * sqrtValue == value ? sqrtValue : -1;
     }
 
 } // ~ IntCalc

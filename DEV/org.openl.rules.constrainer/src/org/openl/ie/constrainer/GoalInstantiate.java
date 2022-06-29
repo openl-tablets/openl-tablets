@@ -17,7 +17,7 @@ package org.openl.ie.constrainer;
 /**
  * An implementation of a {@link Goal} that instaintiates the constraint integer variable.
  * <p>
- * It uses {@link IntValueSelector} to select the next value to be removed from the domain of the variable.
+ * It uses a Selector to select the next value to be removed from the domain of the variable.
  * <p>
  * The selector should select the values that can be <b>effectively</b> removed from the domain of the variable. For
  * example, if the domain type is plain then selector should select only min or max values from the domain.
@@ -25,8 +25,6 @@ package org.openl.ie.constrainer;
  * domain looking for a value that can be assigned to a variable by GoalSetValue. Non-recursive implementations invokes
  * GoalSetValue ones and removes the given value if it fails.
  *
- * @see IntVar
- * @see IntValueSelector
  */
 public class GoalInstantiate extends GoalImpl {
     /**
@@ -38,35 +36,6 @@ public class GoalInstantiate extends GoalImpl {
          */
         Goal instantiate(int chosen_value) throws Failure;
     }
-
-    /**
-     * Non recursive instantiation.
-     */
-    class NonRecursiveImpl implements Impl {
-
-        public NonRecursiveImpl() {
-        }
-
-        @Override
-        public Goal instantiate(int chosen_value) throws Failure {
-            Goal goal_value = new GoalSetValue(_intvar, chosen_value);
-
-            Goal goal_limit;
-            if (_intvar.domainType() != IntVar.DOMAIN_PLAIN) {
-                goal_limit = new GoalRemoveValue(_intvar, chosen_value);
-            } else {
-                if (chosen_value == _intvar.min()) {
-                    goal_limit = new GoalSetMin(_intvar, chosen_value + 1);
-                } else {
-                    goal_limit = new GoalSetMax(_intvar, chosen_value - 1);
-                }
-            }
-            // Debug.on();Debug.print(this + " by "+chosen_value);Debug.off();
-
-            return new GoalOr(goal_value, goal_limit);
-        }
-
-    } // ~NonRecursiveImpl
 
     /**
      * Recursive instantiation.
@@ -114,8 +83,6 @@ public class GoalInstantiate extends GoalImpl {
 
     private final IntVar _intvar;
 
-    private final IntValueSelector _selector;
-
     private final Impl _impl;
 
     /**
@@ -123,28 +90,9 @@ public class GoalInstantiate extends GoalImpl {
      * that way uses a recursive search algorithm.
      */
     public GoalInstantiate(IntVar intvar) {
-        this(intvar, new IntValueSelectorMin(), true);
-    }
-
-    /**
-     * Constructor with a given variable and value selector.
-     */
-    public GoalInstantiate(IntVar intvar, IntValueSelector selector) {
-        this(intvar, selector, true);
-    }
-
-    /**
-     * Constructor with a given variable, value selector, and recursive flag.
-     */
-    public GoalInstantiate(IntVar intvar, IntValueSelector selector, boolean recursive) {
         super(intvar.constrainer(), "");// "Instantiate("+intvar.name()+")");
         _intvar = intvar;
-        _selector = selector;
-        if (recursive) {
-            _impl = new RecursiveImpl();
-        } else {
-            _impl = new NonRecursiveImpl();
-        }
+        _impl = new RecursiveImpl();
     }
 
     /**
@@ -156,7 +104,7 @@ public class GoalInstantiate extends GoalImpl {
             return null;
         }
 
-        int chosen_value = _selector.select(_intvar);
+        int chosen_value = _intvar.min();
 
         return _impl.instantiate(chosen_value);
     }

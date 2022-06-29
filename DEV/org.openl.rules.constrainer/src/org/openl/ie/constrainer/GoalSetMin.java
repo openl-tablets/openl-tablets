@@ -24,13 +24,9 @@ public class GoalSetMin extends GoalImpl {
     // private UndoableInt _minI;
 
     public GoalSetMin(IntExp exp) {
-        this(exp, exp.min());
-    }
-
-    public GoalSetMin(IntExp exp, int min) {
         super(exp.constrainer(), "min");
         _exp = exp;
-        _min = min;
+        _min = exp.min();
         // _minI = _constrainer.addUndoableInt(min,"min");
     }
 

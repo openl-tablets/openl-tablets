@@ -97,10 +97,9 @@ public final class IntExpAddArray1 extends IntExpImpl {
             sum_name = "sum(" + _vars.name() + ")";
         }
 
-        int trace = 0;
         int min = calc_min();
         int max = calc_max();
-        _domainC = constrainer().addIntVarTraceInternal(min, max, sum_name, IntVar.DOMAIN_PLAIN, trace);
+        _domainC = constrainer().addIntVarTraceInternal(min, max, sum_name, IntVar.DOMAIN_PLAIN);
         _domainE = new DomainVar(constrainer(), min, max);
     }
 

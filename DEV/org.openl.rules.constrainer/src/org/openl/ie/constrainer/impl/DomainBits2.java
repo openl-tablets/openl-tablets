@@ -36,10 +36,6 @@ final class BitArray implements java.io.Serializable {
         }
     }
 
-    void setBits(int[] bits) {
-        _bits = bits;
-    }
-
     int size() {
         return _size;
     }
@@ -65,29 +61,8 @@ final class BitArray implements java.io.Serializable {
  * @see Domain
  */
 public final class DomainBits2 extends DomainImpl {
-    // private IntVar _variable;
-    // private boolean[] _bits;
     private int _size;
-    // private int _initial_min;
-    // private int _initial_max;
-    // private int _min; // the first i with _bits[i]=true
-    // private int _max; // the last i with _bits[i]=true
-
-    // public static final int MAX_VALUE = 1000000;//Integer.MAX_VALUE-1;
     final BitArray _bits;
-
-    static void test1(String args[]) throws Exception {
-        BitArray b = new BitArray(100);
-
-        for (int i = 0; i < 100; ++i) {
-            System.out.println(b._bits[0]);
-            System.out.println("" + i + " : " + (1 << i));
-            if (!b.at(i)) {
-                throw new Exception("xx" + i);
-            }
-        }
-
-    }
 
     public DomainBits2(IntVar var, int min, int max) // throws Failure
     {
@@ -99,16 +74,6 @@ public final class DomainBits2 extends DomainImpl {
 
     public int[] bits() {
         return _bits._bits;
-    }
-
-    void checkX(String s) {
-        if (!_bits.at(_min - _initial_min)) {
-            Constrainer.abort("From:" + s + "!_bits[_min - _initial_min] " + this);
-        }
-
-        if (!_bits.at(_max - _initial_min)) {
-            Constrainer.abort("From:" + s + "  !_bits[_max - _initial_min] " + this);
-        }
     }
 
     @Override
@@ -161,47 +126,6 @@ public final class DomainBits2 extends DomainImpl {
     @Override
     public int min() {
         return _min;
-    }
-
-    String printBits() {
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < _bits.size(); ++i) {
-            if (_bits.at(i)) {
-                if (_initial_min + i < _min || _initial_min + i > _max) {
-                    buf.append('x');
-                } else {
-                    buf.append('X');
-                }
-            } else {
-                if (_initial_min + i < _min || _initial_min + i > _max) {
-                    buf.append('o');
-                } else {
-                    buf.append('O');
-                }
-            }
-        }
-        return buf.toString();
-    }
-
-    String printIntervals() {
-        StringBuilder buf = new StringBuilder();
-        for (int i = _min; i <= _max;) {
-            if (i != _min) {
-                buf.append(" ");
-            }
-            int from = i;
-            int to = upperBound(from);
-
-            if (to - from == 1) {
-                buf.append(from);
-            } else {
-                buf.append(from).append("..").append(to - 1);
-            }
-
-            i = upperBound(to);
-        }
-
-        return buf.toString();
     }
 
     /**
@@ -359,26 +283,8 @@ public final class DomainBits2 extends DomainImpl {
     }
 
     @Override
-    public String toString() {
-        return "[" + printIntervals() + "]";
-    }
-
-    @Override
     public int type() {
         return IntVar.DOMAIN_BIT_SMALL;
-    }
-
-    int upperBound(int i) {
-        if (i > _max) {
-            return i;
-        }
-        boolean sample = _bits.at(i - _initial_min);
-
-        for (int j = i;; ++j) {
-            if (j > _max || _bits.at(j - _initial_min) != sample) {
-                return j;
-            }
-        }
     }
 
 } // ~DomainBits2

@@ -21,21 +21,13 @@ import org.openl.ie.tools.FastVector;
  * <p>
  * This goal:
  * <ul>
- * <li>Selects the variable using {@link IntVarSelector}.
  * <li>Tries to instantiate it using {@link GoalInstantiate}. GoalInstantiate make use of IntValueSelector taken from a
  * constructor of GoalGenerate to work with the domain of a variable.
  * </ul>
  *
- * @see IntVarSelector
- * @see IntValueSelector
- * @see GoalInstantiate
  */
 public class GoalGenerate extends GoalImpl {
     private final IntExpArray _intvars;
-    private final IntVarSelector _var_selector;
-    private final boolean _dichotomize;
-    private final IntValueSelector _value_selector;
-    private final boolean _recursiveInstantiate = true;
 
     /**
      * The search goals that instantiate each variable.
@@ -49,46 +41,9 @@ public class GoalGenerate extends GoalImpl {
      * dichotomize.
      */
     public GoalGenerate(IntExpArray intvars) {
-        this(intvars, null, null, false);
-    }
-
-    /**
-     * GoalGenerate will be constructed with <code>IntVarSelectorFirstUnbound<code>
-     * as a default variable selector and <code>IntValueSelectorMin</code> as a default value selector.
-     */
-    public GoalGenerate(IntExpArray intvars, boolean dichotomize) {
-        this(intvars, null, null, dichotomize);
-    }
-
-    /**
-     * Constructor with a given array of variables, variable selector, and "dichotomize" parameter.
-     */
-    public GoalGenerate(IntExpArray intvars, IntVarSelector var_selector, boolean dichotomize) {
-        this(intvars, var_selector, null, dichotomize);
-    }
-
-    /**
-     * Constructor with a given array of variables, variable selector, and value selector. GoalGenerate constructed that
-     * way won't use dichotomize procedure.
-     */
-    public GoalGenerate(IntExpArray intvars, IntVarSelector var_selector, IntValueSelector value_selector) {
-        this(intvars, var_selector, value_selector, false);
-    }
-
-    /**
-     * Constructor with full (and redundant) set of parameters.
-     */
-    GoalGenerate(IntExpArray intvars,
-            IntVarSelector var_selector,
-            IntValueSelector value_selector,
-            boolean dichotomize) {
         super(intvars.constrainer(), "Generate");
         _intvars = intvars;
-        _dichotomize = dichotomize;
 
-        _var_selector = var_selector != null ? var_selector : new IntVarSelectorFirstUnbound(intvars);
-
-        _value_selector = dichotomize ? null : value_selector != null ? value_selector : new IntValueSelectorMin();
         initGoals();
     }
 
@@ -98,7 +53,15 @@ public class GoalGenerate extends GoalImpl {
     @Override
     public Goal execute() throws Failure {
         // Debug.on();Debug.print("Generate"+_intvars);Debug.off();
-        int index = _var_selector.select();
+        int index = -1;
+        int size = _intvars.size();
+        for (int i = 0; i < size; i++) {
+            IntVar vari = (IntVar) _intvars.elementAt(i);
+            if (!vari.bound()) {
+                index = i;
+                break;
+            }
+        }
         if (index == -1) {
             return null; // all vars are instantiated
         }
@@ -120,11 +83,7 @@ public class GoalGenerate extends GoalImpl {
         for (int i = 0; i < size; i++) {
             IntVar var = (IntVar) _intvars.elementAt(i);
             Goal goal;
-            if (_dichotomize) {
-                goal = new GoalDichotomize(var, _recursiveInstantiate);
-            } else {
-                goal = new GoalInstantiate(var, _value_selector, _recursiveInstantiate);
-            }
+            goal = new GoalInstantiate(var);
             _goals.addElement(goal);
         }
     }

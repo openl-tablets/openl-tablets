@@ -39,11 +39,5 @@ public abstract class ConstraintImpl extends GoalImpl implements Constraint {
      */
     public ConstraintImpl(Constrainer c, String name) {
         super(c, name);
-        // c.addConstraint(this);
-    }
-
-    @Override
-    public void post() throws Failure {
-        _constrainer.postConstraint(this);
     }
 } // ~ConstraintImpl

@@ -33,16 +33,6 @@ public class GoalOr extends GoalImpl {
     }
 
     /**
-     * Constructor with a given 2 goals and a label.
-     */
-    public GoalOr(Goal g1, Goal g2, ChoicePointLabel label) {
-        super(g1.constrainer(), "");// "{"+g1.name()+"||"+g2.name()+"}");
-        _g1 = g1;
-        _g2 = g2;
-        _label = label;
-    }
-
-    /**
      * Sets the choice point in the constrainer.
      */
     @Override

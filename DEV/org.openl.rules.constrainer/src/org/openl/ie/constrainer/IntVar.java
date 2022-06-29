@@ -79,11 +79,4 @@ public interface IntVar extends IntExp {
      */
     void forceSize(int val);
 
-    /**
-     * Returns a goal that instantiates this variable.
-     *
-     * @return a goal that instantiates this variable.
-     */
-    Goal instantiate();
-
 } // ~IntVar

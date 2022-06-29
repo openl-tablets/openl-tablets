@@ -19,11 +19,6 @@ package org.openl.ie.constrainer;
  * An interface for constrainer object. Constrained variables, expressions, constraints, and goals implement that
  * interface.
  *
- * @see IntExp
- * @see FloatExp
- * @see Constraint
- * @see Goal
- * @see Constrainer
  */
 public interface ConstrainerObject extends java.io.Serializable {
     /**

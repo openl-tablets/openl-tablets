@@ -29,14 +29,4 @@ public interface ExpressionFactory extends Undoable {
      */
     Expression getExpression(Class clazz, Object[] args, Class[] types);
 
-    /**
-     * Returns true if the cache is used.
-     */
-    boolean useCache();
-
-    /**
-     * Sets the flag if the cache should be used.
-     */
-    void useCache(boolean flag);
-
 } // ~ExpressionFactory

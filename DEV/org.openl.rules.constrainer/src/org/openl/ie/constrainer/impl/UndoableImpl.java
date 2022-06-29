@@ -38,13 +38,4 @@ public abstract class UndoableImpl extends ConstrainerObjectImpl implements Undo
         constrainer().addUndo(undo_object);
     }
 
-    @Override
-    public boolean undone() {
-        return false;
-    }
-
-    @Override
-    public void undone(boolean b) {
-    }
-
 } // ~UndoableImpl

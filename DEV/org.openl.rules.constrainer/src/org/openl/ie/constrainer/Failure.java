@@ -28,28 +28,11 @@ public class Failure extends Exception {
     private ChoicePointLabel _label = null;
 
     /**
-     * Constructor for a Failure with no description.
-     */
-    public Failure() {
-        this("");
-    }
-
-    /**
      * Constructor for a Failure with a given description.
      */
     public Failure(String s) {
         super(s);
         _msg = s;
-        // System.out.println("FAIL: "+this);
-    }
-
-    /**
-     * Constructor for a Failure with a given description and label.
-     */
-    public Failure(String s, ChoicePointLabel label) {
-        super(s);
-        _msg = s;
-        _label = label;
         // System.out.println("FAIL: "+this);
     }
 

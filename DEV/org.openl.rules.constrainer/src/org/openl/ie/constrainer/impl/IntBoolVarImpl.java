@@ -277,10 +277,6 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
 
     protected int _min;
 
-    public IntBoolVarImpl(Constrainer constrainer) {
-        this(constrainer, "");
-    }
-
     public IntBoolVarImpl(Constrainer constrainer, String name) {
         super(constrainer, name);
         _min = 0;
@@ -315,11 +311,6 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
     @Override
     public void forceSize(int max) {
         abort("Temporary method???");
-    }
-
-    @Override
-    public Goal instantiate() {
-        return new GoalInstantiate(this);
     }
 
     @Override

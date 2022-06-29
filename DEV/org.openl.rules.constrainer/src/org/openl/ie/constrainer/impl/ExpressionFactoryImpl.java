@@ -55,15 +55,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
                 return equalArrays((IntExpArray) arg1, (IntExpArray) arg2);
             }
 
-            if (arg1 instanceof FloatExpArray) {
-                return equalArrays((FloatExpArray) arg1, (FloatExpArray) arg2);
-            }
-
             return false;
-        }
-
-        static boolean equalArrays(FloatExpArray arg1, FloatExpArray arg2) {
-            return equalArrays(arg1.data(), arg2.data());
         }
 
         static boolean equalArrays(IntExpArray arg1, IntExpArray arg2) {
@@ -316,18 +308,6 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             s.append('\n');
         }
         return s.toString();
-    }
-
-    @Override
-    public boolean useCache() {
-        return _useCache;
-    }
-
-    @Override
-    public void useCache(boolean flag) {
-        _useCache = flag;
-        _getFromCache = flag;
-        _putInCache = flag;
     }
 
 } // ~ExpressionFactoryImpl

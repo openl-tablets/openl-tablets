@@ -78,8 +78,7 @@ public final class IntExpAddArray extends IntExpImpl {
             sum_name = "sum(" + _vars.name() + ")";
         }
 
-        int trace = 0;
-        _sum = constrainer().addIntVarTraceInternal(calc_min(), calc_max(), sum_name, IntVar.DOMAIN_PLAIN, trace);
+        _sum = constrainer().addIntVarTraceInternal(calc_min(), calc_max(), sum_name, IntVar.DOMAIN_PLAIN);
     }
 
     @Override

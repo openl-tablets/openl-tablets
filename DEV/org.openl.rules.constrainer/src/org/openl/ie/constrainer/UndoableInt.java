@@ -17,7 +17,6 @@ package org.openl.ie.constrainer;
 /**
  * An interface for the undoable integer value.
  *
- * @see Constrainer#addUndoableInt
  */
 public interface UndoableInt extends Undoable {
     /**

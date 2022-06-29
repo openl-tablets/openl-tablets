@@ -1,6 +1,5 @@
 package org.openl.ie.constrainer;
 
-import org.openl.ie.constrainer.impl.ConstraintExpEqualsValue;
 import org.openl.ie.constrainer.impl.IntExpImpl;
 
 //
@@ -66,16 +65,6 @@ public class IntExpConst extends IntExpImpl {
     final public Constraint equals(int value) // this = value
     {
         return new ConstraintConst(constrainer(), value == _const);
-    }
-
-    /**
-     * @param exp IntExp that must be equal to IntExpConst's value.
-     * @return <code> ConstraintConst(exp == const)</code>
-     */
-    @Override
-    final public Constraint equals(IntExp exp) // this == exp
-    {
-        return new ConstraintExpEqualsValue(exp, _const);
     }
 
     public boolean isInteger() {

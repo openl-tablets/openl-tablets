@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.openl.ie.constrainer.impl.IntExpAddArray1;
-import org.openl.ie.constrainer.impl.IntExpArrayElement1;
 import org.openl.ie.tools.FastVector;
 
 /**
@@ -15,8 +14,6 @@ import org.openl.ie.tools.FastVector;
 public final class IntExpArray extends ConstrainerObjectImpl {
 
     private final IntExp[] _data;
-
-    private IntArrayCards _cards = null;
 
     /**
      * Constructor from the FastVector.
@@ -220,19 +217,6 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * Returns an array of cardinalities for the expressions. If such an array does not exist it will be created using
-     * invokation <code>IntArrayCards(this.constrainer(),this)</code>
-     *
-     * @see IntArrayCards
-     */
-    public IntArrayCards cards() throws Failure {
-        if (_cards == null) {
-            _cards = new IntArrayCards(_constrainer, this);
-        }
-        return _cards;
-    }
-
-    /**
      * Returns the internal array of the expressions.
      */
     public IntExp[] data() {
@@ -245,19 +229,6 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     public IntExp elementAt(int idx) {
         return _data[idx];
     }
-
-    /**
-     * Returns the expression that corresponds to the array item where indes is specified by the parameter expressions.
-     *
-     * @param exp expressions that specifies array element index. <b>NOTE:</b> The expression is not required to be
-     *            bound.
-     *
-     * @return <code>this[exp]</code>
-     */
-    public IntExp elementAt(IntExp exp) throws Failure {
-        return new IntExpArrayElement1(this, exp);
-    }
-    /* EO additions */
 
     /**
      * Returns the i-th element of this array.

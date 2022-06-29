@@ -73,12 +73,6 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
     }
 
     @Override
-    public Constraint equals(IntExp exp) // this == exp
-    {
-        return new ConstraintExpEqualsExp(this, exp);
-    }
-
-    @Override
     public IntBoolExp ge(int value) {
         return gt(value - 1);
     }
@@ -127,40 +121,6 @@ public abstract class IntExpImpl extends ExpressionImpl implements IntExp {
     public IntBoolExp lt(IntExp exp) {
         // return new IntBoolExpLessExp(this,exp);
         return getIntBoolExp(IntBoolExpLessExp.class, this, exp);
-    }
-
-    /*
-     * public final IntEventBool createIntEventBool(boolean b) { IntEventBool e =
-     * (IntEventBool)_constrainer._int_event_bool_factory.getElement(); e.exp(this); e.init(b); return e; }
-     */
-
-    /*
-     * public final IntEventAddExp createIntEventAddExp(IntEvent e, IntExp second) { IntEventAddExp exp =
-     * (IntEventAddExp)_constrainer._int_event_add_exp_factory.getElement(); exp.exp(this); exp.init(e, second); return
-     * exp; }
-     *
-     * public final IntEventAddValue createIntEventAddValue(IntEvent e, int value) { IntEventAddValue exp =
-     * (IntEventAddValue)_constrainer._int_event_add_value_factory.getElement(); exp.exp(this); exp.init(e, value);
-     * return exp; }
-     *
-     * public final IntEventMulPositiveValue createIntEventMulPositiveValue(IntEvent e, int value) {
-     * IntEventMulPositiveValue exp =
-     * (IntEventMulPositiveValue)_constrainer._int_event_mul_positive_value_factory.getElement(); exp.exp(this);
-     * exp.init(e, value); return exp; }
-     *
-     *
-     * public final IntEventOpposite createIntEventOpposite(IntEvent e) { IntEventOpposite exp =
-     * (IntEventOpposite)_constrainer._int_event_opposite_factory.getElement(); exp.exp(this); exp.init(e); return exp;
-     * }
-     *
-     * public final IntEventDomain createIntEventDomain(IntDomainHistory hist) { IntEventDomain exp =
-     * (IntEventDomain)_constrainer._int_event_domain_factory.getElement(); exp.exp(this); exp.init(hist); return exp; }
-     *
-     */
-
-    IntExp mul_1(IntExp exp) {
-        // return new IntExpMulExp(this,exp);
-        return getIntExp(IntExpMulExp.class, this, exp);
     }
 
     // Only variables should implement propagation.

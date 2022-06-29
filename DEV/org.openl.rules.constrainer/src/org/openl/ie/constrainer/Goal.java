@@ -31,6 +31,4 @@ public interface Goal extends ConstrainerObject {
      */
     Goal execute() throws Failure;
 
-    boolean toContinue(ChoicePointLabel label, boolean restore_flag);
-
 } // ~Goal

@@ -77,13 +77,6 @@ public final class UndoableIntImpl extends UndoableImpl implements UndoableInt {
         return UndoUndoableInt.getUndo();
     }
 
-    /**
-     * Sets the current value.
-     */
-    void forceValue(int value) {
-        _value = value;
-    }
-
     @Override
     public void setValue(int value) {
         if (value != _value) {

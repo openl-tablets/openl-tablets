@@ -22,25 +22,6 @@ package org.openl.ie.constrainer;
  */
 
 public interface Expression extends Subject, EventOfInterest.Constants, java.io.Serializable {
-    /**
-     * The MIN tracing mask for the traced variables.
-     */
-    int TRACE_MIN = 1;
-
-    /**
-     * The MAX tracing mask for the traced variables.
-     */
-    int TRACE_MAX = 2;
-
-    /**
-     * The REMOVE tracing mask for the traced variables.
-     */
-    int TRACE_REMOVE = 4;
-
-    /**
-     * The VALUE tracing mask for the traced variables.
-     */
-    int TRACE_VALUE = 8;
 
     /**
      * Checks wether the expression is linear or not.

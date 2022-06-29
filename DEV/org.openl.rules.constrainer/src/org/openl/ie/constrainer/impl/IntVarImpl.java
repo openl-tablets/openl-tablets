@@ -65,21 +65,6 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
 
     private final IntDomainHistory _history;
 
-    public IntVarImpl(Constrainer constrainer, int max) {
-        this(constrainer, 0, max);
-    }
-
-    public IntVarImpl(Constrainer constrainer, int min, int max) {
-        this(constrainer, min, max, "var");
-    }
-
-    public IntVarImpl(Constrainer constrainer, int min, int max, String name) {
-        super(constrainer, name);
-        _domain = new DomainBits(this, min, max);
-
-        _history = new IntDomainHistory(this);
-    }
-
     public IntVarImpl(Constrainer constrainer, int min, int max, String name, int domain_type) {
         super(constrainer, name);
 
@@ -152,11 +137,6 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
 
     public IntDomainHistory history() {
         return _history;
-    }
-
-    @Override
-    public Goal instantiate() {
-        return new GoalInstantiate(this);
     }
 
     @Override

@@ -28,19 +28,4 @@ public interface Undoable extends ConstrainerObject {
      */
     Undo createUndo();
 
-    // /**
-    // *
-    // */
-    // public void restored();
-
-    /**
-     * Returns true if undo operation was performed.
-     */
-    boolean undone();
-
-    /**
-     * Sets 'undone' state for this undoable object.
-     */
-    void undone(boolean b);
-
 } // ~Undoable

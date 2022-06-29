@@ -52,10 +52,6 @@ import org.openl.ie.tools.RTExceptionWrapper;
  * <li>Interface Goal - a base class for different search goals and constraints.
  * </ol>
  *
- * @see Goal
- * @see IntVar
- * @see FloatVar
- * @see Subject
  * @author (C)2000 Exigen Group (http://www.IntelEngine.com)
  */
 
@@ -222,27 +218,6 @@ public final class Constrainer implements Serializable {
     }
 
     /**
-     * Adds an internal constrained floating-point variable to the Constrainer.
-     */
-    FloatVar addFloatVarInternal(FloatVar var) {
-        _floatvars.addElement(var);
-        addUndo(UndoFastVectorAdd.getUndo(_floatvars));
-        // addInternalObjectToSymbolicContext(var);
-        return var;
-    }
-
-    /**
-     * Adds an internal constrained float variable to the Constrainer, selectively allows trace. Used in expressions
-     * that create internal variables for their own needs. <br>
-     * <b>Note:</b>Constrainer's users should not use this method.
-     */
-    public FloatVar addFloatVarTraceInternal(double min, double max, String name, int trace) {
-        FloatVar var = trace != 0 ? new FloatVarImplTrace(this, min, max, name, trace)
-                                  : new FloatVarImpl(this, min, max, name);
-        return addFloatVarInternal(var);
-    }
-
-    /**
      * Adds a constrained boolean variable to the Constrainer.
      *
      * @param var Variable to add.
@@ -265,53 +240,6 @@ public final class Constrainer implements Serializable {
     public IntBoolVar addIntBoolVar(String name) {
         IntBoolVar var = new IntBoolVarImpl(this, name);
         return addIntBoolVar(var);
-    }
-
-    /**
-     * Adds an internal constrained boolean variable to the Constrainer.
-     */
-    IntBoolVar addIntBoolVarInternal(IntBoolVar var) {
-        _intvars.add(var);
-        addUndo(UndoFastVectorAdd.getUndo(_intvars));
-        // addInternalObjectToSymbolicContext(var);
-        return var;
-    }
-
-    /**
-     * Adds an internal constrained boolean variable to the Constrainer. Used in expressions that create internal
-     * variables for their own needs. <br>
-     * <b>Note:</b>Constrainer's users should not use this method.
-     */
-    public IntBoolVar addIntBoolVarInternal(String name) {
-        IntBoolVar var = new IntBoolVarImpl(this, name);
-        return addIntBoolVarInternal(var);
-    }
-
-    /**
-     * Create new constrained set variable and adds it to the constrainer
-     *
-     * @param values set of possible values
-     * @return variable created based on set of possible values
-     */
-    public IntSetVar addIntSetVar(int[] values) {
-        IntSetVar var = new IntSetVarImpl(this, values, "");
-        return addIntSetVar(var);
-    }
-
-    /*
-     * ============================================================================== Variables
-     * ============================================================================
-     */
-    /**
-     * Adds a constrained set variable to the Constrainer
-     *
-     * @param var IntSetVar to be added
-     * @return passed variable
-     */
-    IntSetVar addIntSetVar(IntSetVar var) {
-        _intsetvars.addElement(var);
-        addUndo(UndoFastVectorAdd.getUndo(_intsetvars));
-        return var;
     }
 
     /**
@@ -392,9 +320,8 @@ public final class Constrainer implements Serializable {
      * that create internal variables for their own needs. <br>
      * <b>Note:</b>Constrainer's users should not use this method.
      */
-    public IntVar addIntVarTraceInternal(int min, int max, String name, int type, int trace) {
-        IntVar var = trace != 0 ? new IntVarImplTrace(this, min, max, name, type, trace)
-                                : new IntVarImpl(this, min, max, name, type);
+    public IntVar addIntVarTraceInternal(int min, int max, String name, int type) {
+        IntVar var = new IntVarImpl(this, min, max, name, type);
         return addIntVarInternal(var);
     }
 
@@ -447,16 +374,6 @@ public final class Constrainer implements Serializable {
      */
 
     /**
-     * Adds an undoable float to the Constrainer.
-     *
-     * @param value Initial value.
-     * @return Added undoable float.
-     */
-    public UndoableFloat addUndoableFloat(double value) {
-        return new UndoableFloatImpl(this, value);
-    }
-
-    /**
      * Adds an undoable integer to the Constrainer.
      *
      * @param value Initial value.
@@ -474,17 +391,6 @@ public final class Constrainer implements Serializable {
         while (!_active_undoable_once.empty()) {
             ((UndoableOnceImpl) _active_undoable_once.pop()).restore();
         }
-    }
-
-    /*
-     * ============================================================================== Execution, backtracking, choice
-     * points ============================================================================
-     */
-    /**
-     * Backtracks to the most recent choice point.
-     */
-    boolean backtrack() {
-        return backtrack(null);
     }
 
     /**
@@ -532,107 +438,6 @@ public final class Constrainer implements Serializable {
         return _constraints;
     }
 
-    /**
-     * generate a unique ChoicePointLabel
-     *
-     */
-    public ChoicePointLabel createChoicePointLabel() {
-        _labelsCounter++;
-        return new ChoicePointLabel(this, _labelsCounter);
-    }
-
-    /**
-     * Returns the label of the current choice point.
-     */
-    ChoicePointLabel currentChoicePointLabel() {
-        return _goal_stack.currentChoicePoint().label();
-    }
-
-    /**
-     * Returns an array of constrained integer variables "cards" such that cards[i] is equal to the number of variables
-     * in "vars" bound to the sequental [0,vars.size()] values.
-     *
-     * @param vars Array of variables.
-     * @return An array of constrained integer variables.
-     * @throws Failure
-     */
-    public IntExpArray distribute(IntExpArray vars) throws Failure {
-        int size = vars.size();
-        int[] values = new int[size];
-        for (int i = 0; i < size; ++i) {
-            values[i] = i;
-        }
-
-        return distribute(vars, values);
-
-    }
-
-    /**
-     * Returns an array of n constrained integer variables "cards" such that cards[i] is equal to the number of
-     * variables in "vars" bound to the value i.
-     *
-     * @param vars The array of constrained ineteger expressions.
-     * @param n The value to be checked.
-     * @return The array of value cardinalities.
-     * @throws Failure
-     */
-    public IntExpArray distribute(IntExpArray vars, int n) throws Failure {
-        int[] values = new int[n];
-        for (int i = 0; i < n; ++i) {
-            values[i] = i;
-        }
-        return distribute(vars, values);
-    }
-
-    /**
-     * Returns the array of constrained integer variables "cards" such that cards[i] is equal to the number of variables
-     * in "vars" bound to the value values[i].
-     *
-     * @param vars The array of constrained ineteger variables.
-     * @param values The array of value to be checked.
-     *
-     * @return The array of values cardinalities in vars.
-     * @throws Failure
-     */
-    public IntExpArray distribute(IntExpArray vars, int[] values) throws Failure {
-
-        IntArrayCards vcards = vars.cards();
-
-        FastVector cards = new FastVector();
-
-        for (int value : values) {
-            cards.addElement(vcards.cardAt(value));
-            // cards.addElement(addIntVar(0,vars.size(),"Count of "+values[i]));
-        }
-        // redundant constraint
-        return new IntExpArray(this, cards);
-    }
-
-    /**
-     * All elements of an array are associated with their domains. The union of the domains makes up the array "domain"
-     * that is the set of all values that may occur in the array. An instance of {@link IntArrayCards} class is
-     * associated with each instance of {@link IntExpArray}. The instance keeps track the possible number of the value
-     * occurrences in the array that is it has an element(constrained integer expression) per value from the array
-     * "domain". For each value from the array "domain" the method {@link #distribute(IntExpArray , IntExpArray)}
-     * creates the constraint "equals" to the number of occurrences of values. The number of occurrences for each value
-     * of array "domain" is specified in <code>cards</code> parameter.
-     *
-     * @param vars The array of constrained integer expressions.
-     * @param cards The array of value occurences.
-     * @return The array of value cardinalities.
-     * @throws Failure
-     */
-    public IntArrayCards distribute(IntExpArray vars, IntExpArray cards) throws Failure {
-        IntArrayCards vcards = vars.cards();
-
-        for (int i = 0; i < vcards.cardSize(); ++i) {
-            Constraint ct = vcards.cardAt(i).equals(cards.get(i));
-            ct.execute();
-        }
-
-        return vcards;
-
-    }
 
     /**
      * Prints the statistical information. This information is accumulated during the execution of the goals.
@@ -712,28 +517,6 @@ public final class Constrainer implements Serializable {
 
                 clearPropagationQueue();
 
-                // here was checking out the time limit
-                // check time limit
-                if (_time_limit > 0) {
-                    long now_seconds = System.currentTimeMillis() / 1000;
-                    if (now_seconds - start_seconds > _time_limit) {
-                        // _out.println("Time Limit Violation: more than
-                        // "+_time_limit+" sec");
-                        // success = false;
-                        throw new TimeLimitException("Time limit exceeded", f.label());
-                        // break;
-                    }
-                }
-
-                // check failures limit
-                if (_failures_limit > 0) {
-                    if (_number_of_failures > _failures_limit) {
-                        _out.println("Failures Limit Violation: more than " + _failures_limit);
-                        success = false;
-                        break;
-                    }
-                }
-
                 // Backtrack
                 if (!backtrack(f.label())) {
                     success = false;
@@ -776,19 +559,6 @@ public final class Constrainer implements Serializable {
         return _expressionFactory;
     }
 
-    /*
-     * ============================================================================== Failures
-     * ============================================================================
-     */
-    /**
-     * Throws Failure exception.
-     *
-     * @throws Failure
-     */
-    public void fail() throws Failure {
-        fail("");
-    }
-
     /**
      * Throws Failure exception.
      *
@@ -796,16 +566,6 @@ public final class Constrainer implements Serializable {
      * @throws Failure
      */
     public void fail(String s) throws Failure {
-        fail(s, null);
-    }
-
-    /**
-     * Throws Failure exception.
-     *
-     * @param s The diagnostic message.
-     * @throws Failure
-     */
-    public void fail(String s, ChoicePointLabel label) throws Failure {
         _number_of_failures++;
 
         if (_failure_display_frequency > 0 && _number_of_failures % _failure_display_frequency == 0) {
@@ -821,83 +581,7 @@ public final class Constrainer implements Serializable {
         /*
          * if (showInternalNames()) _failure.message(s); else _failure.message("");
          */
-        throw new Failure(s, label);// _failure; //
-    }
-
-    int[] findAppropriate(FloatVar[] floatVars) {
-        if (floatVars == null) {
-            return null;
-        }
-        int size = floatVars.length;
-        int[] indices = new int[size];
-        java.util.HashMap map = new java.util.HashMap(size);
-        Object[] vars = _floatvars.data();
-        for (int i = 0; i < vars.length; i++) {
-            map.put(vars[i], i);
-        }
-        int validsCounter = 0;
-        for (FloatVar floatVar : floatVars) {
-            Integer idx = (Integer) map.get(floatVar);
-            if (idx != null) {
-                indices[validsCounter] = idx;
-                validsCounter++;
-            }
-        }
-        int[] out = new int[validsCounter];
-        System.arraycopy(indices, 0, out, 0, validsCounter);
-        return out;
-    }
-
-    int[] findAppropriate(IntVar[] intVars) {
-        if (intVars == null) {
-            return null;
-        }
-        int size = intVars.length;
-        int[] indices = new int[size];
-        java.util.HashMap map = new java.util.HashMap(size);
-        Object[] vars = _intvars.data();
-        for (int i = 0; i < vars.length; i++) {
-            map.put(vars[i], i);
-        }
-        int validsCounter = 0;
-        for (IntVar intVar : intVars) {
-            Integer idx = (Integer) map.get(intVar);
-            if (idx != null) {
-                indices[validsCounter] = idx;
-                validsCounter++;
-            }
-        }
-        int[] out = new int[validsCounter];
-        System.arraycopy(indices, 0, out, 0, validsCounter);
-        return out;
-    }
-
-    FloatVar[] getFloatVars(int[] indices) {
-        if (indices == null) {
-            return null;
-        }
-        FloatVar[] ari = new FloatVar[indices.length];
-        Object[] vars = _floatvars.data();
-        for (int i = 0; i < indices.length; i++) {
-            ari[i] = (FloatVar) vars[indices[i]];
-        }
-        return ari;
-    }
-
-    /**
-     * functions providing the possibility of supporting multi-session added by E. Tseitlin
-     */
-
-    IntVar[] getIntVars(int[] indices) {
-        if (indices == null) {
-            return null;
-        }
-        IntVar[] ari = new IntVar[indices.length];
-        Object[] vars = _intvars.data();
-        for (int i = 0; i < indices.length; i++) {
-            ari[i] = (IntVar) vars[indices[i]];
-        }
-        return ari;
+        throw new Failure(s);// _failure; //
     }
 
     /*
@@ -913,85 +597,6 @@ public final class Constrainer implements Serializable {
         _number_of_notifications++;
     }
 
-    /**
-     * This method returns the number of choice points during search execution.
-     *
-     * @return The number of choice points during execution.
-     */
-    public int numberOfChoicePoints() {
-        return _number_of_choice_points;
-    }
-
-    /**
-     * Sets the number of choice points. Used internally in some goals. <br>
-     * <b>Note:</b>Constrainer's users should not use this method.
-     *
-     * @param cps Number of choice points.
-     */
-    public void numberOfChoicePoints(int cps) {
-        _number_of_choice_points = cps;
-    }
-
-    /*
-     * ============================================================================== Statistics, metrics, flags, ...
-     * ============================================================================
-     */
-    /**
-     * This method return number of failures during search execution.
-     *
-     * @return Number of failures during execution.
-     */
-    public int numberOfFailures() {
-        return _number_of_failures;
-    }
-
-    /**
-     * Sets the number of choice points. Used internally in some goals. <br>
-     * <b>Note:</b>Constrainer's users should not use this method.
-     *
-     * @param nfs Number of failures.
-     */
-    public void numberOfFailures(int nfs) {
-        _number_of_failures = nfs;
-    }
-
-    /**
-     * Returns the Constrainer's output stream where the output information is printed out.
-     *
-     * @return the Constrainer's output stream where the output information is printed out.
-     */
-    public PrintStream out() {
-        return _out;
-    }
-
-    /**
-     * Sets the output stream where the information is printed.
-     *
-     * @param out the output stream to be set for Constrainer's output.
-     */
-    public void out(PrintStream out) {
-        _out = out;
-    }
-
-    /**
-     * Activates the passed constraint. This method executes the specified constraint.The constraint is not added to
-     * internal constraint storage (with which {@link #addConstraint(Constraint)} and {@link #postConstraints()}
-     * operates) instead it is just activated immediately.
-     *
-     * @param ct The constraint to be posted/executed.
-     * @throws Failure When the constraint cannot be posted that is the constraint is incompatible with the previously
-     *             activated ones.
-     */
-    public void postConstraint(Constraint ct) throws Failure {
-        boolean ok = execute(ct);
-
-        if (!ok) {
-            String s = "Posting of constraint failed: " + ct;
-            throw new Failure(s);
-        }
-
-        // return ok;
-    }
 
     /*
      * ============================================================================== EOF Special expressions,
@@ -1061,114 +666,6 @@ public final class Constrainer implements Serializable {
      */
     public boolean showVariableNames() {
         return _show_variable_names;
-    }
-
-    /**
-     * @param label
-     * @param restore_flag
-     */
-    synchronized public boolean toContinue(ChoicePointLabel label, boolean restore_flag) {
-        long execution_start = System.currentTimeMillis();
-
-        boolean success = true;
-
-        long start_seconds = System.currentTimeMillis() / 1000;
-
-        // save current _goal_stack
-        GoalStack old_goal_stack = _goal_stack;
-
-        // _goal_stack = new GoalStack(main_goal, _reversibility_stack);
-
-        allowUndos();
-        // Backtrack
-        if (!backtrack(label)) {
-            success = false;
-        }
-
-        if (success) {
-            while (!_goal_stack.empty()) {
-                try {
-                    Goal goal = _goal_stack.popGoal();
-
-                    if (_trace_goals) {
-                        _out.println("Execute: " + goal);
-                    }
-
-                    goal = goal.execute();
-                    propagate();
-
-                    if (_print_information) {
-                        long occupied_memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-                        if (_max_occupied_memory < occupied_memory) {
-                            _max_occupied_memory = occupied_memory;
-                        }
-                    }
-
-                    if (goal != null) {
-                        _goal_stack.pushGoal(goal);
-                    }
-                } catch (Failure f) {
-
-                    if (_trace_failure_stack && _failure_display_frequency > 0 && _number_of_failures % _failure_display_frequency == 0) {
-                        f.printStackTrace(_out);
-                    }
-
-                    if (_print_information) {
-                        long occupied_memory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-                        if (_max_occupied_memory < occupied_memory) {
-                            _max_occupied_memory = occupied_memory;
-                        }
-                    }
-
-                    clearPropagationQueue();
-
-                    // check time limit
-                    if (_time_limit > 0) {
-                        long now_seconds = System.currentTimeMillis() / 1000;
-                        if (now_seconds - start_seconds > _time_limit) {
-                            // _out.println("Time Limit Violation: more than
-                            // "+_time_limit+" sec");
-                            // success = false;
-                            throw new TimeLimitException("time limit", f.label());
-                            // break;
-                        }
-                    }
-
-                    // check failures limit
-                    if (_failures_limit > 0) {
-                        if (_number_of_failures > _failures_limit) {
-                            _out.println("Failures Limit Violation: more than " + _failures_limit);
-                            success = false;
-                            break;
-                        }
-                    }
-
-                    // Backtrack
-                    if (!backtrack(f.label())) {
-                        success = false;
-                        break;
-                    }
-                } catch (Exception t) {
-                    _out.println("Unexpected exception: " + t.toString());
-                    t.printStackTrace(_out);
-                    abort("Unexpected exception: ", t);
-                }
-
-            } // ~while
-        }
-
-        boolean restoreAnyway = restore_flag || !success;
-        if (restoreAnyway) {
-            backtrackStack(_goal_stack.undoStackSize());
-        }
-
-        _execution_time += System.currentTimeMillis() - execution_start;
-        /*
-         * if (_print_information) { if(!(main_goal instanceof Constraint)) doPrintInformation(); }
-         */
-        _goal_stack = old_goal_stack;
-
-        return success;
     }
 
     /**
