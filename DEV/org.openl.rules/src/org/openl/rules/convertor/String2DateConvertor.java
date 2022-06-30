@@ -29,6 +29,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
             DateFormat.getDateInstance(DateFormat.SHORT, LocaleDependConvertor.getLocale()),
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX", LocaleDependConvertor.getLocale()),
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", LocaleDependConvertor.getLocale()),
+            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", LocaleDependConvertor.getLocale()),
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", LocaleDependConvertor.getLocale()),
             new SimpleDateFormat("yyyy-MM-dd", LocaleDependConvertor.getLocale()));
         for (DateFormat dateFormat : dateFormats) {
