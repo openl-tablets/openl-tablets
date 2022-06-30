@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 
-public class XlsCellFormulaWriter extends AXlsCellWriter {
+public class XlsCellFormulaWriter extends XlsCellStringWriter {
 
     public XlsCellFormulaWriter(XlsSheetGridModel xlsSheetGridModel) {
         super(xlsSheetGridModel);
@@ -35,7 +35,7 @@ public class XlsCellFormulaWriter extends AXlsCellWriter {
             // OpenL formula
             // TODO make separate writers and editors for OpenL and Excel
             // Formulas
-            cellToWrite.setCellValue(formula);
+            super.writeCellValue();
         }
     }
 
