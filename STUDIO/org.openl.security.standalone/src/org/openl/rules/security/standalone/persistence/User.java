@@ -56,6 +56,7 @@ public class User implements Serializable {
      */
     @Id
     @Column(name = "loginName", length = 50, nullable = false, unique = true)
+    @UsernameConstraints
     public String getLoginName() {
         return loginName;
     }

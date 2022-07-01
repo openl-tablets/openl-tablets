@@ -33,8 +33,9 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final String MUST_BE_LESS_THAN_25 = "Must be less than 25.";
     private static final String CANNOT_BE_EMPTY = "Can not be empty.";
-    private static final String SHOULD_NOT_END_WITH_DOT_AND_WHITESPACE = "The name should not end or begin with '.' or a whitespace.";
-    private static final String MUST_NOT_CONTAIN_FOLLOWING_CHARS = "The name must not contain the following characters: /  : * ? \" < > | { } ~ ^";
+    private static final String SHOULD_NOT_END_WITH_DOT_AND_WHITESPACE = "The name should not end or begin with '.'.";
+    private static final String CONSECUTIVE_DOT = "The name should not contain consecutive '.'.";
+    private static final String MUST_NOT_CONTAIN_FOLLOWING_CHARS = "The name must not contain whitespaces and any of the following characters: / \\ : * ? \" < > | { } ~ ^ ; %";
 
     @Autowired
     private UserManagementService userManagementService;
@@ -122,10 +123,10 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         userCreateModel.setInternalPassword(new InternalPasswordModel().setPassword("password"));
         assertNull(validateAndGetResult(userCreateModel));
 
-        userCreateModel.setUsername("a 1!@#$%&()_-+=;'.,");
+        userCreateModel.setUsername("a1!@#$&()_-+='.,");
         assertNull(validateAndGetResult(userCreateModel));
 
-        userCreateModel.setUsername("фы漢語, 汉语");
+        userCreateModel.setUsername("фы漢語,汉语ęął");
         assertNull(validateAndGetResult(userCreateModel));
 
         userCreateModel.setUsername("a");
@@ -177,10 +178,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
         userCreateModel.setUsername("a..aa");
         bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username",
-            "The name should not contain consecutive '.'.",
-            "a..aa",
-            bindingResult.getFieldError("username"));
+        assertFieldError("username", CONSECUTIVE_DOT, "a..aa", bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername(".aa");
         bindingResult = validateAndGetResult(userCreateModel);
@@ -198,17 +196,11 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
         userCreateModel.setUsername(" aa");
         bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username",
-            SHOULD_NOT_END_WITH_DOT_AND_WHITESPACE,
-            " aa",
-            bindingResult.getFieldError("username"));
+        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, " aa", bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername("aa ");
         bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username",
-            SHOULD_NOT_END_WITH_DOT_AND_WHITESPACE,
-            "aa ",
-            bindingResult.getFieldError("username"));
+        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "aa ", bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername("a/");
         bindingResult = validateAndGetResult(userCreateModel);
@@ -253,6 +245,40 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         userCreateModel.setUsername("a^");
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a^", bindingResult.getFieldError("username"));
+
+        userCreateModel.setUsername("a%");
+        bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a%", bindingResult.getFieldError("username"));
+
+        userCreateModel.setUsername("a;");
+        bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a;", bindingResult.getFieldError("username"));
+
+        userCreateModel.setUsername("a\u2028");
+        bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("username",
+            MUST_NOT_CONTAIN_FOLLOWING_CHARS,
+            "a\u2028",
+            bindingResult.getFieldError("username"));
+
+        userCreateModel.setUsername("a\u2029");
+        bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("username",
+            MUST_NOT_CONTAIN_FOLLOWING_CHARS,
+            "a\u2029",
+            bindingResult.getFieldError("username"));
+
+        userCreateModel.setUsername("a\t");
+        bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a\t", bindingResult.getFieldError("username"));
+
+        userCreateModel.setUsername("a\r");
+        bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a\r", bindingResult.getFieldError("username"));
+
+        userCreateModel.setUsername("a\n");
+        bindingResult = validateAndGetResult(userCreateModel);
+        assertFieldError("username", MUST_NOT_CONTAIN_FOLLOWING_CHARS, "a\n", bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername("jsmith");
         when(userManagementService.existsByName(anyString())).thenReturn(Boolean.TRUE);

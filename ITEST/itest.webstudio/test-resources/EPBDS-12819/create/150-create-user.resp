@@ -1,0 +1,14 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+  "message": "Bad Request",
+  "fields": [
+    {
+      "code": "openl.error.Pattern",
+      "message": "The name must not contain whitespaces and any of the following characters: / \\ : * ? \" < > | { } ~ ^ ; %",
+      "field": "username",
+      "rejectedValue": "a^"
+    }
+  ]
+}

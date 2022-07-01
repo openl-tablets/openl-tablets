@@ -56,4 +56,9 @@ public class UserManagementTest {
         client.send("EPBDS-12765/01-malicious-request");
     }
 
+    @Test
+    public void EPBDS_12819() {
+        client.test("test-resources/EPBDS-12819");
+    }
+
 }
