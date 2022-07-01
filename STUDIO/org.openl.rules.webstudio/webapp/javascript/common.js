@@ -280,3 +280,10 @@ String.prototype.replaceString = function (regex, string) {
 String.prototype.replaceAllString = function (regex, string) {
     return this.replaceAll(regex, () => string);
 }
+
+String.prototype.unescapeHTML = function() {
+    return this.replace(/&amp;/g,'&')
+        .replace(/&lt;/g,'<')
+        .replace(/&gt;/g,'>')
+        .replace(/&nbsp;/g,' ');
+}

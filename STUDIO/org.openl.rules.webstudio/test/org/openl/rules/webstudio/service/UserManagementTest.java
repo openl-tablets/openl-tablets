@@ -5,6 +5,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.function.Consumer;
+
+import javax.validation.ConstraintViolationException;
 
 import org.flywaydb.core.Flyway;
 import org.junit.Before;
@@ -48,8 +53,7 @@ public class UserManagementTest {
 
     @Test
     public void testInitialization() {
-        userService
-            .addUser("jdoe", "John", "Doe", "qwerty", "jdoe@test", "John Doe");
+        userService.addUser("jdoe", "John", "Doe", "qwerty", "jdoe@test", "John Doe");
         assertTrue(userService.existsByName("jdoe"));
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getSelect());
@@ -100,12 +104,12 @@ public class UserManagementTest {
         assertTrue(user.getExternalFlags().isLastNameExternal());
         assertTrue(user.getExternalFlags().isEmailVerified());
         final int expectedFeatures = UserExternalFlags.builder()
-                .withFeature(Feature.EXTERNAL_DISPLAY_NAME)
-                .withFeature(Feature.EXTERNAL_LAST_NAME)
-                .withFeature(Feature.EXTERNAL_FIRST_NAME)
-                .withFeature(Feature.EXTERNAL_EMAIL)
-                .withFeature(Feature.EMAIL_VERIFIED)
-                .getRawFeatures();
+            .withFeature(Feature.EXTERNAL_DISPLAY_NAME)
+            .withFeature(Feature.EXTERNAL_LAST_NAME)
+            .withFeature(Feature.EXTERNAL_FIRST_NAME)
+            .withFeature(Feature.EXTERNAL_EMAIL)
+            .withFeature(Feature.EMAIL_VERIFIED)
+            .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(4, queryCount.getSelect());
@@ -165,12 +169,12 @@ public class UserManagementTest {
         assertTrue(user.getExternalFlags().isLastNameExternal());
         assertTrue(user.getExternalFlags().isEmailVerified());
         final int expectedFeatures = UserExternalFlags.builder()
-                .withoutFeature(Feature.EXTERNAL_DISPLAY_NAME)
-                .withFeature(Feature.EXTERNAL_LAST_NAME)
-                .withFeature(Feature.EXTERNAL_FIRST_NAME)
-                .withoutFeature(Feature.EXTERNAL_EMAIL)
-                .withFeature(Feature.EMAIL_VERIFIED)
-                .getRawFeatures();
+            .withoutFeature(Feature.EXTERNAL_DISPLAY_NAME)
+            .withFeature(Feature.EXTERNAL_LAST_NAME)
+            .withFeature(Feature.EXTERNAL_FIRST_NAME)
+            .withoutFeature(Feature.EXTERNAL_EMAIL)
+            .withFeature(Feature.EMAIL_VERIFIED)
+            .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(7, queryCount.getSelect());
@@ -197,12 +201,12 @@ public class UserManagementTest {
         assertFalse(user.getExternalFlags().isLastNameExternal());
         assertTrue(user.getExternalFlags().isEmailVerified());
         final int expectedFeatures = UserExternalFlags.builder()
-                .withoutFeature(Feature.EXTERNAL_DISPLAY_NAME)
-                .withoutFeature(Feature.EXTERNAL_LAST_NAME)
-                .withoutFeature(Feature.EXTERNAL_FIRST_NAME)
-                .withoutFeature(Feature.EXTERNAL_EMAIL)
-                .withFeature(Feature.EMAIL_VERIFIED)
-                .getRawFeatures();
+            .withoutFeature(Feature.EXTERNAL_DISPLAY_NAME)
+            .withoutFeature(Feature.EXTERNAL_LAST_NAME)
+            .withoutFeature(Feature.EXTERNAL_FIRST_NAME)
+            .withoutFeature(Feature.EXTERNAL_EMAIL)
+            .withFeature(Feature.EMAIL_VERIFIED)
+            .getRawFeatures();
         assertEquals(expectedFeatures, UserExternalFlags.builder(user.getExternalFlags()).getRawFeatures());
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(7, queryCount.getSelect());
@@ -218,6 +222,53 @@ public class UserManagementTest {
         QueryCount queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getSelect());
         assertEquals(1, queryCount.getTotal());
+    }
+
+    @Test
+    public void testSave() {
+        Consumer<String> saveTask = username -> userService
+            .addUser(username, "John", "Doe", "qwerty", "jdoe@test", "John Doe");
+
+        String[] forbiddenNames = { "a..aa",
+                ".aa",
+                "aa.",
+                " aa",
+                "aa ",
+                "a a",
+                "a/",
+                "a\\",
+                "a:",
+                "a*",
+                "a?",
+                "a\"",
+                "a<",
+                "a|",
+                "a{",
+                "a~",
+                "a^",
+                "a%",
+                "a;",
+                "a\u2028",
+                "a\u2029",
+                "a\t",
+                "a\n",
+                "a\r" };
+        for (String username : forbiddenNames) {
+            try {
+                saveTask.accept(username);
+                fail("Must be not saved!");
+            } catch (ConstraintViolationException e) {
+                var constraint = e.getConstraintViolations().iterator().next();
+                assertEquals("loginName", constraint.getPropertyPath().toString());
+            }
+            assertFalse(userService.existsByName(username));
+        }
+
+        String[] allowedNames = { "a1!@#$&()_-+='.,", "фы漢語,汉语ęął", "a" };
+        for (String username : allowedNames) {
+            saveTask.accept(username);
+            assertTrue(userService.existsByName(username));
+        }
     }
 
 }

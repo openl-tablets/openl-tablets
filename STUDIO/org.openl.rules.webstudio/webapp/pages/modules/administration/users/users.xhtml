@@ -136,7 +136,7 @@
             const $userGroups = $notMatchedUserGroups.parent();
             $j.ajax({
                 type: "GET",
-                url: '#{contextPath}/web/users/' + username + '/groups/external',
+                url: '#{contextPath}/web/users/' + encodeURIComponent(username) + '/groups/external',
                 data: {
                     matched: false
                 },
@@ -158,7 +158,7 @@
             if (confirm('Are you sure you want to delete the user?')) {
                 $j.ajax({
                     type: "DELETE",
-                    url: "#{contextPath}/web/users/" + userName,
+                    url: "#{contextPath}/web/users/" + encodeURIComponent(userName),
                     contentType: 'application/json',
                     dataType: 'json'
                 }).done(function () {

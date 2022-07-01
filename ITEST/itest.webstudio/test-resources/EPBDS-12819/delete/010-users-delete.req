@@ -1,0 +1,4 @@
+DELETE /rest/users/a1!%40%23%24%26()_-%2B%3D'.%2C HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+

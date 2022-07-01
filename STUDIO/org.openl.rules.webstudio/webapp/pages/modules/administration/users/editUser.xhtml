@@ -202,7 +202,7 @@
                 let fetchedData = null;
                 $j.ajax({
                     type: "GET",
-                    url: '#{contextPath}/web/users/' + userModel.username + '/groups/external',
+                    url: '#{contextPath}/web/users/' + encodeURIComponent(userModel.username) + '/groups/external',
                     data: {
                         matched: true
                     },
@@ -378,7 +378,7 @@
             });
             $j.ajax({
                 type: "PUT",
-                url: "#{contextPath}/web/users/" + $j("#edit-user-username").html(),
+                url: "#{contextPath}/web/users/" + encodeURIComponent($j("#edit-user-username").text().unescapeHTML()),
                 data: JSON.stringify({
                     firstName : editUserIsFirstNameExternal ? null : $j("#edit-user-firstname").val().trim(),
                     displayName : editUserIsDisplayNameExternal ? null : $j("#edit-user-display-name").val().trim(),

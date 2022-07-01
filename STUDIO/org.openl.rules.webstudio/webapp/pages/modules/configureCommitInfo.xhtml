@@ -82,7 +82,7 @@
       if (predicate()) {
         $j.ajax({
           type: "GET",
-          url: "#{contextPath}/web/users/" + username,
+          url: "#{contextPath}/web/users/" + encodeURIComponent(username),
           datatype: "json"
         })
         .done(function (user) {

@@ -3,21 +3,19 @@ package org.openl.rules.rest.model;
 import java.util.Set;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.openl.rules.rest.validation.InternalPasswordConstraint;
 import org.openl.rules.rest.validation.UsernameExistsConstraint;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import org.openl.rules.security.standalone.persistence.UsernameConstraints;
 
 public class UserCreateModel extends UserEditModel {
 
     @NotBlank
     @Size(max = 25, message = "{openl.constraints.size.max.message}")
-    @Pattern.List({ @Pattern(regexp = "[^.\\s].*[^.\\s]|[^.\\s]", message = "{openl.constraints.username.2.message}"),
-            @Pattern(regexp = "(.(?<![.]{2}))+", message = "{openl.constraints.username.1.message}"),
-            @Pattern(regexp = "[^\\/\\\\:*?\"<>|{}~^]*", message = "{openl.constraints.username.3.message}") })
+    @UsernameConstraints
     @UsernameExistsConstraint
     @Parameter(description = "Username", example = "jdoe")
     private String username;

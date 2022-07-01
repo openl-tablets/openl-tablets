@@ -1,0 +1,4 @@
+DELETE /rest/users/%D1%84%D1%8B%E6%BC%A2%E8%AA%9E%2C%E6%B1%89%E8%AF%AD%C4%99%C4%85%C5%82 HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
