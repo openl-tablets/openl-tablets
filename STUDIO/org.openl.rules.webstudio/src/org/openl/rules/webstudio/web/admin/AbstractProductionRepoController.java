@@ -69,7 +69,7 @@ public abstract class AbstractProductionRepoController {
         final List<RepositoryConfiguration> configurations = getProductionRepositoryConfigurations();
         String newConfigName = RepositoryEditor.getNewConfigName(configurations, RepositoryMode.PRODUCTION);
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, RepositoryType.DB.factoryId,
-                RepositoryEditor.createValueFinder(configurations, RepositoryMode.PRODUCTION), RepositoryMode.PRODUCTION);
+                configurations, RepositoryMode.PRODUCTION);
         repoConfig.commit();
         return repoConfig;
     }

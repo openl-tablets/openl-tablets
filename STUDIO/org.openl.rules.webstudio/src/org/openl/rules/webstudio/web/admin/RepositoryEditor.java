@@ -15,12 +15,8 @@ import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RepositoryEditor {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RepositoryEditor.class);
 
     private final RepositoryFactoryProxy repositoryFactoryProxy;
     private final String repoListConfig;
@@ -58,41 +54,6 @@ public class RepositoryEditor {
             }
         });
         return configName + (max.incrementAndGet());
-    }
-
-    public static FreeValueFinder createValueFinder(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
-        return (paramNameSuffix, defValue) -> {
-            AtomicInteger max = new AtomicInteger(0);
-            String configName = repoMode.getId();
-            Set<String> configNames = configurations.stream().map(RepositoryConfiguration::getConfigName).collect(Collectors
-                .toSet());
-
-            //existingConfigNames can contain ids that were deleted but were not saved, such ids should not be assigned to a new repository
-            String existingConfigNames = Props.getEnvironment().getProperty(configName + "-repository-configs");
-            if (StringUtils.isNotEmpty(existingConfigNames)) {
-                configNames.addAll(Arrays.asList(existingConfigNames.split(",")));
-            }
-
-            configNames.forEach(rc -> configurations.forEach(configuration -> {
-                String repoValue = configuration.getPropertiesToValidate()
-                    .getProperty(Comments.REPOSITORY_PREFIX + rc + "." + paramNameSuffix);
-                if (repoValue != null && repoValue.startsWith(defValue)) {
-                    final String suffix = repoValue.substring(defValue.length());
-                    if (suffix.matches("\\d+")) {
-                        try {
-                            int i = Integer.parseInt(suffix);
-                            if (i > max.get()) {
-                                max.set(i);
-                            }
-                        } catch (NumberFormatException e) {
-                            // Perhaps the number is greater than the Integer.MAX_VALUE, ignore this value
-                            LOG.debug("Ignored error while forming the config name: ", e);
-                        }
-                    }
-                }
-            }));
-            return max.get() != Integer.MAX_VALUE ? defValue + (max.incrementAndGet()) : defValue;
-        };
     }
 
     public List<RepositoryConfiguration> getRepositoryConfigurations() {

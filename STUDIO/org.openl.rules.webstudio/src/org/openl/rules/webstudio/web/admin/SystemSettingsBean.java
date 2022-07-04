@@ -326,7 +326,7 @@ public class SystemSettingsBean {
         String newConfigName = RepositoryEditor.getNewConfigName(configurations, repositoryMode);
 
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, accessType,
-                RepositoryEditor.createValueFinder(configurations, repositoryMode), repositoryMode);
+                configurations, repositoryMode);
         repoConfig.commit();
         return repoConfig;
     }
