@@ -20,13 +20,13 @@
                 <a style="cursor:pointer" onclick="toggleStacktrace(this); return false;" class="stacktrace-links"><div/></a>
             </div>
 
-            <h:panelGroup id="summary_panel" styleClass="summary-panels">
-                <h:outputText id="summary" value="#{messagesBean.summary}" style="white-space: pre-wrap;"/>
+            <h:panelGroup styleClass="summary-panels">
+                <h:outputText value="#{messagesBean.summary}" style="white-space: pre-wrap;"/>
             </h:panelGroup>
             
             <h:panelGroup rendered="#{messagesBean.hasStacktrace}">
-                <h:panelGroup id="stacktrace_panel" style="display:none" styleClass="stacktrace-panels">                        
-                    <h:outputText id="stacktrace" value="#{messagesBean.stacktrace}" style="white-space: pre-wrap;"/>
+                <h:panelGroup style="display:none" styleClass="stacktrace-panels">
+                    <h:outputText value="#{messagesBean.stacktrace}" style="white-space: pre-wrap;"/>
                 </h:panelGroup>
             </h:panelGroup>
             
@@ -69,8 +69,8 @@
             $j(".arrow-top a div").removeClass("stacktrace-hidden");
             if (isHidden) {
                 var messageBox = $j(arrowBlock).parent().parent();
-                messageBox.find('[id$="stacktrace_panel"]').show();
-                messageBox.find('[id$="summary_panel"]').hide();
+                messageBox.find('.stacktrace-panels').show();
+                messageBox.find('.summary-panels').hide();
                 arrow.addClass("stacktrace-showed").removeClass("stacktrace-hidden");
                 $j(arrowBlock).parent().parent().find(".arrow-top a div").addClass("stacktrace-showed");
             }
