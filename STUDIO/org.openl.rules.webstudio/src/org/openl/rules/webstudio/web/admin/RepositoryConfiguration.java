@@ -1,10 +1,11 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.math.BigInteger;
-import java.util.Comparator;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
@@ -12,10 +13,14 @@ import org.openl.config.ReadOnlyPropertiesHolder;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 
 public class RepositoryConfiguration {
+    private static final Logger LOG = LoggerFactory.getLogger(RepositoryConfiguration.class);
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
 
     private String name;
@@ -59,10 +64,10 @@ public class RepositoryConfiguration {
     public RepositoryConfiguration(String configName,
                                    PropertiesHolder properties,
                                    String type,
-                                   FreeValueFinder valueFinder,
+                                   List<RepositoryConfiguration> configurations,
                                    RepositoryMode repoMode) {
         this(configName, properties);
-        this.valueFinder = valueFinder;
+        this.valueFinder = createValueFinder(configurations, repoMode);
         this.repoMode = repoMode;
 
         // Define default settings for the new repository
@@ -253,5 +258,40 @@ public class RepositoryConfiguration {
                 }
             }
         }
+    }
+
+    private static FreeValueFinder createValueFinder(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
+        return (paramNameSuffix, defValue) -> {
+            AtomicInteger max = new AtomicInteger(0);
+            String configName = repoMode.getId();
+            Set<String> configNames = configurations.stream().map(RepositoryConfiguration::getConfigName).collect(Collectors
+                    .toSet());
+
+            //existingConfigNames can contain ids that were deleted but were not saved, such ids should not be assigned to a new repository
+            String existingConfigNames = Props.getEnvironment().getProperty(configName + "-repository-configs");
+            if (StringUtils.isNotEmpty(existingConfigNames)) {
+                configNames.addAll(Arrays.asList(existingConfigNames.split(",")));
+            }
+
+            configNames.forEach(rc -> configurations.forEach(configuration -> {
+                String repoValue = configuration.getPropertiesToValidate()
+                        .getProperty(Comments.REPOSITORY_PREFIX + rc + "." + paramNameSuffix);
+                if (repoValue != null && repoValue.startsWith(defValue)) {
+                    final String suffix = repoValue.substring(defValue.length());
+                    if (suffix.matches("\\d+")) {
+                        try {
+                            int i = Integer.parseInt(suffix);
+                            if (i > max.get()) {
+                                max.set(i);
+                            }
+                        } catch (NumberFormatException e) {
+                            // Perhaps the number is greater than the Integer.MAX_VALUE, ignore this value
+                            LOG.debug("Ignored error while forming the config name: ", e);
+                        }
+                    }
+                }
+            }));
+            return max.get() != Integer.MAX_VALUE ? defValue + (max.incrementAndGet()) : defValue;
+        };
     }
 }
