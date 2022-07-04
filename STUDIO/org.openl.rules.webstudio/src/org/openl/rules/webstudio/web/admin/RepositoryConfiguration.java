@@ -262,7 +262,7 @@ public class RepositoryConfiguration {
 
     private static FreeValueFinder createValueFinder(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
         return (paramNameSuffix, defValue) -> {
-            AtomicInteger max = new AtomicInteger(0);
+            AtomicInteger max = new AtomicInteger(-1);
             String configName = repoMode.getId();
             Set<String> configNames = configurations.stream().map(RepositoryConfiguration::getConfigName).collect(Collectors
                     .toSet());
@@ -278,9 +278,9 @@ public class RepositoryConfiguration {
                         .getProperty(Comments.REPOSITORY_PREFIX + rc + "." + paramNameSuffix);
                 if (repoValue != null && repoValue.startsWith(defValue)) {
                     final String suffix = repoValue.substring(defValue.length());
-                    if (suffix.matches("\\d+")) {
+                    if (suffix.matches("\\d*")) {
                         try {
-                            int i = Integer.parseInt(suffix);
+                            int i = suffix.isEmpty() ? 0 : Integer.parseInt(suffix);
                             if (i > max.get()) {
                                 max.set(i);
                             }
@@ -291,7 +291,8 @@ public class RepositoryConfiguration {
                     }
                 }
             }));
-            return max.get() != Integer.MAX_VALUE ? defValue + (max.incrementAndGet()) : defValue;
+            int index = max.get();
+            return index >= 0 && index < Integer.MAX_VALUE ? defValue + (max.incrementAndGet()) : defValue;
         };
     }
 }
