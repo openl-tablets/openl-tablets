@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.admin;
 import java.util.Optional;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 
@@ -266,19 +265,6 @@ public class GitRepositorySettings extends RepositorySettings {
             LISTENER_TIMER_PERIOD,
             PROTECTED_BRANCHES);
         load(properties);
-    }
-
-    @Override
-    public void loadDefaults(PropertiesHolder properties, RepositoryMode repoMode, FreeValueFinder valueFinder) {
-        super.loadDefaults(properties, repoMode, valueFinder);
-
-        String configPrefix = "repo-default." + repoMode.getId();
-        newBranchTemplate = properties.getProperty(configPrefix + ".new-branch.pattern");
-        newBranchRegex = properties.getProperty(configPrefix + ".new-branch.regex");
-        newBranchRegexError = properties.getProperty(configPrefix + ".new-branch.regex-error");
-
-        String defValue = properties.getProperty(configPrefix + ".local-repository-path");
-        setLocalRepositoryPath(valueFinder.find("local-repository-path", defValue));
     }
 
     @Override

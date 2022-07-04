@@ -35,7 +35,6 @@ public class RepositoryConfiguration {
     private final PropertiesHolder properties;
     private final String nameWithPrefix;
 
-    private boolean newRepository = false;
     private FreeValueFinder valueFinder;
     private RepositoryMode repoMode;
 
@@ -54,6 +53,9 @@ public class RepositoryConfiguration {
         load();
     }
 
+    /**
+     * This constructor should be called for creating a new configuration.
+     */
     public RepositoryConfiguration(String configName,
                                    PropertiesHolder properties,
                                    String type,
@@ -63,10 +65,15 @@ public class RepositoryConfiguration {
         this.valueFinder = valueFinder;
         this.repoMode = repoMode;
 
-        // Create not existed before repository
-        newRepository = true;
+        // Define default settings for the new repository
+        String defaultSettingsPrefix = "repo-default." + repoMode.getId();
+        properties.setProperty(nameWithPrefix + ".comment-template.$ref", defaultSettingsPrefix + ".comment-template");
+        properties.setProperty(nameWithPrefix + ".base.path.$ref", defaultSettingsPrefix + ".base.path");
+        if (repoMode.equals(RepositoryMode.DESIGN)) {
+            properties.setProperty(nameWithPrefix + ".new-branch.$ref", defaultSettingsPrefix + ".new-branch");
+        }
 
-        String defValue = properties.getProperty(("repo-default." + repoMode.getId()) + ".name");
+        String defValue = properties.getProperty(defaultSettingsPrefix + ".name");
         setName(valueFinder.find("name", defValue));
         oldName = name;
 
@@ -108,6 +115,11 @@ public class RepositoryConfiguration {
                 newSettings = new AzureBlobRepositorySettings(properties, configPrefix);
                 break;
             case GIT:
+                if (repoMode != null) {
+                    // Generate a unique path for a just created GIT configuration
+                    String defValue = properties.getProperty("repo-default." + repoMode.getId() + ".local-repository-path");
+                    properties.setProperty(nameWithPrefix + ".local-repository-path", valueFinder.find("local-repository-path", defValue));
+                }
                 newSettings = new GitRepositorySettings(properties, configPrefix);
                 break;
             case LOCAL:
@@ -185,12 +197,6 @@ public class RepositoryConfiguration {
 
             properties.setProperty(REPOSITORY_REF, newRepositoryType.factoryId);
             settings = createSettings(newRepositoryType, properties, nameWithPrefix);
-
-            if (newRepository) {
-                // Load defaults only for a new repository.
-                // For existing repository we don't want to override stored values with defaults.
-                settings.loadDefaults(properties, repoMode, valueFinder);
-            }
         }
     }
 
