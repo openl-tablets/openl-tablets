@@ -8,6 +8,7 @@ import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
@@ -68,7 +69,12 @@ public class ParameterTreeBuilder {
         if (canConstruct(config.getType())) {
             return new ComplexParameterTreeNode(config);
         } else {
-            var convertor = String2DataConvertorFactory.getConvertor(config.getType().getInstanceClass());
+            IString2DataConvertor<?> convertor;
+            try {
+                convertor = String2DataConvertorFactory.getConvertor(config.getType().getInstanceClass());
+            } catch (Exception ignored) {
+                convertor = null;
+            }
             if (convertor != null) {
                 // Create simple node if Complex Type has StringToData convertor
                 return createSimpleNode(config);
