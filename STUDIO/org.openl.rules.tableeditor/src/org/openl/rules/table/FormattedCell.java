@@ -130,11 +130,6 @@ public class FormattedCell implements ICell {
     }
 
     @Override
-    public String getFormula() {
-        return delegate.getFormula();
-    }
-
-    @Override
     public int getType() {
         return delegate.getType();
     }

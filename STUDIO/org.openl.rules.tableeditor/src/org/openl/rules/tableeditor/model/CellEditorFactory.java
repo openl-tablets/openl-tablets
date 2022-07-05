@@ -28,11 +28,6 @@ public class CellEditorFactory implements ICellEditorFactory {
     }
 
     @Override
-    public ICellEditor makeFormulaEditor() {
-        return new FormulaCellEditor();
-    }
-
-    @Override
     public ICellEditor makeDateEditor() {
         return new DateCellEditor();
     }

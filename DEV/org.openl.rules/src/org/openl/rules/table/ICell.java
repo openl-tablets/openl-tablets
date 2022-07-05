@@ -45,8 +45,6 @@ public interface ICell {
      */
     IGridRegion getRegion();
 
-    String getFormula();
-
     /**
      * Returns one of IGrid.CELL_TYPE_* values.
      */

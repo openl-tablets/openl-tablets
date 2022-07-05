@@ -18,7 +18,6 @@ public interface ICellEditor {
     String CE_COMBO = "combo";
     String CE_DATE = "date";
     String CE_MULTISELECT = "multiselect";
-    String CE_FORMULA = "formula";
     String CE_BOOLEAN = "boolean";
     String CE_ARRAY = "array";
     String CE_RANGE = "range";

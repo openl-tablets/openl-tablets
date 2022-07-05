@@ -74,11 +74,6 @@ public class EmptyCell implements ICell {
     }
 
     @Override
-    public String getFormula() {
-        return null;
-    }
-
-    @Override
     public int getType() {
         return IGrid.CELL_TYPE_BLANK;
     }

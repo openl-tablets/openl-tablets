@@ -9,7 +9,6 @@ import org.apache.poi.hssf.record.FontRecord;
 import org.apache.poi.hssf.record.FormatRecord;
 import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.hssf.usermodel.HSSFComment;
-import org.apache.poi.ss.util.CellAddress;
 import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
@@ -25,7 +24,6 @@ public class EventTableStyles implements TableStyles {
     private final PaletteRecord palette;
     private final List<FontRecord> fonts;
     private final List<HSSFComment> comments;
-    private final Map<CellAddress, String> formulas;
 
     public EventTableStyles(IGridRegion region,
             int[][] cellIndexes,
@@ -33,8 +31,7 @@ public class EventTableStyles implements TableStyles {
             Map<Integer, FormatRecord> customFormats,
             PaletteRecord palette,
             List<FontRecord> fonts,
-            List<HSSFComment> comments,
-            Map<CellAddress, String> formulas) {
+            List<HSSFComment> comments) {
         this.region = region;
         this.cellIndexes = cellIndexes;
         this.extendedFormats = extendedFormats;
@@ -42,7 +39,6 @@ public class EventTableStyles implements TableStyles {
         this.palette = palette;
         this.fonts = fonts;
         this.comments = comments == null ? Collections.emptyList() : comments;
-        this.formulas = formulas;
     }
 
     @Override
@@ -71,11 +67,6 @@ public class EventTableStyles implements TableStyles {
         }
 
         return null;
-    }
-
-    @Override
-    public String getFormula(int row, int column) {
-        return formulas.get(new CellAddress(row, column));
     }
 
     public FontRecord getFont(int index) {

@@ -30,9 +30,6 @@ public class CellEditorSelector {
     private final ICellEditorFactory factory = new CellEditorFactory();
 
     public ICellEditor selectEditor(ICell cell, CellMetaInfo meta) {
-        if (cell.getFormula() != null) {
-            return factory.makeFormulaEditor();
-        }
         ICellEditor editor = selectEditor(cell, cell.getStringValue(), meta);
         return editor == null ? defaultEditor(cell) : editor;
     }

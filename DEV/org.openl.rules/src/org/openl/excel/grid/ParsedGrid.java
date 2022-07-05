@@ -367,10 +367,6 @@ public class ParsedGrid extends AGrid {
             return null;
         }
 
-        @Override
-        public String getFormula(int row, int column) {
-            return null;
-        }
     }
 
     private class WorkbookSaveListener implements XlsWorkbookListener {

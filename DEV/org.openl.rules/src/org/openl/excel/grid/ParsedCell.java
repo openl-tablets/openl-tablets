@@ -104,12 +104,6 @@ public class ParsedCell implements ICell {
     }
 
     @Override
-    public String getFormula() {
-        initializeStyles();
-        return tableStyles == null ? null : tableStyles.getFormula(row, column);
-    }
-
-    @Override
     public int getType() {
         Object value = getObjectValue();
         if (value == null) {

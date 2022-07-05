@@ -73,9 +73,6 @@ public class XlsCellTest {
         assertEquals(2, cell.getWidth());
         assertEquals(2, cell.getHeight());
 
-        // test data.
-        assertNull(cell.getFormula());
-
         assertTrue(cell.getNativeBoolean());
 
         assertTrue(cell.hasNativeType());
@@ -132,9 +129,6 @@ public class XlsCellTest {
 
         assertEquals(1, cell.getWidth());
         assertEquals(1, cell.getHeight());
-
-        // test data.
-        assertNull(cell.getFormula());
 
         assertTrue(cell.getNativeBoolean());
 

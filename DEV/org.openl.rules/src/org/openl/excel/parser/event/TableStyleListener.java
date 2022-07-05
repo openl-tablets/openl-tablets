@@ -4,18 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.ddf.EscherContainerRecord;
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
-import org.apache.poi.hssf.model.HSSFFormulaParser;
 import org.apache.poi.hssf.record.BOFRecord;
 import org.apache.poi.hssf.record.BlankRecord;
 import org.apache.poi.hssf.record.BoolErrRecord;
@@ -24,7 +20,6 @@ import org.apache.poi.hssf.record.CellValueRecordInterface;
 import org.apache.poi.hssf.record.ContinueRecord;
 import org.apache.poi.hssf.record.DrawingRecord;
 import org.apache.poi.hssf.record.EscherAggregate;
-import org.apache.poi.hssf.record.FormulaRecord;
 import org.apache.poi.hssf.record.LabelRecord;
 import org.apache.poi.hssf.record.LabelSSTRecord;
 import org.apache.poi.hssf.record.NoteRecord;
@@ -35,17 +30,11 @@ import org.apache.poi.hssf.record.RKRecord;
 import org.apache.poi.hssf.record.RecordBase;
 import org.apache.poi.hssf.record.RecordFactoryInputStream;
 import org.apache.poi.hssf.record.SSTRecord;
-import org.apache.poi.hssf.record.StringRecord;
 import org.apache.poi.hssf.record.TextObjectRecord;
-import org.apache.poi.hssf.record.aggregates.FormulaRecordAggregate;
-import org.apache.poi.hssf.record.aggregates.SharedValueManager;
 import org.apache.poi.hssf.usermodel.HSSFComment;
 import org.apache.poi.hssf.usermodel.HSSFShapeFactory;
 import org.apache.poi.poifs.filesystem.DirectoryNode;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.formula.WorkbookDependentFormula;
-import org.apache.poi.ss.formula.ptg.Ptg;
-import org.apache.poi.ss.util.CellAddress;
 import org.openl.excel.parser.TableStyles;
 import org.openl.excel.parser.event.style.CommentsCollector;
 import org.openl.excel.parser.event.style.EventTableStyles;
@@ -60,7 +49,6 @@ public class TableStyleListener implements HSSFListener {
     private final IGridRegion tableRegion;
     private TableStyles tableStyles;
     private List<HSSFComment> comments;
-    private final Map<CellAddress, String> formulas = new HashMap<>();
 
     private final List<EventSheetDescriptor> sheets = new ArrayList<>();
     private int sheetIndex = -1;
@@ -69,9 +57,6 @@ public class TableStyleListener implements HSSFListener {
     private PaletteRecord palette;
     private DirectoryNode directory;
     private final List<RecordBase> shapeRecords = new ArrayList<>();
-
-    private FormulaRecord currentFormula;
-    private SharedValueManager sharedValueManager;
 
     public TableStyleListener(EventSheetDescriptor sheet, IGridRegion tableRegion) {
         this.sheet = sheet;
@@ -86,7 +71,6 @@ public class TableStyleListener implements HSSFListener {
             SharedValueListener sharedFormulaListener = new SharedValueListener(sheet);
             request.addListenerForAllRecords(sharedFormulaListener);
             factory.processWorkbookEvents(request, poifs);
-            sharedValueManager = sharedFormulaListener.getSharedValueManager();
         }
 
         try (POIFSFileSystem poifs = new POIFSFileSystem(new File(fileName))) {
@@ -126,8 +110,7 @@ public class TableStyleListener implements HSSFListener {
                 formatListener.getCustomFormats(),
                 palette,
                 formatListener.getFonts(),
-                comments,
-                formulas);
+                comments);
         }
     }
 
@@ -137,8 +120,6 @@ public class TableStyleListener implements HSSFListener {
 
     @Override
     public void processRecord(org.apache.poi.hssf.record.Record record) {
-        processFormula(record);
-
         switch (record.getSid()) {
             case BoundSheetRecord.sid:
                 BoundSheetRecord bsr = (BoundSheetRecord) record;
@@ -159,19 +140,6 @@ public class TableStyleListener implements HSSFListener {
                 break;
             case PaletteRecord.sid:
                 palette = (PaletteRecord) record;
-                break;
-            case FormulaRecord.sid: // Cell value from a formula
-                if (isNeededSheet()) {
-                    FormulaRecord r = (FormulaRecord) record;
-                    int row = r.getRow();
-                    short column = r.getColumn();
-
-                    if (IGridRegion.Tool.contains(tableRegion, column, row)) {
-                        currentFormula = (FormulaRecord) record;
-                        // Don't forget to save style index
-                        saveStyleIndex(r, row, column);
-                    }
-                }
                 break;
             case SSTRecord.sid: // Holds all the strings for LabelSSTRecords
             case BoolErrRecord.sid:
@@ -200,36 +168,6 @@ public class TableStyleListener implements HSSFListener {
                     shapeRecords.add(record);
                 }
                 break;
-        }
-    }
-
-    private void processFormula(org.apache.poi.hssf.record.Record record) {
-        if (currentFormula != null) {
-            int row = currentFormula.getRow();
-            short column = currentFormula.getColumn();
-            try {
-                StringRecord cachedText = null;
-                if (record instanceof StringRecord) {
-                    cachedText = (StringRecord) record;
-                } else {
-                    currentFormula.setCachedResultBoolean(false);
-                }
-                FormulaRecordAggregate formulaAggregate = new FormulaRecordAggregate(currentFormula,
-                    cachedText,
-                    sharedValueManager);
-                Ptg[] formulaTokens = formulaAggregate.getFormulaTokens();
-                boolean workbookDependentFormula = Arrays.stream(formulaTokens)
-                    .anyMatch(t -> t instanceof WorkbookDependentFormula);
-                if (workbookDependentFormula) {
-                    formulas.put(new CellAddress(row, column), "");
-                } else {
-                    String formula = HSSFFormulaParser.toFormulaString(null, formulaTokens);
-                    formulas.put(new CellAddress(row, column), formula);
-                }
-            } catch (Exception e) {
-                log.error("Cannot read formula in sheet '{}' row {} column {}", sheet.getName(), row, column, e);
-            }
-            currentFormula = null;
         }
     }
 

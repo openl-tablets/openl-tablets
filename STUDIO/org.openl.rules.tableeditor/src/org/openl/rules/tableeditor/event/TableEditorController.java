@@ -15,12 +15,10 @@ import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.formatters.XlsDataFormatterFactory;
 import org.openl.rules.tableeditor.model.CellEditorSelector;
 import org.openl.rules.tableeditor.model.ICellEditor;
 import org.openl.rules.tableeditor.model.TableEditorModel;
@@ -150,8 +148,6 @@ public class TableEditorController extends BaseTableEditorController {
         if (editorType.equals(ICellEditor.CE_NUMERIC) || editorType.equals(ICellEditor.CE_TEXT) || editorType
             .equals(ICellEditor.CE_MULTILINE) || editorType.equals(ICellEditor.CE_RANGE)) {
             value = cell.getStringValue();
-        } else if (editorType.equals(ICellEditor.CE_FORMULA)) {
-            value = "=" + cell.getFormula();
         } else if (editorType.equals(ICellEditor.CE_DATE)) {
             // Format must be same as in DateEditor.js
             Object objectValue;
@@ -298,18 +294,7 @@ public class TableEditorController extends BaseTableEditorController {
     private IFormatter getCellFormatter(String cellEditor, TableEditorModel editorModel, int row, int col) {
         IFormatter formatter = null;
 
-        if (ICellEditor.CE_FORMULA.equals(cellEditor)) {
-            ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
-
-            CellMetaInfo meta = getMetaInfo(editorModel, row, col);
-            IFormatter currentFormatter = XlsDataFormatterFactory.getFormatter(cell, meta, false);
-            IFormatter formulaResultFormatter = null;
-            if (!(currentFormatter instanceof FormulaFormatter)) {
-                formulaResultFormatter = currentFormatter;
-            }
-            formatter = new FormulaFormatter(formulaResultFormatter);
-
-        } else if (ICellEditor.CE_TEXT.equals(cellEditor) || ICellEditor.CE_MULTILINE.equals(cellEditor)) {
+        if (ICellEditor.CE_TEXT.equals(cellEditor) || ICellEditor.CE_MULTILINE.equals(cellEditor)) {
             formatter = new DefaultFormatter();
         } else if (cellEditor == null) {
             // Format must be same as in DateEditor.js

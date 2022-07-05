@@ -1,7 +1,11 @@
 package org.openl.rules.table.actions;
 
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
-import org.openl.rules.table.*;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IWritableGrid;
 
 /**
  * Shift cell with merged region.
@@ -32,7 +36,6 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         ICell cell = grid.getCell(colFrom, rowFrom);
 
         setPrevValue(cell.getObjectValue());
-        setPrevFormula(cell.getFormula());
         setPrevStyle(cell.getStyle());
         if (cell.getComment() != null) {
             setPrevComment(cell.getComment().getText());
@@ -51,16 +54,11 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
             toRemove = copyFrom;
         }
 
-        grid.setCellFormula(getCol(), getRow(), getPrevFormula());
         grid.setCellValue(getCol(), getRow(), getPrevValue());
         grid.setCellStyle(getCol(), getRow(), getPrevStyle());
         grid.setCellComment(getCol(), getRow(), getPrevComment(), getPrevCommentAuthor());
         metaInfoWriter.setMetaInfo(getRow(), getCol(), getPrevMetaInfo());
 
-        ICell newCell = grid.getCell(getCol(), getRow());
-        if (cell.getType() == IGrid.CELL_TYPE_STRING && newCell.getType() == IGrid.CELL_TYPE_FORMULA) {
-            grid.setCellStringValue(getCol(), getRow(), cell.getObjectValue().toString());
-        }
     }
 
     // Save value from destination cell -> move region back -> set value to
@@ -72,7 +70,6 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         ICell cell = grid.getCell(getCol(), getRow());
 
         setPrevValue(cell.getObjectValue());
-        setPrevFormula(cell.getFormula());
         setPrevStyle(cell.getStyle());
         if (cell.getComment() != null) {
             setPrevComment(cell.getComment().getText());
@@ -84,7 +81,6 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
             grid.addMergedRegion(toRestore);
         }
 
-        grid.setCellFormula(colFrom, rowFrom, getPrevFormula());
         grid.setCellValue(colFrom, rowFrom, getPrevValue());
         grid.setCellStyle(colFrom, rowFrom, getPrevStyle());
         grid.setCellComment(colFrom, rowFrom, getPrevComment(), getPrevCommentAuthor());

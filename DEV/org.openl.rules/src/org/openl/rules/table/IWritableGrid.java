@@ -13,7 +13,7 @@ public interface IWritableGrid extends IGrid {
 
     void clearCell(int col, int row);
 
-    void createCell(int col, int row, Object value, String formula, ICellStyle style, String comment, String prevCommentAuthor);
+    void createCell(int col, int row, Object value, ICellStyle style, String comment, String prevCommentAuthor);
 
     void copyCell(int colFrom, int rowFrom, int colTo, int rowTo);
 
@@ -53,7 +53,4 @@ public interface IWritableGrid extends IGrid {
 
     void setCellValue(int col, int row, Object value);
 
-    void setCellStringValue(int col, int row, String value);
-
-    void setCellFormula(int col, int row, String formula);
 }

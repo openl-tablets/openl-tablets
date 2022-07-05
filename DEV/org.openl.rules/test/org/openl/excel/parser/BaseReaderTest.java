@@ -1,7 +1,10 @@
 package org.openl.excel.parser;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -160,24 +163,4 @@ public abstract class BaseReaderTest {
         assertEquals("OpenL User:\nThis cell contains spaces only.", comment.getText());
     }
 
-    @Test
-    public void getFormulas() {
-        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().get(0), new GridRegion(10, 1, 13, 1));
-
-        assertEquals("B7/2", tableStyles.getFormula(10, 1));
-        assertEquals("B10", tableStyles.getFormula(11, 1));
-        assertEquals("\"Concat\"&B5", tableStyles.getFormula(12, 1));
-        assertEquals("5>4", tableStyles.getFormula(13, 1));
-    }
-
-    @Test
-    public void getSharedFormulas() {
-        TableStyles tableStyles = reader.getTableStyles(reader.getSheets().get(3), new GridRegion(2, 2, 11, 2));
-
-        // Sometimes Excel uses Shared Formulas to optimize file size.
-        // Check that formula exists in each row.
-        for (int r = 2; r < 12; r++) {
-            assertEquals("Test #" + (r - 1) + " is failed", "B" + (r + 1) + "*10", tableStyles.getFormula(r, 2));
-        }
-    }
 }

@@ -18,8 +18,6 @@ public interface IGrid {
 
     int CELL_TYPE_STRING = 1;
 
-    int CELL_TYPE_FORMULA = 2;
-
     int CELL_TYPE_BLANK = 3;
 
     int CELL_TYPE_BOOLEAN = 4;

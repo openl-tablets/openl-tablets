@@ -3,7 +3,6 @@ package org.openl.rules.table.actions;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
 import org.openl.rules.table.ICell;
-import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 
@@ -17,7 +16,6 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
     private int row;
 
     private Object prevValue;
-    private String prevFormula;
     private ICellStyle prevStyle;
     private String prevComment;
     private String prevCommentAuthor;
@@ -34,7 +32,6 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
         ICell cell = grid.getCell(col, row);
 
         setPrevValue(cell.getObjectValue());
-        setPrevFormula(cell.getFormula());
         setPrevStyle(cell.getStyle());
         if (cell.getComment() != null) {
             setPrevComment(cell.getComment().getText());
@@ -44,8 +41,8 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
     }
 
     protected void restorePrevCell(IWritableGrid grid) {
-        if (prevValue != null || prevStyle != null) {
-            grid.createCell(col, row, prevValue, prevFormula, prevStyle, prevComment, prevCommentAuthor);
+        if (prevStyle != null) {
+            grid.createCell(col, row, prevValue, prevStyle, prevComment, prevCommentAuthor);
         } else {
             grid.clearCell(col, row);
         }
@@ -74,14 +71,6 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
 
     public void setPrevValue(Object prevValue) {
         this.prevValue = prevValue;
-    }
-
-    public String getPrevFormula() {
-        return prevFormula;
-    }
-
-    public void setPrevFormula(String prevFormula) {
-        this.prevFormula = prevFormula;
     }
 
     public ICellStyle getPrevStyle() {

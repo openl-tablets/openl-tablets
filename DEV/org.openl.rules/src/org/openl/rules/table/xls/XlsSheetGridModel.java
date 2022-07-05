@@ -15,15 +15,41 @@ import org.apache.poi.hssf.record.PaletteRecord;
 import org.apache.poi.hssf.usermodel.HSSFPalette;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellUtil;
-import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.IndexedColorMap;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.rules.lang.xls.SpreadsheetConstants;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
-import org.openl.rules.table.*;
+import org.openl.rules.table.AGrid;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IWritableGrid;
+import org.openl.rules.table.RegionsPool;
 import org.openl.rules.table.ui.ICellStyle;
-import org.openl.rules.table.xls.writers.*;
+import org.openl.rules.table.xls.writers.AXlsCellWriter;
+import org.openl.rules.table.xls.writers.XlsCellArrayWriter;
+import org.openl.rules.table.xls.writers.XlsCellBooleanWriter;
+import org.openl.rules.table.xls.writers.XlsCellDateWriter;
+import org.openl.rules.table.xls.writers.XlsCellEnumArrayWriter;
+import org.openl.rules.table.xls.writers.XlsCellEnumWriter;
+import org.openl.rules.table.xls.writers.XlsCellNumberWriter;
+import org.openl.rules.table.xls.writers.XlsCellStringWriter;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringUtils;
 
@@ -60,7 +86,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         cellWriters.put(AXlsCellWriter.DATE_WRITER, new XlsCellDateWriter(this));
         cellWriters.put(AXlsCellWriter.ENUM_ARRAY_WRITER, new XlsCellEnumArrayWriter(this));
         cellWriters.put(AXlsCellWriter.ENUM_WRITER, new XlsCellEnumWriter(this));
-        cellWriters.put(AXlsCellWriter.FORMULA_WRITER, new XlsCellFormulaWriter(this));
         cellWriters.put(AXlsCellWriter.NUMBER_WRITER, new XlsCellNumberWriter(this));
         cellWriters.put(AXlsCellWriter.STRING_WRITER, new XlsCellStringWriter(this));
     }
@@ -171,12 +196,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     @Override
-    public void createCell(int col, int row, Object value, String formula, ICellStyle style, String comment, String prevCommentAuthor) {
-        if (StringUtils.isNotBlank(formula)) {
-            setCellFormula(col, row, formula);
-        } else {
-            setCellValue(col, row, value);
-        }
+    public void createCell(int col, int row, Object value, ICellStyle style, String comment, String prevCommentAuthor) {
+        setCellValue(col, row, value);
         setCellStyle(col, row, style);
         setCellComment(col, row, comment, prevCommentAuthor);
     }
@@ -211,7 +232,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     @Override
     public int getMaxColumnIndex(int rownum) {
-        Row row = getSheet().getRow(rownum);
+        var row = getSheet().getRow(rownum);
         return row == null ? 0 : row.getLastCellNum();
     }
 
@@ -227,7 +248,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
     @Override
     public int getMinColumnIndex(int rownum) {
-        Row row = getSheet().getRow(rownum);
+        var row = getSheet().getRow(rownum);
         return row == null ? 0 : row.getFirstCellNum();
     }
 
@@ -322,24 +343,6 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             cellWriter.writeCellValue();
         } else {
             poiCell.setBlank();
-        }
-    }
-
-    @Override
-    public void setCellStringValue(int col, int row, String value) {
-        Cell cell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
-        cell.setCellValue(value);
-    }
-
-    @Override
-    public void setCellFormula(int col, int row, String formula) {
-        Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
-
-        if (formula != null) {
-            AXlsCellWriter cellWriter = getCellWriters().get(AXlsCellWriter.FORMULA_WRITER);
-            cellWriter.setCellToWrite(poiCell);
-            cellWriter.setValueToWrite(formula);
-            cellWriter.writeCellValue();
         }
     }
 
@@ -458,7 +461,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     public void setCellFontColor(int col, int row, short[] color) {
         Sheet sheet = getSheet();
         Cell cell = PoiExcelHelper.getOrCreateCell(col, row, sheet);
-        Workbook workbook = sheet.getWorkbook();
+        var workbook = sheet.getWorkbook();
 
         CellStyle newStyle = PoiExcelHelper.cloneStyleFrom(cell);
         Font newFont = workbook.createFont();
@@ -580,13 +583,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         } else if (value.getClass().isArray()) {
             result = cellWriters.get(AXlsCellWriter.ARRAY_WRITER);
         } else { // String
-            String strValue = String.valueOf(value);
-            // Formula
-            if (strValue.startsWith("=")) {
-                result = cellWriters.get(AXlsCellWriter.FORMULA_WRITER);
-            } else {
-                result = cellWriters.get(AXlsCellWriter.STRING_WRITER);
-            }
+            result = cellWriters.get(AXlsCellWriter.STRING_WRITER);
         }
         return result;
     }

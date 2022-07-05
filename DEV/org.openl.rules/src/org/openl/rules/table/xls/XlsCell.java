@@ -99,7 +99,7 @@ public class XlsCell implements ICell {
         Font font = gridModel.getSheetSource()
             .getSheet()
             .getWorkbook()
-            .getFontAt(cell.getCellStyle().getFontIndexAsInt());
+            .getFontAt(cell.getCellStyle().getFontIndex());
         return new XlsCellFont(font, gridModel.getSheetSource().getSheet().getWorkbook());
     }
 
@@ -187,19 +187,6 @@ public class XlsCell implements ICell {
             }
         }
         return null;
-    }
-
-    @Override
-    public String getFormula() {
-        Cell cell = getCell();
-        if (cell == null && region == null) {
-            return null;
-        } else if (region == null || isCurrentCellATopLeftCellInRegion()) {
-            return cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
-        } else {
-            ICell topLeftCell = getTopLeftCellFromRegion();
-            return topLeftCell.getType() == IGrid.CELL_TYPE_FORMULA ? topLeftCell.getFormula() : null;
-        }
     }
 
     @Override
@@ -312,9 +299,8 @@ public class XlsCell implements ICell {
             case NUMERIC:
                 return IGrid.CELL_TYPE_NUMERIC;
             case STRING:
-                return IGrid.CELL_TYPE_STRING;
             case FORMULA:
-                return IGrid.CELL_TYPE_FORMULA;
+                return IGrid.CELL_TYPE_STRING;
             case BLANK:
                 return IGrid.CELL_TYPE_BLANK;
             case BOOLEAN:

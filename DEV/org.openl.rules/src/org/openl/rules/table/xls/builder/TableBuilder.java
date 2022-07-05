@@ -1,11 +1,26 @@
 package org.openl.rules.table.xls.builder;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.BuiltinFormats;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.Comment;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
-import org.openl.rules.table.*;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.ICell;
+import org.openl.rules.table.ICellComment;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsCellComment;
@@ -375,20 +390,13 @@ public class TableBuilder {
                 ICell cell = table.getCell(i, j);
                 int cellWidth = cell.getWidth();
                 int cellHeight = cell.getHeight();
-                Object cellValue;
-                if (cell.getFormula() != null) {
-                    cellValue = "=" + cell.getFormula();
-                } else {
-                    cellValue = cell.getObjectValue();
-                }
+                Object cellValue = cell.getObjectValue();
                 ICellStyle style = cell.getStyle();
                 writeCell(i, currentRow + j, cellWidth, cellHeight, cellValue, style);
                 Cell newCell = PoiExcelHelper.getCell(i + region.getLeft(),
                     currentRow + j + region.getTop(),
                     gridModel.getSheetSource().getSheet());
-                if (cell.getType() != IGrid.CELL_TYPE_FORMULA && newCell.getCellType() == CellType.FORMULA) {
-                    newCell.setCellValue(cellValue.toString());
-                }
+                newCell.setCellValue(cellValue.toString());
                 ICellComment iCellComment = cell.getComment();
                 if (iCellComment != null) {
                     Comment xlxComment = ((XlsCellComment) iCellComment).getXlxComment();

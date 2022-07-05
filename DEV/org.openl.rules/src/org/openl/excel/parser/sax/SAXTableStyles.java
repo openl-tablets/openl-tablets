@@ -14,7 +14,6 @@ import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.rules.table.xls.XlsCellFont;
 import org.openl.rules.table.xls.XlsCellStyle;
-import org.openl.util.StringUtils;
 
 public class SAXTableStyles implements TableStyles {
     private final IGridRegion region;
@@ -73,11 +72,6 @@ public class SAXTableStyles implements TableStyles {
         XSSFRichTextString rst = comment.getString();
         String text = rst == null ? null : rst.getString();
         return new SAXCellComment(text, comment.getAuthor());
-    }
-
-    @Override
-    public String getFormula(int row, int column) {
-        return StringUtils.trimToNull(formulas.get(new CellAddress(row, column)));
     }
 
     private static class SAXCellComment implements ICellComment {

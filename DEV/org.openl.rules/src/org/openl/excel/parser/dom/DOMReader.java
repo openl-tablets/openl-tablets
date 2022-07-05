@@ -7,10 +7,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openl.excel.parser.*;
+import org.openl.excel.parser.AlignedValue;
+import org.openl.excel.parser.ExcelParseException;
+import org.openl.excel.parser.ExcelReader;
+import org.openl.excel.parser.ExcelUtils;
+import org.openl.excel.parser.MergedCell;
+import org.openl.excel.parser.SheetDescriptor;
+import org.openl.excel.parser.TableStyles;
 import org.openl.rules.table.ICellComment;
 import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellFont;
@@ -200,12 +213,6 @@ public class DOMReader implements ExcelReader {
                 @Override
                 public ICellComment getComment(int row, int column) {
                     return new XlsCellComment(getCell(row, column).getCellComment());
-                }
-
-                @Override
-                public String getFormula(int row, int column) {
-                    Cell cell = getCell(row, column);
-                    return cell.getCellType() == CellType.FORMULA ? cell.getCellFormula() : null;
                 }
 
                 private Cell getCell(int row, int column) {

@@ -9,7 +9,6 @@ import org.apache.poi.hssf.record.BOFRecord;
 import org.apache.poi.hssf.record.FormulaRecord;
 import org.apache.poi.hssf.record.SharedFormulaRecord;
 import org.apache.poi.hssf.record.TableRecord;
-import org.apache.poi.hssf.record.aggregates.SharedValueManager;
 import org.apache.poi.ss.util.CellReference;
 
 public class SharedValueListener implements HSSFListener {
@@ -62,10 +61,4 @@ public class SharedValueListener implements HSSFListener {
         return sheetIndex == sheet.getIndex();
     }
 
-    public SharedValueManager getSharedValueManager() {
-        return SharedValueManager.create(sharedFormulaRecords.toArray(new SharedFormulaRecord[0]),
-            firstCellRefs.toArray(new CellReference[0]),
-            arrayRecords.toArray(new ArrayRecord[0]),
-            tableRecords.toArray(new TableRecord[0]));
-    }
 }

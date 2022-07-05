@@ -27,8 +27,6 @@ public class Cell implements ICell {
 
     private IGridRegion region;
 
-    private String formula;
-
     private int type;
 
     private String uri;
@@ -138,15 +136,6 @@ public class Cell implements ICell {
 
     public void setRegion(IGridRegion region) {
         this.region = region;
-    }
-
-    @Override
-    public String getFormula() {
-        return formula;
-    }
-
-    public void setFormula(String formula) {
-        this.formula = formula;
     }
 
     @Override

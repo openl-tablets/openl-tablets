@@ -14,7 +14,6 @@ import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.formatters.ArrayFormatter;
 import org.openl.rules.table.formatters.FormattersManager;
-import org.openl.rules.table.formatters.FormulaFormatter;
 import org.openl.rules.table.formatters.SmartNumberFormatter;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.types.IOpenClass;
@@ -83,11 +82,6 @@ public final class XlsDataFormatterFactory {
                 if (cellMetaInfo.isMultiValue()) {
                     formatter = new ArrayFormatter(formatter, String.class);
                 }
-            }
-
-            // Formula
-            if (cell.getFormula() != null) {
-                formatter = new FormulaFormatter(formatter);
             }
         }
 

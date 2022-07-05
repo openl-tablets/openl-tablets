@@ -2,6 +2,11 @@ package org.openl.rules.tableeditor.model.ui;
 
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -18,11 +23,6 @@ import org.openl.rules.tableeditor.util.Constants;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class TableViewer {
     private final Logger log = LoggerFactory.getLogger(TableViewer.class);
@@ -135,9 +135,6 @@ public class TableViewer {
                 content = escapeHtml4(formattedValue);
             }
             cm.setContent(content);
-            if (cell.getFormula() != null) {
-                cm.setFormula(cell.getFormula());
-            }
         }
 
         ICellComment cellComment = cell.getComment();

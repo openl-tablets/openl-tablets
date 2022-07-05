@@ -87,11 +87,6 @@ class GridTableCell implements ICell {
     }
 
     @Override
-    public String getFormula() {
-        return cell.getFormula();
-    }
-
-    @Override
     public int getType() {
         return cell.getType();
     }
