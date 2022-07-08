@@ -73,3 +73,4 @@ runs:
             -H 'Content-Type: application/json' \
             -H 'Accept: Accept: application/vnd.heroku+json; version=3.docker-releases' \
             -u "$LOGIN:$TOKEN"
+        echo "### Deployed on [$APP_NAME](https://$APP_NAME.herokuapp.com/) :rocket:" >> $GITHUB_STEP_SUMMARY
