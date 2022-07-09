@@ -362,7 +362,7 @@
         }
 
         function canOverwriteRevision() {
-            var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision};
+            var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision == true};
             return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
         }
 
