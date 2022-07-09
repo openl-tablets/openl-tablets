@@ -27,6 +27,7 @@ public class SmokeTest {
         client.send("public/info/application.properties.get");
         client.send("public/info/sys.info.get");
         client.send("public/info/openl.json.get");
+        client.send("public/info/http.info.get");
         client.send("public/notification.txt.get");
 
         client.send("admin/notification.txt-1.post");
