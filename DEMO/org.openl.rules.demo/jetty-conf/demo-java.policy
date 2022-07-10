@@ -90,10 +90,10 @@ grant codeBase "file:${jetty.home}/webapps/webstudio/-" {
         permission java.io.FilePermission "/private/${java.io.tmpdir}", "read,write,delete";
         permission java.io.FilePermission "/private/${java.io.tmpdir}/-", "read,write,delete";
 
-        permission java.io.FilePermission "${openl.home}", "read,write,delete";
+        permission java.io.FilePermission "${openl.home}", "read,write";
         permission java.io.FilePermission "${openl.home}/-", "read,write,delete";
         permission java.io.FilePermission "${jetty.home}/logs/-", "read,write,delete";
-        permission java.io.FilePermission "${jetty.home}/logs", "read,write,delete";
+        permission java.io.FilePermission "${jetty.home}/logs", "read,write";
 
         //richfaces
         permission java.io.FilePermission "${jetty.home}/-", "read";
@@ -186,14 +186,15 @@ grant codeBase "file:${jetty.home}/webapps/webservice/-" {
         permission java.io.FilePermission "/private/${java.io.tmpdir}", "read,write,delete";
         permission java.io.FilePermission "/private/${java.io.tmpdir}/-", "read,write,delete";
 
-        permission java.io.FilePermission "${openl.home}", "read,write,delete";
+        permission java.io.FilePermission "${openl.home}", "read,write";
         permission java.io.FilePermission "${openl.home}/-", "read,write,delete";
 
         //org.springframework.beans.factory
         permission java.io.FilePermission "${jetty.home}", "read";
         permission java.io.FilePermission "${jetty.home}/-", "read";
 
-        permission java.io.FilePermission "${jetty.home}/logs/-", "write,delete";
+        permission java.io.FilePermission "${jetty.home}/logs/-", "read,write,delete";
+        permission java.io.FilePermission "${jetty.home}/logs", "read,write";
         permission java.io.FilePermission "${java.home}/-", "read";
         permission java.util.PropertyPermission "*", "read,write";
 
