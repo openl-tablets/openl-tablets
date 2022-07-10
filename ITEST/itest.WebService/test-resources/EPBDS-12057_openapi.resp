@@ -260,7 +260,7 @@ Content-Type: application/json
   },
   "servers": [
     {
-      "url": "/EPBDS-12057/EPBDS-12057",
+      "url": ".",
       "variables": {}
     }
   ]

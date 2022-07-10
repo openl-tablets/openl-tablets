@@ -274,7 +274,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             compiledOpenClass.getOpenClassWithErrors(),
             classLoader,
             "unknown",
-            "unknown",
             isResolveMethodParameterNames(),
             provideRuntimeContext,
             provideVariations,

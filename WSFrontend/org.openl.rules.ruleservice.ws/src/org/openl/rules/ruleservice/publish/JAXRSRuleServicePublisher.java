@@ -54,10 +54,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     private boolean authenticationEnabled;
 
-    // false is for testing purposes, see org.openl.rules.ruleservice.servlet.SpringInitializer
-    @Autowired(required = false)
-    private String servletContextPath;
-
     @Autowired
     private ObjectFactory<JAXRSOpenLServiceEnhancer> serviceEnhancerObjectFactory;
 
@@ -183,7 +179,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             JAXRSOpenLServiceEnhancer jaxrsOpenLServiceEnhancer = getServiceEnhancerObjectFactory().getObject();
             Object proxyServiceBean = jaxrsOpenLServiceEnhancer.decorateServiceBean(service,
                 openApiObjectMapper,
-                servletContextPath + url,
                 authenticationEnabled);
             // The first one is a decorated interface
             Class<?> serviceClass = proxyServiceBean.getClass().getInterfaces()[0];

@@ -9,7 +9,7 @@ Content-Type: application/json
   },
   "servers": [
     {
-      "url": "/deployment5/simple5",
+      "url": ".",
       "variables": {}
     }
   ],

@@ -270,11 +270,6 @@ public class OpenApiGenerator {
                     .map(RulesDeploy::getServiceName)
                     .filter(StringUtils::isNotBlank)
                     .orElse("unknown"),
-                Optional.ofNullable(getRulesDeploy())
-                    .map(RulesDeploy::getUrl)
-                    .filter(StringUtils::isNotBlank)
-                    .map(url -> url.charAt(0) == '/' ? url : "/" + url)
-                    .orElse("/unknown"),
                 true,
                 isProvidedRuntimeContext(),
                 isProvideVariations(),

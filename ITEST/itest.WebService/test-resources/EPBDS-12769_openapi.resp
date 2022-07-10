@@ -682,7 +682,7 @@ Content-Type: application/json
     },
     "servers": [
         {
-            "url": "/EPBDS-12769/EPBDS-12769",
+            "url": ".",
             "variables": {}
         }
     ]

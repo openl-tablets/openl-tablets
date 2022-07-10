@@ -113,7 +113,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final Set<String> nicknames = new HashSet<>();
         private final IOpenClass openClass;
         private final String serviceName;
-        private final String serviceExposedUrl;
         private final boolean resolveMethodParameterNames;
         private final boolean provideRuntimeContext;
         private final boolean provideVariations;
@@ -128,7 +127,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 IOpenClass openClass,
                 ClassLoader classLoader,
                 String serviceName,
-                String serviceExposedUrl,
                 boolean resolveMethodParameterNames,
                 boolean provideRuntimeContext,
                 boolean provideVariations,
@@ -139,7 +137,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
             this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.openClass = openClass;
             this.classLoader = classLoader;
-            this.serviceExposedUrl = serviceExposedUrl;
             this.resolveMethodParameterNames = resolveMethodParameterNames;
             this.provideRuntimeContext = provideRuntimeContext;
             this.provideVariations = provideVariations;
@@ -166,10 +163,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 av1.visit("version", DEFAULT_VERSION);
                 av1.visitEnd();
 
-                if (serviceExposedUrl != null) {
+                {
                     AnnotationVisitor av2 = av.visitArray("servers");
                     AnnotationVisitor av3 = av2.visitAnnotation("servers", Type.getDescriptor(Server.class));
-                    av3.visit("url", serviceExposedUrl);
+                    av3.visit("url", ".");
                     av3.visitEnd();
                     av2.visitEnd();
                 }
@@ -801,7 +798,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
             IOpenClass openClass,
             ClassLoader classLoader,
             String serviceName,
-            String serviceExposedUrl,
             boolean resolveMethodParameterNames,
             boolean provideRuntimeContext,
             boolean provideVariations,
@@ -822,7 +818,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 openClass,
                 classLoader,
                 serviceName,
-                serviceExposedUrl,
                 resolveMethodParameterNames,
                 provideRuntimeContext,
                 provideVariations,

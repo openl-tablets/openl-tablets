@@ -139,7 +139,7 @@ Content-Type: application/json
   },
   "servers": [
     {
-      "url": "/EPBDS-10996/EPBDS-10996",
+      "url": ".",
       "variables": {}
     }
   ]
