@@ -2,8 +2,8 @@ package org.openl.rules.rest.compile;
 
 public class ModuleTestsInfo {
 
-    private final Integer count;
-    private final Boolean compiled;
+    private final int count;
+    private final boolean compiled;
     private final TableRunState tableRunState;
 
     public ModuleTestsInfo(Builder from) {
@@ -30,19 +30,19 @@ public class ModuleTestsInfo {
 
     public static class Builder {
 
-        private Integer count;
-        private Boolean compiled;
+        private int count;
+        private boolean compiled;
         private TableRunState tableRunState;
 
         private Builder() {
         }
 
-        public Builder count(Integer count) {
+        public Builder count(int count) {
             this.count = count;
             return this;
         }
 
-        public Builder compiled(Boolean compiled) {
+        public Builder compiled(boolean compiled) {
             this.compiled = compiled;
             return this;
         }
