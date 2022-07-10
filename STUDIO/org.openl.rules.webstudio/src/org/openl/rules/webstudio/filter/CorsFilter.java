@@ -16,7 +16,7 @@ import org.openl.rules.webstudio.web.servlet.SpringInitializer;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.Environment;
 
-@WebFilter(value = "/*")
+@WebFilter("/*")
 public class CorsFilter implements Filter {
 
     private String[] allowedOrigins;

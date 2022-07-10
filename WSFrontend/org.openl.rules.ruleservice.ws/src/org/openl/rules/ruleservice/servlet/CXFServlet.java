@@ -9,7 +9,7 @@ import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.springframework.context.ApplicationContext;
 
-@WebServlet(value = "/*", loadOnStartup = 1, initParams = {
+@WebServlet(urlPatterns = "/*", loadOnStartup = 1, initParams = {
         @WebInitParam(name = "static-welcome-file", value = "/index.html"),
         @WebInitParam(name = "static-resources-list", value = "/favicon.ico /swagger-ui.html /swagger-ui/.*"),
         @WebInitParam(name = "service-list-path", value = "cxf-services"),

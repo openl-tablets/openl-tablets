@@ -24,7 +24,7 @@ import org.springframework.core.env.Environment;
  *
  * @author ybiruk
  */
-@WebFilter(value = "/*")
+@WebFilter("/*")
 public class SecurityFilter implements Filter {
 
     private final Logger log = LoggerFactory.getLogger(SecurityFilter.class);

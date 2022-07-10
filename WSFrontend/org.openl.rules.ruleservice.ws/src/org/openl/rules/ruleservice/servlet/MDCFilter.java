@@ -21,7 +21,7 @@ import org.springframework.core.env.Environment;
  *
  * @author ybiruk
  */
-@WebFilter(value = "/*")
+@WebFilter("/*")
 public class MDCFilter implements Filter {
 
     private static final String REQUEST_ID_KEY = "requestId";
