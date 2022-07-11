@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.project.abstraction.Comments;
+import org.openl.util.StringUtils;
 
 public class FolderStructureSettings {
     private final String FLAT_FOLDER_STRUCTURE;
@@ -24,7 +25,7 @@ public class FolderStructureSettings {
 
     public boolean isFlatFolderStructure() {
         String property = getProperties().getProperty(FLAT_FOLDER_STRUCTURE);
-        return property == null || Boolean.parseBoolean(property);
+        return StringUtils.isBlank(property) || Boolean.parseBoolean(property);
     }
 
     public void setFlatFolderStructure(boolean flatFolderStructure) {

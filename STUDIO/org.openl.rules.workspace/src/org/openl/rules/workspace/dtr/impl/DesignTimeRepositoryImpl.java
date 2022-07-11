@@ -162,7 +162,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 }
             }
 
-            boolean flatStructure = Boolean.parseBoolean(propertyResolver.getProperty(repoPrefix + ".folder-structure.flat"));
+            String flatValue = propertyResolver.getProperty(repoPrefix + ".folder-structure.flat");
+            boolean flatStructure = StringUtils.isBlank(flatValue) || Boolean.parseBoolean(flatValue);
 
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
