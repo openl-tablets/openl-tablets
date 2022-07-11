@@ -3,8 +3,8 @@
 ![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.openl/org.openl.core/badge.svg)
 ![Commit activity](https://img.shields.io/github/commit-activity/m/openl-tablets/openl-tablets)
 
-[![DEMO](https://img.shields.io/website?label=DEMO&url=https%3A%2F%2Fdemo.openl-tablets.org)](https://demo.openl-tablets.org)
-[![Nightly Build DEMO](https://img.shields.io/website?label=Nightly%20Build%20DEMO&url=https%3A%2F%2Fdemo.openl-tablets.org%2Fnightly%2F)](https://demo.openl-tablets.org/nightly/)
+[![DEMO](https://img.shields.io/website?label=DEMO&url=https%3A%2F%2Fdemo.openl-tablets.org%2Fwebstudio%2F)](https://demo.openl-tablets.org)
+[![Nightly Build DEMO](https://img.shields.io/website?label=Nightly%20Build%20DEMO&url=https%3A%2F%2Fdemo.openl-tablets.org%2Fnightly%2Fwebstudio%2F)](https://demo.openl-tablets.org/nightly/)
 [![WebSite](https://img.shields.io/website?label=WebSite&url=https%3A%2F%2Fopenl-tablets.org)](https://openl-tablets.org)
 
 # Easy Business Rules
