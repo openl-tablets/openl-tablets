@@ -139,7 +139,7 @@ echo.
 @rem Apply security policy for demo
 @if exist demo-java.policy set JETTY_OPT=-Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=%SystemRoot%\Sun\Java\lib\ext
 
-@set JAVA_OPTS=%JETTY_OPT%  %_JAVA_MEMORY% %JAVA_OPTS%
+@set JAVA_OPTS=-Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 %JETTY_OPT%  %_JAVA_MEMORY% %JAVA_OPTS%
 @if not defined OPENL_HOME set OPENL_HOME=./openl-demo
 
 @echo ### Starting OpenL Tablets DEMO ...
