@@ -116,7 +116,12 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
         var methodInfoBuilder = MethodInfo.Builder.from(method, mappingInfo);
         for (String pathPattern : mappingInfo.getPatternsCondition().getPatterns()) {
             methodInfoBuilder.pathPattern(pathPattern);
-            for (RequestMethod requestMethod : mappingInfo.getMethodsCondition().getMethods()) {
+            var requestMethods = mappingInfo.getMethodsCondition().getMethods();
+            if (requestMethods.isEmpty()) {
+                // if request method is not defined, it means that ALL HTTP methods are accepted
+                requestMethods = Set.of(RequestMethod.values());
+            }
+            for (RequestMethod requestMethod : requestMethods) {
                 methodInfoBuilder.requestMethod(requestMethod);
                 parseMethod(openApiContext, methodInfoBuilder.build(), controllerAdviceInfos);
             }
@@ -371,7 +376,8 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
                 path.getDelete(),
                 path.getOptions(),
                 path.getHead(),
-                path.getPatch())
+                path.getPatch(),
+                path.getTrace())
             .filter(Objects::nonNull)
             .map(Operation::getOperationId)
             .filter(StringUtils::isNotBlank)

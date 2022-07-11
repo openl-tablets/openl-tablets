@@ -1,9 +1,10 @@
 package org.openl.rules.rest.common;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.openl.info.OpenLVersion;
 import org.openl.info.SysInfo;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
@@ -42,7 +44,8 @@ public class SysInfoController {
 
     @Operation(summary = "info.get-http-info.summary", description = "info.get-http-info.desc")
     @RequestMapping(value = "/public/info/http.json")
-    public Map<Object, Object> getHttpInfo(HttpServletRequest request, @RequestHeader HttpHeaders headers) {
+    public Map<Object, Object> getHttpInfo(HttpServletRequest request,
+            @Parameter(hidden = true) @RequestHeader HttpHeaders headers) {
         LinkedHashMap<Object, Object> info = new LinkedHashMap<>();
 
         info.put("Protocol", request.getProtocol());
