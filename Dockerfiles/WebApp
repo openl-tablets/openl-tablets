@@ -17,11 +17,11 @@ ENV OPENL_APP $OPENL_DIR/app
 ENV OPENL_LIB $OPENL_DIR/lib
 
 COPY --from=jetty:10-jre11-slim /usr/local/jetty $OPENL_APP
-RUN set -eux ; \
+RUN set -euxv ; \
 \
 # Create start file for Jetty with configuration options
     echo '#!/usr/bin/env bash\n\n\
-JAVA_OPTS=$(eval echo "$JAVA_OPTS")\n\
+JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"\n\
 exec java $JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
 -jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy --lib="$OPENL_LIB/*.jar" "$@"\n\
 ' >> $OPENL_DIR/start.sh; \
