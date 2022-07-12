@@ -1,5 +1,7 @@
 FROM ubuntu:focal
 
+ENV LC_ALL C.UTF-8
+
 COPY openl-tablets-demo.zip demo.zip
 
 RUN set -eux ; \

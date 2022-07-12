@@ -4,6 +4,8 @@ FROM eclipse-temurin:${JDK} as jdk
 
 FROM ubuntu:focal
 
+ENV LC_ALL C.UTF-8
+
 ARG APP=target/webapp
 
 # Copy Java
