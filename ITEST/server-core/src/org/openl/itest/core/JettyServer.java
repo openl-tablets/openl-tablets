@@ -16,6 +16,9 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.springframework.http.HttpStatus;
+
+import static org.junit.Assert.fail;
 
 /**
  * Simple wrapper for Jetty Server
@@ -23,6 +26,8 @@ import org.eclipse.jetty.webapp.WebAppContext;
  * @author Vladyslav Pikus, Yury Molchan
  */
 public class JettyServer {
+
+    private static final long MAX_READINESS_WAIT_TIMEOUT_MS = 60 * 1000;
 
     private final Server server;
 
@@ -105,7 +110,7 @@ public class JettyServer {
     /**
      * Starts Jetty Server and executes a set of http requests.
      */
-    public static void test(String profile, long testStartDelayMs) throws Exception {
+    public static void test(String profile, boolean waitUntilReady) throws Exception {
         String[] profiles = profile == null ? new String[0] : new String[] { profile };
         String testFolder = profile == null ? "test-resources" : ("test-resources-" + profile);
         JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, false, profiles);
@@ -120,10 +125,24 @@ public class JettyServer {
 
             jetty.server.start();
             try {
-                if (testStartDelayMs > 0) {
-                    TimeUnit.MILLISECONDS.sleep(testStartDelayMs);
+                var httpClient = jetty.client();
+                if (waitUntilReady) {
+                    boolean ready = false;
+                    long started = System.currentTimeMillis();
+                    while (!ready && (started - System.currentTimeMillis()) < MAX_READINESS_WAIT_TIMEOUT_MS) {
+                        try {
+                            httpClient.getForObject("/admin/healthcheck/readiness", String.class, HttpStatus.OK);
+                            ready = true;
+                        } catch (AssertionError ignored) {
+                            System.out.println("Not ready yet. Wait 500 ms and retry");
+                            TimeUnit.MILLISECONDS.sleep(500);
+                        }
+                    }
+                    if (!ready) {
+                        fail("Not Ready!");
+                    }
                 }
-                jetty.client().test(testFolder);
+                httpClient.test(testFolder);
             } finally {
                 jetty.stop();
             }
@@ -134,7 +153,7 @@ public class JettyServer {
     }
 
     public static void test(String profile) throws Exception {
-        test(profile, -1);
+        test(profile, false);
     }
 
     public static void test() throws Exception {

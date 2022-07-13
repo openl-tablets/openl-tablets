@@ -16,12 +16,14 @@ import javax.ws.rs.core.Response;
 
 import org.openl.info.OpenLVersion;
 import org.openl.info.SysInfo;
+import org.openl.rules.ruleservice.loader.DeployClasspathJarsBean;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 
 @Produces(MediaType.APPLICATION_JSON)
 public class AdminRestController {
 
+    private DeployClasspathJarsBean deployClasspathJarService;
     private ServiceInfoProvider serviceManager;
     private Map<String, Object> uiConfig;
 
@@ -33,6 +35,11 @@ public class AdminRestController {
     @Resource
     public void setUiConfig(Map<String, Object> uiConfig) {
         this.uiConfig = uiConfig;
+    }
+
+    @Resource
+    public void setDeployClasspathJarService(DeployClasspathJarsBean deployClasspathJarService) {
+        this.deployClasspathJarService = deployClasspathJarService;
     }
 
     /**
@@ -100,6 +107,9 @@ public class AdminRestController {
     @GET
     @Path("/healthcheck/readiness")
     public Response readiness() {
+        if (!deployClasspathJarService.isDone()) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
         Collection<ServiceInfo> servicesInfo = serviceManager.getServicesInfo();
         if (servicesInfo.isEmpty()) {
             return serviceManager.isReady() ? Response.ok("EMPTY", MediaType.TEXT_PLAIN_TYPE).build() : Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
