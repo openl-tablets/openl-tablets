@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 
 import org.openl.info.OpenLVersion;
 import org.openl.info.SysInfo;
+import org.openl.rules.ruleservice.loader.DeployClasspathJarsBean;
 import org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Produces(MediaType.APPLICATION_JSON)
 public class AdminRestController {
 
+    private DeployClasspathJarsBean deployClasspathJarService;
     private ServiceInfoProvider serviceManager;
     private JAXRSRuleServicePublisher jaxrsRuleServicePublisher;
     private Map<String, Object> uiConfig;
@@ -41,6 +43,11 @@ public class AdminRestController {
     @Autowired
     public void setJaxrsRuleServicePublisher(JAXRSRuleServicePublisher jaxrsRuleServicePublisher) {
         this.jaxrsRuleServicePublisher = jaxrsRuleServicePublisher;
+    }
+
+    @Resource
+    public void setDeployClasspathJarService(DeployClasspathJarsBean deployClasspathJarService) {
+        this.deployClasspathJarService = deployClasspathJarService;
     }
 
     /**
@@ -109,6 +116,9 @@ public class AdminRestController {
     @GET
     @Path("/healthcheck/readiness")
     public Response readiness() {
+        if (!deployClasspathJarService.isDone()) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
+        }
         Collection<ServiceInfo> servicesInfo = serviceManager.getServicesInfo();
         if (servicesInfo.isEmpty()) {
             return serviceManager.isReady() ? Response.ok("EMPTY", MediaType.TEXT_PLAIN_TYPE).build() : Response.status(Response.Status.SERVICE_UNAVAILABLE).build();
