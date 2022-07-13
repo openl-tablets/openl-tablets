@@ -78,8 +78,8 @@
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
-        <org.springframework.version>5.3.20</org.springframework.version>
-        <org.springsecurity.version>5.7.1</org.springsecurity.version>
+        <org.springframework.version>5.3.22</org.springframework.version>
+        <org.springsecurity.version>5.7.2</org.springsecurity.version>
         <org.hibernate.version>5.4.33.Final</org.hibernate.version>
         <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
             At the time of writing the latest official version is 2.3.9.
@@ -99,14 +99,14 @@
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-databinding-aegis:jar -> org.apache.cxf:cxf-core -> org.glassfish.jaxb:jaxb-runtime -->
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
         <io.swagger.core.v3.version>2.1.3</io.swagger.core.v3.version>
-        <log4j.version>2.17.2</log4j.version>
+        <log4j.version>2.18.0</log4j.version>
         <org.slf4j.version>1.7.36</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
-        <org.bouncycastle.version>1.70</org.bouncycastle.version>
+        <org.bouncycastle.version>1.71</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.13.3</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.46.v20220331</jetty.server.version>
+        <jetty.server.version>9.4.48.v20220622</jetty.server.version>
         <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
         <elasticsearch.version>6.8.21</elasticsearch.version>
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
@@ -114,14 +114,13 @@
         <org.apache.zookeeper.version>3.7.0</org.apache.zookeeper.version>
         <org.apache.thrift.version>0.13.0</org.apache.thrift.version>
         <org.apache.ant.version>1.10.12</org.apache.ant.version>
-        <io.netty.version>4.1.77.Final</io.netty.version>
-        <owasp.version>7.1.0</owasp.version>
-        <groovy.version>3.0.10</groovy.version>
+        <io.netty.version>4.1.79.Final</io.netty.version>
+        <owasp.version>7.1.1</owasp.version>
+        <groovy.version>3.0.11</groovy.version>
         <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
         <jaeger.client.version>1.6.0</jaeger.client.version>
         <opentracing.kafka.client>0.1.15</opentracing.kafka.client>
         <opentracing.mock.version>0.33.0</opentracing.mock.version>
-
 
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
@@ -1357,17 +1356,17 @@
             Used by jgit and saml. -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
+                <artifactId>bcprov-jdk18on</artifactId>
                 <version>${org.bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk15on</artifactId>
+                <artifactId>bcpkix-jdk18on</artifactId>
                 <version>${org.bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpg-jdk15on</artifactId>
+                <artifactId>bcpg-jdk18on</artifactId>
                 <version>${org.bouncycastle.version}</version>
             </dependency>
             <!-- httpclient is required for aws-java-sdk-core and elasticsearch,
