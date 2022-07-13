@@ -3,9 +3,6 @@
 name: Heroku App
 
 on:
-  schedule:
-    # Every day at 05:00 UTC
-    - cron:  '0 5 * * *'
   # Manual run from the GitHub action page
   workflow_dispatch:
     inputs:
@@ -17,6 +14,43 @@ on:
         required: true
         type: boolean
         default: true
+      app:
+        description: 'Docker image'
+        type: choice
+        required: true
+        default: WebStudio
+        options:
+          - WebStudio
+          - Demo
+          - RuleServices
+          - RuleServices (ALL)
+      server:
+        description: 'Heroku app server'
+        type: choice
+        required: false
+        options:
+          - '.'
+          - qa1
+          - qa2
+          - qa3
+          - qa4
+          - dev1
+          - dev2
+          - dev3
+          - dev4
+      isConfigured:
+        description: "-Dwebstudio.configured=true"
+        type: boolean
+        default: true
+        required: true
+      isDeployer:
+        description: "-Druleservice.deployer.enabled=true"
+        type: boolean
+        default: true
+        required: true
+      javaOpts:
+        description: 'JAVA_OPTS'
+        required: false
 
 jobs:
   build:
@@ -79,42 +113,35 @@ jobs:
     - name: Build with Maven
       run: mvn package -DskipTests -T 1C "-Dstyle.color=always"
 
-    - name: Deploy DEMO
+    - name: Deploy ${{ inputs.app }} to ${{ inputs.server }}
       uses: ./.github/actions/deploy-heroku
       with:
         login: ${{ secrets.HEROKU_LOGIN }}
         token: ${{ secrets.HEROKU_TOKEN }}
-        app-name: openl-demo
-        javaOpts: -Xms16M -Xmx192M -Djetty.http.port=$PORT -Dxxx.yyy=jdbc:sqr://www.cloud:1433;db=ab -Dxxx=$YYY
-        dockerfile: Dockerfiles/Demo
-        context: DEMO/org.openl.rules.demo/target
-
-    - name: Deploy WebStudio
-      uses: ./.github/actions/deploy-heroku
-      with:
-        login: ${{ secrets.HEROKU_LOGIN }}
-        token: ${{ secrets.HEROKU_TOKEN }}
-        app-name: openl-webstudio
-        javaOpts: -Xms16M -Xmx256M -Djetty.http.port=$PORT -Dwebstudio.configured=true -Dproduction-repository.uri=${OPENL_HOME}/repo -Dxxx.yyy=jdbc:sqr://www.cloud:1433;db=ab -Dxxx=$YYY
-        dockerfile: Dockerfiles/WebApp
-        context: STUDIO/org.openl.rules.webstudio
-
-    - name: Deploy RuleServices
-      uses: ./.github/actions/deploy-heroku
-      with:
-        login: ${{ secrets.HEROKU_LOGIN }}
-        token: ${{ secrets.HEROKU_TOKEN }}
-        app-name: openl-ruleservices
-        javaOpts: -Xms16M -Xmx64M -Djetty.http.port=$PORT -Druleservice.deployer.enabled=true -Dproduction-repository.factory=repo-file -Dproduction-repository.uri=${OPENL_HOME}/repo -Dxxx.yyy=jdbc:sqr://www.cloud:1433;db=ab -Dxxx=$YYY
-        dockerfile: Dockerfiles/WebApp
-        context: WSFrontend/org.openl.rules.ruleservice.ws
-
-    - name: Deploy RuleServices (ALL)
-      uses: ./.github/actions/deploy-heroku
-      with:
-        login: ${{ secrets.HEROKU_LOGIN }}
-        token: ${{ secrets.HEROKU_TOKEN }}
-        app-name: openl-ruleservices-all
-        javaOpts: -Xms16M -Xmx128M -Djetty.http.port=$PORT -Druleservice.deployer.enabled=true -Dproduction-repository.factory=repo-file -Dproduction-repository.uri=${OPENL_HOME}/repo -Dxxx.yyy=jdbc:sqr://www.cloud:1433;db=ab -Dxxx=$YYY
-        dockerfile: Dockerfiles/WebApp
-        context: WSFrontend/org.openl.rules.ruleservice.ws.all
+        app-name: >-
+          ${{
+            format( 'openl-{0}',
+              inputs.server!='.' && inputs.server ||
+              fromJson('{
+                "Demo": "demo",
+                "WebStudio": "webstudio",
+                "RuleServices": "ruleservice",
+                "RuleServices (ALL)": "ruleservice-all"
+              }')[inputs.app]
+            )
+          }}
+        javaOpts: >-
+          -Djetty.http.port=$PORT -Xms16M -Xmx450M
+          -Dxxx.yyy=jdbc:sqr://www.cloud:1433;db=ab -Dxxx=$YYY
+          ${{ inputs.isConfigured && '-Dwebstudio.configured=true' || '' }}
+          ${{ inputs.isDeployer && '-Druleservice.deployer.enabled=true' || '' }}
+          ${{ inputs.isDeployer && inputs.app != 'Demo' && '-Dproduction-repository.uri=${OPENL_HOME}/repo' || '' }}
+          ${{ inputs.javaOpts }}
+        dockerfile: Dockerfiles/${{ inputs.app == 'Demo' && 'Demo' || 'WebApp' }}
+        context: >-
+          ${{ fromJson('{
+            "Demo": "DEMO/org.openl.rules.demo/target",
+            "WebStudio": "STUDIO/org.openl.rules.webstudio",
+            "RuleServices": "WSFrontend/org.openl.rules.ruleservice.ws",
+            "RuleServices (ALL)": "WSFrontend/org.openl.rules.ruleservice.ws.all"
+          }')[inputs.app] }}

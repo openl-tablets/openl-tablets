@@ -1,11 +1,20 @@
 ## Heroku applications
-[![DEMO](https://img.shields.io/website?label=DEMO&url=https%3A%2F%2Fopenl-demo.herokuapp.com)](https://openl-demo.herokuapp.com)
-[![WebStudio](https://img.shields.io/website?label=WebStudio&url=https%3A%2F%2Fopenl-webstudio.herokuapp.com)](https://openl-webstudio.herokuapp.com)
-[![RuleServices](https://img.shields.io/website?label=RuleServices&url=https%3A%2F%2Fopenl-ruleservices.herokuapp.com)](https://openl-ruleservices.herokuapp.com)
-[![RuleServices (ALL)](https://img.shields.io/website?label=RuleServices(ALL)&url=https%3A%2F%2Fopenl-ruleservices-all.herokuapp.com)](https://openl-ruleservices-all.herokuapp.com)
-
 To deploy or redeploy these applications, run [Heroku App](https://github.com/openl-tablets/openl-tablets/actions/workflows/heroku.yml) action.
 You can specify a branch, a tag or a sha-1 hash in the 'Ref to build' input field. If the value is not specified, then the HEAD of the branch will be used.
+
+### These servers are for demoing:
+* [DEMO](https://openl-demo.herokuapp.com)
+* [WebStudio](https://openl-webstudio.herokuapp.com)
+* [RuleServices](https://openl-ruleservices.herokuapp.com)
+* [RuleServices (ALL)](https://openl-ruleservices-all.herokuapp.com)
+
+Deploy on them the most stable branches.
+
+### These servers are for development and testing:
+* [DEV1](https://openl-dev1.herokuapp.com), [DEV2](https://openl-dev2.herokuapp.com), [DEV3](https://openl-dev3.herokuapp.com), [DEV4](https://openl-dev4.herokuapp.com),
+* [QA1](https://openl-qa1.herokuapp.com), [QA2](https://openl-qa2.herokuapp.com), [QA3](https://openl-qa3.herokuapp.com), [QA4](https://openl-qa4.herokuapp.com),
+
+
 
 ## OpenL artifacts
 
