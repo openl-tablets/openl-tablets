@@ -46,8 +46,10 @@ public class DeployClasspathJarsBeanTest {
         }).when(unstableDeployerService).deploy(any(File.class), anyBoolean());
         classpathDeployer.setRulesDeployerService(unstableDeployerService);
 
-        // Finalize deployer initialization and start deploy process.
+        // Finalize deployer initialization.
         classpathDeployer.afterPropertiesSet();
+        // Start deploy process
+        classpathDeployer.initializeDeploy();
 
         // Waiting until the deployer will finish its work.
         TimeUnit.SECONDS.sleep(4);
