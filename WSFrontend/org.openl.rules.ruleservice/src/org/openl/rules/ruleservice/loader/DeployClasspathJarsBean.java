@@ -193,6 +193,10 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
     }
 
+    public boolean isDone() {
+        return !isEnabled() || (scheduledPool != null && scheduledPool.isTerminated());
+    }
+
     @Override
     public void destroy() throws Exception {
         if (scheduledPool != null) {
