@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -62,9 +63,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
     private ServiceConfigurer serviceConfigurer;
     private RuleServiceLoader ruleServiceLoader;
-    private final Map<String, ServiceDescription> services = new HashMap<>();
-    private final Map<String, OpenLService> services2 = new HashMap<>();
-    private final Map<String, Date> startDates = new HashMap<>();
+    private final Map<String, ServiceDescription> services = new ConcurrentHashMap<>();
+    private final Map<String, OpenLService> services2 = new ConcurrentHashMap<>();
+    private final Map<String, Date> startDates = new ConcurrentHashMap<>();
 
     private Map<String, RuleServicePublisher> supportedPublishers;
     private Collection<String> defaultRuleServicePublishers = Collections.emptyList();
