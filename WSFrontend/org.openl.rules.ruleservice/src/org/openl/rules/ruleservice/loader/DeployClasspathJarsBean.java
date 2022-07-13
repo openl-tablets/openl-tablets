@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -95,9 +97,6 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         processResources(prpr.getResources(createClasspathPattern(PROJECT_DESCRIPTOR_FILE_NAME)));
         processResources(prpr.getResources(createClasspathPattern(DeploymentDescriptor.XML.getFileName())));
         processResources(prpr.getResources(createClasspathPattern(DeploymentDescriptor.YAML.getFileName())));
-
-        scheduledPool = Executors.newSingleThreadScheduledExecutor();
-        scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
     }
 
     private static String createClasspathPattern(String fileName) {
@@ -167,6 +166,18 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
             // Log error and try to continue on the next invocation.
             log.warn(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Initialize deploying of JAR files to the remote repository after context readiness
+     */
+    @EventListener(ContextRefreshedEvent.class)
+    public void initializeDeploy() {
+        if (!isEnabled()) {
+            return;
+        }
+        scheduledPool = Executors.newSingleThreadScheduledExecutor();
+        scheduledPool.scheduleWithFixedDelay(this::deployFiles, 0, retryPeriod, TimeUnit.SECONDS);
     }
 
     @Override
