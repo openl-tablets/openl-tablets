@@ -12,7 +12,10 @@ import org.openl.vm.Tracer;
 
 public final class ServiceMT {
 
-    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
+    private final ForkJoinPool forkJoinPool = new ForkJoinPool(Runtime.getRuntime().availableProcessors(),
+        new WorkerThreadFactory(),
+        null,
+        false);
 
     private static class ServiceMTHolder {
         private static final ServiceMT INSTANCE = new ServiceMT();
