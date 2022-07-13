@@ -62,6 +62,7 @@ public enum CurrenciesEnum {
     CHF("Switzerland, Francs"),
     SYP("Syria, Pounds"),
     TWD("Taiwan, New Dollars"),
+    THB("Thailand, Baht"),
     TND("Tunisia, Dinars"),
     TRY("Turkey, Lira"),
     UAH("Ukraine, Hryvnia"),
