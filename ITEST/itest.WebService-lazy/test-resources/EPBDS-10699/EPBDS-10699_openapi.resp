@@ -262,6 +262,7 @@ Content-Type: application/json
               "CHF",
               "SYP",
               "TWD",
+              "THB",
               "TND",
               "TRY",
               "UAH",

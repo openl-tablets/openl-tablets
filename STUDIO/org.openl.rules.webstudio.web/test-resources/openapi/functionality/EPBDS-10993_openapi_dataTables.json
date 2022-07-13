@@ -287,7 +287,7 @@
               "CZK", "DKK", "DOP", "EGP", "EUR", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR", "IQD", "ILS", "JPY",
               "JOD", "KWD", "LVL", "LBP", "LTL", "MKD", "MYR", "MXN", "MAD", "NZD", "NIO", "NOK", "OMR", "PAB", "PYG",
               "PEN", "PHP", "PLN", "QAR", "RON", "RUB", "SAR", "RSD", "SGD", "ZAR", "SDG", "SEK", "CHF", "SYP", "TWD",
-              "TND", "TRY", "UAH", "AED", "GBP", "USD", "UYU", "VEF", "VND", "YER"
+              "THB", "TND", "TRY", "UAH", "AED", "GBP", "USD", "UYU", "VEF", "VND", "YER"
             ]
           },
           "lang": {
