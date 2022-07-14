@@ -121,7 +121,9 @@ public class LaunchFileServlet extends HttpServlet {
             response.setHeader("Content-Disposition",
                 WebTool.getContentDispositionValue(pathToFile.getFileName().toString()));
 
-            IOUtils.copyAndClose(Files.newInputStream(pathToFile), response.getOutputStream());
+            try (var in = Files.newInputStream(pathToFile); var out = response.getOutputStream()) {
+                IOUtils.copy(in, out);
+            }
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
         }
