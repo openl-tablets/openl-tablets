@@ -24,6 +24,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.util.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,6 @@ public class MethodNodeBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-
         IBoundNode errorNode = validateNode(node, bindingContext);
         if (errorNode != null) {
             return errorNode;
@@ -48,9 +48,8 @@ public class MethodNodeBinder extends ANodeBinder {
 
         int childrenCount = node.getNumberOfChildren();
 
-        ISyntaxNode lastNode = node.getChild(childrenCount - 1);
-
-        String methodName = ((IdentifierNode) lastNode).getIdentifier();
+        ISyntaxNode funcNode = node.getChild(childrenCount - 1);
+        String methodName = ((IdentifierNode) funcNode).getIdentifier();
         IOpenClass[] parameterTypes = IOpenClass.EMPTY;
 
         bindingContext.pushErrors();
@@ -105,7 +104,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
             IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, methodName);
             Optional<IBoundNode> iBoundNode = Optional.ofNullable(type)
-                .map(t -> makeDatatypeConstructor(node, bindingContext, t));
+                .map(t -> makeDatatypeConstructor(node, bindingContext, t, funcNode));
             if (iBoundNode.isPresent()) {
                 return iBoundNode.get();
             }
@@ -125,7 +124,15 @@ public class MethodNodeBinder extends ANodeBinder {
         }
     }
 
-    private IBoundNode makeDatatypeConstructor(ISyntaxNode node, IBindingContext bindingContext, IOpenClass type) {
+    private IBoundNode makeDatatypeConstructor(ISyntaxNode node,
+            IBindingContext bindingContext,
+            IOpenClass type,
+            ISyntaxNode typeNode) {
+        if (type.getInstanceClass() == null) {
+            return makeErrorNode(MessageUtils.getTypeDefinedErrorMessage(((IdentifierNode) typeNode).getIdentifier()),
+                typeNode,
+                bindingContext);
+        }
         List<IBoundNode> params = new ArrayList<>();
         List<String> namedParams = new ArrayList<>();
         boolean isAllParamsAssign = true;

@@ -1,0 +1,2 @@
+ERROR: Field 'myState' is already declared.
+ERROR: Type 'MyObj' is defined with errors.
