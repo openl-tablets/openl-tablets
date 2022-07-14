@@ -7132,7 +7132,7 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "defaultGroup": {
-            "maxLength": 50,
+            "maxLength": 65,
             "minLength": 0,
             "type": "string",
             "description": "Default user group"

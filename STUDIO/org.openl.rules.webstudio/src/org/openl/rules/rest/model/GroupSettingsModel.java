@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 
 public class GroupSettingsModel {
 
-    @Size(max = 50)
+    @Size(max = 65)
     @Parameter(description = "Default user group")
     private String defaultGroup;
 
