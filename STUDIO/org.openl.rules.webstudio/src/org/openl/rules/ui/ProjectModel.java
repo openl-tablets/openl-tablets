@@ -860,10 +860,15 @@ public class ProjectModel {
 
     private boolean isGapOverlap(ProjectTreeNode tableNode) {
         if (tableNode.getTableSyntaxNode() != null) {
-            String tableType = tableNode.getTableSyntaxNode().getType();
-            if (XlsNodeTypes.XLS_DT.toString().equals(tableType)) {
-                return DispatcherTablesBuilder.isDispatcherTable(tableNode.getTableSyntaxNode());
-            }
+            return isGapOverlap(tableNode.getTableSyntaxNode());
+        }
+        return false;
+    }
+
+    private boolean isGapOverlap(TableSyntaxNode tsn) {
+        String tableType = tsn.getType();
+        if (XlsNodeTypes.XLS_DT.toString().equals(tableType)) {
+            return DispatcherTablesBuilder.isDispatcherTable(tsn);
         }
         return false;
     }
@@ -1091,6 +1096,7 @@ public class ProjectModel {
     public synchronized List<IOpenLTable> search(Predicate<TableSyntaxNode> selectors, SearchScope searchScope) {
         return getSearchScopeData(searchScope).stream()
             .filter(tableSyntaxNode -> !XlsNodeTypes.XLS_TABLEPART.toString().equals(tableSyntaxNode.getType()))
+            .filter(tsn -> !isGapOverlap(tsn))
             .filter(selectors)
             .map(TableSyntaxNodeAdapter::new)
             .collect(Collectors.toList());
