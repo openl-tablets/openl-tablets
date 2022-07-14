@@ -131,6 +131,11 @@ grant codeBase "file:${jetty.home}/webapps/webstudio/-" {
         permission java.lang.RuntimePermission "net.bytebuddy.createJavaDispatcher";
 
         permission org.hibernate.validator.HibernateValidatorPermission "accessPrivateMembers";
+
+        // SAML
+        permission java.security.SecurityPermission "org.apache.xml.security.register";
+        // AD
+        permission java.lang.RuntimePermission "accessClassInPackage.com.sun.jndi.ldap";
 };
 
 // WEBSERVICE
