@@ -13,14 +13,6 @@
     <url>https://openl-tablets.org</url>
     <dependencies>
         <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.security</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-saml2-service-provider</artifactId>
         </dependency>
@@ -32,8 +24,16 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.security</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -13,14 +13,6 @@
     <url>https://openl-tablets.org</url>
     <dependencies>
         <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.project</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.jackson.configuration</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>
@@ -54,6 +46,17 @@
             <artifactId>jakarta.xml.bind-api</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.project</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.jackson.configuration</artifactId>
+        </dependency>
+
         <!-- Just for tests -->
         <dependency>
             <groupId>org.openl.rules</groupId>

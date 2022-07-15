@@ -13,6 +13,16 @@
     <url>https://openl-tablets.org</url>
     <dependencies>
         <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.parser.v3</groupId>
+            <artifactId>swagger-parser</artifactId>
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.project.validation</artifactId>
         </dependency>
@@ -25,23 +35,8 @@
             <artifactId>org.openl.rules.jackson</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.swagger.parser.v3</groupId>
-            <artifactId>swagger-parser</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.test</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-            <version>${org.apache.cxf.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.annotation</groupId>
-                    <artifactId>javax.annotation-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 </project>

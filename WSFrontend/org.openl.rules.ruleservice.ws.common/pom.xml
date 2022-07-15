@@ -13,17 +13,8 @@
     <url>https://openl-tablets.org</url>
     <dependencies>
         <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.ruleservice.common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.jackson</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-            <version>${org.apache.cxf.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -41,12 +32,16 @@
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-jaxrs2</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.xml.bind</groupId>
-                    <artifactId>jaxb-api</artifactId>
-                </exclusion>
-            </exclusions>
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.jackson</artifactId>
         </dependency>
     </dependencies>
 </project>

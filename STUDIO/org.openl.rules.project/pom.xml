@@ -47,14 +47,6 @@
             <artifactId>commons-jxpath</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.variation</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
@@ -65,6 +57,16 @@
             <scope>test</scope>
             <!-- Annotation classes are used in generated from Datatype Table classes.
             To compile them without adding extra dependency in client's project "compile" scope is used -->
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.variation</artifactId>
         </dependency>
     </dependencies>
 </project>

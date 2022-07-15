@@ -17,14 +17,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.project</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.jackson</artifactId>
-        </dependency>
         <!-- Required for Java11 -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
@@ -32,6 +24,16 @@
             <scope>test</scope>
             <!-- Annotation classes are used in generated from Datatype Table classes.
             To compile them without adding extra dependency in client's project "compile" scope is used -->
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.project</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.jackson</artifactId>
         </dependency>
     </dependencies>
 </project>

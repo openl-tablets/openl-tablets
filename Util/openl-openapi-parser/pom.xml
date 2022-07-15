@@ -29,6 +29,15 @@
             <artifactId>swagger-models</artifactId>
         </dependency>
         <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-jxpath</groupId>
+            <artifactId>commons-jxpath</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules</artifactId>
         </dependency>
@@ -41,16 +50,8 @@
             <artifactId>org.openl.rules.ruleservice.annotation</artifactId>
         </dependency>
         <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.openl</groupId>
             <artifactId>org.openl.commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-jxpath</groupId>
-            <artifactId>commons-jxpath</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl</groupId>

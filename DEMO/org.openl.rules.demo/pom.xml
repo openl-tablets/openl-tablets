@@ -18,7 +18,7 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <jetty.root>jetty-home-${jetty.server.version}</jetty.root>
+        <jetty.root>jetty-home-${jetty.version}</jetty.root>
         <jetty.webapps>${jetty.root}/webapps</jetty.webapps>
         <jetty.lib>${jetty.root}/lib/ext</jetty.lib>
     </properties>
@@ -49,7 +49,6 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-home</artifactId>
-            <version>${jetty.server.version}</version>
             <type>zip</type>
         </dependency>
         <dependency>

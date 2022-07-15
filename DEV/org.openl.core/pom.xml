@@ -18,22 +18,6 @@
     </organization>
     <dependencies>
         <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.core.annotations</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.rules.util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.constrainer</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
         </dependency>
@@ -60,6 +44,24 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.core.annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.rules.util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.constrainer</artifactId>
         </dependency>
     </dependencies>
 </project>

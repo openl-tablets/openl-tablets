@@ -19,10 +19,6 @@
         <url>https://openl-tablets.org</url>
     </organization>
 
-    <properties>
-        <org.aspectj.version>1.9.7</org.aspectj.version>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
@@ -70,21 +66,19 @@
     </build>
 
     <dependencies>
-        <!-- OpenL dependencies -->
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
-            <version>${org.aspectj.version}</version>
         </dependency>
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <version>${org.aspectj.version}</version>
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules</artifactId>
         </dependency>
     </dependencies>
 </project>

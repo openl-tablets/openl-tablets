@@ -30,14 +30,6 @@
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.sdicons.jsontools</groupId>
             <artifactId>jsontools-core</artifactId>
         </dependency>
@@ -56,8 +48,16 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-            <scope>provided</scope>
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules</artifactId>
         </dependency>
     </dependencies>
 </project>

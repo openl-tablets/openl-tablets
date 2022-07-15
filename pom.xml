@@ -83,58 +83,135 @@
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
-        <org.springframework.version>5.3.21</org.springframework.version>
-        <org.springsecurity.version>5.7.2</org.springsecurity.version>
-        <org.hibernate.version>5.6.9.Final</org.hibernate.version>
+
+        <!-- Managing dependencies versions -->
+        <!-- Spring -->
+        <spring.framework.version>5.3.22</spring.framework.version>
+        <spring.boot.version>2.7.1</spring.boot.version>
+        <reactive-streams.version>1.0.4</reactive-streams.version>
+
+        <!-- Security -->
+        <spring.security.version>5.7.2</spring.security.version>
         <opensaml.version>4.2.0</opensaml.version>
-        <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
-            At the time of writing the latest official version is 2.3.9.
-         -->
-        <org.mojarra.version>2.3.9</org.mojarra.version>
+
+        <!-- Bytecode manipulation -->
         <asm.version>9.2</asm.version>
         <cglib.version>3.3.0</cglib.version>
-        <!-- Kafka 3.0.0 is not supported by Kafka-Junit yet -->
+        <cloning.version>1.9.12</cloning.version>
+
+        <!-- Kafka -->
         <kafka.version>3.2.0</kafka.version>
         <kafka-junit.version>3.2.0</kafka-junit.version>
+
+        <!-- Casandra -->
         <cassandra.driver.version>4.14.1</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.11.2</cassandra.unit.driver.version>
-        <org.apache.cxf.version>3.5.3</org.apache.cxf.version>
+
+        <!-- REST -->
+        <jackson.version>2.13.3</jackson.version>
+        <cxf.version>3.5.3</cxf.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-frontend-jaxrs:jar -->
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-databinding-aegis:jar -> org.apache.cxf:cxf-core -> org.glassfish.jaxb:jaxb-runtime -->
         <jakarta.activation.version>1.2.2</jakarta.activation.version>
-        <io.swagger.core.v3.version>2.1.13</io.swagger.core.v3.version>
+        <stax-ex.version>1.8.3</stax-ex.version>
+
+        <!-- OpenAPI -->
+        <swagger.core.version>2.1.13</swagger.core.version>
         <!-- Can't bump to 2.0.16 version or higher to inline with swagger-core version -->
         <!-- Because some behaviour is changed and a lot of tests fails as a result. -->
-        <io.swagger.parser.v3.version>2.0.15</io.swagger.parser.v3.version>
+        <swagger.parser.version>2.0.15</swagger.parser.version>
+        <swagger-ui.version>4.11.1</swagger-ui.version>
+
+        <!-- Logging -->
         <log4j.version>2.18.0</log4j.version>
-        <org.slf4j.version>1.7.36</org.slf4j.version>
-        <org.apache.poi.version>5.2.2</org.apache.poi.version>
-        <org.bouncycastle.version>1.70</org.bouncycastle.version>
-        <com.fasterxml.jackson.version>2.13.3</com.fasterxml.jackson.version>
-        <jakarta.mail.version>1.6.7</jakarta.mail.version>
-        <com.icegreen.greenmail.version>1.6.9</com.icegreen.greenmail.version>
+        <slf4j.version>1.7.36</slf4j.version>
+
+        <!-- OpenL Maven Plugin -->
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>10.0.11</jetty.server.version>
+
+        <!-- DEMO & ITEST -->
+        <jetty.version>10.0.11</jetty.version>
+
+        <!-- Hive -->
         <hive.jdbc.version>3.1.3</hive.jdbc.version>
-        <org.apache.avro.version>1.11.0</org.apache.avro.version>
-        <org.apache.zookeeper.version>3.7.1</org.apache.zookeeper.version>
-        <org.apache.thrift.version>0.16.0</org.apache.thrift.version>
-        <org.apache.ant.version>1.10.12</org.apache.ant.version>
-        <io.netty.version>4.1.78.Final</io.netty.version>
+        <avro.version>1.11.0</avro.version>
+        <zookeeper.version>3.7.1</zookeeper.version>
+        <thrift.version>0.16.0</thrift.version>
+        <ant.version>1.10.12</ant.version>
+        <netty.version>4.1.78.Final</netty.version>
+        <reactor-netty-http.version>1.0.20</reactor-netty-http.version>
         <kotlin.stdlib.version>1.7.0</kotlin.stdlib.version>
-        <owasp.version>7.1.1</owasp.version>
-        <groovy.version>3.0.11</groovy.version>
+
+        <!-- Request tracing -->
         <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
         <jaeger.client.version>1.8.0</jaeger.client.version>
         <opentracing.kafka.client>0.1.15</opentracing.kafka.client>
         <opentracing.mock.version>0.33.0</opentracing.mock.version>
-        <com.amazonaws.version>1.12.254</com.amazonaws.version>
-        <com.azure.version>12.17.1</com.azure.version>
+        <okhttp.version>4.10.0</okhttp.version>
+
+        <!-- Repositories -->
+        <amazonaws.version>1.12.260</amazonaws.version>
+        <azure.version>12.18.0</azure.version>
         <jgit.version>6.2.0.202206071550-openl</jgit.version>
 
+        <!-- DB -->
+        <h2.version>2.1.214</h2.version>
+        <mssql.version>10.2.1.jre11</mssql.version>
+        <hikaricp.version>5.0.1</hikaricp.version>
+        <hibernate.orm.version>5.6.10.Final</hibernate.orm.version>
+        <hibernate.validator.version>6.2.3.Final</hibernate.validator.version>
+
+        <!-- Testing -->
+        <junit.version>4.13.2</junit.version>
+        <awaitility.version>4.2.0</awaitility.version>
+        <mockito.version>4.6.1</mockito.version>
+        <datasource-proxy.version>1.8</datasource-proxy.version>
+        <xmlunit.version>2.9.0</xmlunit.version>
+
+        <!-- javax & Jakarta APIs -->
+        <jakarta.annotation-api.version>1.3.5</jakarta.annotation-api.version>
+        <jakarta.xml.bind-api.version>2.3.3</jakarta.xml.bind-api.version>
+        <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
+        <javax.websocket-api.version>1.1</javax.websocket-api.version>
+
+        <!-- Cache -->
+        <javax.cache-api.version>1.1.1</javax.cache-api.version>
+        <cache2k.version>1.6.0.Final</cache2k.version>
+
+        <!-- Mail -->
+        <jakarta.mail.version>1.6.7</jakarta.mail.version>
+        <greenmail.version>1.6.9</greenmail.version>
+
+        <!-- Commons and utils -->
+        <commons.codec.version>1.15</commons.codec.version>
+        <commons.compress.version>1.21</commons.compress.version>
+        <commons.collections.version>3.2.2</commons.collections.version>
+        <commons.collections4.version>4.4</commons.collections4.version>
+        <commons.io.version>2.11.0</commons.io.version>
+        <commons.jxpath.version>1.3</commons.jxpath.version>
+        <commons.lang.version>2.6</commons.lang.version>
+        <commons.lang3.version>3.12.0</commons.lang3.version>
+
+        <!-- protocols -->
+        <hessian.version>4.0.38</hessian.version>
+        <gson.version>2.9.0</gson.version>
+
+        <bouncycastle.version>1.71</bouncycastle.version>
+        <groovy.version>3.0.11</groovy.version>
+        <poi.version>5.2.2</poi.version>
+        <aspectj.version>1.9.9.1</aspectj.version>
+        <velocity.version>2.3</velocity.version>
+        <guava.version>31.1-jre</guava.version>
+        <joda-time.version>2.10.14</joda-time.version>
+        <xmlsec.version>2.3.1</xmlsec.version>
+        <jcodemodel.version>3.4.1</jcodemodel.version>
+        <istack.version>3.0.12</istack.version>
+        <xstream.version>1.4.19</xstream.version>
+        <activiti.version>5.18.0</activiti.version>
+        <snakeyaml.version>1.30</snakeyaml.version>
 
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
@@ -324,7 +401,7 @@
                 <plugin>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-maven-plugin</artifactId>
-                    <version>${jetty.server.version}</version>
+                    <version>${jetty.version}</version>
                     <configuration>
                         <systemProperties>
                             <systemProperty>
@@ -345,14 +422,19 @@
                         <dependency>
                             <groupId>com.h2database</groupId>
                             <artifactId>h2</artifactId>
-                            <version>2.1.212</version>
+                            <version>${h2.version}</version>
                         </dependency>
                     </dependencies>
                 </plugin>
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>${owasp.version}</version>
+                    <version>7.1.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring.boot.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -714,63 +796,111 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13.2</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.awaitility</groupId>
                 <artifactId>awaitility</artifactId>
-                <version>4.2.0</version>
+                <version>${awaitility.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- Mock objects library for java -->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>4.6.1</version>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.ttddyy</groupId>
+                <artifactId>datasource-proxy</artifactId>
+                <version>${datasource-proxy.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.xmlunit</groupId>
+                <artifactId>xmlunit-core</artifactId>
+                <version>${xmlunit.version}</version>
+            </dependency>
+            <!-- Jetty for ITEST -->
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-webapp</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-annotations</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>apache-jsp</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-home</artifactId>
+                <version>${jetty.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjrt</artifactId>
+                <version>${aspectj.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>${aspectj.version}</version>
             </dependency>
             <!-- Apache Velocity is a general purpose template engine. -->
             <dependency>
                 <groupId>org.apache.velocity</groupId>
                 <artifactId>velocity-engine-core</artifactId>
-                <version>2.3</version>
+                <version>${velocity.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
-                <version>2.6</version>
+                <version>${commons.lang.version}</version>
             </dependency>
             <!-- Apache Commons Lang, a package of Java utility classes for the classes that are in java.lang's hierarchy,
             or are considered to be so standard as to justify existence in java.lang. -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.12.0</version>
+                <version>${commons.lang3.version}</version>
             </dependency>
             <!-- The Apache Commons Collections package contains types that extend and augment the Java Collections Framework. -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
-                <version>4.4</version>
+                <version>${commons.collections4.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-collections</groupId>
                 <artifactId>commons-collections</artifactId>
-                <version>3.2.2</version>
+                <version>${commons.collections.version}</version>
             </dependency>
             <!-- contains simple encoder and decoders for various formats such as Base64 and Hexadecimal. -->
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.15</version>
+                <version>${commons.codec.version}</version>
             </dependency>
             <!-- The Commons IO library contains utility classes, stream implementations, file filters,
             file comparators, endian transformation classes, and much more. -->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.11.0</version>
+                <version>${commons.io.version}</version>
             </dependency>
             <!-- Spring Framework -->
             <!-- Core utilities used by other modules. Define this if you use Spring
@@ -778,28 +908,28 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
             </dependency>
             <!-- Expression Language (depends on spring-core) Define this if you use
                 Spring Expression APIs (org.springframework.expression.*) -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
             </dependency>
             <!-- Bean Factory and JavaBeans utilities (depends on spring-core) Define
                 this if you use Spring Bean APIs (org.springframework.beans.*) -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-beans</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
             </dependency>
             <!-- Aspect Oriented Programming (AOP) Framework (depends on spring-core,
                 spring-beans) Define this if you use Spring AOP APIs (org.springframework.aop.*) -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-aop</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
             </dependency>
             <!-- Application Context (depends on spring-core, spring-expression, spring-aop,
                 spring-beans) This is the central artifact for Spring's Dependency Injection
@@ -807,14 +937,14 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
             </dependency>
             <!-- Various Application Context utilities, including EhCache, JavaMail,
                 Quartz, and Freemarker integration Define this if you need any of these integrations -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context-support</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
             </dependency>
             <!-- Transaction Management Abstraction (depends on spring-core, spring-beans,
                 spring-aop, spring-context) Define this if you use Spring Transactions or
@@ -822,14 +952,14 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
             </dependency>
             <!-- JDBC Data Access Library (depends on spring-core, spring-beans, spring-context,
                 spring-tx) Define this if you use Spring's JdbcTemplate API (org.springframework.jdbc.*) -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-jdbc</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
             </dependency>
             <!-- Object-to-Relation-Mapping (ORM) integration with Hibernate, JPA,
                 and iBatis. (depends on spring-core, spring-beans, spring-context, spring-tx)
@@ -837,7 +967,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-orm</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
             </dependency>
             <!-- Web application development utilities applicable to both Servlet
                 and Portlet Environments (depends on spring-core, spring-beans, spring-context)
@@ -846,55 +976,74 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-webmvc</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
             </dependency>
             <!-- Spring's TestContext framework. Also includes common Servlet and Portlet API mocks. -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
-                <version>${org.springframework.version}</version>
+                <version>${spring.framework.version}</version>
                 <scope>test</scope>
+            </dependency>
+            <!-- Spring Boot -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-web</artifactId>
+                <version>${spring.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring.boot.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.junit.vintage</groupId>
+                        <artifactId>junit-vintage-engine</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <!-- Spring Security -->
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-core</artifactId>
-                <version>${org.springsecurity.version}</version>
+                <version>${spring.security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-config</artifactId>
-                <version>${org.springsecurity.version}</version>
+                <version>${spring.security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-ldap</artifactId>
-                <version>${org.springsecurity.version}</version>
+                <version>${spring.security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-cas</artifactId>
-                <version>${org.springsecurity.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.glassfish.jaxb</groupId>
-                        <artifactId>jaxb-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>${spring.security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-saml2-service-provider</artifactId>
-                <version>${org.springsecurity.version}</version>
+                <version>${spring.security.version}</version>
+            </dependency>
+            <!-- Spring 5.x, needed for JBoss metadata scanning  https://issues.jboss.org/browse/JBEAP-10163 -->
+            <dependency>
+                <groupId>org.reactivestreams</groupId>
+                <artifactId>reactive-streams</artifactId>
+                <version>${reactive-streams.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>${groovy.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.opensaml</groupId>
@@ -914,34 +1063,34 @@
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
-                <version>2.10.14</version>
+                <version>${joda-time.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>31.1-jre</version>
+                <version>${guava.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-oauth2-client</artifactId>
-                <version>${org.springsecurity.version}</version>
+                <version>${spring.security.version}</version>
             </dependency>
             <!-- Necessary for oauth2 Oidc. -->
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-oauth2-jose</artifactId>
-                <version>${org.springsecurity.version}</version>
+                <version>${spring.security.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-web</artifactId>
-                <version>${org.springsecurity.version}</version>
+                <version>${spring.security.version}</version>
             </dependency>
             <dependency>
                 <!--poi and opensaml -->
                 <groupId>org.apache.santuario</groupId>
                 <artifactId>xmlsec</artifactId>
-                <version>2.3.1</version>
+                <version>${xmlsec.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sdicons.jsontools</groupId>
@@ -953,7 +1102,10 @@
             <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>javax.faces</artifactId>
-                <version>${org.mojarra.version}</version>
+                <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
+                    At the time of writing the latest official version is 2.3.9.
+                 -->
+                <version>2.3.9</version>
             </dependency>
             <dependency>
                 <groupId>javax.enterprise</groupId>
@@ -982,9 +1134,9 @@
             </dependency>
             <!-- Servlets -->
             <dependency>
-                <groupId>org.apache.geronimo.specs</groupId>
-                <artifactId>geronimo-servlet_3.0_spec</artifactId>
-                <version>1.0</version>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${javax.servlet-api.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -997,6 +1149,25 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>jstl</artifactId>
                 <version>1.2</version>
+            </dependency>
+            <!-- Provides the API for the Unified Expression Language shared by the JSP 2.1 and JSF 1.2 technologies. -->
+            <dependency>
+                <groupId>javax.el</groupId>
+                <artifactId>javax.el-api</artifactId>
+                <version>3.0.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>javax.el</artifactId>
+                <version>3.0.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <!--added for fix problem webstudio failure on Websphere, due to new JSF version-->
+            <dependency>
+                <groupId>javax.websocket</groupId>
+                <artifactId>javax.websocket-api</artifactId>
+                <version>${javax.websocket-api.version}</version>
             </dependency>
             <!-- Apache log4j, a logging library for Java -->
             <dependency>
@@ -1018,12 +1189,12 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${org.slf4j.version}</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>${org.slf4j.version}</version>
+                <version>${slf4j.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- Byte code generation library -->
@@ -1062,24 +1233,18 @@
             <dependency>
                 <groupId>com.helger</groupId>
                 <artifactId>jcodemodel</artifactId>
-                <version>3.4.1</version>
+                <version>${jcodemodel.version}</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.annotation</groupId>
                 <artifactId>jakarta.annotation-api</artifactId>
-                <version>1.3.5</version>
+                <version>${jakarta.annotation-api.version}</version>
             </dependency>
             <!-- Apache CXF Runtime JAX-RS Frontend -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-                <version>${org.apache.cxf.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>javax.annotation</groupId>
-                        <artifactId>javax.annotation-api</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>${cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>jakarta.ws.rs</groupId>
@@ -1090,52 +1255,58 @@
                 <!-- for CXF to resolve duplicated dependencies of javax.activation:activation -->
                 <groupId>org.jvnet.staxex</groupId>
                 <artifactId>stax-ex</artifactId>
-                <version>1.8.3</version>
+                <version>${stax-ex.version}</version>
             </dependency>
             <!-- Apache CXF JAX-RS Extensions: Providers -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-extension-providers</artifactId>
-                <version>${org.apache.cxf.version}</version>
+                <version>${cxf.version}</version>
             </dependency>
             <!-- Apache CXF Runtime HTTP Transport -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
-                <version>${org.apache.cxf.version}</version>
+                <version>${cxf.version}</version>
             </dependency>
             <!-- Apache CXF Runtime HTTP Jetty Transport -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http-jetty</artifactId>
-                <version>${org.apache.cxf.version}</version>
+                <version>${cxf.version}</version>
             </dependency>
             <!-- Apache CXF Runtime JAXRS Client -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-client</artifactId>
-                <version>${org.apache.cxf.version}</version>
+                <version>${cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http-hc</artifactId>
-                <version>${org.apache.cxf.version}</version>
+                <version>${cxf.version}</version>
             </dependency>
             <!-- CXF Runtime CORBA Binding -->
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
-                <version>${org.apache.cxf.version}</version>
+                <version>${cxf.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.github.classgraph</groupId>
+                        <artifactId>classgraph</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-management</artifactId>
-                <version>${org.apache.cxf.version}</version>
+                <version>${cxf.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>4.11.1</version>
+                <version>${swagger-ui.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.oss</groupId>
@@ -1174,44 +1345,32 @@
             <dependency>
                 <groupId>com.icegreen</groupId>
                 <artifactId>greenmail-junit4</artifactId>
-                <version>${com.icegreen.greenmail.version}</version>
+                <version>${greenmail.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <!-- to remove dependency duplication from the cassandra driver -->
-                <groupId>com.github.jnr</groupId>
-                <artifactId>jnr-ffi</artifactId>
-                <version>2.1.10</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml</artifactId>
-                <version>${org.apache.poi.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>${poi.version}</version>
             </dependency>
             <!-- Full jar with all schemas. It's a replacement for poi-ooxml-schemas jar when the full schema is needed -->
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi-ooxml-full</artifactId>
-                <version>${org.apache.poi.version}</version>
+                <version>${poi.version}</version>
             </dependency>
             <dependency>
                 <!-- used in POI -->
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.21</version>
+                <version>${commons.compress.version}</version>
             </dependency>
             <!-- http://download.java.net/java/jdk9/docs/api/java.xml.bind-summary.html -->
             <!-- Required for Java11 -->
             <dependency>
                 <groupId>jakarta.xml.bind</groupId>
                 <artifactId>jakarta.xml.bind-api</artifactId>
-                <version>2.3.3</version>
+                <version>${jakarta.xml.bind-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.activation</groupId>
@@ -1226,13 +1385,13 @@
             <dependency>
                 <groupId>com.sun.istack</groupId>
                 <artifactId>istack-commons-runtime</artifactId>
-                <version>3.0.12</version>
+                <version>${istack.version}</version>
             </dependency>
             <!-- serialize objects to XML (or JSON) and back again. -->
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.19</version>
+                <version>${xstream.version}</version>
             </dependency>
             <!-- graph-theory data structures and algorithms. -->
             <dependency>
@@ -1244,39 +1403,39 @@
             <dependency>
                 <groupId>javax.cache</groupId>
                 <artifactId>cache-api</artifactId>
-                <version>1.1.1</version>
+                <version>${javax.cache-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.cache2k</groupId>
                 <artifactId>cache2k-jcache</artifactId>
-                <version>1.6.0.Final</version>
+                <version>${cache2k.version}</version>
             </dependency>
             <!-- Java library which deep-clones objects. -->
             <dependency>
                 <groupId>uk.com.robust-it</groupId>
                 <artifactId>cloning</artifactId>
-                <version>1.9.12</version>
+                <version>${cloning.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-jxpath</groupId>
                 <artifactId>commons-jxpath</artifactId>
-                <version>1.3</version>
+                <version>${commons.jxpath.version}</version>
             </dependency>
             <!-- Hessian is a compact binary protocol for connecting web services. -->
             <dependency>
                 <groupId>com.caucho</groupId>
                 <artifactId>hessian</artifactId>
-                <version>4.0.38</version>
+                <version>${hessian.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
-                <version>${com.amazonaws.version}</version>
+                <version>${amazonaws.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.azure</groupId>
                 <artifactId>azure-storage-blob</artifactId>
-                <version>${com.azure.version}</version>
+                <version>${azure.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>io.netty</groupId>
@@ -1307,7 +1466,7 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-core</artifactId>
-                <version>${com.amazonaws.version}</version>
+                <version>${amazonaws.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -1328,62 +1487,56 @@
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>2.9.0</version>
+                <version>${gson.version}</version>
             </dependency>
             <!-- The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms. This jar
             contains JCE provider and lightweight API for the Bouncy Castle Cryptography APIs for JDK 1.5 to JDK 1.8.
             Used by jgit and saml. -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
-                <version>${org.bouncycastle.version}</version>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk15on</artifactId>
-                <version>${org.bouncycastle.version}</version>
+                <artifactId>bcpkix-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpg-jdk15on</artifactId>
-                <version>${org.bouncycastle.version}</version>
-            </dependency>
-            <!-- httpclient is required for aws-java-sdk-core and elasticsearch,
-                 so we must synchronize it's version for both libraries. -->
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>4.5.13</version>
+                <artifactId>bcpg-jdk18on</artifactId>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <!-- HikariCP - A high-performance JDBC connection pool. -->
             <dependency>
                 <groupId>com.zaxxer</groupId>
                 <artifactId>HikariCP</artifactId>
-                <version>5.0.1</version>
+                <version>${hikaricp.version}</version>
             </dependency>
             <!-- Microsoft JDBC Driver for SQL Server -->
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
-                <version>10.2.1.jre11</version>
+                <version>${mssql.version}</version>
             </dependency>
             <!-- the Java in-memory SQL DB -->
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>2.1.214</version>
+                <version>${h2.version}</version>
             </dependency>
             <!-- Flyway: The agile database migration framework for Java. -->
             <dependency>
                 <groupId>org.openl</groupId>
                 <artifactId>flyway-core</artifactId>
+                <!-- Version is frozen due license was changed -->
                 <version>4.2.0.1</version>
             </dependency>
             <!-- Hibernate -->
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-core</artifactId>
-                <version>${org.hibernate.version}</version>
+                <version>${hibernate.orm.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.jboss.spec.javax.transaction</groupId>
@@ -1402,18 +1555,28 @@
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-entitymanager</artifactId>
-                <version>${org.hibernate.version}</version>
+                <version>${hibernate.orm.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.jboss.spec.javax.transaction</groupId>
+                        <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.jboss.logging</groupId>
+                        <artifactId>jboss-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-hikaricp</artifactId>
-                <version>${org.hibernate.version}</version>
+                <version>${hibernate.orm.version}</version>
             </dependency>
             <!-- Hibernate's Bean Validation (JSR-303) reference implementation. -->
             <dependency>
                 <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
-                <version>6.2.3.Final</version>
+                <version>${hibernate.validator.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.jboss.logging</groupId>
@@ -1422,76 +1585,70 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <!-- Transitive from hibernate-core -->
-                <groupId>org.dom4j</groupId>
-                <artifactId>dom4j</artifactId>
-                <version>2.1.3</version>
-            </dependency>
-            <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
                 <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-xml</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jaxb-annotations</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-parameter-names</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jdk8</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <!-- Overrides old vulnerable releases from Elasticsearch and Amazon S3 SDK libs  -->
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-cbor</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.dataformat</groupId>
                 <artifactId>jackson-dataformat-smile</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.30</version>
+                <version>${snakeyaml.version}</version>
             </dependency>
             <!-- Jakarta Mail Api for SMTP server connection, depends on Jakarta Activation -->
             <dependency>
@@ -1503,7 +1660,7 @@
             <dependency>
                 <groupId>io.swagger.parser.v3</groupId>
                 <artifactId>swagger-parser</artifactId>
-                <version>${io.swagger.parser.v3.version}</version>
+                <version>${swagger.parser.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>io.swagger.parser.v3</groupId>
@@ -1514,28 +1671,28 @@
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-jaxrs2</artifactId>
-                <version>${io.swagger.core.v3.version}</version>
+                <version>${swagger.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>${io.swagger.core.v3.version}</version>
+                <version>${swagger.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-core</artifactId>
-                <version>${io.swagger.core.v3.version}</version>
+                <version>${swagger.core.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-models</artifactId>
-                <version>${io.swagger.core.v3.version}</version>
+                <version>${swagger.core.version}</version>
             </dependency>
             <!--Activity -->
             <dependency>
                 <groupId>org.activiti</groupId>
                 <artifactId>activiti-engine</artifactId>
-                <version>5.18.0</version>
+                <version>${activiti.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>javax.activation</groupId>
@@ -1546,7 +1703,7 @@
             <dependency>
                 <groupId>org.activiti</groupId>
                 <artifactId>activiti-spring</artifactId>
-                <version>5.18.0</version>
+                <version>${activiti.version}</version>
             </dependency>
             <!--//Activity -->
             <!-- Kafka -->
@@ -1595,64 +1752,64 @@
             <dependency>
                 <groupId>io.projectreactor.netty</groupId>
                 <artifactId>reactor-netty-http</artifactId>
-                <version>1.0.20</version>
+                <version>${reactor-netty-http.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-buffer</artifactId>
-                <version>${io.netty.version}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-http2</artifactId>
-                <version>${io.netty.version}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-http</artifactId>
-                <version>${io.netty.version}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-socks</artifactId>
-                <version>${io.netty.version}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-handler-proxy</artifactId>
-                <version>${io.netty.version}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-handler</artifactId>
-                <version>${io.netty.version}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport-classes-kqueue</artifactId>
-                <version>${io.netty.version}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport-classes-epoll</artifactId>
-                <version>${io.netty.version}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport-native-epoll</artifactId>
                 <classifier>linux-x86_64</classifier>
-                <version>${io.netty.version}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport-native-kqueue</artifactId>
                 <classifier>osx-x86_64</classifier>
-                <version>${io.netty.version}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-transport-native-unix-common</artifactId>
-                <version>${io.netty.version}</version>
+                <version>${netty.version}</version>
             </dependency>
             <!-- //hive -->
             <!-- jaeger -->
@@ -1670,6 +1827,10 @@
                         <groupId>org.apache.tomcat.embed</groupId>
                         <artifactId>tomcat-embed-core</artifactId>
                     </exclusion>
+                    <exclusion>
+                        <groupId>javax.annotation</groupId>
+                        <artifactId>javax.annotation-api</artifactId>
+                    </exclusion>
                 </exclusions>
             </dependency>
             <dependency>
@@ -1680,7 +1841,7 @@
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
-                <version>4.10.0</version>
+                <version>${okhttp.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -1800,16 +1961,6 @@
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.security.saml</artifactId>
                 <version>${project.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.bouncycastle</groupId>
-                        <artifactId>bcprov-jdk15on</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
@@ -2004,17 +2155,6 @@
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.webstudio.web</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy</artifactId>
-                <version>${groovy.version}</version>
-            </dependency>
-            <!-- Spring 5.x, needed for JBoss metadata scanning  https://issues.jboss.org/browse/JBEAP-10163 -->
-            <dependency>
-                <groupId>org.reactivestreams</groupId>
-                <artifactId>reactive-streams</artifactId>
-                <version>1.0.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

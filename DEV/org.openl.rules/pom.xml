@@ -40,22 +40,6 @@
         </plugins>
     </build>
     <dependencies>
-        <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.constrainer</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.grammars</artifactId>
-        </dependency>
         <!-- 3rd party dependencies -->
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -81,6 +65,24 @@
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.constrainer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.grammars</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -13,13 +13,15 @@
     <url>https://openl-tablets.org</url>
     <dependencies>
         <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.repository</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.amazonaws</groupId>
-            <artifactId>aws-java-sdk-s3</artifactId>
         </dependency>
     </dependencies>
 </project>

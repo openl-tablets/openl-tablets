@@ -170,6 +170,7 @@
                             <useLocalRepository>true</useLocalRepository>
                             <properties>
                                 <maven.compiler.release>11</maven.compiler.release>
+                                <openl.info>main</openl.info>
                             </properties>
                             <showErrors>true</showErrors>
                             <!-- Estimated test's time should not take more than 10 sec on 4х CPU (2GHz) -->

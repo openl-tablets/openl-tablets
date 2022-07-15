@@ -12,14 +12,6 @@
     <description>Internal OpenL security implementation</description>
     <url>https://openl-tablets.org</url>
     <dependencies>
-        <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.security</artifactId>
-        </dependency>
         <!-- Spring related -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -57,6 +49,16 @@
         <dependency>
             <groupId>org.openl</groupId>
             <artifactId>flyway-core</artifactId>
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.security</artifactId>
         </dependency>
     </dependencies>
 </project>

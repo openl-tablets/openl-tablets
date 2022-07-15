@@ -32,10 +32,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.openl</groupId>
-            <artifactId>org.openl.rules.util</artifactId>
-        </dependency>
         <!-- Required for Java11. -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
@@ -43,6 +39,12 @@
             <!--<scope>provided</scope>-->
             <!-- Annotation classes are used in generated from Datatype Table classes.
             To compile them without adding extra dependency in client's project "compile" scope is used -->
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.rules.util</artifactId>
         </dependency>
     </dependencies>
 </project>

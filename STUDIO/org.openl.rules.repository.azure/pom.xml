@@ -12,12 +12,6 @@
     <description>OpenL Repository Azure implementation</description>
     <url>https://openl-tablets.org</url>
     <dependencies>
-        <dependency>
-            <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules.repository</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- TODO: Rewrite to use REST API ourselves without external library -->
         <dependency>
             <groupId>com.azure</groupId>
@@ -52,6 +46,13 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.repository</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

@@ -28,6 +28,21 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.albfernandez.richfaces</groupId>
+            <artifactId>richfaces</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.faces</artifactId>
+        </dependency>
+
+        <!-- OpenL dependencies -->
+        <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.workspace</artifactId>
         </dependency>
@@ -43,24 +58,11 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>openl-excel-builder</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.github.albfernandez.richfaces</groupId>
-            <artifactId>richfaces</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.faces</artifactId>
-        </dependency>
 
         <!-- For testing purposes -->
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.test</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

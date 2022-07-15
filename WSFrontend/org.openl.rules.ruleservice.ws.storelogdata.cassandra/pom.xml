@@ -50,7 +50,17 @@
 	</build>
 
 	<dependencies>
-		<!-- RulesService -->
+		<!-- Cassandra -->
+		<dependency>
+			<groupId>com.datastax.oss</groupId>
+			<artifactId>java-driver-core-shaded</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.datastax.oss</groupId>
+			<artifactId>java-driver-mapper-processor</artifactId>
+		</dependency>
+
+		<!-- OpenL dependencies -->
 		<dependency>
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.ruleservice.ws.storelogdata</artifactId>
@@ -64,15 +74,5 @@
 			<groupId>org.openl.rules</groupId>
 			<artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</artifactId>
 		</dependency>
-		<!-- Cassandra -->
-		<dependency>
-			<groupId>com.datastax.oss</groupId>
-			<artifactId>java-driver-core-shaded</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.datastax.oss</groupId>
-			<artifactId>java-driver-mapper-processor</artifactId>
-		</dependency>
-		<!-- OpenL -->
 	</dependencies>
 </project>

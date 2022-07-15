@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>@org.springframework.version@</version>
+            <version>@spring.framework.version@</version>
         </dependency>
     </dependencies>
 </project>
