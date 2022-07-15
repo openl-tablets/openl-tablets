@@ -3193,6 +3193,7 @@ public final class RulesUtils {
     }
 
     @MethodSearchTuner(wrapper = AddAllMethodCallerWrapper.class, methodFilter = AddAllMethodFilter.class)
+    @IgnoreNonVarargsMatching
     public static Object add(Object... arrays) {
         return addAll(arrays);
     }
