@@ -9,6 +9,7 @@
         <constructor-arg name="dataSource" ref="openlDataSource"/>
         <constructor-arg name="aclCache" ref="aclCache"/>
         <constructor-arg name="lookupStrategy" ref="aclLookupStrategy"/>
+        <property name="aclClassIdSupported" value="true"/>
     </bean>
 
     <bean id="aclLookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
@@ -16,6 +17,7 @@
         <constructor-arg name="aclCache" ref="aclCache"/>
         <constructor-arg name="aclAuthorizationStrategy" ref="aclAuthorizationStrategy"/>
         <constructor-arg name="auditLogger" ref="aclAuditLogger"/>
+        <property name="aclClassIdSupported" value="true"/>
     </bean>
 
     <bean id="aclAuditLogger" class="org.springframework.security.acls.domain.ConsoleAuditLogger" scope="prototype"/>
