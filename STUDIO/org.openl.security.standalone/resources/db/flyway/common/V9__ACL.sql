@@ -9,8 +9,9 @@ CREATE TABLE acl_sid
 
 CREATE TABLE acl_class
 (
-    id    ${identity} not null primary key,
-    class ${varchar}(255) not null,
+    id            ${identity} not null primary key,
+    class         ${varchar}(255) not null,
+    class_id_type ${varchar}(255),
     PRIMARY KEY (id),
     CONSTRAINT unique_OpenL_acl_class1 UNIQUE (class)
 );

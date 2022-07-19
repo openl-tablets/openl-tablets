@@ -41,7 +41,7 @@ public class AclServiceTest {
     @Transactional
     public void grantAndReadPermission() {
         // Prepare the information we'd like in our access control entry (ACE)
-        ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, 44L);
+        ObjectIdentity oi = new ObjectIdentityImpl(Foo.class, "44");
 
         // Create or update the relevant ACL
         MutableAcl acl;
