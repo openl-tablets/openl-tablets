@@ -141,9 +141,9 @@
         <zookeeper.version>3.7.1</zookeeper.version>
         <thrift.version>0.16.0</thrift.version>
         <ant.version>1.10.12</ant.version>
-        <netty.version>4.1.78.Final</netty.version>
-        <reactor-netty-http.version>1.0.20</reactor-netty-http.version>
-        <kotlin.stdlib.version>1.7.0</kotlin.stdlib.version>
+        <netty.version>4.1.79.Final</netty.version>
+        <reactor-netty-http.version>1.0.21</reactor-netty-http.version>
+        <kotlin.stdlib.version>1.7.10</kotlin.stdlib.version>
 
         <!-- Request tracing -->
         <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
@@ -153,7 +153,7 @@
         <okhttp.version>4.10.0</okhttp.version>
 
         <!-- Repositories -->
-        <amazonaws.version>1.12.260</amazonaws.version>
+        <amazonaws.version>1.12.262</amazonaws.version>
         <azure.version>12.18.0</azure.version>
         <jgit.version>6.2.0.202206071550-openl</jgit.version>
 
