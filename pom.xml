@@ -1320,12 +1320,12 @@
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
-                <version>1.11.785</version>
+                <version>1.12.262</version>
             </dependency>
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-core</artifactId>
-                <version>1.11.785</version>
+                <version>1.12.262</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
