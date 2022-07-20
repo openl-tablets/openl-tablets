@@ -458,28 +458,30 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     d++;
                     j++;
                 }
-                ILogicalTable logicalTable;
-                if (valueCell.isNormalOrientation()) {
-                    logicalTable = valueCell.getSubtable(j - d, 0, j - d, valueCell.getHeight());
-                } else {
-                    logicalTable = valueCell.getSubtable(0, j - d, valueCell.getWidth(), d);
-                }
+                if (d > 0) {
+                    ILogicalTable logicalTable;
+                    if (valueCell.isNormalOrientation()) {
+                        logicalTable = valueCell.getSubtable(j - d, 0, d, valueCell.getHeight());
+                    } else {
+                        logicalTable = valueCell.getSubtable(0, j - d, valueCell.getWidth(), d);
+                    }
 
-                if (storageValue instanceof CompositeMethod) {
-                    addMetaInfoForCompositeMethod(region, logicalTable, 0, 0, storageValue);
-                } else if (storageValue instanceof ArrayHolder) {
-                    addMetaInfoForArrayHolder(region, logicalTable, storageValue);
-                } else {
-                    IParameterDeclaration param = params[i];
-                    if (param != null) {
-                        IOpenClass type = param.getType();
-                        boolean multiValue = false;
-                        if (type.isArray()) {
-                            multiValue = true;
-                            type = type.getAggregateInfo().getComponentType(type);
+                    if (storageValue instanceof CompositeMethod) {
+                        addMetaInfoForCompositeMethod(region, logicalTable, 0, 0, storageValue);
+                    } else if (storageValue instanceof ArrayHolder) {
+                        addMetaInfoForArrayHolder(region, logicalTable, storageValue);
+                    } else {
+                        IParameterDeclaration param = params[i];
+                        if (param != null) {
+                            IOpenClass type = param.getType();
+                            boolean multiValue = false;
+                            if (type.isArray()) {
+                                multiValue = true;
+                                type = type.getAggregateInfo().getComponentType(type);
+                            }
+                            ICell cell = logicalTable.getCell(0, 0);
+                            setPreparedMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), type, multiValue);
                         }
-                        ICell cell = logicalTable.getCell(0, 0);
-                        setPreparedMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), type, multiValue);
                     }
                 }
             }
