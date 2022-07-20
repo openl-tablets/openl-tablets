@@ -27,9 +27,11 @@ import org.openl.rules.dt.element.ArrayHolder;
 import org.openl.rules.dt.element.FunctionalRow;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
+import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
@@ -45,9 +47,7 @@ import org.slf4j.LoggerFactory;
 public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionTableBoundNode> {
     private final Logger log = LoggerFactory.getLogger(DecisionTableMetaInfoReader.class);
     private final DecisionTable decisionTable;
-    private CellMetaInfo[][] preparedMetaInfos;
-    private int top;
-    private int left;
+    private Map<CellKey, CellMetaInfo> preparedMetaInfos;
     private final Deque<MetaInfoHolder> stack;
 
     public DecisionTableMetaInfoReader(DecisionTableBoundNode boundNode) {
@@ -159,10 +159,9 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     @Override
     public void prepare(IGridRegion region) {
         try {
-            top = region.getTop();
-            left = region.getLeft();
-            preparedMetaInfos = new CellMetaInfo[region.getBottom() - top + 1][region.getRight() - left + 1];
-
+            if (preparedMetaInfos == null) {
+                preparedMetaInfos = new HashMap<>();
+            }
             DecisionTable decisionTable = getDecisionTable();
 
             saveSimpleRulesMetaInfo(region);
@@ -600,21 +599,21 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
     private CellMetaInfo getPreparedMetaInfo(int row, int col) {
         if (preparedMetaInfos == null) {
-            prepare(getGridTable().getRegion());
+            if (getTableSyntaxNode().getGridTable().getGrid() instanceof CompositeGrid) {
+                for (IGridTable gridTable : ((CompositeGrid) getTableSyntaxNode().getGridTable().getGrid())
+                    .getGridTables()) {
+                    prepare(gridTable.getRegion());
+                }
+            } else {
+                prepare(getTableSyntaxNode().getGridTable().getRegion());
+            }
         }
-        int r = row - top;
-        int c = col - left;
-        if (r >= 0 && r < preparedMetaInfos.length && c >= 0 && c < preparedMetaInfos[r].length) {
-            return preparedMetaInfos[r][c];
-        }
-        return null;
+        return preparedMetaInfos.get(CellKey.CellKeyFactory.getCellKey(col, row));
     }
 
     private void setPreparedMetaInfo(int row, int col, CellMetaInfo metaInfo) {
-        int r = row - top;
-        int c = col - left;
-        if (r >= 0 && r < preparedMetaInfos.length && c >= 0 && c < preparedMetaInfos[r].length) {
-            preparedMetaInfos[r][c] = metaInfo;
+        if (metaInfo != null) {
+            preparedMetaInfos.put(CellKey.CellKeyFactory.getCellKey(col, row), metaInfo);
         }
     }
 
