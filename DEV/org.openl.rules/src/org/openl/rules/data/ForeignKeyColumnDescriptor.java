@@ -365,21 +365,31 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
                 if (f) {
                     if (!StringUtils.isEmpty(s)) {
-                        Object res = getValueByForeignKeyIndex(cxt,
-                            foreignTable,
-                            foreignKeyIndex,
-                            foreignKeyTableAccessorChainTokens,
-                            valuesTable,
-                            s);
                         IOpenCast cast = cxt.getCast(resType, fieldType);
                         if (cast == null || !cast.isImplicit()) {
                             String message = MessageUtils
                                 .getIncompatibleTypesErrorMessage(getField(), fieldType, resType);
                             throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
                         }
+                        Object res = getValueByForeignKeyIndex(cxt,
+                            foreignTable,
+                            foreignKeyIndex,
+                            foreignKeyTableAccessorChainTokens,
+                            valuesTable,
+                            s);
                         getField().set(target, cast.convert(res), env);
                     }
                 } else {
+                    IOpenClass componentType = getComponentType(fieldType);
+                    IOpenCast cast = null;
+                    if (fieldType.isArray()) {
+                        cast = cxt.getCast(resType, componentType);
+                        if (cast == null || !cast.isImplicit()) {
+                            String message = MessageUtils
+                                .getIncompatibleTypesErrorMessage(getField(), fieldType, resType.getArrayType(1));
+                            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                        }
+                    }
                     // processing array or list values.
                     List<Object> cellValues = getArrayValuesByForeignKey(valuesTable,
                         cxt,
@@ -396,8 +406,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     List<Object> values = CollectionUtils.findAll(cellValues, Objects::nonNull);
                     if (!values.isEmpty()) {
                         int size = values.size();
-                        IOpenClass componentType = getComponentType(fieldType);
-
                         Object v = fieldType.getAggregateInfo().makeIndexedAggregate(componentType, size);
 
                         // Populate result array with values.
@@ -406,10 +414,13 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                         boolean isSet = ClassUtils.isAssignable(fieldType.getInstanceClass(), Set.class);
                         for (int i = 0; i < size; i++) {
                             Object value = values.get(i);
+                            if (cast != null) {
+                                value = cast.convert(value);
+                            }
                             if (isList) {
-                                ((List<Object>) v).set(i, value);
+                                ((List<Object>) v).set(i, cast != null ? cast.convert(value) : value);
                             } else if (isSet) {
-                                ((Set<Object>) v).add(value);
+                                ((Set<Object>) v).add(cast != null ? cast.convert(value) : value);
                             } else {
                                 Array.set(v, i, value);
                             }
