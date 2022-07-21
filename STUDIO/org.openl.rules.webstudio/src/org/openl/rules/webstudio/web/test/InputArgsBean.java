@@ -308,7 +308,8 @@ public class InputArgsBean {
         }
 
         ParameterDeclarationTreeNode parent = currentNode.getParent();
-        Object value = ParameterTreeBuilder.canConstruct(fieldType)
+        Object value = ParameterTreeBuilder
+            .canInstantiate(fieldType)
                                                                     ? fieldType
                                                                         .newInstance(new SimpleVM().getRuntimeEnv())
                                                                     : null;
@@ -361,7 +362,7 @@ public class InputArgsBean {
             Object parameterValue = null;
             try {
                 // No need to instantiate the class with compile error and spam the logs.
-                if (ParameterTreeBuilder.canConstruct(parameterType)) {
+                if (ParameterTreeBuilder.canInstantiate(parameterType)) {
                     parameterValue = parameterType.newInstance(env);
                 }
             } catch (Exception ignored) {

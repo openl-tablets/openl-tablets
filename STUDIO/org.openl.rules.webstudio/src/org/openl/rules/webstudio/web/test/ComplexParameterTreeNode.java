@@ -7,6 +7,7 @@ import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.impl.NumericStringComparator;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
@@ -60,7 +61,6 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
             return new LinkedHashMap<>();
         } else {
             LinkedHashMap<Object, ParameterDeclarationTreeNode> fields = new LinkedHashMap<>();
-            IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
             SortedMap<String, IOpenField> fieldMap = new TreeMap<>(NumericStringComparator.INSTANCE);
             try {
                 for (IOpenField field : getType().getFields()) {
@@ -70,14 +70,13 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                 LOG.debug("Ignored error: ", e);
                 return fields;
             }
-
+            IRuntimeEnv env = new SimpleRulesVM().getRuntimeEnv();
             for (Entry<String, IOpenField> fieldEntry : fieldMap.entrySet()) {
                 IOpenField field = fieldEntry.getValue();
                 if (!field.isConst() && field.isReadable()) {
                     String fieldName = fieldEntry.getKey();
                     Object fieldValue;
                     IOpenClass fieldType = field.getType();
-
                     try {
                         fieldValue = field.get(getValue(), env);
                     } catch (RuntimeException e) {

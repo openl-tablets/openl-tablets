@@ -378,7 +378,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     @Override
     public Collection<IOpenField> getFields() {
-        return new ArrayList<>(fieldMap().values());
+        return Collections.unmodifiableCollection(fieldMap().values());
     }
 
     private IOpenField fixModuleFieldType(IOpenField openField) {
