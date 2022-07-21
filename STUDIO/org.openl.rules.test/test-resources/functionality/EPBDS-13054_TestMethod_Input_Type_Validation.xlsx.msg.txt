@@ -1,0 +1,1 @@
+ERROR: Field 'mySr' type is 'SpreadsheetResultmySpr[]' that is incompatible with type 'org.openl.rules.calc.SpreadsheetResult[]'.

@@ -35,11 +35,10 @@ public class MessageUtils {
     }
 
     public static String getIncompatibleTypesErrorMessage(IOpenField fieldName, IOpenClass type, IOpenClass resType) {
-        return String.format(
-            "Incompatible types: Field '%s' type is '%s' that differs from type of foreign table '%s'.",
+        return String.format("Field '%s' type is '%s' that is incompatible with type '%s'.",
             fieldName,
-            type,
-            resType);
+            type.getName(),
+            resType.getName());
     }
 
     public static String getTableNotFoundErrorMessage(String tableName) {
