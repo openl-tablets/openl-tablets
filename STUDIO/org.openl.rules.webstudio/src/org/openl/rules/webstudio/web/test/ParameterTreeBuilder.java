@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -21,12 +20,12 @@ import org.openl.rules.tableeditor.renderkit.HTMLRenderer;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.ParameterRegistry;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
-import org.openl.vm.SimpleVM;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
 import org.springframework.stereotype.Service;
@@ -54,19 +53,19 @@ public class ParameterTreeBuilder {
             return new CollectionParameterTreeNode(config);
         } else if (isSpreadsheetResult(config.getValue())) {
             return new SpreadsheetResultTreeNode(config);
-        } else if (!config.getType().isSimple()) {
-            return createComplexBeanNode(config);
-        } else {
+        } else if (config.getType().isSimple()) {
             return createSimpleNode(config);
+        } else {
+            return createBeanNode(config);
         }
     }
 
-    private static ParameterDeclarationTreeNode createComplexBeanNode(ParameterRenderConfig config) {
+    private static ParameterDeclarationTreeNode createBeanNode(ParameterRenderConfig config) {
         if (config.getType().getInstanceClass() != null && ClassUtils.isAssignable(config.getType().getInstanceClass(),
             IRulesRuntimeContext.class)) {
             return new ContextParameterTreeNode(config);
         }
-        if (canConstruct(config.getType())) {
+        if (canInstantiate(config.getType())) {
             return new ComplexParameterTreeNode(config);
         } else {
             IString2DataConvertor<?> convertor;
@@ -84,7 +83,7 @@ public class ParameterTreeBuilder {
                     config.getType(),
                     config.getParent());
                 node.setWarnMessage(String.format(
-                    "Cannot construct bean of type '%s'. Make sure that it has public constructor without parameters.",
+                    "Cannot instantiate a bean of type '%s'. Make sure that it has a default constructor.",
                     config.getType().getDisplayName(INamedThing.SHORT)));
                 return node;
             }
@@ -94,16 +93,15 @@ public class ParameterTreeBuilder {
     /**
      * TODO: Refactor. Not a good way to check if it is possible to instantiate
      */
-    public static boolean canConstruct(IOpenClass type) {
-        if (type instanceof SpreadsheetResultOpenClass || type instanceof DomainOpenClass) {
+    public static boolean canInstantiate(IOpenClass type) {
+        if (type instanceof DomainOpenClass) {
             return false;
         }
         if (type.getInstanceClass() == null) {
             return false;
         }
-
         try {
-            type.newInstance(new SimpleVM().getRuntimeEnv());
+            type.newInstance(new SimpleRulesVM().getRuntimeEnv());
             return true;
         } catch (Exception | LinkageError ex) {
             return false;
@@ -158,7 +156,7 @@ public class ParameterTreeBuilder {
                     .keyField(param.getKeyField())
                     .build();
 
-                return createComplexBeanNode(config).getDisplayedValue();
+                return createBeanNode(config).getDisplayedValue();
             }
         }
 
@@ -195,7 +193,7 @@ public class ParameterTreeBuilder {
     }
 
     public static boolean isSpreadsheetResult(Object value) {
-        return value != null && ClassUtils.isAssignable(value.getClass(), SpreadsheetResult.class);
+        return (value instanceof SpreadsheetResult) && (((SpreadsheetResult) value).getLogicalTable() != null);
     }
 
     public String formattedResult(Object value) {
