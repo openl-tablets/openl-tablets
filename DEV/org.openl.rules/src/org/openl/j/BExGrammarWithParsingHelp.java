@@ -5,8 +5,11 @@ import org.openl.grammar.bexgrammar.ParseException;
 import org.openl.grammar.bexgrammar.Token;
 import org.openl.grammar.bexgrammar.TokenMgrError;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.util.text.TextInterval;
 
 public class BExGrammarWithParsingHelp extends BExGrammar {
+
+    public static final String ENCOUNTERED_PREFIX_EMPTY = "Encountered \"\"";
 
     private static String addEscapes(String str) {
         StringBuilder retval = new StringBuilder();
@@ -63,20 +66,24 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
                     break;
             }
         } catch (ParseException pe) {
-
             SyntaxNodeException sne = reparseTokens();
             if (sne == null) {
-                sne = new org.openl.syntax.exception.SyntaxNodeException(pe.getMessage(),
-                    null,
-                    pos(pe.currentToken),
-                    module);
+                boolean emptyToken = pe.getMessage().startsWith(ENCOUNTERED_PREFIX_EMPTY);
+                String msg = pe.getMessage();
+                TextInterval pos = pos(pe.currentToken);
+                if (emptyToken && pe.currentToken.next != null) {
+                    msg = "Encountered \"" + pe.currentToken.next + "\"" + msg
+                        .substring(ENCOUNTERED_PREFIX_EMPTY.length());
+                    pos = pos(pe.currentToken.next);
+                }
+                sne = new org.openl.syntax.exception.SyntaxNodeException(msg, null, pos, module);
             }
             syntaxError = sne;
         } catch (TokenMgrError err) {
             org.openl.util.text.TextInterval loc = pos(err.getMessage(), token);
 
             syntaxError = new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(), null, loc, module);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             syntaxError = new SyntaxNodeException("Failed to parse an expression.", e, pos(token), module);
         }
     }
