@@ -9,7 +9,9 @@ import org.openl.util.text.TextInterval;
 
 public class BExGrammarWithParsingHelp extends BExGrammar {
 
-    public static final String ENCOUNTERED_PREFIX_EMPTY = "Encountered \"\"";
+    private static final String ENCOUNTERED_PREFIX_EMPTY = "Encountered \"\"";
+    private static final String WAS_EXPECTING = "Was expecting:";
+    private static final String WAS_EXPECTING_ONE_OF = "Was expecting one of:";
 
     private static String addEscapes(String str) {
         StringBuilder retval = new StringBuilder();
@@ -68,12 +70,13 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
         } catch (ParseException pe) {
             SyntaxNodeException sne = reparseTokens();
             if (sne == null) {
-                boolean emptyToken = pe.getMessage().startsWith(ENCOUNTERED_PREFIX_EMPTY);
                 String msg = pe.getMessage();
                 TextInterval pos = pos(pe.currentToken);
-                if (emptyToken && pe.currentToken.next != null) {
+                if (msg.startsWith(ENCOUNTERED_PREFIX_EMPTY) && pe.currentToken.next != null) {
                     msg = "Encountered \"" + pe.currentToken.next + "\"" + msg
                         .substring(ENCOUNTERED_PREFIX_EMPTY.length());
+                    pos = pos(pe.currentToken.next);
+                } else if (msg.contains(WAS_EXPECTING) || msg.contains(WAS_EXPECTING_ONE_OF)) {
                     pos = pos(pe.currentToken.next);
                 }
                 sne = new SyntaxNodeException(msg, null, pos, module);
