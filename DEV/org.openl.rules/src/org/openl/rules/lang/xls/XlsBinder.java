@@ -556,10 +556,11 @@ public class XlsBinder implements IOpenBinder {
                     .getNodeType()) || XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType());
     }
 
-    private String getSprResTypeNameIfCustomSpreadsheetResultTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
+    private static String getSprResTypeNameIfCustomSpreadsheetResultTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
         if (XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType()) || XlsNodeTypes.XLS_DT
             .equals(tableSyntaxNode.getNodeType())) {
             String code = tableSyntaxNode.getHeader().getHeaderToken().getModule().getCode();
+            code = code.replaceAll("[\\t\\n\\r\\f]", " ");
             int x = code.indexOf("(");
             if (x < 1) {
                 return null;
@@ -569,7 +570,7 @@ public class XlsBinder implements IOpenBinder {
             if (y < 0 || y == x1.length() - 1) {
                 return null;
             }
-            String tableName = x1.substring(y + 1);
+            String tableName = x1.substring(y + 1).trim();
             if (x1.contains("`")) {
                 return null;
             }
