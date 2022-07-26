@@ -22,7 +22,7 @@ import com.rits.cloning.IInstantiationStrategy;
  */
 public class OpenLCloner extends Cloner {
 
-    protected OpenLCloner() {
+    public OpenLCloner() {
         super(new ObjenesisInstantiationStrategy());
         dontCloneClasses();
     }
