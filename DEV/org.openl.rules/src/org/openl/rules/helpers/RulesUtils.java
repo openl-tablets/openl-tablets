@@ -5,13 +5,6 @@
  */
 package org.openl.rules.helpers;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.ObjectStreamClass;
-import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
@@ -37,11 +30,9 @@ import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenLUserDetailedRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
-import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.types.impl.StaticDomainOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.DateTool;
-import org.openl.util.IOUtils;
 import org.openl.util.math.MathUtils;
 
 /**
@@ -3245,45 +3236,19 @@ public final class RulesUtils {
         return null;
     }
 
-    @SuppressWarnings("unchecked")
+    @MethodSearchTuner(wrapper = CopyMethodCallerWrapper.class)
     public static <T> T copy(T origin) {
-        // Create new instance every time because of the issue with updating a module in WebStudio.
-        // It is needed to investigate class loading/unloading mechanism.
         if (origin == null) {
             return null;
         }
-
-        final Class<?> clazz = origin.getClass();
-        if (clazz.isArray() && Serializable.class
-            .isAssignableFrom(clazz.getComponentType()) || !clazz.isArray() && origin instanceof Serializable) {
-            ObjectOutputStream oos = null;
-            ObjectInputStream ois = null;
-            try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream(512);
-                oos = new ObjectOutputStream(baos);
-                oos.writeObject(origin);
-
-                ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-                ois = new ObjectInputStream(bais) {
-                    @Override
-                    protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-                        try {
-                            return Class.forName(desc.getName(), false, clazz.getClassLoader());
-                        } catch (ClassNotFoundException cnfe) {
-                            // delegate to super class loader which can resolve primitives
-                            return super.resolveClass(desc);
-                        }
-                    }
-                };
-                return (T) ois.readObject();
-            } catch (Exception unused) {
-                // OK lets use cloner
-            } finally {
-                IOUtils.closeQuietly(oos);
-                IOUtils.closeQuietly(ois);
-            }
-        }
-        // FIXME: Needless memory consumption - no needs to create 'cloner' instance every time.
-        return new OpenLArgumentsCloner().deepClone(origin);
+        /*
+         * We cannot use one cloner for all OpenL projects, because it may work incorrectly or can be a reason of memory
+         * leak. Cloner on first deepClone builds a cache, that uses all classes from the passed object. Creating a new
+         * cloner on each method call solves memory leak problem, but may show a pure performance, because the system
+         * doesn't know how to clone an object and resolve this data on each time the deepClone method call first time.
+         * This solution creates one cloner for each linked method and each method call reuses it.
+         */
+        CopyMethodDetails copyMethodDetails = (CopyMethodDetails) MethodDetailsMethodCaller.getMethodDetails();
+        return copyMethodDetails.getCloner().deepClone(origin);
     }
 }

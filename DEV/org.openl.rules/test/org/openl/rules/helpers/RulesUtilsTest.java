@@ -770,6 +770,8 @@ public class RulesUtilsTest {
         Double testModDouble(Double number, Double divisor);
 
         double testModDoubleType(double number, double divisor);
+
+        Object copyObject(Object o);
     }
 
     @BeforeClass
@@ -4453,15 +4455,15 @@ public class RulesUtilsTest {
 
     @Test
     public void testCopy() {
-        assertEquals(RulesUtils.copy("1.1"), "1.1");
-        assertEquals(RulesUtils.copy(1.1), Double.valueOf(1.1));
+        assertEquals(instance.copyObject("1.1"), "1.1");
+        assertEquals(instance.copyObject(1.1), Double.valueOf(1.1));
 
         Some s = new Some();
         s.str = "str1";
         s.num = 10;
         s.num2 = 12;
         s.obj = s;
-        Some copy = RulesUtils.copy(s);
+        Some copy = (Some) instance.copyObject(s);
         assertNotSame(copy, s);
         assertSame(s.obj, s);
         assertSame(copy.obj, copy);
@@ -4480,7 +4482,7 @@ public class RulesUtilsTest {
     @Test
     public void testCopyObject() {
         MyClass expected = createNew();
-        MyClass actual = RulesUtils.copy(expected);
+        MyClass actual = (MyClass) instance.copyObject(expected);
 
         assertNotSame(expected, actual);
         assertEquals(expected, actual);
@@ -4489,7 +4491,7 @@ public class RulesUtilsTest {
     @Test
     public void testCopyListObjects() {
         ArrayList<MyClass> expected = new ArrayList<>(Arrays.asList(createNew(), createNew()));
-        List<MyClass> actual = RulesUtils.copy(expected);
+        List<MyClass> actual = (List<MyClass>) instance.copyObject(expected);
 
         assertNotSame(expected, actual);
         assertListEquals(expected, actual);
@@ -4498,7 +4500,7 @@ public class RulesUtilsTest {
     @Test
     public void testCopyArrayObject() {
         MyClass[] expected = Arrays.asList(createNew(), createNew()).toArray(new MyClass[0]);
-        MyClass[] actual = RulesUtils.copy(expected);
+        MyClass[] actual = (MyClass[]) instance.copyObject(expected);
 
         assertNotSame(expected, actual);
         assertArraysEquals(expected, actual);
@@ -4507,7 +4509,7 @@ public class RulesUtilsTest {
     @Test
     public void testCopyNotSerializedObj() {
         NotSerial[] expected = Arrays.asList(new NotSerial(), new NotSerial()).toArray(new NotSerial[0]);
-        NotSerial[] actual = RulesUtils.copy(expected);
+        NotSerial[] actual = (NotSerial[]) instance.copyObject(expected);
 
         assertNotSame(expected, actual);
         assertArraysEquals(expected, actual);
