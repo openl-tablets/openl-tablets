@@ -29,7 +29,7 @@ import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
 /**
- * Verifies if resulted archive is compatible with Rules Engine
+ * Verifies if resulted archive is compatible with the OpenL Tablets Rules Engine
  *
  * @author Vladyslav Pikus
  * @since 5.24.0

@@ -25,6 +25,8 @@ OpenL Maven Plugin
 
   * {{{./package-mojo.html}openl:package}} packages the OpenL Tablets project in the Maven artifact.
 
+  * {{{./verify-mojo.html}openl:verify}} checks if the packaged OpenL Tablets project is compatible with the OpenL Tablets Rules Engine.
+
   * {{{./help-mojo.html}openl:help}} displays help information on openl-maven-plugin.
 
 * Usage
