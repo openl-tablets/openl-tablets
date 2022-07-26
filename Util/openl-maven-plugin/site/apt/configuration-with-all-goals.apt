@@ -46,6 +46,7 @@ Configuration with all OpenL Maven Plugin Goals
                       <goal>compile</goal>
                       <goal>test</goal>
                       <goal>package</goal>
+                      <goal>verify</goal>
                   </goals>
               </execution>
           </executions>
