@@ -560,7 +560,7 @@ public class XlsBinder implements IOpenBinder {
         if (XlsNodeTypes.XLS_SPREADSHEET.equals(tableSyntaxNode.getNodeType()) || XlsNodeTypes.XLS_DT
             .equals(tableSyntaxNode.getNodeType())) {
             String code = tableSyntaxNode.getHeader().getHeaderToken().getModule().getCode();
-            code = code.replaceAll("[\\t\\n\\r\\f]", " ");
+            code = code.replaceAll("\\s+", " ");
             int x = code.indexOf("(");
             if (x < 1) {
                 return null;
