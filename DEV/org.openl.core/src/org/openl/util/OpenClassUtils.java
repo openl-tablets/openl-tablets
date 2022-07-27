@@ -18,6 +18,21 @@ public final class OpenClassUtils {
     }
 
     /**
+     * The method calculates the dimension of the given type.
+     *
+     * @param type The type to calculate the dimension. If the parameter is null, the method fails with NPE.
+     * @return the dimension
+     */
+    public static int getDimension(IOpenClass type) {
+        int dim = 0;
+        while (type.isArray()) {
+            type = type.getComponentClass();
+            dim++;
+        }
+        return dim;
+    }
+
+    /**
      * If provided open class is a primitive then the method returns wrapper class for the provided primitive class,
      * otherwise returns provided object as input parameter.
      *

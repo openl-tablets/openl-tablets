@@ -35,6 +35,11 @@ public class CastFactoryTest {
         javaCastTest(int.class, int[].class);
         javaCastTest(int.class, Integer[].class);
         javaCastTest(Boolean.class, Object[].class);
+        javaCastTest(Integer[].class, Integer[][].class);
+        javaDownCastTest(Object.class, Object[].class);
+        javaDownCastTest(Object[].class, Object[][].class);
+        javaDownCastTest(Object[].class, Integer[][].class);
+        javaCastTest(boolean.class, Object[].class);
     }
 
     @Test
@@ -222,9 +227,6 @@ public class CastFactoryTest {
         cast = factory.getCast(JavaOpenClass.getOpenClass(Apple[][].class),
             JavaOpenClass.getOpenClass(Integer[][].class));
         assertNull(cast);
-
-        cast = factory.getCast(JavaOpenClass.getOpenClass(Apple[].class), JavaOpenClass.getOpenClass(Object[][].class));
-        assertNull(cast);
     }
 
     void javaCastTest(Class<?> from, Class<?> to) {
@@ -233,6 +235,12 @@ public class CastFactoryTest {
         Assert.assertNotNull(cast);
         Assert.assertTrue(cast.isImplicit());
 
+    }
+
+    void javaDownCastTest(Class<?> from, Class<?> to) {
+        IOpenCast cast = factory.getCast(JavaOpenClass.getOpenClass(from), JavaOpenClass.getOpenClass(to));
+        Assert.assertNotNull(cast);
+        Assert.assertTrue(cast instanceof JavaDownCast);
     }
 
     void javaArrayCastTest(Class<?> from, Class<?> to) {

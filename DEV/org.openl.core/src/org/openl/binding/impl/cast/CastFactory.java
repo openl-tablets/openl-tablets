@@ -113,8 +113,8 @@ public class CastFactory implements ICastFactory {
 
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
-        Iterable<IOpenMethod> autocastMethods = methodFactory.methods(AUTO_CAST_METHOD_NAME);
-        return findClosestClass(openClass1, openClass2, this, autocastMethods);
+        Iterable<IOpenMethod> autoCastMethods = methodFactory.methods(AUTO_CAST_METHOD_NAME);
+        return findClosestClass(openClass1, openClass2, this, autoCastMethods);
     }
 
     public static IOpenClass findClosestClass(IOpenClass openClass1,
@@ -161,7 +161,11 @@ public class CastFactory implements ICastFactory {
 
         IOpenCast cast1To2 = casts.getCast(openClass1, openClass2);
         IOpenCast cast2To1 = casts.getCast(openClass2, openClass1);
-        if (cast1To2 != null && cast2To1 != null) {
+        if (cast1To2 != null && cast1To2.isImplicit() && cast2To1 == null) {
+            return openClass2;
+        } else if (cast2To1 != null && cast2To1.isImplicit() && cast1To2 == null) {
+            return openClass1;
+        } else if (cast1To2 != null && cast2To1 != null) {
             if (!cast1To2.isImplicit() && cast2To1.isImplicit()) {
                 return openClass1;
             }
@@ -704,21 +708,23 @@ public class CastFactory implements ICastFactory {
     }
 
     private IOpenCast findOneElementArrayCast(IOpenClass from, IOpenClass to) {
-        if (!from.isArray() && to.isArray() && !to.getComponentClass().isArray()) {
-            IOpenClass componentClass = to.getComponentClass();
-            IOpenCast cast = getCast(from, componentClass);
-            if (cast != null) {
-                return new OneElementArrayCast(componentClass, cast);
+        // if "from" is assignable from "to" then downcast is preferable
+        if (to.isArray() && !from.isAssignableFrom(to)) {
+            int dimFrom = OpenClassUtils.getDimension(from);
+            int dimTo = OpenClassUtils.getDimension(to);
+            if (dimTo - dimFrom == 1) {
+                IOpenClass componentClass = to.getComponentClass();
+                IOpenCast cast = getCast(from, componentClass);
+                if (cast != null) {
+                    return new OneElementArrayCast(componentClass, cast);
+                }
             }
         }
         return null;
     }
 
     public ICastFactory getGlobalCastFactory() {
-        if (globalCastFactory == null) {
-            return this;
-        }
-        return globalCastFactory;
+        return Objects.requireNonNullElse(globalCastFactory, this);
     }
 
     public void setGlobalCastFactory(ICastFactory globalCastFactory) {
