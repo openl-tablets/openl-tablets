@@ -3143,23 +3143,25 @@ Content-Type: application/json
           ]
         ],
         "Value_Step8": [
-          "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "Step1": 1.0
+          }, {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "Step1": 1.0
+          }
+        ],
+        "Value_Step9": [
+          [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
             {
               "Step1": 1.0
             }, {
               "Step1": 1.0
             }
           ]
-        ],
-        "Value_Step9": [
-          "[[Lorg.openl.generated.spreadsheetresults.Spr1;", [
-            [
-              {
-                "Step1": 1.0
-              }, {
-              "Step1": 1.0
-            }
-            ], [
+          ], [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
               {
                 "Step1": 1.0
               }, {
@@ -3321,23 +3323,25 @@ Content-Type: application/json
         ]
       ],
       "Value_Step8": [
-        "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
+        {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "Step1": 1.0
+        }, {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "Step1": 1.0
+        }
+      ],
+      "Value_Step9": [
+        [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
           {
             "Step1": 1.0
           }, {
             "Step1": 1.0
           }
         ]
-      ],
-      "Value_Step9": [
-        "[[Lorg.openl.generated.spreadsheetresults.Spr1;", [
-          [
-            {
-              "Step1": 1.0
-            }, {
-            "Step1": 1.0
-          }
-          ], [
+        ], [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
             {
               "Step1": 1.0
             }, {
@@ -3501,23 +3505,25 @@ Content-Type: application/json
           ]
         ],
         "Value_Step8": [
-          "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "Step1": 1.0
+          }, {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "Step1": 1.0
+          }
+        ],
+        "Value_Step9": [
+          [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
             {
               "Step1": 1.0
             }, {
               "Step1": 1.0
             }
           ]
-        ],
-        "Value_Step9": [
-          "[[Lorg.openl.generated.spreadsheetresults.Spr1;", [
-            [
-              {
-                "Step1": 1.0
-              }, {
-              "Step1": 1.0
-            }
-            ], [
+          ], [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
               {
                 "Step1": 1.0
               }, {
@@ -3679,23 +3685,25 @@ Content-Type: application/json
           ]
         ],
         "Value_Step8": [
-          "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
+          {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "Step1": 1.0
+          }, {
+            "@class": "org.openl.generated.spreadsheetresults.Spr1",
+            "Step1": 1.0
+          }
+        ],
+        "Value_Step9": [
+          [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
             {
               "Step1": 1.0
             }, {
               "Step1": 1.0
             }
           ]
-        ],
-        "Value_Step9": [
-          "[[Lorg.openl.generated.spreadsheetresults.Spr1;", [
-            [
-              {
-                "Step1": 1.0
-              }, {
-              "Step1": 1.0
-            }
-            ], [
+          ], [
+            "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
               {
                 "Step1": 1.0
               }, {
@@ -3861,23 +3869,25 @@ Content-Type: application/json
         ]
       ],
       "Value_Step8": [
-        "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
+        {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "Step1": 1.0
+        }, {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "Step1": 1.0
+        }
+      ],
+      "Value_Step9": [
+        [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
           {
             "Step1": 1.0
           }, {
             "Step1": 1.0
           }
         ]
-      ],
-      "Value_Step9": [
-        "[[Lorg.openl.generated.spreadsheetresults.Spr1;", [
-          [
-            {
-              "Step1": 1.0
-            }, {
-            "Step1": 1.0
-          }
-          ], [
+        ], [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
             {
               "Step1": 1.0
             }, {
@@ -4039,23 +4049,25 @@ Content-Type: application/json
         ]
       ],
       "Value_Step8": [
-        "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
+        {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "Step1": 1.0
+        }, {
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "Step1": 1.0
+        }
+      ],
+      "Value_Step9": [
+        [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
           {
             "Step1": 1.0
           }, {
             "Step1": 1.0
           }
         ]
-      ],
-      "Value_Step9": [
-        "[[Lorg.openl.generated.spreadsheetresults.Spr1;", [
-          [
-            {
-              "Step1": 1.0
-            }, {
-            "Step1": 1.0
-          }
-          ], [
+        ], [
+          "[Lorg.openl.generated.spreadsheetresults.Spr1;", [
             {
               "Step1": 1.0
             }, {
@@ -5959,13 +5971,14 @@ Content-Type: application/json
   "Step23": [],
   "AAA": 0.0,
   "RowNames": [
-    "Step1", "Step2", "Step3", "Step4", "Step5", "Step6", "Step7", "Step8", "Step9", "Step10", "Step11", "Step13", "Step14", "Step15", "Step16",
-    "Step17", "Step18", "Step19", "Step20", "Step21", "Step22", "Step23", "AAA"
+    "Step1", "Step2", "Step3", "Step4", "Step5", "Step6", "Step7", "Step8", "Step9", "Step10", "Step11", "Step13",
+    "Step14", "Step15", "Step16", "Step17", "Step18", "Step19", "Step20", "Step21", "Step22", "Step23", "AAA"
   ],
   "ColumnNames": ["Value", null],
   "TableDetails": [
-    ["Step1", null], ["Step2", null], ["Step3", null], ["Step4", null], ["Step5", null], ["Step6", null], ["Step7", null], ["Step8", null],
-    ["Step9", null], ["Step10", null], ["Step11", null], ["Step13", null], ["Step14", null], ["Step15", null], ["Step16", null],
-    ["Step17", null], ["Step18", null], ["Step19", null], ["Step20", null], ["Step21", null], ["Step22", null], ["Step23", null], ["AAA", null]
+    ["Step1", null], ["Step2", null], ["Step3", null], ["Step4", null], ["Step5", null], ["Step6", null],
+    ["Step7", null], ["Step8", null], ["Step9", null], ["Step10", null], ["Step11", null], ["Step13", null],
+    ["Step14", null], ["Step15", null], ["Step16", null], ["Step17", null], ["Step18", null], ["Step19", null],
+    ["Step20", null], ["Step21", null], ["Step22", null], ["Step23", null], ["AAA", null]
   ]
 }
