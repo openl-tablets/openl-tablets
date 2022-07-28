@@ -13,7 +13,7 @@ public class UserManagementTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.startWithWebXml("users");
+        server = JettyServer.start("users");
         client = server.client();
     }
 

@@ -13,7 +13,7 @@ public class OldRepositoryApiTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.startWithWebXml("wcsadmin");
+        server = JettyServer.start("wcsadmin");
         client = server.client();
     }
 

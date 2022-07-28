@@ -17,7 +17,7 @@ public class WorkspaceCompileServiceTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.startWithWebXml("wcs");
+        server = JettyServer.start("wcs");
         client = server.client();
     }
 

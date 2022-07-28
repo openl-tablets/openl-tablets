@@ -13,7 +13,7 @@ public class GroupsRestTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.startWithWebXml("groups");
+        server = JettyServer.start("groups");
         client = server.client();
     }
 

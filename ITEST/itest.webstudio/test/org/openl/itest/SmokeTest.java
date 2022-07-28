@@ -13,7 +13,7 @@ public class SmokeTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.startWithWebXml("smoke");
+        server = JettyServer.start("smoke");
         client = server.client();
     }
 

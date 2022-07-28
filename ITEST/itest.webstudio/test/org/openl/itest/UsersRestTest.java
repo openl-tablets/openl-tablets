@@ -52,7 +52,7 @@ public class UsersRestTest {
         h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists", "-tcpPort", "9111");
         h2Server.start();
 
-        server = JettyServer.startWithWebXml("usr");
+        server = JettyServer.start("usr");
         client = server.client();
 
         smtpPort = SocketUtils.findAvailableTcpPort(1000);

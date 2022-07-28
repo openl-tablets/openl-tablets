@@ -12,7 +12,7 @@ public class TagsConfigTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.startWithWebXml("simple");
+        server = JettyServer.start("simple");
         client = server.client();
     }
 

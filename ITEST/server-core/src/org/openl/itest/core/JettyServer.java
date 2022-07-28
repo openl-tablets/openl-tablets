@@ -31,7 +31,7 @@ public class JettyServer {
 
     private final Server server;
 
-    private JettyServer(String explodedWar, boolean sharedClassloader, boolean useWebXml, String[] profiles) throws IOException {
+    private JettyServer(String explodedWar, boolean sharedClassloader, String[] profiles) throws IOException {
         this.server = new Server(0);
         this.server.setStopAtShutdown(true);
         WebAppContext webAppContext = new WebAppContext();
@@ -67,7 +67,7 @@ public class JettyServer {
      * @param profiles Spring profiles which are activated
      */
     public static JettyServer start(String... profiles) throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, false, profiles);
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, profiles);
         jetty.server.start();
         return jetty;
     }
@@ -77,18 +77,7 @@ public class JettyServer {
      * application.
      */
     public static JettyServer startSharingClassLoader() throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), true, false, null);
-        jetty.server.start();
-        return jetty;
-    }
-
-    /**
-     * Temporary for WebStudio only! Start an application with configuration defined in web.xml.
-     *
-     * @param profiles Spring profiles which are activated
-     */
-    public static JettyServer startWithWebXml(String... profiles) throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, true, profiles);
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), true, null);
         jetty.server.start();
         return jetty;
     }
@@ -113,7 +102,7 @@ public class JettyServer {
     public static void test(String profile, boolean waitUntilReady) throws Exception {
         String[] profiles = profile == null ? new String[0] : new String[] { profile };
         String testFolder = profile == null ? "test-resources" : ("test-resources-" + profile);
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, false, profiles);
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, profiles);
 
         final Locale DEFAULT_LOCALE = Locale.getDefault();
         final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();

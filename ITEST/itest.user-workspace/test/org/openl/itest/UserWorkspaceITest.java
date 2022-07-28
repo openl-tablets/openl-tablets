@@ -13,7 +13,7 @@ public class UserWorkspaceITest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.startWithWebXml("dtr");
+        server = JettyServer.start("dtr");
         client = server.client();
     }
 

@@ -13,7 +13,7 @@ public class WizardTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.startWithWebXml("wizard");
+        server = JettyServer.start("wizard");
         client = server.client();
     }
 
