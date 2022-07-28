@@ -17,7 +17,7 @@ public class WorkspaceCompileServiceTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.start("wcs");
+        server = JettyServer.start("simple");
         client = server.client();
     }
 
@@ -53,11 +53,6 @@ public class WorkspaceCompileServiceTest {
         String projectError = client.getForObject("/web/message/" + tableErrorInfo.errors[0].id + "/stacktrace",
             String.class, HttpStatus.OK);
         assertTrue(projectError.startsWith("Error: There can be only one active table."));
-    }
-
-    @Test
-    public void EPBDS_12366() {
-        client.test("test-resources/EPBDS-12366");
     }
 
     @AfterClass

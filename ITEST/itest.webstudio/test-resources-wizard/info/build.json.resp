@@ -1,0 +1,16 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "openl.build.number": "*",
+  "build-branch": "master",
+  "openl.site": "*",
+  "foo": "bar",
+  "openl.build.date": "*",
+  "git-sha-1": "ec524d97",
+  "openl.start.milli": "*",
+  "openl.version": "*",
+  "openl.start.time": "*",
+  "openl.email": "openltablets@eisgroup.com",
+  "openl.start.hash": "*"
+}

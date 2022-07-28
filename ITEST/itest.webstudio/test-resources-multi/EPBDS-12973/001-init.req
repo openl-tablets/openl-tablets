@@ -1,0 +1,7 @@
+POST /rest/config/save HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: application/json
+
+{
+  "repository.design.uri": "jdbc:h2:mem:epbds-12973;DB_CLOSE_DELAY=-1"
+}

@@ -1,0 +1,2 @@
+GET /web/public/notification.txt HTTP/1.1
+
