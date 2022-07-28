@@ -1651,7 +1651,6 @@ option[value=""]:disabled + option[value=""]:disabled {
     text-decoration: none;
     width: 16px;
     height: 16px;
-    text-shadow: 1px 1px 3px;
     line-height: 16px;
 }
 
