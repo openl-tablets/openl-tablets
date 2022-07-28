@@ -41,8 +41,15 @@ final class Comparators {
     }
 
     static void txt(String message, byte[] expected, byte[] actual) {
-        String regExp = getRegExp(new String(expected, StandardCharsets.UTF_8));
-        boolean matches = trimExtraSpaces(new String(actual, StandardCharsets.UTF_8)).matches(regExp);
+        txt(message, new String(expected, StandardCharsets.UTF_8), new String(actual, StandardCharsets.UTF_8));
+    }
+
+    static void txt(String message, String expected, String actual) {
+        if (actual == null) {
+            assertEquals(message, expected, actual);
+        }
+        String regExp = getRegExp(expected);
+        boolean matches = trimExtraSpaces(actual).matches(regExp);
         if (!matches) {
             fail(message);
         }

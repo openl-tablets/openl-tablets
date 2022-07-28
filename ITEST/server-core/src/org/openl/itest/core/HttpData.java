@@ -138,7 +138,7 @@ class HttpData {
             for (Map.Entry<String, String> r : expected.headers.entrySet()) {
                 String headerName = r.getKey();
                 String value = r.getValue();
-                assertEquals(headerName, value, this.headers.get(headerName));
+                Comparators.txt(headerName, value, this.headers.get(headerName));
             }
 
             if (expected.body == null) {
@@ -246,7 +246,6 @@ class HttpData {
                 if (entries.getKey() != null) {
                     if (entries.getKey().equals("Set-Cookie")) {
                         cookie = String.join("; ", entries.getValue());
-                        continue;
                     }
                     headers.put(entries.getKey(), String.join(", ", entries.getValue()));
                 }
