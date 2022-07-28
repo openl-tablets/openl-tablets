@@ -1608,9 +1608,7 @@ option[value=""]:disabled + option[value=""]:disabled {
 }
 
 .lock-icon:after {
-    content: "🔒";
-    color: #aaa;
-    font-weight: bold;
+    content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-2 -2 36 36' stroke='%23666'%3E%3Cpath fill='%23ccc' d='m6 15v-5a1 1 0 0120 0v5h-4v-5a1 1 0 00-12 0v5z'/%3E%3Cpath fill='%23fc4' d='m27 15a2 2 0 012 2v13a2 2 0 01-2 2h-22a2 2 0 01-2-2v-13a2 2 0 012-2z'/%3E%3C/svg%3E");
 }
 
 .warning-icon:after {
