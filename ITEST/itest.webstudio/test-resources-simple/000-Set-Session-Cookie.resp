@@ -1,4 +1,4 @@
 HTTP/1.1 200 OK
-Set-Cookie: JSESSIONID=***; Path=/; Secure; HttpOnly
+Set-Cookie: JSESSIONID=***; Path=/; HttpOnly
 
 ***

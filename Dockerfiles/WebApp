@@ -26,7 +26,7 @@ RUN set -euxv ; \
 JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"\n\
 exec java -Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
 $JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
--jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy --lib="$OPENL_LIB/*.jar" "$@"\n\
+-jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy,http-forwarded --lib="$OPENL_LIB/*.jar" "$@"\n\
 ' >> $OPENL_DIR/start.sh; \
     chmod +x $OPENL_DIR/start.sh; \
 \
