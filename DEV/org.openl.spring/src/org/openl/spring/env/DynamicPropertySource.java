@@ -14,10 +14,11 @@ import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import org.springframework.core.env.EnumerablePropertySource;
+
 import org.openl.info.OpenLVersion;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
-import org.springframework.core.env.EnumerablePropertySource;
 
 /**
  * Loads always actual properties from an external file located in ${openl.home} directory.
@@ -32,14 +33,14 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
 
     private static final String PROP_VERSION = ".version";
 
-    private final RawPropertyResolver resolver;
+    private final FirewallPropertyResolver resolver;
     private final String appName;
 
     private volatile Properties settings;
     private volatile String version;
     private volatile long timestamp;
 
-    public DynamicPropertySource(String appName, RawPropertyResolver resolver) {
+    public DynamicPropertySource(String appName, FirewallPropertyResolver resolver) {
         super(PROPS_NAME);
         this.resolver = resolver;
         this.appName = appName;
