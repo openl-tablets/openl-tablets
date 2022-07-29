@@ -22,11 +22,13 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentProjectItem;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.dtr.impl.ProjectInfo;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.Hidden;
 
 @RestController
 @RequestMapping(value = "/user-workspace", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -123,7 +127,9 @@ public class ProjectManagementController {
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!projectStateValidator.canClose(project)) {
+            if (project.isDeleted()) {
+                throw new ConflictException("project.close.deleted.message", name);
+            } else if (!projectStateValidator.canClose(project)) {
                 throw new ConflictException("project.close.conflict.message");
             }
             ProjectHistoryService.deleteHistory(project.getBusinessName());
@@ -136,7 +142,7 @@ public class ProjectManagementController {
             project.close();
             webStudio.reset();
         } catch (ProjectException | IOException e) {
-            throw new NotFoundException(name);
+            throw new NotFoundException("project.message", name);
         }
     }
 
@@ -150,17 +156,17 @@ public class ProjectManagementController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void open(@DesignRepository("repo-name") Repository repo,
             @PathVariable("proj-name") String name,
-            @RequestParam("open-dependencies") boolean openDependencies,
+            @RequestParam(value = "open-dependencies", required = false, defaultValue = "false") boolean openDependencies,
             HttpSession session) {
-        UserWorkspace userWorkspace = getUserWorkspace();
         WebStudio webStudio = WebStudioUtils.getWebStudio(session);
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         try {
-            RulesProject project = userWorkspace.getProject(repo.getId(), name);
-            if (!projectStateValidator.canOpen(project)) {
+            RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
+            if (project.isDeleted()) {
+                throw new ConflictException("project.open.deleted.message", name);
+            } else if (!projectStateValidator.canOpen(project)) {
                 throw new ConflictException("project.open.conflict.message");
-            }
-            if (userWorkspace.isOpenedOtherProject(project)) {
+            } else if (getUserWorkspace().isOpenedOtherProject(project)) {
                 throw new ConflictException("open.duplicated.project");
             }
             project.open();
@@ -184,6 +190,7 @@ public class ProjectManagementController {
      * @param items items to deploy.
      */
     @PostMapping("/{repo-name}/projects/{proj-name}/deploy")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deploy(@DesignRepository("repo-name") Repository repo,
             @PathVariable("proj-name") String name,
             @RequestParam("deploy-repo-name") String deployRepoName,
@@ -192,6 +199,9 @@ public class ProjectManagementController {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
             if (!projectStateValidator.canDeploy(project)) {
+                if (project.isDeleted()) {
+                    throw new ConflictException("project.deploy.deleted.message");
+                }
                 throw new ConflictException("project.deploy.conflict.message");
             }
             List<DeploymentProjectItem> deploymentProjectItems = projectDeploymentService
@@ -205,6 +215,36 @@ public class ProjectManagementController {
                     deploymentManager.deploy(deploymentProject, deployRepoName);
                 }
             }
+        } catch (ProjectException e) {
+            throw new NotFoundException("project.message", name);
+        }
+    }
+
+    /**
+     * WARNING: Currently it's used only for testing purpose. Should be finalized before using in real life
+     * @see org.openl.rules.webstudio.web.repository.RepositoryTreeController#deleteNode()
+     */
+    @Hidden
+    @DeleteMapping(value = "/{repo-name}/projects/{proj-name}/delete", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED) // change status after full implementation
+    public void delete(@DesignRepository("repo-name") Repository repo,
+            @PathVariable("proj-name") String name,
+            @RequestParam(value = "comment", required = false) final String comment) {
+        SecurityChecker.allow(Privileges.DELETE_PROJECTS);
+        try {
+            RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
+            if (!projectStateValidator.canDelete(project)) {
+                if (project.getDesignRepository().supports().branches() && project.getVersion() == null && !project
+                    .isLocalOnly()) {
+                    throw new ConflictException("project.delete.branch.message");
+                }
+                if (project.isLocked() || project.isLockedByMe()) {
+                    throw new ConflictException("project.delete.locked.message");
+                }
+                throw new ConflictException("project.delete.message");
+            }
+            // TODO: Project should be closed for all users
+            project.delete(comment);
         } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
         }

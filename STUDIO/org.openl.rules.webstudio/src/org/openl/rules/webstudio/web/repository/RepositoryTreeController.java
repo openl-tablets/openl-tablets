@@ -1691,6 +1691,10 @@ public class RepositoryTreeController {
     public String openProjectVersion() {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
+            if (repositoryProject == null) {
+                WebStudioUtils.addErrorMessage("Project version is not selected.");
+                return null;
+            }
             if (!UiConst.TYPE_DEPLOYMENT_PROJECT.equals(repositoryTreeState.getSelectedNode().getType())) {
                 boolean openedSimilarToHistoric = false;
                 if (repositoryProject instanceof RulesProject) {

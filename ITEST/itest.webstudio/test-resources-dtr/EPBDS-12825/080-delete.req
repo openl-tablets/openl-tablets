@@ -1,0 +1,4 @@
+DELETE /web/user-workspace/design-flat/projects/EPBDS-12825/delete HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+
+comment=Foo Bar
