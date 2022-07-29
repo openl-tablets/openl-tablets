@@ -83,6 +83,9 @@ class HttpData {
         if (httpData == null) {
             throw new FileNotFoundException(resource);
         }
+        if (httpData.headers.containsKey("Cookie")) {
+            cookie = null;
+        }
         HttpURLConnection connection = openConnection(URI.create(baseURL.toString() + httpData.getUrl()).toURL(),
             httpData.getHttpMethod(),
             cookie);
