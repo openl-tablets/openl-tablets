@@ -217,6 +217,10 @@ public class CopyBean {
     }
 
     public void copy() {
+        if (StringUtils.isEmpty(currentProjectName)) {
+            errorMessage = "Project is not selected.";
+            return;
+        }
         try {
             errorMessage = null;
 
@@ -302,6 +306,9 @@ public class CopyBean {
             TreeProject node = repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getRepository().getId(),
                 selectedProject.getName());
             selectedProject = repositoryTreeState.getProject(node);
+            if (selectedProject == null) {
+                return;
+            }
             WebStudio studio = WebStudioUtils.getWebStudio();
 
             if (selectedProject.isOpened()) {

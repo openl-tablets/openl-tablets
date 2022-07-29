@@ -403,6 +403,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public UserWorkspaceProject getProject(TreeNode node) {
+        if (node == null) {
+            WebStudioUtils.addErrorMessage("Project is not selected.");
+            return null;
+        }
         AProjectArtefact artefact = node.getData();
         if (artefact instanceof UserWorkspaceProject) {
             return (UserWorkspaceProject) artefact;

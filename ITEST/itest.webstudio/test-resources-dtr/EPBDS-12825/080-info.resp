@@ -1,0 +1,11 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "name": "EPBDS-12825",
+  "modified": false,
+  "opened": false,
+  "localOnly": false,
+  "openedForEditing": false,
+  "deleted": true
+}

@@ -214,6 +214,10 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
                 } catch (NoSuchMessageException ignored) {
                 }
             }
+            if (error.getDefaultMessage() == null || error.getDefaultMessage().isBlank()) {
+                // if no default message just return first code
+                return buildErrorCode(error.getCodes()[0]);
+            }
         }
         return error.getDefaultMessage();
     }
@@ -223,6 +227,7 @@ public class ApiExceptionControllerAdvice extends ResponseEntityExceptionHandler
             try {
                 return messageSource.getMessage(e.getErrorCode(), e.getArgs(), Locale.US);
             } catch (NoSuchMessageException ignored) {
+                return e.getErrorCode();
             }
         }
         return e.getMessage();
