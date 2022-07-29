@@ -2,14 +2,12 @@ package org.openl.spring.env;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.ServletContext;
 
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.StandardEnvironment;
 import org.springframework.jndi.JndiLocatorDelegate;
 import org.springframework.jndi.JndiPropertySource;
 
@@ -51,25 +49,27 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
     public void initialize(ConfigurableApplicationContext appContext) {
         ConfigLog.LOG
             .info("The initialization of properties from 'contextInitializerClasses' context-param in web.xml");
-        ConfigurableEnvironment env = appContext.getEnvironment();
+        ConfigurableEnvironment oldEnv = appContext.getEnvironment();
+        FirewallEnvironment env = new FirewallEnvironment(oldEnv.getPropertySources());
+        appContext.setEnvironment(env);
         String appName = normalizeAppName(appContext.getApplicationName());
         loadEnvironment(appContext, env, appName, null);
     }
 
     public void initialize(ConfigurableApplicationContext appContext, ServletContext servletContext) {
         ConfigLog.LOG.info("The initialization of properties");
-        ConfigurableEnvironment env = new StandardEnvironment();
+        FirewallEnvironment env = new FirewallEnvironment(new MutablePropertySources());
         appContext.setEnvironment(env);
         String appName = normalizeAppName(servletContext.getContextPath());
         loadEnvironment(appContext, env, appName, servletContext);
     }
 
     private void loadEnvironment(ConfigurableApplicationContext appContext,
-            ConfigurableEnvironment env,
+            FirewallEnvironment env,
             String appName,
             ServletContext servletContext) {
+        FirewallPropertyResolver props = env.getRawPropertyResolver();
         MutablePropertySources propertySources = env.getPropertySources();
-        RawPropertyResolver props = new RawPropertyResolver(propertySources);
 
         ConfigLog.LOG.info("Loading default properties...");
         DefaultPropertySource defaultPropertySource = new DefaultPropertySource();
@@ -108,12 +108,13 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         ConfigLog.LOG.info("Register reference property processor...");
         propertySources.addLast(new RefPropertySource(propertySources));
 
+        props.initFirewall();
         registerPropertyBean(appContext, defaultPropertySource, props);
     }
 
     private void registerPropertyBean(ConfigurableApplicationContext appContext,
             DefaultPropertySource defaultPropertySource,
-            RawPropertyResolver props) {
+            FirewallPropertyResolver props) {
         Map<String, String> propertyMap = new HashMap<>();
         for (String key : defaultPropertySource.getPropertyNames()) {
             propertyMap.put(key, props.getRawProperty(key));
