@@ -99,7 +99,7 @@ public class Migrator {
         Arrays.stream(settings.getPropertyNames())
             .filter(propertyName -> propertyName.startsWith("repository.") && propertyName.endsWith(factorySuffix))
             .forEach(factoryKey -> {
-                String factory = (String) settings.getProperty(factoryKey);
+                var factory = settings.getProperty(factoryKey);
                 if (StringUtils.isNotBlank(factory)) {
                     String refKey = factoryKey.substring(0, factoryKey.length() - factorySuffix.length()) + ".$ref";
                     props.put(refKey, RepositoryInstatiator.getRefID(factory));
@@ -113,7 +113,7 @@ public class Migrator {
 
         final String configListProp = "production-repository-configs";
         // Absent production repository configs assumes default setting: production-repository-configs = production
-        String configList = (String) settings.getProperty(configListProp);
+        var configList = settings.getProperty(configListProp);
 
         // Another case: production-repository-configs = production, production1, production2
         List<String> repositories = Optional.ofNullable(configList).map(s -> Arrays
@@ -126,7 +126,7 @@ public class Migrator {
 
         // Check, if URI for repository with id "production" was changed
         String repoUriProp = "repository.production.uri";
-        String uri = (String) settings.getProperty(repoUriProp);
+        var uri = settings.getProperty(repoUriProp);
         boolean uriIsChanged = uri != null && !uri.equals(defaultRepoUri);
 
         // 1) If had only defaulted repository and its uri was not changed in configuration, we assume, it
@@ -148,7 +148,7 @@ public class Migrator {
             }
 
             // Replace repository factory with repository ref.
-            String factory = ((String) settings.getProperty("repository.production.factory"));
+            var factory = settings.getProperty("repository.production.factory");
             if (StringUtils.isBlank(factory)) {
                 factory = "repo-jdbc";
                 props.put("repository.production.$ref", factory);
@@ -169,7 +169,7 @@ public class Migrator {
         Arrays.stream(settings.getPropertyNames())
             .filter(propertyName -> propertyName.startsWith("repository.") && propertyName.endsWith(".comment-template"))
             .forEach(propertyName -> {
-                String commentTemplate = (String) settings.getProperty(propertyName);
+                var commentTemplate = settings.getProperty(propertyName);
                 if (commentTemplate != null && commentTemplate.contains("{username}")) {
                     props.put(propertyName, commentTemplate.replaceAll("(\\s+Author\\s*:?)?\\s*\\{username}\\.?", ""));
                 }
@@ -194,7 +194,7 @@ public class Migrator {
 
         Arrays.stream(settings.getPropertyNames())
             .filter(propertyName -> propertyName.endsWith(".uri") || propertyName.endsWith(".url"))
-            .map(propertyName -> ((String) settings.getProperty(propertyName)))
+            .map(settings::getProperty)
             .distinct()
             .forEach(uri -> {
                 if (uri != null && uri.startsWith("jdbc:h2:")) {
@@ -211,9 +211,8 @@ public class Migrator {
         migratePropsTo5_24(settings, props);
 
         // migrate branches and project properties to branches.yaml if repoType is Git
-        Object designRepo = settings.getProperty("repository.design.local-repository-path");
-        String designRepoPath = designRepo != null ? designRepo.toString()
-                                                   : Props.text("openl.home") + "/design-repository";
+        var designRepo = settings.getProperty("repository.design.local-repository-path");
+        var designRepoPath = designRepo != null ? designRepo : Props.text("openl.home") + "/design-repository";
         Map<String, String> nonFlatProjectPaths = loadProjectsPathes(designRepoPath);
         writeProjectPathesToYAML(nonFlatProjectPaths);
         migrateBranchesProps(nonFlatProjectPaths);
@@ -249,8 +248,7 @@ public class Migrator {
         if (Props.bool("project.history.unlimited")) {
             props.put("project.history.count", ""); // Define unlimited
         }
-        Object runTestParallel = settings.getProperty("test.run.parallel");
-        if (runTestParallel != null && !Boolean.parseBoolean(runTestParallel.toString())) {
+        if (!Boolean.parseBoolean(settings.getProperty("test.run.parallel"))) {
             props.put("test.run.thread.count", "1");
         }
         props.put("project.history.unlimited", null); // Remove
@@ -265,7 +263,7 @@ public class Migrator {
 
             // migrate local repo path if have default value, since the default has changed on 5.24.0
             // null means this property have default value from previous OpenL version
-            Object depConfRepo = settings.getProperty("repository.deploy-config.factory");
+            var depConfRepo = settings.getProperty("repository.deploy-config.factory");
             if (settings.getProperty(
                 "repository.deploy-config.local-repository-path") == null && (depConfRepo == null || "repo-git"
                     .equals(depConfRepo)) || "org.openl.rules.repository.git.GitRepository".equals(depConfRepo)) {
@@ -276,16 +274,16 @@ public class Migrator {
         }
 
         // migrate design repository path
-        Object desRepo = settings.getProperty("repository.design.factory");
+        var desRepo = settings.getProperty("repository.design.factory");
         if (settings.getProperty("repository.design.local-repository-path") == null && (desRepo == null || "repo-git"
             .equals(desRepo)) || "org.openl.rules.repository.git.GitRepository".equals(desRepo)) {
             props.put("repository.design.local-repository-path", "${openl.home}/design-repository");
         }
 
         // migrate design new-branch-pattern
-        Object desNewBranchPattern = settings.getProperty("repository.design.new-branch-pattern");
+        var desNewBranchPattern = settings.getProperty("repository.design.new-branch-pattern");
         if (desNewBranchPattern != null) {
-            String migratedNewBranchPattern = desNewBranchPattern.toString()
+            String migratedNewBranchPattern = desNewBranchPattern
                 .replace("{0}", "{project-name}")
                 .replace("{1}", "{username}")
                 .replace("{2}", "{current-date}");
@@ -310,7 +308,7 @@ public class Migrator {
             "repository.design.comment-template.invalid-comment-message");
 
         // migrate deployment repository path
-        Object productionFactory = settings.getProperty("repository.production.factory");
+        var productionFactory = settings.getProperty("repository.production.factory");
         if (settings.getProperty("repository.production.local-repository-path") == null && ("repo-git".equals(
             productionFactory) || "org.openl.rules.repository.git.GitRepositoryrepo-git".equals(productionFactory))) {
             props.put("repository.production.local-repository-path", "${openl.home}/production-repository");

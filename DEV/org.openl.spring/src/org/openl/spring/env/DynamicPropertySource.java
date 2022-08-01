@@ -92,7 +92,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     }
 
     @Override
-    public Object getProperty(String name) {
+    public String getProperty(String name) {
         if (OPENL_HOME.equals(name) || OPENL_HOME_SHARED.equals(name)) {
             // prevent cycled call
             return null;
