@@ -121,21 +121,24 @@ public class Migrator {
         boolean severalReposIncludingProduction = repositories.size() > 1 && repositories
             .contains("production");
 
-        // Default Repository URI in previous version
-        String defaultRepoUri = "jdbc:h2:mem:repo;DB_CLOSE_DELAY=-1";
+        // Default Repository URI and Factory in the previous 5.26.0 version
+        final var defaultUri = "jdbc:h2:mem:repo;DB_CLOSE_DELAY=-1";
+        final var defaultFactory = "repo-jdbc";
 
         // Check, if URI for repository with id "production" was changed
         String repoUriProp = "repository.production.uri";
         var uri = settings.getProperty(repoUriProp);
-        boolean uriIsChanged = uri != null && !uri.equals(defaultRepoUri);
+        var factory = settings.getProperty("repository.production.factory");
+
+        var repoIsChanged = uri != null && !uri.equals(defaultUri) || factory != null && !factory.equals(defaultFactory);
 
         // 1) If had only defaulted repository and its uri was not changed in configuration, we assume, it
         // wasn't used and can be removed in the latest WebStudio. Don't restore any defaults.
-        // 2) If default repository was reconfigured (URI was changed), then it was used, we need to restore only absent
-        // defaults for repository with id "production".
+        // 2) If default repository was reconfigured (URI or factory were changed), then it was used,
+        // we need to restore only absent defaults for repository with id "production".
         // 3) If several repositories existed but default repository with id "production" wasn't changed (including
         // URI), we restore all its defaults including URI.
-        if (uriIsChanged || severalReposIncludingProduction) {
+        if (repoIsChanged || severalReposIncludingProduction) {
             if (configList == null) {
                 // Restore default repository id
                 props.put(configListProp, "production");
@@ -148,18 +151,16 @@ public class Migrator {
             }
 
             // Replace repository factory with repository ref.
-            var factory = settings.getProperty("repository.production.factory");
             if (StringUtils.isBlank(factory)) {
-                factory = "repo-jdbc";
-                props.put("repository.production.$ref", factory);
+                props.put("repository.production.$ref", defaultFactory);
             }
 
             // base.path is a mandatory setting for now, need to restore default value.
             props.put("repository.production.base.path.$ref", "repo-default.production.base.path");
 
-            if (severalReposIncludingProduction && !uriIsChanged && "repo-jdbc".equals(factory)) {
+            if (severalReposIncludingProduction && !repoIsChanged) {
                 // Restore property as it was in previous WebStudio.
-                props.put(repoUriProp, defaultRepoUri);
+                props.put(repoUriProp, defaultUri);
             }
         }
     }
