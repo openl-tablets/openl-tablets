@@ -95,7 +95,7 @@ public class RulesFrontendImpl implements RulesFrontend {
                         sb.append(param.getTypeName());
                     }
                     throw new MethodInvocationException(String
-                        .format("Method '%s(%s)' is not found in service '%s'.", ruleName, sb.toString(), serviceName));
+                        .format("Method '%s(%s)' is not found in service '%s'.", ruleName, sb, serviceName));
                 }
                 try {
                     return serviceMethod.invoke(service.getServiceBean(), params);
@@ -107,7 +107,7 @@ public class RulesFrontendImpl implements RulesFrontend {
                 }
             } else {
                 throw new MethodInvocationException(
-                    String.format("Service initialization '%s' has been failed.", serviceName));
+                    String.format("Service initialization '%s' has been failed.", serviceName), service.getException());
             }
         } catch (RuleServiceInstantiationException e) {
             throw new MethodInvocationException(
