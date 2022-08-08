@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * @param <Q> class that will be populated with values, when extracting rows wit compound results.
  * @author DLiauchuk
  */
+@Deprecated
 public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q extends CompoundStep> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NestedSpreadsheetResultConverter.class);

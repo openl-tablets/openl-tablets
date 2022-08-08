@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
+@Deprecated
 public final class BlackListRowFilter implements RowFilter {
 
     private final Set<String> blackList;

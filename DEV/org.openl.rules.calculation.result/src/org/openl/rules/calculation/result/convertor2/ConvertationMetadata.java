@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.openl.rules.calc.SpreadsheetResult;
 
+@Deprecated
 public class ConvertationMetadata {
     private SpreadsheetResult spreadsheetResult;
 

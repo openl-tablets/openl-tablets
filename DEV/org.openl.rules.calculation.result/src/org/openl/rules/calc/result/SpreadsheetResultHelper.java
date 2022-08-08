@@ -12,6 +12,7 @@ import java.util.Objects;
  * #L%
  */
 
+@Deprecated
 public class SpreadsheetResultHelper {
     private SpreadsheetResultHelper() {
     }

@@ -23,6 +23,7 @@ import org.openl.rules.calc.result.SpreadsheetResultHelper;
  *
  * @param <T>
  */
+@Deprecated
 public abstract class RowExtractor<T extends CalculationStep> {
 
     /** extractors for columns */

@@ -21,6 +21,7 @@ import org.openl.rules.calculation.result.convertor2.ConvertationMetadata.Nested
  * @author DLiauchuk
  *
  */
+@Deprecated
 public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor<CompoundStep> {
 
     /**

@@ -23,6 +23,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 
 @XmlRootElement
+@Deprecated
 public class CompoundStep extends CodeStep {
 
     private String id;

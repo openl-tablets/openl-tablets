@@ -1,4 +1,5 @@
 @javax.xml.bind.annotation.XmlSchema(namespace = "http://convertor2.result.calculation.rules.openl.org", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+@Deprecated
 package org.openl.rules.calculation.result.convertor2;
 
 /*
