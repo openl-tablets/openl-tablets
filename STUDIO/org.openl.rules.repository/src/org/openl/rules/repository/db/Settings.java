@@ -71,19 +71,6 @@ final class Settings {
         }
     }
 
-    private int getIntValue(Map<String, String> queries, String prop, int defValue) {
-        String stringValue = queries.get(prop);
-        int value = defValue;
-        if (stringValue != null) {
-            try {
-                value = Integer.parseInt(stringValue);
-            } catch (Exception e) {
-                log.warn("Failed to parse value from {} = {}. Default value is used.", prop, stringValue, e);
-            }
-        }
-        return value;
-    }
-
     private String getRequired(Map<String, String> queries, String prop) {
 
         String value = queries.get(prop);

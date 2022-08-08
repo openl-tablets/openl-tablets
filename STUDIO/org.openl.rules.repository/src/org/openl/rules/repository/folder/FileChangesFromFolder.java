@@ -11,9 +11,9 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringUtils;
 
 public class FileChangesFromFolder implements Iterable<FileItem>, AutoCloseable {
 
