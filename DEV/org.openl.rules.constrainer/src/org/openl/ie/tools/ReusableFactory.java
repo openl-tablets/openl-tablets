@@ -47,17 +47,6 @@ public abstract class ReusableFactory implements java.io.Serializable {
     }
 
     /**
-     * Prints the statistics for all factories.
-     */
-    public static synchronized void printStatistics(java.io.PrintStream s) {
-        s.println("Class,Count");
-        for (int i = 0; i < _allFactories.size(); i++) {
-            ReusableFactory factory = (ReusableFactory) _allFactories.elementAt(i);
-            s.println(factory.getClass() + "," + factory.getElementCount());
-        }
-    }
-
-    /**
      * Default constructor initializes this factory and registeres this factory in all factories.
      */
     public ReusableFactory() {
@@ -100,13 +89,6 @@ public abstract class ReusableFactory implements java.io.Serializable {
             result = (Reusable) _reusables.pop();
         }
         return result;
-    }
-
-    /**
-     * Returns the number of elements returned by this factory.
-     */
-    public int getElementCount() {
-        return _element_counter;
     }
 
     /**

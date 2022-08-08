@@ -238,12 +238,13 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
             Constructor constr = c.getConstructor(types);
             constr.setAccessible(true); // to create not public implementations
             return (Expression) constr.newInstance(args);
+        } catch (RuntimeException re) {
+            throw re;
         } catch (Exception e) {
             String msg = "Error creating expression: " + e.getClass().getName() + ": " + e.getMessage() + ": " + c
                 .getName();
 
-            Constrainer.abort(msg, e);
-            return null;
+            throw new RuntimeException(msg, e);
         }
     }
 

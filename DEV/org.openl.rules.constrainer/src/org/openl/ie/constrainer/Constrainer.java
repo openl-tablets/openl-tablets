@@ -16,12 +16,12 @@ package org.openl.ie.constrainer;
 ///////////////////////////////////////////////////////////////////////////////
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 import org.openl.ie.constrainer.impl.*;
-import org.openl.ie.tools.FastQueue;
 import org.openl.ie.tools.FastStack;
 import org.openl.ie.tools.FastVector;
-import org.openl.ie.tools.RTExceptionWrapper;
 
 /**
  * An implementation of the Constrainer - a placeholder for all variables, constraints, and search goals of the problem.
@@ -71,11 +71,7 @@ public final class Constrainer implements Serializable {
 
     // PRIVATE MEMBERS
     private final String _name;
-    private int _labelsCounter;
     private final FastVector _intvars;
-    private final FastVector _floatvars;
-    private final FastVector _intsetvars;
-
     private final FastVector _constraints;
 
     private final int _choice_point;
@@ -86,8 +82,6 @@ public final class Constrainer implements Serializable {
     private int _number_of_choice_points;
     private int _number_of_failures;
     private int _number_of_undos;
-    private final long _time_limit = 0; // in seconds (0-no limit)
-    private final long _failures_limit = 0; // in failures (0-no limit)
     private final FastVector _choice_point_objects;
     private final FastVector _failure_objects;
     private final boolean _trace_failure_stack;
@@ -107,7 +101,7 @@ public final class Constrainer implements Serializable {
     private final boolean _print_information;
     private long _execution_time = 0;
 
-    private final FastQueue _propagation_queue;
+    private final Queue _propagation_queue;
 
     private final ExpressionFactory _expressionFactory;
 
@@ -126,11 +120,7 @@ public final class Constrainer implements Serializable {
      * @param msg Diagnostic message to print.
      */
     static public void abort(String msg) {
-        abort(msg, new RuntimeException(msg));
-    }
-
-    static public void abort(String msg, Throwable t) {
-        throw RTExceptionWrapper.wrap(msg, t);
+        throw new RuntimeException(msg);
     }
 
     /*
@@ -184,14 +174,12 @@ public final class Constrainer implements Serializable {
         _active_undoable_once = new FastStack();
 
         _intvars = new FastVector();
-        _floatvars = new FastVector();
-        _intsetvars = new FastVector();
         _constraints = new FastVector();
 
         _reversibility_stack = new UndoStack();
         _goal_stack = new GoalStack(_reversibility_stack);
 
-        _propagation_queue = new FastQueue();
+        _propagation_queue = new ArrayDeque();
 
         _show_internal_names = false;
         _show_variable_names = true;
@@ -334,7 +322,7 @@ public final class Constrainer implements Serializable {
      * notificatioin events will be generated in {@link #propagate} method.
      */
     public void addToPropagationQueue(Subject subject) {
-        _propagation_queue.push(subject);
+        _propagation_queue.add(subject);
     }
 
     /*
@@ -422,8 +410,8 @@ public final class Constrainer implements Serializable {
      * Clears the propagation queue.
      */
     void clearPropagationQueue() {
-        while (!_propagation_queue.empty()) {
-            Subject var = (Subject) _propagation_queue.pop();
+        while (!_propagation_queue.isEmpty()) {
+            Subject var = (Subject) _propagation_queue.remove();
             var.inProcess(false);
             // var.clearPropagationEvents();
         }
@@ -471,8 +459,6 @@ public final class Constrainer implements Serializable {
         long execution_start = System.currentTimeMillis();
 
         boolean success = true;
-
-        long start_seconds = System.currentTimeMillis() / 1000;
 
         // save current _goal_stack
         GoalStack old_goal_stack = _goal_stack;
@@ -522,10 +508,10 @@ public final class Constrainer implements Serializable {
                     success = false;
                     break;
                 }
+            } catch (RuntimeException re) {
+                throw re;
             } catch (Exception t) {
-                _out.println("Unexpected exception: " + t.toString());
-                t.printStackTrace(_out);
-                abort("Unexpected exception: ", t);
+                throw new RuntimeException("Unexpected exception: ", t);
             }
 
         } // ~while
@@ -607,8 +593,8 @@ public final class Constrainer implements Serializable {
      * Propagate events triggered by successful goal execution.
      */
     public void propagate() throws Failure {
-        while (!_propagation_queue.empty()) {
-            Subject var = (Subject) _propagation_queue.pop();
+        while (!_propagation_queue.isEmpty()) {
+            Subject var = (Subject) _propagation_queue.remove();
             var.inProcess(false);
             var.propagate(); // may fail
         }
