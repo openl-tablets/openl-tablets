@@ -22,6 +22,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 
 @XmlRootElement
 @XmlSeeAlso({ CompoundStep.class, SimpleStep.class })
+@Deprecated
 public class CodeStep extends CalculationStep {
 
     private String code;

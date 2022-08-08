@@ -18,6 +18,7 @@ import org.openl.rules.calc.SpreadsheetResult;
  * @author Marat Kamalov
  *
  */
+@Deprecated
 public class ColumnToExtract {
 
     private final String columnName;

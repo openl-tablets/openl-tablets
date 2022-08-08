@@ -26,6 +26,7 @@ import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
  * @param <T> class that will be populated with values, when extracting rows without compound results.
  * @param <Q> class that will be populated with values, when extracting rows wit compound results.
  */
+@Deprecated
 public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, Q extends CompoundStep> {
 
     /** Map of columns that gonna be extracted on each level of extracting **/

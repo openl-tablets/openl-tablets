@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 @XmlRootElement
 @XmlSeeAlso({ CodeStep.class })
+@Deprecated
 public class CalculationStep implements Serializable {
 
     private Double formula;

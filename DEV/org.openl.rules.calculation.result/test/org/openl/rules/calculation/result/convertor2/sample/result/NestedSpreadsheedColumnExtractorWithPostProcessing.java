@@ -11,6 +11,7 @@ import org.openl.rules.calculation.result.convertor2.NestedSpreadsheetConfigurat
  * @author tkrivickas, Marat Kamalov
  *
  */
+@Deprecated
 public class NestedSpreadsheedColumnExtractorWithPostProcessing extends NestedSpreadsheedColumnExtractor {
 
     private final CompoundStepPostProcessor compoundStepPostProcessor = new CompoundStepPostProcessor();
