@@ -27,13 +27,17 @@ public class RepositoryFactoryProxy {
 
     private final String repoListConfig;
 
+    private final String defaultBasePathConfig;
+
     public RepositoryFactoryProxy(PropertyResolver propertyResolver, RepositoryMode mode) {
         switch (mode) {
             case DESIGN:
                 repoListConfig = DESIGN_REPOSITORY_CONFIGS;
+                defaultBasePathConfig = "repo-default.design.base.path";
                 break;
             case PRODUCTION:
                 repoListConfig = PRODUCTION_REPOSITORY_CONFIGS;
+                defaultBasePathConfig = "repo-default.production.base.path";
                 break;
             default:
                 throw new IllegalArgumentException("Repository mode " + mode + " is not supported");
@@ -80,6 +84,9 @@ public class RepositoryFactoryProxy {
     public String getBasePath(String configName) {
         String key = Comments.REPOSITORY_PREFIX + configName + ".base.path";
         String basePath = propertyResolver.getProperty(key);
+        if (basePath == null) {
+            basePath = propertyResolver.getProperty(defaultBasePathConfig);
+        }
         if (basePath == null) {
             throw new IllegalArgumentException("Property " + key + " is absent");
         }

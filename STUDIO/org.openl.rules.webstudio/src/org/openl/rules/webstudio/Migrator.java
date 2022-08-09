@@ -152,9 +152,6 @@ public class Migrator {
                 props.put("repository.production.$ref", defaultFactory);
             }
 
-            // base.path is a mandatory setting for now, need to restore default value.
-            props.put("repository.production.base.path.$ref", "repo-default.production.base.path");
-
             if (severalReposIncludingProduction && !repoIsChanged) {
                 // Restore property as it was in previous WebStudio.
                 props.put(repoUriProp, defaultUri);
