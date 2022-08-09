@@ -369,7 +369,7 @@ TOKEN :
     ("$")? 	< FP_LITERAL2 > ([ "M", "K", "B" ])? 
   >
 | 
-  < DATE_FORMAT_LITERAL_4_2_2 : 
+  < DATE_FORMAT_LITERAL :
     [ "0"-"9" ] [ "0"-"9" ] [ "0"-"9" ] [ "0"-"9" ] "-" [ "0"-"9" ] [ "0"-"9" ] "-" [ "0"-"9" ] [ "0"-"9" ] 
   >
 | 
@@ -379,7 +379,11 @@ TOKEN :
       ":" [ "0"-"9" ] [ "0"-"9" ] ("." [ "0"-"9" ] [ "0"-"9" ] [ "0"-"9" ])?
     )? 
   >
-| 
+|
+  < DATETIME_FORMAT_LITERAL :
+    < DATE_FORMAT_LITERAL > (<_WHITESPACE> )+ < TIME_FORMAT_LITERAL >
+  >
+|
   < PERCENT_LITERAL : 
     ([ "0"-"9" ])+ ("." [ "0"-"9" ] [ "0"-"9" ])? "%" 		
   >
@@ -576,495 +580,202 @@ MORE :
  */
 
 void Expression() :
+{ String func; }
 {
-  Token x;
-  String func = null;
-}
-{
-  ConditionalTernaryExpression()
+  TernaryExpression()
   [
     (
-      x = < ASSIGN >
-      {
-        func = "op.assign";
-      }
-    | x = < PLUSASSIGN >
-      {
-        func = "op.assign.add";
-      }
-    | x = < MINUSASSIGN >
-      {
-        func = "op.assign.subtract";
-      }
-    | x = < STARASSIGN >
-      {
-        func = "op.assign.multiply";
-      }
-    | x = < SLASHASSIGN >
-      {
-        func = "op.assign.divide";
-      }
+      < ASSIGN >      { func = "op.assign"; }
+    | < PLUSASSIGN >  { func = "op.assign.add"; }
+    | < MINUSASSIGN > { func = "op.assign.subtract"; }
+    | < STARASSIGN >  { func = "op.assign.multiply"; }
+    | < SLASHASSIGN > { func = "op.assign.divide"; }
     )
-    Expression()
-    {
-      bop(func, pos(x));
-    }
+    Expression() { bop(func, pos(token)); }
   ]
 }
 
-void ConditionalTernaryExpression() :
+void TernaryExpression() :
+{ int x=0; }
 {
-  Token x;
-  int args;
-}
-{
-  ConditionalOrExpression()
+  OrExpression()
   [
-    x = < HOOK > ConditionalTernaryExpression() {args = 2;}
-    [
-     < COLON > ConditionalTernaryExpression() {args = 3;}
-    ]
-    {
-      nop("op.ternary.qmark", pos(x), args);
-    }
+    < HOOK > TernaryExpression() [ < COLON > TernaryExpression() {++x;} ] { nop("op.ternary.qmark", pos(token), 2 + x);}
   ]
 }
 
-void ConditionalOrExpression() :
+void OrExpression() :
+{}
 {
-  Token x;
-}
-{
-  ConditionalAndExpression()
-  (
-    (
-    x = < BOOL_OR >
-    ) 
-    ConditionalAndExpression()
-    {
-      bop("op.binary.or", pos(x));
-    }
-  )*
+  AndExpression() ( < BOOL_OR > AndExpression() { bop("op.binary.or", pos(token)); } )*
 }
 
-void ConditionalAndExpression() :
+void AndExpression() :
+{}
 {
-  Token x;
-}
-{
-  EqualityExpression()
-  (
-    (
-    x = < BOOL_AND >
-    ) 
-    EqualityExpression()
-    {
-      bop("op.binary.and", pos(x));
-    }
-  )*
+  EqualityExpression() ( < BOOL_AND > EqualityExpression() { bop("op.binary.and", pos(token)); } )*
 }
 
 void EqualityExpression() :
-{
-  Token x;
-  String func;
-}
+{ String func; }
 {
   RelationalExpression()
   (
     (
-      (
-      x = < EQ >
-      )
-      {
-        func = "op.binary.eq";
-      }
-    |
-      (
-        x = < NE >
-      | x = < NE_ALT >
-      | x = < DOES_NOT_EQUAL_TO >
-      | x = < IS_DIFFERENT_FROM >
-      )
-      {
-        func = "op.binary.ne";
-      }
-    | (x = < STRICT_EQ >)
-      {
-        func = "op.binary.strict_eq";
-      }
-    | (x = < STRICT_NE >)
-      {
-        func = "op.binary.strict_ne";
-      }
-    | x = < STRING_EQ >
-      {
-        func = "op.binary.string_eq";
-      }
-    |
-      (
-        x = < STRING_NE >
-      | x = < STRING_NE_ALT >
-      )
-      {
-        func = "op.binary.string_ne";
-      }
+      < EQ >                { func = "op.binary.eq"; }
+    | < NE >                { func = "op.binary.ne"; }
+    | < NE_ALT >            { func = "op.binary.ne"; }
+    | < DOES_NOT_EQUAL_TO > { func = "op.binary.ne"; }
+    | < IS_DIFFERENT_FROM > { func = "op.binary.ne"; }
+    | < STRICT_EQ >         { func = "op.binary.strict_eq"; }
+    | < STRICT_NE >         { func = "op.binary.strict_ne"; }
+    | < STRING_EQ >         { func = "op.binary.string_eq"; }
+    | < STRING_NE >         { func = "op.binary.string_ne"; }
+    | < STRING_NE_ALT >     { func = "op.binary.string_ne"; }
     )
-    RelationalExpression()
-    {
-      bop(func, pos(x));
-    }
+  RelationalExpression()  { bop(func, pos(token)); }
   )*
 }
 
 void RelationalExpression() :
-{
-  Token x;
-  String func = null;
-}
+{ String func; }
 {
   AdditiveExpression()
   (
     (
-      x = < LT >
-      {
-        func = "op.binary.lt";
-      }
-    | x = < IS_LESS_THAN >
-      {
-        func = "op.binary.lt";
-      }
-    | x = < GT >
-      {
-        func = "op.binary.gt";
-      }
-    | x = < IS_MORE_THAN >
-      {
-        func = "op.binary.gt";
-      }
-    | x = < LE >
-      {
-        func = "op.binary.le";
-      }
-    | x = < IS_LESS_OR_EQUAL >
-      {
-        func = "op.binary.le";
-      }
-    | x = < IS_NO_MORE_THAN >
-      {
-        func = "op.binary.le";
-      }
-    | x = < IS_IN >
-      {
-        func = "op.binary.le";
-      }
-    | x = < GE >
-      {
-        func = "op.binary.ge";
-      }
-    | x = < IS_MORE_OR_EQUAL >
-      {
-        func = "op.binary.ge";
-      }
-    | x = < IS_NO_LESS_THAN >
-      {
-        func = "op.binary.ge";
-      }
-    | x = < STRICT_GT >
-      {
-        func = "op.binary.strict_gt";
-      }
-    | x = < STRICT_GE >
-      {
-        func = "op.binary.strict_ge";
-      }
-    | x = < STRICT_LT >
-      {
-        func = "op.binary.strict_lt";
-      }
-    | x = < STRICT_LE >
-      {
-        func = "op.binary.strict_le";
-      }
-    | x = < STRING_LE >
-      {
-        func = "op.binary.string_le";
-      }
-    | x = < STRING_LT >
-      {
-        func = "op.binary.string_lt";
-      }
-    | x = < STRING_GE >
-      {
-        func = "op.binary.string_ge";
-      }
-    | x = < STRING_GT >
-      {
-        func = "op.binary.string_gt";
-      }
+      < LT >                { func = "op.binary.lt"; }
+    | < IS_LESS_THAN >      { func = "op.binary.lt"; }
+    | < GT >                { func = "op.binary.gt"; }
+    | < IS_MORE_THAN >      { func = "op.binary.gt"; }
+    | < LE >                { func = "op.binary.le"; }
+    | < IS_LESS_OR_EQUAL >  { func = "op.binary.le"; }
+    | < IS_NO_MORE_THAN >   { func = "op.binary.le"; }
+    | < IS_IN >             { func = "op.binary.le"; }
+    | < GE >                { func = "op.binary.ge"; }
+    | < IS_MORE_OR_EQUAL >  { func = "op.binary.ge"; }
+    | < IS_NO_LESS_THAN >   { func = "op.binary.ge"; }
+    | < STRICT_GT >         { func = "op.binary.strict_gt"; }
+    | < STRICT_GE >         { func = "op.binary.strict_ge"; }
+    | < STRICT_LT >         { func = "op.binary.strict_lt"; }
+    | < STRICT_LE >         { func = "op.binary.strict_le"; }
+    | < STRING_LE >         { func = "op.binary.string_le"; }
+    | < STRING_LT >         { func = "op.binary.string_lt"; }
+    | < STRING_GE >         { func = "op.binary.string_ge"; }
+    | < STRING_GT >         { func = "op.binary.string_gt"; }
     )
-    AdditiveExpression()
-    {
-      bop(func, pos(x));
-    }
+    AdditiveExpression() { bop(func, pos(token)); }
   )*
 }
 
 void AdditiveExpression() :
-{
-  Token x;
-  String func = null;
-}
+{}
 {
   MultiplicativeExpression()
   (
-    (
-      x = < PLUS >
-      {
-        func = "op.binary.add";
-      }
-    | x = < MINUS >
-      {
-        func = "op.binary.subtract";
-      }
-    )
-    MultiplicativeExpression()
-    {
-      bop(func, pos(x));
-    }
+    < PLUS > MultiplicativeExpression() { bop("op.binary.add", pos(token)); }
+  | < MINUS > MultiplicativeExpression() { bop("op.binary.subtract", pos(token)); }
   )*
 }
 
 void MultiplicativeExpression() :
-{
-  Token x;
-  String func = null;
-}
+{}
 {
   PowerExpression()
   (
-    (
-      x = < STAR >
-      {
-        func = "op.binary.multiply";
-      }
-    | x = < SLASH >
-      {
-        func = "op.binary.divide";
-      }
-    | x = < REM >
-      {
-        func = "op.binary.rem";
-      }
-    )
-    PowerExpression()
-    {
-      bop(func, pos(x));
-    }
+    < STAR >  PowerExpression()  { bop("op.binary.multiply", pos(token)); }
+  | < SLASH > PowerExpression()  { bop("op.binary.divide", pos(token)); }
+  | < REM >   PowerExpression()  { bop("op.binary.rem", pos(token)); }
   )*
 }
 
 void PowerExpression() :
-{
-  Token x;
-}
+{}
 {
   UnaryExpression()
   (
-    LOOKAHEAD(< EXP >)
-    x = < EXP > UnaryExpression()
-    {
-      bop("op.binary.pow", pos(x));
-    }
+    LOOKAHEAD(< EXP >) < EXP > UnaryExpression()  { bop("op.binary.pow", pos(token)); }
   )*
 }
 
 void UnaryExpression() :
+{}
 {
-  Token x;
-}
-{
-  x = < PLUS > UnaryExpression()
-  {
-    uop("op.unary.positive", pos(x));
-  }
-| 
-  x = < MINUS > UnaryExpression()
-  {
-    uop("op.unary.negative", pos(x));
-  }
-|
-  x = < NOT > UnaryExpression()
-  {
-    uop("op.unary.not", pos(x));
-  }
-| 
-  PreIncrementExpression()
-| 
-  PreDecrementExpression()
-| 
-  LOOKAHEAD(CastLookahead())
-  CastExpression()
-| 
-  PostfixExpression()
+  < PLUS > UnaryExpression()   { uop("op.unary.positive", pos(token));  }
+| < MINUS > UnaryExpression()  { uop("op.unary.negative", pos(token));  }
+| < NOT > UnaryExpression()    { uop("op.unary.not", pos(token));  }
+| < INCR > PrimaryExpression() { uop("op.prefix.inc", pos(token)); }
+| < DECR > PrimaryExpression() { uop("op.prefix.dec", pos(token)); }
+| LOOKAHEAD(CastLookahead())  CastExpression()
+| PostfixExpression()
 }
 
 void OfTheExpressionSuffix() :
+{}
 {
-  Token x;
-}
-{
-  x = < OF_THE > PrimaryExpression()
-  {
-    bop("chain.suffix.of.the", null);
-  }
-}
-
-void PreIncrementExpression() :
-{
-  Token x;
-}
-{
-  x = < INCR > PrimaryExpression()
-  {
-    uop("op.prefix.inc", pos(x));
-  }
-}
-
-void PreDecrementExpression() :
-{
-  Token x;
-}
-{
-  x = < DECR > PrimaryExpression()
-  {
-    uop("op.prefix.dec", pos(x));
-  }
+  < OF_THE > PrimaryExpression() { bop("chain.suffix.of.the", null); }
 }
 
 void PostfixExpression() :
-{
-  Token x;
-}
+{}
 {
   PrimaryExpression()
   [
-    x = < INCR >
-    {
-      uop("op.suffix.inc", pos(x));
-    }
-  | x = < DECR >
-    {
-      uop("op.suffix.dec", pos(x));
-    }
+    < INCR > { uop("op.suffix.inc", pos(token)); }
+  | < DECR > { uop("op.suffix.dec", pos(token)); }
   ]
 }
 
 void PrimaryExpression() :
-{
-  int args = 1;
-}
+{ boolean hasSuffix = false; }
 {
   PrimaryPrefix()
   (
-    LOOKAHEAD(2)
-    PrimarySuffix()
-    {
-      ++args;
-    }
+    LOOKAHEAD(2) PrimarySuffix() { hasSuffix = true;  }
   )*
-  {
-    if (args > 1) 
-    uop("chain", null);
-  }
+  { if (hasSuffix) uop("chain", null); }
 }
 
 void PrimaryPrefix() :
 {}
 {
   CommaSeparatedList()
-| 
-  Literal()
-|
-  < LPAREN > Expression() < RPAREN >
-| 
-  AllocationExpression()
-| 
-  LOOKAHEAD(function())
-  function()
-| 
-  LOOKAHEAD(2)
-  rangeidentifier()
-| 
-  IdentifierSequence()
+| Literal()
+| < LPAREN > Expression() < RPAREN >
+| AllocationExpression()
+| LOOKAHEAD(function()) function()
+| LOOKAHEAD(2) rangeidentifier()
+| IdentifierSequence()
 }
 
 void IdentifierSequence() :
+{ int args = 1;}
 {
-  Token x;
-  int args = 1;
-}
-{
-    x = < IDENTIFIER >
-    {
-      identifier("identifier", pos(token), token.image);
-    }
+  identifier()
   (
-    x = < IDENTIFIER >
-    {
-      identifier("identifier.sequence.element", pos(token), token.image);
-      ++args;
-    }
+    < IDENTIFIER > { identifier("identifier.sequence.element", pos(token), token.image); ++args; }
   )*
-  {
-    if (args > 1)
-    {
-      nop("identifier.sequence", null, args);
-    }
-  }		
+  { if (args > 1) nop("identifier.sequence", null, args); }
 }
 
 void Word(String type) :
+{}
 {
-  Token x;
-}
-{
-    x = < IDENTIFIER >
-    {
-      identifier(type, pos(token), token.image);
-    }
+  < IDENTIFIER > { identifier(type, pos(token), token.image); }
 }
 
 void PrimarySuffix() :
 {}
 {
-  IndexOperator()
-  {
-    bop("chain.suffix.dot.index", null);
-  }
-| LOOKAHEAD(< DOT_OPERATOR > function())
-  < DOT_OPERATOR > function()
-  {
-    bop("chain.suffix.dot.function", null);
-  }
-| LOOKAHEAD(OfTheExpressionSuffix())
-  OfTheExpressionSuffix()
-| LOOKAHEAD(< DOT_OPERATOR > identifier())
-  < DOT_OPERATOR > identifier()
-  {
-    bop("chain.suffix.dot.identifier", null);
-  }
+  IndexOperator() { bop("chain.suffix.dot.index", null); }
+| LOOKAHEAD(< DOT_OPERATOR > function()) < DOT_OPERATOR > function() { bop("chain.suffix.dot.function", null); }
+| LOOKAHEAD(OfTheExpressionSuffix()) OfTheExpressionSuffix()
+| LOOKAHEAD(< DOT_OPERATOR > identifier()) < DOT_OPERATOR > identifier() { bop("chain.suffix.dot.identifier", null); }
 }
 
 void CastExpression() :
+{ Token x1, x2; }
 {
-  Token x1, x2;
-}
-{
-  x1 = < LPAREN > Type() x2 = < RPAREN > UnaryExpression()
-  {
-    bop("type.cast", pos(x1, x2));
-  }
+  x1 = < LPAREN > Type() x2 = < RPAREN > UnaryExpression() { bop("type.cast", pos(x1, x2)); }
 }
 
 void CastLookahead() :
@@ -1086,61 +797,20 @@ void CastLookahead() :
 void identifier() :
 {}
 {
-  < IDENTIFIER >
-  {
-    identifier("identifier", pos(token), token.image);
-  }
+   Word("identifier")
 }
 
 void rangeidentifier() :
 {}
 {
   < RANGE_VARIABLE >
-  {
-    identifier("range.variable", pos(token), token.image);
-  }
+  { identifier("range.variable", pos(token), token.image); }
 }
 
 void TypeDimension() :
+{ Token x1, x2; }
 {
-  Token x1, x2;
-}
-{
-  x1 = < LBRACKET > x2 = < RBRACKET >
-  {
-    uop("type.index", pos(x1, x2));
-  }
-}
-
-void parseParamDeclaration() :
-{
-  int args = 1;
-}
-{
-  ResultType() [
-       VariableDeclaratorId()
-       {
-           ++args;
-       }
-  ]
-  {
-      nop("param.declaration", null, args);
-  }
-  < EOF >
-}
-
-void parseType() :
-{}
-{
-  ResultType()
-  < EOF >
-}
-
-void parseMethodHeader() :
-{}
-{
-  MethodHeader() 
-  < EOF >
+  x1 = < LBRACKET > x2 = < RBRACKET > { uop("type.index", pos(x1, x2)); }
 }
 
 void Type() :
@@ -1152,166 +822,82 @@ void Type() :
   (
     TypeDimension()
   )*
-  {
-    uop("type.declaration", null);
-  }
+  { uop("type.declaration", null); }
 }
 
 void ResultType() :
 {}
 {
-  < VOID >
-  {
-    identifier("type.name", pos(token), token.image);
-    uop("type.declaration", null);
-  }
-| 
-  Type()
+  < VOID > { identifier("type.name", pos(token), token.image); uop("type.declaration", null); }
+| Type()
 }
 
 void ClassName() :
+{ String name; Token x1, x2; }
 {
-  String name;
-  Token x1, x2;
-}
-{
-  x1 = < IDENTIFIER >
-  {
-    name = token.image;
-    x2 = x1;
-  }
+  x1 = < IDENTIFIER > { name = token.image; x2 = x1; }
   (
-    LOOKAHEAD(2)
-    < DOT_OPERATOR > x2 = < IDENTIFIER >
-    {
-      name = name + "." + token.image;
-    }
+    LOOKAHEAD(2) < DOT_OPERATOR > x2 = < IDENTIFIER > { name = name + "." + token.image; }
   )*
-  {
-     identifier("type.name", pos(x1, x2), name);
-  }
+  { identifier("type.name", pos(x1, x2), name); }
 }
 
 void CombinedType() :
-{
-   int count = 1;
-}
+{ int count = 1; }
 {
   ClassName()
   (
-    < AMPERSAND > ClassName()
-    {
-        count++;
-    }
+    < AMPERSAND > ClassName() { count++; }
   )+
-  {
-    nop("combined.type.name", null, count);
-  }
+  { nop("combined.type.name", null, count); }
 }
 
 void CommaSeparatedList() :
-{
-  int elements = 0;
-  int words = 0;
-}
+{ int elements = 0, words = 0; }
 {
   < LBRACKET >
-  {
-    words = 0;
-  }
   (
-    Word("identifier.list")
-    {
-      ++words;
-    }
+    Word("identifier.list") { ++words; }
   )+
-  {
-    nop("list.element", null, words);
-    ++elements;
-  }
+  { nop("list.element", null, words); ++elements; }
   (
-    < COMMA >
-    {
-      words = 0;
-    }
+    < COMMA > { words = 0; }
     (
-      Word("identifier.list")
-      {
-        ++words;
-      }
+      Word("identifier.list") { ++words; }
     )+
-    {
-      nop("list.element", null, words);
-      ++elements;
-    }
+    { nop("list.element", null, words); ++elements; }
   )*
-  < RBRACKET >
-  {
-    nop("list", null, elements);
-  }
+  < RBRACKET > { nop("list", null, elements); }
 }
 
 void function() :
+{ String funcname; int args = 0; Token x1, x2; }
 {
-  String funcname;
-  int args = 0;
-  Token x1, x2;
-}
-{
-  x1 = < IDENTIFIER >
-  {
-    funcname = token.image;
-  }
+  x1 = < IDENTIFIER > { funcname = token.image; }
   < LPAREN >
   [
-    VariableInitializer()
-    {
-      args++;
-    }
+    VariableInitializer() { args++; }
     (
-      < COMMA > VariableInitializer()
-      {
-        args++;
-      }
+      < COMMA > VariableInitializer() { args++; }
     )*
   ]
-  x2 = < RPAREN >
-  {
-    identifier("funcname", pos(x1), funcname);
-    nop("function", pos(x1, x2), args + 1);
-  }
+  x2 = < RPAREN > { identifier("funcname", pos(x1), funcname); nop("function", pos(x1, x2), args + 1); }
 }
 
 void AllocationExpression() :
-{
-  int args = 0;
-  Token x1, x2;
-}
+{ int args = 0; Token x1, x2; }
 {
   x1 = < NEW > ClassName()
   (
     < LPAREN >
     [
-      Expression()
-      {
-        args++;
-      }
+      Expression() { args++; }
       (
-        < COMMA > Expression()
-        {
-          args++;
-        }
+        < COMMA > Expression() { args++; }
       )*
     ]
-    x2 = < RPAREN >
-    {
-      nop("op.new.object", pos(x1, x2), args + 1);
-    }
-  | 
-    ArrayDimsAndInits()
-    {
-      uop("op.new.array", pos(x1));
-    }
+    x2 = < RPAREN > { nop("op.new.object", pos(x1, x2), args + 1); }
+  | ArrayDimsAndInits() { uop("op.new.array", pos(x1)); }
   )
 }
 
@@ -1320,132 +906,58 @@ void AllocationExpression() :
  * if there is an expression between the "[...]".
  */
 void ArrayDimsAndInits() :
-{
-  Token x1, x2;
-  int cnt = 0;
-}
+{ Token x1, x2; int cnt = 0; }
 {
   LOOKAHEAD(2)
   (
-    LOOKAHEAD(2)
-    x1 = < LBRACKET > Expression() x2 = < RBRACKET >
-    {
-      bop("array.index.expression", pos(x1, x2));
-      cnt++;
-    }
+    LOOKAHEAD(2) x1 = < LBRACKET > Expression() x2 = < RBRACKET > { bop("array.index.expression", pos(x1, x2)); cnt++; }
   )+
   (
-    LOOKAHEAD(2)
-    x1 = < LBRACKET > x2 = < RBRACKET >
-    {
-      uop("array.index.empty", pos(x1, x2));
-    }
+    LOOKAHEAD(2) x1 = < LBRACKET > x2 = < RBRACKET > { uop("array.index.empty", pos(x1, x2)); }
   )*
 |
   (
     TypeDimension()
   )+
-  ArrayInitializer()
-  {
-    bop("new.array.initialized", null);
-  }
+  ArrayInitializer() { bop("new.array.initialized", null); }
 }
 
 void IndexTypeExpression() :
+{ Token x1, x2; }
 {
-  Token x1, x2;
-}
-{
-  LOOKAHEAD(3)
-    x1 = < LPAREN > Type() VariableDeclaratorId() x2 = < RPAREN >
-    {
-      nop("index.parameter.declaration", pos(x1, x2), 2);
-    }
-| 
-  LOOKAHEAD(3)
-    x1 = < LPAREN > VariableDeclaratorId() x2 = < RPAREN >
-    {
-      nop("index.parameter.declaration", pos(x1, x2), 1);
-    }
+  LOOKAHEAD(3) x1 = < LPAREN > Type() VariableDeclaratorId() x2 = < RPAREN > { nop("index.parameter.declaration", pos(x1, x2), 2); }
+| LOOKAHEAD(3) x1 = < LPAREN > VariableDeclaratorId() x2 = < RPAREN > { nop("index.parameter.declaration", pos(x1, x2), 1); }
 }
 
 void IndexOperator() :
-{
-  Token x1, x2;
-  String prefix = "op.index";
-  boolean hasTypeExpression = false;
-}
+{ Token x1, x2; boolean hasTypeExpression = false; String prefix = "op.index"; }
 {
     x1 = < LBRACKET >
     [
       LOOKAHEAD(4)
 
       [
-        IndexTypeExpression()
-        {
-          hasTypeExpression = true;
-        }
+        IndexTypeExpression() { hasTypeExpression = true; }
       ]
       (
-        (
-          "@"
-        | < SELECT_ALL_HAVING >
-        | < SELECT_ALL_WHERE >
-        )
-        {
-          prefix = "selectall.index";
-        }
-      |
-        (
-          "!@"
-        | < SELECT_FIRST_HAVING >
-        | < SELECT_FIRST_WHERE >
-        )
-        {
-          prefix = "selectfirst.index";
-        }
-      |
-        (
-          "^@"
-        | < ORDER_BY >
-        | < ORDER_INCREASING_BY >
-        )
-        {
-          prefix = "orderby.index";
-        }
-      |
-        (
-          "v@"
-        | < ORDER_DECREASING_BY >
-        )
-        {
-          prefix = "orderdecreasingby.index";
-        }
-      |
-        (
-          "~@"
-        | "s@"
-        | < SPLIT_BY >
-        )
-        {
-          prefix = "splitby.index";
-        }
-      |
-        (
-          "*@"
-        | < TRANSFORM_TO >
-        )
-        {
-          prefix = "transform.index";
-        }
-      |
-        (
-          "*!@"
-        | < TRANSFORM_UNIQUE_TO >
-        )
-        {
-          prefix = "transformunique.index";
-        }
+        "@"                     { prefix = "selectall.index"; }
+      | < SELECT_ALL_HAVING >   { prefix = "selectall.index"; }
+      | < SELECT_ALL_WHERE >    { prefix = "selectall.index"; }
+      | "!@"                    { prefix = "selectfirst.index"; }
+      | < SELECT_FIRST_HAVING > { prefix = "selectfirst.index"; }
+      | < SELECT_FIRST_WHERE >  { prefix = "selectfirst.index"; }
+      | "^@"                    { prefix = "orderby.index"; }
+      | < ORDER_BY >            { prefix = "orderby.index"; }
+      | < ORDER_INCREASING_BY > { prefix = "orderby.index"; }
+      | "v@"                    { prefix = "orderdecreasingby.index"; }
+      | < ORDER_DECREASING_BY > { prefix = "orderdecreasingby.index"; }
+      | "~@"                    { prefix = "splitby.index"; }
+      | "s@"                    { prefix = "splitby.index"; }
+      | < SPLIT_BY >            { prefix = "splitby.index"; }
+      | "*@"                    { prefix = "transform.index"; }
+      | < TRANSFORM_TO >        { prefix = "transform.index"; }
+      | "*!@"                   { prefix = "transformunique.index"; }
+      | < TRANSFORM_UNIQUE_TO > { prefix = "transformunique.index"; }
       )
     ]
     Expression()
@@ -1454,9 +966,7 @@ void IndexOperator() :
       if (hasTypeExpression)
       {
         nop(prefix, pos(x1, x2), 2);
-      }
-      else
-      {
+      } else {
         uop(prefix, pos(x1, x2));
       }
     }
@@ -1465,131 +975,46 @@ void IndexOperator() :
 void Literal() :
 {}
 {
-  < INTEGER_LITERAL >
-  {
-    literal("literal.integer", pos(token), token.image);
-  }
-| 
-  < BUSINESS_INTEGER_LITERAL >
-  {
-    literal("literal.integer.business", pos(token), token.image);
-  }
-| 
-  < PERCENT_LITERAL >
-  {
-    literal("literal.percent", pos(token), token.image);
-  }
-| 
-  < FLOATING_POINT_LITERAL >
-  {
-    literal("literal.real", pos(token), token.image);
-  }
-| 
-  < STRING_LITERAL >
-  {
-    literal("literal.string", pos(token), token.image);
-  }
-| 
-  < CHARACTER_LITERAL >
-  {
-    literal("literal.char", pos(token), token.image);
-  }
-| 
-  BooleanLiteral()
-| 
-  LOOKAHEAD(DateTimeLiteral())
-  DateTimeLiteral()
-| 
-  DateLiteral()
-| 
-  TimeLiteral()
-| 
-  NullLiteral()
-}
-
-void DateLiteral() :
-{}
-{
-  < DATE_FORMAT_LITERAL_4_2_2 >
-  {
-    literal("literal.date", pos(token), token.image);
-  }
-}
-
-void TimeLiteral() :
-{}
-{
-  < TIME_FORMAT_LITERAL >
-  {
-    literal("literal.time", pos(token), token.image);
-  }
+  < INTEGER_LITERAL >          { literal("literal.integer", pos(token), token.image); }
+| < BUSINESS_INTEGER_LITERAL > { literal("literal.integer.business", pos(token), token.image); }
+| < PERCENT_LITERAL >          { literal("literal.percent", pos(token), token.image); }
+| < FLOATING_POINT_LITERAL >   { literal("literal.real", pos(token), token.image); }
+| < STRING_LITERAL >           { literal("literal.string", pos(token), token.image); }
+| < CHARACTER_LITERAL >        { literal("literal.char", pos(token), token.image); }
+| < TRUE >                     { literal("literal.bool", pos(token), token.image); }
+| < FALSE >                    { literal("literal.bool", pos(token), token.image); }
+| < NULL >                     { literal("literal.null", pos(token), token.image); }
+| LOOKAHEAD(DateTimeLiteral()) DateTimeLiteral()
+| < DATE_FORMAT_LITERAL >      { literal("literal.date", pos(token), token.image); }
+| < TIME_FORMAT_LITERAL >      { literal("literal.time", pos(token), token.image); }
 }
 
 void DateTimeLiteral() :
-{
-}
-{
-  DateLiteral() 
-  TimeLiteral()
-  {
-    literal("literal.datetime", null, 2);
-  }
-}
-
-void BooleanLiteral() :
 {}
 {
-  < TRUE >
-  {
-    literal("literal.bool", pos(token), token.image);
-  }
-| 
-  < FALSE >
-  {
-    literal("literal.bool", pos(token), token.image);
-  }
-}
-
-void NullLiteral() :
-{}
-{
-  < NULL >
-  {
-    literal("literal.null", pos(token), token.image);
-  }
+  < DATETIME_FORMAT_LITERAL > { literal("literal.datetime", pos(token), token.image); }
 }
 
 void Block() :
+{}
 {
-  Token x1, x2;
-}
-{
-  x1 = < LBRACE > 
-  BlockStatementList() 
-  x2 = < RBRACE >
+  < LBRACE > BlockStatementList() < RBRACE >
 }
 
 void BlockStatementList() :
-{
-  int args = 0;
-}
+{ int args = 0; }
 {
   (
-    BlockStatement()
-    {
-      args++;
-    }
+    BlockStatement() { args++; }
   )*
-  {
-    nop("block.statement", null, args);
-  }
+  { nop("block.statement", null, args); }
 }
 
 void OptionalSemiColon() :
 {}
 {
-    < SEMICOLON >
-  | < EOF >
+  < SEMICOLON >
+| < EOF >
 }
 
 void SemiColon() :
@@ -1601,91 +1026,52 @@ void SemiColon() :
 void Statement() :
 {}
 {
-  LOOKAHEAD(2)
-  LabeledStatement()
-| 
-  Block()
-| 
-  EmptyStatement()
-| 
-  StatementExpression() OptionalSemiColon()
-| 
-  IfStatement()
-| 
-  WhileStatement()
-| 
-  DoStatement()
-| 
-  ForStatement()
-| 
-  BreakStatement()
-| 
-  ContinueStatement()
-| 
-  ReturnStatement()
-| 
-  ThrowStatement()
+  LOOKAHEAD(2) LabeledStatement()
+| Block()
+| EmptyStatement()
+| StatementExpression() OptionalSemiColon()
+| IfStatement()
+| WhileStatement()
+| DoStatement()
+| ForStatement()
+| BreakStatement()
+| ContinueStatement()
+| ReturnStatement()
+| ThrowStatement()
 }
 
 void ExtendedWhereStatement() :
-{
-  int args = 1;	
-}
+{ int args = 1; }
 {
   < COMMA > < WHERE > WhereVarExplanation()
   (
     LOOKAHEAD(2)
-    < COMMA > WhereVarExplanation()
-    {
-      ++args;
-    }
+    < COMMA > WhereVarExplanation() { ++args; }
   )*
-  {
-    nop("where.explanation", null, args);
-  }
+  { nop("where.explanation", null, args); }
 }
 
 void WhereVarExplanation() :
 {}
 {
-  Word("identifier.var.explanation") "-" Expression()
-  {
-    bop("where.var.explanation", null);
-  }
+  Word("identifier.var.explanation") "-" Expression() { bop("where.var.explanation", null); }
 }
 
 void LabeledStatement() :
+{ String label; }
 {
-  String label;
-}
-{
-  < IDENTIFIER >
-  {
-    label = token.image;
-  }
-  < COLON >
-  {
-    notImplemented("startLabel(label)");
-  }
-  Statement()
-  {
-    notImplemented("endLabel()");
-  }
+  < IDENTIFIER > { label = token.image; }
+  < COLON > { notImplemented("startLabel(label)"); }
+  Statement() { notImplemented("endLabel()"); }
 }
 
 void BlockStatement() :
 {}
 {
-  LOOKAHEAD(Type() < IDENTIFIER > < ASSIGN >)
-  LocalVariableDeclaration() SemiColon()
-| 
-  LOOKAHEAD(Type() < IDENTIFIER > < SEMICOLON >)
-  LocalVariableDeclaration() SemiColon()
-| 
-  LOOKAHEAD(Type() < IDENTIFIER > < COMMA >)
-  LocalVariableDeclaration() SemiColon()
-| 
-  Statement()
+  LOOKAHEAD(Type() < IDENTIFIER > < ASSIGN >)    LocalVariableDeclaration() SemiColon()
+| LOOKAHEAD(Type() < IDENTIFIER > < SEMICOLON >) LocalVariableDeclaration() SemiColon()
+| LOOKAHEAD(Type() < IDENTIFIER > < COMMA >)     LocalVariableDeclaration() SemiColon()
+| Statement()
 }
 
 void StatementExpression() :
@@ -1693,70 +1079,41 @@ void StatementExpression() :
 {
   Expression()
   [
-    LOOKAHEAD(2)
-    ExtendedWhereStatement()
-    {
-      bop("where.expression", null);
-    }
+    LOOKAHEAD(2) ExtendedWhereStatement() { bop("where.expression", null); }
   ]
 }
 
 void EmptyStatement() :
 {}
 {
-  < SEMICOLON >
-  {
-    emptyStatement(token.image, pos(token));
-  }
+  < SEMICOLON > { emptyStatement(token.image, pos(token)); }
 }
 
 void IfStatement() :
+{ int nodes = 2; }
 {
-  Token x1;	
-  int nodes = 2;
-}
-{
-  x1 = < IF > < LPAREN > Expression() < RPAREN > Statement()
+  < IF > < LPAREN > Expression() < RPAREN > Statement()
   [
-    LOOKAHEAD(1)
-    < ELSE > Statement()
-    {
-      ++nodes;
-    }
+    LOOKAHEAD(1) < ELSE > Statement() { ++nodes; }
   ]
-  {
-    nop("control.if", pos(x1), nodes);
-  }
+  { nop("control.if", pos(token), nodes); }
 }
 
 void WhileStatement() :
+{}
 {
-  Token x;
-}
-{
-  x = < WHILE > < LPAREN > Expression() < RPAREN > Statement()
-  {
-    bop("control.while", pos(x));
-  }
+  < WHILE > < LPAREN > Expression() < RPAREN > Statement() { bop("control.while", pos(token)); }
 }
 
 void ReturnStatement() :
+{ int args = 0; }
 {
-  int args = 0;
-  Token x;
-}
-{
-  x = < RETURN >
+  < RETURN >
   [
-    VariableInitializer()
-    {
-      ++args;
-    }
+    VariableInitializer() { ++args; }
   ]
   < SEMICOLON >
-  {
-    nop("control.return", pos(x), args);
-  }
+  { nop("control.return", pos(token), args); }
 }
 
 void ThrowStatement() :
@@ -1768,56 +1125,30 @@ void ThrowStatement() :
 void DoStatement() :
 {}
 {
-  {
-    notImplemented("startLabel(null)");
-  } // anonymous label for cycles
+  { notImplemented("startLabel(null)"); } // anonymous label for cycles
   < DO > Statement() < WHILE > < LPAREN > Expression() < RPAREN > OptionalSemiColon()
-  {
-    notImplemented("doStatement()");
-  }
-  {
-    notImplemented("endLabel()");
-  }
+  { notImplemented("doStatement()"); }
+  { notImplemented("endLabel()"); }
 }
 
 void LocalVariableDeclaration() :
+{ int args = 0; }
 {
-  int args = 0;
-}
-{
-  Type() VariableDeclarator()
-  {
-    args++;
-  }
+  Type() VariableDeclarator() { args++; }
   (
-    < COMMA > VariableDeclarator()
-    {
-      args++;
-    }
+    < COMMA > VariableDeclarator() { args++; }
   )*
-  {
-    nop("local.var.declaration", null, args + 1);
-  }
+  { nop("local.var.declaration", null, args + 1); }
 }
 
 void VariableDeclarator() :
-{
-  boolean withInitializer = false;
-}
+{ boolean withInitializer = false; }
 {
   VariableDeclaratorId()
   [
-    < ASSIGN > VariableInitializer()
-    {
-      withInitializer = true;
-    }
+    < ASSIGN > VariableInitializer() { withInitializer = true; }
   ]
-  {
-    if (withInitializer)
-    {
-      bop("local.var.name.init", null);	
-    }
-  }
+  { if (withInitializer) bop("local.var.name.init", null); }
 }
 
 void VariableDeclaratorId() :
@@ -1833,35 +1164,22 @@ void VariableInitializer() :
 {}
 {
   ArrayInitializer()
-| 
-  Expression()
+| Expression()
 }
 
 void ArrayInitializer() :
-{
-  int args = 0;
-  Token x1, x2;
-}
+{ int args = 0; Token x1, x2; }
 {
   x1 = < LBRACE >
   [
-    VariableInitializer()
-    {
-      args++;
-    }
+    VariableInitializer() { args++; }
     (
       LOOKAHEAD(2)
-      < COMMA > VariableInitializer()
-      {
-        args++;
-      }
+      < COMMA > VariableInitializer() { args++; }
     )*
   ]
-  [ < COMMA > ] 
-  x2 = < RBRACE >
-  {
-    nop("array.init", pos(x1, x2), args);
-  }
+  [ < COMMA > ]
+  x2 = < RBRACE > { nop("array.init", pos(x1, x2), args); }
 }
 
 void ForStatement() :
@@ -1871,114 +1189,54 @@ void ForStatement() :
 }
 {
   x = < FOR > < LPAREN >
-  [
-    ForInit()
-    {
-      bParts [ 0 ] = true;
-    }
-  ]
-  < SEMICOLON >
-  [
-    Expression()
-    {
-      bParts [ 1 ] = true;
-    }
-  ]
-  < SEMICOLON >
-  [
-    ForUpdate()
-    {
-      bParts [ 2 ] = true;
-    }
-  ]
-  < RPAREN > Statement()
-  {
-    bParts [ 3 ] = true;
-  }
-  {
-    nop("control.for", pos(x), bParts);
-  }
+  [ ForInit() { bParts [ 0 ] = true; } ] < SEMICOLON >
+  [ Expression() { bParts [ 1 ] = true; } ] < SEMICOLON >
+  [ StatementExpressionList() { bParts [ 2 ] = true; } ] < RPAREN >
+  Statement() { bParts [ 3 ] = true; }
+  { nop("control.for", pos(x), bParts); }
 }
 
 void ForInit() :
 {}
 {
-  LOOKAHEAD(Type() < IDENTIFIER >)
-  LocalVariableDeclaration()
-| 
-  StatementExpressionList()
+  LOOKAHEAD(Type() < IDENTIFIER >) LocalVariableDeclaration()
+| StatementExpressionList()
 }
 
 void StatementExpressionList() :
+{ int args = 0; }
 {
-  int args = 0;
-}
-{
-  StatementExpression()
-  {
-    args++;
-  }
+  StatementExpression() { args++; }
   (
-    < COMMA > StatementExpression()
-    {
-      args++;
-    }
+    < COMMA > StatementExpression() { args++; }
   )*
-  {
-    if (args > 1) 
-    nop("statement_list", null, args);
-  }
-}
-
-void ForUpdate() :
-{}
-{
-  StatementExpressionList()
+  { if (args > 1) nop("statement_list", null, args); }
 }
 
 void BreakStatement() :
-{
-  String label = null;
-}
+{ String label = null; }
 {
   < BREAK >
   [
-    < IDENTIFIER >
-    {
-      label = token.image;
-    }
+    < IDENTIFIER > { label = token.image; }
   ]
-  OptionalSemiColon()
-  {
-    notImplemented("doBreak(label)");
-  }
+  OptionalSemiColon() { notImplemented("doBreak(label)"); }
 }
 
 void ContinueStatement() :
-{
-  String label = null;
-}
+{ String label = null; }
 {
   < CONTINUE >
   [
-    < IDENTIFIER >
-    {
-      label = token.image;
-    }
+    < IDENTIFIER > { label = token.image; }
   ]
-  OptionalSemiColon()
-  {
-    notImplemented("doContinue(label)");
-  }
+  OptionalSemiColon() { notImplemented("doContinue(label)"); }
 }
 
 void MethodHeader() :
 {}
 {
-  ResultType() MethodDeclarator()
-  {
-    nop("method.header", null, 3);
-  }
+  ResultType() MethodDeclarator() { nop("method.header", null, 3); }
 }
 
 void MethodDeclaration() :
@@ -1986,10 +1244,7 @@ void MethodDeclaration() :
 {
   ResultType() MethodDeclarator()
   (
-    Block()
-    {
-      nop("method.declaration", null, 4);
-    }
+    Block() { nop("method.declaration", null, 4); }
   | < SEMICOLON >
   )
 }
@@ -2007,99 +1262,81 @@ void MethodName() :
 }
 
 void FormalParameters() :
-{
-  int args = 0;
-  Token x1, x2;
-}
+{ int args = 0; Token x1, x2; }
 {
   x1 = < LPAREN >
   [
-    FormalParameter()
-    {
-      ++args;
-    }
+    FormalParameter() { ++args; }
     (
-      < COMMA > FormalParameter()
-      {
-        ++args;
-      }
+      < COMMA > FormalParameter() { ++args; }
     )*
   ]
-  x2 = < RPAREN >
-  {
-    nop("method.parameters", pos(x1, x2), args);
-  }
+  x2 = < RPAREN > { nop("method.parameters", pos(x1, x2), args); }
 }
 
 void FormalParameter() :
-{
-  int count = 2;
-}
+{ int count = 2; }
 {
   Type() VariableDeclaratorId()
   (
-    ParameterMetaData()
-    {
-        count = count + 1;
-    }
+    ParameterMetaData() { ++count; }
   )?
-  {
-    nop("parameter.declaration", null, count);
-  }
+  { nop("parameter.declaration", null, count); }
 }
 
 void ParameterMetaData() :
+{}
 {
-}
-{
-  ":" identifier() "." identifier()
-  {
-    nop("parameter.meta.declaration", null, 2);
-  }
+  ":" identifier() "." identifier() { nop("parameter.meta.declaration", null, 2); }
 }
 
 void VarDeclaration() :
 {}
 {
-  LocalVariableDeclaration() < SEMICOLON >
-  {
-    uop("var.declaration", null);
-  }
+  LocalVariableDeclaration() < SEMICOLON > { uop("var.declaration", null); }
 }
 
 void MethodOrVarDeclaration() :
 {}
 {
-  LOOKAHEAD(ResultType() MethodDeclarator())	
-  MethodDeclaration()
-| 
-  VarDeclaration()
+  LOOKAHEAD(ResultType() MethodDeclarator()) MethodDeclaration()
+| VarDeclaration()
 }
 
 void parseModuleInternal() :
-{
-  int nMethods = 1;
-}
+{ int nMethods = 1; }
 {
   MethodOrVarDeclaration()
   (
-    MethodOrVarDeclaration()
-    {
-      ++nMethods;
-    }
+    MethodOrVarDeclaration() { ++nMethods; }
   )*
-  {
-    if (nMethods > 0) nop("module.top", null, nMethods);
-  }
+  { if (nMethods > 0) nop("module.top", null, nMethods); }
   < EOF >
 }
 
 void parseTopNodeInternal() :
 {}
 {
-  BlockStatementList()
-  {
-    uop("block.top", null);
-  }
+  BlockStatementList() { uop("block.top", null); }
   < EOF >
+}
+
+void parseParamDeclaration() :
+{ int args = 1; }
+{
+  ResultType() [ VariableDeclaratorId() { ++args; } ]
+  { nop("param.declaration", null, args); }
+  < EOF >
+}
+
+void parseType() :
+{}
+{
+  ResultType() < EOF >
+}
+
+void parseMethodHeader() :
+{}
+{
+  MethodHeader()  < EOF >
 }
