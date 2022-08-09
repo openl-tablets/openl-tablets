@@ -618,7 +618,7 @@ void ConditionalTernaryExpression() :
   int args;
 }
 {
-  ConditionalImplExpression()
+  ConditionalOrExpression()
   [
     x = < HOOK > ConditionalTernaryExpression() {args = 2;}
     [
@@ -628,21 +628,6 @@ void ConditionalTernaryExpression() :
       nop("op.ternary.qmark", pos(x), args);
     }
   ]
-}
-
-void ConditionalImplExpression() :
-{
-  Token x;
-}
-{
-  ConditionalOrExpression()
-  (
-    LOOKAHEAD(< IMPL >)
-    (x = < IMPL >) ConditionalOrExpression()
-    {
-      bop("op.binary.impl", pos(x));
-    }
-  )*
 }
 
 void ConditionalOrExpression() :
