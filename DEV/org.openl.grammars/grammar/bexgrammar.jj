@@ -1020,12 +1020,10 @@ void IdentifierSequence() :
   int args = 1;
 }
 {
-  (
     x = < IDENTIFIER >
     {
       identifier("identifier", pos(token), token.image);
     }
-  )
   (
     x = < IDENTIFIER >
     {
@@ -1046,12 +1044,10 @@ void Word(String type) :
   Token x;
 }
 {
-  (
     x = < IDENTIFIER >
     {
       identifier(type, pos(token), token.image);
     }
-  )
 }
 
 void PrimarySuffix() :
@@ -1376,20 +1372,16 @@ void IndexTypeExpression() :
 }
 {
   LOOKAHEAD(3)
-  (
     x1 = < LPAREN > Type() VariableDeclaratorId() x2 = < RPAREN >
     {
       nop("index.parameter.declaration", pos(x1, x2), 2);
     }
-  )
 | 
   LOOKAHEAD(3)
-  (
     x1 = < LPAREN > VariableDeclaratorId() x2 = < RPAREN >
     {
       nop("index.parameter.declaration", pos(x1, x2), 1);
     }
-  )
 }
 
 void IndexOperator() :
@@ -1399,7 +1391,6 @@ void IndexOperator() :
   boolean hasTypeExpression = false;
 }
 {
-  (
     x1 = < LBRACKET >
     [
       LOOKAHEAD(4)
@@ -1484,7 +1475,6 @@ void IndexOperator() :
         uop(prefix, pos(x1, x2));
       }
     }
-  )
 }
 
 void Literal() :
@@ -1613,10 +1603,8 @@ void BlockStatementList() :
 void OptionalSemiColon() :
 {}
 {
-  (
     < SEMICOLON >
   | < EOF >
-  )
 }
 
 void SemiColon() :
