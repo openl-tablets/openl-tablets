@@ -44,7 +44,6 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         this.resolver = resolver;
         this.appName = appName;
         loadProperties();
-        ConfigLog.LOG.info("+        Add: '{}'", getFile());
     }
 
     @Override
@@ -73,8 +72,9 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         if (file.exists()) {
             try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
                 properties.load(reader);
+                ConfigLog.LOG.info("+       Load: '{}'", getFile());
             } catch (IOException e) {
-                ConfigLog.LOG.error("Failed to load", e);
+                ConfigLog.LOG.error("!     Error:", e);
             }
             version = properties.getProperty(PROP_VERSION);
         } else {

@@ -109,6 +109,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         propertySources.addLast(new RefPropertySource(propertySources));
 
         registerPropertyBean(appContext, defaultPropertySource, props);
+        ConfigLog.LOG.info("Loading of the properties has been finished.");
     }
 
     private void registerPropertyBean(ConfigurableApplicationContext appContext,
