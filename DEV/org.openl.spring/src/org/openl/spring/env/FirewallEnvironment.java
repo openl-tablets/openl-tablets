@@ -23,4 +23,10 @@ class FirewallEnvironment extends StandardEnvironment {
     FirewallPropertyResolver getRawPropertyResolver() {
         return (FirewallPropertyResolver) getPropertyResolver();
     }
+
+    @Override
+    protected void customizePropertySources(MutablePropertySources propertySources) {
+        super.customizePropertySources(propertySources);
+        propertySources.replace(SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, new SysEnvRefPropertySource(getSystemEnvironment()));
+    }
 }
