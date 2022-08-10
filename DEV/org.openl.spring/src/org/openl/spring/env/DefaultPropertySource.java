@@ -40,7 +40,7 @@ public class DefaultPropertySource extends EnumerablePropertySource<Map<String, 
                 try (InputStream is = url.openStream()) {
                     prop.load(is);
                 }
-                ConfigLog.LOG.info("+        Add: '{}'", url);
+                ConfigLog.LOG.info("+       Load: '{}'", url);
             }
         } catch (Exception e) {
             ConfigLog.LOG.error("!     Error:", e);
