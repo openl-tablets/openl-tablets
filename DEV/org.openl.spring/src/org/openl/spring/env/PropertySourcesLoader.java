@@ -108,8 +108,10 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         ConfigLog.LOG.info("Register reference property processor...");
         propertySources.addLast(new RefPropertySource(propertySources));
 
+        ConfigLog.LOG.info("Activating a firewall against insecure properties keys...");
         props.initFirewall();
         registerPropertyBean(appContext, defaultPropertySource, props);
+        ConfigLog.LOG.info("Loading of the properties has been finished.");
     }
 
     private void registerPropertyBean(ConfigurableApplicationContext appContext,
