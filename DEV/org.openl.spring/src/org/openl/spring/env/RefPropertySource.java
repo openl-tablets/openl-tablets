@@ -10,7 +10,7 @@ import org.springframework.core.env.PropertySources;
 public class RefPropertySource extends PropertySource<Object> {
 
     static final String PROPS_NAME = "References to properties";
-    private static final String REF = ".$ref";
+    static final String REF = ".$ref";
     private static final int MAX_REF_DEPTH = 2;
 
     private final PropertySources propertySources;
