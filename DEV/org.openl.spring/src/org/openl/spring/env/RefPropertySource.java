@@ -1,12 +1,18 @@
 package org.openl.spring.env;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySources;
 
 public class RefPropertySource extends PropertySource<Object> {
+
     static final String PROPS_NAME = "References to properties";
     private static final String REF = ".$ref";
+    private static final int MAX_REF_DEPTH = 2;
+
     private final PropertySources propertySources;
 
     public RefPropertySource(PropertySources propertySources) {
@@ -16,7 +22,11 @@ public class RefPropertySource extends PropertySource<Object> {
 
     @Override
     public Object getProperty(String name) {
-        if (name.endsWith(REF)) {
+        return getProperty0(name, 1, new HashSet<>());
+    }
+
+    private Object getProperty0(String name, int depth, Set<String> visitedRefs) {
+        if (name.endsWith(REF) || depth > MAX_REF_DEPTH) {
             return null;
         }
         String subName = name;
@@ -26,9 +36,13 @@ public class RefPropertySource extends PropertySource<Object> {
             sufix.insert(0, subName.substring(dot));
             subName = subName.substring(0, dot);
             String ref = subName + REF;
-            String refProp = StringUtils.trimToNull(getPropValue(ref));
+            String refProp = StringUtils.trimToNull(getPropValue(ref, depth, visitedRefs));
             if (refProp != null) {
-                return getPropValue(refProp + sufix);
+                if (!visitedRefs.add(refProp)) {
+                    // break already visited refs to prevent looping
+                    return null;
+                }
+                return getPropValue(refProp + sufix, depth, visitedRefs);
             }
             dot = subName.lastIndexOf('.');
 
@@ -36,12 +50,14 @@ public class RefPropertySource extends PropertySource<Object> {
         return null;
     }
 
-    private String getPropValue(String ref) {
+    private String getPropValue(String ref, int depth, Set<String> visitedRefs) {
         for (PropertySource<?> propertySource : propertySources) {
-            if (propertySource.getName().equals(PROPS_NAME)) {
-                break;
+            Object value;
+            if (propertySource == this) {
+                value = ((RefPropertySource) propertySource).getProperty0(ref, ++depth, visitedRefs);
+            } else {
+                value = propertySource.getProperty(ref);
             }
-            Object value = propertySource.getProperty(ref);
             if (value != null) {
                 return value.toString();
             }
