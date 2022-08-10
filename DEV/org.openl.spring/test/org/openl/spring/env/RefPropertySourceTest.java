@@ -1,5 +1,8 @@
 package org.openl.spring.env;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.util.HashMap;
 
 import org.junit.Assert;
@@ -69,22 +72,73 @@ public class RefPropertySourceTest {
         }));
         RefPropertySource ref = new RefPropertySource(propertySources);
         propertySources.addLast(ref);
-        Assert.assertEquals("A", ref.getProperty("xyz"));
-        Assert.assertEquals("B", ref.getProperty("xyz.def"));
-        Assert.assertEquals("C", ref.getProperty("xyz.gh.i"));
+        assertEquals("A", ref.getProperty("xyz"));
+        assertEquals("B", ref.getProperty("xyz.def"));
+        assertEquals("C", ref.getProperty("xyz.gh.i"));
         Assert.assertNull(ref.getProperty("xyz.ghz"));
         Assert.assertNull(ref.getProperty("xyz.yvw"));
-        Assert.assertEquals("1", ref.getProperty("xyz.yvw.x"));
-        Assert.assertEquals("2", ref.getProperty("xyz.yvw.y"));
+        assertEquals("1", ref.getProperty("xyz.yvw.x"));
+        assertEquals("2", ref.getProperty("xyz.yvw.y"));
         Assert.assertNull(ref.getProperty("xyz.yvw.z"));
 
-        Assert.assertEquals("1", ref.getProperty("klq.x"));
-        Assert.assertEquals("2", ref.getProperty("klq.y"));
+        assertEquals("1", ref.getProperty("klq.x"));
+        assertEquals("2", ref.getProperty("klq.y"));
         Assert.assertNull(ref.getProperty("klq.zz"));
 
         Assert.assertNull(ref.getProperty(".$ref"));
         Assert.assertNull(ref.getProperty("b.$ref"));
         Assert.assertNull(ref.getProperty("abc"));
         Assert.assertNull(ref.getProperty("abc.def"));
+    }
+
+    @Test
+    public void multiLevelRefs() {
+        MutablePropertySources propertySources = new MutablePropertySources();
+        propertySources.addLast(new MapPropertySource("A", new HashMap<>() {
+            {
+                // root
+                put("abc", "1");
+                put("abc.def", "2");
+                put("foo.bar", "11");
+                // level 1
+                put("q.$ref", "abc");
+                put("q.bar", "111");
+                put("q.foo2.$ref", "foo");
+                // level 2
+                put("www.$ref", "q");
+                put("www.len", "21");
+                put("www.fff.$ref", "qqq");
+                // level 3
+                put("qqq.$ref", "www");
+                put("qqq.gg.$ref", "abc");
+                put("qqq.dd", "pam");
+            }
+        }));
+
+        RefPropertySource ref = new RefPropertySource(propertySources);
+        propertySources.addLast(ref);
+
+        assertEquals("1", ref.getProperty("q"));
+        assertEquals("2", ref.getProperty("q.def"));
+
+        assertEquals("11", ref.getProperty("q.foo2.bar"));
+
+        assertEquals("1", ref.getProperty("www"));
+        assertEquals("2", ref.getProperty("www.def"));
+        assertEquals("111", ref.getProperty("www.bar"));
+        assertEquals("11", ref.getProperty("www.foo2.bar"));
+
+        assertEquals("21", ref.getProperty("qqq.len"));
+        assertEquals("111", ref.getProperty("qqq.bar"));
+        // must be null because it's higher than RefPropertySource.MAX_REF_DEPTH
+        assertNull(ref.getProperty("qqq"));
+        assertNull(ref.getProperty("qqq.def"));
+        assertNull(ref.getProperty("qqq.foo2.bar"));
+
+        assertEquals("pam", ref.getProperty("www.fff.dd"));
+        assertEquals("1", ref.getProperty("www.fff.gg"));
+        assertEquals("2", ref.getProperty("www.fff.gg.def"));
+        // must be null because of looping
+        assertNull(ref.getProperty("www.fff.fff.len"));
     }
 }
