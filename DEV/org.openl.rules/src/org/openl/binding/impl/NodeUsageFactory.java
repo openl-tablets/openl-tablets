@@ -34,7 +34,7 @@ public final class NodeUsageFactory {
      */
     public static List<NodeUsage> createNodeUsageList(IBoundNode boundNode, String sourceString, int startIndex) {
         List<NodeUsage> nodeUsages = new ArrayList<>();
-        findNodeUsages(nodeUsages, boundNode, sourceString, startIndex);
+        findNodeUsages(nodeUsages, boundNode, sourceString.substring(startIndex), startIndex);
         nodeUsages.sort(Comparator.comparingInt(NodeUsage::getStart));
         return Collections.unmodifiableList(nodeUsages);
     }
