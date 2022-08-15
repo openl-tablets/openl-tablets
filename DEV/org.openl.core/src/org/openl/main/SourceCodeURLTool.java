@@ -140,7 +140,7 @@ public final class SourceCodeURLTool {
             pw.print(line);
             pw.print("\r\n");
             if (i == line1) {
-                for (int i2 = 0; i2 < column1; i2++) {
+                for (int i2 = 0; i2 < column1 - 1; i2++) {
                     pw.print(' ');
                 }
                 int col2 = line1 == line2 ? (column2 + 1) : line.length();
