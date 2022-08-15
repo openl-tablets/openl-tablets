@@ -35,6 +35,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode method1;
     private TableSyntaxNode method3;
     private TableSyntaxNode method4;
+    private TableSyntaxNode methodFoo;
     private TableSyntaxNode assetsCompare;
     private TableSyntaxNode totalAssets;
     private TableSyntaxNode miscAssets;
@@ -75,6 +76,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         method1 = findTable("Method String method1(TypeC[][] param)");
         method3 = findTable("Method String method3(TypeC[][] param)");
         method4 = findTable("Method String method4(TypeC[][] param)");
+        methodFoo = findTable("Method Object Foo (Object object)");
 
         assetsCompare = findTable("Spreadsheet SpreadsheetResult AssetsCompare ()");
         totalAssets = findTable("Spreadsheet SpreadsheetResult TotalAssets ()");
@@ -588,6 +590,14 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
+    public void testConstructorsMetaInformation_FormulaColumnForS12Step() {
+        List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 13, 2);
+
+        assertNodeUsage(usedNodes.get(0), "Cell type: TypeB", 0, 1);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "TypeB ()", 8, 13);
+    }
+
+    @Test
     public void testArrayBoundNodeMetaInformation() {
         List<? extends NodeUsage> usedNodes = assertMetaInfo(arrayNodeHints, 1, 2, 2);
 
@@ -631,6 +641,18 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         usedNodes = assertMetaInfo(ternaryOpHints, 1, 3, 4);
 
         assertNodeUsage(usedNodes.get(1), "org.openl.rules.calc\nclass SpreadsheetResult", 9, 26);
+    }
+
+    @Test
+    public void testTernaryOpStep3() {
+        List<? extends NodeUsage> usedNodes = assertMetaInfo(ternaryOpHints, 1, 4, 7);
+
+        assertNodeUsage(usedNodes.get(1), "org.openl.rules.calc\nclass SpreadsheetResult", 11, 28);
+        assertNodeUsage(methodFoo.getUri(), usedNodes.get(2), "Object Foo(Object object)", 30, 33);
+        assertNodeUsage(usedNodes.get(3), "String spreadsheetResult", 34, 51);
+        assertNodeUsage(usedNodes.get(4), "org.openl.rules.calc\nclass SpreadsheetResult", 57, 74);
+        assertNodeUsage(methodFoo.getUri(), usedNodes.get(5), "Object Foo(Object object)", 76, 79);
+        assertNodeUsage(usedNodes.get(6), "String spreadsheetResult", 80, 97);
     }
 
     @Test

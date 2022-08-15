@@ -31,7 +31,7 @@ public class ConstructorNodeCreator implements NodeUsageCreator {
         ISyntaxNode syntaxNode = methodBoundNode.getSyntaxNode();
         IOpenMethod method = methodBoundNode.getMethodCaller().getMethod();
         ILocation location = syntaxNode.getSourceLocation();
-        int pstart = startIndex + location.getStart().getAbsolutePosition(info);
+        int pstart = location.getStart().getAbsolutePosition(info);
         int pend = pstart;
         while (pend < sourceString.length() && sourceString.charAt(pend) != '(') {
             pend++;
@@ -39,7 +39,7 @@ public class ConstructorNodeCreator implements NodeUsageCreator {
         while (pend >= pstart && sourceString.charAt(pend) == ' ') {
             pend--;
         }
-        return Optional.of(new ConstructorUsage(constructorNode, pstart, pend, method));
+        return Optional.of(new ConstructorUsage(constructorNode, pstart + startIndex, pend + startIndex, method));
     }
 
     private static class Holder {
