@@ -247,6 +247,11 @@
         var services = servicesResponse.services;
         var deployerEnabled = servicesResponse.deployerEnabled;
         if (Array.isArray(services) && services.length > 0) {
+            services.sort((a, b) => {
+                let aSp = a.servicePath.toUpperCase().split("/");
+                let bSp = b.servicePath.toUpperCase().split("/");
+                return aSp[0].localeCompare(bSp[0]) || aSp[1].localeCompare(bSp[1]);
+            });
             mainBlock.innerHTML = "<h2>Available services:</h2>";
             services.forEach(function (service) {
                 var html = createServiceHtml(service, deployerEnabled);
