@@ -6,12 +6,13 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.util.CollectionUtils;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -26,7 +27,7 @@ class OpenLMessageSource {
     // Cache to hold already loaded properties per locale.
     private final Map<Locale, MessageBundle> cacheLocalProperties = new ConcurrentHashMap<>();
     // Cache to hold already loaded properties per name.
-    private final Map<String, Properties> cacheProperties = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, String>> cacheProperties = new ConcurrentHashMap<>();
 
     public OpenLMessageSource(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -47,12 +48,12 @@ class OpenLMessageSource {
         return loadMessageBundle(DEFAULT_MSG_SRC, locale);
     }
 
-    private Properties getProperties(String basename) {
+    private Map<String, String> getProperties(String basename) {
         return cacheProperties.computeIfAbsent(basename, this::loadProperties);
     }
 
-    private Properties loadProperties(String basename) {
-        var result = new Properties();
+    private Map<String, String> loadProperties(String basename) {
+        var result = new HashMap<String, String>();
 
         Enumeration<URL> urls = null;
         try {
@@ -63,7 +64,8 @@ class OpenLMessageSource {
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();
                 try (var is = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)) {
-                    result.load(is);
+                    PropertiesUtils.load(is, result::put);
+
                 } catch (IOException ignored) {
                 }
             }
@@ -85,7 +87,7 @@ class OpenLMessageSource {
      * @return the message bundle
      */
     private MessageBundle loadMessageBundle(String basename, Locale locale) {
-        Properties properties = new Properties();
+        var properties = new HashMap<String, String>();
         String language = locale.getLanguage();
         String country = locale.getCountry();
         String variant = locale.getVariant();
@@ -115,13 +117,13 @@ class OpenLMessageSource {
 
     public static class MessageBundle {
 
-        private final Properties properties;
+        private final Map<String, String> properties;
         private final Locale locale;
 
         // Cache to hold already generated MessageFormats per message code.
         private final Map<String, MessageFormat> cachedMessageFormats = new ConcurrentHashMap<>();
 
-        public MessageBundle(Properties properties, Locale locale) {
+        public MessageBundle(Map<String, String> properties, Locale locale) {
             this.properties = properties;
             this.locale = locale;
         }
@@ -130,7 +132,7 @@ class OpenLMessageSource {
             if (code == null) {
                 return null;
             }
-            String msg = properties.getProperty(code);
+            String msg = properties.get(code);
             if (msg == null) {
                 return code;
             }
