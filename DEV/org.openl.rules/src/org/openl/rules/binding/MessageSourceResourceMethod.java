@@ -1,7 +1,5 @@
 package org.openl.rules.binding;
 
-import java.lang.reflect.Array;
-import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -45,14 +43,7 @@ public class MessageSourceResourceMethod implements IOpenMethod {
         Locale locale = Optional.ofNullable(((IRulesRuntimeContext) env.getContext()).getLocale()).orElse(Locale.US);
 
         var messageBundle = messageSource.getMessageBundle(locale);
-        if (params.length == 1 || params[1] == null || (params[1].getClass()
-            .isArray() && Array.getLength(params[1]) == 0)) {
-            String msg = messageBundle.getProperty((String) params[0]);
-            return msg != null ? msg : params[0];
-        } else {
-            MessageFormat messageFormat = messageBundle.getMessageFormat((String) params[0]);
-            return messageFormat != null ? messageFormat.format(params[1]) : params[0];
-        }
+        return messageBundle.msg((String) params[0],(Object[]) params[1]);
     }
 
     @Override
