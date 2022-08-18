@@ -15,7 +15,6 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -44,6 +43,7 @@ import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.spring.env.DynamicPropertySource;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -360,10 +360,10 @@ public class InstallWizard implements Serializable {
             log.error("Code: {}. {}.", errorCode, sqle.getMessage(), sqle);
             final String SQL_ERRORS_FILE_PATH = "/sql-errors.properties";
             String errorMessage = null;
-            try {
-                Properties properties = new Properties();
-                properties.load(getClass().getResourceAsStream(SQL_ERRORS_FILE_PATH));
-                errorMessage = properties.getProperty(Integer.toString(errorCode));
+            try (var is = getClass().getResourceAsStream(SQL_ERRORS_FILE_PATH)) {
+                HashMap<String, String> properties = new HashMap<>();
+                PropertiesUtils.load(is, properties::put);
+                errorMessage = properties.get(Integer.toString(errorCode));
             } catch (Exception e) {
                 log.error("Cannot to load {} file.", SQL_ERRORS_FILE_PATH, e);
             }

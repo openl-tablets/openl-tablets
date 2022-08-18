@@ -13,12 +13,14 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
-import java.util.Properties;
+import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
+import org.openl.util.PropertiesUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,11 +150,11 @@ public class Lock {
         if (!Files.isRegularFile(lock)) {
             return LockInfo.NO_LOCK;
         }
-        Properties properties = new Properties();
+        var properties = new HashMap<String, String>();
         try (BufferedReader is = Files.newBufferedReader(lock)) {
-            properties.load(is);
-            String userName = properties.getProperty(USER_NAME);
-            String stringDate = properties.getProperty(DATE);
+            PropertiesUtils.load(is, properties::put);
+            String userName = properties.get(USER_NAME);
+            String stringDate = properties.get(DATE);
             Instant date;
             try {
                 date = Instant.parse(stringDate);

@@ -1,19 +1,18 @@
 package org.openl.rules.security.standalone;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.Map;
-import java.util.Properties;
 import java.util.TreeMap;
 
 import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
-import org.openl.util.IOUtils;
+import org.openl.util.PropertiesUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,16 +57,8 @@ public class DBMigrationBean {
             return;
         }
         LOG.info("Load properties from '{}'.", resource);
-        InputStream is = resource.openStream();
-        try {
-            Properties properties = new Properties();
-            properties.load(is);
-            for (String key : properties.stringPropertyNames()) {
-                queries.put(key, properties.getProperty(key));
-            }
-            is.close();
-        } finally {
-            IOUtils.closeQuietly(is);
+        try (var is = resource.openStream()) {
+            PropertiesUtils.load(is, queries::put);
         }
     }
 }

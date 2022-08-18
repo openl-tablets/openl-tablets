@@ -8,11 +8,12 @@ import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 
-import org.openl.util.IOUtils;
+import org.openl.util.PropertiesUtils;
+
 import org.slf4j.LoggerFactory;
 
 /**
@@ -30,28 +31,22 @@ public final class OpenLVersion {
     private static final Map<Object, Object> buildInfo;
 
     static {
-        Properties props = new Properties();
+        var props = new LinkedHashMap<String, String>();
 
-        InputStream propertiesFile = null;
-        try {
-            propertiesFile = OpenLVersion.class.getResourceAsStream("openl.version.properties");
-            props.load(propertiesFile);
+        try (var propertiesFile = OpenLVersion.class.getResourceAsStream("openl.version.properties")) {
+            PropertiesUtils.load(propertiesFile, props::put);
         } catch (Exception t) {
             LoggerFactory.getLogger(OpenLVersion.class).warn("openl.version.properties is not found.", t);
-        } finally {
-            if (propertiesFile != null) {
-                IOUtils.closeQuietly(propertiesFile);
-            }
         }
-        url = props.getProperty("openl.url", "??");
-        version = props.getProperty("openl.version", "???");
-        String bd = props.getProperty("openl.build.date", "????-??-??");
+        url = props.getOrDefault("openl.url", "??");
+        version = props.getOrDefault("openl.version", "???");
+        String bd = props.getOrDefault("openl.build.date", "????-??-??");
         // If openl.version.properties is used from classpath and this property is not initialized at build time
         if ("${build.date}".equals(bd)) {
             bd = "????-??-??";
         }
         buildDate = bd;
-        buildNumber = props.getProperty("openl.commit.hash", "????");
+        buildNumber = props.getOrDefault("openl.commit.hash", "????");
 
         HashMap<String, String> source = new HashMap<>(6);
         source.put("openl.site", url);
@@ -67,7 +62,7 @@ public final class OpenLVersion {
                 .toString());
         info = Collections.unmodifiableMap(source);
 
-        props = new Properties();
+        props.clear();
 
         Enumeration<URL> resources = null;
         try {
@@ -79,7 +74,7 @@ public final class OpenLVersion {
             while (resources.hasMoreElements()) {
                 URL resource = resources.nextElement();
                 try (InputStream propsStream = resource.openStream()) {
-                    props.load(propsStream);
+                    PropertiesUtils.load(propsStream, props::put);
                 } catch (IOException t) {
                     LoggerFactory.getLogger(OpenLVersion.class).warn("Failed to load '{}' file.", resource, t);
                 }

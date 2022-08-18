@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -30,6 +29,7 @@ import org.openl.rules.webstudio.web.install.KeyPairCertUtils;
 import org.openl.rules.workspace.dtr.impl.ProjectIndex;
 import org.openl.rules.workspace.dtr.impl.ProjectInfo;
 import org.openl.spring.env.DynamicPropertySource;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -230,12 +230,12 @@ public class Migrator {
         Path projectProperties = Paths.get(designRepo, "openl-projects.properties");
         if (Files.isRegularFile(projectProperties)) {
             try (Reader in = Files.newBufferedReader(projectProperties, StandardCharsets.UTF_8)) {
-                Properties projectProps = new Properties();
-                projectProps.load(in);
+                var projectProps = new HashMap<String, String>();
+                PropertiesUtils.load(in, projectProps::put);
                 int projectsCount = projectProps.size() / 2;
                 for (int i = 1; i <= projectsCount; i++) {
-                    String name = projectProps.getProperty("project." + i + ".name");
-                    String path = projectProps.getProperty("project." + i + ".path");
+                    String name = projectProps.get("project." + i + ".name");
+                    String path = projectProps.get("project." + i + ".path");
                     projectPathMap.put(name, path);
                 }
             } catch (IOException e) {
@@ -356,15 +356,15 @@ public class Migrator {
         Path branchesProperties = Paths.get(Props.text("openl.home") + "/git-settings/branches.properties");
         if (Files.isRegularFile(branchesProperties)) {
             try (Reader in = Files.newBufferedReader(branchesProperties, StandardCharsets.UTF_8)) {
-                Properties branchProps = new Properties();
-                branchProps.load(in);
-                String numStr = branchProps.getProperty("projects.number");
+                var branchProps = new HashMap<String, String>();
+                PropertiesUtils.load(in, branchProps::put);
+                String numStr = branchProps.get("projects.number");
                 BranchesData branches = new BranchesData();
                 if (numStr != null) {
                     int num = Integer.parseInt(numStr);
                     for (int i = 1; i <= num; i++) {
-                        String name = branchProps.getProperty("project." + i + ".name");
-                        String branchesStr = branchProps.getProperty("project." + i + ".branches");
+                        String name = branchProps.get("project." + i + ".name");
+                        String branchesStr = branchProps.get("project." + i + ".branches");
                         if (StringUtils.isBlank(name) || StringUtils.isBlank(branchesStr)) {
                             continue;
                         }
@@ -425,9 +425,7 @@ public class Migrator {
                         if (lockPath.startsWith("branches/")) {
                             // ./branches/{Project Name}/{branch/name}/{Project Name}
                             Path branchPath = lockPath.subpath(2, lockPath.getNameCount() - 1);
-                            if (branchPath != null) {
-                                branchName = "[branches]/" + branchPath;
-                            }
+                            branchName = "[branches]/" + branchPath;
                         }
                         String projectName = lockPath.getFileName().toString();
                         String projectPath = projectPathMap.getOrDefault(projectName, "/DESIGN/rules/" + projectName);
