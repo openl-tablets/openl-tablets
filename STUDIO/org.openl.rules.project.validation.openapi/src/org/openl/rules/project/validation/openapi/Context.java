@@ -42,6 +42,7 @@ class Context {
     private String mediaType;
 
     private IOpenClass type;
+    private Object targetService;
     private IOpenField field;
     private Method method;
     private IOpenMethod openMethod;
@@ -303,5 +304,13 @@ class Context {
 
     public void setYaml(boolean yaml) {
         this.yaml = yaml;
+    }
+
+    public Object getTargetService() {
+        return targetService;
+    }
+
+    public void setTargetService(Object targetService) {
+        this.targetService = targetService;
     }
 }

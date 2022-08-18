@@ -118,7 +118,7 @@ public final class GenUtils {
         return getParameterNames(method);
     }
 
-    private static void fixJavaKeyWords(List<String> parameterNames) {
+    public static void fixJavaKeyWords(List<String> parameterNames) {
         for (int i = 0; i < parameterNames.size(); i++) {
             if (JavaKeywordUtils.isJavaKeyword(parameterNames.get(i))) {
                 int k = 0;

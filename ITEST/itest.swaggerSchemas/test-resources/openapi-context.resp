@@ -17,7 +17,7 @@ Content-Type: application/json
     "/calVehicleYear": {
       "post": {
         "summary": "Integer calVehicleYear(IRulesRuntimeContext, CalVehicleYearRequest)",
-        "description": "Method: java.lang.Integer calVehicleYear(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.CalVehicleYearRequest)",
+        "description": "Rules method: java.lang.Integer calVehicleYear(org.openl.generated.beans.CalVehicleYearRequest v)",
         "operationId": "calVehicleYear",
         "requestBody": {
           "content": {
@@ -37,8 +37,7 @@ Content-Type: application/json
                   "oneOf": [
                     {
                       "$ref": "#/components/schemas/JAXRSUserErrorResponse"
-                    },
-                    {
+                    }, {
                       "$ref": "#/components/schemas/JAXRSErrorResponse"
                     }
                   ]

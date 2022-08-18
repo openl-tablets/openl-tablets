@@ -88,9 +88,16 @@ public class OpenApiGenerator {
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
-            Class<?> serviceClass = resolveInterface(instantiationStrategy);
+            RulesInstantiationStrategy enhancedInstantiationStrategy = enhanceRulesInstantiationStrategy(
+                instantiationStrategy,
+                isProvidedRuntimeContext(),
+                isProvideVariations());
+            Class<?> serviceClass = resolveInterface(enhancedInstantiationStrategy);
             ObjectMapper objectMapper = createObjectMapper(serviceClassLoader);
-            Class<?> enhancedServiceClass = enhanceWithJAXRS(serviceClass, serviceClassLoader, objectMapper);
+            Class<?> enhancedServiceClass = enhanceWithJAXRS(serviceClass,
+                enhancedInstantiationStrategy.instantiate(),
+                serviceClassLoader,
+                objectMapper);
             Map<Method, Method> methodMap = buildMethodMapWithJAXRS(serviceClass, enhancedServiceClass);
             if (methodMap.isEmpty()) {
                 throw new OpenApiGenerationException(
@@ -160,6 +167,19 @@ public class OpenApiGenerator {
         return classLoader;
     }
 
+    protected RulesInstantiationStrategy enhanceRulesInstantiationStrategy(
+            RulesInstantiationStrategy rulesInstantiationStrategy,
+            boolean provideRuntimeContext,
+            boolean provideVariations) {
+        if (provideVariations) {
+            rulesInstantiationStrategy = new VariationInstantiationStrategyEnhancer(rulesInstantiationStrategy);
+        }
+        if (provideRuntimeContext) {
+            rulesInstantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(rulesInstantiationStrategy);
+        }
+        return rulesInstantiationStrategy;
+    }
+
     private Class<?> resolveInterface(
             RulesInstantiationStrategy instantiationStrategy) throws RulesInstantiationException {
         final RulesDeploy rulesDeployValue = getRulesDeploy();
@@ -182,13 +202,6 @@ public class OpenApiGenerator {
                         serviceClassName,
                         StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
             }
-        }
-
-        if (isProvideVariations()) {
-            instantiationStrategy = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
-        }
-        if (isProvidedRuntimeContext()) {
-            instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
         }
 
         final String templateClassName = Optional.ofNullable(rulesDeployValue)
@@ -227,6 +240,7 @@ public class OpenApiGenerator {
             instantiationStrategy.compile().getOpenClass(),
             serviceClass,
             resolveServiceClassLoader,
+            instantiationStrategy.instantiate(true),
             isProvidedRuntimeContext(),
             isProvideVariations());
     }
@@ -260,11 +274,12 @@ public class OpenApiGenerator {
     }
 
     private Class<?> enhanceWithJAXRS(Class<?> originalClass,
+            Object targetService,
             ClassLoader classLoader,
             ObjectMapper objectMapper) throws RulesInstantiationException {
         try {
             return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
-                compiledOpenClass.getOpenClassWithErrors(),
+                targetService,
                 classLoader,
                 Optional.ofNullable(getRulesDeploy())
                     .map(RulesDeploy::getServiceName)
@@ -328,7 +343,7 @@ public class OpenApiGenerator {
 
         /**
          * Creates new instance of {@link OpenApiGenerator}
-         * 
+         *
          * @return new instance of {@link OpenApiGenerator}
          * @throws RulesInstantiationException in case of compilation errors
          */
@@ -342,7 +357,7 @@ public class OpenApiGenerator {
 
     /**
      * Creates builder class
-     * 
+     *
      * @param projectDescriptor project descriptor of current OpenL Project
      * @param instantiationStrategy compilation factory of current OpenL Project
      * @return builder instance

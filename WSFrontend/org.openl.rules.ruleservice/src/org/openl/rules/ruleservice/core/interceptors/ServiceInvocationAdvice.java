@@ -30,7 +30,7 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
-import org.openl.runtime.ASMProxyHandler;
+import org.openl.runtime.AbstractOpenLMethodHandler;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
@@ -46,7 +46,7 @@ import org.springframework.core.Ordered;
  *
  * @author Marat Kamalov
  */
-public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
+public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Method, Method> implements Ordered {
 
     private final Logger log = LoggerFactory.getLogger(ServiceInvocationAdvice.class);
 
@@ -58,18 +58,23 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
     private final Map<Method, ServiceExtraMethodHandler<?>> serviceExtraMethodAnnotations = new HashMap<>();
 
     private final Object serviceTarget;
+    private final Class<?> serviceTargetClass;
     private final Class<?> serviceClass;
     private final ClassLoader serviceClassLoader;
     private final IOpenClass openClass;
     private final Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners;
+    private final Map<Method, IOpenMember> openMemberMap = new HashMap<>();
+    private final Map<Method, Method> methodMap = new HashMap<>();
 
     public ServiceInvocationAdvice(IOpenClass openClass,
             Object serviceTarget,
+            Class<?> serviceTargetClass,
             Class<?> serviceClass,
             ClassLoader serviceClassLoader,
             Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners) {
         this.serviceTarget = serviceTarget;
         this.serviceClass = serviceClass;
+        this.serviceTargetClass = serviceTargetClass;
         this.serviceClassLoader = serviceClassLoader;
         this.openClass = openClass;
         this.serviceMethodAdviceListeners = serviceMethodAdviceListeners != null ? new ArrayList<>(
@@ -99,11 +104,19 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
             for (Method method : serviceClass.getMethods()) {
                 Annotation[] methodAnnotations = method.getAnnotations();
+                IOpenMember openMember = findIOpenMember(method);
+                openMemberMap.put(method, openMember);
+                if (openMember != null) {
+                    Method serviceTargetMethod = MethodUtil
+                        .getMatchingAccessibleMethod(serviceTargetClass, method.getName(), method.getParameterTypes());
+                    methodMap.put(method, serviceTargetMethod);
+                }
+
                 for (Annotation annotation : methodAnnotations) {
-                    checkForBeforeInterceptor(method, annotation);
-                    checkForAfterInterceptor(method, annotation);
-                    checkForAroundInterceptor(method, annotation);
-                    checkForServiceExtraMethodAnnotation(method, annotation);
+                    checkForBeforeInterceptor(method, openMember, annotation);
+                    checkForAfterInterceptor(method, openMember, annotation);
+                    checkForAroundInterceptor(method, openMember, annotation);
+                    checkForServiceExtraMethodAnnotation(method, openMember, annotation);
                 }
             }
         } finally {
@@ -111,7 +124,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-    private void processAware(Object o, Method method) {
+    private void processAware(Object o, IOpenMember openMember) {
         if (o instanceof IOpenClassAware) {
             ((IOpenClassAware) o).setIOpenClass(openClass);
         }
@@ -121,13 +134,12 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             log.error("Failed to inject '{}' class instance.", IOpenClass.class.getTypeName());
         }
         if (o instanceof IOpenMemberAware) {
-            IOpenMember openMember = findIOpenMember(method);
             if (openMember != null) {
                 ((IOpenMemberAware) o).setIOpenMember(openMember);
             }
         }
         try {
-            AnnotationUtils.inject(o, InjectOpenMember.class, (e) -> findIOpenMember(method));
+            AnnotationUtils.inject(o, InjectOpenMember.class, (e) -> openMember);
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error("Failed to inject '{}' class instance.", IOpenMember.class.getTypeName());
         }
@@ -144,13 +156,13 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         return null;
     }
 
-    private void checkForAroundInterceptor(Method method, Annotation annotation) {
+    private void checkForAroundInterceptor(Method method, IOpenMember openMember, Annotation annotation) {
         if (annotation instanceof ServiceCallAroundInterceptor) {
             Class<? extends ServiceMethodAroundAdvice<?>> interceptorClass = ((ServiceCallAroundInterceptor) annotation)
                 .value();
             try {
                 ServiceMethodAroundAdvice<?> aroundInterceptor = interceptorClass.newInstance();
-                processAware(aroundInterceptor, method);
+                processAware(aroundInterceptor, openMember);
                 aroundInterceptors.put(method, aroundInterceptor);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
@@ -161,7 +173,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-    private void checkForBeforeInterceptor(Method method, Annotation annotation) {
+    private void checkForBeforeInterceptor(Method method, IOpenMember openMember, Annotation annotation) {
         if (annotation instanceof ServiceCallBeforeInterceptor) {
             Class<? extends ServiceMethodBeforeAdvice>[] interceptorClasses = ((ServiceCallBeforeInterceptor) annotation)
                 .value();
@@ -170,7 +182,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             for (Class<? extends ServiceMethodBeforeAdvice> interceptorClass : interceptorClasses) {
                 try {
                     ServiceMethodBeforeAdvice preInterceptor = interceptorClass.newInstance();
-                    processAware(preInterceptor, method);
+                    processAware(preInterceptor, openMember);
                     interceptors.add(preInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
@@ -182,13 +194,13 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-    private void checkForServiceExtraMethodAnnotation(Method method, Annotation annotation) {
+    private void checkForServiceExtraMethodAnnotation(Method method, IOpenMember openMember, Annotation annotation) {
         if (annotation instanceof ServiceExtraMethod) {
             Class<? extends ServiceExtraMethodHandler<?>> serviceExtraMethodHandlerClass = ((ServiceExtraMethod) annotation)
                 .value();
             try {
                 ServiceExtraMethodHandler<?> serviceExtraMethodHandler = serviceExtraMethodHandlerClass.newInstance();
-                processAware(serviceExtraMethodHandler, method);
+                processAware(serviceExtraMethodHandler, openMember);
                 serviceExtraMethodAnnotations.put(method, serviceExtraMethodHandler);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
@@ -199,7 +211,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-    private void checkForAfterInterceptor(Method method, Annotation annotation) {
+    private void checkForAfterInterceptor(Method method, IOpenMember openMember, Annotation annotation) {
         if (annotation instanceof ServiceCallAfterInterceptor) {
             Class<? extends ServiceMethodAfterAdvice<?>>[] interceptorClasses = ((ServiceCallAfterInterceptor) annotation)
                 .value();
@@ -208,7 +220,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             for (Class<? extends ServiceMethodAfterAdvice<?>> interceptorClass : interceptorClasses) {
                 try {
                     ServiceMethodAfterAdvice<?> postInterceptor = interceptorClass.newInstance();
-                    processAware(postInterceptor, method);
+                    processAware(postInterceptor, openMember);
                     interceptors.add(postInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
@@ -220,13 +232,13 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-    private void beforeInvocation(Method interfaceMethod, Object... args) throws Throwable {
+    private void beforeInvocation(Method interfaceMethod, IOpenMember openMember, Object... args) throws Throwable {
         List<ServiceMethodBeforeAdvice> preInterceptors = beforeInterceptors.get(interfaceMethod);
         if (preInterceptors != null) {
             for (ServiceMethodBeforeAdvice interceptor : preInterceptors) {
-                invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, null, null);
+                invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, null, null);
                 interceptor.before(interfaceMethod, serviceTarget, args);
-                invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, null, null);
+                invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, null, null);
             }
         }
     }
@@ -242,6 +254,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
     }
 
     private Object afterInvocation(Method interfaceMethod,
+            IOpenMember openMember,
             Object result,
             Exception t,
             Object... args) throws Exception {
@@ -249,7 +262,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         Object ret = result;
         if (postInterceptors != null && !postInterceptors.isEmpty()) {
             for (ServiceMethodAfterAdvice<?> interceptor : postInterceptors) {
-                invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, result, t);
+                invokeBeforeServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, result, t);
                 if (t == null) {
                     ret = interceptor.afterReturning(interfaceMethod, ret, args);
                 } else {
@@ -260,7 +273,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                         t = e;
                     }
                 }
-                invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, args, result, t);
+                invokeAfterServiceMethodAdviceOnListeners(interceptor, interfaceMethod, openMember, args, result, t);
             }
         }
         if (t != null) {
@@ -271,6 +284,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
 
     private void invokeAfterServiceMethodAdviceOnListeners(ServiceMethodAdvice interceptor,
             Method interfaceMethod,
+            IOpenMember openMember,
             Object[] args,
             Object ret,
             Exception ex) {
@@ -280,12 +294,13 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                 args,
                 ret,
                 ex,
-                e -> processAware(e, interfaceMethod));
+                e -> processAware(e, openMember));
         }
     }
 
     private void invokeBeforeServiceMethodAdviceOnListeners(ServiceMethodAdvice interceptor,
             Method interfaceMethod,
+            IOpenMember openMember,
             Object[] args,
             Object ret,
             Exception ex) {
@@ -295,7 +310,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                 args,
                 ret,
                 ex,
-                e -> processAware(e, interfaceMethod));
+                e -> processAware(e, openMember));
         }
     }
 
@@ -303,13 +318,12 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
     public Object invoke(Method calledMethod, Object[] args) {
         String methodName = calledMethod.getName();
         Class<?>[] parameterTypes = calledMethod.getParameterTypes();
-        Method interfaceMethod = MethodUtil.getMatchingAccessibleMethod(serviceClass, methodName, parameterTypes);
         Object result = null;
+        IOpenMember openMember = openMemberMap.get(calledMethod);
         try {
             Method beanMethod = null;
             if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
-                beanMethod = MethodUtil
-                    .getMatchingAccessibleMethod(serviceTarget.getClass(), methodName, parameterTypes);
+                beanMethod = methodMap.get(calledMethod);
                 if (beanMethod == null) {
                     throw new OpenLRuntimeException(String.format(
                         "Called method is not found in the service bean. Please, check that excel file contains method '%s'.",
@@ -320,33 +334,35 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                 ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
                 try {
                     Thread.currentThread().setContextClassLoader(serviceClassLoader);
-                    beforeInvocation(interfaceMethod, args);
-                    ServiceMethodAroundAdvice<?> serviceMethodAroundAdvice = aroundInterceptors.get(interfaceMethod);
+                    beforeInvocation(calledMethod, openMember, args);
+                    ServiceMethodAroundAdvice<?> serviceMethodAroundAdvice = aroundInterceptors.get(calledMethod);
                     Exception ex = null;
                     if (serviceMethodAroundAdvice != null) {
                         invokeBeforeServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
-                            interfaceMethod,
+                            calledMethod,
+                            openMember,
                             args,
                             null,
                             null);
                         try {
-                            result = serviceMethodAroundAdvice.around(interfaceMethod, beanMethod, serviceTarget, args);
+                            result = serviceMethodAroundAdvice.around(calledMethod, beanMethod, serviceTarget, args);
                         } catch (Exception e) {
                             ex = e;
                         } finally {
                             invokeAfterServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
-                                interfaceMethod,
+                                calledMethod,
+                                openMember,
                                 args,
                                 result,
                                 ex);
                         }
                     } else {
-                        invokeBeforeMethodInvocationOnListeners(interfaceMethod, args);
+                        invokeBeforeMethodInvocationOnListeners(calledMethod, openMember, args);
                         try {
                             if (beanMethod != null) {
                                 result = beanMethod.invoke(serviceTarget, args);
                             } else {
-                                result = serviceExtraMethodInvoke(interfaceMethod, serviceTarget, args);
+                                result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
                             }
                         } catch (InvocationTargetException | UndeclaredThrowableException e) {
                             Throwable t = extractInvocationTargetException(e);
@@ -359,13 +375,13 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                         } catch (Exception e) {
                             ex = e;
                         } finally {
-                            invokeAfterMethodInvocationOnListeners(interfaceMethod, args, result, ex);
+                            invokeAfterMethodInvocationOnListeners(calledMethod, openMember, args, result, ex);
                         }
                     }
-                    result = afterInvocation(interfaceMethod, result, ex, args);
+                    result = afterInvocation(calledMethod, openMember, result, ex, args);
                     // repack result if arrays inside it doesn't have the returnType as interfaceMethod
-                    if (interfaceMethod.getReturnType().isArray()) {
-                        result = ArrayUtils.repackArray(result, interfaceMethod.getReturnType());
+                    if (calledMethod.getReturnType().isArray()) {
+                        result = ArrayUtils.repackArray(result, calledMethod.getReturnType());
                     }
                 } finally {
                     Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -398,17 +414,20 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
     }
 
     private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod,
+            IOpenMember openMember,
             Object[] args,
             Object result,
             Exception ex) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
-            listener.afterMethodInvocation(interfaceMethod, args, result, ex, e -> processAware(e, interfaceMethod));
+            listener.afterMethodInvocation(interfaceMethod, args, result, ex, e -> processAware(e, openMember));
         }
     }
 
-    private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod, Object[] args) {
+    private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod,
+            IOpenMember openMember,
+            Object[] args) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
-            listener.beforeMethodInvocation(interfaceMethod, args, null, null, e -> processAware(e, interfaceMethod));
+            listener.beforeMethodInvocation(interfaceMethod, args, null, null, e -> processAware(e, openMember));
         }
     }
 
@@ -524,5 +543,15 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE;
+    }
+
+    @Override
+    public Object getTarget() {
+        return serviceTarget;
+    }
+
+    @Override
+    public Method getTargetMember(Method key) {
+        return methodMap.get(key);
     }
 }

@@ -18,10 +18,12 @@ import org.apache.kafka.common.header.Headers;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.publish.KafkaHelpers;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
+import org.openl.types.IOpenMember;
 import org.openl.util.ClassUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -64,8 +66,9 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     }
 
     private Entry generateWrapperClass(Method m) throws Exception {
-        String[] parameterNames = MethodUtils.getParameterNames(service
-            .getOpenClass(), m, service.isProvideRuntimeContext(), service.isProvideVariations());
+        IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, service.getServiceBean());
+        String[] parameterNames = MethodUtils
+            .getParameterNames(openMember, m, service.isProvideRuntimeContext(), service.isProvideVariations());
         String beanName = "org.openl.rules.ruleservice.publish.kafka.ser.KafkaRequestDeserializer$" + m
             .getName() + "$" + RandomStringUtils.random(16, true, false);
 

@@ -271,6 +271,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
             .buildInterfaceForInstantiationStrategy(OverloadInterface.class,
                 Thread.currentThread().getContextClassLoader(),
+                null,
                 serviceDescription.isProvideRuntimeContext(),
                 serviceDescription.isProvideVariations());
         for (Method method : OverloadInterface.class.getMethods()) {

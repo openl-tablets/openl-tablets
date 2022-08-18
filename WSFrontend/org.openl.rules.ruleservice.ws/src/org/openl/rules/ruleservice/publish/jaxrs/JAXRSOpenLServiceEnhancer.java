@@ -34,7 +34,7 @@ public final class JAXRSOpenLServiceEnhancer {
         Objects.requireNonNull(serviceClass, "Service class cannot be null");
         ClassLoader classLoader = service.getClassLoader();
         Class<?> enhancedServiceClass = JAXRSOpenLServiceEnhancerHelper.enhanceInterface(serviceClass,
-            service.getOpenClass(),
+            service.getServiceBean(),
             classLoader,
             service.getName(),
             isResolveMethodParameterNames(),
