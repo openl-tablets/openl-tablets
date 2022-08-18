@@ -5,16 +5,16 @@ import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.util.ClassUtils;
 
 /**
  * OpenL default property sources. Collects all openl-default.properties files.
- * 
+ * <p>
  * Note: All openl-default.properties must contains unique keys.
  * 
  * @author Yury Molchan
@@ -28,7 +28,6 @@ public class DefaultPropertySource extends EnumerablePropertySource<Map<String, 
     DefaultPropertySource() {
         super(PROPS_NAME, new HashMap<>());
 
-        Properties prop = new Properties();
         try {
             ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
             if (classLoader == null) {
@@ -38,14 +37,13 @@ public class DefaultPropertySource extends EnumerablePropertySource<Map<String, 
             while (resources.hasMoreElements()) {
                 URL url = resources.nextElement();
                 try (InputStream is = url.openStream()) {
-                    prop.load(is);
+                    PropertiesUtils.load(is, source::put);
                 }
                 ConfigLog.LOG.info("+       Load: '{}'", url);
             }
         } catch (Exception e) {
             ConfigLog.LOG.error("!     Error:", e);
         }
-        source.putAll(new HashMap<>((Map)prop));
         source.put(OPENL_CONFIG_LOADED, Boolean.TRUE.toString());
     }
 
