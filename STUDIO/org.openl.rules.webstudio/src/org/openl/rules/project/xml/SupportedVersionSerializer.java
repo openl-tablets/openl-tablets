@@ -4,10 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import java.util.HashMap;
 
-import org.openl.util.IOUtils;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +30,10 @@ public class SupportedVersionSerializer {
         File file = new File(projectFolder, OPENL_PROJECT_PROPERTIES_FILE);
 
         if (projectFolder.isDirectory() && file.isFile()) {
-            Properties properties = new Properties();
-            InputStream is = null;
-            try {
-                is = new FileInputStream(file);
-                properties.load(is);
-                String compatibility = properties.getProperty(OPENL_COMPATIBILITY_VERSION);
+            var properties = new HashMap<String, String>();
+            try (var is = new FileInputStream(file)) {
+                PropertiesUtils.load(is, properties::put);
+                String compatibility = properties.get(OPENL_COMPATIBILITY_VERSION);
                 if (compatibility != null) {
                     version = SupportedVersion.getByVersion(compatibility);
                 }
@@ -44,8 +41,6 @@ public class SupportedVersionSerializer {
                 if (log.isErrorEnabled()) {
                     log.error(e.getMessage(), e);
                 }
-            } finally {
-                IOUtils.closeQuietly(is);
             }
         }
 
@@ -64,16 +59,11 @@ public class SupportedVersionSerializer {
             // If the file exists and can't be deleted, proceed with version update.
         }
 
-        Properties properties = new Properties();
-        properties.setProperty(OPENL_COMPATIBILITY_VERSION, version.getVersion());
+        var properties = new HashMap<>();
+        properties.put(OPENL_COMPATIBILITY_VERSION, version.getVersion());
 
-        FileOutputStream os = null;
-        try {
-            os = new FileOutputStream(file);
-            properties.store(os, "Openl project properties");
-            os.close();
-        } finally {
-            IOUtils.closeQuietly(os);
+        try (var os = new FileOutputStream(file)) {
+            PropertiesUtils.store(os, properties.entrySet());
         }
     }
 

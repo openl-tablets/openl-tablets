@@ -8,9 +8,11 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
@@ -22,7 +24,7 @@ import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
-import org.openl.util.IOUtils;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +51,6 @@ public class LocalRepository extends FileSystemRepository {
     private static final String UNIQUE_ID_PROPERTY = "unique-id";
     private static final String FILE_MODIFIED_PROPERTY = "modified";
     private static final String FILE_PROPERTIES_FOLDER = "file-properties";
-    private static final String FILE_PROPERTIES_COMMENT = "File properties";
 
     private final Logger log = LoggerFactory.getLogger(LocalRepository.class);
     private final PropertiesEngine propertiesEngine;
@@ -126,8 +127,8 @@ public class LocalRepository extends FileSystemRepository {
     @Override
     protected FileData getFileData(File file) throws IOException {
         FileData fileData = super.getFileData(file);
-        Properties properties = readFileProperties(fileData.getName());
-        String uniqueId = properties.getProperty(UNIQUE_ID_PROPERTY);
+        var properties = readFileProperties(fileData.getName());
+        String uniqueId = properties.get(UNIQUE_ID_PROPERTY);
         if (uniqueId != null) {
             // If the file is modified, set unique id to null to mark that it's id is unknown
             if (isFileModified(fileData, properties)) {
@@ -147,14 +148,14 @@ public class LocalRepository extends FileSystemRepository {
      * @param properties properties of original file
      * @return true if file is modified
      */
-    private boolean isFileModified(FileData fileData, Properties properties) {
-        boolean modified = Boolean.parseBoolean(properties.getProperty(FILE_MODIFIED_PROPERTY));
+    private boolean isFileModified(FileData fileData, Map<String, String> properties) {
+        boolean modified = Boolean.parseBoolean(properties.get(FILE_MODIFIED_PROPERTY));
         if (modified) {
             return true;
         }
 
         try {
-            long size = Long.parseLong(properties.getProperty(SIZE_PROPERTY));
+            long size = Long.parseLong(properties.get(SIZE_PROPERTY));
             if (fileData.getSize() != size) {
                 return true;
             }
@@ -164,7 +165,7 @@ public class LocalRepository extends FileSystemRepository {
         }
 
         try {
-            Date modifiedAt = new Date(Long.parseLong(properties.getProperty(MODIFIED_AT_LONG_PROPERTY)));
+            Date modifiedAt = new Date(Long.parseLong(properties.get(MODIFIED_AT_LONG_PROPERTY)));
             return !modifiedAt.equals(fileData.getModifiedAt());
         } catch (NumberFormatException ignored) {
             // Cannot determine saved date. So treat it as modified file
@@ -206,9 +207,9 @@ public class LocalRepository extends FileSystemRepository {
                 if (files != null) {
                     for (File file : files) {
                         if (file.isFile()) {
-                            Properties properties = new Properties();
+                            var properties = new LinkedHashMap<String, String>();
                             try (FileInputStream is = new FileInputStream(file)) {
-                                properties.load(is);
+                                PropertiesUtils.load(is, properties::put);
                             } catch (IOException e) {
                                 log.error(e.getMessage(), e);
                             }
@@ -216,7 +217,7 @@ public class LocalRepository extends FileSystemRepository {
                             properties.remove(FILE_MODIFIED_PROPERTY);
 
                             try (FileOutputStream os = new FileOutputStream(file)) {
-                                properties.store(os, FILE_PROPERTIES_COMMENT);
+                                PropertiesUtils.store(os, properties.entrySet());
                             } catch (IOException e) {
                                 log.error(e.getMessage(), e);
                             }
@@ -236,57 +237,23 @@ public class LocalRepository extends FileSystemRepository {
 
                 File file = propertiesEngine.createPropertiesFile(pathInProject, VERSION_FILE_NAME);
 
-                Properties properties = new Properties();
-                properties.setProperty(VERSION_PROPERTY, version);
-                FileOutputStream os = null;
-                try {
-                    os = new FileOutputStream(file);
-                    properties.store(os, "Project version");
+                var properties = new LinkedHashMap<String, String>();
+                properties.put(VERSION_PROPERTY, version);
+                try (FileOutputStream os = new FileOutputStream(file)) {
+                    PropertiesUtils.store(os, properties.entrySet());
                 } catch (IOException e) {
                     throw new IllegalStateException(version);
-                } finally {
-                    IOUtils.closeQuietly(os);
                 }
             }
 
             @Override
             public String getProjectVersion() {
-                File file = propertiesEngine.getPropertiesFile(pathInProject, VERSION_FILE_NAME);
-                if (!file.exists()) {
-                    return null;
-                }
-
-                Properties properties = new Properties();
-                FileInputStream is = null;
-                try {
-                    is = new FileInputStream(file);
-                    properties.load(is);
-                    return properties.getProperty(VERSION_PROPERTY);
-                } catch (IOException e) {
-                    throw new IllegalStateException(e);
-                } finally {
-                    IOUtils.closeQuietly(is);
-                }
+                return getProperty(VERSION_PROPERTY, VERSION_FILE_NAME, pathInProject);
             }
 
             @Override
             public String getRepositoryId() {
-                File file = propertiesEngine.getPropertiesFile(pathInProject, VERSION_FILE_NAME);
-                if (!file.exists()) {
-                    return null;
-                }
-
-                Properties properties = new Properties();
-                FileInputStream is = null;
-                try {
-                    is = new FileInputStream(file);
-                    properties.load(is);
-                    return properties.getProperty(REPOSITORY_ID);
-                } catch (IOException e) {
-                    throw new IllegalStateException(e);
-                } finally {
-                    IOUtils.closeQuietly(is);
-                }
+                return getProperty(REPOSITORY_ID, VERSION_FILE_NAME, pathInProject);
             }
 
             @Override
@@ -296,35 +263,31 @@ public class LocalRepository extends FileSystemRepository {
                     // No need to save empty fileData
                     return;
                 }
-                Properties properties = new Properties();
-                properties.setProperty(REPOSITORY_ID, repositoryId);
+                var properties = new LinkedHashMap<String, String>();
+                properties.put(REPOSITORY_ID, repositoryId);
                 FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
                 if (mappingData != null) {
-                    properties.setProperty(PATH_IN_REPOSITORY, mappingData.getInternalPath());
+                    properties.put(PATH_IN_REPOSITORY, mappingData.getInternalPath());
                 }
                 String name = Optional.ofNullable(fileData.getAuthor()).map(UserInfo::getName).orElse(null);
-                properties.setProperty(VERSION_PROPERTY, fileData.getVersion());
-                properties.setProperty(AUTHOR_PROPERTY, name);
-                properties.setProperty(MODIFIED_AT_PROPERTY,
+                properties.put(VERSION_PROPERTY, fileData.getVersion());
+                properties.put(AUTHOR_PROPERTY, name);
+                properties.put(MODIFIED_AT_PROPERTY,
                     new SimpleDateFormat(DATE_FORMAT).format(fileData.getModifiedAt()));
-                properties.setProperty(MODIFIED_AT_LONG_PROPERTY, "" + fileData.getModifiedAt().getTime());
-                properties.setProperty(SIZE_PROPERTY, "" + fileData.getSize());
+                properties.put(MODIFIED_AT_LONG_PROPERTY, "" + fileData.getModifiedAt().getTime());
+                properties.put(SIZE_PROPERTY, "" + fileData.getSize());
                 if (fileData.getComment() != null) {
-                    properties.setProperty(COMMENT_PROPERTY, fileData.getComment());
+                    properties.put(COMMENT_PROPERTY, fileData.getComment());
                 }
                 String branch = fileData.getBranch();
                 if (branch != null) {
-                    properties.setProperty(BRANCH_PROPERTY, branch);
+                    properties.put(BRANCH_PROPERTY, branch);
                 }
-                FileOutputStream os = null;
-                try {
-                    File file = propertiesEngine.createPropertiesFile(pathInProject, VERSION_FILE_NAME);
-                    os = new FileOutputStream(file);
-                    properties.store(os, "Project version");
+                File file = propertiesEngine.createPropertiesFile(pathInProject, VERSION_FILE_NAME);
+                try (var os = new FileOutputStream(file)) {
+                    PropertiesUtils.store(os, properties.entrySet());
                 } catch (IOException e) {
                     throw new IllegalStateException(e.getMessage(), e);
-                } finally {
-                    IOUtils.closeQuietly(os);
                 }
             }
 
@@ -335,37 +298,35 @@ public class LocalRepository extends FileSystemRepository {
                     return null;
                 }
 
-                Properties properties = new Properties();
-                FileInputStream is = null;
-                try {
-                    is = new FileInputStream(file);
-                    properties.load(is);
+                var properties = new HashMap<String, String>();
+                try (var is = new FileInputStream(file)){
+                    PropertiesUtils.load(is, properties::put);
                     FileData fileData = new FileData();
                     File projectFolder = propertiesEngine.getProjectFolder(pathInProject);
 
                     String name = projectFolder.getName();
-                    String version = properties.getProperty(VERSION_PROPERTY);
-                    String branch = properties.getProperty(BRANCH_PROPERTY);
-                    String author = properties.getProperty(AUTHOR_PROPERTY);
-                    String pathIntRepository = properties.getProperty(PATH_IN_REPOSITORY);
+                    String version = properties.get(VERSION_PROPERTY);
+                    String branch = properties.get(BRANCH_PROPERTY);
+                    String author = properties.get(AUTHOR_PROPERTY);
+                    String pathIntRepository = properties.get(PATH_IN_REPOSITORY);
 
                     if (pathIntRepository != null) {
                         fileData.addAdditionalData(new FileMappingData(name, pathIntRepository));
                     }
 
                     Date modifiedAt;
-                    String modifiedAtLong = properties.getProperty(MODIFIED_AT_LONG_PROPERTY);
+                    String modifiedAtLong = properties.get(MODIFIED_AT_LONG_PROPERTY);
                     if (modifiedAtLong != null) {
                         modifiedAt = new Date(Long.parseLong(modifiedAtLong));
                     } else {
                         // Backward compatibility for projects opened in previous version of WebStudio.
                         // Will be removed in the future.
-                        String modifiedAtStr = properties.getProperty(MODIFIED_AT_PROPERTY);
+                        String modifiedAtStr = properties.get(MODIFIED_AT_PROPERTY);
                         modifiedAt = modifiedAtStr == null ? null
                                                            : new SimpleDateFormat(DATE_FORMAT).parse(modifiedAtStr);
                     }
-                    String size = properties.getProperty(SIZE_PROPERTY);
-                    String comment = properties.getProperty(COMMENT_PROPERTY);
+                    String size = properties.get(SIZE_PROPERTY);
+                    String comment = properties.get(COMMENT_PROPERTY);
 
                     if (version == null || author == null || modifiedAt == null) {
                         // Only partial information is available. Cannot fill FileData. Must request from repository.
@@ -383,11 +344,24 @@ public class LocalRepository extends FileSystemRepository {
                     return fileData;
                 } catch (IOException | ParseException e) {
                     throw new IllegalStateException(e);
-                } finally {
-                    IOUtils.closeQuietly(is);
                 }
             }
         };
+    }
+
+    private String getProperty(String prop, String fileName, String pathInProject) {
+        File file = propertiesEngine.getPropertiesFile(pathInProject, fileName);
+        if (!file.exists()) {
+            return null;
+        }
+
+        var properties = new LinkedHashMap<String, String>();
+        try (FileInputStream is = new FileInputStream(file)) {
+            PropertiesUtils.load(is, properties::put);
+            return properties.get(prop);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private void notifyModified(String path) {
@@ -408,14 +382,14 @@ public class LocalRepository extends FileSystemRepository {
     }
 
     private void setFileModified(String path) {
-        Properties properties = readFileProperties(path);
-        properties.setProperty(FILE_MODIFIED_PROPERTY, "true");
+        var properties = readFileProperties(path);
+        properties.put(FILE_MODIFIED_PROPERTY, "true");
 
         String filePropertiesPath = getFilePropertiesPath(path);
         if (StringUtils.isNotEmpty(filePropertiesPath)) {
             File file = propertiesEngine.createPropertiesFile(path, filePropertiesPath);
             try (FileOutputStream os = new FileOutputStream(file)) {
-                properties.store(os, FILE_PROPERTIES_COMMENT);
+                PropertiesUtils.store(os, properties.entrySet());
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
             }
@@ -427,19 +401,19 @@ public class LocalRepository extends FileSystemRepository {
         String filePropertiesPath = getFilePropertiesPath(path);
 
         if (StringUtils.isNotEmpty(filePropertiesPath)) {
-            Properties properties = readFileProperties(path);
+            var properties = readFileProperties(path);
 
             if (fileData.getUniqueId() != null) {
-                properties.setProperty(UNIQUE_ID_PROPERTY, fileData.getUniqueId());
+                properties.put(UNIQUE_ID_PROPERTY, fileData.getUniqueId());
             } else {
                 properties.remove(UNIQUE_ID_PROPERTY);
             }
-            properties.setProperty(MODIFIED_AT_LONG_PROPERTY, "" + fileData.getModifiedAt().getTime());
-            properties.setProperty(SIZE_PROPERTY, "" + fileData.getSize());
+            properties.put(MODIFIED_AT_LONG_PROPERTY, "" + fileData.getModifiedAt().getTime());
+            properties.put(SIZE_PROPERTY, "" + fileData.getSize());
 
             File file = propertiesEngine.createPropertiesFile(path, filePropertiesPath);
             try (FileOutputStream os = new FileOutputStream(file)) {
-                properties.store(os, FILE_PROPERTIES_COMMENT);
+                PropertiesUtils.store(os, properties.entrySet());
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
                 FileUtils.deleteQuietly(file);
@@ -447,18 +421,18 @@ public class LocalRepository extends FileSystemRepository {
         }
     }
 
-    private Properties readFileProperties(String path) {
+    private Map<String, String> readFileProperties(String path) {
+        var properties = new HashMap<String, String>();
         String filePropertiesPath = getFilePropertiesPath(path);
         if (filePropertiesPath.isEmpty()) {
-            return new Properties();
+            return properties;
         }
 
         File fileProperties = propertiesEngine.getPropertiesFile(path, filePropertiesPath);
 
-        Properties properties = new Properties();
         if (fileProperties.exists()) {
             try (FileInputStream is = new FileInputStream(fileProperties)) {
-                properties.load(is);
+                PropertiesUtils.load(is, properties::put);
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
             }
