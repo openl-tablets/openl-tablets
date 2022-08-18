@@ -8,7 +8,7 @@ public class OpenLVersionTest {
 
     @Test
     public void test() {
-        assertEquals(8, OpenLVersion.getBuildInfo().size());
+        assertEquals(7, OpenLVersion.getBuildInfo().size());
     }
 
 }

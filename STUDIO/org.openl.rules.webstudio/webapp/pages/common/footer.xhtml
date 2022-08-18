@@ -47,7 +47,7 @@
     <div id="footerX" class="invisible">
         <span class="copyright">© {year}</span>
         <a class="site" href="{url}" target="_blank">OpenL Tablets</a>
-        <a class="email" href="mailto:{email}?subject=OpenL Tablets v{version} Feedback">Report a problem</a>
+        <a class="email" href="https://github.com/openl-tablets/openl-tablets/issues/" target="_blank">Report a problem</a>
         <span class="version" title="Built on {buildDate}">v{version}</span>
     </div>
     <script>
@@ -80,7 +80,6 @@
                 var box = $jq("#footerX");
                 var html = box.html()
                     .replaceAll("{url}", data["openl.site"])
-                    .replaceAll("{email}", data["openl.email"])
                     .replaceAll("{buildDate}", buildDate)
                     .replaceAll("{year}", buildDate.substr(0, 4))
                     .replaceAll("{version}", data["openl.version"])

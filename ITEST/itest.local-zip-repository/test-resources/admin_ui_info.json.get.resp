@@ -5,7 +5,6 @@ Content-Type: application/json
   "buildDate": "*",
   "buildNumber": "*",
   "deployerEnabled": true,
-  "email": "*",
   "services": [
     {
       "hasManifest": true,

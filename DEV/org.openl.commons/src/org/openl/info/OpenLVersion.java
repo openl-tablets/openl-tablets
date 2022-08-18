@@ -44,7 +44,6 @@ public final class OpenLVersion {
             }
         }
         url = props.getProperty("openl.url", "??");
-        String email = props.getProperty("openl.email");
         version = props.getProperty("openl.version", "???");
         String bd = props.getProperty("openl.build.date", "????-??-??");
         // If openl.version.properties is used from classpath and this property is not initialized at build time
@@ -56,7 +55,6 @@ public final class OpenLVersion {
 
         HashMap<String, String> source = new HashMap<>(6);
         source.put("openl.site", url);
-        source.put("openl.email", email);
         source.put("openl.version", version);
         source.put("openl.build.date", buildDate);
         source.put("openl.build.number", buildNumber);

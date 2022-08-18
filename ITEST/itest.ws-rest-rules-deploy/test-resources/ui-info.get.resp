@@ -9,6 +9,5 @@ Content-Type: application/json
   "services": [],
   "version": "#.##.#*",
   "buildNumber": "*****",
-  "url": "https://openl-tablets.org",
-  "email": "*"
+  "url": "https://openl-tablets.org"
 }

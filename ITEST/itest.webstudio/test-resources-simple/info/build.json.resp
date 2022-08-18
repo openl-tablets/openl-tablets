@@ -11,6 +11,5 @@ Content-Type: application/json
   "openl.start.milli": "*",
   "openl.version": "*",
   "openl.start.time": "*",
-  "openl.email": "openltablets@eisgroup.com",
   "openl.start.hash": "*"
 }
