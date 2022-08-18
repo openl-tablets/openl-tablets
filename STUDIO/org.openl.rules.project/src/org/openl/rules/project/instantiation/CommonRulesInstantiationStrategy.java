@@ -60,7 +60,12 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
 
     @Override
     public Object instantiate() throws RulesInstantiationException {
-        return instantiate(getInstanceClass());
+        return instantiate(false);
+    }
+
+    @Override
+    public Object instantiate(boolean ignoreCompilationErrors) throws RulesInstantiationException {
+        return instantiate(getInstanceClass(), ignoreCompilationErrors);
     }
 
     @Override
@@ -131,10 +136,12 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      * class got with {@link #getServiceClass()}.
      *
      * @param rulesClass rule Class
+     * @param ignoreCompilationErrors allow to compile rules with errors
      * @return instantiated object
      * @throws RulesInstantiationException
      */
-    protected abstract Object instantiate(Class<?> rulesClass) throws RulesInstantiationException;
+    protected abstract Object instantiate(Class<?> rulesClass,
+            boolean ignoreCompilationErrors) throws RulesInstantiationException;
 
     @Override
     public Map<String, Object> getExternalParameters() {

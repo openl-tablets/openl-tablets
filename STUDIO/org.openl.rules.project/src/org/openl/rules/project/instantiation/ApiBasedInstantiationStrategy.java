@@ -93,14 +93,14 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
     }
 
     @Override
-    public Object instantiate(Class<?> rulesClass) throws RulesInstantiationException {
+    public Object instantiate(Class<?> rulesClass, boolean ignoreCompilationErrors) throws RulesInstantiationException {
 
         // Ensure that instantiation will be done in strategy classLoader.
         //
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
-            return getEngineFactory().newEngineInstance();
+            return getEngineFactory().newEngineInstance(ignoreCompilationErrors);
         } catch (Exception e) {
             throw new RulesInstantiationException(e);
         } finally {

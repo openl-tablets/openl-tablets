@@ -19,7 +19,11 @@ public abstract class AEngineFactory {
     private static final String INCORRECT_RET_TYPE_MSG = "Expected return type '%s' for method '%s', but found '%s'.";
 
     public final Object newInstance() {
-        return prepareInstance(null);
+        return newInstance(false);
+    }
+
+    public final Object newInstance(boolean ignoreCompilationErrors) {
+        return prepareInstance(null, ignoreCompilationErrors);
     }
 
     protected final Object prepareProxyInstance(Object openClassInstance,
@@ -35,10 +39,14 @@ public abstract class AEngineFactory {
     }
 
     public final Object newInstance(IRuntimeEnv runtimeEnv) {
-        return prepareInstance(runtimeEnv);
+        return newInstance(runtimeEnv, false);
     }
 
-    protected abstract Object prepareInstance(IRuntimeEnv runtimeEnv);
+    public final Object newInstance(IRuntimeEnv runtimeEnv, boolean ignoreCompilationErrors) {
+        return prepareInstance(runtimeEnv, ignoreCompilationErrors);
+    }
+
+    protected abstract Object prepareInstance(IRuntimeEnv runtimeEnv, boolean ignoreCompilationErrors);
 
     protected abstract Class<?>[] prepareInstanceInterfaces();
 
