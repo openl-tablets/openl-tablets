@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -73,18 +74,24 @@ public class RulesDeployerService implements Closeable {
         }
     }
 
+
     /**
      * Initializes repository using target properties
      *
      * @param properties repository settings
      */
+    @Deprecated
     public RulesDeployerService(Properties properties) {
-        this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties::getProperty);
+        this(properties::getProperty);
+    }
+
+    public RulesDeployerService(Function<String, String> properties) {
+        this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties);
         if (deployRepo.supports().isLocal()) {
             // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
             this.baseDeployPath = "";
         } else {
-            String deployPath = properties.getProperty("production-repository.base.path");
+            String deployPath = properties.apply("production-repository.base.path");
             this.baseDeployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
         }
     }
