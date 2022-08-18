@@ -13,8 +13,19 @@ public final class RuleServiceOpenLServiceInstantiationHelper {
         // Hidden constructor
     }
 
-    @SuppressWarnings("unchecked")
     public static IOpenMember getOpenMember(Method method, Object serviceTarget) {
+        for (Class<?> clazz : serviceTarget.getClass().getInterfaces()) {
+            try {
+                Method m = clazz.getMethod(method.getName(), method.getParameterTypes());
+                return findOpenMember(m, serviceTarget);
+            } catch (NoSuchMethodException ignored) {
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static IOpenMember findOpenMember(Method method, Object serviceTarget) {
         if (ASMProxyFactory.isProxy(serviceTarget)) {
             ASMProxyHandler proxyHandler = ASMProxyFactory.getProxyHandler(serviceTarget);
             if (proxyHandler instanceof IOpenLMethodHandler) {

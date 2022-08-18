@@ -44,7 +44,7 @@ import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResource;
 import org.openl.rules.project.resolving.ProjectResourceLoader;
 import org.openl.rules.project.validation.AbstractServiceInterfaceProjectValidator;
-import org.openl.rules.ruleservice.publish.common.MethodUtils;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.ParameterIndex;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
@@ -54,6 +54,7 @@ import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMa
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenField;
@@ -162,32 +163,45 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         context.setOpenClass(validatedCompiledOpenClass.getOpenClassWithErrors());
         ClassLoader serviceClassLoader = resolveServiceClassLoader(rulesInstantiationStrategy);
         context.setServiceClassLoader(serviceClassLoader);
+
+        RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
+        context.setRulesDeploy(rulesDeploy);
+
+        final boolean provideRuntimeContext = (rulesDeploy == null && isProvideRuntimeContext()) || (rulesDeploy != null && Boolean.TRUE
+            .equals(rulesDeploy.isProvideRuntimeContext()));
+        final boolean provideVariations = (rulesDeploy == null && isProvideVariations()) || (rulesDeploy != null && Boolean.TRUE
+            .equals(rulesDeploy.isProvideVariations()));
+        context.setProvideRuntimeContext(provideRuntimeContext);
+        context.setProvideVariations(provideVariations);
+
+        rulesInstantiationStrategy = enhanceRulesInstantiationStrategy(rulesInstantiationStrategy,
+            provideRuntimeContext,
+            provideVariations);
+
+        context.setTargetService(rulesInstantiationStrategy.instantiate(true));
+
+        ObjectMapper objectMapper = createObjectMapper(context);
+        context.setObjectMapper(objectMapper);
+
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
             Class<?> serviceClass;
             try {
-                serviceClass = resolveInterface(projectDescriptor,
+                serviceClass = resolveInterface(rulesDeploy,
                     rulesInstantiationStrategy,
-                    validatedCompiledOpenClass);
+                    validatedCompiledOpenClass,
+                    provideRuntimeContext,
+                    provideVariations);
             } catch (Exception e) {
                 validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(
                     OPEN_API_VALIDATION_MSG_PREFIX + String.format("Failed to build an interface for the project.%s",
                         StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY)));
                 return validatedCompiledOpenClass;
             }
-
-            RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
-            context.setRulesDeploy(rulesDeploy);
-
-            ObjectMapper objectMapper = createObjectMapper(context);
-            context.setObjectMapper(objectMapper);
-
             Class<?> enhancedServiceClass;
             try {
                 enhancedServiceClass = enhanceWithJAXRS(context,
-                    projectDescriptor,
-                    validatedCompiledOpenClass,
                     serviceClass,
                     serviceClassLoader);
             } catch (Exception e) {
@@ -259,24 +273,15 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     }
 
     private Class<?> enhanceWithJAXRS(Context context,
-            ProjectDescriptor projectDescriptor,
-            CompiledOpenClass compiledOpenClass,
             Class<?> originalClass,
             ClassLoader classLoader) throws Exception {
-        RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
-        final boolean provideRuntimeContext = rulesDeploy == null && isProvideRuntimeContext() || rulesDeploy != null && Boolean.TRUE
-            .equals(rulesDeploy.isProvideRuntimeContext());
-        final boolean provideVariations = rulesDeploy == null && isProvideVariations() || rulesDeploy != null && Boolean.TRUE
-            .equals(rulesDeploy.isProvideVariations());
-        context.setProvideRuntimeContext(provideRuntimeContext);
-        context.setProvideVariations(provideVariations);
         return JAXRSOpenLServiceEnhancerHelper.enhanceInterface(originalClass,
-            compiledOpenClass.getOpenClassWithErrors(),
+            context.getTargetService(),
             classLoader,
             "unknown",
             isResolveMethodParameterNames(),
-            provideRuntimeContext,
-            provideVariations,
+            context.isProvideRuntimeContext(),
+            context.isProvideVariations(),
             context.getObjectMapper(),
             false);
     }
@@ -346,10 +351,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     }
 
     private IOpenMethod getRulesMethod(Context context, Method method) {
-        IOpenMethod openMethod = MethodUtils.findRulesMethod(context.getOpenClass(),
-            context.getMethodMap().get(method),
-            context.isProvideRuntimeContext(),
-            context.isProvideVariations());
+        IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper
+            .getOpenMember(context.getMethodMap().get(method), context.getTargetService());
+        IOpenMethod openMethod = openMember instanceof IOpenMethod ? (IOpenMethod) openMember : null;
         if (openMethod != null) {
             return openMethod;
         } else {

@@ -49,9 +49,10 @@ import org.objectweb.asm.Type;
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.ASMUtils;
+import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
-import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.JAXBUtils;
@@ -111,7 +112,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final ClassLoader classLoader;
         private Set<String> usedPaths = null;
         private final Set<String> nicknames = new HashSet<>();
-        private final IOpenClass openClass;
         private final String serviceName;
         private final boolean resolveMethodParameterNames;
         private final boolean provideRuntimeContext;
@@ -119,12 +119,13 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final boolean authenticationEnabled;
         private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix = null;
         private final ObjectMapper openApiObjectMapper;
+        private final Object targetService;
 
         private final Map<String, List<Method>> originalClassMethodsByName;
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
-                IOpenClass openClass,
+                Object targetService,
                 ClassLoader classLoader,
                 String serviceName,
                 boolean resolveMethodParameterNames,
@@ -135,13 +136,13 @@ public class JAXRSOpenLServiceEnhancerHelper {
             super(Opcodes.ASM5, arg0);
             this.serviceName = serviceName;
             this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
-            this.openClass = openClass;
             this.classLoader = classLoader;
             this.resolveMethodParameterNames = resolveMethodParameterNames;
             this.provideRuntimeContext = provideRuntimeContext;
             this.provideVariations = provideVariations;
             this.openApiObjectMapper = openApiObjectMapper;
             this.authenticationEnabled = authenticationEnabled;
+            this.targetService = targetService;
 
             this.originalClassMethodsByName = ASMUtils.buildMap(originalClass);
         }
@@ -486,8 +487,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private String[] resolveParameterNames(Method originalMethod) {
+            IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(originalMethod,
+                targetService);
             return resolveMethodParameterNames ? MethodUtils
-                .getParameterNames(openClass, originalMethod, provideRuntimeContext, provideVariations)
+                .getParameterNames(openMember, originalMethod, provideRuntimeContext, provideVariations)
                                                : GenUtils.getParameterNames(originalMethod);
         }
 
@@ -575,8 +578,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
             if (!originalMethod.isAnnotationPresent(Operation.class)) {
                 String summary = originalMethod.getReturnType().getSimpleName() + " " + MethodUtil
                     .printMethod(originalMethod.getName(), originalMethod.getParameterTypes(), true);
-
-                IOpenMethod openMethod = MethodUtils.findRulesMethod(openClass, originalMethod);
+                IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(originalMethod,
+                    targetService);
+                IOpenMethod openMethod = openMember instanceof IOpenMethod ? (IOpenMethod) openMember : null;
                 String detailedSummary = openMethod != null ? openMethod.getType()
                     .getDisplayName(INamedThing.LONG) + " " + MethodUtil.printSignature(openMethod, INamedThing.LONG)
                                                             : originalMethod.getReturnType()
@@ -795,7 +799,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
     }
 
     public static Class<?> enhanceInterface(Class<?> originalClass,
-            IOpenClass openClass,
+            Object targetService,
             ClassLoader classLoader,
             String serviceName,
             boolean resolveMethodParameterNames,
@@ -815,7 +819,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             JAXRSInterfaceAnnotationEnhancerClassVisitor enhancerClassVisitor = new JAXRSInterfaceAnnotationEnhancerClassVisitor(
                 cw,
                 originalClass,
-                openClass,
+                targetService,
                 classLoader,
                 serviceName,
                 resolveMethodParameterNames,

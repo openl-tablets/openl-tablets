@@ -85,12 +85,26 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
         return classLoader;
     }
 
-    protected Class<?> resolveInterface(ProjectDescriptor projectDescriptor,
+    protected RulesInstantiationStrategy enhanceRulesInstantiationStrategy(
             RulesInstantiationStrategy rulesInstantiationStrategy,
-            ValidatedCompiledOpenClass validatedCompiledOpenClass) throws RulesInstantiationException {
-        RulesDeploy rulesDeployValue = getRulesDeploy(projectDescriptor, validatedCompiledOpenClass);
-        if (rulesDeployValue != null && rulesDeployValue.getServiceClass() != null) {
-            final String serviceClassName = rulesDeployValue.getServiceClass().trim();
+            boolean provideRuntimeContext,
+            boolean provideVariations) {
+        if (provideVariations) {
+            rulesInstantiationStrategy = new VariationInstantiationStrategyEnhancer(rulesInstantiationStrategy);
+        }
+        if (provideRuntimeContext) {
+            rulesInstantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(rulesInstantiationStrategy);
+        }
+        return rulesInstantiationStrategy;
+    }
+
+    protected Class<?> resolveInterface(RulesDeploy rulesDeploy,
+            RulesInstantiationStrategy rulesInstantiationStrategy,
+            ValidatedCompiledOpenClass validatedCompiledOpenClass,
+            boolean provideRuntimeContext,
+            boolean provideVariations) throws RulesInstantiationException {
+        if (rulesDeploy != null && rulesDeploy.getServiceClass() != null) {
+            final String serviceClassName = rulesDeploy.getServiceClass().trim();
             if (!StringUtils.isEmpty(serviceClassName)) {
                 try {
                     Class<?> serviceClass = validatedCompiledOpenClass.getClassLoader().loadClass(serviceClassName);
@@ -109,20 +123,10 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
                 }
             }
         }
-        final boolean hasContext = (rulesDeployValue == null && isProvideRuntimeContext()) || (rulesDeployValue != null && Boolean.TRUE
-            .equals(rulesDeployValue.isProvideRuntimeContext()));
-        final boolean hasVariations = (rulesDeployValue == null && isProvideVariations()) || (rulesDeployValue != null && Boolean.TRUE
-            .equals(rulesDeployValue.isProvideVariations()));
-        if (hasVariations) {
-            rulesInstantiationStrategy = new VariationInstantiationStrategyEnhancer(rulesInstantiationStrategy);
-        }
-        if (hasContext) {
-            rulesInstantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(rulesInstantiationStrategy);
-        }
         String annotationTemplateClassName = null;
-        if (rulesDeployValue != null) {
-            annotationTemplateClassName = rulesDeployValue.getAnnotationTemplateClassName() != null ? rulesDeployValue
-                .getAnnotationTemplateClassName() : rulesDeployValue.getInterceptingTemplateClassName();
+        if (rulesDeploy != null) {
+            annotationTemplateClassName = rulesDeploy.getAnnotationTemplateClassName() != null ? rulesDeploy
+                .getAnnotationTemplateClassName() : rulesDeploy.getInterceptingTemplateClassName();
             if (annotationTemplateClassName != null) {
                 annotationTemplateClassName = annotationTemplateClassName.trim();
             }
@@ -152,8 +156,13 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
                         StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY));
             }
         }
-        return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(rulesInstantiationStrategy.compile()
-            .getOpenClassWithErrors(), serviceClass, resolveServiceClassLoader, hasContext, hasVariations);
+        return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(
+            rulesInstantiationStrategy.compile().getOpenClassWithErrors(),
+            serviceClass,
+            resolveServiceClassLoader,
+            rulesInstantiationStrategy.instantiate(true),
+            provideRuntimeContext,
+            provideVariations);
     }
 
     public boolean isProvideRuntimeContext() {

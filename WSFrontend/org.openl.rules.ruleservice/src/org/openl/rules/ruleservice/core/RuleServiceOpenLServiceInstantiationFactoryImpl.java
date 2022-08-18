@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.CompiledOpenClass;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -74,7 +75,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
-            Object serviceTarget = resolveInterfaceAndClassLoader(service, serviceDescription, instantiationStrategy);
+            Pair<Object, Class<?>> serviceTarget = resolveInterfaceAndClassLoader(service,
+                serviceDescription,
+                instantiationStrategy);
             if (service.getPublishers().contains(RulesDeploy.PublisherType.RMI.toString())) {
                 resolveRmiInterface(service);
             }
@@ -116,7 +119,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     }
 
     private void instantiateServiceBean(OpenLService service,
-            Object serviceTarget,
+            Pair<Object, Class<?>> serviceTarget,
             ClassLoader classLoader) throws RuleServiceInstantiationException {
         Class<?> serviceClass = service.getServiceClass();
         try {
@@ -126,8 +129,12 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 throw new RuleServiceRuntimeException(
                     "Failed to create a proxy for service target object. Deprecated approach with wrapper: service class is not an interface.");
             }
-            ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service
-                .getOpenClass(), serviceTarget, serviceClass, classLoader, getListServiceInvocationAdviceListeners());
+            ServiceInvocationAdvice serviceInvocationAdvice = new ServiceInvocationAdvice(service.getOpenClass(),
+                serviceTarget.getLeft(),
+                serviceTarget.getRight(),
+                serviceClass,
+                classLoader,
+                getListServiceInvocationAdviceListeners());
             Object proxyServiceBean = ASMProxyFactory
                 .newProxyInstance(classLoader, serviceInvocationAdvice, serviceClass);
             service.setServiceBean(proxyServiceBean);
@@ -136,7 +143,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         }
     }
 
-    private Object resolveInterfaceAndClassLoader(OpenLService service,
+    private Pair<Object, Class<?>> resolveInterfaceAndClassLoader(OpenLService service,
             ServiceDescription serviceDescription,
             RulesInstantiationStrategy instantiationStrategy) throws RuleServiceInstantiationException,
                                                               RulesInstantiationException {
@@ -150,11 +157,12 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
                         .buildInterfaceForInstantiationStrategy(serviceClass,
                             instantiationStrategy.getClassLoader(),
+                            instantiationStrategy.instantiate(),
                             serviceDescription.isProvideRuntimeContext(),
                             serviceDescription.isProvideVariations());
                     instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
                     service.setServiceClass(serviceClass);
-                    return instantiationStrategy.instantiate();
+                    return Pair.of(instantiationStrategy.instantiate(), interfaceForInstantiationStrategy);
                 }
                 throw new RuleServiceRuntimeException(
                     String.format("Failed to apply service class '%s'. Interface is expected, but class is found.",
@@ -171,10 +179,11 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         serviceClass = processGeneratedServiceClass(serviceDescription,
             service.getOpenClass(),
             instanceClass,
+            serviceTarget,
             service.getClassLoader());
         service.setServiceClassName(null); // Generated class is used.
         service.setServiceClass(serviceClass);
-        return serviceTarget;
+        return Pair.of(serviceTarget, instanceClass);
     }
 
     private void resolveRmiInterface(OpenLService service) throws RuleServiceInstantiationException {
@@ -201,6 +210,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private Class<?> processGeneratedServiceClass(ServiceDescription serviceDescription,
             IOpenClass openClass,
             Class<?> serviceClass,
+            Object serviceTarget,
             ClassLoader serviceClassLoader) {
         Class<?> annotatedClass = processAnnotatedTemplateClass(serviceDescription,
             serviceClass,
@@ -209,6 +219,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         return RuleServiceInstantiationFactoryHelper.buildInterfaceForService(openClass,
             annotatedClass,
             serviceClassLoader,
+            serviceTarget,
             serviceDescription.isProvideRuntimeContext(),
             serviceDescription.isProvideVariations());
     }
