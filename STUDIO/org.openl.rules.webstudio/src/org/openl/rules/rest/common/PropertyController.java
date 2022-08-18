@@ -3,7 +3,6 @@ package org.openl.rules.rest.common;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import io.swagger.v3.oas.annotations.Operation;
 import org.openl.rules.rest.SecurityChecker;
@@ -45,13 +44,13 @@ public class PropertyController {
         SecurityChecker.allow(Privileges.ADMIN);
         DynamicPropertySource dynamicPropertySource = DynamicPropertySource.get();
         Map<String, String> currentPropertyMap = new HashMap<>(propertyBean.getPropertyMap());
-        currentPropertyMap.putAll(new HashMap(dynamicPropertySource.getProperties()));
+        currentPropertyMap.putAll(dynamicPropertySource.getProperties());
         return currentPropertyMap;
     }
 
     @GetMapping("/webStudio")
     @Hidden
-    public Properties getWebStudioProperties() {
+    public Map<String, String> getWebStudioProperties() {
         SecurityChecker.allow(Privileges.ADMIN);
         DynamicPropertySource dynamicPropertySource = DynamicPropertySource.get();
         return dynamicPropertySource.getProperties();

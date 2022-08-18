@@ -1,16 +1,14 @@
 package org.openl.spring.env;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
+import java.util.TreeMap;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -18,6 +16,7 @@ import org.springframework.core.env.EnumerablePropertySource;
 
 import org.openl.info.OpenLVersion;
 import org.openl.util.FileUtils;
+import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -36,7 +35,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     private final FirewallPropertyResolver resolver;
     private final String appName;
 
-    private volatile Properties settings;
+    private volatile Map<String, String> settings;
     private volatile String version;
     private volatile long timestamp;
 
@@ -68,16 +67,16 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
 
     private synchronized void loadProperties() {
         File file = getFile();
-        Properties properties = new Properties();
+        var properties = new LinkedHashMap<String, String>();
         long lastModified = file.lastModified();
         if (file.exists()) {
-            try (InputStreamReader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
-                properties.load(reader);
+            try (var reader = Files.newInputStream(file.toPath())) {
+                PropertiesUtils.load(reader, properties::put);
                 ConfigLog.LOG.info("+       Load: '{}'", getFile());
             } catch (IOException e) {
                 ConfigLog.LOG.error("!     Error:", e);
             }
-            version = properties.getProperty(PROP_VERSION);
+            version = properties.get(PROP_VERSION);
         } else {
             // If the file does not exist, then it is default settings for the current version.
             version = OpenLVersion.getVersion();
@@ -97,7 +96,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             // prevent cycled call
             return null;
         }
-        String property = settings.getProperty(name);
+        String property = settings.get(name);
         if (property == null) {
             return null;
         }
@@ -132,8 +131,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     }
 
     public synchronized void save(Map<String, String> config) throws IOException {
-        Properties properties = new Properties();
-        properties.putAll(settings);
+        final var properties = new TreeMap<>(settings);
         for (Map.Entry<String, String> pair : config.entrySet()) {
             String propertyName = pair.getKey();
             String value = pair.getValue();
@@ -153,13 +151,13 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
                         continue;
                     }
                 }
-                properties.setProperty(propertyName, value);
+                properties.put(propertyName, value);
             }
         }
-        Properties origin = settings;
+        var origin = settings;
 
         // 'unconfigure' settings for matching with defaults. to get settings not from a file
-        settings = new Properties();
+        settings = Collections.emptyMap();
 
         // Do clean up from default values
         properties.entrySet()
@@ -185,14 +183,13 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
 
         if (!origin.equals(properties)) {
             // Save the difference only
-            File settingsFile = getFile();
-            File parent = settingsFile.getParentFile();
+            var settingsFile = getFile();
+            var parent = settingsFile.getParentFile();
             if (!parent.mkdirs() && !parent.exists()) {
                 throw new FileNotFoundException("Can't create the folder " + parent.getAbsolutePath());
             }
-            try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(settingsFile),
-                StandardCharsets.UTF_8)) {
-                properties.store(writer, null);
+            try (var writer = Files.newBufferedWriter(settingsFile.toPath())) {
+                PropertiesUtils.store(writer, properties.entrySet());
             }
         }
     }
@@ -211,7 +208,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         }
     }
 
-    public Properties getProperties() {
+    public Map<String, String> getProperties() {
         return settings;
     }
 
