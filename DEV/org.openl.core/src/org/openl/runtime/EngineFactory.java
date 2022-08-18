@@ -97,14 +97,22 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
         this.interfaceClass = interfaceClass;
     }
 
-    @SuppressWarnings("unchecked")
     public T newEngineInstance() {
-        return (T) newInstance();
+        return newEngineInstance(false);
+    }
+
+    public T newEngineInstance(IRuntimeEnv runtimeEnv) {
+        return (T) newEngineInstance(runtimeEnv, false);
     }
 
     @SuppressWarnings("unchecked")
-    public T newEngineInstance(IRuntimeEnv runtimeEnv) {
-        return (T) newInstance(runtimeEnv);
+    public T newEngineInstance(IRuntimeEnv runtimeEnv, boolean ignoreCompilationErrors) {
+        return (T) newInstance(runtimeEnv, ignoreCompilationErrors);
+    }
+
+    @SuppressWarnings("unchecked")
+    public T newEngineInstance(boolean ignoreCompilationErrors) {
+        return (T) newInstance(ignoreCompilationErrors);
     }
 
     public void reset() {
@@ -117,10 +125,11 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
     }
 
     @Override
-    public Object prepareInstance(IRuntimeEnv runtimeEnv) {
+    public Object prepareInstance(IRuntimeEnv runtimeEnv, boolean ignoreCompilationErrors) {
         try {
             compiledOpenClass = getCompiledOpenClass();
-            IOpenClass openClass = compiledOpenClass.getOpenClass();
+            IOpenClass openClass = ignoreCompilationErrors ? compiledOpenClass.getOpenClassWithErrors()
+                                                           : compiledOpenClass.getOpenClass();
             Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);
             Object openClassInstance = openClass
                 .newInstance(runtimeEnv == null ? getRuntimeEnvBuilder().buildRuntimeEnv() : runtimeEnv);

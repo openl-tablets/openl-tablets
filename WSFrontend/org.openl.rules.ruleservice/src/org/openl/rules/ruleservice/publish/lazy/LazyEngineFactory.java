@@ -120,10 +120,11 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     }
 
     @Override
-    protected Object prepareInstance(IRuntimeEnv runtimeEnv) {
+    protected Object prepareInstance(IRuntimeEnv runtimeEnv, boolean ignoreCompilationErrors) {
         try {
             compiledOpenClass = getCompiledOpenClass();
-            IOpenClass openClass = compiledOpenClass.getOpenClass();
+            IOpenClass openClass = ignoreCompilationErrors ? compiledOpenClass.getOpenClassWithErrors()
+                                                           : compiledOpenClass.getOpenClass();
             Object openClassInstance = openClass
                 .newInstance(runtimeEnv == null ? getRuntimeEnvBuilder().buildRuntimeEnv() : runtimeEnv);
             Map<Method, IOpenMember> methodMap = prepareMethodMap(getInterfaceClass(), openClass);

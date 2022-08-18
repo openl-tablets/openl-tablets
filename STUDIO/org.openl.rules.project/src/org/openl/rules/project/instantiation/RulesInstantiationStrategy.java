@@ -23,7 +23,7 @@ public interface RulesInstantiationStrategy {
     CompiledOpenClass compile() throws RulesInstantiationException;
 
     /**
-     * Creates instance of class handling all rules invocations. The class will be instance of class got with
+     * Creates instance of class handling all rules invocations. The class will be an instance of class got with
      * {@link #getInstanceClass()()}.
      *
      * @return instance of {@link #getInstanceClass()} result.
@@ -32,20 +32,29 @@ public interface RulesInstantiationStrategy {
     Object instantiate() throws RulesInstantiationException;
 
     /**
+     * Creates instance of class handling all rules invocations. The class will be an instance of class got with
+     * {@link #getInstanceClass()()}.
+     *
+     * @param ignoreCompilationErrors if true instantiate an instance even if a compilation has errors
+     * @return instance of {@link #getInstanceClass()} result.
+     * @throws RulesInstantiationException
+     */
+    Object instantiate(boolean ignoreCompilationErrors) throws RulesInstantiationException;
+
+    /**
      * Returns ClassLoader for the current module inside the project. If classLoader was set during the construction of
      * the strategy - returns it.<br>
-     * If no, creates {@link OpenLClassLoader} with project classLoader of current module as
-     * parent.
+     * If no, creates {@link OpenLClassLoader} with project classLoader of current module as parent.
      *
      * @return {@link ClassLoader} that will be used for openl compilation.
      *
-     *         throws RulesInstantiationException some strategies compile dependencie during classloader build.
+     *         throws RulesInstantiationException some strategies compile dependencies during classloader build.
      */
     ClassLoader getClassLoader() throws RulesInstantiationException;
 
     /**
-     * Service class of rules can be defined by user or it is predefined for some specific instantiations
-     * strategies(e.g. for static wrapper case).
+     * Service class of rules can be defined or predefined for some specific instantiations strategies(e.g. for static
+     * wrapper case).
      *
      * @return service class that it is used for {@link InstantiationError} or <code>null</code>.
      * @throws RulesInstantiationException

@@ -81,11 +81,11 @@ public class LazyInstantiationStrategy extends MultiModuleInstantiationStrategy 
     }
 
     @Override
-    public Object instantiate(Class<?> rulesClass) throws RulesInstantiationException {
+    public Object instantiate(Class<?> rulesClass, boolean ignoreCompilationErrors) throws RulesInstantiationException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
-            return getEngineFactory().newInstance();
+            return getEngineFactory().newInstance(ignoreCompilationErrors);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

@@ -53,11 +53,11 @@ public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantia
     }
 
     @Override
-    public Object instantiate(Class<?> rulesClass) throws RulesInstantiationException {
+    public Object instantiate(Class<?> rulesClass, boolean ignoreCompilationErrors) throws RulesInstantiationException {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(getClassLoader());
         try {
-            return getEngineFactory().newEngineInstance();
+            return getEngineFactory().newEngineInstance(ignoreCompilationErrors);
         } catch (Exception e) {
             throw new RulesInstantiationException("Failed to instantiate.", e);
         } finally {
