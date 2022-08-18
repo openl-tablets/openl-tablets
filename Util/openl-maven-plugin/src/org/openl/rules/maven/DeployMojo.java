@@ -1,7 +1,7 @@
 package org.openl.rules.maven;
 
 import java.io.File;
-import java.util.Properties;
+import java.util.HashMap;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -56,7 +56,7 @@ public class DeployMojo extends BaseOpenLMojo {
                 String.format("The server configuration with name %s does not exist", deployServer));
         }
 
-        Properties properties = new Properties();
+        HashMap<String, String> properties = new HashMap<String, String>();
         if ("jdbc".equals(deployType)) {
             properties.put("production-repository.factory", "repo-jdbc");
         }
@@ -65,7 +65,7 @@ public class DeployMojo extends BaseOpenLMojo {
         properties.put("production-repository.password", server.getPassword());
         properties.put("production-repository.base.path", "deploy/");
 
-        try (RulesDeployerService deployerService = new RulesDeployerService(properties)) {
+        try (RulesDeployerService deployerService = new RulesDeployerService(properties::get)) {
             deployerService.deploy(zipFile, false);
         }
     }
