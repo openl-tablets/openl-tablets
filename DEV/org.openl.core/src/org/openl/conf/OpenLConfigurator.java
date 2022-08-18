@@ -1,18 +1,13 @@
 package org.openl.conf;
 
 import java.io.File;
-import java.util.Properties;
 
 import org.openl.OpenL;
 
 /**
- *
  * This class is responsible for configuration of a particular OpenL instance designated by it's instance_name.
  *
- *
- *
  * @author snshor
- *
  */
 
 public class OpenLConfigurator extends Configurator {
@@ -48,7 +43,7 @@ public class OpenLConfigurator extends Configurator {
                 cxt,
                 null));
 
-        Properties pp = propertyLoader.getProperties();
+        var pp = propertyLoader.getProperties();
         cxt.setProperties(pp);
 
         try {

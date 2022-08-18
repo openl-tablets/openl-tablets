@@ -1,14 +1,8 @@
-/*
- * Created on Jun 4, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.conf;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Properties;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +20,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
     private final IOpenLConfiguration config;
     private ClassLoader classLoader;
     private final String[] fileSystemRoots;
-    private Properties properties;
+    private Map<String, String> properties;
 
     public ConfigurableResourceContext(ClassLoader classLoader, IOpenLConfiguration config) {
         this(classLoader, DEFAULT_FILESYSTEM_ROOTS, config);
@@ -46,11 +40,11 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         this(Thread.currentThread().getContextClassLoader(), DEFAULT_FILESYSTEM_ROOTS, config);
     }
 
-    public Properties getProperties() {
+    public Map<String, String> getProperties() {
         return properties;
     }
 
-    public void setProperties(Properties properties) {
+    public void setProperties(Map<String, String> properties) {
         this.properties = properties;
     }
 
@@ -98,7 +92,7 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         String property = null;
 
         if (properties != null) {
-            property = properties.getProperty(propertyName);
+            property = properties.get(propertyName);
         }
 
         if (property != null) {
