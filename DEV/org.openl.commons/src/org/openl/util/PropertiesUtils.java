@@ -4,8 +4,12 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
@@ -135,5 +139,44 @@ public class PropertiesUtils {
 
     public static void load(InputStream input, BiConsumer<? super String, ? super String> result) throws IOException {
         load(new InputStreamReader(input, StandardCharsets.UTF_8), result);
+    }
+
+    /**
+     * Writes properties in the output. Serialized properties are restored via {@link #load(Reader, BiConsumer)}
+     * in the same order and in the same values, excepting where keys are {@literal null}.
+     *
+     * @param output a target where properties will be serialized
+     * @param props  properties
+     */
+    public static <T extends Map.Entry<?, ?>> void store(Writer output, Iterable<T> props) throws IOException {
+
+        for (Map.Entry<?, ?> entry : props) {
+            Object k = entry.getKey();
+            Object v = entry.getValue();
+            if (k == null) {
+                if (v != null) {
+                    output.append('#').write(v.toString());
+                }
+            } else {
+                String key = escape(k.toString()).replace(":", "\\:").replace("=", "\\=").replaceFirst("^#", "\\\\#");
+                String value = escape(v.toString());
+                output.append(key).append('=').write(value);
+            }
+            output.write('\n');
+        }
+        output.flush();
+    }
+
+    public static <T extends Map.Entry<?, ?>> void store(OutputStream output, Iterable<T> props) throws IOException {
+        store(new OutputStreamWriter(output, StandardCharsets.UTF_8), props);
+    }
+
+    private static String escape(String str) {
+        return str
+                .replace("\\", "\\\\")
+                .replace("\f", "\\f")
+                .replace("\t", "\\t")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n");
     }
 }

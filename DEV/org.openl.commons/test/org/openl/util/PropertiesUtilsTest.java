@@ -1,10 +1,14 @@
 package org.openl.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -66,5 +70,41 @@ public class PropertiesUtilsTest {
             PropertiesUtils.load(file, (k, v) -> result.add(k + "=" + v));
         }
         Assert.assertEquals(Arrays.asList("Привет! Это проверка=Пройдено!", "#=#", "hello!=passed ! \r  # not a comment"), result);
+    }
+
+    @Test
+    public void storeEmpty() throws IOException {
+        var output = new StringWriter();
+        var props = new LinkedHashMap<String, String>();
+
+        PropertiesUtils.store(output, props.entrySet());
+        Assert.assertEquals("", output.toString());
+    }
+
+    @Test
+    public void store() throws IOException {
+        var output = new StringWriter();
+        var props = new LinkedHashMap<String, String>();
+        props.put("x", "20 ");
+        props.put("#Ж:=+-*/\\", "привет!+-*/\\#");
+        props.put("Key with a space", "=Значение :");
+        props.put(null, " It is = a comment\\");
+
+        PropertiesUtils.store(output, props.entrySet());
+        Assert.assertEquals("x=20 \n" +
+                "\\#Ж\\:\\=+-*/\\\\=привет!+-*/\\\\#\n" +
+                "Key with a space==Значение :\n" +
+                "# It is = a comment\\\n", output.toString());
+    }
+
+    @Test
+    public void storeStream() throws IOException {
+        var output = new ByteArrayOutputStream();
+        var props = new LinkedHashMap<Integer, Integer>();
+        props.put(2, 20);
+        props.put(1, 50);
+
+        PropertiesUtils.store(output, props.entrySet());
+        Assert.assertEquals("2=20\n1=50\n", output.toString());
     }
 }
