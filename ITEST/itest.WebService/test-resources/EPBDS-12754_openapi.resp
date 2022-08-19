@@ -294,14 +294,14 @@ Content-Type: application/json
     },
     "/inputRule": {
       "post": {
-        "summary": "MyDatatype inputRule(SpreadsheetResult)",
+        "summary": "MyDatatype inputRule(SprSmartRules)",
         "description": "Rules method: org.openl.generated.beans.MyDatatype inputRule(SpreadsheetResultsprSmartRules a)",
         "operationId": "inputRule",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SpreadsheetResult"
+                "$ref": "#/components/schemas/SprSmartRules"
               }
             }
           }
@@ -386,14 +386,14 @@ Content-Type: application/json
     },
     "/inputRule2": {
       "post": {
-        "summary": "MyDatatype inputRule2(SpreadsheetResult)",
+        "summary": "MyDatatype inputRule2(Spr1Spr2Spr3)",
         "description": "Rules method: org.openl.generated.beans.MyDatatype inputRule2(SRSpr1 & SRSpr2 & SRSpr3 a)",
         "operationId": "inputRule2",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SpreadsheetResult"
+                "$ref": "#/components/schemas/Spr1Spr2Spr3"
               }
             }
           }
@@ -843,29 +843,39 @@ Content-Type: application/json
           }
         }
       },
-      "SpreadsheetResult": {
+      "SprSmartRules": {
         "type": "object",
         "properties": {
-          "results": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              }
-            }
+          "Step1": {
+            "$ref": "#/components/schemas/MyDatatype"
           },
-          "columnNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "Step7": {
+            "type": "object"
           },
-          "rowNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "paramCalc": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Step4": {
+            "$ref": "#/components/schemas/MyDatatype"
+          }
+        }
+      },
+      "Spr1Spr2Spr3": {
+        "type": "object",
+        "properties": {
+          "paramCalc": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Step7": {
+            "type": "object"
+          },
+          "Step4": {
+            "$ref": "#/components/schemas/MyDatatype"
+          },
+          "Step1": {
+            "$ref": "#/components/schemas/MyDatatype"
           }
         }
       },
@@ -910,53 +920,17 @@ Content-Type: application/json
           }
         }
       },
-      "Spr1Spr2Spr3": {
-        "type": "object",
-        "properties": {
-          "paramCalc": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Step7": {
-            "type": "object"
-          },
-          "Step1": {
-            "$ref": "#/components/schemas/MyDatatype"
-          },
-          "Step4": {
-            "$ref": "#/components/schemas/MyDatatype"
-          }
-        }
-      },
       "Spr1Spr3": {
         "type": "object",
         "properties": {
+          "Step4": {
+            "$ref": "#/components/schemas/MyDatatype"
+          },
           "Step1": {
             "$ref": "#/components/schemas/MyDatatype"
           },
           "Step7": {
             "type": "string"
-          },
-          "Step4": {
-            "$ref": "#/components/schemas/MyDatatype"
-          }
-        }
-      },
-      "SprSmartRules": {
-        "type": "object",
-        "properties": {
-          "Step1": {
-            "$ref": "#/components/schemas/MyDatatype"
-          },
-          "Step7": {
-            "type": "object"
-          },
-          "paramCalc": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "Step4": {
-            "$ref": "#/components/schemas/MyDatatype"
           }
         }
       },

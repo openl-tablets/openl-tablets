@@ -92,12 +92,11 @@ public class TypeInfo {
     }
 
     public enum Type {
-
         RUNTIMECONTEXT,
         SPREADSHEET,
+        SPREADSHEET_ARRAY,
         DATATYPE,
         OBJECT,
         PRIMITIVE
-
     }
 }

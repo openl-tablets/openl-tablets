@@ -7,7 +7,7 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.interceptors.RulesType;
 
 @Path(value = "prefix")
-public interface Service3 {
+interface Service3 {
     @POST
     @Path("/BankRatingCalculation")
     Object BankRatingCalculation(IRulesRuntimeContext runtimeContext, @RulesType("Bank") Object object);

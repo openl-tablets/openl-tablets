@@ -16,7 +16,7 @@ Content-Type: application/json
   "paths": {
     "/S1": {
       "post": {
-        "summary": "S1 S1(SpreadsheetResult[])",
+        "summary": "S1 S1(S5[])",
         "description": "Rules method: SpreadsheetResultS1 S1(SpreadsheetResultS5[] calculatedCensus)",
         "operationId": "S1",
         "requestBody": {
@@ -25,7 +25,7 @@ Content-Type: application/json
               "schema": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/SpreadsheetResult"
+                  "$ref": "#/components/schemas/S5"
                 }
               }
             }
@@ -111,7 +111,7 @@ Content-Type: application/json
     },
     "/S2": {
       "post": {
-        "summary": "S2 S2(SpreadsheetResult[])",
+        "summary": "S2 S2(S5[])",
         "description": "Rules method: SpreadsheetResultS2 S2(SpreadsheetResultS5[] param)",
         "operationId": "S2",
         "requestBody": {
@@ -120,7 +120,7 @@ Content-Type: application/json
               "schema": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/SpreadsheetResult"
+                  "$ref": "#/components/schemas/S5"
                 }
               }
             }
@@ -206,14 +206,14 @@ Content-Type: application/json
     },
     "/S3": {
       "post": {
-        "summary": "S3 S3(SpreadsheetResult)",
+        "summary": "S3 S3(S4)",
         "description": "Rules method: SpreadsheetResultS3 S3(SpreadsheetResultS4 calculatedClass)",
         "operationId": "S3",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SpreadsheetResult"
+                "$ref": "#/components/schemas/S4"
               }
             }
           }
@@ -298,7 +298,7 @@ Content-Type: application/json
     },
     "/S4": {
       "post": {
-        "summary": "S4 S4(SpreadsheetResult[])",
+        "summary": "S4 S4(S5[])",
         "description": "Rules method: SpreadsheetResultS4 S4(SpreadsheetResultS5[] calculatedCensus)",
         "operationId": "S4",
         "requestBody": {
@@ -307,7 +307,7 @@ Content-Type: application/json
               "schema": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/SpreadsheetResult"
+                  "$ref": "#/components/schemas/S5"
                 }
               }
             }
@@ -476,14 +476,14 @@ Content-Type: application/json
     },
     "/S6": {
       "post": {
-        "summary": "S6 S6(SpreadsheetResult)",
+        "summary": "S6 S6(S1)",
         "description": "Rules method: SpreadsheetResultS6 S6(SpreadsheetResultS1 ageBandClaimCost)",
         "operationId": "S6",
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SpreadsheetResult"
+                "$ref": "#/components/schemas/S1"
               }
             }
           }
@@ -610,29 +610,11 @@ Content-Type: application/json
           }
         }
       },
-      "SpreadsheetResult": {
+      "S5": {
         "type": "object",
         "properties": {
-          "results": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "object"
-              }
-            }
-          },
-          "columnNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "rowNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "p2": {
+            "type": "string"
           }
         }
       },
@@ -660,14 +642,6 @@ Content-Type: application/json
         "properties": {
           "AgeBandedRateCards": {
             "$ref": "#/components/schemas/S1"
-          }
-        }
-      },
-      "S5": {
-        "type": "object",
-        "properties": {
-          "p2": {
-            "type": "string"
           }
         }
       }

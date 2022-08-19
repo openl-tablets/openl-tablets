@@ -5,7 +5,6 @@ import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.SPREADSHE
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -64,27 +63,37 @@ public class OpenAPITypeUtils {
     }
 
     private static Map<String, TypeInfo> initPrimitiveMap() {
-        Map<String, TypeInfo> primitiveMap = new HashMap<>();
-        primitiveMap.put(float.class.getSimpleName(), new TypeInfo(float.class));
-        primitiveMap.put(double.class.getSimpleName(), new TypeInfo(double.class));
-        primitiveMap.put(long.class.getSimpleName(), new TypeInfo(long.class));
-        primitiveMap.put(int.class.getSimpleName(), new TypeInfo(int.class));
-        primitiveMap.put(boolean.class.getSimpleName(), new TypeInfo(boolean.class));
-        return Collections.unmodifiableMap(primitiveMap);
+        return Map.of(float.class.getSimpleName(),
+            new TypeInfo(float.class),
+            double.class.getSimpleName(),
+            new TypeInfo(double.class),
+            long.class.getSimpleName(),
+            new TypeInfo(long.class),
+            int.class.getSimpleName(),
+            new TypeInfo(int.class),
+            boolean.class.getSimpleName(),
+            new TypeInfo(boolean.class));
     }
 
     private static Map<String, TypeInfo> initWrapperMap() {
-        Map<String, TypeInfo> wrapperMap = new HashMap<>();
-        wrapperMap.put(Date.class.getSimpleName(), new TypeInfo(Date.class));
-        wrapperMap.put(String.class.getSimpleName(), new TypeInfo(String.class));
-        wrapperMap.put(float.class.getSimpleName(), new TypeInfo(Float.class));
-        wrapperMap.put(double.class.getSimpleName(), new TypeInfo(Double.class));
-        wrapperMap.put(long.class.getSimpleName(), new TypeInfo(Long.class));
-        wrapperMap.put(int.class.getSimpleName(), new TypeInfo(Integer.class));
-        wrapperMap.put(boolean.class.getSimpleName(), new TypeInfo(Boolean.class));
-        wrapperMap.put(Object.class.getSimpleName(), new TypeInfo(Object.class));
-        wrapperMap.put("bigInt", new TypeInfo(BigInteger.class));
-        return Collections.unmodifiableMap(wrapperMap);
+        return Map.of(Date.class.getSimpleName(),
+            new TypeInfo(Date.class),
+            String.class.getSimpleName(),
+            new TypeInfo(String.class),
+            float.class.getSimpleName(),
+            new TypeInfo(Float.class),
+            double.class.getSimpleName(),
+            new TypeInfo(Double.class),
+            long.class.getSimpleName(),
+            new TypeInfo(Long.class),
+            int.class.getSimpleName(),
+            new TypeInfo(Integer.class),
+            boolean.class.getSimpleName(),
+            new TypeInfo(Boolean.class),
+            Object.class.getSimpleName(),
+            new TypeInfo(Object.class),
+            "bigInt",
+            new TypeInfo(BigInteger.class));
     }
 
     public static TypeInfo extractType(JXPathContext pathContext, Schema<?> schema, boolean allowPrimitiveTypes) {
@@ -138,10 +147,20 @@ public class OpenAPITypeUtils {
             String name = type.getSimpleName() + "[]";
             int dim = type.getDimension() + 1;
             if (type.isReference()) {
-                result = new TypeInfo(name, name, true, dim);
+                result = new TypeInfo(name,
+                    name,
+                    type.getType() == TypeInfo.Type.SPREADSHEET || type
+                        .getType() == TypeInfo.Type.SPREADSHEET_ARRAY ? TypeInfo.Type.SPREADSHEET_ARRAY : null,
+                    dim,
+                    true);
             } else {
                 String className = getArrayClassName(type.getJavaName(), dim);
-                result = new TypeInfo(className, name, false, dim);
+                result = new TypeInfo(className,
+                    name,
+                    type.getType() == TypeInfo.Type.SPREADSHEET || type
+                        .getType() == TypeInfo.Type.SPREADSHEET_ARRAY ? TypeInfo.Type.SPREADSHEET_ARRAY : null,
+                    dim,
+                    false);
             }
         }
         if (result == null) {
