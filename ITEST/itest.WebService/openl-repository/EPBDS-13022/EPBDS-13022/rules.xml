@@ -1,0 +1,18 @@
+<project>
+    <name>EPBDS-13022</name>
+    <modules>
+        <module>
+            <name>module1</name>
+            <rules-root path="module1.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.+ main1\(.*\)</value>
+                    <value>.+ main2\(.*\)</value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
+</project>

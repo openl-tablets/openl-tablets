@@ -1,0 +1,53 @@
+POST /EPBDS-13022/EPBDS-13022/main2 HTTP/1.1
+Content-Type: application/json
+
+{
+  "x4": {
+    "Step5": [
+      {
+        "Step4": [
+          {
+            "Step2": 0,
+            "Step3": {
+              "Step1": "Hello1"
+            }
+          }, {
+            "Step2": 0,
+            "Step3": {
+              "Step1": "Hello2"
+            }
+          }
+        ]
+      }, {
+        "Step4": [
+          {
+            "Step2": 0,
+            "Step3": {
+              "Step1": "Hello3"
+            }
+          }, {
+            "Step2": 0,
+            "Step3": {
+              "Step1": "Hello4"
+            }
+          }
+        ]
+      }
+    ],
+    "Step6": {
+      "Step4": [
+        {
+          "Step2": 0,
+          "Step3": {
+            "Step1": "World3"
+          }
+        }, {
+          "Step2": 0,
+          "Step3": {
+            "Step1": "World4"
+          }
+        }
+      ]
+    }
+  }
+}

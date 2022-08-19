@@ -1,6 +1,8 @@
 <rules-deploy>
-  <isProvideRuntimeContext>false</isProvideRuntimeContext>
-  <publishers>
-    <publisher>RESTFUL</publisher>
-  </publishers>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <annotationTemplateClassName>org.openl.rules.project.validation.openapi.test.EPBDS10605Service
+    </annotationTemplateClassName>
 </rules-deploy>

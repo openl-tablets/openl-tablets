@@ -546,6 +546,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName)
                             .withAdditionalConstructor(false)
                             .withEqualsHashCodeToStringMethods(false);
+                        beanClassBuilder.writeToType(e -> {
+                            AnnotationVisitor av = e
+                                .visitAnnotation(Type.getDescriptor(SpreadsheetResultBeanClass.class), true);
+                            av.visitEnd();
+                        });
                         TreeMap<String, String> xmlNames = new TreeMap<>(FIELD_COMPARATOR);
                         @SuppressWarnings("unchecked")
                         List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];

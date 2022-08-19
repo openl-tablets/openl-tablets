@@ -84,9 +84,9 @@ public final class MethodUtils {
                     Logger log = LoggerFactory.getLogger(MethodUtils.class);
                     if (log.isWarnEnabled()) {
                         log.warn("Invalid parameter name '{}' is used in @Name annotation for the method '{}.{}'.",
-                                name.value(),
-                                method.getClass().getTypeName(),
-                                MethodUtil.printMethod(method.getName(), method.getParameterTypes()));
+                            name.value(),
+                            method.getClass().getTypeName(),
+                            MethodUtil.printMethod(method.getName(), method.getParameterTypes()));
                     }
                 }
             }

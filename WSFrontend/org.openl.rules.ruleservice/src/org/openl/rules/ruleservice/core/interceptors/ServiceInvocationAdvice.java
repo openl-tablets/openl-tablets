@@ -1,11 +1,14 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +22,11 @@ import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.exception.OpenLUserDetailedRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
+import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.calc.SpreadsheetResultBeanClass;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.ruleservice.core.ExceptionDetails;
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
@@ -64,6 +72,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     private final IOpenClass openClass;
     private final Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners;
     private final Map<Method, IOpenMember> openMemberMap = new HashMap<>();
+    private final Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass;
     private final Map<Method, Method> methodMap = new HashMap<>();
 
     public ServiceInvocationAdvice(IOpenClass openClass,
@@ -79,6 +88,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         this.openClass = openClass;
         this.serviceMethodAdviceListeners = serviceMethodAdviceListeners != null ? new ArrayList<>(
             serviceMethodAdviceListeners) : new ArrayList<>();
+        this.mapClassToSprOpenClass = initMapClassToSprOpenClass();
         init();
     }
 
@@ -98,17 +108,49 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         return serviceExtraMethodAnnotations;
     }
 
+    private Map<Class<?>, CustomSpreadsheetResultOpenClass> initMapClassToSprOpenClass() {
+        XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+        Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToCustomSpreadsheetResultOpenClass = new HashMap<>();
+        for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
+            if (type instanceof CustomSpreadsheetResultOpenClass) {
+                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
+                if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
+                    mapClassToCustomSpreadsheetResultOpenClass.put(customSpreadsheetResultOpenClass.getBeanClass(),
+                        customSpreadsheetResultOpenClass);
+                }
+            }
+        }
+        for (CombinedSpreadsheetResultOpenClass combinedSpreadsheetResultOpenClass : xlsModuleOpenClass
+            .getCombinedSpreadsheetResultOpenClasses()) {
+            if (combinedSpreadsheetResultOpenClass.isGenerateBeanClass()) {
+                mapClassToCustomSpreadsheetResultOpenClass.put(combinedSpreadsheetResultOpenClass.getBeanClass(),
+                    combinedSpreadsheetResultOpenClass);
+            }
+        }
+        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass = xlsModuleOpenClass
+            .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+            .toCustomSpreadsheetResultOpenClass();
+        if (customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.isGenerateBeanClass()) {
+            mapClassToCustomSpreadsheetResultOpenClass.put(
+                customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.getBeanClass(),
+                customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass);
+        }
+        return Collections.unmodifiableMap(mapClassToCustomSpreadsheetResultOpenClass);
+    }
+
     private void init() {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
             for (Method method : serviceClass.getMethods()) {
                 Annotation[] methodAnnotations = method.getAnnotations();
-                IOpenMember openMember = findIOpenMember(method);
+                Pair<IOpenMember, Class<?>[]> openMemberResolved = findIOpenMember(method);
+                IOpenMember openMember = openMemberResolved.getLeft();
                 openMemberMap.put(method, openMember);
                 if (openMember != null) {
-                    Method serviceTargetMethod = MethodUtil
-                        .getMatchingAccessibleMethod(serviceTargetClass, method.getName(), method.getParameterTypes());
+                    Method serviceTargetMethod = MethodUtil.getMatchingAccessibleMethod(serviceTargetClass,
+                        method.getName(),
+                        openMemberResolved.getRight());
                     methodMap.put(method, serviceTargetMethod);
                 }
 
@@ -145,15 +187,33 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
     }
 
-    private IOpenMember findIOpenMember(Method method) {
+    private Pair<IOpenMember, Class<?>[]> findIOpenMember(Method method) {
         for (Class<?> clazz : serviceTarget.getClass().getInterfaces()) {
             try {
-                Method m = clazz.getMethod(method.getName(), method.getParameterTypes());
-                return RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget);
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                int i = 0;
+                for (Parameter parameter : method.getParameters()) {
+                    if (parameter.isAnnotationPresent(BeanToSpreadsheetResultConvert.class)) {
+                        Class<?> t = parameterTypes[i];
+                        int dim = 0;
+                        while (t.isArray()) {
+                            t = t.getComponentType();
+                            dim++;
+                        }
+                        if (t.isAnnotationPresent(SpreadsheetResultBeanClass.class)) {
+                            parameterTypes[i] = dim > 0 ? Array.newInstance(SpreadsheetResult.class, dim).getClass()
+                                                        : SpreadsheetResult.class;
+                        }
+                    }
+                    i++;
+                }
+                Method m = clazz.getMethod(method.getName(), parameterTypes);
+                return Pair.of(RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget),
+                    parameterTypes);
             } catch (NoSuchMethodException ignored) {
             }
         }
-        return null;
+        return Pair.of(null, null);
     }
 
     private void checkForAroundInterceptor(Method method, IOpenMember openMember, Annotation annotation) {
@@ -345,6 +405,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                             null,
                             null);
                         try {
+                            args = convertBeansToSpreadsheetResults(calledMethod, args);
                             result = serviceMethodAroundAdvice.around(calledMethod, beanMethod, serviceTarget, args);
                         } catch (Exception e) {
                             ex = e;
@@ -360,6 +421,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                         invokeBeforeMethodInvocationOnListeners(calledMethod, openMember, args);
                         try {
                             if (beanMethod != null) {
+                                args = convertBeansToSpreadsheetResults(calledMethod, args);
                                 result = beanMethod.invoke(serviceTarget, args);
                             } else {
                                 result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
@@ -411,6 +473,22 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                     "Service bean does not implement IEngineWrapper interface. Please, don't use deprecated static wrapper classes.");
             }
         }
+    }
+
+    private Object[] convertBeansToSpreadsheetResults(Method interfaceMethod, Object[] args) {
+        Object[] newArgs = null;
+        int i = 0;
+        for (Parameter parameter : interfaceMethod.getParameters()) {
+            if (parameter.isAnnotationPresent(BeanToSpreadsheetResultConvert.class)) {
+                if (newArgs == null) {
+                    newArgs = new Object[args.length];
+                    System.arraycopy(args, 0, newArgs, 0, args.length);
+                }
+                newArgs[i] = SpreadsheetResult.convertBeansToSpreadsheetResults(args[i], mapClassToSprOpenClass);
+            }
+            i++;
+        }
+        return newArgs == null ? args : newArgs;
     }
 
     private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod,

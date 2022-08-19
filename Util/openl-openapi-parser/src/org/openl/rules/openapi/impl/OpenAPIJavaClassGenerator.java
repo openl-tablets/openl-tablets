@@ -35,6 +35,7 @@ import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
+import org.openl.rules.ruleservice.core.interceptors.NoTypeConversion;
 import org.openl.rules.ruleservice.core.interceptors.RulesType;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.util.StringUtils;
@@ -63,6 +64,12 @@ public class OpenAPIJavaClassGenerator {
     private boolean generateDecision(MethodModel method) {
         if (!method.isInclude()) {
             return false;
+        }
+        for (InputParameter inputParameter : method.getParameters()) {
+            if (inputParameter.getType().getType() == TypeInfo.Type.SPREADSHEET || inputParameter.getType()
+                .getType() == TypeInfo.Type.SPREADSHEET_ARRAY) {
+                return true;
+            }
         }
         final PathInfo pathInfo = method.getPathInfo();
         StringBuilder sb = new StringBuilder("/" + pathInfo.getFormattedPath());
@@ -132,7 +139,7 @@ public class OpenAPIJavaClassGenerator {
                             return true;
                         }
                     } else if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getConsumes())) {
-                        // if one simple pram, text/plain by default
+                        // if one simple param, text/plain by default
                         return true;
                     }
                 } else if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
@@ -163,7 +170,7 @@ public class OpenAPIJavaClassGenerator {
                     } else if (parameters
                         .size() <= JAXRSOpenLServiceEnhancerHelper.MAX_PARAMETERS_COUNT_FOR_GET && parameters.stream()
                             .allMatch(p -> p.getType().getType() == TypeInfo.Type.PRIMITIVE)) {
-                        // if no context and if there are less than 3 parameters and they are all primitive, GET by
+                        // if no context and if there are less than 3 parameters, and they are all primitive, GET by
                         // default.
                         return true;
                     }
@@ -244,6 +251,9 @@ public class OpenAPIJavaClassGenerator {
             methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
                 .withProperty(VALUE, OpenAPITypeUtils.removeArrayBrackets(paramType.getSimpleName()))
                 .build());
+        } else if (paramType.getType() == TypeInfo.Type.SPREADSHEET || paramType
+            .getType() == TypeInfo.Type.SPREADSHEET_ARRAY) {
+            methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(NoTypeConversion.class).build());
         }
         final String originalParameterName = parameter.getOriginalName();
         final String formattedParameterName = parameter.getFormattedName();
