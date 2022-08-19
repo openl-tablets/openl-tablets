@@ -480,7 +480,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         for (SpreadsheetResultSetter spreadsheetResultSetter : spreadsheetResultSetters) {
-            spreadsheetResultSetter.set(spreadsheetResult, target);
+            spreadsheetResultSetter.setToBean(spreadsheetResult, target);
         }
         return target;
     }
@@ -883,10 +883,24 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return beanClassName;
     }
 
+    public SpreadsheetResult createSpreadsheetResult(Object bean,
+            Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSpr) {
+        SpreadsheetResult spreadsheetResult = (SpreadsheetResult) newInstance(null);
+        for (SpreadsheetResultSetter spreadsheetResultSetter : spreadsheetResultSetters) {
+            spreadsheetResultSetter.setToSpr(spreadsheetResult, bean, mapClassToSpr);
+        }
+        return spreadsheetResult;
+    }
+
     private interface SpreadsheetResultSetter {
         SpreadsheetResultSetter[] EMPTY_ARRAY = new SpreadsheetResultSetter[0];
 
-        void set(SpreadsheetResult spreadsheetResult, Object target);
+        void setToBean(SpreadsheetResult spreadsheetResult, Object target);
+
+        default void setToSpr(SpreadsheetResult spreadsheetResult,
+                Object target,
+                Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSpr) {
+        }
     }
 
     private static final class SpreadsheetResultValueSetter implements SpreadsheetResultSetter {
@@ -897,13 +911,25 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         @Override
-        public void set(SpreadsheetResult spreadsheetResult, Object target) {
+        public void setToBean(SpreadsheetResult spreadsheetResult, Object target) {
             for (SpreadsheetResultFieldValueSetter valueSetter : spreadsheetResultFieldValueSetters) {
-                if (valueSetter.set(spreadsheetResult, target)) {
+                if (valueSetter.setToBean(spreadsheetResult, target)) {
                     return;
                 }
             }
         }
+
+        @Override
+        public void setToSpr(SpreadsheetResult spreadsheetResult,
+                Object target,
+                Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSpr) {
+            for (SpreadsheetResultFieldValueSetter valueSetter : spreadsheetResultFieldValueSetters) {
+                if (valueSetter.setToSpr(spreadsheetResult, target, mapClassToSpr)) {
+                    return;
+                }
+            }
+        }
+
     }
 
     private static final class SpreadsheetResultFieldValueSetter {
@@ -917,7 +943,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             this.field.setAccessible(true);
         }
 
-        public boolean set(SpreadsheetResult spreadsheetResult, Object target) {
+        public boolean setToBean(SpreadsheetResult spreadsheetResult, Object target) {
             if (!spreadsheetResult.isFieldUsedInModel(openField.getName())) {
                 return false;
             }
@@ -928,6 +954,20 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     field.set(target, cv);
                     return true;
                 }
+            } catch (IllegalAccessException e) {
+                LoggerFactory.getLogger(SpreadsheetResultFieldValueSetter.class).debug("Ignored error: ", e);
+            }
+            return false;
+        }
+
+        public boolean setToSpr(SpreadsheetResult spreadsheetResult,
+                Object target,
+                Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass) {
+            try {
+                Object v = field.get(target);
+                Object cv = SpreadsheetResult.convertBeansToSpreadsheetResults(v, mapClassToSprOpenClass);
+                openField.set(spreadsheetResult, cv, null);
+                return true;
             } catch (IllegalAccessException e) {
                 LoggerFactory.getLogger(SpreadsheetResultFieldValueSetter.class).debug("Ignored error: ", e);
             }
@@ -944,7 +984,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         @Override
-        public void set(SpreadsheetResult spreadsheetResult, Object target) {
+        public void setToBean(SpreadsheetResult spreadsheetResult, Object target) {
             try {
                 if (spreadsheetResult.isTableStructureDetails()) {
                     field.set(target, spreadsheetResult.columnNames);
@@ -964,7 +1004,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         @Override
-        public void set(SpreadsheetResult spreadsheetResult, Object target) {
+        public void setToBean(SpreadsheetResult spreadsheetResult, Object target) {
             try {
                 if (spreadsheetResult.isTableStructureDetails()) {
                     field.set(target, spreadsheetResult.rowNames);
@@ -990,7 +1030,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         @Override
-        public void set(SpreadsheetResult spreadsheetResult, Object target) {
+        public void setToBean(SpreadsheetResult spreadsheetResult, Object target) {
             if (spreadsheetResult.isTableStructureDetails()) {
                 String[][] tableStructureDetails = new String[spreadsheetResult.getRowNames().length][spreadsheetResult
                     .getColumnNames().length];

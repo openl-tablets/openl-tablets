@@ -460,6 +460,69 @@ public class SpreadsheetResult implements Serializable {
         return convertSpreadsheetResult(v, toType, toTypeOpenClass, false);
     }
 
+    public static Object convertBeansToSpreadsheetResults(Object v,
+            Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass) {
+        if (v == null) {
+            return null;
+        }
+        if (v instanceof Collection) {
+            Collection<Object> collection = (Collection<Object>) v;
+            Collection<Object> newCollection;
+            try {
+                newCollection = (Collection<Object>) v.getClass().newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                return v;
+            }
+            for (Object o : collection) {
+                newCollection.add(convertBeansToSpreadsheetResults(o, mapClassToSprOpenClass));
+            }
+            return newCollection;
+        }
+        if (v instanceof Map) {
+            Map<Object, Object> map = (Map<Object, Object>) v;
+            Map<Object, Object> newMap;
+            try {
+                newMap = (Map<Object, Object>) v.getClass().newInstance();
+            } catch (InstantiationException | IllegalAccessException e) {
+                return v;
+            }
+            for (Entry<Object, Object> e : map.entrySet()) {
+                newMap.put(convertBeansToSpreadsheetResults(e.getKey(), mapClassToSprOpenClass),
+                    convertBeansToSpreadsheetResults(e.getValue(), mapClassToSprOpenClass));
+            }
+            return newMap;
+        }
+        if (v.getClass().isArray()) {
+            Class<?> componentType = v.getClass().getComponentType();
+            Class<?> t = v.getClass();
+            while (t.isArray()) {
+                t = t.getComponentType();
+            }
+            int len = Array.getLength(v);
+            if (mapClassToSprOpenClass.containsKey(t)) {
+                Object tmpArray = Array.newInstance(SpreadsheetResult.class, len);
+                for (int i = 0; i < len; i++) {
+                    Array.set(tmpArray, i, convertBeansToSpreadsheetResults(Array.get(v, i), mapClassToSprOpenClass));
+                }
+                return tmpArray;
+            } else if (ClassUtils.isAssignable(t, Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
+                Object newArray = Array.newInstance(componentType, len);
+                for (int i = 0; i < len; i++) {
+                    Array.set(newArray, i, convertBeansToSpreadsheetResults(Array.get(v, i), mapClassToSprOpenClass));
+                }
+                return newArray;
+            } else {
+                return v;
+            }
+        }
+        if (mapClassToSprOpenClass.containsKey(v.getClass())) {
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass1 = mapClassToSprOpenClass
+                .get(v.getClass());
+            return customSpreadsheetResultOpenClass1.createSpreadsheetResult(v, mapClassToSprOpenClass);
+        }
+        return v;
+    }
+
     @SuppressWarnings("unchecked")
     private static Object convertSpreadsheetResult(Object v,
             Class<?> toType,
