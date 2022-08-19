@@ -31,6 +31,7 @@
                         </goals>
                         <configuration>
                             <sourceDirectory>grammar</sourceDirectory>
+                            <isStatic>false</isStatic>
                         </configuration>
                     </execution>
                 </executions>
