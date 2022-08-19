@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -229,9 +228,9 @@ public class Migrator {
         Map<String, String> projectPathMap = new HashMap<>();
         Path projectProperties = Paths.get(designRepo, "openl-projects.properties");
         if (Files.isRegularFile(projectProperties)) {
-            try (Reader in = Files.newBufferedReader(projectProperties, StandardCharsets.UTF_8)) {
+            try {
                 var projectProps = new HashMap<String, String>();
-                PropertiesUtils.load(in, projectProps::put);
+                PropertiesUtils.load(projectProperties, projectProps::put);
                 int projectsCount = projectProps.size() / 2;
                 for (int i = 1; i <= projectsCount; i++) {
                     String name = projectProps.get("project." + i + ".name");
@@ -355,9 +354,9 @@ public class Migrator {
     private static void migrateBranchesProps(Map<String, String> projectPathMap) {
         Path branchesProperties = Paths.get(Props.text("openl.home") + "/git-settings/branches.properties");
         if (Files.isRegularFile(branchesProperties)) {
-            try (Reader in = Files.newBufferedReader(branchesProperties, StandardCharsets.UTF_8)) {
+            try {
                 var branchProps = new HashMap<String, String>();
-                PropertiesUtils.load(in, branchProps::put);
+                PropertiesUtils.load(branchesProperties, branchProps::put);
                 String numStr = branchProps.get("projects.number");
                 BranchesData branches = new BranchesData();
                 if (numStr != null) {

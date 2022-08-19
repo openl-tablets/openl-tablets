@@ -107,9 +107,7 @@ public class DBTestConfiguration {
         if (resource == null) {
             return;
         }
-        try (var is = resource.openStream();) {
-            PropertiesUtils.load(is, queries::put);
-        }
+        PropertiesUtils.load(resource, queries::put);
     }
 
 }

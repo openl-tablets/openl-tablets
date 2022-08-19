@@ -1,6 +1,5 @@
 package org.openl.spring.env;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -36,9 +35,7 @@ public class DefaultPropertySource extends EnumerablePropertySource<Map<String, 
             Enumeration<URL> resources = classLoader.getResources("openl-default.properties");
             while (resources.hasMoreElements()) {
                 URL url = resources.nextElement();
-                try (InputStream is = url.openStream()) {
-                    PropertiesUtils.load(is, source::put);
-                }
+                PropertiesUtils.load(url, source::put);
                 ConfigLog.LOG.info("+       Load: '{}'", url);
             }
         } catch (Exception e) {

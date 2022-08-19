@@ -3,7 +3,6 @@ package org.openl.spring.env;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -70,8 +69,8 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         var properties = new LinkedHashMap<String, String>();
         long lastModified = file.lastModified();
         if (file.exists()) {
-            try (var reader = Files.newInputStream(file.toPath())) {
-                PropertiesUtils.load(reader, properties::put);
+            try {
+                PropertiesUtils.load(file.toPath(), properties::put);
                 ConfigLog.LOG.info("+       Load: '{}'", getFile());
             } catch (IOException e) {
                 ConfigLog.LOG.error("!     Error:", e);
@@ -188,9 +187,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             if (!parent.mkdirs() && !parent.exists()) {
                 throw new FileNotFoundException("Can't create the folder " + parent.getAbsolutePath());
             }
-            try (var writer = Files.newBufferedWriter(settingsFile.toPath())) {
-                PropertiesUtils.store(writer, properties.entrySet());
-            }
+            PropertiesUtils.store(settingsFile.toPath(), properties.entrySet());
         }
     }
 
