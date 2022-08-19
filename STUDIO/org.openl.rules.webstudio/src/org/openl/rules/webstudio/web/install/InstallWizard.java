@@ -360,9 +360,9 @@ public class InstallWizard implements Serializable {
             log.error("Code: {}. {}.", errorCode, sqle.getMessage(), sqle);
             final String SQL_ERRORS_FILE_PATH = "/sql-errors.properties";
             String errorMessage = null;
-            try (var is = getClass().getResourceAsStream(SQL_ERRORS_FILE_PATH)) {
+            try {
                 HashMap<String, String> properties = new HashMap<>();
-                PropertiesUtils.load(is, properties::put);
+                PropertiesUtils.load(getClass().getResource(SQL_ERRORS_FILE_PATH), properties::put);
                 errorMessage = properties.get(Integer.toString(errorCode));
             } catch (Exception e) {
                 log.error("Cannot to load {} file.", SQL_ERRORS_FILE_PATH, e);

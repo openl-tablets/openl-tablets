@@ -8,8 +8,12 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 /**
@@ -17,7 +21,11 @@ import java.util.function.BiConsumer;
  *
  * @author Yury Molchan
  */
-public class PropertiesUtils {
+public final class PropertiesUtils {
+
+    private PropertiesUtils() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Loads properties in the similar manner, like in {@link java.util.Properties}. The difference is in processing whitespaces in keys.
@@ -137,8 +145,37 @@ public class PropertiesUtils {
         }
     }
 
+    /**
+     * Loads properties from the {@link InputStream} in UTF-8.
+     *
+     * @see #load(Reader, BiConsumer)
+     */
     public static void load(InputStream input, BiConsumer<? super String, ? super String> result) throws IOException {
         load(new InputStreamReader(input, StandardCharsets.UTF_8), result);
+    }
+
+    /**
+     * Loads properties from the {@link Path} in UTF-8.
+     *
+     * @see #load(Reader, BiConsumer)
+     */
+    public static void load(Path path, BiConsumer<? super String, ? super String> result) throws IOException {
+        Objects.requireNonNull(path);
+        try (var reader = Files.newBufferedReader(path)) {
+            load(reader, result);
+        }
+    }
+
+    /**
+     * Loads properties from the {@link URL} in UTF-8.
+     *
+     * @see #load(InputStream, BiConsumer)
+     */
+    public static void load(URL url, BiConsumer<? super String, ? super String> result) throws IOException {
+        Objects.requireNonNull(url);
+        try (var reader = url.openStream()) {
+            load(reader, result);
+        }
     }
 
     /**
@@ -167,8 +204,24 @@ public class PropertiesUtils {
         output.flush();
     }
 
+    /**
+     * Stores properties to the {@link OutputStream} in UTF-8.
+     *
+     * @see #store(Writer, Iterable)
+     */
     public static <T extends Map.Entry<?, ?>> void store(OutputStream output, Iterable<T> props) throws IOException {
         store(new OutputStreamWriter(output, StandardCharsets.UTF_8), props);
+    }
+
+    /**
+     * Stores properties to the file by {@link Path} in UTF-8.
+     *
+     * @see #store(OutputStream, Iterable)
+     */
+    public static <T extends Map.Entry<?, ?>> void store(Path path, Iterable<T> props) throws IOException {
+        try (var writer = Files.newBufferedWriter(path)) {
+            store(writer, props);
+        }
     }
 
     private static String escape(String str) {

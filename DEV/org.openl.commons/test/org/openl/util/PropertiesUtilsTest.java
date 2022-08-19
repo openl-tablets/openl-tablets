@@ -5,9 +5,11 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 
 import org.junit.Assert;
@@ -73,6 +75,20 @@ public class PropertiesUtilsTest {
     }
 
     @Test
+    public void loadPath() throws IOException {
+        ArrayList<String> result = new ArrayList<>();
+        PropertiesUtils.load(Paths.get("test-resources/test-utf8.properties"), (k, v) -> result.add(k + "=" + v));
+        Assert.assertEquals(Arrays.asList("Привет! Это проверка=Пройдено!", "#=#", "hello!=passed ! \r  # not a comment"), result);
+    }
+
+    @Test
+    public void loadURL() throws IOException {
+        ArrayList<String> result = new ArrayList<>();
+        PropertiesUtils.load(Thread.currentThread().getContextClassLoader().getResource("test-utf8.properties"), (k, v) -> result.add(k + "=" + v));
+        Assert.assertEquals(Arrays.asList("Привет! Это проверка=Пройдено!", "#=#", "hello!=passed ! \r  # not a comment"), result);
+    }
+
+    @Test
     public void storeEmpty() throws IOException {
         var output = new StringWriter();
         var props = new LinkedHashMap<String, String>();
@@ -106,5 +122,23 @@ public class PropertiesUtilsTest {
 
         PropertiesUtils.store(output, props.entrySet());
         Assert.assertEquals("2=20\n1=50\n", output.toString());
+    }
+
+    @Test
+    public void storePath() throws IOException {
+        Path tempFile = Files.createTempFile("test-utf8", ".properties");
+        var result = new LinkedHashMap<String, String>();
+        var props = new LinkedHashMap<String, String>();
+        props.put("2", "20");
+        props.put("1", "50");
+        props.put("3", "");
+        props.put("Привет! Как дела? :=", "Отлично! :)");
+
+        Assert.assertEquals(0, Files.size(tempFile));
+        PropertiesUtils.store(tempFile, props.entrySet());
+        Assert.assertEquals(68, Files.size(tempFile));
+        PropertiesUtils.load(tempFile, result::put);
+        Assert.assertEquals(props, result);
+        Files.delete(tempFile);
     }
 }

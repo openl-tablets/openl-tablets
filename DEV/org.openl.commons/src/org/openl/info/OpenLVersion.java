@@ -1,7 +1,6 @@
 package org.openl.info;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -33,8 +32,8 @@ public final class OpenLVersion {
     static {
         var props = new LinkedHashMap<String, String>();
 
-        try (var propertiesFile = OpenLVersion.class.getResourceAsStream("openl.version.properties")) {
-            PropertiesUtils.load(propertiesFile, props::put);
+        try {
+            PropertiesUtils.load(OpenLVersion.class.getResource("openl.version.properties"), props::put);
         } catch (Exception t) {
             LoggerFactory.getLogger(OpenLVersion.class).warn("openl.version.properties is not found.", t);
         }
@@ -73,8 +72,8 @@ public final class OpenLVersion {
         if (resources != null) {
             while (resources.hasMoreElements()) {
                 URL resource = resources.nextElement();
-                try (InputStream propsStream = resource.openStream()) {
-                    PropertiesUtils.load(propsStream, props::put);
+                try {
+                    PropertiesUtils.load(resource, props::put);
                 } catch (IOException t) {
                     LoggerFactory.getLogger(OpenLVersion.class).warn("Failed to load '{}' file.", resource, t);
                 }

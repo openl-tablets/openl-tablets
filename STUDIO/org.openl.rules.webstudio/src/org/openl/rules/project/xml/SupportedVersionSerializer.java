@@ -1,8 +1,6 @@
 package org.openl.rules.project.xml;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -31,8 +29,8 @@ public class SupportedVersionSerializer {
 
         if (projectFolder.isDirectory() && file.isFile()) {
             var properties = new HashMap<String, String>();
-            try (var is = new FileInputStream(file)) {
-                PropertiesUtils.load(is, properties::put);
+            try {
+                PropertiesUtils.load(file.toPath(), properties::put);
                 String compatibility = properties.get(OPENL_COMPATIBILITY_VERSION);
                 if (compatibility != null) {
                     version = SupportedVersion.getByVersion(compatibility);
@@ -62,9 +60,7 @@ public class SupportedVersionSerializer {
         var properties = new HashMap<>();
         properties.put(OPENL_COMPATIBILITY_VERSION, version.getVersion());
 
-        try (var os = new FileOutputStream(file)) {
-            PropertiesUtils.store(os, properties.entrySet());
-        }
+        PropertiesUtils.store(file.toPath(), properties.entrySet());
     }
 
     public SupportedVersion getDefaultVersion() {

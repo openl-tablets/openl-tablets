@@ -1,8 +1,6 @@
 package org.openl.rules.project.impl.local;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
@@ -208,16 +206,16 @@ public class LocalRepository extends FileSystemRepository {
                     for (File file : files) {
                         if (file.isFile()) {
                             var properties = new LinkedHashMap<String, String>();
-                            try (FileInputStream is = new FileInputStream(file)) {
-                                PropertiesUtils.load(is, properties::put);
+                            try {
+                                PropertiesUtils.load(file.toPath(), properties::put);
                             } catch (IOException e) {
                                 log.error(e.getMessage(), e);
                             }
 
                             properties.remove(FILE_MODIFIED_PROPERTY);
 
-                            try (FileOutputStream os = new FileOutputStream(file)) {
-                                PropertiesUtils.store(os, properties.entrySet());
+                            try {
+                                PropertiesUtils.store(file.toPath(), properties.entrySet());
                             } catch (IOException e) {
                                 log.error(e.getMessage(), e);
                             }
@@ -239,8 +237,8 @@ public class LocalRepository extends FileSystemRepository {
 
                 var properties = new LinkedHashMap<String, String>();
                 properties.put(VERSION_PROPERTY, version);
-                try (FileOutputStream os = new FileOutputStream(file)) {
-                    PropertiesUtils.store(os, properties.entrySet());
+                try {
+                    PropertiesUtils.store(file.toPath(), properties.entrySet());
                 } catch (IOException e) {
                     throw new IllegalStateException(version);
                 }
@@ -284,8 +282,8 @@ public class LocalRepository extends FileSystemRepository {
                     properties.put(BRANCH_PROPERTY, branch);
                 }
                 File file = propertiesEngine.createPropertiesFile(pathInProject, VERSION_FILE_NAME);
-                try (var os = new FileOutputStream(file)) {
-                    PropertiesUtils.store(os, properties.entrySet());
+                try {
+                    PropertiesUtils.store(file.toPath(), properties.entrySet());
                 } catch (IOException e) {
                     throw new IllegalStateException(e.getMessage(), e);
                 }
@@ -299,8 +297,8 @@ public class LocalRepository extends FileSystemRepository {
                 }
 
                 var properties = new HashMap<String, String>();
-                try (var is = new FileInputStream(file)){
-                    PropertiesUtils.load(is, properties::put);
+                try {
+                    PropertiesUtils.load(file.toPath(), properties::put);
                     FileData fileData = new FileData();
                     File projectFolder = propertiesEngine.getProjectFolder(pathInProject);
 
@@ -356,8 +354,8 @@ public class LocalRepository extends FileSystemRepository {
         }
 
         var properties = new LinkedHashMap<String, String>();
-        try (FileInputStream is = new FileInputStream(file)) {
-            PropertiesUtils.load(is, properties::put);
+        try {
+            PropertiesUtils.load(file.toPath(), properties::put);
             return properties.get(prop);
         } catch (IOException e) {
             throw new IllegalStateException(e);
@@ -388,8 +386,8 @@ public class LocalRepository extends FileSystemRepository {
         String filePropertiesPath = getFilePropertiesPath(path);
         if (StringUtils.isNotEmpty(filePropertiesPath)) {
             File file = propertiesEngine.createPropertiesFile(path, filePropertiesPath);
-            try (FileOutputStream os = new FileOutputStream(file)) {
-                PropertiesUtils.store(os, properties.entrySet());
+            try {
+                PropertiesUtils.store(file.toPath(), properties.entrySet());
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
             }
@@ -412,8 +410,8 @@ public class LocalRepository extends FileSystemRepository {
             properties.put(SIZE_PROPERTY, "" + fileData.getSize());
 
             File file = propertiesEngine.createPropertiesFile(path, filePropertiesPath);
-            try (FileOutputStream os = new FileOutputStream(file)) {
-                PropertiesUtils.store(os, properties.entrySet());
+            try {
+                PropertiesUtils.store(file.toPath(), properties.entrySet());
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
                 FileUtils.deleteQuietly(file);
@@ -431,8 +429,8 @@ public class LocalRepository extends FileSystemRepository {
         File fileProperties = propertiesEngine.getPropertiesFile(path, filePropertiesPath);
 
         if (fileProperties.exists()) {
-            try (FileInputStream is = new FileInputStream(fileProperties)) {
-                PropertiesUtils.load(is, properties::put);
+            try {
+                PropertiesUtils.load(fileProperties.toPath(), properties::put);
             } catch (IOException e) {
                 log.error(e.getMessage(), e);
             }

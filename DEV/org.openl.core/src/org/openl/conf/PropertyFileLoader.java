@@ -1,9 +1,7 @@
 package org.openl.conf;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -124,19 +122,15 @@ public class PropertyFileLoader {
     }
 
     private Map<String, String> loadProperties(URL url) throws IOException {
-        try (InputStream in = url.openStream()) {
-            var props = new HashMap<String, String>();
-            PropertiesUtils.load(in, props::put);
-            return props;
-        }
+        var props = new HashMap<String, String>();
+        PropertiesUtils.load(url, props::put);
+        return props;
     }
 
     private Map<String, String> loadProperties(File f) throws IOException {
-        try (InputStream in = new FileInputStream(f)) {
-            var props = new HashMap<String, String>();
-            PropertiesUtils.load(in, props::put);
-            return props;
-        }
+        var props = new HashMap<String, String>();
+        PropertiesUtils.load(f.toPath(), props::put);
+        return props;
     }
 
 }

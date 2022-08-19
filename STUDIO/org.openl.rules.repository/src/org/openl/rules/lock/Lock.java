@@ -1,6 +1,5 @@
 package org.openl.rules.lock;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -151,8 +150,8 @@ public class Lock {
             return LockInfo.NO_LOCK;
         }
         var properties = new HashMap<String, String>();
-        try (BufferedReader is = Files.newBufferedReader(lock)) {
-            PropertiesUtils.load(is, properties::put);
+        try {
+            PropertiesUtils.load(lock, properties::put);
             String userName = properties.get(USER_NAME);
             String stringDate = properties.get(DATE);
             Instant date;

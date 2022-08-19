@@ -1,15 +1,16 @@
 package org.openl.rules.binding;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.openl.util.CollectionUtils;
 import org.openl.util.PropertiesUtils;
@@ -19,6 +20,8 @@ import org.openl.util.StringUtils;
  * OpenL Project MessageSource service. Loads all i18n message properties for required {@link Locale}
  */
 class OpenLMessageSource {
+
+    Logger LOG = LoggerFactory.getLogger(OpenLMessageSource.class);
 
     private static final String DEFAULT_MSG_SRC = "i18n/message";
 
@@ -55,18 +58,20 @@ class OpenLMessageSource {
     private Map<String, String> loadProperties(String basename) {
         var result = new HashMap<String, String>();
 
+        String propFileName = basename + ".properties";
         Enumeration<URL> urls = null;
         try {
-            urls = classLoader.getResources(basename + ".properties");
-        } catch (IOException ignored) {
+            urls = classLoader.getResources(propFileName);
+        } catch (IOException ex) {
+            LOG.error("Failed to collect resources for '{}'", propFileName, ex);
         }
         if (urls != null) {
             while (urls.hasMoreElements()) {
                 URL url = urls.nextElement();
-                try (var is = new InputStreamReader(url.openStream(), StandardCharsets.UTF_8)) {
-                    PropertiesUtils.load(is, result::put);
-
-                } catch (IOException ignored) {
+                try {
+                    PropertiesUtils.load(url, result::put);
+                } catch (IOException ex) {
+                    LOG.error("Failed to process resource '{}'", url, ex);
                 }
             }
         }

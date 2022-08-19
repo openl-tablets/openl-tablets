@@ -57,8 +57,6 @@ public class DBMigrationBean {
             return;
         }
         LOG.info("Load properties from '{}'.", resource);
-        try (var is = resource.openStream()) {
-            PropertiesUtils.load(is, queries::put);
-        }
+        PropertiesUtils.load(resource, queries::put);
     }
 }
