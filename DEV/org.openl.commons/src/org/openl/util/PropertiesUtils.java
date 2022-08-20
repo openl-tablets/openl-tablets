@@ -48,9 +48,10 @@ public final class PropertiesUtils {
         boolean skipLine = false;
         boolean backSlash = false;
         boolean ignoreLF = false;
+        int lastNonWhitespace = 0;
 
-        int ch;
-        while ((ch = input.read()) != -1) {
+        while (true) {
+            var ch = input.read();
 
             if (ignoreLF && ch == '\n') {
                 // Ignore in \r\n sequence
@@ -59,14 +60,24 @@ public final class PropertiesUtils {
             }
             ignoreLF = ch == '\r';
 
-            if (!backSlash && (ch == '\r' || ch == '\n')) {
+            if (!backSlash && (ch == '\r' || ch == '\n') || ch == -1) {
+                String value = str.substring(0, lastNonWhitespace);
+                if (key != null) {
+                    result.accept(key, value);
+                    key = null;
+                } else if (lastNonWhitespace > 0) {
+                    result.accept(value, null);
+                }
+
                 newLine = true;
                 skipWhitespaces = true;
-                if (key != null) {
-                    result.accept(key, str.toString());
-                    key = null;
-                }
+                lastNonWhitespace = 0;
                 str.setLength(0);
+
+                if (ch == -1) {
+                    // EOF
+                    return;
+                }
                 //Do new line;
                 continue;
             }
@@ -96,6 +107,7 @@ public final class PropertiesUtils {
                 switch (ch) {
                     case '\n':
                     case '\r':
+                        skipWhitespaces = true;
                         continue;
 
                     case 't':
@@ -122,6 +134,7 @@ public final class PropertiesUtils {
                     }
                 }
                 str.append((char) ch);
+                lastNonWhitespace = str.length();
                 continue;
             }
 
@@ -133,15 +146,16 @@ public final class PropertiesUtils {
             if (key == null && (ch == ':' || ch == '=')) {
                 // Key separator. It supports both - column and equal signs
                 skipWhitespaces = true;
-                key = str.toString().trim();
+                key = str.substring(0, lastNonWhitespace);
+                lastNonWhitespace = 0;
                 str.setLength(0);
                 continue;
             }
+
             str.append((char) ch);
-        }
-        if (key != null) {
-            // EOF
-            result.accept(key, str.toString());
+            if (!Character.isWhitespace(ch)) {
+                lastNonWhitespace = str.length();
+            }
         }
     }
 
