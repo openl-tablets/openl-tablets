@@ -25,24 +25,24 @@ public class PropertiesUtilsTest {
     }
 
     @Test
-    public void loadEmpty2() throws IOException {
+    public void loadNull() throws IOException {
         ArrayList<String> result = new ArrayList<>();
-        PropertiesUtils.load(new StringReader("\n    asdad  asdsa \n asd\r asdssa\r\n  #x:y\r\n\r\n sas  sad"), (k, v) -> result.add(k + "=" + v));
-        Assert.assertEquals(Arrays.asList(), result);
+        PropertiesUtils.load(new StringReader("\n   spaced key1 \n key2\r key3\r\n  #x:y\r\n\r\n key4"), (k, v) -> result.add(k + "=" + v));
+        Assert.assertEquals(Arrays.asList("spaced key1=null", "key2=null", "key3=null", "key4=null"), result);
     }
 
     @Test
     public void loadComments() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(new StringReader("#com=1\\\nx = 2\\\r\n#34 "), (k, v) -> result.add(k + "=" + v));
-        Assert.assertEquals(Arrays.asList("x=2#34 "), result);
+        Assert.assertEquals(Arrays.asList("x=2#34"), result);
     }
 
     @Test
     public void loadTheSame() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(new StringReader("x=1\nx : 2 : 3 = 4 \r   \t\f\n\r \t\fx=3\n  \u1111:\u2222\\"), (k, v) -> result.add(k + "=" + v));
-        Assert.assertEquals(Arrays.asList("x=1", "x=2 : 3 = 4 ", "x=3", "\u1111=\u2222"), result);
+        Assert.assertEquals(Arrays.asList("x=1", "x=2 : 3 = 4", "x=3", "\u1111=\u2222"), result);
     }
 
     @Test
@@ -53,10 +53,10 @@ public class PropertiesUtilsTest {
     }
 
     @Test
-    public void load() throws IOException {
+    public void loadSimple() throws IOException {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(new StringReader("x=1\n\ry=2\r\nz=3 \\"), (k, v) -> result.add(k + "=" + v));
-        Assert.assertEquals(Arrays.asList("x=1", "y=2", "z=3 "), result);
+        Assert.assertEquals(Arrays.asList("x=1", "y=2", "z=3"), result);
     }
 
     @Test(expected = EOFException.class)
@@ -86,6 +86,32 @@ public class PropertiesUtilsTest {
         ArrayList<String> result = new ArrayList<>();
         PropertiesUtils.load(Thread.currentThread().getContextClassLoader().getResource("test-utf8.properties"), (k, v) -> result.add(k + "=" + v));
         Assert.assertEquals(Arrays.asList("Привет! Это проверка=Пройдено!", "#=#", "hello!=passed ! \r  # not a comment"), result);
+    }
+
+    @Test
+    public void load() throws IOException {
+        ArrayList<String> result = new ArrayList<>();
+        PropertiesUtils.load(Paths.get("test-resources/specs.properties"), (k, v) -> result.add(k + "  ->  " + v));
+        Assert.assertEquals(Arrays.asList(
+                "website  ->  https://openl-tablets.org/",
+                "language  ->  English",
+                "whitespace inside a key  ->  like in a value",
+                "empty  ->  null",
+                "hello  ->  hello",
+                "hello  ->  hello",
+                "duplicateKey  ->  first",
+                "duplicateKey  ->  second",
+                "delimiterCharacters:=   ->  This is the value for the key \"delimiterCharacters:= \"",
+                "key  ->  value with the whitespaces in the end     ",
+                "multiline  ->  This line continues",
+                "path  ->  c:\\openl\\rules",
+                "evenKey  ->  This is on one line\\",
+                "oddKey  ->  This is line one and\\# This is line two",
+                "welcome  ->  Welcome to OpenL Tablets!",
+                "valueWithEscapes  ->  This is a newline\n and a carriage return\r and a tab\t.",
+                "encodedHelloInJapanese  ->  こんにちは",
+                "helloInJapanese  ->  こんにちは"
+        ), result);
     }
 
     @Test
