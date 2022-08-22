@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.function.Function;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -466,31 +467,11 @@ public class SpreadsheetResult implements Serializable {
             return null;
         }
         if (v instanceof Collection) {
-            Collection<Object> collection = (Collection<Object>) v;
-            Collection<Object> newCollection;
-            try {
-                newCollection = (Collection<Object>) v.getClass().newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                return v;
-            }
-            for (Object o : collection) {
-                newCollection.add(convertBeansToSpreadsheetResults(o, mapClassToSprOpenClass));
-            }
-            return newCollection;
+            return convertCollection((Collection<?>) v,
+                e -> convertBeansToSpreadsheetResults(e, mapClassToSprOpenClass));
         }
         if (v instanceof Map) {
-            Map<Object, Object> map = (Map<Object, Object>) v;
-            Map<Object, Object> newMap;
-            try {
-                newMap = (Map<Object, Object>) v.getClass().newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                return v;
-            }
-            for (Entry<Object, Object> e : map.entrySet()) {
-                newMap.put(convertBeansToSpreadsheetResults(e.getKey(), mapClassToSprOpenClass),
-                    convertBeansToSpreadsheetResults(e.getValue(), mapClassToSprOpenClass));
-            }
-            return newMap;
+            return convertMap((Map<?, ?>) v, e -> convertBeansToSpreadsheetResults(e, mapClassToSprOpenClass));
         }
         if (v.getClass().isArray()) {
             Class<?> componentType = v.getClass().getComponentType();
@@ -499,21 +480,19 @@ public class SpreadsheetResult implements Serializable {
                 t = t.getComponentType();
             }
             int len = Array.getLength(v);
+            Object newArray = null;
             if (mapClassToSprOpenClass.containsKey(t)) {
-                Object tmpArray = Array.newInstance(SpreadsheetResult.class, len);
-                for (int i = 0; i < len; i++) {
-                    Array.set(tmpArray, i, convertBeansToSpreadsheetResults(Array.get(v, i), mapClassToSprOpenClass));
-                }
-                return tmpArray;
+                newArray = Array.newInstance(SpreadsheetResult.class, len);
             } else if (ClassUtils.isAssignable(t, Map.class) || ClassUtils.isAssignable(t, Collection.class)) {
-                Object newArray = Array.newInstance(componentType, len);
+                newArray = Array.newInstance(componentType, len);
+            }
+            if (newArray != null) {
                 for (int i = 0; i < len; i++) {
                     Array.set(newArray, i, convertBeansToSpreadsheetResults(Array.get(v, i), mapClassToSprOpenClass));
                 }
                 return newArray;
-            } else {
-                return v;
             }
+            return v;
         }
         if (mapClassToSprOpenClass.containsKey(v.getClass())) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass1 = mapClassToSprOpenClass
@@ -523,7 +502,6 @@ public class SpreadsheetResult implements Serializable {
         return v;
     }
 
-    @SuppressWarnings("unchecked")
     private static Object convertSpreadsheetResult(Object v,
             Class<?> toType,
             IOpenClass toTypeOpenClass,
@@ -532,31 +510,10 @@ public class SpreadsheetResult implements Serializable {
             return null;
         }
         if (v instanceof Collection) {
-            Collection<Object> collection = (Collection<Object>) v;
-            Collection<Object> newCollection;
-            try {
-                newCollection = (Collection<Object>) v.getClass().newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                return v;
-            }
-            for (Object o : collection) {
-                newCollection.add(convertSpreadsheetResult(o, spreadsheetResultsToMap));
-            }
-            return newCollection;
+            return convertCollection((Collection<?>) v, e -> convertSpreadsheetResult(e, spreadsheetResultsToMap));
         }
         if (v instanceof Map) {
-            Map<Object, Object> map = (Map<Object, Object>) v;
-            Map<Object, Object> newMap;
-            try {
-                newMap = (Map<Object, Object>) v.getClass().newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                return v;
-            }
-            for (Entry<Object, Object> e : map.entrySet()) {
-                newMap.put(convertSpreadsheetResult(e.getKey(), spreadsheetResultsToMap),
-                    convertSpreadsheetResult(e.getValue(), spreadsheetResultsToMap));
-            }
-            return newMap;
+            return convertMap((Map<?, ?>) v, e -> convertSpreadsheetResult(e, spreadsheetResultsToMap));
         }
         if (v.getClass().isArray()) {
             Class<?> componentType = v.getClass().getComponentType();
@@ -648,6 +605,32 @@ public class SpreadsheetResult implements Serializable {
             }
         }
         return v;
+    }
+
+    private static Object convertMap(Map<?, ?> v, Function<Object, Object> function) {
+        Map<Object, Object> newMap;
+        try {
+            newMap = (Map<Object, Object>) v.getClass().newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            return v;
+        }
+        for (Entry<?, ?> e : v.entrySet()) {
+            newMap.put(function.apply(e.getKey()), function.apply(e.getValue()));
+        }
+        return newMap;
+    }
+
+    private static Object convertCollection(Collection<?> v, Function<Object, Object> function) {
+        Collection<Object> newCollection;
+        try {
+            newCollection = (Collection<Object>) v.getClass().newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            return v;
+        }
+        for (Object o : v) {
+            newCollection.add(function.apply(o));
+        }
+        return newCollection;
     }
 
     @Override
