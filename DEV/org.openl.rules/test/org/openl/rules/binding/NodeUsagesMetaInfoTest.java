@@ -662,6 +662,13 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     }
 
     @Test
+    public void testMainStep2() {
+        List<? extends NodeUsage> usedNodes = assertMetaInfo(main, 1, 3, 2);
+        assertNodeUsage(mySpr1.getUri(), usedNodes.get(0), "String mySpr1(String x)", 2, 8);
+        assertNodeUsage(usedNodes.get(1), "java.lang\nclass String", 13, 19);
+    }
+
+    @Test
     public void testDTArrays() {
         // Tab
         List<? extends NodeUsage> usedNodes = assertMetaInfo(tabs, 1, 2, 1);

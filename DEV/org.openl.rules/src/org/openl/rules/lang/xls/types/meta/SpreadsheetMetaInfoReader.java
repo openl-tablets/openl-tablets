@@ -55,13 +55,19 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
         String stringValue = sourceCell.getStringValue();
         if (stringValue != null) {
             List<NodeUsage> nodeUsages = null;
-            if (stringValue.startsWith("=") || (stringValue.startsWith("{") && stringValue.endsWith("}"))) {
+            int from = -1;
+            if (stringValue.startsWith("=")) {
                 nodeUsages = new ArrayList<>();
-                int from = stringValue.indexOf('=');
-                if (from >= 0 && type != null) {
+                from = 0;
+                if (type != null) {
                     String description = "Cell type: " + MethodUtil.printType(type);
                     nodeUsages.add(new SimpleNodeUsage(from, from + 1, description, null, NodeType.OTHER));
                 }
+            } else if (stringValue.startsWith("{") && stringValue.endsWith("}")) {
+                nodeUsages = new ArrayList<>();
+                from = 0;
+            }
+            if (from > -1) {
                 from += 1; // next symbol after '=' or '{'
 
                 IOpenMethod method = spreadsheetCell.getMethod();
