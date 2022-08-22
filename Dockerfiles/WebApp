@@ -23,12 +23,21 @@ RUN set -euxv ; \
 \
 # Create start file for Jetty with configuration options
     echo '#!/usr/bin/env bash\n\n\
+if [ -r "$OPENL_DIR/setenv.sh" ]; then\n\
+    . "$OPENL_DIR/setenv.sh"\n\
+fi\n\n\
 JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")"\n\
-exec java -Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
-$JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
+exec java $JAVA_OPTS -Djetty.home="$OPENL_APP" -Djetty.base="$OPENL_APP" -Djava.io.tmpdir="${TMPDIR:-/tmp}" \
 -jar "$OPENL_APP/start.jar" --module=http,jsp,ext,deploy,http-forwarded --lib="$OPENL_LIB/*.jar" "$@"\n\
 ' >> $OPENL_DIR/start.sh; \
     chmod +x $OPENL_DIR/start.sh; \
+\
+# Create setenv.sh file for configuration customization purpose
+    echo 'export JAVA_OPTS="$JAVA_OPTS -Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 \
+-Djetty.httpConfig.requestHeaderSize=32768 \
+-Djetty.httpConfig.responseHeaderSize=32768 \
+"\n' >> $OPENL_DIR/setenv.sh; \
+    chmod +x $OPENL_DIR/setenv.sh; \
 \
 # Install fonts required for Apache POI (export into Excel with autowidth of columns)
     apt-get update; \
