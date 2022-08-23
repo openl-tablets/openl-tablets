@@ -2765,12 +2765,18 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private String formatComment(CommitType commitType, FileData data) {
         String comment = StringUtils.trimToEmpty(data.getComment());
+        if (escapedCommentTemplate == null) {
+            return comment;
+        }
         return MessageFormat.format(escapedCommentTemplate, commitType, comment);
     }
 
     private String getMergeMessage(Ref r) throws IOException {
         String userMessage = new MergeMessageFormatter().format(Collections.singletonList(r),
             git.getRepository().exactRef(Constants.HEAD));
+        if (escapedCommentTemplate == null) {
+            return userMessage;
+        }
         return MessageFormat.format(escapedCommentTemplate, CommitType.MERGE, userMessage);
     }
 
