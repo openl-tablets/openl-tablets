@@ -1,0 +1,8 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <serviceClass>Service</serviceClass>
+</rules-deploy>

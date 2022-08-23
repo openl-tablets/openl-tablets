@@ -7,11 +7,13 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,6 +36,7 @@ import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelp
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.core.annotations.BeanToSpreadsheetResultConvert;
+import org.openl.rules.ruleservice.core.annotations.ExternalParam;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
@@ -194,7 +197,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 int i = 0;
                 for (Parameter parameter : method.getParameters()) {
-                    if (parameter.isAnnotationPresent(BeanToSpreadsheetResultConvert.class)) {
+                    if (parameter.isAnnotationPresent(ExternalParam.class)) {
+                        parameterTypes[i] = null;
+                    } else if (parameter.isAnnotationPresent(BeanToSpreadsheetResultConvert.class)) {
                         Class<?> t = parameterTypes[i];
                         int dim = 0;
                         while (t.isArray()) {
@@ -208,6 +213,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                     }
                     i++;
                 }
+                parameterTypes = Arrays.stream(parameterTypes).filter(Objects::nonNull).toArray(Class<?>[]::new);
                 Method m = clazz.getMethod(method.getName(), parameterTypes);
                 return Pair.of(RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget),
                     parameterTypes);
@@ -406,7 +412,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                             null,
                             null);
                         try {
-                            args = convertBeansToSpreadsheetResults(calledMethod, args);
+                            args = processArguments(calledMethod, beanMethod, args);
                             result = serviceMethodAroundAdvice.around(calledMethod, beanMethod, serviceTarget, args);
                         } catch (Exception e) {
                             ex = e;
@@ -422,7 +428,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                         invokeBeforeMethodInvocationOnListeners(calledMethod, openMember, args);
                         try {
                             if (beanMethod != null) {
-                                args = convertBeansToSpreadsheetResults(calledMethod, args);
+                                args = processArguments(calledMethod, beanMethod, args);
                                 result = beanMethod.invoke(serviceTarget, args);
                             } else {
                                 result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
@@ -476,20 +482,21 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
     }
 
-    private Object[] convertBeansToSpreadsheetResults(Method interfaceMethod, Object[] args) {
-        Object[] newArgs = null;
+    private Object[] processArguments(Method interfaceMethod, Method beanMethod, Object[] args) {
+        Object[] newArgs = new Object[beanMethod.getParameterCount()];
         int i = 0;
+        int j = 0;
         for (Parameter parameter : interfaceMethod.getParameters()) {
-            if (parameter.isAnnotationPresent(BeanToSpreadsheetResultConvert.class)) {
-                if (newArgs == null) {
-                    newArgs = new Object[args.length];
-                    System.arraycopy(args, 0, newArgs, 0, args.length);
+            if (!parameter.isAnnotationPresent(ExternalParam.class)) {
+                if (parameter.isAnnotationPresent(BeanToSpreadsheetResultConvert.class)) {
+                    newArgs[j++] = SpreadsheetResult.convertBeansToSpreadsheetResults(args[i], mapClassToSprOpenClass);
+                } else {
+                    newArgs[j++] = args[i];
                 }
-                newArgs[i] = SpreadsheetResult.convertBeansToSpreadsheetResults(args[i], mapClassToSprOpenClass);
             }
             i++;
         }
-        return newArgs == null ? args : newArgs;
+        return newArgs;
     }
 
     private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod,
