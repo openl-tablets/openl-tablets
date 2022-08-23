@@ -72,6 +72,12 @@
               }
           });
 
+          // Show spinner on page reload
+          $j(window).bind('beforeunload.loader', () => {
+              ws.ui.showLoader();
+              return null;
+          });
+
             // Handle JSF / Richfaces AJAX errors
             var onError = function onError(data) {
                 if (data.errorName
