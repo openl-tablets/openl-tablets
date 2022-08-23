@@ -1,7 +1,7 @@
 package org.openl.rules.project.validation.openapi.test
 
 import org.openl.rules.calc.SpreadsheetResult
-import org.openl.rules.ruleservice.core.interceptors.NoTypeConversion
+import org.openl.rules.ruleservice.core.annotations.NoTypeConversion
 
 interface EPBDS10605Service {
     Double GetCoveragePremium(@NoTypeConversion SpreadsheetResult spreadsheetResult)
