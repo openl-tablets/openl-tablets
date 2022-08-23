@@ -14,9 +14,13 @@ public final class RuleServiceOpenLServiceInstantiationHelper {
     }
 
     public static IOpenMember getOpenMember(Method method, Object serviceTarget) {
+        return getOpenMember(method.getName(), method.getParameterTypes(), serviceTarget);
+    }
+
+    public static IOpenMember getOpenMember(String methodName, Class<?>[] paramTypes, Object serviceTarget) {
         for (Class<?> clazz : serviceTarget.getClass().getInterfaces()) {
             try {
-                Method m = clazz.getMethod(method.getName(), method.getParameterTypes());
+                Method m = clazz.getMethod(methodName, paramTypes);
                 return findOpenMember(m, serviceTarget);
             } catch (NoSuchMethodException ignored) {
             }

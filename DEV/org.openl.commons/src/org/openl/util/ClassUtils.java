@@ -91,10 +91,12 @@ public final class ClassUtils {
         if (DEFINE_CLASS != null && DEFINE_PACKAGE != null) {
             Object[] args = new Object[] { className, b, 0, b.length, PROTECTION_DOMAIN };
             clazz = (Class<?>) DEFINE_CLASS.invoke(loader, args);
-            String pkgName = className.substring(0, className.lastIndexOf('.'));
-            if (StringUtils.isNotEmpty(pkgName) && GET_PACKAGE.invoke(loader, pkgName) == null) {
-                Object[] args1 = new Object[] { pkgName, null, null, null, null, null, null, null };
-                DEFINE_PACKAGE.invoke(loader, args1);
+            if (className.lastIndexOf('.') >= 0) {
+                String pkgName = className.substring(0, className.lastIndexOf('.'));
+                if (StringUtils.isNotEmpty(pkgName) && GET_PACKAGE.invoke(loader, pkgName) == null) {
+                    Object[] args1 = new Object[] { pkgName, null, null, null, null, null, null, null };
+                    DEFINE_PACKAGE.invoke(loader, args1);
+                }
             }
         } else {
             throw new IllegalStateException(THROWABLE);

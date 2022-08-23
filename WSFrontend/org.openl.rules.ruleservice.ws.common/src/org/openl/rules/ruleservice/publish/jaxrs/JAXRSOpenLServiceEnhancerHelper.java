@@ -8,10 +8,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -35,6 +37,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -48,6 +51,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
+import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
@@ -257,7 +261,14 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 Method originalMethod,
                 int suffix) throws Exception {
             Class<?> parameterWrapperClass = generateWrapperClass(originalMethod, suffix);
-            return Type.getMethodDescriptor(Type.getReturnType(descriptor), Type.getType(parameterWrapperClass));
+            List<Type> types = new ArrayList<>();
+            types.add(Type.getType(parameterWrapperClass));
+            for (Parameter parameter : originalMethod.getParameters()) {
+                if (!isParameterInWrapperClass(parameter)) {
+                    types.add(Type.getType(parameter.getType()));
+                }
+            }
+            return Type.getMethodDescriptor(Type.getReturnType(descriptor), types.toArray(new Type[0]));
         }
 
         private Class<?> generateWrapperClass(Method originalMethod, int suffix) throws Exception {
@@ -279,11 +290,15 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
             int i = 0;
             WrapperBeanClassBuilder beanClassBuilder = new WrapperBeanClassBuilder(beanName, originalMethod.getName());
-            for (Class<?> type : originalMethod.getParameterTypes()) {
-                beanClassBuilder.addField(parameterNames[i], type.getName());
+            LinkedHashMap<String, FieldDescription> originalMethodTypeFields = new LinkedHashMap<>();
+            for (Parameter parameter : originalMethod.getParameters()) {
+                if (isParameterInWrapperClass(parameter)) {
+                    beanClassBuilder.addField(parameterNames[i], parameter.getType().getName());
+                }
+                originalMethodTypeFields.put(parameterNames[i], new FieldDescription(parameter.getType().getName()));
                 i++;
             }
-
+            beanClassBuilder.setOriginalMethodTypeFields(originalMethodTypeFields);
             byte[] byteCode = beanClassBuilder.byteCode();
 
             return ClassUtils.defineClass(beanName, byteCode, classLoader);
@@ -351,6 +366,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
             boolean allParametersIsPrimitive = true;
             Class<?>[] originalParameterTypes = originalMethod.getParameterTypes();
             int numOfParameters = originalParameterTypes.length;
+            for (Parameter parameter : originalMethod.getParameters()) {
+                if (!isParameterInWrapperClass(parameter)) {
+                    numOfParameters--;
+                }
+            }
             if (numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET) {
                 for (Class<?> parameterType : originalParameterTypes) {
                     if (!parameterType.isPrimitive()) {
@@ -435,6 +455,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                 changedParameterTypesDescription(descriptor, originalMethod, c),
                                 signature,
                                 exceptions);
+                            processAnnotationsOnMethodExternalParameters(originalMethod, mv);
                         } else {
                             mv = super.visitMethod(access, name, descriptor, signature, exceptions);
                             processAnnotationsOnMethodParameters(originalMethod, mv);
@@ -528,6 +549,20 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 av2.visit(null, MediaType.TEXT_PLAIN);
                 av2.visitEnd();
                 av.visitEnd();
+            }
+        }
+
+        private void processAnnotationsOnMethodExternalParameters(Method originalMethod, MethodVisitor mv) {
+            int index = 1; // Skip first wrapper class parameter
+            for (Parameter parameter : originalMethod.getParameters()) {
+                if (!isParameterInWrapperClass(parameter)) {
+                    for (Annotation annotation : parameter.getAnnotations()) {
+                        AnnotationVisitor av = mv
+                            .visitParameterAnnotation(index, Type.getDescriptor(annotation.annotationType()), true);
+                        InterfaceTransformer.processAnnotation(annotation, av);
+                    }
+                    index++;
+                }
             }
         }
 
@@ -712,7 +747,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 ExceptionResponseDto.UNPROCESSABLE_ENTITY,
                 UNPROCESSABLE_ENTITY_MESSAGE,
                 UNPROCESSABLE_ENTITY_EXAMPLE,
-                    USER_ERROR_EXAMPLE);
+                USER_ERROR_EXAMPLE);
             addOpenApiResponseAnnotation(arrayAv,
                 ExceptionResponseDto.BAD_REQUEST,
                 BAD_REQUEST_MESSAGE,
@@ -787,7 +822,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 Method targetMethod = serviceClass.getMethod(methodName, parameterTypes);
                 methodMap.put(method, targetMethod);
             } catch (NoSuchMethodException ex) {
-                if (parameterTypes.length == 1) {
+                if (parameterTypes.length > 0) {
                     Class<?> methodArgument = parameterTypes[0];
                     parameterTypes = (Class<?>[]) methodArgument.getMethod("_types").invoke(null);
                 }
@@ -796,6 +831,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
         }
         return methodMap;
+    }
+
+    public static boolean isParameterInWrapperClass(Parameter parameter) {
+        return !parameter.isAnnotationPresent(Context.class);
     }
 
     public static Class<?> enhanceInterface(Class<?> originalClass,

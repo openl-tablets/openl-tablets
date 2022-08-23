@@ -107,7 +107,8 @@ public class JavaBeanClassBuilder {
         return new POJOByteCodeGenerator(beanName,
             fields,
             parentType,
-            parentFields, typeWriters,
+            parentFields,
+            typeWriters,
             additionalConstructor,
             equalsHashCodeToStringMethods,
             publicFields).byteCode();

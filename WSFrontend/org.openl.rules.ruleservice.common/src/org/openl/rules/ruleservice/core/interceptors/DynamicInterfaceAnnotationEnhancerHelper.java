@@ -22,6 +22,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.InstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
+import org.openl.rules.ruleservice.core.annotations.ExternalParam;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
@@ -87,7 +88,11 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                 List<Method> methods = templateClassMethodsByName.get(name);
                 if (methods != null) {
                     for (Method method : methods) {
-                        Type[] typesInTemplateMethod = Type.getArgumentTypes(method);
+                        Type[] typesInTemplateMethod = Arrays.stream(method.getParameters())
+                            .filter(e -> !e.isAnnotationPresent(ExternalParam.class)) // Skip parameters with
+                                                                                      // @ExternalParam annotation
+                            .map(e -> Type.getType(e.getType()))
+                            .toArray(Type[]::new);
                         Type[] typesInCurrentMethod = Type.getArgumentTypes(descriptor);
                         if (typesInCurrentMethod.length == typesInTemplateMethod.length) {
                             boolean isCompatible = true;
@@ -144,10 +149,20 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                 }
                 if (templateMethod != null) {
                     foundMethods.add(templateMethod);
+                    Type[] argumentTypes = Type.getArgumentTypes(templateMethod);
+                    Type[] originalMethodArgumentTypes = Type.getArgumentTypes(descriptor);
+                    int i = 0;
+                    int j = 0;
+                    for (Parameter parameter : templateMethod.getParameters()) {
+                        if (!parameter.isAnnotationPresent(ExternalParam.class)) {
+                            argumentTypes[i] = originalMethodArgumentTypes[j];
+                            j++;
+                        }
+                        i++;
+                    }
                     MethodVisitor mv = super.visitMethod(access,
                         name,
-                        Type.getMethodDescriptor(Type.getType(templateMethod.getReturnType()),
-                            Type.getArgumentTypes(descriptor)),
+                        Type.getMethodDescriptor(Type.getType(templateMethod.getReturnType()), argumentTypes),
                         signature,
                         exceptions);
                     Annotation[] annotations = templateMethod.getAnnotations();
@@ -156,9 +171,9 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                             .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
                         InterfaceTransformer.processAnnotation(annotation, annotationVisitor);
                     }
-                    int i = 0;
-                    for (Annotation[] parameterAnnotations : templateMethod.getParameterAnnotations()) {
-                        for (Annotation annotation : parameterAnnotations) {
+                    i = 0;
+                    for (Parameter parameter : templateMethod.getParameters()) {
+                        for (Annotation annotation : parameter.getAnnotations()) {
                             AnnotationVisitor annotationVisitor = mv
                                 .visitParameterAnnotation(i, Type.getDescriptor(annotation.annotationType()), true);
                             InterfaceTransformer.processAnnotation(annotation, annotationVisitor);

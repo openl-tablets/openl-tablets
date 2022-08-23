@@ -19,14 +19,17 @@ import org.openl.gen.TypeDescription;
 class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
 
     private final String methodName;
+    private final Map<String, FieldDescription> originalMethodTypes;
 
     WrapperBeanClassGenerator(String beanName,
             LinkedHashMap<String, FieldDescription> beanFields,
             TypeDescription parentType,
             Map<String, FieldDescription> parentFields,
+            Map<String, FieldDescription> originalMethodTypes,
             String methodName) {
         super(beanName, beanFields, parentType, parentFields, Collections.emptySet(), false, false, true);
         this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
+        this.originalMethodTypes = originalMethodTypes;
     }
 
     private void addArgs(ClassWriter classWriter, Map<String, FieldDescription> beanFields) {
@@ -55,7 +58,7 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
         ag.endMethod();
     }
 
-    private void addTypes(ClassWriter classWriter, Map<String, FieldDescription> beanFields) {
+    private void addOriginalMethodTypes(ClassWriter classWriter) {
         Type classType = Type.getType(Class.class);
 
         Method types = Method.getMethod("java.lang.Class[] _types()");
@@ -64,11 +67,11 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
             null,
             null,
             classWriter);
-        tg.push(beanFields.size()); // array length
+        tg.push(originalMethodTypes.size()); // array length
         tg.newArray(classType); // ar = new Object[size]
 
         int i = 0;
-        for (Map.Entry<String, FieldDescription> field : beanFields.entrySet()) {
+        for (Map.Entry<String, FieldDescription> field : originalMethodTypes.entrySet()) {
             Type fieldType = Type.getType(field.getValue().getTypeDescriptor());
 
             tg.dup();// ar
@@ -104,7 +107,7 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
          * reflection is used to call the wrapped method.
          */
         addArgs(classWriter, getFields());
-        addTypes(classWriter, getFields());
+        addOriginalMethodTypes(classWriter);
         addMethod(classWriter, methodName);
     }
 
