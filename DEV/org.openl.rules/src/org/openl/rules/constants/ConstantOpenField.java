@@ -8,10 +8,14 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ConstantOpenField extends AOpenField {
 
-    private final ModuleOpenClass declaringClass;
-    private final Object value;
-    private final String valueAsString;
+    private ModuleOpenClass declaringClass;
+    private Object value;
+    private String valueAsString;
     private IMemberMetaInfo memberMetaInfo;
+
+    public ConstantOpenField() {
+        super(null, null);
+    }
 
     public ConstantOpenField(String name,
             Object value,
