@@ -20,7 +20,6 @@ import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.security.AccessManager;
 import org.openl.rules.security.Privileges;
-import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoriesTreeController;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
@@ -34,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * TODO Remove property getters/setters when migrating to EL 2.2
@@ -41,25 +41,23 @@ import org.springframework.stereotype.Service;
  * @author Andrei Astrouski
  */
 @Service
-@ViewScope
+@SessionScope
 public class SystemSettingsBean {
     private final Logger log = LoggerFactory.getLogger(SystemSettingsBean.class);
 
     private final ProductionRepositoriesTreeController productionRepositoriesTreeController;
-
     private final DeploymentManager deploymentManager;
-
     private final DesignTimeRepository designTimeRepository;
-
     private final RepositoryTreeState repositoryTreeState;
+    private final RepositoryFactoryProxy designRepositoryFactoryProxy;
+    private final RepositoryFactoryProxy productionRepositoryFactoryProxy;
+    private final PropertyResolver propertyResolver;
+    private final SystemSettingsValidator validator;
 
-    private final InMemoryProperties properties;
-
+    private InMemoryProperties properties;
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
-
     private RepositoryEditor designRepositoryEditor;
     private RepositoryEditor productionRepositoryEditor;
-    private SystemSettingsValidator validator;
 
     public SystemSettingsBean(ProductionRepositoriesTreeController productionRepositoriesTreeController,
             RepositoryFactoryProxy designRepositoryFactoryProxy,
@@ -72,7 +70,15 @@ public class SystemSettingsBean {
         this.deploymentManager = deploymentManager;
         this.designTimeRepository = designTimeRepository;
         this.repositoryTreeState = repositoryTreeState;
+        this.designRepositoryFactoryProxy = designRepositoryFactoryProxy;
+        this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
+        this.propertyResolver = propertyResolver;
+        this.validator = new SystemSettingsValidator();
 
+        initialize();
+    }
+
+    public void initialize() {
         // We don't want to use application-scoped InMemoryProperties singleton, because we need to destroy all
         // unsaved changes when a user leaves the page. So we create a new InMemoryProperties in view-scoped
         // SystemSettingsBean constructor.
@@ -94,8 +100,6 @@ public class SystemSettingsBean {
                     WebStudioUtils.addErrorMessage("Incorrect design repository configuration '" + configuration.getName() + "', please fix it.");
                 }
             }
-
-            validator = new SystemSettingsValidator();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage(e.getMessage());
