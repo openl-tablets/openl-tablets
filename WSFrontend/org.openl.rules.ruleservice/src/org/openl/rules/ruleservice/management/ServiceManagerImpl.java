@@ -143,7 +143,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             if (!newServices.containsKey(deployPath)) {
                 try {
                     undeploy(services.get(deployPath));
-                } catch (RuleServiceUndeployException e) {
+                } catch (Exception e) {
                     log.error("Failed to undeploy service '{}'.", deployPath, e);
                 }
             }
@@ -164,7 +164,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                         if (old != null) {
                             try {
                                 undeploy(old);
-                            } catch (RuleServiceUndeployException e) {
+                            } catch (Exception e) {
                                 log.error("Failed to undeploy service '{}'.", serviceDescription.getDeployPath(), e);
                             }
                         }
@@ -172,7 +172,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                     for (ServiceDescription serviceDescription : serviceDescriptionsForDeployment) {
                         try {
                             deploy(serviceDescription);
-                        } catch (RuleServiceDeployException e) {
+                        } catch (Exception | LinkageError e) {
                             log.error("Failed to deploy service '{}'.", serviceDescription.getDeployPath(), e);
                         }
                     }
