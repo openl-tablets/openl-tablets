@@ -28,6 +28,7 @@ import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
+import org.openl.binding.impl.module.ModuleSpecificOpenField;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
@@ -45,6 +46,8 @@ import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.binding.wrapper.ConstantOpenFieldWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.DataOpenFieldWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
@@ -276,6 +279,24 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
         }
         return super.processDependencyTypeBeforeAdding(type);
+    }
+
+    protected IOpenField processFieldBeforeAdding(IOpenField openField) {
+        IOpenClass type = WrapperLogic.toModuleType(openField.getType(), this, new IdentityHashMap<>());
+        if (type != openField.getType()) {
+            if (openField instanceof DataOpenField) {
+                DataOpenField f = openField instanceof DataOpenFieldWrapper ? ((DataOpenFieldWrapper) openField)
+                    .getDelegate() : (DataOpenField) openField;
+                return new DataOpenFieldWrapper(f, type);
+            } else if (openField instanceof ConstantOpenField) {
+                ConstantOpenField f = openField instanceof ConstantOpenFieldWrapper ? ((ConstantOpenFieldWrapper) openField)
+                    .getDelegate() : (ConstantOpenField) openField;
+                return new ConstantOpenFieldWrapper(f, type);
+            } else {
+                return new ModuleSpecificOpenField(openField, type);
+            }
+        }
+        return openField;
     }
 
     /**
@@ -511,8 +532,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
             throw new DuplicatedFieldException("", openField.getName());
         }
-        fields.put(openField.getName(), openField);
-        addFieldToLowerCaseMap(openField);
+        IOpenField f = processFieldBeforeAdding(openField);
+        fields.put(f.getName(), f);
+        addFieldToLowerCaseMap(f);
     }
 
     public boolean isExternalModule(XlsModuleOpenClass module,
