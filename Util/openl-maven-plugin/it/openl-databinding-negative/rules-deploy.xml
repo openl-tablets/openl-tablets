@@ -1,0 +1,14 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <serviceName>openl-databinding-negative-alg</serviceName>
+    <url>openl-databinding-negative-rs</url>
+    <publishers>
+        <publisher>restful</publisher>
+    </publishers>
+    <configuration>
+        <entry>
+            <string>rootClassNamesBinding</string>
+            <string>mixin.PolicyMixin</string>
+        </entry>
+    </configuration>
+</rules-deploy>
