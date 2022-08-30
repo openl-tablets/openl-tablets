@@ -2,7 +2,6 @@ package org.openl.rules.repository.git;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Optional;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -178,10 +177,7 @@ class LazyFileData extends FileData {
             String fullMessage = fileCommit.getFullMessage();
             PersonIdent committerIdent = fileCommit.getCommitterIdent();
 
-            CommitMessage commitMessage = Optional.ofNullable(commitMessageParserOld)
-                .map(parser -> parser.parse(fullMessage))
-                .orElse(commitMessageParser.parse(fullMessage));
-
+            CommitMessage commitMessage = parseCommitMessage(fullMessage);
             String message = fullMessage;
             String userDisplayName = committerIdent.getName();
             if (commitMessage != null) {
@@ -216,6 +212,17 @@ class LazyFileData extends FileData {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+    }
+
+    private CommitMessage parseCommitMessage(String fullMessage) {
+        CommitMessage commitMessage = null;
+        if (commitMessageParserOld != null) {
+            commitMessage = commitMessageParserOld.parse(fullMessage);
+        }
+        if (commitMessage == null && commitMessageParser != null) {
+            commitMessage = commitMessageParser.parse(fullMessage);
+        }
+        return commitMessage;
     }
 
     /**
