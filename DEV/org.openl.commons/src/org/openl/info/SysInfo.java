@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import javax.management.ObjectName;
 
 public class SysInfo {
     public static Map<String, Object> get() {
@@ -21,10 +22,18 @@ public class SysInfo {
         fn.put("maxMemory", Runtime.getRuntime().maxMemory());
         fn.put("totalMemory", Runtime.getRuntime().totalMemory());
         fn.put("freeMemory", Runtime.getRuntime().freeMemory());
-        fn.put("os.load", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
         fn.put("os.name", ManagementFactory.getOperatingSystemMXBean().getName());
         fn.put("os.version", ManagementFactory.getOperatingSystemMXBean().getVersion());
         fn.put("os.arch", ManagementFactory.getOperatingSystemMXBean().getArch());
+        fn.put("os.SystemLoadAverage", getOperatingSystemAttribute("SystemLoadAverage"));
+        fn.put("os.SystemCpuLoad", getOperatingSystemAttribute("SystemCpuLoad"));
+        fn.put("os.ProcessCpuLoad", getOperatingSystemAttribute("ProcessCpuLoad"));
+        fn.put("os.ProcessCpuTime", getOperatingSystemAttribute("ProcessCpuTime"));
+        fn.put("os.TotalPhysicalMemorySize", getOperatingSystemAttribute("TotalPhysicalMemorySize"));
+        fn.put("os.FreePhysicalMemorySize", getOperatingSystemAttribute("FreePhysicalMemorySize"));
+        fn.put("os.TotalSwapSpaceSize", getOperatingSystemAttribute("TotalSwapSpaceSize"));
+        fn.put("os.FreeSwapSpaceSize", getOperatingSystemAttribute("FreeSwapSpaceSize"));
+        fn.put("os.CommittedVirtualMemorySize", getOperatingSystemAttribute("CommittedVirtualMemorySize"));
         fn.put("vm.name", ManagementFactory.getRuntimeMXBean().getVmName());
         fn.put("vm.vendor", ManagementFactory.getRuntimeMXBean().getVmVendor());
         fn.put("vm.version", ManagementFactory.getRuntimeMXBean().getVmVersion());
@@ -52,5 +61,14 @@ public class SysInfo {
         fn.put("gc.time", activeGCs.get().mapToLong(GarbageCollectorMXBean::getCollectionTime).sum());
 
         return fn;
+    }
+
+    private static Object getOperatingSystemAttribute(String attribute) {
+        try {
+            ObjectName osObjectName = ManagementFactory.getOperatingSystemMXBean().getObjectName();
+            return ManagementFactory.getPlatformMBeanServer().getAttribute(osObjectName, attribute);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
