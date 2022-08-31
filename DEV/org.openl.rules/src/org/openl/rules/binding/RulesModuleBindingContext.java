@@ -257,8 +257,6 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             return;
         }
 
-        final String customSpreadsheetResultTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader
-            .getName();
         final boolean isCustomSpreadsheetResultEnabled = OpenLSystemProperties
             .isCustomSpreadsheetTypesSupported(getExternalParams());
         // All custom spreadsheet methods compiles at once
@@ -271,6 +269,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             openMethodBinders = openMethodBinders.stream()
                 .filter(RecursiveOpenMethodPreBinder::isSpreadsheetWithCustomSpreadsheetResult)
                 .collect(Collectors.toList());
+            final String customSpreadsheetResultTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + openMethodHeader
+                .getName();
             IOpenClass openClass = super.findType(ISyntaxConstants.THIS_NAMESPACE, customSpreadsheetResultTypeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                 CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
@@ -279,6 +279,16 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 throw new IllegalStateException(MessageUtils.getTypeNotFoundMessage(customSpreadsheetResultTypeName));
             }
         } else {
+            IOpenClass t = openMethodBinder.getType();
+            if (t != null) {
+                while (t.isArray()) {
+                    t = t.getComponentClass();
+                }
+                if (t instanceof CustomSpreadsheetResultOpenClass) {
+                    // Fires type compilation
+                    findType(ISyntaxConstants.THIS_NAMESPACE, t.getName());
+                }
+            }
             openMethodBinders = Collections.singletonList(openMethodBinder);
         }
         Optional<RecursiveOpenMethodPreBinder> prebindingOpenMethodPreBinder = openMethodBinders.stream()
