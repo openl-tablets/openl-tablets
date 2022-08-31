@@ -13,7 +13,7 @@ public interface RecursiveOpenMethodPreBinder extends IOpenMethod {
 
     CustomSpreadsheetResultOpenClass getCustomSpreadsheetResultOpenClass();
 
-    boolean isReturnsCustomSpreadsheetResult();
+    boolean isSpreadsheetWithCustomSpreadsheetResult();
 
     void preBind();
 

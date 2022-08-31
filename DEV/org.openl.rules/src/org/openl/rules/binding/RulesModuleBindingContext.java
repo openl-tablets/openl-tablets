@@ -110,7 +110,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                 RecursiveOpenMethodPreBinder openMethodBinder = extractOpenMethodPrebinder(method);
                 if (openMethodBinder.isPreBindStarted()) {
                     if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams()) && openMethodBinder
-                        .isReturnsCustomSpreadsheetResult()) {
+                        .isSpreadsheetWithCustomSpreadsheetResult()) {
                         throw new RecursiveSpreadsheetMethodPreBindingException(
                             String.format("Type '%s' compilation failed with circular reference issue.",
                                 openMethodBinder.getCustomSpreadsheetResultOpenClass().getName()));
@@ -199,7 +199,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
                     final String methodName = csrOpenClass.getName()
                         .substring(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX.length());
                     preBinderMethods.findByMethodName(methodName).forEach(openMethodBinder -> {
-                        if (openMethodBinder.isReturnsCustomSpreadsheetResult()) {
+                        if (openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()) {
                             preBindMethod(openMethodBinder.getHeader());
                         }
                     });
@@ -233,7 +233,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     public void addBinderMethod(OpenMethodHeader openMethodHeader, RecursiveOpenMethodPreBinder method) {
         if (!isExecutionMode() && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(getExternalParams()) && method
-            .isReturnsCustomSpreadsheetResult()) {
+            .isSpreadsheetWithCustomSpreadsheetResult()) {
             final String sprTypeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + method.getName();
             IOpenClass openClass = findType(ISyntaxConstants.THIS_NAMESPACE, sprTypeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass) {
@@ -263,13 +263,13 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             .isCustomSpreadsheetTypesSupported(getExternalParams());
         // All custom spreadsheet methods compiles at once
         Collection<RecursiveOpenMethodPreBinder> openMethodBinders;
-        if (isCustomSpreadsheetResultEnabled && openMethodBinder.isReturnsCustomSpreadsheetResult()) {
+        if (isCustomSpreadsheetResultEnabled && openMethodBinder.isSpreadsheetWithCustomSpreadsheetResult()) {
             if (isIgnoreCustomSpreadsheetResultCompilation()) {
                 return;
             }
             openMethodBinders = preBinderMethods.findByMethodName(openMethodHeader.getName());
             openMethodBinders = openMethodBinders.stream()
-                .filter(RecursiveOpenMethodPreBinder::isReturnsCustomSpreadsheetResult)
+                .filter(RecursiveOpenMethodPreBinder::isSpreadsheetWithCustomSpreadsheetResult)
                 .collect(Collectors.toList());
             IOpenClass openClass = super.findType(ISyntaxConstants.THIS_NAMESPACE, customSpreadsheetResultTypeName);
             if (openClass instanceof CustomSpreadsheetResultOpenClass) {
@@ -286,7 +286,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             .findAny();
         if (prebindingOpenMethodPreBinder.isPresent()) {
             if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(
-                getExternalParams()) && prebindingOpenMethodPreBinder.get().isReturnsCustomSpreadsheetResult()) {
+                getExternalParams()) && prebindingOpenMethodPreBinder.get()
+                    .isSpreadsheetWithCustomSpreadsheetResult()) {
                 throw new RecursiveSpreadsheetMethodPreBindingException(
                     String.format("Type '%s' compilation failed with circular reference issue.",
                         prebindingOpenMethodPreBinder.get().getCustomSpreadsheetResultOpenClass().getName()));
