@@ -36,7 +36,7 @@ import io.swagger.v3.oas.models.OpenAPI;
 
 public class OpenAPIGenerationTest {
 
-    private final Logger log = LoggerFactory.getLogger(OpenAPIGenerationTest.class);
+    private final Logger log = LoggerFactory.getLogger("OpenAPI Project Generation Test");
 
     public static final String DIR = "test-resources/functionality/";
 
@@ -195,13 +195,13 @@ public class OpenAPIGenerationTest {
 
     private void ok(long startTime, String sourceFile) {
         final long ms = (System.nanoTime() - startTime) / 1000000;
-        log.info("SUCCESS - in [{}] ({} ms)", sourceFile, ms);
+        log.info("\u001B[1;32mSUCCESS\u001B[0m - in [\u001B[2;36m{}\u001B[0m] ({} ms)", sourceFile, ms);
     }
 
     private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
         if (count == 0) {
             final long ms = (System.nanoTime() - startTime) / 1000000;
-            log.error("FAILURE - in [{}] ({} ms)", sourceFile, ms);
+            log.error("\u001B[1;31mFAILURE\u001B[0m - in [\u001B[2;36m{}\u001B[0m] ({} ms)", sourceFile, ms);
         }
         log.error(msg, args);
     }

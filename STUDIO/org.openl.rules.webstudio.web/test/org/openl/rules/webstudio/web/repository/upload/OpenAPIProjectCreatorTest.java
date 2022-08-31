@@ -51,7 +51,7 @@ import static org.mockito.Mockito.when;
 
 public class OpenAPIProjectCreatorTest {
 
-    private final Logger log = LoggerFactory.getLogger(OpenAPIProjectCreatorTest.class);
+    private final Logger log = LoggerFactory.getLogger("OpenAPI Project Creator Test");
 
     private static final Set<String> OPENAPI_EXTS = Stream.of(".json", ".yaml", ".yml").collect(Collectors.toSet());
     private static final String REPO_ID = UUID.randomUUID().toString();
@@ -277,13 +277,13 @@ public class OpenAPIProjectCreatorTest {
 
     private void ok(long startTime, String sourceFile) {
         final long ms = (System.nanoTime() - startTime) / 1000000;
-        log.info("{} - in [{}] ({} ms)", "SUCCESS", sourceFile, ms);
+        log.info("\u001B[1;32mSUCCESS\u001B[0m - in [\u001B[2;36m{}\u001B[0m] ({} ms)", sourceFile, ms);
     }
 
     private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
         if (count == 0) {
             final long ms = (System.nanoTime() - startTime) / 1000000;
-            log.error("FAILURE - in [{}] ({} ms)", sourceFile, ms);
+            log.error("\u001B[1;31mFAILURE\u001B[0m - in [\u001B[2;36m{}\u001B[0m] ({} ms)", sourceFile, ms);
         }
         log.error(msg, args);
     }
