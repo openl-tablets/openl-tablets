@@ -135,7 +135,6 @@
             //<![CDATA[
             $j(function () {
                 initializeBean();
-                initSettingsPage();
 
                 $j("#systemSettingsForm").on("keydown", ":input:not(textarea):not(:submit)", function(event) {
                     if(event.keyCode === 13) {
@@ -236,7 +235,8 @@
 
         <a4j:jsFunction name="initializeBean"
                         render="commonProps repoSettings javaProps restartMessage"
-                        action="#{systemSettingsBean.initialize}"/>
+                        action="#{systemSettingsBean.initialize}"
+                        oncomplete="initSettingsPage();"/>
 
         <div class="simpleView_workspace">
             <div>
