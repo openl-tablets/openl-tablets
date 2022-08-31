@@ -236,8 +236,9 @@ public class DecisionTableLoader {
                 // Note that compiling transposed table consumes memory twice and for big tables it does not make any
                 // sense
                 // for smart tables
-                if (Direction.UNKNOWN.equals(direction) && (tableBody == null || !isSmart(
-                    tableSyntaxNode) || (firstTransposedThenNormal ? width : height) <= MAX_COLUMNS_IN_DT)) {
+                if (Direction.UNKNOWN.equals(
+                    direction) && (tableBody == null || (firstTransposedThenNormal ? width
+                                                                                   : height) <= MAX_COLUMNS_IN_DT)) {
                     CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
                         decisionTable,
                         () -> loadAndBind(tableSyntaxNode,
