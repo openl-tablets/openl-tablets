@@ -122,5 +122,6 @@
             </bean>
         </constructor-arg>
         <property name="authenticationManager" ref="authenticationManager"/>
+        <property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy"/>
     </bean>
 </beans>
