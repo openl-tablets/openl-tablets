@@ -248,7 +248,7 @@ public class SpreadsheetStructureBuilder {
                         signature,
                         declaringClass,
                         columnBindingContext);
-                    spreadsheetCell.setType(method.getType());
+                    spreadsheetCell.setType(method.getType() != null ? method.getType() : NullOpenClass.the);
                 } else {
                     method = OpenLManager.makeMethod(openl, srcCode, header, columnBindingContext);
                 }
