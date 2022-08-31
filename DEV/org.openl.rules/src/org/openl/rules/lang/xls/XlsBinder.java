@@ -889,7 +889,7 @@ public class XlsBinder implements IOpenBinder {
         }
 
         @Override
-        public boolean isReturnsCustomSpreadsheetResult() {
+        public boolean isSpreadsheetWithCustomSpreadsheetResult() {
             return customSpreadsheetResultOpenClass != null;
         }
 
