@@ -43,9 +43,9 @@ public class Test2 {
         assertNull(result.getValue(2, 1));
         assertEquals("I", result.getValue(2, 2));
 
-        assertEquals(0.0, result.getValue(4, 0));
+        assertEquals(0, result.getValue(4, 0));
         assertNull(result.getValue(4, 1));
-        assertEquals(0.0, result.getValue(4, 2));
+        assertEquals(0, result.getValue(4, 2));
     }
 
     public interface ITestCalc {
