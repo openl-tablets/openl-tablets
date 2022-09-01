@@ -108,28 +108,48 @@ public class SpreadsheetResult implements Serializable {
         return false;
     }
 
-    static Map<String, Point> buildFieldsCoordinates(String[] columnNames, String[] rowNames) {
+    static Map<String, Point> buildFieldsCoordinates(String[] columnNames,
+            String[] rowNames,
+            boolean simpleRefByColumn,
+            boolean simpleRefByRow) {
         Map<String, Point> fieldsCoordinates = new HashMap<>();
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNames).filter(Objects::nonNull).count();
             long nonNullsRowsCount = Arrays.stream(rowNames).filter(Objects::nonNull).count();
-            boolean isSingleColumn = nonNullsColumnsCount == 1;
-            boolean isSingleRow = nonNullsRowsCount == 1;
+            boolean simpleRefByC = nonNullsColumnsCount == 1 || simpleRefByRow;
+            boolean simpleRefByR = nonNullsRowsCount == 1 || simpleRefByColumn;
             for (int i = 0; i < rowNames.length; i++) {
                 for (int j = 0; j < columnNames.length; j++) {
                     if (columnNames[j] != null && rowNames[i] != null) {
                         fieldsCoordinates.put(
                             SpreadsheetStructureBuilder.getSpreadsheetCellFieldName(columnNames[j], rowNames[i]),
                             Point.get(j, i));
-                        if (isSingleColumn) {
-                            fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i],
-                                Point.get(j, i));
-                        } else {
-                            if (isSingleRow) {
+                    }
+                }
+            }
+            if (simpleRefByC) {
+                for (int j = 0; j < columnNames.length; j++) {
+                    if (columnNames[j] != null) {
+                        for (int i = 0; i < rowNames.length; i++) {
+                            if (rowNames[i] != null) {
+                                fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowNames[i],
+                                    Point.get(j, i));
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            if (simpleRefByR) {
+                for (int i = 0; i < rowNames.length; i++) {
+                    if (rowNames[i] != null) {
+                        for (int j = 0; j < columnNames.length; j++) {
+                            if (columnNames[j] != null) {
                                 fieldsCoordinates.put(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnNames[j],
                                     Point.get(j, i));
                             }
                         }
+                        break;
                     }
                 }
             }
@@ -138,7 +158,7 @@ public class SpreadsheetResult implements Serializable {
     }
 
     private void initFieldsCoordinates() {
-        this.fieldsCoordinates = buildFieldsCoordinates(columnNames, rowNames);
+        this.fieldsCoordinates = buildFieldsCoordinates(columnNames, rowNames, false, false);
     }
 
     @XmlTransient
