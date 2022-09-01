@@ -428,8 +428,13 @@ public class SpreadsheetStructureBuilder {
                     if (SpreadsheetExpressionMarker.isFormula(cellCode)) {
                         cellType = null;
                     } else if (cellCode != null) {
-                        String2DataConvertorFactory.getConvertor(Double.class).parse(cellCode, null);
-                        cellType = JavaOpenClass.getOpenClass(Double.class);
+                        Object objectValue = sourceCell.getObjectValue();
+                        if (objectValue instanceof String) {
+                            String2DataConvertorFactory.getConvertor(Double.class).parse(cellCode, null);
+                            cellType = JavaOpenClass.getOpenClass(Double.class);
+                        } else {
+                            cellType = JavaOpenClass.getOpenClass(objectValue.getClass());
+                        }
                     } else {
                         cellType = NullOpenClass.the;
                     }
