@@ -3,8 +3,8 @@ Content-Type: application/json
 
 [
   {
-    "Step1": 1.0
+    "Step1": 1
   }, {
-    "Step1": 1.0
+    "Step1": 1
   }
 ]

@@ -350,28 +350,28 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Test_sTep": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "mYStep_sTep": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "Test_stepchik": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "mYStep_stepchik": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "Test_Stepic": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "mYStep_Stepic": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

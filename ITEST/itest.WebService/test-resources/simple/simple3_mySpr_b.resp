@@ -2,5 +2,5 @@ HTTP/1.1 200
 Content-Type: application/json
 
 {
-  "Step2": 4.0
+  "Step2": 4
 }
