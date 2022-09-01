@@ -2133,8 +2133,8 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Step1": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -2215,8 +2215,8 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Step1": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -2224,8 +2224,8 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Step1": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -2233,8 +2233,8 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Step1": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -2242,8 +2242,8 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Step1": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -2251,8 +2251,8 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Step1": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -2260,8 +2260,8 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Step1": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -2269,8 +2269,8 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Step1": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -2278,8 +2278,8 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Step1": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -2287,8 +2287,8 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Step1": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -2296,8 +2296,8 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Step1": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           }
         }
       }
