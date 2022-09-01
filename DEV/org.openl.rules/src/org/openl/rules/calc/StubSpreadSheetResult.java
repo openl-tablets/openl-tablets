@@ -72,7 +72,7 @@ public final class StubSpreadSheetResult extends SpreadsheetResult {
 
     @Override
     public ILogicalTable getLogicalTable() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 
     @Override

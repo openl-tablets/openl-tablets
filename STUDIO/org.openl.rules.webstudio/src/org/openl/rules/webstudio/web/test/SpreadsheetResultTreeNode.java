@@ -7,11 +7,9 @@ import org.openl.rules.ui.ObjectViewer;
 
 public class SpreadsheetResultTreeNode extends ParameterDeclarationTreeNode {
     private static final String SPREADSHEET_RESULT_TYPE = "spreadsheet";
-    private final ParameterRenderConfig config;
 
     public SpreadsheetResultTreeNode(ParameterRenderConfig config) {
         super(config.getFieldNameInParent(), config.getValue(), config.getType(), config.getParent());
-        this.config = config;
     }
 
     @Override
