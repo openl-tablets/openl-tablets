@@ -16,7 +16,6 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.StringValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultField;
-import org.openl.rules.calc.StubSpreadSheetResult;
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -45,7 +44,6 @@ import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
-import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -824,25 +822,23 @@ public class DataTableBindHelper {
                 if (StringUtils.matches(THIS_ARRAY_ACCESS_PATTERN, identifier) && type.isArray()) {
                     collectionElementType = type.getComponentClass();
                     collectionElementField = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
-                            collectionElementType,
-                            CollectionType.ARRAY);
-                } else if (StringUtils.matches(THIS_LIST_ACCESS_PATTERN,
-                    identifier)
-                        && ClassUtils.isAssignable(type.getInstanceClass(), List.class)) {
+                        collectionElementType,
+                        CollectionType.ARRAY);
+                } else if (StringUtils.matches(THIS_LIST_ACCESS_PATTERN, identifier) && ClassUtils
+                    .isAssignable(type.getInstanceClass(), List.class)) {
                     collectionElementType = getTypeForCollection(fieldNameNode, null, bindingContext);
                     collectionElementField = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
-                            collectionElementType,
-                            CollectionType.LIST);
-                } else if (StringUtils.matches(THIS_MAP_ACCESS_PATTERN,
-                    identifier)
-                        && ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
+                        collectionElementType,
+                        CollectionType.LIST);
+                } else if (StringUtils.matches(THIS_MAP_ACCESS_PATTERN, identifier) && ClassUtils
+                    .isAssignable(type.getInstanceClass(), Map.class)) {
                     collectionElementType = getTypeForCollection(fieldNameNode, null, bindingContext);
                     collectionElementField = new ThisCollectionElementField(getCollectionKey(fieldNameNode),
-                            collectionElementType);
+                        collectionElementType);
                 }
 
                 if (collectionElementField != null) {
-                    //If type is not found, chain cannot be evaluated further
+                    // If type is not found, chain cannot be evaluated further
                     if (collectionElementType != null) {
                         fieldAccessorChain[fieldIndex] = collectionElementField;
                         loadedFieldType = collectionElementType;
@@ -909,26 +905,13 @@ public class DataTableBindHelper {
             partPathFromRoot.append(fieldInChain.getName());
         }
         if (!CollectionUtils.hasNull(fieldAccessorChain)) { // check successful
-            NewInstanceBuilder[] newInstanceBuilders = null;
-            if (fieldAccessorChainTokens[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
-                newInstanceBuilders = new NewInstanceBuilder[fieldAccessorChain.length];
-                int j = 0;
-                for (IOpenField field : fieldAccessorChain) {
-                    if (field.getType().getInstanceClass() != null && ClassUtils
-                        .isAssignable(field.getType().getInstanceClass(), SpreadsheetResult.class)) {
-                        newInstanceBuilders[j++] = STUB_SPR_NEW_INSTANCE_BUILDER;
-                    }
-                }
-            }
-
             // loading of all
             // fields in
             // fieldAccessorChain.
             chainField = new FieldChain(type,
                 fieldAccessorChain,
                 fieldAccessorChainTokens,
-                hasAccessByArrayId,
-                newInstanceBuilders);
+                hasAccessByArrayId);
         }
         return chainField;
     }
@@ -1204,14 +1187,5 @@ public class DataTableBindHelper {
 
     static boolean isPrecisionNode(IdentifierNode node) {
         return StringUtils.matches(PRECISION_PATTERN, node.getIdentifier());
-    }
-
-    static final NewInstanceBuilder STUB_SPR_NEW_INSTANCE_BUILDER = new StubSpreadsheetResultNewInstanceBuilder();
-
-    private static final class StubSpreadsheetResultNewInstanceBuilder implements NewInstanceBuilder {
-        @Override
-        public Object newInstance(IRuntimeEnv env) {
-            return new StubSpreadSheetResult();
-        }
     }
 }
