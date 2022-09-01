@@ -43,18 +43,18 @@ public class TestAutoType1 {
 
         assertEquals("A", result.getValue(0, 0));
         assertEquals("B", result.getValue(0, 1));
-        assertEquals(1.0, result.getValue(0, 2));
-        assertEquals(7.0, result.getValue(0, 3));
+        assertEquals(1, result.getValue(0, 2));
+        assertEquals(7, result.getValue(0, 3));
 
         assertEquals("D", result.getValue(1, 0));
         assertEquals("E", result.getValue(1, 1));
-        assertEquals(7.0, result.getValue(1, 2));
-        assertEquals(8.0, result.getValue(1, 3));
+        assertEquals(7, result.getValue(1, 2));
+        assertEquals(8, result.getValue(1, 3));
 
         assertEquals("G", result.getValue(2, 0));
         assertEquals("H", result.getValue(2, 1));
-        assertEquals(9.0, result.getValue(2, 2));
-        assertEquals(9.0, result.getValue(2, 3));
+        assertEquals(9, result.getValue(2, 2));
+        assertEquals(9, result.getValue(2, 3));
 
         assertEquals("G", result.getValue(3, 0));
         assertEquals("H", result.getValue(3, 1));

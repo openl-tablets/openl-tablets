@@ -16,7 +16,7 @@ public class Test0 {
 
         for (int y = 0; y < 2; y++) {
             for (int x = 0; x < 3; x++) {
-                Double a = y * 3.0 + x;
+                Integer a = y * 3 + x;
                 Object r = result.getValue(y, x);
                 assertEquals(a, r);
             }

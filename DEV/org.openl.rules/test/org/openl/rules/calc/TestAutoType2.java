@@ -24,8 +24,8 @@ public class TestAutoType2 {
 
         assertEquals("G", result.getValue(0, 0));
         assertEquals("H", result.getValue(0, 1));
-        assertEquals(9.0, result.getValue(0, 2));
-        assertEquals(9.0, result.getValue(0, 3));
+        assertEquals(9, result.getValue(0, 2));
+        assertEquals(9, result.getValue(0, 3));
 
         assertEquals("G", result.getValue(1, 0));
         assertEquals(11, result.getValue(1, 1));

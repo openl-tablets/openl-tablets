@@ -362,9 +362,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         assertNodeUsage(nodeUsages.get(1), "Integer $TotalAssets2012", 9, 25);
 
-        assertNodeUsage(nodeUsages.get(2), "Double $TotalAssets2011", 28, 44);
+        assertNodeUsage(nodeUsages.get(2), "Integer $TotalAssets2011", 28, 44);
 
-        assertNodeUsage(nodeUsages.get(3), "Double $Value$TotalAssets2011", 48, 70);
+        assertNodeUsage(nodeUsages.get(3), "Integer $Value$TotalAssets2011", 48, 70);
     }
 
     /**
@@ -383,9 +383,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         assertNodeUsage(usedNodes.get(0), "Cell type: Integer", 0, 1);
 
-        assertNodeUsage(usedNodes.get(1), "Double $Amount", 9, 16);
+        assertNodeUsage(usedNodes.get(1), "Integer $Amount", 9, 16);
 
-        assertNodeUsage(usedNodes.get(2), "Double $Exchange Rate", 19, 33);
+        assertNodeUsage(usedNodes.get(2), "Integer $Exchange Rate", 19, 33);
 
         // Total
         usedNodes = assertMetaInfo(totalAssets, 3, 7, 2);
