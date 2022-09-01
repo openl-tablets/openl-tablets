@@ -134,7 +134,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.rowTitles = Objects.requireNonNull(rowTitles);
         this.columnTitles = Objects.requireNonNull(columnTitles);
 
-        this.fieldsCoordinates = SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames);
+        this.fieldsCoordinates = SpreadsheetResult
+            .buildFieldsCoordinates(this.columnNames, this.rowNames, this.simpleRefByColumn, this.simpleRefByRow);
         this.module = module;
         this.tableStructureDetails = tableStructureDetails;
         this.generateBeanClass = generateBeanClass;
@@ -252,7 +253,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         List<String> nRowTitles = Arrays.stream(this.rowTitles).collect(toList());
         List<String> nColumnTitles = Arrays.stream(this.columnTitles).collect(toList());
 
-        boolean fieldCoordinatesNeedUpdate = false;
         boolean rowColumnsForResultModelNeedUpdate = false;
 
         for (int i = 0; i < rowNames.length; i++) {
@@ -260,7 +260,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 nRowNames.add(rowNames[i]);
                 nRowNamesForResultModel.add(rowNamesForResultModel[i]);
                 nRowTitles.add(rowTitles[i]);
-                fieldCoordinatesNeedUpdate = true;
                 rowColumnsForResultModelNeedUpdate = true;
             } else if (rowNamesForResultModel[i] != null) {
                 int k = nRowNames.indexOf(rowNames[i]);
@@ -274,24 +273,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 nColumnNames.add(columnNames[i]);
                 nColumnNamesForResultModel.add(columnNamesForResultModel[i]);
                 nColumnTitles.add(columnTitles[i]);
-                fieldCoordinatesNeedUpdate = true;
                 rowColumnsForResultModelNeedUpdate = true;
             } else if (columnNamesForResultModel[i] != null) {
                 int k = nColumnNames.indexOf(columnNames[i]);
                 nColumnNamesForResultModel.set(k, columnNamesForResultModel[i]);
                 rowColumnsForResultModelNeedUpdate = true;
             }
-        }
-
-        if (fieldCoordinatesNeedUpdate) {
-            this.rowNames = nRowNames.toArray(EMPTY_STRING_ARRAY);
-            this.rowTitles = nRowTitles.toArray(EMPTY_STRING_ARRAY);
-
-            this.columnNames = nColumnNames.toArray(EMPTY_STRING_ARRAY);
-            this.columnTitles = nColumnTitles.toArray(EMPTY_STRING_ARRAY);
-
-            this.fieldsCoordinates = Collections
-                .unmodifiableMap(SpreadsheetResult.buildFieldsCoordinates(this.columnNames, this.rowNames));
         }
 
         if (rowColumnsForResultModelNeedUpdate) {
@@ -306,6 +293,15 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 .filter(Objects::nonNull)
                 .count();
             this.rowsForResultModelCount = Arrays.stream(this.rowNamesForResultModel).filter(Objects::nonNull).count();
+
+            this.rowNames = nRowNames.toArray(EMPTY_STRING_ARRAY);
+            this.rowTitles = nRowTitles.toArray(EMPTY_STRING_ARRAY);
+
+            this.columnNames = nColumnNames.toArray(EMPTY_STRING_ARRAY);
+            this.columnTitles = nColumnTitles.toArray(EMPTY_STRING_ARRAY);
+
+            this.fieldsCoordinates = Collections.unmodifiableMap(SpreadsheetResult
+                .buildFieldsCoordinates(this.columnNames, this.rowNames, this.simpleRefByColumn, this.simpleRefByRow));
         }
 
         for (IOpenField field : fields) {
