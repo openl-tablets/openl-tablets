@@ -2,6 +2,7 @@ package org.openl.rules.table.actions;
 
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoWriter;
@@ -34,12 +35,27 @@ public class UndoableSetValueAction extends AUndoableCellAction {
         setPrevFormula(cell.getFormula());
         setPrevMetaInfo(metaInfoWriter.getMetaInfo(getRow(), getCol()));
 
-        grid.setCellValue(getCol(), getRow(), newValue);
-
-        CellMetaInfo newMetaInfo = getNewMetaInfo(newValue);
+        Object convertedValue = convertToCellType(newValue, cell);
+        grid.setCellValue(getCol(), getRow(), convertedValue);
+        CellMetaInfo newMetaInfo = getNewMetaInfo(convertedValue);
         if (newMetaInfo != null) {
             metaInfoWriter.setMetaInfo(getRow(), getCol(), newMetaInfo);
         }
+    }
+
+    private Object convertToCellType(Object value, ICell cell) {
+        if (!(value instanceof String)) {
+            return value;
+        }
+        Object oldValue = cell.getObjectValue();
+        if (oldValue != null && !(oldValue instanceof String)) {
+            try {
+                return String2DataConvertorFactory.getConvertor(oldValue.getClass()).parse((String) value, null);
+            } catch (Exception ignored) {
+                return value;
+            }
+        }
+        return value;
     }
 
     @Override
