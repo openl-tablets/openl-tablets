@@ -382,11 +382,15 @@ public class SpreadsheetResult implements Serializable {
         if (getCustomSpreadsheetResultOpenClass() != null) {
             return getCustomSpreadsheetResultOpenClass().createBean(this);
         } else {
-            return toMap();
+            return toMap(false);
         }
     }
 
     public Map<String, Object> toMap() {
+        return toMap(true);
+    }
+
+    public Map<String, Object> toMap(boolean spreadsheetResultsToMap) {
         Map<String, Object> values = new HashMap<>();
         if (columnNames != null && rowNames != null) {
             long nonNullsColumnsCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
@@ -406,7 +410,7 @@ public class SpreadsheetResult implements Serializable {
                         if (p != null && columnNamesForResultModel[p.getColumn()] != null && rowNamesForResultModel[p
                             .getRow()] != null) {
                             values.put(xmlNamesMap.get(e.getKey()),
-                                convertSpreadsheetResult(getValue(p.getRow(), p.getColumn()), true));
+                                convertSpreadsheetResult(getValue(p.getRow(), p.getColumn()), spreadsheetResultsToMap));
                             if (isTableStructureDetailsPresented) {
                                 TableDetails[p.getRow()][p.getColumn()] = xmlNamesMap.get(e.getKey());
                             }
@@ -433,7 +437,7 @@ public class SpreadsheetResult implements Serializable {
                                 fNewName = fName + k;
                                 k++;
                             }
-                            values.put(fNewName, convertSpreadsheetResult(getValue(i, j), true));
+                            values.put(fNewName, convertSpreadsheetResult(getValue(i, j), spreadsheetResultsToMap));
                             if (isTableStructureDetailsPresented) {
                                 TableDetails[i][j] = fNewName;
                             }
@@ -453,7 +457,7 @@ public class SpreadsheetResult implements Serializable {
         return values;
     }
 
-    private static Object convertSpreadsheetResult(Object v, boolean toMap) {
+    private static Object convertSpreadsheetResult(Object v, boolean spreadsheetResultsToMap) {
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
             if (spreadsheetResult.getCustomSpreadsheetResultOpenClass() == null) {
@@ -465,12 +469,12 @@ public class SpreadsheetResult implements Serializable {
                 return convertSpreadsheetResult(v,
                     customSpreadsheetResultOpenClass.getBeanClass(),
                     customSpreadsheetResultOpenClass,
-                    toMap);
+                    spreadsheetResultsToMap);
             } else {
-                return convertSpreadsheetResult(v, null, null, toMap);
+                return convertSpreadsheetResult(v, null, null, spreadsheetResultsToMap);
             }
         }
-        return convertSpreadsheetResult(v, null, null, toMap);
+        return convertSpreadsheetResult(v, null, null, spreadsheetResultsToMap);
     }
 
     public static Object convertSpreadsheetResult(Object v) {
@@ -595,7 +599,7 @@ public class SpreadsheetResult implements Serializable {
         if (v instanceof SpreadsheetResult) {
             SpreadsheetResult spreadsheetResult = (SpreadsheetResult) v;
             if (Map.class == toType || spreadsheetResultsToMap) {
-                return spreadsheetResult.toMap();
+                return spreadsheetResult.toMap(spreadsheetResultsToMap);
             } else if (toTypeOpenClass instanceof CustomSpreadsheetResultOpenClass && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)
                 .isGenerateBeanClass() && ((CustomSpreadsheetResultOpenClass) toTypeOpenClass)
                     .getBeanClass() == toType) {
