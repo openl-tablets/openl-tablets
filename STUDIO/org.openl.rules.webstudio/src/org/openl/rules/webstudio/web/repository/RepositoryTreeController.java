@@ -1303,7 +1303,7 @@ public class RepositoryTreeController {
     }
 
     public void deleteBranch() {
-        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        UserWorkspaceProject project = getSelectedProject();
         if (!(project instanceof RulesProject)) {
             return;
         }
@@ -2316,8 +2316,55 @@ public class RepositoryTreeController {
         return predefinedTemplatesResolver.getTemplates(category);
     }
 
-    public boolean getCanDelete() {
-        return isGranted(DELETE_PROJECTS);
+    public boolean canDelete(UserWorkspaceProject project) {
+        try {
+            if (project.isLocalOnly()) {
+                // any user can delete own local project
+                return true;
+            }
+            boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
+            boolean mainBranch = isMainBranch(project);
+            boolean branchProtected = isCurrentBranchProtected(project);
+            return unlocked && isGranted(DELETE_PROJECTS) && mainBranch && !branchProtected;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public boolean canDeleteBranch(UserWorkspaceProject project) {
+        try {
+            if (project.isLocalOnly()) {
+                return false;
+            }
+            boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
+            boolean mainBranch = isMainBranch(project);
+            boolean branchProtected = isCurrentBranchProtected(project);
+            return unlocked && isGranted(DELETE_PROJECTS) && !mainBranch && !branchProtected;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    private boolean isMainBranch(UserWorkspaceProject selectedProject) {
+        boolean mainBranch = true;
+        Repository designRepository = selectedProject.getDesignRepository();
+        if (designRepository.supports().branches()) {
+            String branch = selectedProject.getBranch();
+            if (!((BranchRepository) designRepository).getBaseBranch().equals(branch)) {
+                mainBranch = false;
+            }
+        }
+        return mainBranch;
+    }
+
+    private boolean isCurrentBranchProtected(UserWorkspaceProject selectedProject) {
+        Repository repo = selectedProject.getDesignRepository();
+        if (repo != null && repo.supports().branches()) {
+            return ((BranchRepository) repo).isBranchProtected(selectedProject.getBranch());
+        }
+        return false;
     }
 
     public boolean getCanUnlock() {
