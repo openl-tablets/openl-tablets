@@ -75,7 +75,7 @@
                           onclick="openProjectUnlockDialog('#{prj.data.repository.id}', '#{prj.data.name}');return false;"
                           title="Unlock project" styleClass="lock-icon"/>
                   </h:panelGroup>
-                  <h:panelGroup rendered="#{repositoryTreeController.canDelete and not prj.data.branchProtected and (not prj.data.locked or prj.data.lockedByMe)}">
+                  <h:panelGroup rendered="#{repositoryTreeController.canDelete(prj.data)}">
                       &#160;
                       <h:commandLink immediate="true"
                           onclick="onShowModalDeleteNode('#{repositoryTreeController.getRepositoryType(prj.data.repository.id)}');"
@@ -85,6 +85,17 @@
                           <f:ajax listener="#{repositoryTreeController.deleteRulesProjectListener}" render=":deleteNodeForm"/>
                       </h:commandLink>
                   </h:panelGroup>
+                    <h:panelGroup rendered="#{repositoryTreeController.canDeleteBranch(prj.data)}">
+                        &#160;
+                        <h:commandLink immediate="true"
+                                       title="Delete branch" styleClass="delete-icon">
+                            <f:param name="repositoryId" value="#{prj.data.repository.id}" />
+                            <f:param name="projectName" value="#{prj.data.name}" />
+                            <f:ajax listener="#{repositoryTreeController.deleteRulesProjectListener}"
+                                    render=":deleteBranchForm"
+                                    onevent="function(data) { if (data.status === 'success') openDeleteBranchDialog() }"/>
+                        </h:commandLink>
+                    </h:panelGroup>
                   <h:panelGroup rendered="#{not prj.data.project.opened and not prj.data.project.localOnly}">
                       &#160;
                       <h:commandLink immediate="true"
