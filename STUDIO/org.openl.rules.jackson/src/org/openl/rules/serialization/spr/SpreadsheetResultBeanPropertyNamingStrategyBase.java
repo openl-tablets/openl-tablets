@@ -4,16 +4,17 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 
 import org.openl.rules.calc.SpreadsheetCell;
+import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.cfg.MapperConfig;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
 
-abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyNamingStrategy {
+abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyNamingStrategy implements SpreadsheetResultBeanPropertyNamingStrategy {
 
-    protected abstract String transform(String name);
+    public abstract String transform(String name);
 
-    protected abstract String transform(String column, String row);
+    public abstract String transform(String column, String row);
 
     protected String toUpperCamelCase(String input) {
         if (input == null || input.length() == 0) {
@@ -58,7 +59,6 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
         if (field.hasAnnotation(SpreadsheetCell.class)) {
             SpreadsheetCell spreadsheetCell = field.getAnnotation(SpreadsheetCell.class);
             String ret = transform(spreadsheetCell);
-            int c = 0;
             int duplicates = 0;
             for (Field f : field.getDeclaringClass().getDeclaredFields()) {
                 SpreadsheetCell sc = f.getAnnotation(SpreadsheetCell.class);
