@@ -109,7 +109,7 @@
         <cassandra.unit.driver.version>3.11.2</cassandra.unit.driver.version>
 
         <!-- REST -->
-        <jackson.version>2.13.3</jackson.version>
+        <jackson.version>2.13.4</jackson.version>
         <cxf.version>3.5.3</cxf.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-frontend-jaxrs:jar -->
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
@@ -122,7 +122,7 @@
         <!-- Can't bump to 2.0.16 version or higher to inline with swagger-core version -->
         <!-- Because some behaviour is changed and a lot of tests fails as a result. -->
         <swagger.parser.version>2.0.15</swagger.parser.version>
-        <swagger-ui.version>4.13.2</swagger-ui.version>
+        <swagger-ui.version>4.14.0</swagger-ui.version>
 
         <!-- Logging -->
         <log4j.version>2.18.0</log4j.version>
@@ -153,7 +153,7 @@
         <okhttp.version>4.10.0</okhttp.version>
 
         <!-- Repositories -->
-        <amazonaws.version>1.12.285</amazonaws.version>
+        <amazonaws.version>1.12.297</amazonaws.version>
         <azure.version>12.19.0</azure.version>
         <jgit.version>6.2.0.202206071550-openl</jgit.version>
 
@@ -161,13 +161,13 @@
         <h2.version>2.1.214</h2.version>
         <mssql.version>11.2.0.jre11</mssql.version>
         <hikaricp.version>5.0.1</hikaricp.version>
-        <hibernate.orm.version>5.6.10.Final</hibernate.orm.version>
+        <hibernate.orm.version>5.6.11.Final</hibernate.orm.version>
         <hibernate.validator.version>6.2.4.Final</hibernate.validator.version>
 
         <!-- Testing -->
         <junit.version>4.13.2</junit.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <mockito.version>4.6.1</mockito.version>
+        <mockito.version>4.7.0</mockito.version>
         <datasource-proxy.version>1.8</datasource-proxy.version>
         <xmlunit.version>2.9.0</xmlunit.version>
 
@@ -199,19 +199,19 @@
         <hessian.version>4.0.38</hessian.version>
         <gson.version>2.9.1</gson.version>
 
-        <bouncycastle.version>1.71</bouncycastle.version>
+        <bouncycastle.version>1.71.1</bouncycastle.version>
         <groovy.version>3.0.12</groovy.version>
         <poi.version>5.2.2</poi.version>
         <aspectj.version>1.9.9.1</aspectj.version>
         <velocity.version>2.3</velocity.version>
         <guava.version>31.1-jre</guava.version>
-        <joda-time.version>2.11.0</joda-time.version>
+        <joda-time.version>2.11.1</joda-time.version>
         <xmlsec.version>2.3.1</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
         <xstream.version>1.4.19</xstream.version>
         <activiti.version>5.18.0</activiti.version>
-        <snakeyaml.version>1.30</snakeyaml.version>
+        <snakeyaml.version>1.31</snakeyaml.version>
 
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
