@@ -5,13 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.openl.types.IOpenMember;
-
 /**
- * This annotation is designed to inject @{@link IOpenMember} related to invoked rule method to ruleservice
- * interceptors.
+ * This annotation is designed to inject @{@link org.openl.classloader.OpenLClassLoader} related to compiled service to
+ * ruleservice interceptors.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.PARAMETER, ElementType.METHOD })
-public @interface InjectOpenMember {
+public @interface InjectServiceClassLoader {
 }

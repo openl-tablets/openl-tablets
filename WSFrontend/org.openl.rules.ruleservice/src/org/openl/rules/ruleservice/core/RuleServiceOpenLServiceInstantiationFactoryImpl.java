@@ -25,6 +25,7 @@ import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationE
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdviceListener;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
+import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactory;
 import org.openl.rules.ruleservice.publish.RuleServiceInstantiationStrategyFactoryImpl;
 import org.openl.runtime.ASMProxyFactory;
@@ -51,6 +52,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
     private final Map<DeploymentDescription, RuleServiceDependencyManager> dependencyManagerMap = new HashMap<>();
 
     private ObjectProvider<Collection<ServiceInvocationAdviceListener>> serviceInvocationAdviceListeners;
+
+    @Autowired
+    private ServiceManagerImpl serviceManager;
 
     @Autowired(required = false)
     private List<ProjectValidator> projectValidators = new ArrayList<>();
@@ -134,7 +138,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 serviceTarget.getRight(),
                 serviceClass,
                 classLoader,
-                getListServiceInvocationAdviceListeners());
+                getListServiceInvocationAdviceListeners(),
+                serviceManager != null ? serviceManager.getRulesDeployInProcess() : null);
             Object proxyServiceBean = ASMProxyFactory
                 .newProxyInstance(classLoader, serviceInvocationAdvice, serviceClass);
             service.setServiceBean(proxyServiceBean);

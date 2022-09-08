@@ -1,0 +1,19 @@
+POST /EPBDS-13143/EPBDS-13143/mainSpr3 HTTP/1.1
+Content-Type: application/json
+
+{
+  "resultcalc3555": 0,
+  "result1calc1": {
+    "calc3": 0
+  },
+  "result2calc1": {
+    "calc3": 0
+  },
+  "result1calc2": {
+    "calc3555": 0
+  },
+  "result2calc2": {
+    "calc3": 0
+  },
+  "resultcalc3": 0
+}

@@ -29,6 +29,7 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultBeanClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.ExceptionDetails;
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
@@ -78,13 +79,15 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     private final Map<Method, IOpenMember> openMemberMap = new HashMap<>();
     private final Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass;
     private final Map<Method, Method> methodMap = new HashMap<>();
+    private final RulesDeploy rulesDeploy;
 
     public ServiceInvocationAdvice(IOpenClass openClass,
             Object serviceTarget,
             Class<?> serviceTargetClass,
             Class<?> serviceClass,
             ClassLoader serviceClassLoader,
-            Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners) {
+            Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners,
+            RulesDeploy rulesDeploy) {
         this.serviceTarget = serviceTarget;
         this.serviceClass = serviceClass;
         this.serviceTargetClass = serviceTargetClass;
@@ -93,6 +96,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         this.serviceMethodAdviceListeners = serviceMethodAdviceListeners != null ? new ArrayList<>(
             serviceMethodAdviceListeners) : new ArrayList<>();
         this.mapClassToSprOpenClass = initMapClassToSprOpenClass();
+        this.rulesDeploy = rulesDeploy;
         init();
     }
 
@@ -171,23 +175,39 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     }
 
     private void processAware(Object o, IOpenMember openMember) {
-        if (o instanceof IOpenClassAware) {
-            ((IOpenClassAware) o).setIOpenClass(openClass);
-        }
         try {
             AnnotationUtils.inject(o, InjectOpenClass.class, (e) -> openClass);
         } catch (IllegalAccessException | InvocationTargetException e) {
             log.error("Failed to inject '{}' class instance.", IOpenClass.class.getTypeName());
+        }
+        try {
+            AnnotationUtils.inject(o, InjectOpenMember.class, (e) -> openMember);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Failed to inject '{}' class instance.", IOpenMember.class.getTypeName());
+        }
+        try {
+            AnnotationUtils.inject(o, InjectRulesDeploy.class, (e) -> rulesDeploy);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Failed to inject '{}' class instance.", RulesDeploy.class.getTypeName());
+        }
+        try {
+            AnnotationUtils.inject(o, InjectServiceClassLoader.class, (e) -> serviceClassLoader);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Failed to inject '{}' class instance.", ClassLoader.class.getTypeName());
+        }
+        if (o instanceof IOpenClassAware) {
+            ((IOpenClassAware) o).setIOpenClass(openClass);
         }
         if (o instanceof IOpenMemberAware) {
             if (openMember != null) {
                 ((IOpenMemberAware) o).setIOpenMember(openMember);
             }
         }
-        try {
-            AnnotationUtils.inject(o, InjectOpenMember.class, (e) -> openMember);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            log.error("Failed to inject '{}' class instance.", IOpenMember.class.getTypeName());
+        if (o instanceof ServiceClassLoaderAware) {
+            ((ServiceClassLoaderAware) o).setServiceClassLoader(serviceClassLoader);
+        }
+        if (o instanceof RulesDeployAware) {
+            ((RulesDeployAware) o).setRulesDeploy(rulesDeploy);
         }
     }
 

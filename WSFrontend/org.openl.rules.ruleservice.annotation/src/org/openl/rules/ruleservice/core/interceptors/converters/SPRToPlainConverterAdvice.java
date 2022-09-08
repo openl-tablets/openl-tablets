@@ -11,7 +11,9 @@ public class SPRToPlainConverterAdvice extends AbstractSPRToPlainConverterAdvice
 
     @Override
     public Object afterReturning(Method interfaceMethod, Object result, Object... args) {
-        return SpreadsheetResult
-            .convertSpreadsheetResult(result, getConvertToType().getLeft(), getConvertToType().getRight());
+        return SpreadsheetResult.convertSpreadsheetResult(result,
+            getConvertToType().getLeft(),
+            getConvertToType().getRight(),
+            getSpreadsheetResultBeanPropertyNamingStrategy());
     }
 }

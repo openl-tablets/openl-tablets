@@ -49,6 +49,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements ModuleSpecificType {
+    public static final String ROW_NAMES_FIELD_NAME = "rowNames";
+    public static final String COLUMN_NAMES_FIELD_NAME = "columnNames";
+    public static final String TABLE_DETAILS_FIELD_NAME = "tableDetails";
     private final Logger log = LoggerFactory.getLogger(CustomSpreadsheetResultOpenClass.class);
     private static final String[] EMPTY_STRING_ARRAY = new String[] {};
     private static final Comparator<String> FIELD_COMPARATOR = (o1, o2) -> {
@@ -161,6 +164,18 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.simpleRefByRow = true;
         this.simpleRefByColumn = true;
         this.logicalTable = logicalTable;
+    }
+
+    public String[] getSprStructureFieldNames() {
+        return sprStructureFieldNames;
+    }
+
+    public boolean isSimpleRefByColumn() {
+        return simpleRefByColumn;
+    }
+
+    public boolean isSimpleRefByRow() {
+        return simpleRefByRow;
     }
 
     public boolean isSpreadsheet() {
@@ -466,6 +481,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     }
 
     public Object createBean(SpreadsheetResult spreadsheetResult) {
+        return createBean(spreadsheetResult, null);
+    }
+
+    public Object createBean(SpreadsheetResult spreadsheetResult,
+            SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
         Class<?> clazz = getBeanClass();
         Object target;
         try {
@@ -476,7 +496,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         for (SpreadsheetResultSetter spreadsheetResultSetter : spreadsheetResultSetters) {
-            spreadsheetResultSetter.setToBean(spreadsheetResult, target);
+            spreadsheetResultSetter.setToBean(spreadsheetResult, target, spreadsheetResultBeanPropertyNamingStrategy);
         }
         return target;
     }
@@ -611,9 +631,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             Collection<String> xmlNames) {
         if (tableStructureDetails) {
             String[] sprStructureFieldNames = new String[3];
-            sprStructureFieldNames[0] = findNonConflictFieldName(beanFieldNames, "rowNames");
-            sprStructureFieldNames[1] = findNonConflictFieldName(beanFieldNames, "columnNames");
-            sprStructureFieldNames[2] = findNonConflictFieldName(beanFieldNames, "tableDetails");
+            sprStructureFieldNames[0] = findNonConflictFieldName(beanFieldNames, ROW_NAMES_FIELD_NAME);
+            sprStructureFieldNames[1] = findNonConflictFieldName(beanFieldNames, COLUMN_NAMES_FIELD_NAME);
+            sprStructureFieldNames[2] = findNonConflictFieldName(beanFieldNames, TABLE_DETAILS_FIELD_NAME);
             beanClassBuilder.addField(sprStructureFieldNames[0],
                 new FieldDescription(String[].class
                     .getName(), null, null, null, findNonConflictFieldName(xmlNames, "RowNames"), false));
@@ -896,7 +916,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private interface SpreadsheetResultSetter {
         SpreadsheetResultSetter[] EMPTY_ARRAY = new SpreadsheetResultSetter[0];
 
-        void setToBean(SpreadsheetResult spreadsheetResult, Object target);
+        void setToBean(SpreadsheetResult spreadsheetResult,
+                Object target,
+                SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy);
 
         default void setToSpr(SpreadsheetResult spreadsheetResult,
                 Object target,
@@ -912,9 +934,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         @Override
-        public void setToBean(SpreadsheetResult spreadsheetResult, Object target) {
+        public void setToBean(SpreadsheetResult spreadsheetResult,
+                Object target,
+                SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
             for (SpreadsheetResultFieldValueSetter valueSetter : spreadsheetResultFieldValueSetters) {
-                if (valueSetter.setToBean(spreadsheetResult, target)) {
+                if (valueSetter.setToBean(spreadsheetResult, target, spreadsheetResultBeanPropertyNamingStrategy)) {
                     return;
                 }
             }
@@ -944,14 +968,19 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             this.field.setAccessible(true);
         }
 
-        public boolean setToBean(SpreadsheetResult spreadsheetResult, Object target) {
+        public boolean setToBean(SpreadsheetResult spreadsheetResult,
+                Object target,
+                SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
             if (!spreadsheetResult.isFieldUsedInModel(openField.getName())) {
                 return false;
             }
             Object v = openField.get(spreadsheetResult, null);
             try {
                 if (v != null) {
-                    Object cv = SpreadsheetResult.convertSpreadsheetResult(v, field.getType(), openField.getType());
+                    Object cv = SpreadsheetResult.convertSpreadsheetResult(v,
+                        field.getType(),
+                        openField.getType(),
+                        spreadsheetResultBeanPropertyNamingStrategy);
                     field.set(target, cv);
                     return true;
                 }
@@ -985,7 +1014,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         @Override
-        public void setToBean(SpreadsheetResult spreadsheetResult, Object target) {
+        public void setToBean(SpreadsheetResult spreadsheetResult,
+                Object target,
+                SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
             try {
                 if (spreadsheetResult.isTableStructureDetails()) {
                     field.set(target, spreadsheetResult.columnNames);
@@ -1005,7 +1036,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         @Override
-        public void setToBean(SpreadsheetResult spreadsheetResult, Object target) {
+        public void setToBean(SpreadsheetResult spreadsheetResult,
+                Object target,
+                SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
             try {
                 if (spreadsheetResult.isTableStructureDetails()) {
                     field.set(target, spreadsheetResult.rowNames);
@@ -1031,7 +1064,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         @Override
-        public void setToBean(SpreadsheetResult spreadsheetResult, Object target) {
+        public void setToBean(SpreadsheetResult spreadsheetResult,
+                Object target,
+                SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
             if (spreadsheetResult.isTableStructureDetails()) {
                 String[][] tableStructureDetails = new String[spreadsheetResult.getRowNames().length][spreadsheetResult
                     .getColumnNames().length];

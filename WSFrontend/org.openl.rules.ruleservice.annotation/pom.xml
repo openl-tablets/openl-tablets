@@ -22,7 +22,12 @@
         <!-- OpenL dependencies -->
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>org.openl.rules</artifactId>
+            <artifactId>org.openl.rules.project</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.jackson</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>

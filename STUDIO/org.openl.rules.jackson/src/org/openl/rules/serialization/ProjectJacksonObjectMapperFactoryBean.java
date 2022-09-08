@@ -331,6 +331,11 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     private PropertyNamingStrategy extractPropertyNamingStrategy() {
+        return extractPropertyNamingStrategy(rulesDeploy, getClassLoader());
+    }
+
+    public static PropertyNamingStrategy extractPropertyNamingStrategy(RulesDeploy rulesDeploy,
+            ClassLoader classLoader) {
         if (rulesDeploy != null) {
             if (rulesDeploy.getConfiguration() != null) {
                 Object propertyNamingStrategy = rulesDeploy.getConfiguration().get(JACKSON_PROPERTY_NAMING_STRATEGY);
@@ -338,7 +343,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                     if (propertyNamingStrategy instanceof String) {
                         String propertyNamingStrategyClassName = (String) propertyNamingStrategy;
                         try {
-                            Class<?> propertyNamingStrategyClass = getClassLoader()
+                            Class<?> propertyNamingStrategyClass = classLoader
                                 .loadClass(propertyNamingStrategyClassName);
                             if (!PropertyNamingStrategy.class.isAssignableFrom(propertyNamingStrategyClass)) {
                                 throw new ObjectMapperConfigurationParsingException(String.format(

@@ -1,0 +1,23 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "result1calc1": {
+    "@class": "org.openl.generated.spreadsheetresults.SomeSpr",
+    "calc3": 0
+  },
+  "result1calc2": {
+    "@class": "org.openl.generated.spreadsheetresults.SomeSpr2",
+    "calc3555": 0
+  },
+  "result2calc2": {
+    "@class": "org.openl.generated.spreadsheetresults.SomeSpr",
+    "calc3": 0
+  },
+  "result2calc1": {
+    "@class": "org.openl.generated.spreadsheetresults.SomeSpr",
+    "calc3": 0
+  },
+  "resultcalc3555": 0,
+  "resultcalc3": 0
+}
