@@ -783,4 +783,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         }
 
     }
+
+    @Override
+    public String name() {
+        return "KAFKA";
+    }
 }

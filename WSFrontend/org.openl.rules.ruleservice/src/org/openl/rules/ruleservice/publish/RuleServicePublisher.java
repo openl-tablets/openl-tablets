@@ -40,4 +40,11 @@ public interface RuleServicePublisher {
      * Returns a url for the given service, if it is published, otherwise returns null.
      */
     String getUrl(OpenLService service);
+
+    /**
+     * Publisher name for matching with the configuration from the rules-deploy.xml.
+     */
+    default String name() {
+        return "UNSPECIFIED";
+    }
 }

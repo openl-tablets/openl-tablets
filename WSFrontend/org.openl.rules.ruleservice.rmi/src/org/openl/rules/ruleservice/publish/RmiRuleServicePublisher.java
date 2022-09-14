@@ -148,4 +148,9 @@ public class RmiRuleServicePublisher implements RuleServicePublisher {
             return rmiHandler;
         }
     }
+
+    @Override
+    public String name() {
+        return "RMI";
+    }
 }

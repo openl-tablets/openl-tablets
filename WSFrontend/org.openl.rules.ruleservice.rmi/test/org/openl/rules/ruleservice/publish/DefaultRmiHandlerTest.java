@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = { "ruleservice.isProvideRuntimeContext=false",
         "ruleservice.rmiPort=61099",
+        "ruleservice.publishers=RMI",
         "ruleservice.instantiation.strategy.lazy = false",
         "production-repository.uri=test-resources/DefaultRmiHandlerTest",
         "production-repository.factory = repo-file"})

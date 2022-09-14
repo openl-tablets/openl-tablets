@@ -78,4 +78,9 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
     public String getUrl(OpenLService service) {
         return null;
     }
+
+    @Override
+    public String name() {
+        return "JAVA";
+    }
 }
