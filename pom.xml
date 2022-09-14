@@ -100,7 +100,7 @@
         <cloning.version>1.9.12</cloning.version>
 
         <!-- Kafka -->
-        <kafka.version>3.2.0</kafka.version>
+        <kafka.version>3.2.2</kafka.version>
         <kafka-junit.version>3.2.0</kafka-junit.version>
 
         <!-- Casandra -->
@@ -141,7 +141,7 @@
         <zookeeper.version>3.7.1</zookeeper.version>
         <thrift.version>0.16.0</thrift.version>
         <ant.version>1.10.12</ant.version>
-        <netty.version>4.1.79.Final</netty.version>
+        <netty.version>4.1.81.Final</netty.version>
         <reactor-netty-http.version>1.0.21</reactor-netty-http.version>
         <kotlin.stdlib.version>1.7.10</kotlin.stdlib.version>
 
@@ -153,21 +153,21 @@
         <okhttp.version>4.10.0</okhttp.version>
 
         <!-- Repositories -->
-        <amazonaws.version>1.12.297</amazonaws.version>
+        <amazonaws.version>1.12.300</amazonaws.version>
         <azure.version>12.19.0</azure.version>
         <jgit.version>6.2.0.202206071550-openl</jgit.version>
 
         <!-- DB -->
         <h2.version>2.1.214</h2.version>
-        <mssql.version>11.2.0.jre11</mssql.version>
+        <mssql.version>11.2.1.jre11</mssql.version>
         <hikaricp.version>5.0.1</hikaricp.version>
         <hibernate.orm.version>5.6.11.Final</hibernate.orm.version>
-        <hibernate.validator.version>6.2.4.Final</hibernate.validator.version>
+        <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
 
         <!-- Testing -->
         <junit.version>4.13.2</junit.version>
         <awaitility.version>4.2.0</awaitility.version>
-        <mockito.version>4.7.0</mockito.version>
+        <mockito.version>4.8.0</mockito.version>
         <datasource-proxy.version>1.8</datasource-proxy.version>
         <xmlunit.version>2.9.0</xmlunit.version>
 
@@ -211,7 +211,7 @@
         <istack.version>3.0.12</istack.version>
         <xstream.version>1.4.19</xstream.version>
         <activiti.version>5.18.0</activiti.version>
-        <snakeyaml.version>1.31</snakeyaml.version>
+        <snakeyaml.version>1.32</snakeyaml.version>
 
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
