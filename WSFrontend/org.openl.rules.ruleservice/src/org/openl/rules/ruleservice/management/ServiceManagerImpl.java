@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.jar.Manifest;
@@ -67,7 +66,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     private final Map<String, OpenLService> services2 = new ConcurrentHashMap<>();
     private final Map<String, Date> startDates = new ConcurrentHashMap<>();
 
-    private Map<String, RuleServicePublisher> supportedPublishers;
+    private Collection<RuleServicePublisher> supportedPublishers;
     private Collection<RuleServicePublisherListener> listeners = Collections.emptyList();
 
     private ServiceDescription serviceDescriptionInProcess;
@@ -97,9 +96,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         this.listeners = listeners;
     }
 
-    public void setSupportedPublishers(Map<String, RuleServicePublisher> supportedPublishers) {
-        this.supportedPublishers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        this.supportedPublishers.putAll(supportedPublishers);
+    @Autowired
+    public void setSupportedPublishers(Collection<RuleServicePublisher> supportedPublishers) {
+        this.supportedPublishers = supportedPublishers;
     }
 
     /**
@@ -352,10 +351,10 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     private void setUrls(OpenLService service) {
         HashMap<String, String> result = new HashMap<>();
-        supportedPublishers.forEach((id, publisher) -> {
+        supportedPublishers.forEach((publisher) -> {
             if (publisher.getServiceByDeploy(service.getDeployPath()) != null) {
                 String url = publisher.getUrl(service);
-                result.put(id, url);
+                result.put(publisher.name(), url);
             }
         });
         service.setUrls(result);
@@ -383,9 +382,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         Collection<RuleServicePublisher> publishers = new ArrayList<>();
         if (supportedPublishers.size() > 1) {
             for (String p : sp) {
-                RuleServicePublisher ruleServicePublisher = supportedPublishers.get(p);
-                if (ruleServicePublisher != null) {
-                    publishers.add(ruleServicePublisher);
+                var publisher = supportedPublishers.stream().filter((n) -> n.name().equalsIgnoreCase(p)).findFirst();
+                if (publisher.isPresent()) {
+                    publishers.add(publisher.get());
                 } else {
                     log.warn("Publisher for '{}' is not registered. Please, check the configuration for service '{}'.",
                         p,
@@ -393,7 +392,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 }
             }
         } else {
-            publishers.addAll(supportedPublishers.values());
+            publishers.addAll(supportedPublishers);
         }
         RuleServiceDeployException e1 = null;
         List<RuleServicePublisher> deployedPublishers = new ArrayList<>();
@@ -454,7 +453,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         OpenLService undeployService = services2.get(deployPath);
         Objects.requireNonNull(undeployService, String.format("Service '%s' has not been found.", deployPath));
         RuleServiceUndeployException e1 = null;
-        for (RuleServicePublisher publisher : supportedPublishers.values()) {
+        for (RuleServicePublisher publisher : supportedPublishers) {
             if (publisher.getServiceByDeploy(deployPath) != null) {
                 try {
                     publisher.undeploy(undeployService);

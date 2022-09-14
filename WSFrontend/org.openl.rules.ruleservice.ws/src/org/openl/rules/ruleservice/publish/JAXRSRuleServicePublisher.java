@@ -286,4 +286,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         }
         return url;
     }
+
+    @Override
+    public String name() {
+        return "RESTFUL";
+    }
 }

@@ -6,10 +6,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -34,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Selects the latest deployments and deploys each of their projects as single service.
@@ -306,17 +305,18 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
     /**
      * For validation
      */
-    private Map<String, RuleServicePublisher> supportedPublishers;
+    private Collection<RuleServicePublisher> supportedPublishers;
 
-    public void setSupportedPublishers(Map<String, RuleServicePublisher> supportedPublishers) {
-        this.supportedPublishers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        this.supportedPublishers.putAll(supportedPublishers);
+    @Autowired
+    public void setSupportedPublishers(Collection<RuleServicePublisher> supportedPublishers) {
+        this.supportedPublishers = supportedPublishers;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
         for (String defPublisher : defaultPublishers) {
-            if (!supportedPublishers.containsKey(defPublisher)) {
+            var publisher = supportedPublishers.stream().filter((n) -> n.name().equalsIgnoreCase(defPublisher)).findAny();
+            if (publisher.isEmpty()) {
                 throw new BeanInitializationException(
                         String.format("Default publisher with id '%s' is not found in the map of supported publishers.",
                                 defPublisher));

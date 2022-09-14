@@ -42,7 +42,6 @@
         <property name="serviceConfigurer" ref="serviceConfigurer"/>
         <property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
         <property name="ruleServiceLoader" ref="ruleServiceLoader"/>
-        <property name="supportedPublishers" ref="ruleServicePublishers"/>
     </bean>
 
     <bean id="openLServiceInProcess" factory-bean="serviceManager" factory-method="getOpenLServiceInProcess"
@@ -61,11 +60,19 @@
         <property name="supportedGroups" value="${ruleservice.datasource.groups}"/>
         <property name="datasourceDeploymentPatterns" value="${ruleservice.datasource.deployments}"/>
         <property name="defaultPublishers" value="${ruleservice.publishers:}"/>
-        <property name="supportedPublishers" ref="ruleServicePublishers"/>
     </bean>
 
     <bean id="serviceManagerStarter" class="org.openl.rules.ruleservice.conf.ServiceManagerStarterBean"
           depends-on="serviceManager" lazy-init="false">
         <property name="serviceManager" ref="serviceManager"/>
+    </bean>
+
+    <!-- Simple front end to access all services. -->
+    <bean id="frontend" class="org.openl.rules.ruleservice.simple.RulesFrontendImpl"/>
+
+    <!-- Initializes OpenL Engine instances according to Rule Services configuration
+        description and calls DeploymentAdmin to expose corresponding web service. -->
+    <bean class="org.openl.rules.ruleservice.simple.JavaClassRuleServicePublisher">
+        <property name="frontend" ref="frontend"/>
     </bean>
 </beans>

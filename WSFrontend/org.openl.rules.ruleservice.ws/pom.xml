@@ -92,7 +92,6 @@
                     <ignoredResourcePatterns>
                         <ignoredResourcePattern>org/apache/cxf/endpoint/dynamic/simple-binding.xjb
                         </ignoredResourcePattern>
-                        <ignoredResourcePattern>openl-ruleservice-publisher-beans.xml</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-default.properties</ignoredResourcePattern>
                     </ignoredResourcePatterns>
                 </configuration>
