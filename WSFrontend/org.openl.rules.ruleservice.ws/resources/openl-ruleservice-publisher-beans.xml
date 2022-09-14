@@ -8,12 +8,6 @@
     <import resource="classpath:openl-ruleservice-jaxrs-publisher-beans.xml"/>
     <import resource="classpath:openl-ruleservice-kafka-publisher-beans.xml"/>
 
-    <!-- Bean helps to read configuration and apply it to override types -->
-    <bean id="rootClassNamesBindingFactoryBean"
-          class="org.openl.rules.ruleservice.databinding.LogGlobalRootClassNamesBinding">
-        <property name="rootClassNames" value="${ruleservice.databinding.rootClassNames}"/>
-    </bean>
-
     <util:map id="ruleServicePublishers">
         <entry key="RESTFUL" value-ref="jaxrsServicesRuleServicePublisher"/>
         <entry key="RMI" value-ref="rmiServicesRuleServicePublisher"/>
