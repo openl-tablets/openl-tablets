@@ -16,10 +16,8 @@
     <import resource="classpath:META-INF/cxf/cxf.xml"/>
     <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
     <import resource="classpath:openl-ruleservice-beans.xml"/>
-    <import resource="classpath*:META-INF/openl/extension-*.xml"/>
 
-    <!-- Extension point -->
-    <context:component-scan base-package="org.openl.rules.ruleservice.spring org.openl.rules.ruleservice.oauth" />
+    <context:component-scan base-package="org.openl.rules.ruleservice.oauth" />
 
 
     <http-conf:conduit name="*.http-conduit">
