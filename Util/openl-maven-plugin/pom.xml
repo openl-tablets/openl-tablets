@@ -213,8 +213,8 @@
             </activation>
             <properties>
                 <!-- Fine tuned settings to detects memory and performance issues -->
-                <invoker.mavenOpts>-Xms16m -Xmx48m</invoker.mavenOpts>
-                <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
+                <invoker.mavenOpts>-Xms16m -Xmx56m</invoker.mavenOpts>
+                <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
                 <big-tableparts.mavenOpts>${jacoco.argLine} -Xms32m -Xmx256m</big-tableparts.mavenOpts>
                 <big-tableparts.timeoutInSeconds>60</big-tableparts.timeoutInSeconds>
                 <big-testsuite.mavenOpts>${jacoco.argLine} -Xms32m -Xmx96m</big-testsuite.mavenOpts>
