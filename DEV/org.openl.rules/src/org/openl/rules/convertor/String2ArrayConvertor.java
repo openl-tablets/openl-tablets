@@ -51,7 +51,7 @@ class String2ArrayConvertor<C, T> implements IString2DataConvertor<T>, IString2D
         int i = 0;
         for (String elementValue : elementValues) {
             Object element;
-            if (elementValue.length() == 0) {
+            if (elementValue == null || elementValue.length() == 0) {
                 element = null;
             } else {
                 if (cxt != null && converter instanceof IString2DataConverterWithContext) {
