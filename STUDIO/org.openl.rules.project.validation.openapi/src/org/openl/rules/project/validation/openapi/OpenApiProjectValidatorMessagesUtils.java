@@ -17,6 +17,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.validation.ValidatedCompiledOpenClass;
 
 import io.swagger.v3.oas.models.media.Schema;
@@ -114,17 +115,19 @@ final class OpenApiProjectValidatorMessagesUtils {
         }
     }
 
-    private static IOpenClass findOpenClass(Context context) {
-        for (IOpenClass openClass : context.getOpenClass().getTypes()) {
-            if (Objects.equals(context.getType().getInstanceClass(), openClass.getInstanceClass())) {
-                return openClass;
+    private static IOpenClass extractOpenClassType(Context context) {
+        if (context.getType() instanceof JavaOpenClass) {
+            for (IOpenClass openClass : context.getOpenClass().getTypes()) {
+                if (Objects.equals(context.getType().getInstanceClass(), openClass.getInstanceClass())) {
+                    return openClass;
+                }
             }
         }
         return context.getType();
     }
 
     public static void addTypeError(Context context, String summary) {
-        IOpenClass type = findOpenClass(context);
+        IOpenClass type = extractOpenClassType(context);
         if (type instanceof DatatypeOpenClass) {
             DatatypeOpenClass datatypeOpenClass = (DatatypeOpenClass) type;
             if (datatypeOpenClass.getTableSyntaxNode() != null) {

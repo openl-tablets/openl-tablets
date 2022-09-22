@@ -1389,7 +1389,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     }
                 }
                 if (!parentPresentedInBothSchemas) {
-                    context.setType(openClass);
                     propertiesOfExpectedSchema = context.getExpectedOpenAPIResolver()
                         .resolveAllProperties(expectedSchema);
                     propertiesOfActualSchema = context.getActualOpenAPIResolver()
