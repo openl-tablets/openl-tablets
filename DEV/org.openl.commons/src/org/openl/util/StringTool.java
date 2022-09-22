@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -63,12 +64,19 @@ public class StringTool {
      */
     public static String[] splitAndEscape(String src, String splitSymbol, String escapeSymbol) {
         String[] result;
-        String[] tokens = src.split(splitSymbol);
+        String[] tokens = src.split("(?=" + splitSymbol + ")");
+        boolean f = tokens[0].startsWith(splitSymbol);
+        tokens = Arrays.stream(tokens)
+            .map(e -> e.startsWith(splitSymbol) ? (e.length() > 1 ? e.substring(1) : null) : e)
+            .toArray(String[]::new);
         List<String> resultList = new ArrayList<>();
+        if (f) {
+            resultList.add(null);
+        }
         StringBuilder buf = new StringBuilder();
         if (escapeSymbol != null) {
             for (int i = 0; i < tokens.length; i++) {
-                if (tokens[i].endsWith(escapeSymbol)) {
+                if (tokens[i] != null && tokens[i].endsWith(escapeSymbol)) {
                     String noEscapeToken = tokens[i].substring(0, tokens[i].length() - 1);
                     if (buf.length() == 0) {
                         buf.append(trimStart(noEscapeToken));
@@ -78,10 +86,10 @@ public class StringTool {
                     buf.append(splitSymbol);
                 } else {
                     if (buf.length() == 0) {
-                        tokens[i] = tokens[i].trim();
+                        tokens[i] = tokens[i] != null ? tokens[i].trim() : null;
                         resultList.add(tokens[i]);
                     } else {
-                        buf.append(trimEnd(tokens[i]));
+                        buf.append(trimEnd(tokens[i] != null ? tokens[i] : StringUtils.EMPTY));
                         resultList.add(buf.toString());
                         buf.delete(0, buf.length());
                     }
