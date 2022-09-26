@@ -241,7 +241,7 @@ class DependentParametersOptimizedAlgorithm {
             if (field.getTargetNode() instanceof IndexNode) {
                 return buildFieldName((IndexNode) field.getTargetNode(), bindingContext) + "." + value;
             }
-            BindHelper.processError("Cannot parse field name.", field.getSyntaxNode(), bindingContext);
+            return null;
         }
         return value;
     }
