@@ -29,9 +29,15 @@ public class ClassMinMaxMatcher implements IMatcher {
     public boolean match(Object var, Object checkValue) {
         Comparable<Object> c1 = (Comparable<Object>) var;
         Comparable<Object> c2 = (Comparable<Object>) checkValue;
-
-        int result = c1.compareTo(c2);
-
+        if (c1 == null && c2 == null) {
+            return true;
+        }
+        int result;
+        if (c1 == null || c2 == null) {
+            result = c1 == null ? -1 : 1;
+        } else {
+            result = c1.compareTo(c2);
+        }
         return isMaxMode ? (result <= 0) : (result >= 0);
     }
 }
