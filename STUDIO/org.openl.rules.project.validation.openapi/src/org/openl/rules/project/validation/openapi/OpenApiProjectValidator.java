@@ -201,9 +201,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
             Class<?> enhancedServiceClass;
             try {
-                enhancedServiceClass = enhanceWithJAXRS(context,
-                    serviceClass,
-                    serviceClassLoader);
+                enhancedServiceClass = enhanceWithJAXRS(context, serviceClass, serviceClassLoader);
             } catch (Exception e) {
                 validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(
                     OPEN_API_VALIDATION_MSG_PREFIX + String.format("Failed to build an interface for the project.%s",
@@ -1310,6 +1308,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             validatedBySchemasRef.add(key);
         }
         IOpenClass oldType = context.getType();
+        boolean oldTheSameTypeName = context.isTheSameTypeName();
         try {
             Schema<?> resolvedActualSchema = context.getActualOpenAPIResolver().resolve(actualSchema, Schema::get$ref);
             if (resolvedActualSchema != null) {
@@ -1349,6 +1348,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 }
 
                 context.setType(openClass);
+                context.setTheSameTypeName(
+                    expectedSchema != null && actualSchema != null && expectedSchema.get$ref() != null && actualSchema
+                        .get$ref() != null && Objects.equals(expectedSchema.get$ref(), actualSchema.get$ref()));
                 Map<String, Schema> propertiesOfExpectedSchema = null;
                 Map<String, Schema> propertiesOfActualSchema = null;
                 boolean parentPresentedInBothSchemas = false;
@@ -1535,6 +1537,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
         } finally {
             context.setType(oldType);
+            context.setTheSameTypeName(oldTheSameTypeName);
         }
     }
 

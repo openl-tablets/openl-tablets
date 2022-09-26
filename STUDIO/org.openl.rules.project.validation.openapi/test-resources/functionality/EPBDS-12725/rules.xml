@@ -1,0 +1,13 @@
+<project>
+    <name>EPBDS-12725</name>
+    <modules>
+        <module>
+            <name>EPBDS-12725</name>
+            <rules-root path="EPBDS-12725.xlsx"/>
+        </module>
+    </modules>
+    <openapi>
+        <path>openapi.json</path>
+        <mode>RECONCILIATION</mode>
+    </openapi>
+</project>

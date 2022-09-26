@@ -128,7 +128,7 @@ final class OpenApiProjectValidatorMessagesUtils {
 
     public static void addTypeError(Context context, String summary) {
         IOpenClass type = extractOpenClassType(context);
-        if (type instanceof DatatypeOpenClass) {
+        if (type instanceof DatatypeOpenClass && context.isTheSameTypeName()) {
             DatatypeOpenClass datatypeOpenClass = (DatatypeOpenClass) type;
             if (datatypeOpenClass.getTableSyntaxNode() != null) {
                 SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
@@ -140,6 +140,9 @@ final class OpenApiProjectValidatorMessagesUtils {
             }
         } else {
             IOpenMethod method = context.getSpreadsheetMethodResolver().resolve(type);
+            if (method == null) {
+                method = context.getOpenMethod();
+            }
             if (method != null) {
                 addMethodError(context, method, summary);
             } else {

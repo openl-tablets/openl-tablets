@@ -42,6 +42,7 @@ class Context {
     private String mediaType;
 
     private IOpenClass type;
+    private boolean theSameTypeName;
     private Object targetService;
     private IOpenField field;
     private Method method;
@@ -312,5 +313,13 @@ class Context {
 
     public void setTargetService(Object targetService) {
         this.targetService = targetService;
+    }
+
+    public void setTheSameTypeName(boolean theSameTypeName) {
+        this.theSameTypeName = theSameTypeName;
+    }
+
+    public boolean isTheSameTypeName() {
+        return theSameTypeName;
     }
 }
