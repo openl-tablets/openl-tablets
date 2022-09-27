@@ -36,7 +36,7 @@ public final class CachingArgumentsCloner extends OpenLCloner {
     }
 
     @Override
-    public <T> T cloneInternal(T o, Map<Object, Object> clones) throws IllegalAccessException {
+    public <T> T cloneInternal(T o, Map<Object, Object> clones) {
         if (o == null) {
             return null;
         } else if (o instanceof SpreadsheetResult) {

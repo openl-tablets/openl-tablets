@@ -97,7 +97,7 @@
         <!-- Bytecode manipulation -->
         <asm.version>9.2</asm.version>
         <cglib.version>3.3.0</cglib.version>
-        <cloning.version>1.9.12</cloning.version>
+        <cloning.version>1.10.3</cloning.version>
 
         <!-- Kafka -->
         <kafka.version>3.2.3</kafka.version>
@@ -1412,7 +1412,7 @@
             </dependency>
             <!-- Java library which deep-clones objects. -->
             <dependency>
-                <groupId>uk.com.robust-it</groupId>
+                <groupId>io.github.kostaskougios</groupId>
                 <artifactId>cloning</artifactId>
                 <version>${cloning.version}</version>
             </dependency>

@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationHandler;
 
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
+import org.objenesis.instantiator.ObjectInstantiator;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.slf4j.Logger;
@@ -14,8 +15,8 @@ import com.rits.cloning.IInstantiationStrategy;
 /**
  * Extension for {@link Cloner}. To add OpenL classes to prevent cloning instances of them.
  *
- * TODO: should be analyzed variations of tracing different rules. Check if we have issues with mutation of listed
- * below OpenL not cloned classes.
+ * TODO: should be analyzed variations of tracing different rules. Check if we have issues with mutation of listed below
+ * OpenL not cloned classes.
  *
  * @author DLiauchuk
  *
@@ -44,6 +45,11 @@ public class OpenLCloner extends Cloner {
         @Override
         public <T> T newInstance(Class<T> c) {
             return objenesis.newInstance(c);
+        }
+
+        @Override
+        public <T> ObjectInstantiator<T> getInstantiatorOf(Class<T> aClass) {
+            return objenesis.getInstantiatorOf(aClass);
         }
 
         private static final ObjenesisInstantiationStrategy instance = new ObjenesisInstantiationStrategy();
