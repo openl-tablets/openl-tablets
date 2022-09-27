@@ -43,7 +43,7 @@ public class MatcherFactory {
         return result;
     }
 
-    public static void registerBuilder(IMatcherBuilder builder) {
+    private static void registerBuilder(IMatcherBuilder builder) {
         String operationName = builder.getName();
         List<IMatcherBuilder> builders = matcherBuilders.get(operationName);
 
