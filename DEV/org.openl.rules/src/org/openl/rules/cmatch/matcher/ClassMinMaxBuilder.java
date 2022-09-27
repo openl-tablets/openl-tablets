@@ -1,30 +1,24 @@
 package org.openl.rules.cmatch.matcher;
 
 import org.openl.types.IOpenClass;
+import org.openl.util.ClassUtils;
 
 public class ClassMinMaxBuilder implements IMatcherBuilder {
 
-    private final Class<?> clazz;
-    private final ClassMinMaxMatcher matcher;
     private final boolean isMaxMode;
 
-    public static ClassMinMaxBuilder maxBuilder(Class<?> clazz) {
-        return new ClassMinMaxBuilder(clazz, true);
-    }
-
-    public static ClassMinMaxBuilder minBuilder(Class<?> clazz) {
-        return new ClassMinMaxBuilder(clazz, false);
-    }
-
-    public ClassMinMaxBuilder(Class<?> clazz, boolean isMaxMode) {
-        this.clazz = clazz;
+    public ClassMinMaxBuilder(boolean isMaxMode) {
         this.isMaxMode = isMaxMode;
-        matcher = new ClassMinMaxMatcher(clazz, isMaxMode);
     }
 
     @Override
     public IMatcher getInstanceIfSupports(IOpenClass type) {
-        return clazz.equals(type.getInstanceClass()) ? matcher : null;
+        Class<?> c = type.getInstanceClass();
+        if (ClassUtils.isAssignable(c, Comparable.class)) {
+            return new ClassMinMaxMatcher(c, isMaxMode);
+        } else {
+            return null;
+        }
     }
 
     @Override
