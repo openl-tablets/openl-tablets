@@ -1,0 +1,11 @@
+ERROR: The value 'BE' is outside of valid domain 'Countries'. Valid values: [[BE, NY], [DE, PL]]
+ERROR: The value 'NY' is outside of valid domain 'Countries'. Valid values: [[BE, NY], [DE, PL]]
+ERROR: The value 'BE' is outside of valid domain 'Countries'. Valid values: [[BE, NY], [DE, PL]]
+ERROR: The value 'DE' is outside of valid domain 'Countries'. Valid values: [[BE, NY], [DE, PL]]
+ERROR: The value 'PL' is outside of valid domain 'Countries'. Valid values: [[BE, NY], [DE, PL]]
+ERROR: The value 'Coutries' is outside of valid domain 'Countries'. Valid values: [[BE, NY], [DE, PL]]
+ERROR: The value '0..20' is outside of valid domain 'Countries'. Valid values: [[BE, NY], [DE, PL]]
+ERROR: The value '20..40' is outside of valid domain 'Countries'. Valid values: [[BE, NY], [DE, PL]]
+ERROR: The value '400+' is outside of valid domain 'Countries'. Valid values: [[BE, NY], [DE, PL]]
+ERROR: Cannot parse cell value 'BE, NY'. Expected value of type 'Double'.
+ERROR: Cannot parse cell value 'DE, PL'. Expected value of type 'Double'.

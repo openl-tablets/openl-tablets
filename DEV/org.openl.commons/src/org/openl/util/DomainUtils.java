@@ -1,5 +1,6 @@
 package org.openl.util;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.openl.domain.IDomain;
@@ -21,12 +22,16 @@ public final class DomainUtils {
             } else {
                 f = true;
             }
-            sb.append(v.toString());
+            if (v.getClass().isArray()) {
+                sb.append(Arrays.deepToString((Object[]) v));
+            } else {
+                sb.append(v);
+            }
         }
         if (itr.hasNext()) {
             sb.append(", ...");
         }
-        return "[" + sb.toString() + "]";
+        return "[" + sb + "]";
     }
 
 }
