@@ -1,19 +1,17 @@
 package org.openl.rules.cmatch.matcher;
 
-import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.String2DataConvertorFactory;
 
 public class ClassMatchMatcher implements IMatcher {
     private final Class<?> clazz;
-    private final IString2DataConvertor convertor;
 
-    public ClassMatchMatcher(Class<?> clazz, IString2DataConvertor convertor) {
+    public ClassMatchMatcher(Class<?> clazz) {
         this.clazz = clazz;
-        this.convertor = convertor;
     }
 
     @Override
     public Object fromString(String checkValue) {
-        return convertor.parse(checkValue, null);
+        return String2DataConvertorFactory.getConvertor(clazz).parse(checkValue, null);
     }
 
     @Override
@@ -24,9 +22,4 @@ public class ClassMatchMatcher implements IMatcher {
 
         return checkValue.equals(var);
     }
-
-    public Class<?> getClazz() {
-        return clazz;
-    }
-
 }
