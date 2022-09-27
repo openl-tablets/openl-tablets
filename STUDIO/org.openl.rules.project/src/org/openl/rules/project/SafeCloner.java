@@ -15,7 +15,7 @@ public class SafeCloner extends Cloner {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T cloneInternal(T o, Map<Object, Object> clones) throws IllegalAccessException {
+    public <T> T cloneInternal(T o, Map<Object, Object> clones) {
         if (o instanceof Logger) {
             return (T) LoggerFactory.getLogger(o.getClass());
         }
