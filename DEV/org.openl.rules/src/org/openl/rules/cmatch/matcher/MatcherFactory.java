@@ -19,12 +19,10 @@ public class MatcherFactory {
         registerBuilder(new BooleanPrimitiveMatch());
 
         // min
-        registerBuilder(new NumberMinBuilder());
-        registerBuilder(ClassMinMaxBuilder.minBuilder(Date.class));
+        registerBuilder(new ClassMinMaxBuilder(false));
 
         // max
-        registerBuilder(new NumberMaxBuilder());
-        registerBuilder(ClassMinMaxBuilder.maxBuilder(Date.class));
+        registerBuilder(new ClassMinMaxBuilder(true));
     }
 
     public static IMatcher getMatcher(String operationName, IOpenClass type) {

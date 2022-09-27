@@ -1,43 +1,30 @@
 package org.openl.rules.cmatch.matcher;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 
-public class ClassMinMaxMatcher implements IMatcher {
-    private final Class<?> clazz;
+public class ClassMinMaxMatcher<T extends Comparable<? super T>> implements IMatcher {
+    private final Class<T> clazz;
     private final boolean isMaxMode;
 
-    public ClassMinMaxMatcher(Class<?> clazz, boolean isMaxMode) {
+    public ClassMinMaxMatcher(Class<T> clazz, boolean isMaxMode) {
         this.clazz = Objects.requireNonNull(clazz, "clazz cannot be null");
         this.isMaxMode = isMaxMode;
-
-        if (!Comparable.class.isAssignableFrom(clazz)) {
-            throw new IllegalArgumentException("Must implement Comparable.");
-        }
     }
 
     @Override
     public Object fromString(String checkValue) {
-        IString2DataConvertor converter = String2DataConvertorFactory.getConvertor(clazz);
+        IString2DataConvertor<T> converter = String2DataConvertorFactory.getConvertor(clazz);
         return converter.parse(checkValue, null);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public boolean match(Object var, Object checkValue) {
-        Comparable<Object> c1 = (Comparable<Object>) var;
-        Comparable<Object> c2 = (Comparable<Object>) checkValue;
-        if (c1 == null && c2 == null) {
-            return true;
-        }
-        int result;
-        if (c1 == null || c2 == null) {
-            result = c1 == null ? -1 : 1;
-        } else {
-            result = c1.compareTo(c2);
-        }
+        int result = Comparator.nullsFirst(Comparator.<T>naturalOrder()).compare((T)var, (T)checkValue);
         return isMaxMode ? (result <= 0) : (result >= 0);
     }
 }
