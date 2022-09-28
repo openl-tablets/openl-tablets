@@ -51,7 +51,7 @@ import org.openl.rules.lang.xls.binding.wrapper.DataOpenFieldWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.rules.table.OpenLCloner;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
@@ -798,13 +798,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return Collections.unmodifiableCollection(this.externalXlsModuleOpenClasses);
     }
 
-    private volatile OpenLArgumentsCloner cloner;
+    private volatile OpenLCloner cloner;
 
     public Cloner getCloner() {
         if (cloner == null) {
             synchronized (this) {
                 if (cloner == null) {
-                    cloner = new OpenLArgumentsCloner();
+                    cloner = new OpenLCloner();
                 }
             }
         }

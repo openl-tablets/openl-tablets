@@ -36,6 +36,8 @@ public class OpenLCloner extends Cloner {
         dontCloneInstanceOf(IOpenClass.class);
         dontCloneInstanceOf(IOpenMember.class);
         dontCloneInstanceOf(InvocationHandler.class);
+        dontCloneInstanceOf(ILogicalTable.class);
+        dontCloneInstanceOf(groovy.lang.MetaClass.class);
     }
 
     /* Required for correct working with classloaders. */

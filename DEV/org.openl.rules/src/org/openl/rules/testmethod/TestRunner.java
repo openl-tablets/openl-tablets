@@ -1,6 +1,6 @@
 package org.openl.rules.testmethod;
 
-import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.rules.table.OpenLCloner;
 import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -17,7 +17,7 @@ public class TestRunner {
     public ITestUnit runTest(TestDescription test,
             Object target,
             IRuntimeEnv env,
-            OpenLArgumentsCloner cloner,
+            OpenLCloner cloner,
             int ntimes) {
         if (ntimes <= 0) {
             return runTest(test, target, env, cloner, 1);

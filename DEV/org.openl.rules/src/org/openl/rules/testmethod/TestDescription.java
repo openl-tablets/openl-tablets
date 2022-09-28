@@ -10,7 +10,7 @@ import org.openl.rules.data.ForeignKeyColumnDescriptor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITableModel;
 import org.openl.rules.data.RowIdField;
-import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.rules.table.OpenLCloner;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -87,7 +87,7 @@ public class TestDescription {
         return names;
     }
 
-    public Object[] getArguments(OpenLArgumentsCloner cloner) {
+    public Object[] getArguments(OpenLCloner cloner) {
         Object[] args = new Object[executionParams.length];
         for (int i = 0; i < args.length; i++) {
             Object value = executionParams[i].getValue();
@@ -163,7 +163,7 @@ public class TestDescription {
         return testObject.containsField(TestMethodHelper.CONTEXT_NAME);
     }
 
-    public IRulesRuntimeContext getRuntimeContext(OpenLArgumentsCloner cloner) {
+    public IRulesRuntimeContext getRuntimeContext(OpenLCloner cloner) {
         IRulesRuntimeContext context = (IRulesRuntimeContext) getArgumentValue(TestMethodHelper.CONTEXT_NAME);
 
         if (context == null) {
