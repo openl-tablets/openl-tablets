@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
-import org.openl.rules.table.OpenLArgumentsCloner;
+import org.openl.rules.table.OpenLCloner;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
@@ -26,7 +26,7 @@ public class TestDescriptionTest {
 
     private SomeArgument[] arguments;
     private final TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
-    private final OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
+    private final OpenLCloner cloner = new OpenLCloner();
 
     @Before
     public void setUp() {
