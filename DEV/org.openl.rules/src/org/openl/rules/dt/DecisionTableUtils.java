@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.openl.binding.IBoundMethodNode;
+import org.openl.binding.impl.IdentifierSequenceBinder;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.lang.xls.binding.ExpressionIdentifier;
 import org.openl.syntax.ISyntaxNode;
@@ -38,9 +39,15 @@ public class DecisionTableUtils {
         for (int i = 0; i < node.getNumberOfChildren(); i++) {
             final ISyntaxNode child = node.getChild(i);
             final String childType = child.getType();
-            if ("identifier".equals(childType)) {
+            if ("identifier".equals(childType) || "identifier.sequence".equals(childType)) {
+                IdentifierNode identifierNode;
+                if ("identifier.sequence".equals(childType)) {
+                    identifierNode = IdentifierSequenceBinder.toIdentifierNode(child);
+                } else {
+                    identifierNode = (IdentifierNode) child;
+                }
                 if (!chain.booleanValue()) {
-                    identifierNodes.add((IdentifierNode) child);
+                    identifierNodes.add(identifierNode);
                     if (inChain) {
                         chain.setTrue();
                     }

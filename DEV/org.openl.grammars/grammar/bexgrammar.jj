@@ -1634,10 +1634,10 @@ void ExtendedWhereStatement() :
   int args = 1;	
 }
 {
-  < COMMA > < WHERE > WhereVarExpalnation()
+  < COMMA > < WHERE > WhereVarExplanation()
   (
     LOOKAHEAD(2)
-    < COMMA > WhereVarExpalnation()
+    < COMMA > WhereVarExplanation()
     {
       ++args;
     }
@@ -1647,7 +1647,7 @@ void ExtendedWhereStatement() :
   }
 }
 
-void WhereVarExpalnation() :
+void WhereVarExplanation() :
 {}
 {
   Word("identifier.var.explanation") "-" Expression()

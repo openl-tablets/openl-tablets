@@ -16,31 +16,20 @@ public class IdentifierSequenceBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
-
-        String longName = concatChildren(node);
-
-        IdentifierNode newNode = new IdentifierNode("identifier.nostrict",
-            node.getSourceLocation(),
-            longName,
-            node.getModule());
-
-        return bindChildNode(newNode, bindingContext);
+        return bindChildNode(toIdentifierNode(node), bindingContext);
     }
 
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target) {
-
-        String longName = concatChildren(node);
-
-        IdentifierNode newNode = new IdentifierNode("identifier.nostrict",
-            node.getSourceLocation(),
-            longName,
-            node.getModule());
-
-        return bindTargetNode(newNode, bindingContext, target);
+        return bindTargetNode(toIdentifierNode(node), bindingContext, target);
     }
 
-    private String concatChildren(ISyntaxNode node) {
+    public static IdentifierNode toIdentifierNode(ISyntaxNode node) {
+        String longName = concatChildren(node);
+        return new IdentifierNode("identifier.nostrict", node.getSourceLocation(), longName, node.getModule());
+    }
+
+    private static String concatChildren(ISyntaxNode node) {
 
         StringBuilder builder = new StringBuilder(100);
 

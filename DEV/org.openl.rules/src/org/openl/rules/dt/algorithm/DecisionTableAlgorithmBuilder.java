@@ -356,12 +356,9 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                 return true;
             }
         }
-        if (identifiers.stream()
+        return identifiers.stream()
             .anyMatch(identifierNode -> Objects.equals(SpreadsheetStructureBuilder.DOLLAR_SIGN + condition.getName(),
-                identifierNode.getIdentifier()))) {
-            return true;
-        }
-        return false;
+                identifierNode.getIdentifier()));
     }
 
     private static boolean checkRuleIdOrRuleNameInExpression(ICondition condition) {
