@@ -152,6 +152,7 @@ grant codeBase "file:${jetty.home}/webapps/webservice/-" {
         permission java.lang.RuntimePermission "createClassLoader";
         permission java.lang.RuntimePermission "closeClassLoader";
         permission java.lang.RuntimePermission "accessClassInPackage.jdk.internal.loader";
+        permission java.lang.RuntimePermission "defineClass";
 
         //Modification of threads
         //ex: ChangesMonitor.release()
