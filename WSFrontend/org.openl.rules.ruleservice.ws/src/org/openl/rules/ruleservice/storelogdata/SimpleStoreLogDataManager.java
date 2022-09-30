@@ -6,11 +6,8 @@ import java.util.Objects;
 
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.annotation.SkipFault;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class SimpleStoreLogDataManager implements StoreLogDataManager {
-    private final Logger log = LoggerFactory.getLogger(SimpleStoreLogDataManager.class);
 
     private final Collection<StoreLogDataService> storeLogDataServices;
 

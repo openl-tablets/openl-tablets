@@ -20,8 +20,7 @@ public final class PropertiesLoader {
 
     private static boolean validateProperty(Environment env, String propName) {
         try {
-            env.getProperty(propName);
-            return true;
+            return env.getProperty(propName) != null;
         } catch (Exception e) {
             if (LOG.isWarnEnabled()) {
                 if (e instanceof IllegalArgumentException) {

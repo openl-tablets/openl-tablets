@@ -10,6 +10,7 @@ import java.time.ZonedDateTime;
 import org.apache.cxf.common.injection.NoJSR250Annotations;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.LoggingMessage;
+import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
@@ -37,6 +38,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
     public CollectResponseMessageOutInterceptor(String phase, StoreLogDataManager storeLoggingManager) {
         super(phase);
         addBefore(StaxOutInterceptor.class.getName());
+        addAfter(LoggingOutInterceptor.class.getName());
         this.storeLoggingManager = storeLoggingManager;
     }
 
