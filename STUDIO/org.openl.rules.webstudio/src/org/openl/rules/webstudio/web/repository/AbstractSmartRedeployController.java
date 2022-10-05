@@ -1,9 +1,5 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -39,6 +35,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +77,9 @@ public abstract class AbstractSmartRedeployController {
 
     @Autowired
     private PropertyResolver propertyResolver;
+
+    @Autowired
+    DesignRepositoryAclService designRepositoryAclService;
 
     private List<RepositoryConfiguration> repositories;
 
@@ -194,7 +195,7 @@ public abstract class AbstractSmartRedeployController {
             for (ProjectDescriptor<?> descr : descriptors) {
                 if (projectName
                     .equals(descr.getProjectName()) && (descr.getRepositoryId() == null || descr.getRepositoryId()
-                    .equals(repoId)) && (descr.getPath() == null || descr.getPath().equals(path))) {
+                        .equals(repoId)) && (descr.getPath() == null || descr.getPath().equals(path))) {
                     projectDescriptor = descr;
                     break;
                 }
@@ -244,8 +245,9 @@ public abstract class AbstractSmartRedeployController {
                     }
                 }
             } else {
-                if (!isGranted(EDIT_DEPLOYMENT) || isMainBranchProtected(
-                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
+                if (!designRepositoryAclService.isGranted(project,
+                    List.of(AclPermission.EDIT_DEPLOYMENT)) || isMainBranchProtected(
+                        userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
                     // skip it
                     continue;
@@ -327,8 +329,9 @@ public abstract class AbstractSmartRedeployController {
             result.add(item);
         }
 
-        if (!userWorkspace.hasDDProject(projectName) && isGranted(CREATE_DEPLOYMENT) && !isMainBranchProtected(
-            userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
+        if (!userWorkspace.hasDDProject(projectName) && designRepositoryAclService.isGranted(project,
+            List.of(AclPermission.CREATE_DEPLOYMENT)) && !isMainBranchProtected(
+                userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);
@@ -475,8 +478,8 @@ public abstract class AbstractSmartRedeployController {
 
             boolean sameVersion = deployConfiguration
                 .hasProjectDescriptor(project.getBusinessName()) && project.getVersion()
-                .compareTo(
-                    deployConfiguration.getProjectDescriptor(project.getBusinessName()).getProjectVersion()) == 0;
+                    .compareTo(
+                        deployConfiguration.getProjectDescriptor(project.getBusinessName()).getProjectVersion()) == 0;
 
             if (sameVersion) {
                 return deployConfiguration;
@@ -613,7 +616,7 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public void setProductionRepositoriesTreeController(
-        ProductionRepositoriesTreeController productionRepositoriesTreeController) {
+            ProductionRepositoriesTreeController productionRepositoriesTreeController) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
     }
 

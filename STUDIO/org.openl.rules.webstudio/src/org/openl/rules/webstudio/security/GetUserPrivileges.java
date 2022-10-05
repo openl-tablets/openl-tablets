@@ -49,7 +49,7 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         User userDetails = userManagementService.getUser(user);
         if (userDetails != null) {
             privileges.addAll(
-                    userDetails.getAuthorities().stream().map(GetUserPrivileges::toPrivilege).collect(Collectors.toList()));
+                userDetails.getAuthorities().stream().map(GetUserPrivileges::toPrivilege).collect(Collectors.toList()));
         }
 
         return privileges;

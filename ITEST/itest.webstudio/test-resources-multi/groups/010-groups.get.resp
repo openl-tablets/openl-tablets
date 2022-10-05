@@ -17,21 +17,15 @@ Content-Type: application/json
   },
   "Deployers": {
     "id": "*",
-    "roles": ["Viewers"],
-    "privileges": ["DELETE_DEPLOYMENT", "ERASE_DEPLOYMENT", "CREATE_DEPLOYMENT", "DEPLOY_PROJECTS", "EDIT_DEPLOYMENT"]
+    "roles": ["Viewers"]
   },
   "Developers": {
     "id": "*",
-    "roles": ["Viewers"],
-    "privileges": [
-      "CREATE_PROJECTS", "CREATE_TABLES", "ERASE_PROJECTS", "REMOVE_TABLES", "EDIT_PROJECTS", "EDIT_TABLES",
-      "DELETE_PROJECTS"
-    ]
+    "roles": ["Viewers"]
   },
   "Testers": {
     "id": "*",
-    "roles": ["Viewers"],
-    "privileges": ["TRACE", "BENCHMARK", "RUN"]
+    "roles": ["Viewers"]
   },
   "Viewers": {
     "id": "*",

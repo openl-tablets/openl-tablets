@@ -82,6 +82,8 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
@@ -92,11 +94,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
-import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
-import static org.openl.rules.security.Privileges.VIEW_PROJECTS;
 
 /**
  * TODO Remove JSF dependency TODO Separate user session from app session TODO Move settings to separate UserSettings
@@ -171,6 +168,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private final PropertyResolver propertyResolver;
 
+    private final DesignRepositoryAclService designRepositoryAclService;
+
     /**
      * Projects that are currently processed, for example saved. Projects's state can be in intermediate state, and it
      * can affect their modified status.
@@ -181,6 +180,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public WebStudio(HttpSession session) {
         model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
         userSettingsManager = WebStudioUtils.getBean(UserSettingManagementService.class);
+        designRepositoryAclService = WebStudioUtils.getBean(DesignRepositoryAclService.class);
         rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
         propertyResolver = WebStudioUtils.getBean(PropertyResolver.class);
         initWorkspace(session);
@@ -190,6 +190,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         copyExternalProperty(OpenLSystemProperties.CUSTOM_SPREADSHEET_TYPE_PROPERTY);
         copyExternalProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY);
         copyExternalProperty(OpenLSystemProperties.DISPATCHING_VALIDATION);
+    }
+
+    public DesignRepositoryAclService getDesignRepositoryAclService() {
+        return designRepositoryAclService;
     }
 
     private void copyExternalProperty(String key) {
@@ -272,6 +276,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public void saveProject(RulesProject project) throws ProjectException {
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+            throw new AccessDeniedException("You don't have permissions to apply changes into the project.");
+        }
         InputStream content = null;
         try {
             String projectName = project.getName();
@@ -549,6 +556,25 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 .equals(project.getName()));
             currentModule = module;
             currentProject = project;
+            if (currentProject != null) {
+                // Validate the permission to read the project. If the project has read permission, then all modules of
+                // the project has the read permission too.
+                RulesProject rulesProject = getProject(repositoryId,
+                    currentProject.getProjectFolder().getFileName().toString());
+                if (rulesProject != null && module != null) {
+                    log.debug(
+                        "Check permission for repository id '{}', project path in the repository '{}', module path in the project '{}'.",
+                        repositoryId,
+                        rulesProject.getLocalFolderName(),
+                        module.getRulesRootPath().getPath());
+                } else {
+                    if (rulesProject != null) {
+                        log.debug("Check permission for repository id '{}', project path in the repository '{}'.",
+                            repositoryId,
+                            rulesProject.getLocalFolderName());
+                    }
+                }
+            }
             if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || anotherModuleOpened || anotherProjectOpened)) {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
@@ -1322,7 +1348,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return false;
             }
 
-            return isGranted(EDIT_PROJECTS);
+            return getDesignRepositoryAclService().isGranted(project, List.of(AclPermission.EDIT));
         } catch (IOException e) {
             return false;
         }
@@ -1342,7 +1368,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return false;
         }
 
-        return isGranted(DEPLOY_PROJECTS);
+        return getDesignRepositoryAclService().isGranted(selectedProject, List.of(AclPermission.DEPLOY_PROJECT));
     }
 
     public boolean getCanOpenOtherVersion() {
@@ -1353,7 +1379,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
 
         if (!selectedProject.isLocalOnly()) {
-            return isGranted(VIEW_PROJECTS);
+            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW));
         }
 
         return false;

@@ -9,7 +9,7 @@ CREATE TABLE acl_sid
 
 CREATE TABLE acl_class
 (
-    id            ${identity} not null primary key,
+    id            ${identity} not null,
     class         ${varchar}(255) not null,
     class_id_type ${varchar}(255),
     PRIMARY KEY (id),

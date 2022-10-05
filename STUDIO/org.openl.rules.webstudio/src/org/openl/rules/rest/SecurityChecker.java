@@ -10,7 +10,7 @@ public final class SecurityChecker {
 
     public static void allow(GrantedAuthority authority) {
         if (!isGranted(authority)) {
-            throw new SecurityException(authority);
+            throw new SecurityException();
         }
     }
 

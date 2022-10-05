@@ -14,6 +14,8 @@ import org.openl.rules.workspace.abstracts.ProjectsContainer;
  */
 public interface LocalWorkspace extends ProjectsContainer {
 
+    static final String LOCAL_ID = "local";
+
     /**
      * Adds listener to the workspace that listens to workspace events.
      *

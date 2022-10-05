@@ -4,12 +4,12 @@
     <version>1.0</version>
     <skipCheckOnStartup>true</skipCheckOnStartup>
     <properties>
-        <smallCacheCapacity>12_000</smallCacheCapacity>
+        <smallCacheCapacity>6_000</smallCacheCapacity>
         <userHome>${env.HOME}</userHome>
     </properties>
     <defaults>
         <cache>
-            <entryCapacity>100_000</entryCapacity>
+            <entryCapacity>6_000</entryCapacity>
         </cache>
     </defaults>
 

@@ -1,16 +1,5 @@
 package org.openl.rules.webstudio.web.repository;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
-import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
-import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
-import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
-import static org.openl.rules.security.Privileges.ERASE_PROJECTS;
-import static org.openl.rules.security.Privileges.VIEW_PROJECTS;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,6 +47,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.StringUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
@@ -65,6 +56,8 @@ import org.richfaces.model.SequenceRowKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
@@ -80,6 +73,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     @Autowired
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
+
     @Autowired
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
@@ -97,6 +91,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     @Autowired
     private OpenLProjectService projectService;
+
+    @Autowired
+    private DesignRepositoryAclService designRepositoryAclService;
+
+    private Authentication authentication;
 
     private static final String DEFAULT_TAB = "Properties";
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
@@ -119,8 +118,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     private final Object lock = new Object();
     /**
-     * Show only first 3 errors. Obviously showing more errors is useless and probably just adds a mess to UI.
-     * 3 errors should be enough. Can be changed in the future.
+     * Show only first 3 errors. Obviously showing more errors is useless and probably just adds a mess to UI. 3 errors
+     * should be enough. Can be changed in the future.
      */
     private final ErrorsContainer errorsContainer = new ErrorsContainer(3);
     private final WorkspaceListener workspaceListener = new WorkspaceListener();
@@ -148,9 +147,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 String deploymentsTreeId = "2nd - Deploy Configurations";
                 String dpName = "Deploy Configurations";
                 deploymentRepository = new TreeRepository(deploymentsTreeId,
-                        dpName,
-                        filter,
-                        UiConst.TYPE_DEPLOYMENT_REPOSITORY);
+                    dpName,
+                    filter,
+                    UiConst.TYPE_DEPLOYMENT_REPOSITORY);
                 deploymentRepository.setData(null);
                 root.add(deploymentRepository);
             }
@@ -661,6 +660,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         this.userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         userWorkspace.getDesignTimeRepository().addListener(this);
         userWorkspace.addWorkspaceListener(workspaceListener);
+
+        this.authentication = SecurityContextHolder.getContext().getAuthentication();
     }
 
     @PreDestroy
@@ -673,39 +674,45 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     @Override
     public void onRepositoryModified() {
-        Collection<RulesProject> projects;
-        List<ADeploymentProject> deployConfigs;
+        Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
         try {
-            projects = userWorkspace.getProjects(false);
-            deployConfigs = userWorkspace.getDDProjects();
-        } catch (ProjectException e) {
-            log.error(e.getMessage(), e);
-            return;
-        }
-        synchronized (lock) {
-            // We must not refresh the table when getting selected node.
-            TreeNode selectedNode = selectionHolder.getSelectedNode();
-            AProjectArtefact artefact = selectedNode == null ? null : selectedNode.getData();
-            if (artefact != null) {
-                AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact
-                                                                            : artefact.getProject();
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            Collection<RulesProject> projects;
+            List<ADeploymentProject> deployConfigs;
+            try {
+                projects = userWorkspace.getProjects(false);
+                deployConfigs = userWorkspace.getDDProjects();
+            } catch (ProjectException e) {
+                log.error(e.getMessage(), e);
+                return;
+            }
+            synchronized (lock) {
+                // We must not refresh the table when getting selected node.
+                TreeNode selectedNode = selectionHolder.getSelectedNode();
+                AProjectArtefact artefact = selectedNode == null ? null : selectedNode.getData();
+                if (artefact != null) {
+                    AProject project = artefact instanceof UserWorkspaceProject ? (UserWorkspaceProject) artefact
+                                                                                : artefact.getProject();
 
-                // project can be null if selected artefact is a Deployment.
-                if (project != null) {
-                    String name = project.getName();
-                    if (project instanceof RulesProject) {
-                        // We cannot use hasProject() and then getProject(name) in multithreaded environment
-                        invalidateSelectionIfDeleted(name, projects);
-                    } else if (project instanceof ADeploymentProject) {
-                        // We cannot use hasDDProject() and then getDDProject(name) in multithreaded environment
-                        invalidateSelectionIfDeleted(name, deployConfigs);
+                    // project can be null if selected artefact is a Deployment.
+                    if (project != null) {
+                        String name = project.getName();
+                        if (project instanceof RulesProject) {
+                            // We cannot use hasProject() and then getProject(name) in multithreaded environment
+                            invalidateSelectionIfDeleted(name, projects);
+                        } else if (project instanceof ADeploymentProject) {
+                            // We cannot use hasDDProject() and then getDDProject(name) in multithreaded environment
+                            invalidateSelectionIfDeleted(name, deployConfigs);
+                        }
                     }
                 }
-            }
 
-            backupRoot();
-            root = null;
-            errorsContainer.clear();
+                backupRoot();
+                root = null;
+                errorsContainer.clear();
+            }
+        } finally {
+            SecurityContextHolder.getContext().setAuthentication(oldAuthentication);
         }
     }
 
@@ -731,7 +738,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanCreate() {
-        return isGranted(CREATE_PROJECTS);
+        for (Repository repository : userWorkspace.getDesignTimeRepository().getRepositories()) {
+            if (designRepositoryAclService
+                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE_PROJECTS))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // For any project
@@ -741,14 +754,29 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             .isOpenedForEditing() || selectedProject.isLocked()) {
             return false;
         }
-
-        return isGranted(EDIT_PROJECTS);
+        return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.EDIT));
     }
 
     public boolean getCanCreateDeployment() {
-        return isGranted(CREATE_DEPLOYMENT)
-                && userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()
-                && !isMainBranchProtected(userWorkspace.getDesignTimeRepository().getDeployConfigRepository());
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        if (selectedProject != null) {
+            return designRepositoryAclService.isGranted(selectedProject,
+                List.of(AclPermission.CREATE_DEPLOYMENT)) && userWorkspace.getDesignTimeRepository()
+                    .hasDeployConfigRepo() && !isMainBranchProtected(
+                        userWorkspace.getDesignTimeRepository().getDeployConfigRepository());
+        } else {
+            UserWorkspace userWorkspace1 = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+            for (Repository repository : userWorkspace1.getDesignTimeRepository().getRepositories()) {
+                if (designRepositoryAclService.isGranted(repository.getId(),
+                    null,
+                    List.of(AclPermission.CREATE_DEPLOYMENT)) && userWorkspace.getDesignTimeRepository()
+                        .hasDeployConfigRepo() && !isMainBranchProtected(
+                            userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     private boolean isMainBranchProtected(Repository repo) {
@@ -765,7 +793,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             return false;
         }
 
-        return isGranted(EDIT_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
+        return designRepositoryAclService.isGranted(selectedProject,
+            List.of(AclPermission.EDIT_DEPLOYMENT)) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanDeleteDeployment() {
@@ -774,21 +803,23 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             // any user can delete own local project
             return true;
         }
-        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(
-            DELETE_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
+        return (!selectedProject.isLocked() || selectedProject
+            .isLockedByUser(userWorkspace.getUser())) && designRepositoryAclService.isGranted(selectedProject,
+                List.of(AclPermission.ARCHIVE_DEPLOYMENT)) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanSaveDeployment() {
         ADeploymentProject selectedProject = (ADeploymentProject) getSelectedProject();
-        return selectedProject.isOpenedForEditing() && selectedProject
-            .isModified() && isGranted(EDIT_DEPLOYMENT) && !isCurrentBranchProtected(selectedProject);
+        return selectedProject.isOpenedForEditing() && selectedProject.isModified() && designRepositoryAclService
+            .isGranted(selectedProject,
+                List.of(AclPermission.EDIT_DEPLOYMENT)) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanSaveProject() {
         try {
             UserWorkspaceProject selectedProject = getSelectedProject();
-            return selectedProject != null && selectedProject.isModified() && isGranted(
-                EDIT_PROJECTS) && !isCurrentBranchProtected(selectedProject);
+            return selectedProject != null && selectedProject.isModified() && designRepositoryAclService
+                .isGranted(selectedProject, List.of(AclPermission.EDIT)) && !isCurrentBranchProtected(selectedProject);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -812,10 +843,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 // any user can delete own local project
                 return true;
             }
+            if (!designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.ARCHIVE))) {
+                return false;
+            }
             boolean unlocked = !selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser());
-            boolean mainBranch = isMainBranch(selectedProject);
-            boolean branchProtected = isCurrentBranchProtected(selectedProject);
-            return unlocked && isGranted(DELETE_PROJECTS) && mainBranch && !branchProtected;
+            if (!unlocked) {
+                return false;
+            }
+            return isMainBranch(selectedProject) && !isCurrentBranchProtected(selectedProject);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -828,10 +863,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             if (selectedProject.isLocalOnly()) {
                 return false;
             }
+            if (!designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.ARCHIVE))) {
+                return false;
+            }
             boolean unlocked = !selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser());
-            boolean mainBranch = isMainBranch(selectedProject);
-            boolean branchProtected = isCurrentBranchProtected(selectedProject);
-            return unlocked && isGranted(DELETE_PROJECTS) && !mainBranch && !branchProtected;
+            if (!unlocked) {
+                return false;
+            }
+            return !isMainBranch(selectedProject) && !isCurrentBranchProtected(selectedProject);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -860,8 +899,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanErase() {
         UserWorkspaceProject project = getSelectedProject();
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
+            return false;
+        }
         boolean branchProtected = isCurrentBranchProtected(project);
-        return project.isDeleted() && isGranted(ERASE_PROJECTS) && isMainBranch(project) && !branchProtected;
+        return project.isDeleted() && isMainBranch(project) && !branchProtected;
     }
 
     public boolean getCanOpen() {
@@ -872,7 +914,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 return false;
             }
 
-            return isGranted(VIEW_PROJECTS);
+            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -887,7 +929,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
 
         if (!selectedProject.isLocalOnly()) {
-            return isGranted(VIEW_PROJECTS);
+            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW));
         }
 
         return false;
@@ -898,10 +940,11 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanCompare() {
+        UserWorkspaceProject selectedProject = getSelectedProject();
         if (getSelectedProject().isLocalOnly()) {
             return false;
         }
-        return isGranted(VIEW_PROJECTS);
+        return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW));
     }
 
     public boolean getCanRedeploy() {
@@ -923,7 +966,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 return false;
             }
 
-            return isGranted(DEPLOY_PROJECTS);
+            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.DEPLOY_PROJECT));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -933,7 +976,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanUndelete() {
         UserWorkspaceProject project = getSelectedProject();
         boolean branchProtected = isCurrentBranchProtected(project);
-        return project.isDeleted() && isGranted(EDIT_PROJECTS) && isMainBranch(project) && !branchProtected;
+        return project.isDeleted() && designRepositoryAclService.isGranted(project,
+            List.of(AclPermission.EDIT)) && isMainBranch(project) && !branchProtected;
     }
 
     // for any project artefact
@@ -941,19 +985,23 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         UserWorkspaceProject project = getSelectedProject();
         if (project != null) {
             boolean branchProtected = isCurrentBranchProtected(project);
-            return project.isOpenedForEditing() && isGranted(EDIT_PROJECTS) && !branchProtected;
+            return project.isOpenedForEditing() && designRepositoryAclService.isGranted(project,
+                List.of(AclPermission.EDIT)) && !branchProtected;
         } else {
             return false;
         }
     }
 
     public boolean getCanModifyTags() {
-        return isGranted(EDIT_PROJECTS);
+        UserWorkspaceProject project = getSelectedProject();
+        return designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT));
     }
 
     // for deployment project
     public boolean getCanDeploy() {
-        return !getSelectedProject().isModified() && isGranted(DEPLOY_PROJECTS);
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        return !selectedProject.isModified() && designRepositoryAclService.isGranted(selectedProject,
+            List.of(AclPermission.DEPLOY_PROJECT));
     }
 
     public boolean getCanMerge() {
@@ -971,8 +1019,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             if (branches.size() < 2) {
                 return false;
             }
-
-            return isGranted(EDIT_PROJECTS);
+            return designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT));
         } catch (IOException e) {
             return false;
         }

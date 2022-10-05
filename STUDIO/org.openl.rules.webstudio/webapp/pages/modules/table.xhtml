@@ -323,7 +323,7 @@
                                    value="Test into File" title="Test into File"
                                    styleClass="hidden on-errors-hide b-test"/>
                 <a4j:commandButton id="traceButton"
-                                   rendered="#{tableBean.canTrace}"
+                                   rendered="#{tableBean.canRun}"
                                    value="Trace" title="Trace"
                                    styleClass="hidden on-errors-hide b-trace changes-listener"
                                    action="#{runTestHelper.initTrace}"
@@ -331,7 +331,7 @@
                                    onclick="return isAnyTestSelected(); "/>
                 <!-- Don't use a4j:commandButton for file download -->
                 <h:commandButton id="traceIntoFileButton" action="#{traceIntoFileBean.traceIntoFile}"
-                                 rendered="#{tableBean.canTrace}"
+                                 rendered="#{tableBean.canRun}"
                                  value="Trace into File" onclick="return isAnyTestSelected();" title="Trace into File"
                                  styleClass="hidden on-errors-hide b-trace"/>
                 <a4j:commandButton id="benchmarkButton" action="#{benchmarkBean.addLastBenchmark}"
@@ -433,8 +433,9 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink id="traceLink" title="Trace" styleClass="toolbarButton on-errors-hide menuButton changes-listener"
-                                                     rendered="#{tableBean.canTrace}"
+                                    <a4j:commandLink id="traceLink" title="Trace"
+                                                     styleClass="toolbarButton on-errors-hide menuButton changes-listener"
+                                                     rendered="#{tableBean.canRun}"
                                                      onclick="onTestMenuOpen(event, 'b-trace');return false;">
                                         <table>
                                             <tr>
@@ -500,10 +501,11 @@
                                         <div>Run</div>
                                     </a>
                                 </c:if>
-                                <c:if test="#{tableBean.canTrace}">
-                                    <a class="toolbarButton on-errors-hide" title="Launch the table and trace steps" href="javascript:void(0)"
-                                        onclick=" showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-trace').show();$j('.manual-run').hide();">
-                                        <img src="#{contextPath}/webresource/images/trace.gif" />
+                                <c:if test="#{tableBean.canRun}">
+                                    <a class="toolbarButton on-errors-hide" title="Launch the table and trace steps"
+                                       href="javascript:void(0)"
+                                       onclick=" showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-trace').show();$j('.manual-run').hide();">
+                                        <img src="#{contextPath}/webresource/images/trace.gif"/>
                                         <div>Trace</div>
                                     </a>
                                 </c:if>
@@ -564,8 +566,9 @@
                                     <div>Run</div>
                                     <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
-                                <a4j:commandLink action="#{runTestHelper.initTrace}" styleClass="toolbarButton on-errors-hide changes-listener"
-                                                 rendered="#{tableBean.canTrace}"
+                                <a4j:commandLink action="#{runTestHelper.initTrace}"
+                                                 styleClass="toolbarButton on-errors-hide changes-listener"
+                                                 rendered="#{tableBean.canRun}"
                                                  oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" title="Trace">
                                     <img src="#{contextPath}/webresource/images/trace.gif" />
                                     <div>Trace</div>

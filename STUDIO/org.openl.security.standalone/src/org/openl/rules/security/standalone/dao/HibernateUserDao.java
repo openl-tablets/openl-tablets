@@ -29,6 +29,7 @@ public class HibernateUserDao extends BaseHibernateDao<User> implements UserDao 
     }
 
     @Override
+    @Transactional
     public boolean existsByName(String name) {
         CriteriaBuilder cb = getSession().getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);

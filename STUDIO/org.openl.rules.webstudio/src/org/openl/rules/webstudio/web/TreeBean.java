@@ -1,12 +1,11 @@
 package org.openl.rules.webstudio.web;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.RUN;
+import java.util.List;
 
-import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.CollectionUtils;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.richfaces.model.TreeNode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
@@ -28,13 +27,20 @@ public class TreeBean {
         return hideUtilityTables;
     }
 
+    private final DesignRepositoryAclService designRepositoryAclService;
+
+    public TreeBean(DesignRepositoryAclService designRepositoryAclService) {
+        this.designRepositoryAclService = designRepositoryAclService;
+    }
+
     public void setCurrentView(String currentView) {
         WebStudio studio = WebStudioUtils.getWebStudio();
         studio.setTreeView(currentView);
     }
 
     public boolean getCanRun() {
-        return isGranted(RUN);
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        return designRepositoryAclService.isGranted(studio.getCurrentProject(), List.of(AclPermission.RUN));
     }
 
     public TreeNode getTree() {

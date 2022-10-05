@@ -3,9 +3,9 @@ package org.openl.rules.webstudio.service;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openl.security.acl.permission.AclPermission;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.MutableAcl;
@@ -39,7 +39,7 @@ public class SecurityAnnotationsSupportTest {
     }
 
     @Test
-    @WithMockUser(value = "oleg", roles = "Developers")
+    @WithMockUser(value = "oleg", authorities = "Developers")
     public void hasRoleAnnotationsAllowTest() {
         Assert.assertNotNull(securedService);
         securedService.save(new Foo(44L));
@@ -64,7 +64,7 @@ public class SecurityAnnotationsSupportTest {
 
         // Now grant some permissions via an access control entry (ACE)
         Sid sid = new PrincipalSid("oleg");
-        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, false);
+        acl.insertAce(acl.getEntries().size(), AclPermission.VIEW, sid, false);
         aclService.updateAcl(acl);
         try {
             securedService.read(foo);
@@ -72,7 +72,7 @@ public class SecurityAnnotationsSupportTest {
         } catch (AccessDeniedException ignored) {
         }
         acl.deleteAce(acl.getEntries().size() - 1);
-        acl.insertAce(acl.getEntries().size(), BasePermission.READ, sid, true);
+        acl.insertAce(acl.getEntries().size(), AclPermission.VIEW, sid, true);
         aclService.updateAcl(acl);
         securedService.read(foo);
     }

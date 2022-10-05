@@ -27,7 +27,6 @@ import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 public class LocalWorkspaceImpl implements LocalWorkspace {
     private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
         .compareToIgnoreCase(o2.getName());
-    public static final String LOCAL_ID = "local";
 
     private final String userId;
     private final File location;

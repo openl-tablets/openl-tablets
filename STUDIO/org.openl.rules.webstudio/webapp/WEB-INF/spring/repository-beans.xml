@@ -10,7 +10,8 @@
         <property name="enableLocks" value="#{'${user.mode}' != 'single'}"/>
     </bean>
 
-    <bean name="settingsRepository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository">
+    <bean name="settingsRepository" class="org.openl.rules.repository.RepositoryInstatiator"
+          factory-method="newRepository">
         <constructor-arg name="prefix" value="repository.settings"/>
         <constructor-arg name="props" value="#{new org.openl.spring.env.PropertyResolverFunction(environment)}"/>
     </bean>
@@ -21,15 +22,28 @@
         <constructor-arg name="lockTimeToLive" value="${repository.settings.locks.time-to-live}"/>
     </bean>
 
-    <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl"
-          init-method="init" destroy-method="destroy">
-        <property name="propertyResolver" ref="environment"/>
-        <property name="repositorySettings" ref="repositorySettings"/>
+    <bean id="designTimeRepository" class="org.openl.rules.webstudio.security.SecureDesignTimeRepositoryImpl">
+        <property name="designTimeRepository">
+            <bean class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl" init-method="init"
+                  destroy-method="destroy">
+                <property name="propertyResolver" ref="environment"/>
+                <property name="repositorySettings" ref="repositorySettings"/>
+            </bean>
+        </property>
+        <property name="designRepositoryAclService" ref="designRepositoryAclService"/>
     </bean>
 
     <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">
         <property name="localWorkspaceManager" ref="localWorkspaceManager"/>
         <property name="designTimeRepository" ref="designTimeRepository"/>
+        <property name="userWorkspaceFactory">
+            <bean class="org.openl.security.acl.workspace.SecureUserWorkspaceFactoryImpl">
+                <constructor-arg name="userWorkspaceFactory">
+                    <bean class="org.openl.rules.workspace.DefaultUserWorkspaceFactory"/>
+                </constructor-arg>
+                <constructor-arg name="designRepositoryAclService" ref="designRepositoryAclService"/>
+            </bean>
+        </property>
     </bean>
 
     <bean id="designRepositoryFactoryProxy"
@@ -62,12 +76,18 @@
         <property name="openLHome" value="${openl.home}"/>
     </bean>
 
-    <bean id="projectVersionCacheManager" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
+    <bean id="projectVersionCacheManager"
+          class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
         <property name="projectVersionCacheDB" ref="projectVersionCacheDB"/>
         <property name="designRepository" ref="designTimeRepository"/>
     </bean>
 
     <bean class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheMonitor" destroy-method="release">
+        <constructor-arg name="relevantSystemWideGrantedAuthority">
+            <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
+                <constructor-arg name="role" value="Administrators"/>
+            </bean>
+        </constructor-arg>
         <property name="projectVersionCacheDB" ref="projectVersionCacheDB"/>
         <property name="projectVersionCacheManager" ref="projectVersionCacheManager"/>
         <property name="designRepository" ref="designTimeRepository"/>

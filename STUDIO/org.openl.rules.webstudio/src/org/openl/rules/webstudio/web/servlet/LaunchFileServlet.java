@@ -1,20 +1,21 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.EDIT_TABLES;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
@@ -22,6 +23,8 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.ExcelLauncher;
 import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.Constants;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.security.acl.permission.AclPermission;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -60,13 +63,20 @@ public class LaunchFileServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (!isGranted(EDIT_TABLES)) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        }
-
         WebStudio ws = getWebStudio(request);
         if (ws == null) {
+            return;
+        }
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getCurrentProject();
+        AProjectArtefact currentModule;
+        try {
+            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+        } catch (ProjectException e) {
+            return;
+        }
+        if (!studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.EDIT))) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
 

@@ -12,11 +12,17 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.security.SimpleGroup;
+import org.openl.rules.security.SimpleUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
 
@@ -27,16 +33,33 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private ProjectVersionCacheManager projectVersionCacheManager;
     private DesignTimeRepository designRepository;
 
+    private final Authentication relevantSystemWideGrantedAuthority;
+
     private final static int PERIOD = 10;
+
+    public ProjectVersionCacheMonitor(GrantedAuthority relevantSystemWideGrantedAuthority) {
+        SimpleGroup group = new SimpleGroup();
+        group.setName(relevantSystemWideGrantedAuthority.getAuthority());
+        SimpleUser principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group)).build();
+        this.relevantSystemWideGrantedAuthority = new UsernamePasswordAuthenticationToken(principal,
+            "",
+            principal.getAuthorities());
+    }
 
     @Override
     public void run() {
+        Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
         try {
-            if (!projectVersionCacheManager.isCacheCalculated()) {
-                recalculateDesignRepositoryCache();
+            SecurityContextHolder.getContext().setAuthentication(relevantSystemWideGrantedAuthority);
+            try {
+                if (!projectVersionCacheManager.isCacheCalculated()) {
+                    recalculateDesignRepositoryCache();
+                }
+            } catch (Exception e) {
+                log.error("Error during project caching", e);
             }
-        } catch (Exception e) {
-            log.error("Error during project caching", e);
+        } finally {
+            SecurityContextHolder.getContext().setAuthentication(oldAuthentication);
         }
     }
 
@@ -124,7 +147,8 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     }
 
     /**
-     * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>
+     * @see <a href=
+     *      "https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>
      */
     public synchronized void release() {
         if (scheduledPool == null) {

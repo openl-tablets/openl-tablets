@@ -26,28 +26,12 @@ Content-Type: application/json
     "id": 5,
     "roles": [
       "Viewers"
-    ],
-    "privileges": [
-      "DELETE_DEPLOYMENT",
-      "ERASE_DEPLOYMENT",
-      "CREATE_DEPLOYMENT",
-      "DEPLOY_PROJECTS",
-      "EDIT_DEPLOYMENT"
     ]
   },
   "Developers": {
     "id": 3,
     "roles": [
       "Viewers"
-    ],
-    "privileges": [
-      "CREATE_PROJECTS",
-      "CREATE_TABLES",
-      "ERASE_PROJECTS",
-      "REMOVE_TABLES",
-      "EDIT_PROJECTS",
-      "EDIT_TABLES",
-      "DELETE_PROJECTS"
     ]
   },
   "Foo": {
@@ -58,11 +42,6 @@ Content-Type: application/json
     "id": 4,
     "roles": [
       "Viewers"
-    ],
-    "privileges": [
-      "TRACE",
-      "BENCHMARK",
-      "RUN"
     ]
   },
   "Viewers": {

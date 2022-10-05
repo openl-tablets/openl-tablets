@@ -20,22 +20,10 @@ import org.openl.rules.lock.Lock;
 import org.openl.rules.lock.LockManager;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.Features;
-import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.Pageable;
-import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.api.*;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
-import org.openl.rules.rest.model.CreateUpdateProjectModel;
-import org.openl.rules.rest.model.GenericView;
-import org.openl.rules.rest.model.PageResponse;
-import org.openl.rules.rest.model.ProjectRevision;
-import org.openl.rules.rest.model.ProjectViewModel;
-import org.openl.rules.rest.model.RepositoryFeatures;
-import org.openl.rules.rest.model.RepositoryViewModel;
-import org.openl.rules.rest.model.UserInfoModel;
+import org.openl.rules.rest.model.*;
 import org.openl.rules.rest.resolver.DesignRepository;
 import org.openl.rules.rest.resolver.PaginationDefault;
 import org.openl.rules.rest.service.HistoryRepositoryMapper;
@@ -44,6 +32,9 @@ import org.openl.rules.rest.validation.CreateUpdateProjectModelValidator;
 import org.openl.rules.rest.validation.ZipArchiveValidator;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.DesignRepositoryAclServiceImpl;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -53,12 +44,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -84,15 +70,18 @@ public class DesignTimeRepositoryController {
     private final ZipArchiveValidator zipArchiveValidator;
     private final ZipProjectSaveStrategy zipProjectSaveStrategy;
     private final LockManager lockManager;
+    private final DesignRepositoryAclService designRepositoryAclService;
 
     @Autowired
     public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
+            DesignRepositoryAclService designRepositoryAclService,
             BeanValidationProvider validationService,
             CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
             ZipArchiveValidator zipArchiveValidator,
             ZipProjectSaveStrategy zipProjectSaveStrategy,
             @Value("${openl.home.shared}") String homeDirectory) {
         this.designTimeRepository = designTimeRepository;
+        this.designRepositoryAclService = designRepositoryAclService;
         this.validationProvider = validationService;
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
         this.zipArchiveValidator = zipArchiveValidator;
@@ -113,7 +102,9 @@ public class DesignTimeRepositoryController {
     @GetMapping("/{repo-name}/features")
     @Operation(summary = "repos.get-features.summary", description = "repos.get-features.desc")
     public RepositoryFeatures getFeatures(@DesignRepository("repo-name") Repository repository) {
-        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
+        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.VIEW))) {
+            throw new SecurityException();
+        }
         var supports = repository.supports();
         return new RepositoryFeatures(supports.branches(), supports.searchable());
     }
@@ -122,9 +113,9 @@ public class DesignTimeRepositoryController {
     @Operation(summary = "repos.get-repository-list.summary", description = "repos.get-repository-list.desc")
     @ApiResponse(responseCode = "200", description = "repos.get-repository-list.200.desc")
     public List<RepositoryViewModel> getRepositoryList() {
-        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         return designTimeRepository.getRepositories()
             .stream()
+            .filter(repo -> designRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.VIEW)))
             .map(repo -> new RepositoryViewModel(repo.getId(), repo.getName()))
             .collect(Collectors.toList());
     }
@@ -133,10 +124,13 @@ public class DesignTimeRepositoryController {
     @Operation(summary = "repos.get-project-list-by-repository.summary", description = "repos.get-project-list-by-repository.desc")
     @ApiResponse(responseCode = "200", description = "repos.get-project-list-by-repository.200.desc")
     public List<ProjectViewModel> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
-        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
+        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.VIEW))) {
+            throw new SecurityException();
+        }
         return designTimeRepository.getProjects(repository.getId())
             .stream()
             .filter(proj -> !proj.isDeleted())
+            .filter(proj -> designRepositoryAclService.isGranted(proj, List.of(AclPermission.VIEW)))
             .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
             .map(src -> mapProjectResponse(src, repository.supports()))
             .collect(Collectors.toList());
@@ -200,9 +194,22 @@ public class DesignTimeRepositoryController {
             @Parameter(description = "repos.create-project-from-zip.param.path.desc") @RequestParam(value = "path", required = false) String path,
             @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
             @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam("template") MultipartFile file,
-            @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException,
-                                                                                                                                                                                           JAXBException {
-        SecurityChecker.allow(overwrite ? Privileges.EDIT_PROJECTS : Privileges.CREATE_PROJECTS);
+            @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException, JAXBException {
+        if (overwrite) {
+            if (!designRepositoryAclService
+                .isGranted(repository.getId(),
+                    repository.supports().mappedFolders() && !StringUtils.isBlank(path) ? DesignRepositoryAclServiceImpl
+                        .concatPaths(path, projectName) : projectName,
+                    List.of(AclPermission.EDIT))) {
+                throw new SecurityException();
+            }
+        } else {
+            if (!designRepositoryAclService
+                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE_PROJECTS))) {
+                throw new SecurityException();
+            }
+        }
+
         allowedToPush(repository);
 
         CreateUpdateProjectModel model = new CreateUpdateProjectModel(repository.getId(),

@@ -4,11 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
-import org.openl.rules.workspace.uw.impl.UserWorkspaceImpl;
 
 /**
  * Manager of Multiple User Workspaces.
@@ -27,15 +25,21 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
     /** Cache for User Workspaces */
     private final Map<String, UserWorkspace> userWorkspaces = new HashMap<>();
 
+    private UserWorkspaceFactory userWorkspaceFactory = new DefaultUserWorkspaceFactory();
+
     private UserWorkspace createUserWorkspace(WorkspaceUser user) {
-        LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user.getUserId());
-        UserWorkspaceImpl userWorkspace = new UserWorkspaceImpl(user,
-            usersLocalWorkspace,
-            designTimeRepository,
-            localWorkspaceManager.getLockEngine("projects"),
-            localWorkspaceManager.getLockEngine("deploy-configs"));
+        UserWorkspace userWorkspace = getUserWorkspaceFactory()
+            .create(localWorkspaceManager, designTimeRepository, user);
         userWorkspace.addWorkspaceListener(this);
         return userWorkspace;
+    }
+
+    public UserWorkspaceFactory getUserWorkspaceFactory() {
+        return userWorkspaceFactory;
+    }
+
+    public void setUserWorkspaceFactory(UserWorkspaceFactory userWorkspaceFactory) {
+        this.userWorkspaceFactory = userWorkspaceFactory;
     }
 
     /**

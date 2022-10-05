@@ -51,8 +51,8 @@ import org.xml.sax.InputSource;
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
 
-    private static final Comparator<AProject> PROJECTS_COMPARATOR = Comparator.comparing(AProject::getBusinessName,
-        String.CASE_INSENSITIVE_ORDER)
+    private static final Comparator<AProject> PROJECTS_COMPARATOR = Comparator
+        .comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER)
         .thenComparing(o -> o.getRepository().getId())
         .thenComparing(AProject::getRealPath, String.CASE_INSENSITIVE_ORDER);
 
@@ -74,10 +74,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final DesignTimeRepositoryListener designRepoListener = this::refresh;
 
     public UserWorkspaceImpl(WorkspaceUser user,
-                             LocalWorkspace localWorkspace,
-                             DesignTimeRepository designTimeRepository,
-                             LockEngine projectsLockEngine,
-                             LockEngine deploymentsLockEngine) {
+            LocalWorkspace localWorkspace,
+            DesignTimeRepository designTimeRepository,
+            LockEngine projectsLockEngine,
+            LockEngine deploymentsLockEngine) {
         this.user = user;
         this.localWorkspace = localWorkspace;
         this.designTimeRepository = designTimeRepository;
@@ -103,9 +103,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public void copyDDProject(ADeploymentProject project, String name, String comment) throws ProjectException {
         ADeploymentProject newProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
-                .user(getUser())
-                .lockEngine(deploymentsLockEngine)
-                .build();
+            .user(getUser())
+            .lockEngine(deploymentsLockEngine)
+            .build();
         newProject.getFileData().setComment(comment);
         newProject.update(project, user);
 
@@ -118,9 +118,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
             refreshDeploymentProjects();
         }
         ADeploymentProject ddProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
-                .user(getUser())
-                .lockEngine(deploymentsLockEngine)
-                .build();
+            .user(getUser())
+            .lockEngine(deploymentsLockEngine)
+            .build();
         userDProjects.put(name.toLowerCase(), ddProject);
         return ddProject;
     }
@@ -141,9 +141,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public ADeploymentProject getLatestDeploymentConfiguration(String name) {
         return getDesignTimeRepository().createDeploymentConfigurationBuilder(name)
-                .user(getUser())
-                .lockEngine(deploymentsLockEngine)
-                .build();
+            .user(getUser())
+            .lockEngine(deploymentsLockEngine)
+            .build();
     }
 
     @Override
@@ -192,7 +192,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
 
         if (uwp == null) {
-            throw new ProjectException("Cannot find project ''{0}''", null, name);
+            throw new ProjectException("Cannot find project ''{0}'' or access denied to the project", null, name);
         }
 
         return uwp;
@@ -344,7 +344,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public String getActualName(AProject project) throws ProjectException, IOException {
         if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
-            AProjectArtefact artefact = project.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+            AProjectArtefact artefact = project
+                .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
             if (artefact instanceof AProjectResource) {
                 try (InputStream content = ((AProjectResource) artefact).getContent()) {
                     return getActualName(content);
@@ -387,9 +388,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                 if (userDProject == null || ddp.isDeleted() != userDProject.isDeleted()) {
                     userDProject = new ADeploymentProject(user,
-                            ddp.getRepository(),
-                            ddp.getFileData(),
-                            deploymentsLockEngine);
+                        ddp.getRepository(),
+                        ddp.getFileData(),
+                        deploymentsLockEngine);
                     if (!userDProject.isOpened()) {
                         // Closed project cannot be locked.
                         // DeployConfiguration changes aren't persisted. If it closed, it means changes are lost. We can
@@ -476,7 +477,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                             branch = local.getBranch();
                             if (branch == null) {
                                 log.warn("Unknown branch in repository supporting branches for project {}.",
-                                        local.getName());
+                                    local.getName());
                             }
                         } else {
                             branch = closedProjectBranches.get(new ProjectKey(repoId, name.toLowerCase()));
@@ -499,7 +500,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                             name,
                                             branch);
                                         if (local != null) {
-                                            // We should either close the project or make it local if we don't want to lose the changes.
+                                            // We should either close the project or make it local if we don't want to
+                                            // lose the changes.
                                             final RulesProject tmp = new RulesProject(getUser(),
                                                 localRepository,
                                                 local,
@@ -516,7 +518,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                                 // We will have 2 projects: local project with changes in the branch
                                                 // with deleted project and closed project in the main branch.
                                                 // 1) Local project with changes in the branch with deleted project
-                                                ProjectState state = localRepository.getProjectState(lp.getFolderPath());
+                                                ProjectState state = localRepository
+                                                    .getProjectState(lp.getFolderPath());
                                                 if (state != null && !LocalWorkspaceImpl.LOCAL_ID
                                                     .equals(state.getRepositoryId())) {
                                                     state.saveFileData(LocalWorkspaceImpl.LOCAL_ID, local);
@@ -543,26 +546,26 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     }
                 } catch (IOException e) {
                     log.warn("Skip workspace changes for project '{}' because of error: {}",
-                            rp.getName(),
-                            e.getMessage());
+                        rp.getName(),
+                        e.getMessage());
                     desRepo = rp.getRepository();
                     designFileData = rp.getFileData();
                     local = null;
                 }
 
                 RulesProject project = new RulesProject(getUser(),
-                        localRepository,
-                        local,
-                        desRepo,
-                        designFileData,
-                        projectsLockEngine);
+                    localRepository,
+                    local,
+                    desRepo,
+                    designFileData,
+                    projectsLockEngine);
 
                 if (cleanUpOnActivation) {
                     // Clean ups after session activation (should be done only once).
                     if (!isVersionExistInHistory(project)) {
                         log.warn("The Project '{}' has a version {}, but absents in the history.",
-                                project.getName(),
-                                project.getHistoryVersion());
+                            project.getName(),
+                            project.getHistoryVersion());
                         if (!project.isModified()) {
                             log.warn(
                                     "The project '{}' is not modified and will be closed because it absents in the history.",
@@ -609,7 +612,12 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         }
                     }
 
-                    RulesProject project = new RulesProject(getUser(), repository, local, null, null, projectsLockEngine);
+                    RulesProject project = new RulesProject(getUser(),
+                        repository,
+                        local,
+                        null,
+                        null,
+                        projectsLockEngine);
                     userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase()), project);
                 }
             }
@@ -668,7 +676,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public RulesProject uploadLocalProject(String repositoryId, String name, String projectFolder, String comment) throws ProjectException {
+    public RulesProject uploadLocalProject(String repositoryId,
+            String name,
+            String projectFolder,
+            String comment) throws ProjectException {
         try {
             String designPath = designTimeRepository.getRulesLocation() + name;
             FileData designData = new FileData();
@@ -686,11 +697,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
             designData.setName(createdProject.getFolderPath());
 
             RulesProject rulesProject = new RulesProject(getUser(),
-                    localWorkspace.getRepository(repositoryId),
-                    project.getFileData(),
-                    designTimeRepository.getRepository(repositoryId),
-                    designData,
-                    projectsLockEngine);
+                localWorkspace.getRepository(repositoryId),
+                project.getFileData(),
+                designTimeRepository.getRepository(repositoryId),
+                designData,
+                projectsLockEngine);
             rulesProject.open();
 
             refreshRulesProjects();
@@ -723,10 +734,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
         String actualName = name;
         return getProjects(false).stream()
-                .anyMatch(p -> p.isOpened() && actualName
-                        .equals(p.getBusinessName()) && (!project.getRepository()
-                        .getId()
-                        .equals(p.getRepository().getId()) || !project.getRealPath().equals(p.getRealPath())));
+            .anyMatch(p -> p.isOpened() && actualName.equals(p.getBusinessName()) && (!project.getRepository()
+                .getId()
+                .equals(p.getRepository().getId()) || !project.getRealPath().equals(p.getRealPath())));
 
     }
 }

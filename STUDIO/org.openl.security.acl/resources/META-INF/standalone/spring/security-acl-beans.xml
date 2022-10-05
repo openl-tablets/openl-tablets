@@ -5,28 +5,52 @@
 
     <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml"/>
 
-    <bean id="aclService" class="org.springframework.security.acls.jdbc.JdbcMutableAclService">
+    <bean name="designRepositoryAclService" class="org.openl.security.acl.repository.DesignRepositoryAclServiceImpl">
+        <constructor-arg name="aclService" ref="repositoryJdbcMutableAclService"/>
+        <constructor-arg name="relevantSystemWideSid">
+            <bean class="org.springframework.security.acls.domain.GrantedAuthoritySid">
+                <constructor-arg name="grantedAuthority" value="Administrators"/>
+            </bean>
+        </constructor-arg>
+        <property name="sidRetrievalStrategy" ref="sidRetrievalStrategy"/>
+    </bean>
+
+    <bean id="repositoryJdbcMutableAclService" class="org.openl.security.acl.JdbcMutableAclService">
         <constructor-arg name="dataSource" ref="openlDataSource"/>
         <constructor-arg name="aclCache" ref="aclCache"/>
-        <constructor-arg name="lookupStrategy" ref="aclLookupStrategy"/>
+        <constructor-arg name="lookupStrategy" ref="repositoryAclLookupStrategy"/>
+        <constructor-arg name="jdbcUrl" value="${db.url}"/>
         <property name="aclClassIdSupported" value="true"/>
     </bean>
 
-    <bean id="aclLookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
+    <bean id="repositoryPermissionFactory" class="org.springframework.security.acls.domain.DefaultPermissionFactory">
+        <constructor-arg name="permissionClass" value="org.openl.security.acl.permission.AclPermission"/>
+    </bean>
+
+    <bean id="repositoryAclLookupStrategy" class="org.springframework.security.acls.jdbc.BasicLookupStrategy">
         <constructor-arg name="dataSource" ref="openlDataSource"/>
         <constructor-arg name="aclCache" ref="aclCache"/>
         <constructor-arg name="aclAuthorizationStrategy" ref="aclAuthorizationStrategy"/>
         <constructor-arg name="auditLogger" ref="aclAuditLogger"/>
         <property name="aclClassIdSupported" value="true"/>
+        <property name="permissionFactory" ref="repositoryPermissionFactory"/>
     </bean>
 
     <bean id="aclAuditLogger" class="org.springframework.security.acls.domain.ConsoleAuditLogger" scope="prototype"/>
 
-    <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
-        <constructor-arg name="auths" ref="aclSimpleGrantedAuthority"/>
+    <bean id="sidRetrievalStrategy" class="org.springframework.security.acls.domain.SidRetrievalStrategyImpl">
+        <constructor-arg>
+            <bean class="org.openl.security.acl.RoleHierarchyImpl"/>
+        </constructor-arg>
     </bean>
 
-    <bean id="aclSimpleGrantedAuthority" class="org.springframework.security.core.authority.SimpleGrantedAuthority">
+    <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+        <constructor-arg name="auths" ref="relevantSystemWideGrantedAuthority"/>
+        <property name="sidRetrievalStrategy" ref="sidRetrievalStrategy"/>
+    </bean>
+
+    <bean id="relevantSystemWideGrantedAuthority"
+          class="org.springframework.security.core.authority.SimpleGrantedAuthority">
         <constructor-arg name="role" value="Administrators"/>
     </bean>
 
@@ -41,13 +65,15 @@
     </bean>
 
     <bean name="aclPermissionGrantingStrategy"
-          class="org.springframework.security.acls.domain.DefaultPermissionGrantingStrategy">
+          class="org.openl.security.acl.MaskPermissionGrantingStrategy">
         <constructor-arg name="auditLogger" ref="aclAuditLogger"/>
     </bean>
 
     <bean name="aclJCacheManager" class="org.springframework.cache.jcache.JCacheCacheManager"/>
 
     <bean name="aclPermissionEvaluator" class="org.springframework.security.acls.AclPermissionEvaluator">
-        <constructor-arg name="aclService" ref="aclService"/>
+        <constructor-arg name="aclService" ref="repositoryJdbcMutableAclService"/>
+        <property name="permissionFactory" ref="repositoryPermissionFactory"/>
+        <property name="sidRetrievalStrategy" ref="sidRetrievalStrategy"/>
     </bean>
 </beans>

@@ -19,12 +19,13 @@ import org.openl.rules.rest.project.ProjectStateValidator;
 import org.openl.rules.rest.resolver.DesignRepository;
 import org.openl.rules.rest.service.ProjectDependencyResolver;
 import org.openl.rules.rest.service.ProjectDeploymentService;
-import org.openl.rules.security.Privileges;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentProjectItem;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.http.HttpStatus;
@@ -50,16 +51,19 @@ public class ProjectManagementController {
     private final ProjectDeploymentService projectDeploymentService;
     private final DeploymentManager deploymentManager;
     private final ProjectStateValidator projectStateValidator;
+    private final DesignRepositoryAclService designRepositoryAclService;
 
     @Autowired
     public ProjectManagementController(ProjectDependencyResolver projectDependencyResolver,
             ProjectDeploymentService projectDeploymentService,
             DeploymentManager deploymentManager,
-            ProjectStateValidator projectStateValidator) {
+            ProjectStateValidator projectStateValidator,
+            DesignRepositoryAclService designRepositoryAclService) {
         this.projectDependencyResolver = projectDependencyResolver;
         this.projectDeploymentService = projectDeploymentService;
         this.deploymentManager = deploymentManager;
         this.projectStateValidator = projectStateValidator;
+        this.designRepositoryAclService = designRepositoryAclService;
     }
 
     @Lookup
@@ -76,9 +80,11 @@ public class ProjectManagementController {
      */
     @GetMapping("/{repo-name}/projects/{proj-name}/info")
     public ProjectInfo getInfo(@DesignRepository("repo-name") Repository repo, @PathVariable("proj-name") String name) {
-        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+                throw new SecurityException();
+            }
             ProjectInfo info = new ProjectInfo(project);
             info.dependsOn = projectDependencyResolver.getDependsOnProject(project)
                 .stream()
@@ -126,9 +132,11 @@ public class ProjectManagementController {
             @PathVariable("proj-name") String name,
             HttpSession session) {
         WebStudio webStudio = WebStudioUtils.getWebStudio(session);
-        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+                throw new SecurityException();
+            }
             if (project.isDeleted()) {
                 throw new ConflictException("project.close.deleted.message", name);
             } else if (!projectStateValidator.canClose(project)) {
@@ -161,9 +169,11 @@ public class ProjectManagementController {
             @RequestParam(value = "open-dependencies", required = false, defaultValue = "false") boolean openDependencies,
             HttpSession session) {
         WebStudio webStudio = WebStudioUtils.getWebStudio(session);
-        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+                throw new SecurityException();
+            }
             if (project.isDeleted()) {
                 throw new ConflictException("project.open.deleted.message", name);
             } else if (!projectStateValidator.canOpen(project)) {
@@ -197,9 +207,11 @@ public class ProjectManagementController {
             @PathVariable("proj-name") String name,
             @RequestParam("deploy-repo-name") String deployRepoName,
             @RequestBody String[] items) {
-        SecurityChecker.allow(Privileges.DEPLOY_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DEPLOY_PROJECT))) {
+                throw new SecurityException();
+            }
             if (!projectStateValidator.canDeploy(project)) {
                 if (project.isDeleted()) {
                     throw new ConflictException("project.deploy.deleted.message");
@@ -224,6 +236,7 @@ public class ProjectManagementController {
 
     /**
      * WARNING: Currently it's used only for testing purpose. Should be finalized before using in real life
+     *
      * @see org.openl.rules.webstudio.web.repository.RepositoryTreeController#deleteNode()
      */
     @Hidden
@@ -235,9 +248,11 @@ public class ProjectManagementController {
         // FIXME request body is not allowed for DELETE method.
         // see: https://www.rfc-editor.org/rfc/rfc7231#section-4.3.5
         // A payload within a DELETE request message has no defined semantics; sending a payload body on a DELETE request might cause some existing implementations to reject the request.
-        SecurityChecker.allow(Privileges.DELETE_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
+                throw new SecurityException();
+            }
             if (!projectStateValidator.canDelete(project)) {
                 if (project.getDesignRepository().supports().branches() && project.getVersion() == null && !project
                     .isLocalOnly()) {
