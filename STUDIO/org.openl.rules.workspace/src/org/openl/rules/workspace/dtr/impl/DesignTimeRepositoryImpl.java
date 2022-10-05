@@ -147,7 +147,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         return basePath;
     }
 
-    private Repository createRepo(String configName, String baseFolder) {
+    protected Repository createRepo(String configName, String baseFolder) {
         Repository repo = null;
         try {
             String repoPrefix = Comments.REPOSITORY_PREFIX + configName;
@@ -394,7 +394,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         projects.clear();
         projectsVersions.clear();
         exceptions.clear();
-        for (Repository repository : getRepositories()) {
+        for (Repository repository : repositories) {
             Collection<FileData> fileDatas = Collections.emptyList();
             try {
                 String path = rulesLocation;
@@ -490,7 +490,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public Repository getRepository(String id) {
-        return getRepositories().stream().filter(repository -> id.equals(repository.getId())).findFirst().orElse(null);
+        return repositories.stream().filter(repository -> id.equals(repository.getId())).findFirst().orElse(null);
     }
 
     @Override

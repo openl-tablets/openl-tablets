@@ -3,7 +3,7 @@ package org.openl.rules.repository.api;
 import java.io.IOException;
 import java.util.List;
 
-public interface BranchRepository extends Repository {
+public interface BranchRepository extends FolderRepository, SearchableRepository {
     boolean isMergedInto(String from, String to) throws IOException;
 
     String getBranch();

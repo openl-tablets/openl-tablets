@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,6 +26,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.ui.AccessDeniedException;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
@@ -44,6 +42,8 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +68,8 @@ public class CopyBean {
 
     private final ProjectTagsBean projectTagsBean;
 
+    private final DesignRepositoryAclService designRepositoryAclService;
+
     private final ApplicationContext applicationContext = FacesContextUtils
         .getRequiredWebApplicationContext(FacesContext.getCurrentInstance());
 
@@ -89,14 +91,23 @@ public class CopyBean {
 
     public CopyBean(PropertyResolver propertyResolver,
             RepositoryTreeState repositoryTreeState,
-            ProjectTagsBean projectTagsBean) {
+            ProjectTagsBean projectTagsBean,
+            DesignRepositoryAclService designRepositoryAclService) {
         this.propertyResolver = propertyResolver;
         this.repositoryTreeState = repositoryTreeState;
         this.projectTagsBean = projectTagsBean;
+        this.designRepositoryAclService = designRepositoryAclService;
     }
 
     public boolean getCanCreate() {
-        return isGranted(CREATE_PROJECTS);
+        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+        for (Repository repository : userWorkspace.getDesignTimeRepository().getRepositories()) {
+            if (designRepositoryAclService
+                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE_PROJECTS))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String getCurrentProjectName() {
@@ -227,11 +238,18 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             RulesProject project = userWorkspace.getProject(repositoryId, currentProjectName, false);
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+                throw new AccessDeniedException();
+            }
             if (isSupportsBranches() && !separateProject) {
                 Repository designRepository = project.getDesignRepository();
                 ((BranchRepository) designRepository).createBranch(project.getDesignFolderName(), newBranchName);
             } else {
                 Repository designRepository = designTimeRepository.getRepository(toRepositoryId);
+                if (!designRepositoryAclService
+                    .isGranted(toRepositoryId, null, List.of(AclPermission.CREATE_PROJECTS))) {
+                    throw new AccessDeniedException();
+                }
                 String designPath = designTimeRepository.getRulesLocation() + newProjectName;
                 FileData designData = new FileData();
                 designData.setName(designPath);

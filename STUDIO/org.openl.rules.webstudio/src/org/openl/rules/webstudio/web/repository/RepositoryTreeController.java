@@ -1,8 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
 import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
 import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
 import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
@@ -14,6 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -112,6 +111,8 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -174,6 +175,9 @@ public class RepositoryTreeController {
     @Autowired
     @Qualifier("deployConfigRepositoryComments")
     private Comments deployConfigRepoComments;
+
+    @Autowired
+    private DesignRepositoryAclService designRepositoryAclService;
 
     @Autowired
     private ProjectVersionCacheManager projectVersionCacheManager;
@@ -1699,7 +1703,9 @@ public class RepositoryTreeController {
                 boolean openedSimilarToHistoric = false;
                 if (repositoryProject instanceof RulesProject) {
                     RulesProject project = (RulesProject) repositoryProject;
-                    AProject historic = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
+                    AProject historic = new AProject(project.getDesignRepository(),
+                        project.getDesignFolderName(),
+                        version);
                     openedSimilarToHistoric = userWorkspace.isOpenedOtherProject(historic);
                 }
                 if (openedSimilarToHistoric || userWorkspace.isOpenedOtherProject(repositoryProject)) {
@@ -2336,10 +2342,14 @@ public class RepositoryTreeController {
                 // any user can delete own local project
                 return true;
             }
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
+                return false;
+            }
             boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
-            boolean mainBranch = isMainBranch(project);
-            boolean branchProtected = isCurrentBranchProtected(project);
-            return unlocked && isGranted(DELETE_PROJECTS) && mainBranch && !branchProtected;
+            if (!unlocked) {
+                return false;
+            }
+            return isMainBranch(project) && !isCurrentBranchProtected(project);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -2351,10 +2361,14 @@ public class RepositoryTreeController {
             if (project.isLocalOnly()) {
                 return false;
             }
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
+                return false;
+            }
             boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
-            boolean mainBranch = isMainBranch(project);
-            boolean branchProtected = isCurrentBranchProtected(project);
-            return unlocked && isGranted(DELETE_PROJECTS) && !mainBranch && !branchProtected;
+            if (!unlocked) {
+                return false;
+            }
+            return !isMainBranch(project) && !isCurrentBranchProtected(project);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -2390,7 +2404,11 @@ public class RepositoryTreeController {
     }
 
     public boolean getCanDeleteDeployment() {
-        return isGranted(DELETE_DEPLOYMENT);
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        if (selectedProject != null) {
+            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.ARCHIVE_DEPLOYMENT));
+        }
+        return false;
     }
 
     public void setProjectDescriptorResolver(ProjectDescriptorArtefactResolver projectDescriptorResolver) {
@@ -2591,6 +2609,8 @@ public class RepositoryTreeController {
             }
 
             return branches;
+        } catch (AccessDeniedException e) {
+            return Collections.emptyList();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
@@ -2932,6 +2952,8 @@ public class RepositoryTreeController {
         try {
             BranchRepository repository = ((BranchRepository) project.getDesignRepository());
             return repository.isMergedInto(project.getBranch(), repository.getBaseBranch());
+        } catch (AccessDeniedException e) {
+            return false;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;

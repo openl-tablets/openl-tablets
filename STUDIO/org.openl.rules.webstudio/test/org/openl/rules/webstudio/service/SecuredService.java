@@ -3,9 +3,9 @@ package org.openl.rules.webstudio.service;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 public interface SecuredService {
-    @PreAuthorize("hasRole('Developers')")
+    @PreAuthorize("hasAuthority('Developers')")
     void save(Foo foo);
 
-    @PreAuthorize("hasPermission(#foo, 'READ')")
+    @PreAuthorize("hasPermission(#foo, 'VIEW')")
     void read(Foo foo);
 }

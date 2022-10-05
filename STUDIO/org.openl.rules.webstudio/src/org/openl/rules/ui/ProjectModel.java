@@ -1,10 +1,5 @@
 package org.openl.rules.ui;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_TABLES;
-import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
-import static org.openl.rules.security.Privileges.EDIT_TABLES;
-
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -34,6 +29,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.meta.IMetaInfo;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -46,6 +42,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -94,6 +91,7 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclPermission;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -639,11 +637,21 @@ public class ProjectModel {
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
-        if (isGranted(EDIT_PROJECTS) && !isCurrentBranchProtected()) {
-            RulesProject project = getProject();
-
-            if (project != null) {
-                return project.isLocalOnly() || !project.isLocked() || project.isOpenedForEditing();
+        if (!isCurrentBranchProtected()) {
+            RulesProject currentProject = getProject();
+            if (currentProject != null) {
+                AProjectArtefact currentModule = null;
+                try {
+                    if (studio.getCurrentModule() != null) {
+                        currentModule = currentProject
+                            .getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+                    }
+                } catch (ProjectException e) {
+                    return false;
+                }
+                return currentProject.isLocalOnly() || !currentProject.isLocked() || currentProject
+                    .isOpenedForEditing() && studio.getDesignRepositoryAclService()
+                        .isGranted(currentModule == null ? currentProject : currentModule, List.of(AclPermission.EDIT));
             }
         }
         return false;
@@ -662,15 +670,32 @@ public class ProjectModel {
     }
 
     public boolean isCanCreateTable() {
-        return isEditable() && isGranted(CREATE_TABLES);
+        if (!isEditable()) {
+            return false;
+        }
+        RulesProject currentProject = studio.getCurrentProject();
+        AProjectArtefact currentModule;
+        try {
+            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+        } catch (ProjectException e) {
+            return false;
+        }
+        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.CREATE_TABLES));
     }
 
     public boolean isCanEditTable(String uri) {
-        return isEditableTable(uri) && isGranted(EDIT_TABLES) && !isCurrentBranchProtected();
-    }
-
-    public boolean isCanEditProject() {
-        return isEditable() && isGranted(EDIT_TABLES);
+        if (!isEditableTable(uri)) {
+            return false;
+        }
+        RulesProject currentProject = studio.getCurrentProject();
+        AProjectArtefact currentModule;
+        try {
+            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+        } catch (ProjectException e) {
+            return false;
+        }
+        return studio.getDesignRepositoryAclService()
+            .isGranted(currentModule, List.of(AclPermission.EDIT_TABLES)) && !isCurrentBranchProtected();
     }
 
     private boolean isCurrentBranchProtected() {

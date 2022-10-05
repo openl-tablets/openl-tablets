@@ -15,6 +15,10 @@
     <dependencies>
         <dependency>
             <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.workspace</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.security.standalone</artifactId>
         </dependency>
         <dependency>

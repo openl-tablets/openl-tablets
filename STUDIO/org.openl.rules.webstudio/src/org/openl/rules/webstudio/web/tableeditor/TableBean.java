@@ -1,13 +1,5 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.BENCHMARK;
-import static org.openl.rules.security.Privileges.CREATE_TABLES;
-import static org.openl.rules.security.Privileges.EDIT_TABLES;
-import static org.openl.rules.security.Privileges.REMOVE_TABLES;
-import static org.openl.rules.security.Privileges.RUN;
-import static org.openl.rules.security.Privileges.TRACE;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -17,10 +9,12 @@ import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
@@ -42,6 +36,7 @@ import org.openl.rules.webstudio.util.XSSFOptimizer;
 import org.openl.rules.webstudio.web.test.Utils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.security.acl.permission.AclPermission;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -104,8 +99,8 @@ public class TableBean {
             method = currentOpenedModule ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
             editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
             canBeOpenInExcel = model.isEditable() && !isDispatcherValidationNode();
-            copyable = editable && table.isCanContainProperties() && !XlsNodeTypes.XLS_DATATYPE.toString()
-                .equals(table.getType()) && isGranted(CREATE_TABLES);
+            copyable = editable && table
+                .isCanContainProperties() && !XlsNodeTypes.XLS_DATATYPE.toString().equals(table.getType());
 
             initTests(model, currentOpenedModule);
 
@@ -198,7 +193,18 @@ public class TableBean {
      * @return true if it is possible to create tests for current table.
      */
     public boolean isCanCreateTest() {
-        return table != null && table.isExecutable() && isEditable() && isGranted(CREATE_TABLES);
+        if (!(table != null && table.isExecutable() && isEditable())) {
+            return false;
+        }
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getCurrentProject();
+        AProjectArtefact currentModule;
+        try {
+            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+        } catch (ProjectException e) {
+            return false;
+        }
+        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.CREATE_TABLES));
     }
 
     public boolean isEditable() {
@@ -206,7 +212,18 @@ public class TableBean {
     }
 
     public boolean isCopyable() {
-        return copyable;
+        if (!copyable) {
+            return false;
+        }
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getCurrentProject();
+        AProjectArtefact currentModule;
+        try {
+            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+        } catch (ProjectException e) {
+            return false;
+        }
+        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.CREATE_TABLES));
     }
 
     public boolean isTablePart() {
@@ -359,7 +376,18 @@ public class TableBean {
     }
 
     public boolean getCanEdit() {
-        return isEditable() && isGranted(EDIT_TABLES);
+        if (!isEditable()) {
+            return false;
+        }
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getCurrentProject();
+        AProjectArtefact currentModule;
+        try {
+            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+        } catch (ProjectException e) {
+            return false;
+        }
+        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.EDIT_TABLES));
     }
 
     public boolean isCanOpenInExcel() {
@@ -367,19 +395,42 @@ public class TableBean {
     }
 
     public boolean getCanRemove() {
-        return isEditable() && isGranted(REMOVE_TABLES);
+        if (!isEditable()) {
+            return false;
+        }
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getCurrentProject();
+        AProjectArtefact currentModule;
+        try {
+            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+        } catch (ProjectException e) {
+            return false;
+        }
+        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.DELETE_TABLES));
     }
 
     public boolean getCanRun() {
-        return isGranted(RUN);
-    }
-
-    public boolean getCanTrace() {
-        return isGranted(TRACE);
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getCurrentProject();
+        AProjectArtefact currentModule;
+        try {
+            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+        } catch (ProjectException e) {
+            return false;
+        }
+        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.RUN));
     }
 
     public boolean getCanBenchmark() {
-        return isGranted(BENCHMARK);
+        WebStudio studio = WebStudioUtils.getWebStudio();
+        RulesProject currentProject = studio.getCurrentProject();
+        AProjectArtefact currentModule;
+        try {
+            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+        } catch (ProjectException e) {
+            return false;
+        }
+        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.BENCHMARK));
     }
 
     public Integer getRowIndex() {

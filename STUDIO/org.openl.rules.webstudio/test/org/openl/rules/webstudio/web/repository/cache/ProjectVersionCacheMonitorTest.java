@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio.web.repository.cache;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,9 +17,7 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 public class ProjectVersionCacheMonitorTest {
 
@@ -30,7 +31,7 @@ public class ProjectVersionCacheMonitorTest {
     public void setUp() throws IOException {
         root = Files.createTempDirectory("openl").toFile();
         repo = createRepository(new File(root, "design-repository"));
-        projectVersionCacheMonitor = new ProjectVersionCacheMonitor();
+        projectVersionCacheMonitor = new ProjectVersionCacheMonitor(new SimpleGrantedAuthority("Administrators"));
         projectVersionCacheManager = new ProjectVersionCacheManager();
         projectVersionCacheDB = new ProjectVersionH2CacheDB();
         projectVersionCacheDB.setOpenLHome(root.getAbsolutePath());

@@ -1,9 +1,5 @@
 package org.openl.rules.rest.service;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.EDIT_DEPLOYMENT;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +31,8 @@ import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,16 +50,19 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
     private final DeploymentManager deploymentManager;
     private final ProjectVersionCacheManager projectVersionCacheManager;
     private final PropertyResolver propertyResolver;
+    private final DesignRepositoryAclService designRepositoryAclService;
 
     @Autowired
     public ProjectDeploymentServiceImpl(ProjectDescriptorArtefactResolver projectDescriptorResolver,
             DeploymentManager deploymentManager,
             ProjectVersionCacheManager projectVersionCacheManager,
-            PropertyResolver propertyResolver) {
+            PropertyResolver propertyResolver,
+            DesignRepositoryAclService designRepositoryAclService) {
         this.projectDescriptorResolver = projectDescriptorResolver;
         this.deploymentManager = deploymentManager;
         this.projectVersionCacheManager = projectVersionCacheManager;
         this.propertyResolver = propertyResolver;
+        this.designRepositoryAclService = designRepositoryAclService;
     }
 
     @Lookup
@@ -153,8 +154,9 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                     }
                 }
             } else {
-                if (!isGranted(EDIT_DEPLOYMENT) || isMainBranchProtected(
-                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
+                if (!designRepositoryAclService.isGranted(project,
+                    List.of(AclPermission.EDIT_DEPLOYMENT)) || isMainBranchProtected(
+                        userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
                     // skip it
                     continue;
@@ -237,8 +239,9 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             result.add(item);
         }
 
-        if (!userWorkspace.hasDDProject(projectName) && isGranted(CREATE_DEPLOYMENT) && !isMainBranchProtected(
-            userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
+        if (!userWorkspace.hasDDProject(projectName) && designRepositoryAclService.isGranted(project,
+            List.of(AclPermission.CREATE_DEPLOYMENT)) && !isMainBranchProtected(
+                userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);
