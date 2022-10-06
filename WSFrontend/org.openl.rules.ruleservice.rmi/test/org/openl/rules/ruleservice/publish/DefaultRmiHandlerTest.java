@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = { "ruleservice.isProvideRuntimeContext=false",
-        "ruleservice.rmiPort=61099",
+        "ruleservice.rmiPort=31099",
         "ruleservice.publishers=RMI",
         "ruleservice.instantiation.strategy.lazy = false",
         "production-repository.uri=test-resources/DefaultRmiHandlerTest",
@@ -33,7 +33,7 @@ public class DefaultRmiHandlerTest {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         Assert.assertNotNull(serviceManager);
 
-        Registry registry = LocateRegistry.getRegistry(61099);
+        Registry registry = LocateRegistry.getRegistry(31099);
         DefaultRmiHandler defaultRmiHandler = (DefaultRmiHandler) registry
             .lookup("DefaultRmiHandlerTest/simpleProject");
 
