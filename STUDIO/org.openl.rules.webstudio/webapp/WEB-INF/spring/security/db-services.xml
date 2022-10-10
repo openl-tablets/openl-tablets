@@ -39,6 +39,8 @@
         <constructor-arg name="propertyResolver" ref="environment"/>
     </bean>
 
+    <bean id="textEditorService" class="org.openl.rules.webstudio.service.TextEditorService"/>
+
     <bean id="adminUsersInitializer" class="org.openl.rules.webstudio.service.AdminUsers" init-method="init"/>
 
     <bean id="privilegeMapper" class="org.openl.rules.webstudio.security.GetUserPrivileges">

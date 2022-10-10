@@ -64,8 +64,9 @@ public class MainBean {
         String branchName = WebStudioUtils.getRequestParameter("branch");
         String projectName = WebStudioUtils.getRequestParameter("project");
         String moduleName = WebStudioUtils.getRequestParameter("module");
+        String file = WebStudioUtils.getRequestParameter("file");
 
-        studio.init(repositoryId, branchName, projectName, moduleName);
+        studio.init(repositoryId, branchName, projectName, moduleName, file);
     }
 
     public String getVersionComment() {

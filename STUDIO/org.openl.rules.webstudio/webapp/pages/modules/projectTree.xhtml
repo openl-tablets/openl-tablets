@@ -93,6 +93,15 @@
                                 <li>
                                     <a href="#{utils.toUrl(repoId, project.name, module.name)}">#{module.name}</a>
                                 </li>
+                                    <li>
+                                        <a href="#{utils.toUrl(repoId, project.name)}?file=sample.xml">sample.xml</a>
+                                    </li>
+                                    <li>
+                                        <a href="#{utils.toUrl(repoId, project.name)}?file=sample.properties">sample.properties</a>
+                                    </li>
+                                    <li>
+                                        <a href="#{utils.toUrl(repoId, project.name)}?file=sample.txt">sample.txt</a>
+                                    </li>
                                 </ui:repeat>
                             </ul>
                         </li>

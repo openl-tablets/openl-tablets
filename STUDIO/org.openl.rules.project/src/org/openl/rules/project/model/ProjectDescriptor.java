@@ -29,6 +29,8 @@ public class ProjectDescriptor {
     private String id;
     private String name;
     private String comment;
+    private File file;
+    private String fileName;
     private Path projectFolder;
     private List<Module> modules;
     private List<PathEntry> classpath;
@@ -119,6 +121,22 @@ public class ProjectDescriptor {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public void setFile(File file) {
+        this.file = file;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     public List<Module> getModules() {

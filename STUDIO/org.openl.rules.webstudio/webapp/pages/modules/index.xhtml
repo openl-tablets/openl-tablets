@@ -695,6 +695,15 @@
                     determineIfModuleChanged(repositoryId, project, "");
                     render(url, { repositoryId: repositoryId, project: project }, toReload, toOpen, openProjectNode);
                 });
+                crossroads.addRoute("{repositoryId}/{project}?file={file}", function(reload, repositoryId, project, file) {
+                    var url = "textEditor.xhtml?repositoryId=" + repositoryId + "&name=" + project + "&file=" + file;
+                    setModule(repositoryId, project);
+                    var leftReload = reload == "true" || !$("#projects-tree").length;
+                    var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
+                    var toOpen = { bottom: 0, right: 0 };
+                    determineIfModuleChanged(repositoryId, project, "");
+                    render(url, { repositoryId: repositoryId, project: project, file: file }, toReload, toOpen, openProjectNode);
+                });
                 // Project-specific additional info pages
                 crossroads.addRoute("{repositoryId}/{project}?page={page}&:{query}:", function(reload, repositoryId, project, page, query) {
                     let url = page + ".xhtml";
@@ -934,6 +943,9 @@
                     }
                     if (init.branch) {
                         initUrl += "&branch=" + init.branch;
+                    }
+                    if (init.file) {
+                        initUrl += "&file=" + init.file;
                     }
                 }
 

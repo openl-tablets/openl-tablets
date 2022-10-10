@@ -173,7 +173,7 @@ public class BranchesBean {
                 setWasMerged(true);
                 model.clearModuleInfo();
                 if (!nameAfterMerge.equals(nameBeforeMerge)) {
-                    WebStudioUtils.getWebStudio().init(repoId, currentBranch, nameAfterMerge, null);
+                    WebStudioUtils.getWebStudio().init(repoId, currentBranch, nameAfterMerge, null, null);
                 }
             }
         } catch (MergeConflictException e) {

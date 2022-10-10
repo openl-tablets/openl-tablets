@@ -30,3 +30,6 @@ target
 # Logs
 logs
 *.log
+/STUDIO/org.openl.rules.webstudio/node_modules/
+/STUDIO/org.openl.rules.webstudio/package.json
+/STUDIO/org.openl.rules.webstudio/package-lock.json

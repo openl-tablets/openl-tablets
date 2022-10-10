@@ -510,7 +510,7 @@ public class ProjectBean {
         try {
             String repositoryId = currentProject.getRepository().getId();
             String branch = currentProject.getBranch();
-            studio.init(repositoryId, branch, newProjectDescriptor.getName(), null);
+            studio.init(repositoryId, branch, newProjectDescriptor.getName(), null, null);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new Message("Error while project renaming");
@@ -847,7 +847,8 @@ public class ProjectBean {
         studio.init(currentProject.getDesignRepository().getId(),
             currentProject.getBranch(),
             currentProject.getName(),
-            modules.iterator().next().getName());
+            modules.iterator().next().getName(),
+            null);
         org.openl.rules.ui.ProjectModel projectModel = studio.getModel();
         while (!isCompilationCompleted(projectModel)) {
             try {

@@ -31,6 +31,13 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 * Maven 3.8.3
 * 512 MiB RAM free
 * 2 GiB Disk space free
+* node js installation with following packages installed (one can call **npm install <package-name>** to install it):
+  * rollup
+  * @rollup/plugin-node-resolve
+  * @types/jquery
+  * codemirror
+  * @codemirror/lang-xml
+
 
 #### Build Maven artifacts:
 

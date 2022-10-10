@@ -499,7 +499,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         manualCompile = true;
     }
 
-    public synchronized void init(String repositoryId, String branchName, String projectName, String moduleName) {
+    public synchronized void init(String repositoryId, String branchName, String projectName, String moduleName, String file) {
         try {
             log.debug("Repository id='{}' Branch='{}'  Project='{}'  Module='{}'",
                 repositoryId,
@@ -567,6 +567,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 needCompile = false;
                 forcedCompile = false;
                 manualCompile = false;
+            }
+            if (currentProject != null && file != null) {
+                currentProject.setFileName(file);
+                File fileToLoad = getCurrentProjectDescriptor().getProjectFolder().resolve(file).toFile();
+                currentProject.setFile(fileToLoad);
             }
         } catch (Exception e) {
             log.error("Failed initialization. Project='{}'  Module='{}'", projectName, moduleName, e);
@@ -1377,7 +1382,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             String branch = project.getBranch();
             String actualName = userWorkspace.getActualName(project);
             resetProjects();
-            init(repositoryId, branch, actualName, null);
+            init(repositoryId, branch, actualName, null, null);
         } catch (ValidationException e) {
             throw e;
         } catch (Exception e) {

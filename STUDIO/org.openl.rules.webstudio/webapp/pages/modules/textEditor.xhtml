@@ -1,0 +1,52 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jsp/jstl/core"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich">
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
+
+    <style>
+        .codeMirrorEditor .cm-editor {
+            height: inherit;
+        }
+
+        .codeMirrorEditor .te_toolbar {
+            background-color: #f7f7f7 !important;
+            width: 647px;
+            margin-bottom: 7px;
+            padding: 5px 2px;
+            font-size: 0px;
+        }
+    </style>
+    <div class="codeMirrorEditor" style="height: inherit">
+    </div>
+
+    <script src='#{contextPath}/javascript/text-editor.bundle.js'></script>
+    <script>
+        let fileName = "#{studio.currentProjectDescriptor.fileName}"
+        let extension = fileName.include("\.")
+            ? fileName.substring(fileName.lastIndexOf(".") + 1)
+            : ''
+        textEditor.initCodeMirror(
+            document.querySelector(".codeMirrorEditor"),
+            extension,
+            {
+                contextPath: "#{contextPath}",
+                onAfterSave: () => {
+                    ws.nav.go("#{studio.url()}?file=#{studio.currentProjectDescriptor.fileName}", true);
+                    ws.ui.hideLoader();
+                },
+                onError: (error) => {
+                    if (error instanceof TypeError) {
+                        ws.ui.error("Connectivity problem: " + error.message)
+                    } else if (error.message) {
+                        ws.ui.error(error.message)
+                    } else {
+                        ws.ui.error("Error occured")
+                    }
+                }
+            })
+    </script>
+</ui:composition>

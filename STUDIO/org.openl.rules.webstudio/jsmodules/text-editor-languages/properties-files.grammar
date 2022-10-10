@@ -1,0 +1,15 @@
+@top PropertyFile { propertyLine* }
+
+propertyLine {
+    ((Key (Delimiter Value)?) |
+    LineComment)?  "\n"
+}
+
+@tokens {
+    localWhitespace { " " | "\t" | "\f"}
+    Delimiter { localWhitespace* ("=" | ":" | localWhitespace) localWhitespace* }
+    escapedSymbol { "\\" ![\n] }
+    Key {![#!\n] ((![=: \t\f\n\\] ) | escapedSymbol) +}
+    Value {(![\\\n] | escapedSymbol | "\\\n")+}
+    LineComment { ("#" | "!") ![\n]*}
+}
