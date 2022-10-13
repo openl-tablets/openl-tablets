@@ -103,7 +103,7 @@
         <org.slf4j.version>1.7.36</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
         <org.bouncycastle.version>1.71.1</org.bouncycastle.version>
-        <com.fasterxml.jackson.version>2.13.3</com.fasterxml.jackson.version>
+        <com.fasterxml.jackson.version>2.13.4</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
         <jetty.server.version>9.4.49.v20220914</jetty.server.version>
@@ -1464,7 +1464,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${com.fasterxml.jackson.version}</version>
+                <version>2.13.4.1</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
