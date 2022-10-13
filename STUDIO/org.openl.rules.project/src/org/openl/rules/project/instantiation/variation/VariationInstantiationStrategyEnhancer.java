@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author PUdalau, Marat Kamalov
  */
+@Deprecated
 public class VariationInstantiationStrategyEnhancer extends AbstractServiceClassEnhancerInstantiationStrategy {
 
     private final Logger log = LoggerFactory.getLogger(VariationInstantiationStrategyEnhancer.class);

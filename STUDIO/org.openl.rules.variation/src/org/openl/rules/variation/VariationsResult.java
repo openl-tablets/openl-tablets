@@ -24,6 +24,7 @@ import com.caucho.hessian.io.Hessian2Output;
  * @author PUdalau, Marat Kamalov
  */
 @XmlRootElement
+@Deprecated
 public class VariationsResult<T> {
     private byte[] data;
 
