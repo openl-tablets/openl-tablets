@@ -11,6 +11,7 @@ import com.rits.cloning.Cloner;
  */
 
 @XmlRootElement
+@Deprecated
 public class DeepCloningVariation extends Variation {
     /**
      * Suffix for generated variation ID if it have not been specified.

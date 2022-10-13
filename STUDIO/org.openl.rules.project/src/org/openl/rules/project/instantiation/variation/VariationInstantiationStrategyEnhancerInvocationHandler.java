@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author PUdalau, Marat Kamalov
  */
+@Deprecated
 class VariationInstantiationStrategyEnhancerInvocationHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
     private final SafeCloner cloner = new SafeCloner();

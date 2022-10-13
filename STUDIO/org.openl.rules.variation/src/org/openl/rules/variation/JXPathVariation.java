@@ -15,6 +15,7 @@ import org.apache.commons.jxpath.Pointer;
  */
 
 @XmlRootElement
+@Deprecated
 public class JXPathVariation extends Variation {
     private int updatedArgumentIndex;
     private String path;

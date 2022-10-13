@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 
 @XmlRootElement
+@Deprecated
 public class NoVariation extends Variation {
     /**
      * ID for original calculation. Can be used for retrieving result of calculation without variations.

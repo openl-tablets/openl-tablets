@@ -11,6 +11,7 @@ package org.openl.rules.variation;
  * @author PUdalau
  */
 // TODO complex variations with separator in the path + test
+@Deprecated
 public abstract class VariationsFactory {
     /**
      * Path that represents modification of root object(argument).

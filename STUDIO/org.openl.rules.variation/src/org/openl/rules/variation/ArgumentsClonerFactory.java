@@ -3,6 +3,7 @@ package org.openl.rules.variation;
 import com.rits.cloning.Cloner;
 import com.rits.cloning.ObjenesisInstantiationStrategy;
 
+@Deprecated
 final class ArgumentsClonerFactory {
     private ArgumentsClonerFactory() {
     }

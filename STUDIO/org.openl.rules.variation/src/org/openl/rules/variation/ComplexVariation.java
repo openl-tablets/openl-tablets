@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author PUdalau
  */
 @XmlRootElement
+@Deprecated
 public class ComplexVariation extends Variation {
     private Variation[] variations;
 

@@ -17,6 +17,7 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Marat Kamalov
  */
 @XmlRootElement
+@Deprecated
 public final class VariationsPack {
     private List<Variation> variations = new ArrayList<>();
 

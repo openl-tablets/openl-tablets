@@ -20,6 +20,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
         ComplexVariation.class,
         JXPathVariation.class,
         DeepCloningVariation.class })
+@Deprecated
 public abstract class Variation {
     private String variationID;
 

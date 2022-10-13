@@ -6,6 +6,7 @@ package org.openl.rules.variation;
  * @author Marat Kamalov
  *
  */
+@Deprecated
 public class VariationException extends Exception {
 
     private static final long serialVersionUID = 8027370423006491250L;

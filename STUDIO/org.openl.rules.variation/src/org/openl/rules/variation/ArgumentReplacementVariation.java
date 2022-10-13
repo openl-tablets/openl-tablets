@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author PUdalau
  */
+@Deprecated
 @XmlRootElement
 public class ArgumentReplacementVariation extends Variation {
     private int updatedArgumentIndex;
