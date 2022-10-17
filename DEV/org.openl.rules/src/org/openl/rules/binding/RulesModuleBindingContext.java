@@ -74,7 +74,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalMethods.add(new RestoreRuntimeContextMethod());
         internalMethods.add(new SetRuntimeContextMethod());
         internalMethods.add(new ModifyRuntimeContextMethod());
-        internalMethods.add(new MessageSourceResourceMethod(module.getClassLoader()));
+        internalMethods.add(new MessageSourceResourceMethod());
     }
 
     /**
@@ -295,8 +295,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             .filter(RecursiveOpenMethodPreBinder::isPreBindStarted)
             .findAny();
         if (prebindingOpenMethodPreBinder.isPresent()) {
-            if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(
-                getExternalParams()) && prebindingOpenMethodPreBinder.get()
+            if (OpenLSystemProperties
+                .isCustomSpreadsheetTypesSupported(getExternalParams()) && prebindingOpenMethodPreBinder.get()
                     .isSpreadsheetWithCustomSpreadsheetResult()) {
                 throw new RecursiveSpreadsheetMethodPreBindingException(
                     String.format("Type '%s' compilation failed with circular reference issue.",
