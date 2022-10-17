@@ -35,6 +35,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.rules.binding.OpenLMessageSource;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
@@ -120,6 +121,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     public final Map<CustomSpreadsheetResultOpenClassesKey, CombinedSpreadsheetResultOpenClass> combinedSpreadsheetResultOpenClasses = new HashMap<>();
     private final AtomicLong combinedSpreadsheetResultOpenClassesCounter = new AtomicLong(0);
 
+    private final OpenLMessageSource messageSource;
+
     /**
      * Constructor for module with dependent modules
      *
@@ -138,6 +141,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         this.dispatchingValidationEnabled = OpenLSystemProperties
             .isDispatchingValidationEnabled(bindingContext.getExternalParams());
         this.classLoader = classLoader;
+        this.messageSource = new OpenLMessageSource(classLoader);
         this.classGenerationClassLoader = new OpenLClassLoader(null);
         this.classGenerationClassLoader.addClassLoader(classLoader);
         this.rulesModuleBindingContext = new RulesModuleBindingContext(bindingContext, this);
@@ -823,5 +827,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     public int hashCode() {
         return super.hashCode();
+    }
+
+    public OpenLMessageSource getMessageSource() {
+        return messageSource;
     }
 }

@@ -9,17 +9,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.openl.util.CollectionUtils;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * OpenL Project MessageSource service. Loads all i18n message properties for required {@link Locale}
  */
-class OpenLMessageSource {
+public class OpenLMessageSource {
 
     Logger LOG = LoggerFactory.getLogger(OpenLMessageSource.class);
 
@@ -92,13 +91,12 @@ class OpenLMessageSource {
      * @return the message bundle
      */
     private MessageBundle loadMessageBundle(String basename, Locale locale) {
-        var properties = new HashMap<String, String>();
         String language = locale.getLanguage();
         String country = locale.getCountry();
         String variant = locale.getVariant();
         StringBuilder temp = new StringBuilder(basename);
 
-        properties.putAll(getProperties(basename));
+        var properties = new HashMap<String, String>(getProperties(basename));
 
         temp.append('_');
         if (StringUtils.isNotEmpty(language)) {
