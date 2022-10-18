@@ -1,0 +1,2 @@
+ERROR: There can be only one active table.
+ERROR: There can be only one active table.
