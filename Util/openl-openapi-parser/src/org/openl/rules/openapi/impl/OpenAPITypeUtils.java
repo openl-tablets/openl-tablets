@@ -12,10 +12,10 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.commons.jxpath.JXPathContext;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.model.scaffolding.TypeInfo;
+import org.openl.rules.project.openapi.OpenAPIRefResolver;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -96,12 +96,14 @@ public class OpenAPITypeUtils {
             new TypeInfo(BigInteger.class));
     }
 
-    public static TypeInfo extractType(JXPathContext pathContext, Schema<?> schema, boolean allowPrimitiveTypes) {
+    public static TypeInfo extractType(OpenAPIRefResolver openAPIRefResolver,
+            Schema<?> schema,
+            boolean allowPrimitiveTypes) {
         boolean isRefToComplexType = false;
         Schema<?> foundSchema = null;
         if (schema.get$ref() != null) {
-            foundSchema = OpenLOpenAPIUtils.resolve(pathContext, schema, Schema::get$ref);
-            isRefToComplexType = isComplexSchema(pathContext, foundSchema);
+            foundSchema = OpenLOpenAPIUtils.resolve(openAPIRefResolver, schema, Schema::get$ref);
+            isRefToComplexType = isComplexSchema(openAPIRefResolver, foundSchema);
         }
 
         if (isRefToComplexType) {
@@ -143,7 +145,7 @@ public class OpenAPITypeUtils {
             result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(schemaType) : WRAPPER_CLASSES.get(schemaType);
         } else if (schema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schema;
-            TypeInfo type = extractType(pathContext, arraySchema.getItems(), false);
+            TypeInfo type = extractType(openAPIRefResolver, arraySchema.getItems(), false);
             String name = type.getSimpleName() + "[]";
             int dim = type.getDimension() + 1;
             if (type.isReference()) {
@@ -169,12 +171,12 @@ public class OpenAPITypeUtils {
         return result;
     }
 
-    public static boolean isComplexSchema(JXPathContext pathContext, Schema<?> foundSchema) {
+    public static boolean isComplexSchema(OpenAPIRefResolver openAPIRefResolver, Schema<?> foundSchema) {
         boolean result = false;
         if (foundSchema instanceof ComposedSchema) {
             result = true;
         } else if (foundSchema instanceof ArraySchema) {
-            TypeInfo typeInfo = extractType(pathContext, foundSchema, false);
+            TypeInfo typeInfo = extractType(openAPIRefResolver, foundSchema, false);
             result = typeInfo.isReference();
         } else if (OBJECT.equalsIgnoreCase(foundSchema.getType())) {
             result = true;
