@@ -28,10 +28,7 @@ import junit.framework.TestCase;
  */
 public class BinderTest extends TestCase {
 
-    private void _testMethodHeader(String code,
-            IOpenClass type,
-            String openlName,
-            int numPar) throws OpenLCompilationException {
+    private void _testMethodHeader(String code, IOpenClass type, String openlName, int numPar) {
         OpenL openl = OpenL.getInstance(openlName);
         IOpenMethodHeader header = OpenLManager
             .makeMethodHeader(openl, new StringSourceCodeModule(code, null), openl.getBinder().makeBindingContext());

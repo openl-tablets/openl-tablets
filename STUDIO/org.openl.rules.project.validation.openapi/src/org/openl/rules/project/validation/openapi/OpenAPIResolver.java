@@ -7,55 +7,34 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import org.apache.commons.jxpath.CompiledExpression;
-import org.apache.commons.jxpath.JXPathContext;
-import org.apache.commons.jxpath.JXPathException;
+import org.openl.rules.project.openapi.OpenAPIRefResolver;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
 final class OpenAPIResolver {
+    private final OpenAPIRefResolver openAPIRefResolver;
     private final Context context;
-    private final JXPathContext jxPathContext;
-    private final Map<String, Object> resolvedByRefCache = new HashMap<>();
+
     @SuppressWarnings("rawtypes")
     private final Map<Schema, Map<String, Schema>> allPropertiesCache = new IdentityHashMap<>();
 
     public OpenAPIResolver(Context context, OpenAPI openAPI) {
         this.context = Objects.requireNonNull(context, "context cannot be null");
-        Objects.requireNonNull(openAPI, "openAPI cannot be null");
-        this.jxPathContext = JXPathContext.newContext(openAPI);
+        this.openAPIRefResolver = new OpenAPIRefResolver(Objects.requireNonNull(openAPI, "openAPI cannot be null"));
     }
 
-    @SuppressWarnings("unchecked")
     public <T> T resolve(T obj, Function<T, String> getRefFunc) {
-        if (obj != null && getRefFunc.apply(obj) != null) {
-            return resolve((T) resolveByRef(getRefFunc.apply(obj)), getRefFunc);
-        }
-        return obj;
-    }
-
-    private Object resolveByRef(String ref) {
-        if (resolvedByRefCache.containsKey(ref)) {
-            return resolvedByRefCache.get(ref);
-        }
-        CompiledExpression compiledExpression = JXPathContext.compile(ref.substring(1));
-        try {
-            Object resolvedByRef = compiledExpression.createPath(jxPathContext).getValue();
-            resolvedByRefCache.put(ref, resolvedByRef);
-            return resolvedByRef;
-        } catch (JXPathException e) {
-            resolvedByRefCache.put(ref, null);
+        return openAPIRefResolver.resolve(obj, getRefFunc, () -> {
             if (context.isTypeValidationInProgress()) {
                 OpenApiProjectValidatorMessagesUtils.addTypeError(context,
-                    String.format("Invalid $ref '%s' is used in the OpenAPI file.", ref));
+                    String.format("Invalid $ref '%s' is used in the OpenAPI file.", getRefFunc.apply(obj)));
             } else {
                 OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                    String.format("Invalid $ref '%s' is used in the OpenAPI file.", ref));
+                    String.format("Invalid $ref '%s' is used in the OpenAPI file.", getRefFunc.apply(obj)));
             }
-            return null;
-        }
+        });
     }
 
     @SuppressWarnings("rawtypes")
