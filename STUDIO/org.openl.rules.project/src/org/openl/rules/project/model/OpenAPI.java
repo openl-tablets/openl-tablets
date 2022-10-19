@@ -1,7 +1,13 @@
 package org.openl.rules.project.model;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Objects;
 
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public final class OpenAPI {
     public enum Mode {
         RECONCILIATION,
@@ -37,7 +43,9 @@ public final class OpenAPI {
 
     private String path;
 
+    @XmlElement(name = "model-module-name")
     private String modelModuleName;
+    @XmlElement(name = "algorithm-module-name")
     private String algorithmModuleName;
 
     private Mode mode;

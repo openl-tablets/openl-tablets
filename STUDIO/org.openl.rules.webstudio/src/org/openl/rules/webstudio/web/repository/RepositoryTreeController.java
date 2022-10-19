@@ -58,6 +58,7 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
+import org.openl.rules.project.xml.OpenLSerializationException;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
@@ -118,8 +119,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thoughtworks.xstream.XStreamException;
-import com.thoughtworks.xstream.io.StreamException;
 
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
@@ -908,7 +907,7 @@ public class RepositoryTreeController {
             ProjectDescriptor projectDescriptor;
             try {
                 projectDescriptor = serializer.deserialize(content);
-            } catch (StreamException e) {
+            } catch (OpenLSerializationException e) {
                 log.error("Broken rules.xml file. Cannot remove modules from it", e);
                 return;
             } finally {
@@ -2242,7 +2241,7 @@ public class RepositoryTreeController {
                 }
             }
 
-        } catch (XStreamException e) {
+        } catch (OpenLSerializationException e) {
             // Add warning that uploaded project contains incorrect rules.xml
             WebStudioUtils.addWarnMessage("Warning: " + ProjectDescriptorUtils.getErrorMessage(e));
         } catch (Exception ignored) {

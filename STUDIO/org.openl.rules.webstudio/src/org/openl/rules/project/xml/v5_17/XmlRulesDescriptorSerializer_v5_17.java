@@ -1,30 +1,27 @@
 package org.openl.rules.project.xml.v5_17;
 
+import org.openl.rules.project.model.v5_17.PublisherType_v5_17;
 import org.openl.rules.project.model.v5_17.RulesDeploy_v5_17;
 import org.openl.rules.project.model.v5_17.converter.RulesDeployVersionConverter;
 import org.openl.rules.project.xml.BaseRulesDeploySerializer;
 
-import com.thoughtworks.xstream.XStream;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class XmlRulesDescriptorSerializer_v5_17 extends BaseRulesDeploySerializer<RulesDeploy_v5_17> {
-    private static final String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";
-    private static final String MODULE_NAME = "module";
-    private static final String LAZY_MODULES_FOR_COMPILATION = "lazy-modules-for-compilation";
 
     public XmlRulesDescriptorSerializer_v5_17() {
-        super(new RulesDeployVersionConverter());
-        xstream.ignoreUnknownElements();
-        xstream.omitField(RulesDeploy_v5_17.class, "log");
+        super(new RulesDeployVersionConverter(), RulesDeploy_v5_17.class);
+    }
 
-        xstream.setMode(XStream.NO_REFERENCES);
+    public static class PublisherType_v5_17XmlAdapter extends XmlAdapter<String, PublisherType_v5_17> {
+        @Override
+        public PublisherType_v5_17 unmarshal(String name) {
+            return PublisherType_v5_17.valueOf(name.toUpperCase());
+        }
 
-        xstream.aliasType("publisher", RulesDeploy_v5_17.PublisherType.class);
-        xstream.aliasType(RULES_DEPLOY_DESCRIPTOR_TAG, RulesDeploy_v5_17.class);
-        xstream.aliasType(MODULE_NAME, RulesDeploy_v5_17.WildcardPattern.class);
-
-        xstream.aliasField(LAZY_MODULES_FOR_COMPILATION, RulesDeploy_v5_17.class, "lazyModulesForCompilationPatterns");
-
-        xstream.aliasField("name", RulesDeploy_v5_17.WildcardPattern.class, "value");
-        xstream.useAttributeFor(RulesDeploy_v5_17.WildcardPattern.class, "value");
+        @Override
+        public String marshal(PublisherType_v5_17 publisherType) {
+            return publisherType.toString();
+        }
     }
 }

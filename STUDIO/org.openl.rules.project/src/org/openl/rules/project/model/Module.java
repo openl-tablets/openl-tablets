@@ -1,17 +1,34 @@
 package org.openl.rules.project.model;
 
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
+
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.METHOD_FILTER_TAG;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.WEBSTUDIO_CONFIGURATION;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name="module")
 public class Module {
+    @XmlJavaTypeAdapter(XmlProjectDescriptorSerializer.CollapsedStringAdapter2.class)
     private String name;
+    @XmlElement(name = "rules-root")
     private PathEntry rulesRootPath;
+    @XmlTransient
     private ProjectDescriptor project;
+    @XmlTransient
     private Map<String, Object> properties;
+    @XmlElement(name = WEBSTUDIO_CONFIGURATION)
     private WebstudioConfiguration webstudioConfiguration = new WebstudioConfiguration();
+    @XmlTransient
     private String wildcardName;
+    @XmlTransient
     private String wildcardRulesRootPath;
+    @XmlElement(name = METHOD_FILTER_TAG)
     private MethodFilter methodFilter;
 
     public MethodFilter getMethodFilter() {

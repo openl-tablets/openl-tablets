@@ -1,29 +1,37 @@
 package org.openl.rules.project.model.v5_14;
 
+import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+import org.openl.rules.project.xml.v5_14.XmlRulesDescriptorSerializer_v5_14;
+
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Map;
 
-public class RulesDeploy_v5_14 {
+import static org.openl.rules.project.xml.XmlRulesDeploySerializer.*;
 
-    public enum PublisherType {
-        WEBSERVICE,
-        RESTFUL
-    }
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name=RULES_DEPLOY_DESCRIPTOR_TAG)
+public class RulesDeploy_v5_14 {
 
     private Boolean isProvideRuntimeContext;
     private Boolean isProvideVariations;
     private Boolean useRuleServiceRuntimeContext;
     private String serviceName;
-    private PublisherType[] publishers;
+    @XmlElementWrapper(name = PUBLISHERS_TAG)
+    @XmlElement(name = PUBLISHER_TAG)
+    @XmlJavaTypeAdapter(XmlRulesDescriptorSerializer_v5_14.PublisherType_v5_14XmlAdapter.class)
+    private PublisherType_v5_14[] publishers;
     private String interceptingTemplateClassName;
     private String serviceClass;
     private String url;
+    @XmlJavaTypeAdapter(XmlRulesDeploySerializer.MapAdapter.class)
     private Map<String, Object> configuration;
 
-    public PublisherType[] getPublishers() {
+    public PublisherType_v5_14[] getPublishers() {
         return publishers;
     }
 
-    public void setPublishers(PublisherType[] publishers) {
+    public void setPublishers(PublisherType_v5_14[] publishers) {
         this.publishers = publishers;
     }
 

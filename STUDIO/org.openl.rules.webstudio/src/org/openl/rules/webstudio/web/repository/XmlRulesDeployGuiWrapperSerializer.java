@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -59,8 +60,20 @@ public class XmlRulesDeployGuiWrapperSerializer {
 
     private IRulesDeploySerializer getSerializer(SupportedVersion version) {
         BaseRulesDeploySerializer serializer = (BaseRulesDeploySerializer) serializerFactory.getSerializer(version);
-        // We process the "configuration" field ourself
-        serializer.getXstream().omitField(RulesDeploy.class, "configuration");
-        return serializer;
+
+        return new IRulesDeploySerializer() {
+            @Override
+            public RulesDeploy deserialize(InputStream source) {
+                return serializer.deserialize(source);
+            }
+
+            @Override
+            public String serialize(RulesDeploy source) {
+                // We process the "configuration" field ourself
+                return serializer.serialize(source)
+                        .replaceAll("<configuration>[\\s\\S]*?</configuration>","")
+                        .replaceAll("(?m)^[ \t]*\r?\n", "");
+            }
+        };
     }
 }

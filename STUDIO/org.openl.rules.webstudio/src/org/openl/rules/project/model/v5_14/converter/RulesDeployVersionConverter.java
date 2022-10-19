@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openl.rules.project.model.ObjectVersionConverter;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.v5_14.PublisherType_v5_14;
 import org.openl.rules.project.model.v5_14.RulesDeploy_v5_14;
 import org.openl.util.CollectionUtils;
 
@@ -55,7 +56,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
         rulesDeploy.setProvideVariations(currentVersion.isProvideVariations());
 
         if (currentVersion.getPublishers() != null) {
-            List<RulesDeploy_v5_14.PublisherType> publishers = CollectionUtils
+            List<PublisherType_v5_14> publishers = CollectionUtils
                 .map(Arrays.asList(currentVersion.getPublishers()), oldVersion -> {
                     if (oldVersion == null) {
                         return null;
@@ -63,9 +64,9 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
 
                     switch (oldVersion) {
                         case WEBSERVICE:
-                            return RulesDeploy_v5_14.PublisherType.WEBSERVICE;
+                            return PublisherType_v5_14.WEBSERVICE;
                         case RESTFUL:
-                            return RulesDeploy_v5_14.PublisherType.RESTFUL;
+                            return PublisherType_v5_14.RESTFUL;
                         case RMI:
                             throw new UnsupportedOperationException("RMI publisher is not supported in old version.");
                         case KAFKA:
@@ -74,7 +75,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                             throw new IllegalArgumentException();
                     }
                 });
-            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_14.PublisherType[0]));
+            rulesDeploy.setPublishers(publishers.toArray(new PublisherType_v5_14[0]));
         }
 
         rulesDeploy.setServiceClass(currentVersion.getServiceClass());

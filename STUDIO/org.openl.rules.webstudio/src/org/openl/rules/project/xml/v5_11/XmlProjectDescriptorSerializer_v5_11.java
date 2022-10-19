@@ -1,49 +1,31 @@
 package org.openl.rules.project.xml.v5_11;
 
-import java.util.Collection;
-import java.util.HashSet;
-
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.v5_11.Module_v5_11;
+import org.openl.rules.project.model.v5_11.ModuleType_v5_11;
 import org.openl.rules.project.model.v5_11.ProjectDescriptor_v5_11;
 import org.openl.rules.project.model.v5_11.converter.ProjectDescriptorVersionConverter;
 import org.openl.rules.project.xml.BaseProjectDescriptorSerializer;
-import org.openl.rules.project.xml.StringValueConverter;
 
-import com.thoughtworks.xstream.XStream;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class XmlProjectDescriptorSerializer_v5_11 extends BaseProjectDescriptorSerializer<ProjectDescriptor_v5_11> {
-
-    private static final String PROJECT_DESCRIPTOR_TAG = "project";
-    private static final String MODULE_TAG = "module";
-    private static final String PATH_TAG = "entry";
-    private static final String PROPERTY_TAG = "property";
-    private static final String METHOD_FILTER_TAG = "method-filter";
 
     public XmlProjectDescriptorSerializer_v5_11() {
         this(true);
     }
 
     public XmlProjectDescriptorSerializer_v5_11(boolean postProcess) {
-        super(postProcess, new ProjectDescriptorVersionConverter());
-
-        xstream.omitField(ProjectDescriptor_v5_11.class, "log");
-        xstream.omitField(ProjectDescriptor_v5_11.class, "classLoader");
-        xstream.omitField(Module_v5_11.class, "project"); // runtime properties
-
-        xstream.setMode(XStream.NO_REFERENCES);
-
-        xstream.aliasType(PROJECT_DESCRIPTOR_TAG, ProjectDescriptor_v5_11.class);
-        xstream.aliasType(MODULE_TAG, Module_v5_11.class);
-        xstream.aliasType(PATH_TAG, PathEntry.class);
-        xstream.addDefaultImplementation(HashSet.class, Collection.class);
-        xstream.alias("value", String.class);
-
-        xstream.useAttributeFor(PathEntry.class, "path");
-        xstream.aliasField("rules-root", Module_v5_11.class, "rulesRootPath");
-        xstream.aliasField(METHOD_FILTER_TAG, Module_v5_11.class, "methodFilter");
-        xstream.registerConverter(new ModuleTypeConverter_v5_11());
-        xstream.registerConverter(new StringValueConverter());
+        super(postProcess, new ProjectDescriptorVersionConverter(), ProjectDescriptor_v5_11.class);
     }
 
+    public static class ModuleType_v5_11XmlAdapter extends XmlAdapter<String, ModuleType_v5_11> {
+        @Override
+        public ModuleType_v5_11 unmarshal(String name) {
+            return ModuleType_v5_11.valueOf(name.toUpperCase());
+        }
+
+        @Override
+        public String marshal(ModuleType_v5_11 moduleType_v5_11) {
+            return moduleType_v5_11.toString().toLowerCase();
+        }
+    }
 }

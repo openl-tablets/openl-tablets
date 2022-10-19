@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.openl.rules.project.model.ObjectVersionConverter;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.WildcardPattern;
 import org.openl.rules.project.model.v5_16.RulesDeploy_v5_16;
 import org.openl.util.CollectionUtils;
 
@@ -18,11 +19,11 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
         rulesDeploy.setInterceptingTemplateClassName(oldVersion.getInterceptingTemplateClassName());
 
         if (oldVersion.getLazyModulesForCompilationPatterns() != null) {
-            List<RulesDeploy.WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
+            List<WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
                 Arrays.asList(oldVersion.getLazyModulesForCompilationPatterns()),
-                e -> e == null ? null : new RulesDeploy.WildcardPattern(e.getValue()));
+                e -> e == null ? null : new WildcardPattern(e.getValue()));
             rulesDeploy.setLazyModulesForCompilationPatterns(lazyModulesForCompilationPatterns
-                .toArray(new RulesDeploy.WildcardPattern[0]));
+                .toArray(new WildcardPattern[0]));
         }
 
         rulesDeploy.setProvideRuntimeContext(oldVersion.isProvideRuntimeContext());
@@ -66,11 +67,11 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
         rulesDeploy.setInterceptingTemplateClassName(currentVersion.getInterceptingTemplateClassName());
 
         if (currentVersion.getLazyModulesForCompilationPatterns() != null) {
-            List<RulesDeploy_v5_16.WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
+            List<WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
                 Arrays.asList(currentVersion.getLazyModulesForCompilationPatterns()),
-                oldVersion -> oldVersion == null ? null : new RulesDeploy_v5_16.WildcardPattern(oldVersion.getValue()));
+                oldVersion -> oldVersion == null ? null : new WildcardPattern(oldVersion.getValue()));
             rulesDeploy.setLazyModulesForCompilationPatterns(lazyModulesForCompilationPatterns
-                .toArray(new RulesDeploy_v5_16.WildcardPattern[0]));
+                .toArray(new WildcardPattern[0]));
         }
 
         rulesDeploy.setProvideRuntimeContext(currentVersion.isProvideRuntimeContext());

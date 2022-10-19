@@ -27,6 +27,7 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.project.xml.OpenLSerializationException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
@@ -48,7 +49,6 @@ import org.springframework.core.env.PropertyResolver;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thoughtworks.xstream.XStreamException;
 
 public abstract class AbstractSmartRedeployController {
 
@@ -346,7 +346,7 @@ public abstract class AbstractSmartRedeployController {
                 item.setDisabled(true);
                 item.setMessages("Internal error while reading the project from the repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
-            } catch (XStreamException e) {
+            } catch (OpenLSerializationException e) {
                 LOG.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Project descriptor is invalid.");

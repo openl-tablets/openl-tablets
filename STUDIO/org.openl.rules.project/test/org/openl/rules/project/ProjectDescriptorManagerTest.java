@@ -214,12 +214,42 @@ public class ProjectDescriptorManagerTest {
         descriptor.setModules(modules);
 
         module1.getMethodFilter().addIncludePattern(" * ");
+        module1.getMethodFilter().addExcludePattern(" * ");
 
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
 
-        String expected = "<project>" + "\n" + "  <name>name1</name>" + "\n" + "  <comment>comment1</comment>" + "\n" + "  <modules>" + "\n" + "    <module>" + "\n" + "      <name>name1</name>" + "\n" + "      <rules-root path=\"path1\"/>" + "\n" + "      <method-filter>" + "\n" + "        <includes>" + "\n" + "          <value>*</value>" + "\n" + "        </includes>" + "\n" + "      </method-filter>" + "\n" + "    </module>" + "\n" + "  </modules>" + "\n" + "  <classpath>" + "\n" + "    <entry path=\"path1\"/>" + "\n" + "    <entry path=\"path2\"/>" + "\n" + "  </classpath>" + "\n" + "  <dependencies>" + "\n" + "    <dependency>" + "\n" + "      <name>someProjectName</name>" + "\n" + "      <autoIncluded>false</autoIncluded>" + "\n" + "    </dependency>" + "\n" + "  </dependencies>" + "\n" + "  <properties-file-name-pattern>{lob}</properties-file-name-pattern>" + "\n" + "  <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>" + "\n" + "</project>";
+        String expected = "<project>\n" +
+                "    <name>name1</name>\n" +
+                "    <comment>comment1</comment>\n" +
+                "    <modules>\n" +
+                "        <module>\n" +
+                "            <name>name1</name>\n" +
+                "            <rules-root path=\"path1\"/>\n" +
+                "            <method-filter>\n" +
+                "                <includes>\n" +
+                "                    <value>*</value>\n" +
+                "                </includes>\n" +
+                "                <excludes>\n" +
+                "                    <value>*</value>\n" +
+                "                </excludes>\n" +
+                "            </method-filter>\n" +
+                "        </module>\n" +
+                "    </modules>\n" +
+                "    <classpath>\n" +
+                "        <entry path=\"path1\"/>\n" +
+                "        <entry path=\"path2\"/>\n" +
+                "    </classpath>\n" +
+                "    <dependencies>\n" +
+                "        <dependency>\n" +
+                "            <name>someProjectName</name>\n" +
+                "            <autoIncluded>false</autoIncluded>\n" +
+                "        </dependency>\n" +
+                "    </dependencies>\n" +
+                "    <properties-file-name-pattern>{lob}</properties-file-name-pattern>\n" +
+                "    <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>\n" +
+                "</project>";
         assertEquals(expected, dest.toString());
     }
 

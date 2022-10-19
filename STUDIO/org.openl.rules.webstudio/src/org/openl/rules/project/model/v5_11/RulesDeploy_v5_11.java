@@ -1,7 +1,17 @@
 package org.openl.rules.project.model.v5_11;
 
+import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Map;
 
+import static org.openl.rules.project.xml.XmlRulesDeploySerializer.RULES_DEPLOY_DESCRIPTOR_TAG;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name=RULES_DEPLOY_DESCRIPTOR_TAG)
 public class RulesDeploy_v5_11 {
     private Boolean isProvideRuntimeContext;
     private Boolean isProvideVariations;
@@ -10,6 +20,7 @@ public class RulesDeploy_v5_11 {
     private String interceptingTemplateClassName;
     private String serviceClass;
     private String url;
+    @XmlJavaTypeAdapter(XmlRulesDeploySerializer.MapAdapter.class)
     private Map<String, Object> configuration;
 
     public Boolean isProvideRuntimeContext() {

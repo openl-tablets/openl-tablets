@@ -8,11 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,23 +17,43 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.util.FileUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.springframework.util.AntPathMatcher;
 
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.*;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name=PROJECT_DESCRIPTOR_TAG)
 public class ProjectDescriptor {
+    @XmlTransient
     private String id;
+    @XmlJavaTypeAdapter(XmlProjectDescriptorSerializer.CollapsedStringAdapter2.class)
     private String name;
     private String comment;
+    @XmlTransient
     private Path projectFolder;
+    @XmlElementWrapper(name = "modules")
+    @XmlElement(name = "module")
     private List<Module> modules;
+    @XmlElementWrapper(name = "classpath")
+    @XmlElement(name = "entry")
     private List<PathEntry> classpath;
     private OpenAPI openapi;
 
+    @XmlElementWrapper(name = "dependencies")
+    @XmlElement(name = DEPENDENCY_TAG)
     private List<ProjectDependencyDescriptor> dependencies;
+    @XmlElement(name = PROPERTIES_FILE_NAME_PATTERN)
     private String[] propertiesFileNamePatterns;
+    @XmlElement(name = PROPERTIES_FILE_NAME_PROCESSOR)
     private String propertiesFileNameProcessor;
 
+    @XmlTransient
     private volatile URL[] classPathUrls;
 
     public String[] getPropertiesFileNamePatterns() {

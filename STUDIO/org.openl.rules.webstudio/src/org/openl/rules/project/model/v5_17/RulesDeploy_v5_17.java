@@ -1,37 +1,26 @@
 package org.openl.rules.project.model.v5_17;
 
+import org.openl.rules.project.model.WildcardPattern;
+import org.openl.rules.project.xml.v5_17.XmlRulesDescriptorSerializer_v5_17;
+
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Map;
 
+import static org.openl.rules.project.xml.XmlRulesDeploySerializer.*;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name=RULES_DEPLOY_DESCRIPTOR_TAG)
 public class RulesDeploy_v5_17 {
-
-    public enum PublisherType {
-        WEBSERVICE,
-        RESTFUL,
-        RMI,
-        KAFKA
-    }
-
-    public static class WildcardPattern {
-        String value;
-
-        public WildcardPattern(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-    }
 
     private Boolean isProvideRuntimeContext;
     private Boolean isProvideVariations;
     private Boolean useRuleServiceRuntimeContext;
     private String serviceName;
-    private PublisherType[] publishers;
+    @XmlElementWrapper(name = PUBLISHERS_TAG)
+    @XmlElement(name = PUBLISHER_TAG)
+    @XmlJavaTypeAdapter(XmlRulesDescriptorSerializer_v5_17.PublisherType_v5_17XmlAdapter.class)
+    private PublisherType_v5_17[] publishers;
     private String interceptingTemplateClassName;
     private String annotationTemplateClassName;
     private String serviceClass;
@@ -39,15 +28,17 @@ public class RulesDeploy_v5_17 {
     private String url;
     private String version;
     private String groups;
+    @XmlJavaTypeAdapter(MapAdapter.class)
     private Map<String, Object> configuration;
-
+    @XmlElementWrapper(name = LAZY_MODULES_FOR_COMPILATION)
+    @XmlElement(name = MODULE_NAME)
     private WildcardPattern[] lazyModulesForCompilationPatterns;
 
-    public PublisherType[] getPublishers() {
+    public PublisherType_v5_17[] getPublishers() {
         return publishers;
     }
 
-    public void setPublishers(PublisherType[] publishers) {
+    public void setPublishers(PublisherType_v5_17[] publishers) {
         this.publishers = publishers;
     }
 

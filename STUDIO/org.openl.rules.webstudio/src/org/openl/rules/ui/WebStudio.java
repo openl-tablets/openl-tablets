@@ -45,6 +45,7 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
+import org.openl.rules.project.xml.OpenLSerializationException;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
@@ -91,8 +92,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import com.thoughtworks.xstream.XStreamException;
 
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
@@ -878,7 +877,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         try {
             newProjectDescriptor = ZipProjectDescriptorExtractor
                 .getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
-        } catch (XStreamException e) {
+        } catch (OpenLSerializationException e) {
             return ProjectDescriptorUtils.getErrorMessage(e);
         }
         if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {

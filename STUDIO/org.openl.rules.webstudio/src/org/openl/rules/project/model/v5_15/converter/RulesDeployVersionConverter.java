@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.openl.rules.project.model.ObjectVersionConverter;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.WildcardPattern;
+import org.openl.rules.project.model.v5_14.PublisherType_v5_14;
 import org.openl.rules.project.model.v5_15.RulesDeploy_v5_15;
 import org.openl.util.CollectionUtils;
 
@@ -17,11 +19,11 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
         rulesDeploy.setInterceptingTemplateClassName(oldVersion.getInterceptingTemplateClassName());
 
         if (oldVersion.getLazyModulesForCompilationPatterns() != null) {
-            List<RulesDeploy.WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
+            List<WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
                 Arrays.asList(oldVersion.getLazyModulesForCompilationPatterns()),
-                e -> e == null ? null : new RulesDeploy.WildcardPattern(e.getValue()));
+                e -> e == null ? null : new WildcardPattern(e.getValue()));
             rulesDeploy.setLazyModulesForCompilationPatterns(lazyModulesForCompilationPatterns
-                .toArray(new RulesDeploy.WildcardPattern[0]));
+                .toArray(new WildcardPattern[0]));
         }
 
         rulesDeploy.setProvideRuntimeContext(oldVersion.isProvideRuntimeContext());
@@ -61,18 +63,18 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
         rulesDeploy.setInterceptingTemplateClassName(currentVersion.getInterceptingTemplateClassName());
 
         if (currentVersion.getLazyModulesForCompilationPatterns() != null) {
-            List<RulesDeploy_v5_15.WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
+            List<WildcardPattern> lazyModulesForCompilationPatterns = CollectionUtils.map(
                 Arrays.asList(currentVersion.getLazyModulesForCompilationPatterns()),
-                version -> version == null ? null : new RulesDeploy_v5_15.WildcardPattern(version.getValue()));
+                version -> version == null ? null : new WildcardPattern(version.getValue()));
             rulesDeploy.setLazyModulesForCompilationPatterns(lazyModulesForCompilationPatterns
-                .toArray(new RulesDeploy_v5_15.WildcardPattern[0]));
+                .toArray(new WildcardPattern[0]));
         }
 
         rulesDeploy.setProvideRuntimeContext(currentVersion.isProvideRuntimeContext());
         rulesDeploy.setProvideVariations(currentVersion.isProvideVariations());
 
         if (currentVersion.getPublishers() != null) {
-            List<RulesDeploy_v5_15.PublisherType> publishers = CollectionUtils
+            List<PublisherType_v5_14> publishers = CollectionUtils
                 .map(Arrays.asList(currentVersion.getPublishers()), oldVersion -> {
                     if (oldVersion == null) {
                         return null;
@@ -80,9 +82,9 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
 
                     switch (oldVersion) {
                         case WEBSERVICE:
-                            return RulesDeploy_v5_15.PublisherType.WEBSERVICE;
+                            return PublisherType_v5_14.WEBSERVICE;
                         case RESTFUL:
-                            return RulesDeploy_v5_15.PublisherType.RESTFUL;
+                            return PublisherType_v5_14.RESTFUL;
                         case RMI:
                             throw new UnsupportedOperationException("RMI publisher is not supported in old version.");
                         case KAFKA:
@@ -91,7 +93,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                             throw new IllegalArgumentException();
                     }
                 });
-            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_15.PublisherType[0]));
+            rulesDeploy.setPublishers(publishers.toArray(new PublisherType_v5_14[0]));
         }
 
         rulesDeploy.setServiceClass(currentVersion.getServiceClass());

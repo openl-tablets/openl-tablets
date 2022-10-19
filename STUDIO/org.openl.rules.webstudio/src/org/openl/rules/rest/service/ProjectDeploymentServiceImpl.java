@@ -21,6 +21,7 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.project.xml.OpenLSerializationException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
@@ -39,8 +40,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
-
-import com.thoughtworks.xstream.XStreamException;
 
 @Service
 public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
@@ -251,7 +250,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                 item.setDisabled(true);
                 item.setMessages("Internal error while reading the project from the repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
-            } catch (XStreamException e) {
+            } catch (OpenLSerializationException e) {
                 log.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Project descriptor is invalid.");
@@ -347,6 +346,9 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             }
         } catch (ProjectException e) {
             String msg = "Failed to update deploy configuration '" + deploymentName + "'.";
+            log.error(msg, e);
+        } catch (OpenLSerializationException e) {
+            String msg = "Failed to create serializer when update deploy configuration '" + deploymentName + "'.";
             log.error(msg, e);
         }
 

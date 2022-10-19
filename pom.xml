@@ -209,7 +209,6 @@
         <xmlsec.version>2.3.2</xmlsec.version>
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
-        <xstream.version>1.4.19</xstream.version>
         <activiti.version>5.18.0</activiti.version>
         <snakeyaml.version>1.32</snakeyaml.version>
 
@@ -1387,13 +1386,6 @@
                 <artifactId>istack-commons-runtime</artifactId>
                 <version>${istack.version}</version>
             </dependency>
-            <!-- serialize objects to XML (or JSON) and back again. -->
-            <dependency>
-                <groupId>com.thoughtworks.xstream</groupId>
-                <artifactId>xstream</artifactId>
-                <version>${xstream.version}</version>
-            </dependency>
-            <!-- graph-theory data structures and algorithms. -->
             <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>

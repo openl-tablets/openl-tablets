@@ -27,6 +27,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.xml.OpenLSerializationException;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.serialization.DefaultTypingMode;
 import org.openl.rules.serialization.JsonUtils;
@@ -55,7 +56,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.thoughtworks.xstream.io.StreamException;
 
 @Service
 @ViewScope
@@ -498,7 +498,7 @@ public class InputArgsBean {
                 }
             }
             return null;
-        } catch (IOException | StreamException e) {
+        } catch (IOException | OpenLSerializationException e) {
             if (StringUtils.isNotBlank(e.getMessage())) {
                 throw new Message("Invalid Rules Deploy Configuration: " + e.getMessage());
             }

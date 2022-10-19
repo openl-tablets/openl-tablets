@@ -1,5 +1,13 @@
 package org.openl.rules.project.model;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.DEPENDENCY_TAG;
+
+@XmlRootElement(name = DEPENDENCY_TAG)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ProjectDependencyDescriptor {
     private String name;
     private boolean autoIncluded;

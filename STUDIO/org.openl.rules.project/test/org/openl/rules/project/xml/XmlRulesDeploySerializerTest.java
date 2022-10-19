@@ -1,22 +1,22 @@
 package org.openl.rules.project.xml;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import org.junit.Test;
+import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.RulesDeploy.PublisherType;
+import org.openl.rules.project.model.WildcardPattern;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
-import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.model.RulesDeploy.PublisherType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class XmlRulesDeploySerializerTest {
 
     @Test
     public void testReadRulesDeploy() throws Exception {
-        FileInputStream fis = new FileInputStream(new File("test-resources/rules-deploy/rules-deploy.xml"));
+        FileInputStream fis = new FileInputStream("test-resources/rules-deploy/rules-deploy.xml");
         XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();
         RulesDeploy rulesDeploy = serializer.deserialize(fis);
 
@@ -39,17 +39,26 @@ public class XmlRulesDeploySerializerTest {
         assertEquals("v1", rulesDeploy.getVersion());
         assertEquals("group1,group2", rulesDeploy.getGroups());
         assertEquals("rmiName", rulesDeploy.getRmiName());
+        assertEquals(Map.of("rootClassNamesBinding", "com.chartis.premier.rating.result.ChartisCompoundStep,com.chartis.premier.rating.result.ChartisSimpleStep"),
+                rulesDeploy.getConfiguration());
     }
 
     @Test
     public void testWriteRulesDeploy() {
+        RulesDeploy rulesDeploy = generateRulesDeployForTest();
+        XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();
+        String value = serializer.serialize(rulesDeploy);
+        assertEquals(EXPECTED_VALUE, value);
+    }
+
+    public static RulesDeploy generateRulesDeployForTest() {
         RulesDeploy rulesDeploy = new RulesDeploy();
         rulesDeploy.setServiceName("rulesDeployName");
         rulesDeploy.setProvideRuntimeContext(false);
         rulesDeploy.setProvideVariations(true);
         rulesDeploy.setLazyModulesForCompilationPatterns(
-            new RulesDeploy.WildcardPattern[] { new RulesDeploy.WildcardPattern("some1*"),
-                    new RulesDeploy.WildcardPattern("some2*") });
+                new WildcardPattern[] { new WildcardPattern("some1*"),
+                        new WildcardPattern("some2*") });
         rulesDeploy.setInterceptingTemplateClassName(String.class.getName());
         rulesDeploy.setAnnotationTemplateClassName(String.class.getName());
         rulesDeploy.setServiceClass(String.class.getName());
@@ -60,10 +69,38 @@ public class XmlRulesDeploySerializerTest {
         rulesDeploy.setRmiName("rmiName");
         Map<String, Object> configuration = new HashMap<>();
         configuration.put("key", "value");
+        configuration.put("key2", "value2");
         rulesDeploy.setConfiguration(configuration);
-        XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();
-        String value = serializer.serialize(rulesDeploy);
-        String expectedValue = "<rules-deploy>" + "\n" + "  <isProvideRuntimeContext>false</isProvideRuntimeContext>" + "\n" + "  <isProvideVariations>true</isProvideVariations>" + "\n" + "  <serviceName>rulesDeployName</serviceName>" + "\n" + "  <publishers>" + "\n" + "    <publisher>WEBSERVICE</publisher>" + "\n" + "  </publishers>" + "\n" + "  <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>" + "\n" + "  <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>" + "\n" + "  <serviceClass>java.lang.String</serviceClass>" + "\n" + "  <url>someURL</url>" + "\n" + "  <rmiName>rmiName</rmiName>" + "\n" + "  <version>v1</version>" + "\n" + "  <groups>group1,group2</groups>" + "\n" + "  <configuration>" + "\n" + "    <entry>" + "\n" + "      <string>key</string>" + "\n" + "      <string>value</string>" + "\n" + "    </entry>" + "\n" + "  </configuration>" + "\n" + "  <lazy-modules-for-compilation>" + "\n" + "    <module name=\"some1*\"/>" + "\n" + "    <module name=\"some2*\"/>" + "\n" + "  </lazy-modules-for-compilation>" + "\n" + "</rules-deploy>";
-        assertEquals(expectedValue, value);
+        return rulesDeploy;
     }
+
+    private static final String EXPECTED_VALUE = "<rules-deploy>\n" +
+            "    <isProvideRuntimeContext>false</isProvideRuntimeContext>\n" +
+            "    <isProvideVariations>true</isProvideVariations>\n" +
+            "    <serviceName>rulesDeployName</serviceName>\n" +
+            "    <publishers>\n" +
+            "        <publisher>WEBSERVICE</publisher>\n" +
+            "    </publishers>\n" +
+            "    <interceptingTemplateClassName>java.lang.String</interceptingTemplateClassName>\n" +
+            "    <annotationTemplateClassName>java.lang.String</annotationTemplateClassName>\n" +
+            "    <serviceClass>java.lang.String</serviceClass>\n" +
+            "    <url>someURL</url>\n" +
+            "    <rmiName>rmiName</rmiName>\n" +
+            "    <version>v1</version>\n" +
+            "    <groups>group1,group2</groups>\n" +
+            "    <configuration>\n" +
+            "        <entry>\n" +
+            "            <string>key2</string>\n" +
+            "            <string>value2</string>\n" +
+            "        </entry>\n" +
+            "        <entry>\n" +
+            "            <string>key</string>\n" +
+            "            <string>value</string>\n" +
+            "        </entry>\n" +
+            "    </configuration>\n" +
+            "    <lazy-modules-for-compilation>\n" +
+            "        <module name=\"some1*\"/>\n" +
+            "        <module name=\"some2*\"/>\n" +
+            "    </lazy-modules-for-compilation>\n" +
+            "</rules-deploy>";
 }

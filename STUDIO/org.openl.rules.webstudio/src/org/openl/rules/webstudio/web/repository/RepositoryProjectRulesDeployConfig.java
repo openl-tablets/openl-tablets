@@ -12,6 +12,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.xml.OpenLSerializationException;
 import org.openl.rules.project.xml.RulesDeploySerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.repository.file.FileSystemRepository;
@@ -23,8 +24,6 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import com.thoughtworks.xstream.XStreamException;
 
 @Service
 @ViewScope
@@ -155,7 +154,7 @@ public class RepositoryProjectRulesDeployConfig {
         } catch (IOException | ProjectException e) {
             WebStudioUtils.addErrorMessage("Failed to read '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
             log.error(e.getMessage(), e);
-        } catch (XStreamException e) {
+        } catch (OpenLSerializationException e) {
             WebStudioUtils.addErrorMessage("Failed to parse '" + RULES_DEPLOY_CONFIGURATION_FILE + " file.");
             log.error(e.getMessage(), e);
         }

@@ -1,7 +1,12 @@
 <project>
-    <name>Project with Wildcard Module</name>
+    <name> Project with    Wildcard        Module2 </name>
     <modules>
         <module>
+            <name>Module  c</name>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+        <module>
+            <name>Module2</name>
             <rules-root path="rules/*.xlsx"/>
         </module>
     </modules>

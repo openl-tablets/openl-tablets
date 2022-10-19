@@ -1,22 +1,27 @@
 package org.openl.rules.project.xml.v5_14;
 
+import org.openl.rules.project.model.v5_14.PublisherType_v5_14;
 import org.openl.rules.project.model.v5_14.RulesDeploy_v5_14;
 import org.openl.rules.project.model.v5_14.converter.RulesDeployVersionConverter;
 import org.openl.rules.project.xml.BaseRulesDeploySerializer;
 
-import com.thoughtworks.xstream.XStream;
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class XmlRulesDescriptorSerializer_v5_14 extends BaseRulesDeploySerializer<RulesDeploy_v5_14> {
-    private static final String RULES_DEPLOY_DESCRIPTOR_TAG = "rules-deploy";
 
     public XmlRulesDescriptorSerializer_v5_14() {
-        super(new RulesDeployVersionConverter());
-        xstream.ignoreUnknownElements();
-        xstream.omitField(RulesDeploy_v5_14.class, "log");
+        super(new RulesDeployVersionConverter(), RulesDeploy_v5_14.class);
+    }
 
-        xstream.setMode(XStream.NO_REFERENCES);
+    public static class PublisherType_v5_14XmlAdapter extends XmlAdapter<String, PublisherType_v5_14> {
+        @Override
+        public PublisherType_v5_14 unmarshal(String name) {
+            return PublisherType_v5_14.valueOf(name.toUpperCase());
+        }
 
-        xstream.aliasType("publisher", RulesDeploy_v5_14.PublisherType.class);
-        xstream.aliasType(RULES_DEPLOY_DESCRIPTOR_TAG, RulesDeploy_v5_14.class);
+        @Override
+        public String marshal(PublisherType_v5_14 publisherType) {
+            return publisherType.toString();
+        }
     }
 }
