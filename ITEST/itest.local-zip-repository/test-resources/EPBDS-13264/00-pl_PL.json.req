@@ -1,0 +1,8 @@
+POST /EPBDS-13264/EPBDS-13264/mylocoObj HTTP/1.1
+Content-Type: application/json;q=1.0, */*;q=0.8
+Accept: text/plain
+
+{
+  "theLocal": "pl-PL",
+  "theDate": "2022-06-22T13:07:12.683Z"
+}
