@@ -160,6 +160,27 @@ public class ProjectDescriptor {
         URL projectUrl;
         try {
             projectUrl = fixJarURI(projectFolder.toUri()).normalize().toURL();
+            if ("jar".equals(projectUrl.getProtocol())) {
+                String file = projectUrl.getPath();
+                // jar URLs must be ended with '!/' or '/' for proper URLClassLoader work
+                if (!file.endsWith("/")) {
+                    String suffix = null;
+                    if (file.contains("!/")) {
+                        // we are inside jar/zip file like: jar:///file.zip!/project
+                        // so needs to add '/' to the end
+                        suffix = "/";
+                    } else {
+                        // projectUrl points to jar/zip file like: jar:///file.zip
+                        // so needs to add '!/' to the end
+                        suffix = "!/";
+                    }
+                    projectUrl = new URL(projectUrl.getProtocol(),
+                        projectUrl.getHost(),
+                        projectUrl.getPort(),
+                        projectUrl.getPath() + suffix,
+                        null);
+                }
+            }
         } catch (MalformedURLException e) {
             return new URL[] {};
         }
