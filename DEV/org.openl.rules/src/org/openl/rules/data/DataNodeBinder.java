@@ -98,7 +98,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         String typeName = parsedHeader[TYPE_INDEX].getOriginalText();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getText();
         if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
-            String message =  String.format(NAME_ERROR_MESSAGE, "Data table", tableName);
+            String message = String.format(NAME_ERROR_MESSAGE, "Data table", tableName);
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
         }
         IOpenClass tableType = OpenLManager
@@ -208,8 +208,13 @@ public class DataNodeBinder extends AXlsTableBinder {
         Set<String> runtimeContextProps = new HashSet<>();
         Set<String> testRuntimeContextProps = new HashSet<>();
         Map<String, String> duplicatedRuntimeContextProps = new HashMap<>();
+        boolean resColDefined = false;
         for (ColumnDescriptor descriptor : descriptors) {
             if (descriptor != null) {
+                if (descriptor.getFieldChainTokens()[0].getIdentifier()
+                    .startsWith(TestMethodHelper.EXPECTED_RESULT_NAME)) {
+                    resColDefined = true;
+                }
                 IOpenField field = descriptor.getField();
                 if (field instanceof FieldChain) {
                     IOpenField[] fields = ((FieldChain) field).getFields();
@@ -242,6 +247,11 @@ public class DataNodeBinder extends AXlsTableBinder {
                     duplicatedRuntimeContextProps.get(prop),
                     prop),
                 tableToProcess.getTableSyntaxNode()));
+        }
+        if (!resColDefined) {
+            bindingContext.addMessage(
+                new OpenLWarnMessage(String.format("'%s' column is missing.", TestMethodHelper.EXPECTED_RESULT_NAME),
+                    tableToProcess.getTableSyntaxNode()));
         }
     }
 
