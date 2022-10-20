@@ -9,3 +9,4 @@ ERROR: OpenAPI Reconciliation: Return type of method 'NegativeMassMediaScore' mu
 ERROR: OpenAPI Reconciliation: Unexpected method 'CapitalAdequacyScore' is found for path '/CapitalAdequacyScore1'.
 ERROR: OpenAPI Reconciliation: Unexpected method 'BalanceDynamicIndexCalculation' is found for path '/BalanceDynamicIndexCalculation'.
 ERROR: OpenAPI Reconciliation: Unexpected method 'BankRatingGroup' is found for path '/BankRatingGroup1'.
+WARN: '_res_' column is missing.

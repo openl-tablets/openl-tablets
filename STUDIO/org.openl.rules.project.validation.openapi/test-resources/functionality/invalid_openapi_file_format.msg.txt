@@ -1,1 +1,2 @@
 ERROR: OpenAPI Reconciliation: Failed to read file 'openapi.json'.
+WARN: '_res_' column is missing.

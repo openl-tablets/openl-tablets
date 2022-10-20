@@ -1,1 +1,2 @@
 ERROR: OpenAPI Reconciliation: Unexpected field 'bankFullName' is found in type 'Bank'.
+WARN: '_res_' column is missing.
