@@ -2,7 +2,11 @@ package org.openl.rules.project.model;
 
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 import java.util.Map;
@@ -12,7 +16,7 @@ import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.METHOD_
 import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.WEBSTUDIO_CONFIGURATION;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlRootElement(name="module")
+@XmlRootElement(name = "module")
 public class Module {
     @XmlJavaTypeAdapter(XmlProjectDescriptorSerializer.CollapsedStringAdapter2.class)
     private String name;
@@ -101,10 +105,10 @@ public class Module {
 
     public String getRelativeUri() {
         return Optional.ofNullable(project.getProjectFolder().getParent())
-                .orElse(project.getProjectFolder())
-                .toUri()
-                .relativize(getRulesPath().toUri())
-                .toString();
+            .orElse(project.getProjectFolder())
+            .toUri()
+            .relativize(getRulesPath().toUri())
+            .toString();
     }
 
     @Override

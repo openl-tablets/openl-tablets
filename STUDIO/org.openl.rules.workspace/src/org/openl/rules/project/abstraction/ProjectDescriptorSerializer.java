@@ -1,8 +1,8 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -11,10 +11,15 @@ import java.util.stream.Collectors;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
-import org.openl.util.IOUtils;
 
-import javax.xml.bind.*;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Serializes and deserializes {@link ProjectDescriptor} to/from xml representation
@@ -24,30 +29,24 @@ public class ProjectDescriptorSerializer {
     private final Marshaller jaxbMarshaller;
     private final Unmarshaller jaxbUnmarshaller;
 
-    public ProjectDescriptorSerializer() {
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(Wrapper.class);
-            jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        } catch (JAXBException e) {
-            throw new RuntimeException("Something went wrong when trying to create JAXB serializer", e);
+    public ProjectDescriptorSerializer() throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(Wrapper.class);
+        jaxbMarshaller = jaxbContext.createMarshaller();
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
+        jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+    }
+
+    @SuppressWarnings({ "rawtypes" })
+    public ByteArrayOutputStream serialize(List<ProjectDescriptor> descriptors) throws IOException, JAXBException {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            jaxbMarshaller.marshal(new Wrapper(descriptors), outputStream);
+            return outputStream;
         }
     }
 
     @SuppressWarnings({ "rawtypes" })
-    public InputStream serialize(List<ProjectDescriptor> descriptors) {
-        try (StringWriter stringWriter = new StringWriter()) {
-            jaxbMarshaller.marshal(new Wrapper(descriptors), stringWriter);
-            return IOUtils.toInputStream(stringWriter.toString());
-        } catch (IOException | JAXBException e) {
-            throw new RuntimeException("Error during Project Descriptor serialization", e);
-        }
-    }
-
-    @SuppressWarnings({ "rawtypes" })
-    public List<ProjectDescriptor> deserialize(InputStream source) {
+    public List<ProjectDescriptor> deserialize(InputStream source) throws JAXBException {
         try {
             if (source.available() == 0) {
                 return null;
@@ -55,12 +54,7 @@ public class ProjectDescriptorSerializer {
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
-        try {
-            return Optional.ofNullable(((Wrapper) jaxbUnmarshaller.unmarshal(source)).getDescriptors()).orElseGet(ArrayList::new);
-        } catch (JAXBException e) {
-            throw new RuntimeException("Error when trying to deserialize Project Descriptor", e);
-        }
-
+        return Optional.ofNullable(((Wrapper) jaxbUnmarshaller.unmarshal(source)).getDescriptors()).orElseGet(ArrayList::new);
     }
 
     /**

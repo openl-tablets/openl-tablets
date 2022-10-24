@@ -17,6 +17,10 @@
             <artifactId>snakeyaml</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
@@ -25,17 +29,6 @@
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-core</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <!-- Annotation classes are used in generated from Datatype Table classes.
-            To compile them without adding extra dependency in client's project "compile" scope is used -->
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <version>2.3.5</version>
         </dependency>
 
         <!-- OpenL dependencies -->

@@ -32,13 +32,15 @@ import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBException;
+
 /**
  * This class stores only deploy configuration, not deployed projects! For the latter see {@link Deployment} class.
  */
 public class ADeploymentProject extends UserWorkspaceProject {
     private static final Logger LOG = LoggerFactory.getLogger(ADeploymentProject.class);
 
-    private final ProjectDescriptorSerializer descriptorSerializer = new ProjectDescriptorSerializer();
+    private ProjectDescriptorSerializer descriptorSerializer;
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
     /* this button is used for rendering the save button (only for deploy configuration) */
@@ -141,13 +143,18 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public void save(CommonUser user) throws ProjectException {
         synchronized (this) {
-            InputStream inputStream = descriptorSerializer.serialize(descriptors);
+            ByteArrayOutputStream out;
+            try {
+                if (descriptorSerializer == null) {
+                    descriptorSerializer = new ProjectDescriptorSerializer();
+                }
+                out = descriptorSerializer.serialize(descriptors);
+            } catch (IOException | JAXBException e) {
+                throw new ProjectException(e.getMessage(), e);
+            }
             if (getRepository().supports().folders()) {
                 FileData fileData = getFileData();
                 try {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    IOUtils.copyAndClose(inputStream, out);
-
                     fileData.setAuthor(user == null ? null : user.getUserInfo());
                     fileData.setSize(out.size());
 
@@ -163,15 +170,11 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 FileData fileData = getFileData();
                 ZipOutputStream zipOutputStream = null;
                 try {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
                     zipOutputStream = new ZipOutputStream(out);
 
                     ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
                     zipOutputStream.putNextEntry(entry);
 
-                    IOUtils.copy(inputStream, zipOutputStream);
-
-                    inputStream.close();
                     zipOutputStream.closeEntry();
 
                     zipOutputStream.close();
@@ -273,6 +276,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     try {
                         content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
                             .getContent();
+                        if (descriptorSerializer == null) {
+                            descriptorSerializer = new ProjectDescriptorSerializer();
+                        }
                         List<ProjectDescriptor> newDescriptors = descriptorSerializer.deserialize(content);
                         if (newDescriptors != null) {
                             descriptors = newDescriptors;
