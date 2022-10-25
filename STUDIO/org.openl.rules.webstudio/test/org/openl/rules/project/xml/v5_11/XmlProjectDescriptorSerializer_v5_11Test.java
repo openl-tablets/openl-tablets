@@ -1,17 +1,19 @@
 package org.openl.rules.project.xml.v5_11;
 
 import org.junit.Test;
-import org.openl.rules.project.model.*;
 import org.openl.rules.project.model.Module;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
 import java.util.stream.Collectors;
 
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.xml.BaseProjectDescriptorSerializerTest;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.openl.rules.project.xml.BaseProjectDescriptorSerializerTest.collapseExtraWhitespaces;
 
 public class XmlProjectDescriptorSerializer_v5_11Test {

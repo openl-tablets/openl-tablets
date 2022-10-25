@@ -12,7 +12,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.*;
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.METHOD_FILTER_TAG;
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.MODULE_TAG;
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.RULES_ROOT_TAG;
 
 @XmlRootElement(name = MODULE_TAG)
 @XmlAccessorType(XmlAccessType.FIELD)

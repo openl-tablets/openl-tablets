@@ -6,7 +6,9 @@ import org.openl.rules.project.model.RulesDeploy;
 import java.io.FileInputStream;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.openl.rules.project.xml.BaseRulesDeploySerializerTest.generateRulesDeployForTest;
 
 public class XmlRulesDeploySerializer_v5_11Test {

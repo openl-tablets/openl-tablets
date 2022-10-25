@@ -12,8 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.openl.rules.project.model.*;
+import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.OpenAPI;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.IOUtils;
 
 public class XmlProjectDescriptorSerializerTest {

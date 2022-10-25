@@ -1,7 +1,11 @@
 package org.openl.rules.project.xml;
 
-import org.openl.rules.project.model.*;
+import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.OpenAPI;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDependencyDescriptor;
+import org.openl.rules.project.model.ProjectDescriptor;
 
 import java.nio.file.Paths;
 import java.util.Collection;
