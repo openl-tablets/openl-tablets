@@ -34,6 +34,8 @@ import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.xml.bind.JAXBException;
+
 /**
  * Selects the latest deployments and deploys each of their projects as single service.
  *
@@ -45,7 +47,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
 
     private final Logger log = LoggerFactory.getLogger(LastVersionProjectsServiceConfigurer.class);
 
-    private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+    private IRulesDeploySerializer rulesDeploySerializer;
     private boolean provideRuntimeContext = false;
     private boolean supportVariations = false;
     private String supportedGroups = null;
@@ -256,7 +258,10 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
         return deployment.getDeploymentName() + '/' + projectName;
     }
 
-    public final IRulesDeploySerializer getRulesDeploySerializer() {
+    public final IRulesDeploySerializer getRulesDeploySerializer() throws JAXBException {
+        if (rulesDeploySerializer == null) {
+            rulesDeploySerializer = new XmlRulesDeploySerializer();
+        }
         return rulesDeploySerializer;
     }
 
