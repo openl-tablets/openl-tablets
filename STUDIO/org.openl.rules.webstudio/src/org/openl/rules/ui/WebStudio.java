@@ -22,6 +22,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.ValidationException;
+import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -45,7 +46,6 @@ import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.project.xml.OpenLSerializationException;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
@@ -328,7 +328,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             userWorkspace.refresh();
             model.resetSourceModified();
-        } catch (IOException e) {
+        } catch (IOException | JAXBException e) {
             throw new ProjectException(e.getMessage(), e);
         } finally {
             releaseProject(project.getName());
@@ -832,7 +832,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     return true;
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | JAXBException e) {
             log.error(e.getMessage(), e);
         }
 
@@ -877,7 +877,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         try {
             newProjectDescriptor = ZipProjectDescriptorExtractor
                 .getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
-        } catch (OpenLSerializationException e) {
+        } catch (JAXBException e) {
             return ProjectDescriptorUtils.getErrorMessage(e);
         }
         if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {

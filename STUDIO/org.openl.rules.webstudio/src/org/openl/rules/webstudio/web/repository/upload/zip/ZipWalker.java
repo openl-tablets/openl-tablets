@@ -12,6 +12,8 @@ import org.openl.rules.webstudio.web.repository.upload.RootFolderExtractor;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.util.IOUtils;
 
+import javax.xml.bind.JAXBException;
+
 public class ZipWalker {
     private final ProjectFile uploadedFile;
     private final Charset charset;
@@ -23,7 +25,7 @@ public class ZipWalker {
         this.folderExtractor = createFolderExtractor(zipFilter);
     }
 
-    public void iterateEntries(ZipEntryCommand command) throws IOException {
+    public void iterateEntries(ZipEntryCommand command) throws IOException, JAXBException {
         ZipInputStream zipInputStream = null;
         try {
             zipInputStream = getZipInputStream();

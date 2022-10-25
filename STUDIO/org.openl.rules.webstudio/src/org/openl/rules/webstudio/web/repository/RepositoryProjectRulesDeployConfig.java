@@ -7,12 +7,12 @@ import java.util.Objects;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.xml.OpenLSerializationException;
 import org.openl.rules.project.xml.RulesDeploySerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.repository.file.FileSystemRepository;
@@ -118,7 +118,7 @@ public class RepositoryProjectRulesDeployConfig {
                 studio.reset();
             }
             created = false;
-        } catch (ProjectException e) {
+        } catch (ProjectException | JAXBException | IOException e) {
             WebStudioUtils.addErrorMessage("Failed to save save '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
             log.error(e.getMessage(), e);
         }
@@ -151,11 +151,8 @@ public class RepositoryProjectRulesDeployConfig {
             InputStream content = artefact.getContent();
             String sourceString = IOUtils.toStringAndClose(content);
             return serializer.deserialize(sourceString, getSupportedVersion(project));
-        } catch (IOException | ProjectException e) {
+        } catch (IOException | ProjectException | JAXBException e) {
             WebStudioUtils.addErrorMessage("Failed to read '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
-            log.error(e.getMessage(), e);
-        } catch (OpenLSerializationException e) {
-            WebStudioUtils.addErrorMessage("Failed to parse '" + RULES_DEPLOY_CONFIGURATION_FILE + " file.");
             log.error(e.getMessage(), e);
         }
 

@@ -36,6 +36,8 @@ import org.springframework.util.PathMatcher;
 
 import com.rits.cloning.Cloner;
 
+import javax.xml.bind.JAXBException;
+
 public class ProjectDescriptorManager {
 
     private IProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
@@ -43,6 +45,9 @@ public class ProjectDescriptorManager {
     private PathMatcher pathMatcher = new AntPathMatcher();
 
     private final Cloner cloner = new SafeCloner();
+
+    public ProjectDescriptorManager() throws JAXBException {
+    }
 
     public PathMatcher getPathMatcher() {
         return pathMatcher;
@@ -60,11 +65,11 @@ public class ProjectDescriptorManager {
         this.serializer = serializer;
     }
 
-    private ProjectDescriptor readDescriptorInternal(InputStream source) {
+    private ProjectDescriptor readDescriptorInternal(InputStream source) throws JAXBException {
         return serializer.deserialize(source);
     }
 
-    public ProjectDescriptor readDescriptor(Path file) throws IOException, ValidationException {
+    public ProjectDescriptor readDescriptor(Path file) throws IOException, ValidationException, JAXBException {
         ProjectDescriptor descriptor;
         try (InputStream inputStream = Files.newInputStream(file)) {
             descriptor = readDescriptorInternal(inputStream);
@@ -76,12 +81,12 @@ public class ProjectDescriptorManager {
         return descriptor;
     }
 
-    public ProjectDescriptor readDescriptor(String filename) throws IOException, ValidationException {
+    public ProjectDescriptor readDescriptor(String filename) throws IOException, ValidationException, JAXBException {
         File source = new File(filename);
         return readDescriptor(source.toPath());
     }
 
-    public ProjectDescriptor readOriginalDescriptor(File filename) throws IOException, ValidationException {
+    public ProjectDescriptor readOriginalDescriptor(File filename) throws IOException, ValidationException, JAXBException {
         ProjectDescriptor descriptor;
         try (FileInputStream inputStream = new FileInputStream(filename)) {
             descriptor = readDescriptorInternal(inputStream);
@@ -93,7 +98,7 @@ public class ProjectDescriptorManager {
     }
 
     public void writeDescriptor(ProjectDescriptor descriptor, OutputStream dest) throws IOException,
-                                                                                 ValidationException {
+            ValidationException, JAXBException {
         validator.validate(descriptor);
         descriptor = cloner.deepClone(descriptor); // prevent changes argument
         // object

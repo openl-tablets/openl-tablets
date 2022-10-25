@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.model.SelectItem;
+import javax.xml.bind.JAXBException;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.common.ProjectException;
@@ -27,7 +28,6 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.xml.OpenLSerializationException;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.serialization.DefaultTypingMode;
 import org.openl.rules.serialization.JsonUtils;
@@ -498,11 +498,13 @@ public class InputArgsBean {
                 }
             }
             return null;
-        } catch (IOException | OpenLSerializationException e) {
+        } catch (IOException e) {
             if (StringUtils.isNotBlank(e.getMessage())) {
                 throw new Message("Invalid Rules Deploy Configuration: " + e.getMessage());
             }
             throw new Message("Invalid Rules Deploy Configuration.");
+        } catch (JAXBException e) {
+            throw new Message("Something went wrong during deserialization", e);
         }
     }
 

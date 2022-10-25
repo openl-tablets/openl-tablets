@@ -11,6 +11,8 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBException;
+
 public final class ZipProjectDescriptorExtractor {
     private ZipProjectDescriptorExtractor() {
     }
@@ -29,7 +31,7 @@ public final class ZipProjectDescriptorExtractor {
 
     public static ProjectDescriptor getProjectDescriptorOrThrow(ProjectFile uploadedFile,
             PathFilter zipFilter,
-            Charset charset) throws IOException {
+            Charset charset) throws IOException, JAXBException {
         ZipWalker zipWalker = new ZipWalker(uploadedFile, zipFilter, charset);
         ProjectDescriptorFinder finder = new ProjectDescriptorFinder();
         zipWalker.iterateEntries(finder);

@@ -40,7 +40,7 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test
-    public void testReadDescriptor1() throws IOException, ValidationException {
+    public void testReadDescriptor1() throws Exception {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ProjectDescriptor descriptor = manager.readDescriptor("test-resources/descriptor/rules1.xml");
         assertReadDescriptor1(descriptor);
@@ -101,7 +101,7 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test
-    public void zipArchive_testReadDescriptor1() throws IOException, ValidationException {
+    public void zipArchive_testReadDescriptor1() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             final Path rootFolder = fs.getPath("/");
             ProjectDescriptor descriptor = new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules1.xml"));
@@ -114,20 +114,20 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test(expected = ValidationException.class)
-    public void testReadDescriptor2() throws IOException, ValidationException {
+    public void testReadDescriptor2() throws Exception {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         manager.readDescriptor("test-resources/descriptor/rules2.xml");
     }
 
     @Test(expected = ValidationException.class)
-    public void zipArchive_testReadDescriptor2() throws IOException, ValidationException {
+    public void zipArchive_testReadDescriptor2() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules2.xml"));
         }
     }
 
     @Test()
-    public void testReadDescriptor3() throws IOException, ValidationException {
+    public void testReadDescriptor3() throws Exception {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ProjectDescriptor projectDescriptor = manager.readDescriptor("test-resources/descriptor/rules3.xml");
         List<Module> modules = projectDescriptor.getModules();
@@ -135,7 +135,7 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test()
-    public void zipArchive_testReadDescriptor3() throws IOException, ValidationException {
+    public void zipArchive_testReadDescriptor3() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             ProjectDescriptor projectDescriptor = new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules3.xml"));
             List<Module> modules = projectDescriptor.getModules();
@@ -144,7 +144,7 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test
-    public void testIsCoveredByWildcardModule() throws IOException {
+    public void testIsCoveredByWildcardModule() throws Exception {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
         final ProjectDescriptor descriptor = serializer
@@ -166,7 +166,7 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test
-    public void zipArchive_testIsCoveredByWildcardModule() throws IOException {
+    public void zipArchive_testIsCoveredByWildcardModule() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             ProjectDescriptorManager manager = new ProjectDescriptorManager();
             XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
@@ -178,7 +178,7 @@ public class ProjectDescriptorManagerTest {
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testWriteDescriptor1() throws IOException, ValidationException {
+    public void testWriteDescriptor1() throws Exception {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setId("id1"); // As far as id was deprecated, it should not be saved to xml.
         descriptor.setName("name1");
@@ -254,7 +254,7 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test()
-    public void testWriteDescriptor2() throws IOException, ValidationException {
+    public void testWriteDescriptor2() throws Exception {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName("name1");
 

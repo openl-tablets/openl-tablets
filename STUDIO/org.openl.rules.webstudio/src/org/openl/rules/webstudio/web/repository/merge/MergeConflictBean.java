@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -464,7 +465,7 @@ public class MergeConflictBean {
     }
 
     private Map<String, List<Module>> findModulesToAppend(MergeConflictInfo mergeConflict,
-            List<FileItem> resolvedFiles) throws IOException {
+            List<FileItem> resolvedFiles) throws IOException, JAXBException {
         UserWorkspace userWorkspace = getUserWorkspace();
         String repositoryId = mergeConflict.getRepositoryId();
         Map<String, List<Module>> modulesToAppend = new HashMap<>();
@@ -518,7 +519,7 @@ public class MergeConflictBean {
 
     private void updateRulesXmlFiles(String repositoryId,
             Map<String, List<Module>> modulesToAppend,
-            String branch) throws IOException {
+            String branch) throws IOException, JAXBException {
         // Update rules.xml files if needed after merge was successful.
         if (!modulesToAppend.isEmpty()) {
             Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository(repositoryId);
@@ -562,7 +563,7 @@ public class MergeConflictBean {
 
     private Module getModule(IProjectDescriptorSerializer serializer,
             FileItem fileItem,
-            String moduleInternalPath) throws IOException {
+            String moduleInternalPath) throws IOException, JAXBException {
         try (InputStream stream = fileItem.getStream()) {
             ProjectDescriptor descriptor = serializer.deserialize(stream);
             for (Module module : descriptor.getModules()) {

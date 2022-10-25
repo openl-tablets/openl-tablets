@@ -39,7 +39,7 @@ public class XmlRulesDeploySerializer_v5_11Test {
     }
 
     @Test
-    public void testWriteRulesDeploy() {
+    public void testWriteRulesDeploy() throws Exception {
         RulesDeploy rulesDeploy = generateRulesDeployForTest();
         XmlRulesDescriptorSerializer_v5_11 serializer = new XmlRulesDescriptorSerializer_v5_11();
         String value = serializer.serialize(rulesDeploy);

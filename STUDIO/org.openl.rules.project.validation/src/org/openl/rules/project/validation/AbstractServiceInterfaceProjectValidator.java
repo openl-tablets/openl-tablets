@@ -26,6 +26,8 @@ import org.openl.validation.ValidatedCompiledOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBException;
+
 public abstract class AbstractServiceInterfaceProjectValidator implements ProjectValidator {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractServiceInterfaceProjectValidator.class);
 
@@ -34,7 +36,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
     private boolean provideRuntimeContext = true;
     private boolean provideVariations;
 
-    private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+    private IRulesDeploySerializer rulesDeploySerializer;
 
     private RulesDeploy rulesDeploy;
     private ClassLoader classLoader;
@@ -56,13 +58,20 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
             RULES_DEPLOY_XML);
         if (projectResource != null) {
             try {
-                return rulesDeploySerializer.deserialize(new FileInputStream(projectResource.getFile()));
-            } catch (FileNotFoundException e) {
+                return getRulesDeploySerializer().deserialize(new FileInputStream(projectResource.getFile()));
+            } catch (FileNotFoundException | JAXBException e) {
                 LOG.debug("Ignored error: ", e);
                 return null;
             }
         }
         return null;
+    }
+
+    private IRulesDeploySerializer getRulesDeploySerializer() throws JAXBException {
+        if (rulesDeploySerializer == null) {
+            rulesDeploySerializer = new XmlRulesDeploySerializer();
+        }
+        return rulesDeploySerializer;
     }
 
     protected RulesDeploy getRulesDeploy(ProjectDescriptor projectDescriptor, CompiledOpenClass compiledOpenClass) {

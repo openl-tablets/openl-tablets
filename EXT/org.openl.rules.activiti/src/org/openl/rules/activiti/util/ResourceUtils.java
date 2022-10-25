@@ -13,16 +13,29 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
 
+import javax.xml.bind.JAXBException;
+
 public final class ResourceUtils {
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
     private ResourceUtils() {
     }
 
-    private static final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+    private static IRulesDeploySerializer rulesDeploySerializer;
 
-    public static RulesDeploy readRulesDeploy(File openlProjectFolder) throws IOException {
+    static {
+        try {
+            rulesDeploySerializer = new XmlRulesDeploySerializer();
+        } catch (JAXBException e) {
+            // do nothing
+        }
+    }
+
+    public static RulesDeploy readRulesDeploy(File openlProjectFolder) throws IOException, JAXBException {
         File rulesDeployXmlFile = new File(openlProjectFolder, RULES_DEPLOY_XML);
+        if (rulesDeploySerializer == null) {
+            rulesDeploySerializer = new XmlRulesDeploySerializer();
+        }
         if (rulesDeployXmlFile.exists() && rulesDeployXmlFile.isFile()) {
             return rulesDeploySerializer.deserialize(new FileInputStream(rulesDeployXmlFile));
         }

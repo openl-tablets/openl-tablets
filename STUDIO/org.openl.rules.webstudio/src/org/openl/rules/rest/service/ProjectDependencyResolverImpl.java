@@ -19,6 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.xml.bind.JAXBException;
+
 @Service
 public class ProjectDependencyResolverImpl implements ProjectDependencyResolver {
 
@@ -39,7 +41,7 @@ public class ProjectDependencyResolverImpl implements ProjectDependencyResolver 
     }
 
     @Override
-    public List<RulesProject> getDependsOnProject(RulesProject project) throws ProjectException {
+    public List<RulesProject> getDependsOnProject(RulesProject project) throws ProjectException, JAXBException {
         List<RulesProject> result = new ArrayList<>();
         for (RulesProject pr : getAllProjects()) {
             List<ProjectDependencyDescriptor> dependencies = projectDescriptorResolver.getDependencies(pr);

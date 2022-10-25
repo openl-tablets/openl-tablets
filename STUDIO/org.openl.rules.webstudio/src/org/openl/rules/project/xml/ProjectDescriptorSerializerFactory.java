@@ -13,6 +13,8 @@ import org.openl.rules.project.xml.v5_16.XmlProjectDescriptorSerializer_v5_16;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 
+import javax.xml.bind.JAXBException;
+
 public class ProjectDescriptorSerializerFactory {
     private final SupportedVersionSerializer supportedVersionSerializer;
 
@@ -20,11 +22,11 @@ public class ProjectDescriptorSerializerFactory {
         this.supportedVersionSerializer = new SupportedVersionSerializer(defaultVersion);
     }
 
-    public IProjectDescriptorSerializer getDefaultSerializer() {
+    public IProjectDescriptorSerializer getDefaultSerializer() throws JAXBException {
         return getSerializer(supportedVersionSerializer.getDefaultVersion());
     }
 
-    public IProjectDescriptorSerializer getSerializer(File projectFolder) {
+    public IProjectDescriptorSerializer getSerializer(File projectFolder) throws JAXBException {
         return getSerializer(getSupportedVersion(projectFolder));
     }
 
@@ -34,7 +36,7 @@ public class ProjectDescriptorSerializerFactory {
      * @param artefact can be AProject instance or any resource inside it
      * @return Project Descriptor serializer for supporting OpenL version
      */
-    public IProjectDescriptorSerializer getSerializer(AProjectArtefact artefact) {
+    public IProjectDescriptorSerializer getSerializer(AProjectArtefact artefact) throws JAXBException {
         AProject project = artefact.getProject();
         Repository repository = project.getRepository();
         if (repository instanceof FileSystemRepository) {
@@ -53,7 +55,7 @@ public class ProjectDescriptorSerializerFactory {
         supportedVersionSerializer.setSupportedVersion(projectFolder, version);
     }
 
-    public IProjectDescriptorSerializer getSerializer(SupportedVersion version) {
+    public IProjectDescriptorSerializer getSerializer(SupportedVersion version) throws JAXBException {
         switch (version) {
             case V5_11:
                 return new XmlProjectDescriptorSerializer_v5_11();

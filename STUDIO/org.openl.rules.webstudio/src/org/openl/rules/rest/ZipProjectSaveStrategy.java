@@ -22,6 +22,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import javax.inject.Inject;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
@@ -66,7 +67,7 @@ public class ZipProjectSaveStrategy {
         this.userManagementService = userManagementService;
     }
 
-    public FileData save(CreateUpdateProjectModel model, Path zipArchive) throws IOException {
+    public FileData save(CreateUpdateProjectModel model, Path zipArchive) throws IOException, JAXBException {
         Repository repository = designTimeRepository.getRepository(model.getRepoName());
         UserInfo author = Optional.ofNullable(userManagementService.getUser(model.getAuthor()))
             .map(user -> new UserInfo(user.getUsername(), user.getEmail(), user.getDisplayName()))
@@ -131,7 +132,7 @@ public class ZipProjectSaveStrategy {
         }
     }
 
-    private FileItem createVirtualProjectDescriptor(CreateUpdateProjectModel model, String folderTo) {
+    private FileItem createVirtualProjectDescriptor(CreateUpdateProjectModel model, String folderTo) throws JAXBException, IOException {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName(model.getProjectName());
         XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();

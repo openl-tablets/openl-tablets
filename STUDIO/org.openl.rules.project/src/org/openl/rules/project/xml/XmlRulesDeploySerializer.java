@@ -12,11 +12,10 @@ import java.util.Map;
 import org.openl.rules.project.IRulesDeploySerializer;
 import org.openl.rules.project.model.RulesDeploy;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
@@ -27,47 +26,27 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     public static final String PUBLISHERS_TAG = "publishers";
     public static final String NAME_TAG = "name";
 
-    private final Marshaller jaxbMarshaller;
-    private final Unmarshaller jaxbUnmarshaller;
+    private final JAXBSerializer jaxbSerializer;
 
-    public XmlRulesDeploySerializer() {
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(RulesDeploy.class);
-            jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true); // excludes header
-            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        } catch (JAXBException e) {
-            throw new OpenLSerializationException("Error during serializer creation", e);
-        }
-
+    public XmlRulesDeploySerializer() throws JAXBException {
+        jaxbSerializer = new JAXBSerializer(RulesDeploy.class);
     }
 
     @Override
-    public String serialize(RulesDeploy source) {
+    public String serialize(RulesDeploy source) throws IOException, JAXBException {
         try (StringWriter stringWriter = new StringWriter()) {
-            jaxbMarshaller.marshal(source, stringWriter);
+            jaxbSerializer.marshal(source, stringWriter);
             return stringWriter.toString();
-        } catch (IOException | JAXBException e) {
-            throw new OpenLSerializationException("Error during Rules Deploy serialization", e);
         }
     }
 
     @Override
-    public RulesDeploy deserialize(InputStream source) {
-        try {
-            return (RulesDeploy) jaxbUnmarshaller.unmarshal(source);
-        } catch (JAXBException  e) {
-            throw new OpenLSerializationException("Error during Rules Deploy deserialization", e);
-        }
+    public RulesDeploy deserialize(InputStream source) throws JAXBException {
+        return (RulesDeploy) jaxbSerializer.unmarshal(source);
     }
 
-    public RulesDeploy deserialize(String source) {
-        try {
-            return (RulesDeploy) jaxbUnmarshaller.unmarshal(new ByteArrayInputStream(source.getBytes()));
-        } catch (JAXBException e) {
-            throw new OpenLSerializationException("Error during Rules Deploy deserialization", e);
-        }
+    public RulesDeploy deserialize(String source) throws JAXBException {
+        return (RulesDeploy) jaxbSerializer.unmarshal(new ByteArrayInputStream(source.getBytes()));
     }
 
     public static class PublisherTypeXmlAdapter extends XmlAdapter<String, RulesDeploy.PublisherType> {
@@ -93,7 +72,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
             MapType mapType = new MapType();
             for(Map.Entry<String, Object> entry : arg0.entrySet()) {
                 if (!(entry.getValue() instanceof String)) {
-                    throw new OpenLSerializationException("Expected string value in the Rules Deploy configuration");
+                    throw new IllegalArgumentException("Expected string value in the Rules Deploy configuration");
                 }
                 MapStringEntryType mapStringEntryType = new MapStringEntryType();
                 mapStringEntryType.setString(new String[]{entry.getKey(), (String) entry.getValue()});

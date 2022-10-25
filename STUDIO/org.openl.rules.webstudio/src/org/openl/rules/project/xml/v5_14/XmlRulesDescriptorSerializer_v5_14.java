@@ -5,11 +5,12 @@ import org.openl.rules.project.model.v5_14.RulesDeploy_v5_14;
 import org.openl.rules.project.model.v5_14.converter.RulesDeployVersionConverter;
 import org.openl.rules.project.xml.BaseRulesDeploySerializer;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class XmlRulesDescriptorSerializer_v5_14 extends BaseRulesDeploySerializer<RulesDeploy_v5_14> {
 
-    public XmlRulesDescriptorSerializer_v5_14() {
+    public XmlRulesDescriptorSerializer_v5_14() throws JAXBException {
         super(new RulesDeployVersionConverter(), RulesDeploy_v5_14.class);
     }
 

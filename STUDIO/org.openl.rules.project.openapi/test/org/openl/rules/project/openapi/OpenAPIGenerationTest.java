@@ -34,6 +34,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.swagger.v3.oas.models.OpenAPI;
 
+import javax.xml.bind.JAXBException;
+
 public class OpenAPIGenerationTest {
 
     private final Logger log = LoggerFactory.getLogger("OpenAPI Project Generation Test");
@@ -129,7 +131,7 @@ public class OpenAPIGenerationTest {
                 actualOpenAPI = OpenApiGenerator.builder(projectDescriptor, instantiationStrategy)
                     .generator()
                     .generate();
-            } catch (RulesInstantiationException e) {
+            } catch (RulesInstantiationException | JAXBException e) {
                 error(messagesCount.getAndIncrement(), startTime, sourceFile, "OpenAPI Generation fails.", e);
                 testsFailed = true;
                 continue;

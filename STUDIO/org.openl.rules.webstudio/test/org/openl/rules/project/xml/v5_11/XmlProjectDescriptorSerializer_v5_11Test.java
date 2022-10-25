@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.openl.rules.project.model.Module;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.stream.Collectors;
 
@@ -19,7 +18,7 @@ import static org.openl.rules.project.xml.BaseProjectDescriptorSerializerTest.co
 public class XmlProjectDescriptorSerializer_v5_11Test {
 
     @Test
-    public void testSerialize() {
+    public void testSerialize() throws Exception {
         ProjectDescriptor projectDescriptor = BaseProjectDescriptorSerializerTest.initProjectDescriptorForTest();
 
         XmlProjectDescriptorSerializer_v5_11 descriptorSerializer_v5_11 = new XmlProjectDescriptorSerializer_v5_11();
@@ -66,7 +65,7 @@ public class XmlProjectDescriptorSerializer_v5_11Test {
             "</project>";
 
     @Test
-    public void testDeserialize()  throws IOException {
+    public void testDeserialize() throws Exception {
         XmlProjectDescriptorSerializer_v5_11 descriptorSerializer_v5_11 = new XmlProjectDescriptorSerializer_v5_11();
         ProjectDescriptor deserializedProject = descriptorSerializer_v5_11.deserialize(
                 new FileInputStream("test-resources/org.openl.rules.project.xml/project-descriptor_v5_11.xml"));

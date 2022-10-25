@@ -11,6 +11,8 @@ import org.openl.rules.project.xml.v5_16.XmlRulesDescriptorSerializer_v5_16;
 import org.openl.rules.project.xml.v5_17.XmlRulesDescriptorSerializer_v5_17;
 import org.openl.rules.project.xml.v5_23.XmlRulesDescriptorSerializer_v5_23;
 
+import javax.xml.bind.JAXBException;
+
 public class RulesDeploySerializerFactory {
     private final SupportedVersionSerializer supportedVersionSerializer;
 
@@ -26,7 +28,7 @@ public class RulesDeploySerializerFactory {
         supportedVersionSerializer.setSupportedVersion(projectFolder, version);
     }
 
-    public IRulesDeploySerializer getSerializer(SupportedVersion version) {
+    public IRulesDeploySerializer getSerializer(SupportedVersion version) throws JAXBException {
         switch (version) {
             case V5_11:
             case V5_12:

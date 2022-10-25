@@ -11,11 +11,9 @@ import java.util.stream.Collectors;
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
+import org.openl.rules.project.xml.JAXBSerializer;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -26,21 +24,16 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 public class ProjectDescriptorSerializer {
 
-    private final Marshaller jaxbMarshaller;
-    private final Unmarshaller jaxbUnmarshaller;
+    private final JAXBSerializer jaxbSerializer;
 
     public ProjectDescriptorSerializer() throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(Wrapper.class);
-        jaxbMarshaller = jaxbContext.createMarshaller();
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true);
-        jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+        jaxbSerializer = new JAXBSerializer(Wrapper.class);
     }
 
     @SuppressWarnings({ "rawtypes" })
     public ByteArrayOutputStream serialize(List<ProjectDescriptor> descriptors) throws IOException, JAXBException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            jaxbMarshaller.marshal(new Wrapper(descriptors), outputStream);
+            jaxbSerializer.marshal(new Wrapper(descriptors), outputStream);
             return outputStream;
         }
     }
@@ -54,7 +47,7 @@ public class ProjectDescriptorSerializer {
         } catch (IOException e) {
             throw new IllegalArgumentException(e);
         }
-        return Optional.ofNullable(((Wrapper) jaxbUnmarshaller.unmarshal(source)).getDescriptors()).orElseGet(ArrayList::new);
+        return Optional.ofNullable(((Wrapper) jaxbSerializer.unmarshal(source)).getDescriptors()).orElseGet(ArrayList::new);
     }
 
     /**

@@ -33,6 +33,7 @@ import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
@@ -58,7 +59,6 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.xml.OpenLSerializationException;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
@@ -870,7 +870,7 @@ public class RepositoryTreeController {
         }
     }
 
-    private void unregisterSelectedNodeInProjectDescriptor() throws ProjectException {
+    private void unregisterSelectedNodeInProjectDescriptor() throws ProjectException, JAXBException, IOException {
         TreeNode selectedNode = getSelectedNode();
         String nodeType = selectedNode.getType();
         if (UiConst.TYPE_FOLDER.equals(nodeType) || UiConst.TYPE_FILE.equals(nodeType)) {
@@ -878,7 +878,7 @@ public class RepositoryTreeController {
         }
     }
 
-    private void unregisterArtifactInProjectDescriptor(AProjectArtefact aProjectArtefact) throws ProjectException {
+    private void unregisterArtifactInProjectDescriptor(AProjectArtefact aProjectArtefact) throws ProjectException, JAXBException, IOException {
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
         AProjectArtefact projectDescriptorArtifact;
         try {
@@ -907,7 +907,7 @@ public class RepositoryTreeController {
             ProjectDescriptor projectDescriptor;
             try {
                 projectDescriptor = serializer.deserialize(content);
-            } catch (OpenLSerializationException e) {
+            } catch (JAXBException e) {
                 log.error("Broken rules.xml file. Cannot remove modules from it", e);
                 return;
             } finally {
@@ -2145,7 +2145,7 @@ public class RepositoryTreeController {
                     InputStream newContent = IOUtils.toInputStream(xmlString);
                     resource.setContent(newContent);
                 }
-            } catch (ProjectException ex) {
+            } catch (ProjectException | JAXBException | IOException ex) {
                 if (log.isDebugEnabled()) {
                     log.debug(ex.getMessage(), ex);
                 }
@@ -2241,7 +2241,7 @@ public class RepositoryTreeController {
                 }
             }
 
-        } catch (OpenLSerializationException e) {
+        } catch (JAXBException e) {
             // Add warning that uploaded project contains incorrect rules.xml
             WebStudioUtils.addWarnMessage("Warning: " + ProjectDescriptorUtils.getErrorMessage(e));
         } catch (Exception ignored) {

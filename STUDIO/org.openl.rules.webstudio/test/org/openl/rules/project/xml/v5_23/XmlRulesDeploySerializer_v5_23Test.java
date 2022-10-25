@@ -45,7 +45,7 @@ public class XmlRulesDeploySerializer_v5_23Test {
     }
 
     @Test
-    public void testWriteRulesDeploy() {
+    public void testWriteRulesDeploy() throws Exception {
         RulesDeploy rulesDeploy = generateRulesDeployForTest();
         rulesDeploy.setPublishers(new PublisherType[]{PublisherType.RMI, PublisherType.KAFKA});
         XmlRulesDescriptorSerializer_v5_23 serializer = new XmlRulesDescriptorSerializer_v5_23();

@@ -11,10 +11,7 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.util.CollectionUtils;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 
 /**
@@ -34,23 +31,14 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     public static final String PROPERTIES_FILE_NAME_PROCESSOR = "properties-file-name-processor";
     public static final String STRING_VALUE = "value";
 
-    private final Marshaller jaxbMarshaller;
-    private final Unmarshaller jaxbUnmarshaller;
+    private final JAXBSerializer jaxbSerializer;
 
     /**
      * Create Project Descriptor Serializer Note: please consider using ProjectDescriptorSerializerFactory instead
      *
      */
-    public XmlProjectDescriptorSerializer() {
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(ProjectDescriptor.class);
-            jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true); // don't include header
-            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        } catch (JAXBException e) {
-            throw new OpenLSerializationException("Error during serializer creation", e);
-        }
+    public XmlProjectDescriptorSerializer() throws JAXBException {
+        jaxbSerializer = new JAXBSerializer(ProjectDescriptor.class);
     }
 
     /**
@@ -64,27 +52,21 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     }
 
     @Override
-    public String serialize(ProjectDescriptor source) {
+    public String serialize(ProjectDescriptor source) throws IOException, JAXBException {
         populateWithNulls(source);
         try (StringWriter stringWriter = new StringWriter()) {
-            jaxbMarshaller.marshal(source, stringWriter);
+            jaxbSerializer.marshal(source, stringWriter);
             return stringWriter.toString();
-        } catch (IOException | JAXBException e) {
-            throw new OpenLSerializationException("Error during Project Descriptor serialization", e);
         } finally {
             populateNullsWithDefaultValues(source);
         }
     }
 
     @Override
-    public ProjectDescriptor deserialize(InputStream source) {
-        try {
-            ProjectDescriptor descriptor = (ProjectDescriptor) jaxbUnmarshaller.unmarshal(source);
-            populateNullsWithDefaultValues(descriptor);
-            return descriptor;
-        } catch (JAXBException e) {
-            throw new OpenLSerializationException("Error during Project Descriptor deserialization", e);
-        }
+    public ProjectDescriptor deserialize(InputStream source) throws JAXBException {
+        ProjectDescriptor descriptor = (ProjectDescriptor) jaxbSerializer.unmarshal(source);
+        populateNullsWithDefaultValues(descriptor);
+        return descriptor;
     }
 
     private void populateNullsWithDefaultValues(ProjectDescriptor descriptor) {

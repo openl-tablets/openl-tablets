@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
+import javax.xml.bind.JAXBException;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.common.ProjectException;
@@ -131,7 +132,7 @@ public class ProjectBean {
 
     public ProjectBean(RepositoryTreeState repositoryTreeState,
             ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
-            RulesDeploySerializerFactory rulesDeploySerializerFactory) {
+            RulesDeploySerializerFactory rulesDeploySerializerFactory) throws JAXBException {
         this.repositoryTreeState = repositoryTreeState;
         this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
         this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
@@ -1232,7 +1233,7 @@ public class ProjectBean {
             boolean rulesDeployExists) {
         try {
             configureSerializer();
-        } catch (IOException e) {
+        } catch (IOException | JAXBException e) {
             log.error("Error was occurred during serializer configuration.");
         }
         try {
@@ -1251,7 +1252,7 @@ public class ProjectBean {
                     currentProject.addResource(RULES_DEPLOY_XML, rulesDeployInputStream);
                 }
             }
-        } catch (ProjectException | IOException e) {
+        } catch (ProjectException | IOException | JAXBException e) {
             log.error("Can't add rules deploy file to the project.");
             throw new Message("Failed to add rules deploy xml file.");
         }
@@ -1334,7 +1335,7 @@ public class ProjectBean {
         // postProcess(descriptor);
     }
 
-    private void configureSerializer() throws IOException {
+    private void configureSerializer() throws IOException, JAXBException {
         IProjectDescriptorSerializer serializer;
         SupportedVersion version = supportedVersion;
         if (version == null) {
@@ -1661,7 +1662,7 @@ public class ProjectBean {
             return projectDescriptorManager.readOriginalDescriptor(file);
         } catch (FileNotFoundException ignored) {
             return descriptor;
-        } catch (IOException | ValidationException e) {
+        } catch (IOException | ValidationException | JAXBException e) {
             log.error(e.getMessage(), e);
             return descriptor;
         }

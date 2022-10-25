@@ -9,10 +9,7 @@ import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.model.ObjectVersionConverter;
 import org.openl.rules.project.model.ProjectDescriptor;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 
 public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSerializer {
@@ -28,52 +25,35 @@ public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSer
     public static final String PROPERTIES_FILE_NAME_PATTERN = "properties-file-name-pattern";
     public static final String PROPERTIES_FILE_NAME_PROCESSOR = "properties-file-name-processor";
 
-    private final Marshaller jaxbMarshaller;
-    private final Unmarshaller jaxbUnmarshaller;
+    private final JAXBSerializer jaxbSerializer;
 
     private final boolean postProcess;
     private final ObjectVersionConverter<ProjectDescriptor, T> projectDescriptorVersionConverter;
 
     public BaseProjectDescriptorSerializer(boolean postProcess,
-            ObjectVersionConverter<ProjectDescriptor, T> projectDescriptorVersionConverter, Class<T> clazz) {
-        try {
-            JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
-            jaxbMarshaller = jaxbContext.createMarshaller();
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true); // disables header
-
-            jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        } catch (JAXBException e) {
-            throw new RuntimeException(e);
-        }
-
+            ObjectVersionConverter<ProjectDescriptor, T> projectDescriptorVersionConverter, Class<T> clazz) throws JAXBException {
+        jaxbSerializer = new JAXBSerializer(clazz);
         this.postProcess = postProcess;
         this.projectDescriptorVersionConverter = projectDescriptorVersionConverter;
     }
 
     @Override
-    public String serialize(ProjectDescriptor source) {
+    public String serialize(ProjectDescriptor source) throws IOException, JAXBException {
         try (StringWriter stringWriter = new StringWriter()) {
-            jaxbMarshaller.marshal(projectDescriptorVersionConverter.toOldVersion(source), stringWriter);
+            jaxbSerializer.marshal(projectDescriptorVersionConverter.toOldVersion(source), stringWriter);
             return stringWriter.toString();
-        } catch (IOException | JAXBException e) {
-            throw new OpenLSerializationException("Error during Project Descriptor serialization", e);
         }
     }
 
     @Override
-    public ProjectDescriptor deserialize(InputStream source) {
-        try {
-            @SuppressWarnings("unchecked")
-            T oldVersion = (T) jaxbUnmarshaller.unmarshal(source);
-            ProjectDescriptor descriptor = projectDescriptorVersionConverter.fromOldVersion(oldVersion);
-            if (postProcess) {
-                postProcess(descriptor);
-            }
-            return descriptor;
-        } catch (JAXBException e) {
-            throw new OpenLSerializationException("Error during Project Descriptor deserialization", e);
+    public ProjectDescriptor deserialize(InputStream source) throws JAXBException {
+        @SuppressWarnings("unchecked")
+        T oldVersion = (T) jaxbSerializer.unmarshal(source);
+        ProjectDescriptor descriptor = projectDescriptorVersionConverter.fromOldVersion(oldVersion);
+        if (postProcess) {
+            postProcess(descriptor);
         }
+        return descriptor;
     }
 
     private static void postProcess(ProjectDescriptor descriptor) {

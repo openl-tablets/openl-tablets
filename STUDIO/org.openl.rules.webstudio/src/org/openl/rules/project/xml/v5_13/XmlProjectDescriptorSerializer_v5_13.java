@@ -5,15 +5,16 @@ import org.openl.rules.project.model.v5_13.ProjectDescriptor_v5_13;
 import org.openl.rules.project.model.v5_13.converter.ProjectDescriptorVersionConverter;
 import org.openl.rules.project.xml.BaseProjectDescriptorSerializer;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class XmlProjectDescriptorSerializer_v5_13 extends BaseProjectDescriptorSerializer<ProjectDescriptor_v5_13> {
 
-    public XmlProjectDescriptorSerializer_v5_13() {
+    public XmlProjectDescriptorSerializer_v5_13() throws JAXBException {
         this(true);
     }
 
-    public XmlProjectDescriptorSerializer_v5_13(boolean postProcess) {
+    public XmlProjectDescriptorSerializer_v5_13(boolean postProcess) throws JAXBException {
         super(postProcess, new ProjectDescriptorVersionConverter(), ProjectDescriptor_v5_13.class);
     }
 

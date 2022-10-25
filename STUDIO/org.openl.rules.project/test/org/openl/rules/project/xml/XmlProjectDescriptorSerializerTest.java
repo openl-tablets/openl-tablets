@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
@@ -23,7 +22,7 @@ import org.openl.util.IOUtils;
 public class XmlProjectDescriptorSerializerTest {
 
     @Test
-    public void testSerialize() {
+    public void testSerialize() throws Exception {
         ProjectDescriptor projectDescriptor = initProjectDescriptorForTest();
 
         XmlProjectDescriptorSerializer descriptorSerializer = new XmlProjectDescriptorSerializer();
@@ -78,7 +77,7 @@ public class XmlProjectDescriptorSerializerTest {
     }
 
     @Test
-    public void testDeserialize() throws FileNotFoundException {
+    public void testDeserialize() throws Exception {
         ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
             .deserialize(new FileInputStream("test-resources/xml/rules1.xml"));
 
@@ -87,7 +86,7 @@ public class XmlProjectDescriptorSerializerTest {
     }
 
     @Test
-    public void testDeserializeMultiPattern() throws FileNotFoundException {
+    public void testDeserializeMultiPattern() throws Exception {
         ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
                 .deserialize(new FileInputStream("test-resources/multi-file-name-pattern/rules.xml"));
 
@@ -102,7 +101,7 @@ public class XmlProjectDescriptorSerializerTest {
     }
 
     @Test
-    public void testSerializeMultiPattern() throws FileNotFoundException {
+    public void testSerializeMultiPattern() throws Exception {
         ProjectDescriptor pd = new XmlProjectDescriptorSerializer()
                 .deserialize(new FileInputStream("test-resources/multi-file-name-pattern/rules.xml"));
 

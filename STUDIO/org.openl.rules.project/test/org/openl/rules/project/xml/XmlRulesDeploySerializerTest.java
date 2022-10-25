@@ -44,7 +44,7 @@ public class XmlRulesDeploySerializerTest {
     }
 
     @Test
-    public void testWriteRulesDeploy() {
+    public void testWriteRulesDeploy() throws Exception {
         RulesDeploy rulesDeploy = generateRulesDeployForTest();
         XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();
         String value = serializer.serialize(rulesDeploy);

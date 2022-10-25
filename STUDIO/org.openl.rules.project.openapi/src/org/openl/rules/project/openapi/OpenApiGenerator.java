@@ -40,6 +40,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.models.OpenAPI;
 
+import javax.xml.bind.JAXBException;
+
 /**
  * This class generates {@link OpenAPI} model from given OpenL Project.
  *
@@ -68,7 +70,7 @@ public class OpenApiGenerator {
     private OpenApiGenerator(ProjectDescriptor projectDescriptor,
             RulesInstantiationStrategy instantiationStrategy,
             boolean provideRuntimeContext,
-            boolean provideVariations) throws RulesInstantiationException {
+            boolean provideVariations) throws RulesInstantiationException, JAXBException {
         this.projectDescriptor = projectDescriptor;
         this.instantiationStrategy = instantiationStrategy;
         this.compiledOpenClass = instantiationStrategy.compile();
@@ -139,7 +141,7 @@ public class OpenApiGenerator {
         if (projectResource != null) {
             try {
                 return rulesDeploySerializer.deserialize(new FileInputStream(projectResource.getFile()));
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException | JAXBException e) {
                 LOG.debug("Ignored error: ", e);
                 return null;
             }
@@ -347,7 +349,7 @@ public class OpenApiGenerator {
          * @return new instance of {@link OpenApiGenerator}
          * @throws RulesInstantiationException in case of compilation errors
          */
-        public OpenApiGenerator generator() throws RulesInstantiationException {
+        public OpenApiGenerator generator() throws RulesInstantiationException, JAXBException {
             return new OpenApiGenerator(projectDescriptor,
                 instantiationStrategy,
                 provideRuntimeContext,
