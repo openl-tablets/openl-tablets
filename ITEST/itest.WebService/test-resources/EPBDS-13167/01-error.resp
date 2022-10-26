@@ -1,0 +1,13 @@
+HTTP/1.1 422
+Content-Type: application/json
+
+{
+  "message": "Foo",
+  "code": "bar",
+  "messages": [
+    {
+      "message": "Foo-nested",
+      "code": "bar-nested"
+    }
+  ]
+}

@@ -562,6 +562,11 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public static Object convertSpreadsheetResult(Object v,
+            SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {
+        return convertSpreadsheetResult(v, null, null, false, spreadsheetResultBeanPropertyNamingStrategy);
+    }
+
+    public static Object convertSpreadsheetResult(Object v,
             Class<?> toType,
             IOpenClass toTypeOpenClass,
             SpreadsheetResultBeanPropertyNamingStrategy spreadsheetResultBeanPropertyNamingStrategy) {

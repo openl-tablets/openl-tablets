@@ -27,6 +27,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.serialization.Serializer;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
@@ -41,9 +42,9 @@ import org.openl.rules.ruleservice.kafka.conf.KafkaMethodConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaServiceConfig;
 import org.openl.rules.ruleservice.kafka.conf.YamlObjectMapperBuilder;
 import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
+import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
-import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.openl.rules.serialization.JacksonObjectMapperFactory;
@@ -463,7 +464,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             ServiceDeployContext context,
             T mergedKafkaConfig,
             T config,
-            Method method) throws KafkaServiceException {
+            Method method,
+            RulesDeploy rulesDeploy) throws KafkaServiceException {
         // Build Kafka Consumer
         final ObjectMapper consumerObjectMapper = createConsumerJacksonObjectMapper(mergedKafkaConfig);
         final KafkaConsumer<String, RequestMessage> consumer = buildConsumer(service,
@@ -520,7 +522,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             objectSerializer,
             getStoreLogDataManager(),
             getStoreLogDataManager().isEnabled(),
-            tracingProvider.orElse(null));
+            tracingProvider.orElse(null),
+            rulesDeploy);
         kafkaServices.add(kafkaService);
 
         kafkaService.start();
@@ -535,7 +538,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
-            KafkaDeploy kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(getServiceDescriptionObjectFactory().getObject());
+            var serviceDescription = getServiceDescriptionObjectFactory().getObject();
+            KafkaDeploy kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(serviceDescription);
             List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs() == null ? Collections
                 .emptyList() : kafkaDeploy.getMethodConfigs();
             Collection<KafkaService> kafkaServices = new HashSet<>();
@@ -571,7 +575,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                         sharedProducersContext,
                         kafkaServiceConfig,
                         kafkaDeploy.getServiceConfig(),
-                        null);
+                        null,
+                        serviceDescription.getRulesDeploy());
                 }
                 for (KafkaMethodConfig kmc : kafkaMethodConfigs) {
                     final Method method = methodsMap.get(kmc);
@@ -583,7 +588,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                         sharedProducersContext,
                         kafkaMethodConfig,
                         kmc,
-                        method);
+                        method,
+                        serviceDescription.getRulesDeploy());
                 }
             } catch (Exception e) {
                 stopAndClose(Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
