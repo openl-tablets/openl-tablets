@@ -46,9 +46,6 @@ public class ProjectDescriptorManager {
 
     private final Cloner cloner = new SafeCloner();
 
-    public ProjectDescriptorManager() throws JAXBException {
-    }
-
     public PathMatcher getPathMatcher() {
         return pathMatcher;
     }
@@ -98,7 +95,7 @@ public class ProjectDescriptorManager {
     }
 
     public void writeDescriptor(ProjectDescriptor descriptor, OutputStream dest) throws IOException,
-            ValidationException, JAXBException {
+    ValidationException, JAXBException {
         validator.validate(descriptor);
         descriptor = cloner.deepClone(descriptor); // prevent changes argument
         // object

@@ -2243,7 +2243,7 @@ public class RepositoryTreeController {
 
         } catch (JAXBException e) {
             // Add warning that uploaded project contains incorrect rules.xml
-            WebStudioUtils.addWarnMessage("Warning: " + ProjectDescriptorUtils.getErrorMessage(e));
+            WebStudioUtils.addWarnMessage("Warning: " + ProjectDescriptorUtils.getErrorMessage());
         } catch (Exception ignored) {
         }
 

@@ -151,11 +151,13 @@ public class RepositoryProjectRulesDeployConfig {
             InputStream content = artefact.getContent();
             String sourceString = IOUtils.toStringAndClose(content);
             return serializer.deserialize(sourceString, getSupportedVersion(project));
-        } catch (IOException | ProjectException | JAXBException e) {
+        } catch (IOException | ProjectException e) {
             WebStudioUtils.addErrorMessage("Failed to read '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
             log.error(e.getMessage(), e);
+        } catch (JAXBException e) {
+            WebStudioUtils.addErrorMessage("Failed to parse '" + RULES_DEPLOY_CONFIGURATION_FILE + " file.");
+            log.error(e.getMessage(), e);
         }
-
         return null;
     }
 

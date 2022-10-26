@@ -37,7 +37,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
      * Create Project Descriptor Serializer Note: please consider using ProjectDescriptorSerializerFactory instead
      *
      */
-    public XmlProjectDescriptorSerializer() throws JAXBException {
+    public XmlProjectDescriptorSerializer() {
         jaxbSerializer = new JAXBSerializer(ProjectDescriptor.class);
     }
 

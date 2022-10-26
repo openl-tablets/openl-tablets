@@ -6,10 +6,14 @@ import java.io.IOException;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.xml.v5_11.XmlProjectDescriptorSerializer_v5_11;
-import org.openl.rules.project.xml.v5_12.XmlProjectDescriptorSerializer_v5_12;
-import org.openl.rules.project.xml.v5_13.XmlProjectDescriptorSerializer_v5_13;
-import org.openl.rules.project.xml.v5_16.XmlProjectDescriptorSerializer_v5_16;
+import org.openl.rules.project.model.v5_11.ProjectDescriptor_v5_11;
+import org.openl.rules.project.model.v5_11.converter.ProjectDescriptor_v5_11VersionConverter;
+import org.openl.rules.project.model.v5_12.ProjectDescriptor_v5_12;
+import org.openl.rules.project.model.v5_12.converter.ProjectDescriptor_v5_12VersionConverter;
+import org.openl.rules.project.model.v5_13.ProjectDescriptor_v5_13;
+import org.openl.rules.project.model.v5_13.converter.ProjectDescriptor_v5_13VersionConverter;
+import org.openl.rules.project.model.v5_16.ProjectDescriptor_v5_16;
+import org.openl.rules.project.model.v5_16.converter.ProjectDescriptor_5_16VersionConverter;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 
@@ -55,16 +59,19 @@ public class ProjectDescriptorSerializerFactory {
         supportedVersionSerializer.setSupportedVersion(projectFolder, version);
     }
 
-    public IProjectDescriptorSerializer getSerializer(SupportedVersion version) throws JAXBException {
+    public IProjectDescriptorSerializer getSerializer(SupportedVersion version) {
         switch (version) {
             case V5_11:
-                return new XmlProjectDescriptorSerializer_v5_11();
+                return new BaseProjectDescriptorSerializer<>(
+                        new ProjectDescriptor_v5_11VersionConverter(), ProjectDescriptor_v5_11.class);
             case V5_12:
-                return new XmlProjectDescriptorSerializer_v5_12();
+                return new BaseProjectDescriptorSerializer<>(
+                    new ProjectDescriptor_v5_12VersionConverter(), ProjectDescriptor_v5_12.class);
             case V5_13:
             case V5_14:
             case V5_15:
-                return new XmlProjectDescriptorSerializer_v5_13();
+                return new BaseProjectDescriptorSerializer<>(
+                        new ProjectDescriptor_v5_13VersionConverter(), ProjectDescriptor_v5_13.class);
             case V5_16:
             case V5_17:
             case V5_18:
@@ -72,7 +79,8 @@ public class ProjectDescriptorSerializerFactory {
             case V5_20:
             case V5_21:
             case V5_22:
-                return new XmlProjectDescriptorSerializer_v5_16();
+                return new BaseProjectDescriptorSerializer<>(
+                        new ProjectDescriptor_5_16VersionConverter(), ProjectDescriptor_v5_16.class);
             case V5_23:
             default: // rules.xml is not changed in newer versions of OpenL but rules-deploy.xml could
                 return new XmlProjectDescriptorSerializer();

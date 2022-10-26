@@ -3,7 +3,7 @@ package org.openl.rules.project.model.v5_13;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.xml.BaseProjectDescriptorSerializer;
-import org.openl.rules.project.xml.v5_13.XmlProjectDescriptorSerializer_v5_13;
+import org.openl.rules.project.xml.v5_13.ModuleType_v5_13XmlAdapter;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -20,7 +20,7 @@ import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.RULES_
 public class Module_v5_13 {
     @XmlJavaTypeAdapter(BaseProjectDescriptorSerializer.CollapsedStringAdapter2.class)
     private String name;
-    @XmlJavaTypeAdapter(XmlProjectDescriptorSerializer_v5_13.ModuleType_v5_13XmlAdapter.class)
+    @XmlJavaTypeAdapter(ModuleType_v5_13XmlAdapter.class)
     private ModuleType_v5_13 type;
     @XmlJavaTypeAdapter(BaseProjectDescriptorSerializer.CollapsedStringAdapter2.class)
     private String classname;

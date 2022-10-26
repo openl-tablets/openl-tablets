@@ -16,7 +16,7 @@ public class BaseRulesDeploySerializer<T> implements IRulesDeploySerializer {
     private final JAXBSerializer jaxbSerializer;
 
     public BaseRulesDeploySerializer(ObjectVersionConverter<RulesDeploy, T> rulesDeployVersionConverter,
-                                     Class<T> clazz) throws JAXBException {
+                                     Class<T> clazz) {
         jaxbSerializer = new JAXBSerializer(clazz);
         this.rulesDeployVersionConverter = rulesDeployVersionConverter;
     }

@@ -26,7 +26,7 @@ public class ProjectDescriptorSerializer {
 
     private final JAXBSerializer jaxbSerializer;
 
-    public ProjectDescriptorSerializer() throws JAXBException {
+    public ProjectDescriptorSerializer() {
         jaxbSerializer = new JAXBSerializer(Wrapper.class);
     }
 

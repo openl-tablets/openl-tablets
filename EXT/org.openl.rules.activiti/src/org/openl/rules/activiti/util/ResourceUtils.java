@@ -21,21 +21,10 @@ public final class ResourceUtils {
     private ResourceUtils() {
     }
 
-    private static IRulesDeploySerializer rulesDeploySerializer;
-
-    static {
-        try {
-            rulesDeploySerializer = new XmlRulesDeploySerializer();
-        } catch (JAXBException e) {
-            // do nothing
-        }
-    }
+    private static final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
     public static RulesDeploy readRulesDeploy(File openlProjectFolder) throws IOException, JAXBException {
         File rulesDeployXmlFile = new File(openlProjectFolder, RULES_DEPLOY_XML);
-        if (rulesDeploySerializer == null) {
-            rulesDeploySerializer = new XmlRulesDeploySerializer();
-        }
         if (rulesDeployXmlFile.exists() && rulesDeployXmlFile.isFile()) {
             return rulesDeploySerializer.deserialize(new FileInputStream(rulesDeployXmlFile));
         }

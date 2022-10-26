@@ -342,10 +342,15 @@ public abstract class AbstractSmartRedeployController {
                     item.setStyleForMessages(UiConst.STYLE_ERROR);
                     item.setCanDeploy(false);
                 }
-            } catch (ProjectException | JAXBException e) {
+            } catch (ProjectException e) {
                 LOG.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Internal error while reading the project from the repository.");
+                item.setStyleForMessages(UiConst.STYLE_ERROR);
+            } catch (JAXBException e) {
+                LOG.error(e.getMessage(), e);
+                item.setDisabled(true);
+                item.setMessages("Project descriptor is invalid.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
             }
             item.setStyleForName(UiConst.STYLE_WARNING);

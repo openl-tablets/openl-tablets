@@ -258,7 +258,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         }
     }
 
-    private ProjectDescriptorManager getProjectDescriptorManager() throws JAXBException {
+    private ProjectDescriptorManager getProjectDescriptorManager() {
         if (projectDescriptorManager == null) {
             projectDescriptorManager = new ProjectDescriptorManager();
         }

@@ -74,7 +74,9 @@ public class FileChangesFromFolder implements Iterable<FileItem>, AutoCloseable 
                         is = fileAdaptor.get().apply(is);
                     }
                     return new FileItem(folderTo + path, is);
-                } catch (IOException | JAXBException e) {
+                } catch (RuntimeException e) {
+                    throw e;
+                } catch (Exception e) {
                     throw RuntimeExceptionWrapper.wrap(e);
                 }
             }

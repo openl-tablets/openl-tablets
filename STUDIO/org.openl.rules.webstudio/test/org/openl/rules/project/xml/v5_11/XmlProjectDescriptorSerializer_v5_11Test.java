@@ -9,6 +9,9 @@ import java.util.stream.Collectors;
 
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.v5_11.ProjectDescriptor_v5_11;
+import org.openl.rules.project.model.v5_11.converter.ProjectDescriptor_v5_11VersionConverter;
+import org.openl.rules.project.xml.BaseProjectDescriptorSerializer;
 import org.openl.rules.project.xml.BaseProjectDescriptorSerializerTest;
 
 import static org.junit.Assert.assertEquals;
@@ -21,7 +24,8 @@ public class XmlProjectDescriptorSerializer_v5_11Test {
     public void testSerialize() throws Exception {
         ProjectDescriptor projectDescriptor = BaseProjectDescriptorSerializerTest.initProjectDescriptorForTest();
 
-        XmlProjectDescriptorSerializer_v5_11 descriptorSerializer_v5_11 = new XmlProjectDescriptorSerializer_v5_11();
+        BaseProjectDescriptorSerializer<ProjectDescriptor_v5_11> descriptorSerializer_v5_11 =
+                new BaseProjectDescriptorSerializer<>(new ProjectDescriptor_v5_11VersionConverter(), ProjectDescriptor_v5_11.class);
         String xml = descriptorSerializer_v5_11.serialize(projectDescriptor);
         assertEquals(xml, PROJECT_DESCRIPTOR_V5_11_XML);
     }
@@ -66,7 +70,9 @@ public class XmlProjectDescriptorSerializer_v5_11Test {
 
     @Test
     public void testDeserialize() throws Exception {
-        XmlProjectDescriptorSerializer_v5_11 descriptorSerializer_v5_11 = new XmlProjectDescriptorSerializer_v5_11();
+        BaseProjectDescriptorSerializer<ProjectDescriptor_v5_11> descriptorSerializer_v5_11 =
+                new BaseProjectDescriptorSerializer<>(
+                        new ProjectDescriptor_v5_11VersionConverter(), ProjectDescriptor_v5_11.class);
         ProjectDescriptor deserializedProject = descriptorSerializer_v5_11.deserialize(
                 new FileInputStream("test-resources/org.openl.rules.project.xml/project-descriptor_v5_11.xml"));
         ProjectDescriptor project = BaseProjectDescriptorSerializerTest.initProjectDescriptorForTest();

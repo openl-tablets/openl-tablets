@@ -5,6 +5,9 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.model.v5_12.ProjectDescriptor_v5_12;
+import org.openl.rules.project.model.v5_12.converter.ProjectDescriptor_v5_12VersionConverter;
+import org.openl.rules.project.xml.BaseProjectDescriptorSerializer;
 import org.openl.rules.project.xml.BaseProjectDescriptorSerializerTest;
 
 import java.io.FileInputStream;
@@ -21,7 +24,8 @@ public class XmlProjectDescriptorSerializer_v5_12Test {
     public void testSerialize() throws Exception {
         ProjectDescriptor projectDescriptor = BaseProjectDescriptorSerializerTest.initProjectDescriptorForTest();
 
-        String xml = new XmlProjectDescriptorSerializer_v5_12().serialize(projectDescriptor);
+        String xml = new BaseProjectDescriptorSerializer<>(
+                new ProjectDescriptor_v5_12VersionConverter(), ProjectDescriptor_v5_12.class).serialize(projectDescriptor);
         assertEquals(xml, PROJECT_DESCRIPTOR_V5_12_XML);
     }
 
@@ -72,7 +76,8 @@ public class XmlProjectDescriptorSerializer_v5_12Test {
 
     @Test
     public void testDeserialize() throws Exception {
-        ProjectDescriptor deserializedProject = new XmlProjectDescriptorSerializer_v5_12().deserialize(
+        ProjectDescriptor deserializedProject = new BaseProjectDescriptorSerializer<>(
+                new ProjectDescriptor_v5_12VersionConverter(), ProjectDescriptor_v5_12.class).deserialize(
                 new FileInputStream("test-resources/org.openl.rules.project.xml/project-descriptor_v5_12.xml"));
         assertProjectDescriptorDeserializedCorrectly(deserializedProject);
     }

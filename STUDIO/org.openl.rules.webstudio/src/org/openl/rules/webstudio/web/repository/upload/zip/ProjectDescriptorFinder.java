@@ -21,7 +21,7 @@ public class ProjectDescriptorFinder extends DefaultZipEntryCommand {
         return true;
     }
 
-    private XmlProjectDescriptorSerializer getSerializer() throws JAXBException {
+    private XmlProjectDescriptorSerializer getSerializer() {
         if (serializer == null) {
             serializer = new XmlProjectDescriptorSerializer();
         }

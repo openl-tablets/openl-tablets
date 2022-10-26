@@ -9,28 +9,48 @@ import java.io.OutputStream;
 import java.io.Writer;
 
 public class JAXBSerializer {
-    private final Marshaller jaxbMarshaller;
-    private final Unmarshaller jaxbUnmarshaller;
+    private Marshaller jaxbMarshaller;
+    private Unmarshaller jaxbUnmarshaller;
 
-    public JAXBSerializer(Class clazz) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(clazz);
-        jaxbMarshaller = jaxbContext.createMarshaller();
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true); // excludes header
-        jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+    private JAXBContext jaxbContext;
+    private final Class clazz;
+
+    public JAXBSerializer(Class clazz) {
+        this.clazz = clazz;
     }
 
     public void marshal(Object object, Writer writer) throws JAXBException {
-        jaxbMarshaller.marshal(object, writer);
+        getJaxbMarshaller().marshal(object, writer);
     }
 
     public void marshal(Object object, OutputStream outputStream) throws JAXBException {
-        jaxbMarshaller.marshal(object, outputStream);
+        getJaxbMarshaller().marshal(object, outputStream);
     }
 
     public Object unmarshal(InputStream inputStream) throws JAXBException {
-        return jaxbUnmarshaller.unmarshal(inputStream);
+        return getJaxbUnmarshaller().unmarshal(inputStream);
     }
 
+    private Marshaller getJaxbMarshaller() throws JAXBException {
+        if (jaxbMarshaller == null) {
+            jaxbMarshaller = getJaxbContext().createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FRAGMENT, true); // excludes header
+        }
+        return jaxbMarshaller;
+    }
 
+    private Unmarshaller getJaxbUnmarshaller() throws JAXBException {
+        if (jaxbUnmarshaller == null) {
+            jaxbUnmarshaller = getJaxbContext().createUnmarshaller();
+        }
+        return jaxbUnmarshaller;
+    }
+
+    private JAXBContext getJaxbContext() throws JAXBException {
+        if (jaxbContext == null) {
+            jaxbContext = JAXBContext.newInstance(clazz);
+        }
+        return jaxbContext;
+    }
 }

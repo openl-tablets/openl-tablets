@@ -878,7 +878,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             newProjectDescriptor = ZipProjectDescriptorExtractor
                 .getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
         } catch (JAXBException e) {
-            return ProjectDescriptorUtils.getErrorMessage(e);
+            return ProjectDescriptorUtils.getErrorMessage();
         }
         if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
             return validateProjectName(newProjectDescriptor.getName());

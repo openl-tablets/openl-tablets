@@ -28,7 +28,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
 
     private final JAXBSerializer jaxbSerializer;
 
-    public XmlRulesDeploySerializer() throws JAXBException {
+    public XmlRulesDeploySerializer() {
         jaxbSerializer = new JAXBSerializer(RulesDeploy.class);
     }
 

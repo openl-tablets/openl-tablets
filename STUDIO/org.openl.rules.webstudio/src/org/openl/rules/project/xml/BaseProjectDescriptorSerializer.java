@@ -27,13 +27,10 @@ public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSer
 
     private final JAXBSerializer jaxbSerializer;
 
-    private final boolean postProcess;
     private final ObjectVersionConverter<ProjectDescriptor, T> projectDescriptorVersionConverter;
 
-    public BaseProjectDescriptorSerializer(boolean postProcess,
-            ObjectVersionConverter<ProjectDescriptor, T> projectDescriptorVersionConverter, Class<T> clazz) throws JAXBException {
+    public BaseProjectDescriptorSerializer(ObjectVersionConverter<ProjectDescriptor, T> projectDescriptorVersionConverter, Class<T> clazz) {
         jaxbSerializer = new JAXBSerializer(clazz);
-        this.postProcess = postProcess;
         this.projectDescriptorVersionConverter = projectDescriptorVersionConverter;
     }
 
@@ -50,13 +47,6 @@ public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSer
         @SuppressWarnings("unchecked")
         T oldVersion = (T) jaxbSerializer.unmarshal(source);
         ProjectDescriptor descriptor = projectDescriptorVersionConverter.fromOldVersion(oldVersion);
-        if (postProcess) {
-            postProcess(descriptor);
-        }
-        return descriptor;
-    }
-
-    private static void postProcess(ProjectDescriptor descriptor) {
         if (descriptor.getClasspath() == null) {
             descriptor.setClasspath(new ArrayList<>());
         }
@@ -64,6 +54,7 @@ public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSer
         if (descriptor.getModules() == null) {
             descriptor.setModules(new ArrayList<>());
         }
+        return descriptor;
     }
 
     public static class CollapsedStringAdapter2 extends CollapsedStringAdapter {
