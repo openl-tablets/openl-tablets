@@ -15,7 +15,7 @@ import org.openl.util.CollectionUtils;
 /**
  * @author nsamatov.
  */
-public class ProjectDescriptor_v5_13VersionConverter implements ObjectVersionConverter<ProjectDescriptor, ProjectDescriptor_v5_13> {
+public class ProjectDescriptorVersionConverter_v5_13 implements ObjectVersionConverter<ProjectDescriptor, ProjectDescriptor_v5_13> {
     private final ModuleVersionConverter moduleVersionConverter = new ModuleVersionConverter();
     private final ProjectDependencyDescriptorVersionConverter dependencyConverter = new ProjectDependencyDescriptorVersionConverter();
 

@@ -4,7 +4,7 @@ import org.openl.rules.project.model.v5_11.ModuleType_v5_11;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-public class ModuleType_v5_11XmlAdapter extends XmlAdapter<String, ModuleType_v5_11> {
+public class ModuleTypeXmlAdapter_v5_11 extends XmlAdapter<String, ModuleType_v5_11> {
     @Override
     public ModuleType_v5_11 unmarshal(String name) {
         return ModuleType_v5_11.valueOf(name.toUpperCase());

@@ -1,7 +1,7 @@
 package org.openl.rules.project.model.v5_14;
 
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
-import org.openl.rules.project.xml.v5_14.XmlRulesDescriptorSerializer_v5_14;
+import org.openl.rules.project.xml.v5_14.PublisherTypeXmlAdapter_v5_14;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -25,7 +25,7 @@ public class RulesDeploy_v5_14 {
     private String serviceName;
     @XmlElementWrapper(name = PUBLISHERS_TAG)
     @XmlElement(name = PUBLISHER_TAG)
-    @XmlJavaTypeAdapter(XmlRulesDescriptorSerializer_v5_14.PublisherType_v5_14XmlAdapter.class)
+    @XmlJavaTypeAdapter(PublisherTypeXmlAdapter_v5_14.class)
     private PublisherType_v5_14[] publishers;
     private String interceptingTemplateClassName;
     private String serviceClass;

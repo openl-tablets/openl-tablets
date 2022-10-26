@@ -3,6 +3,9 @@ package org.openl.rules.project.xml.v5_14;
 import org.junit.Test;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
+import org.openl.rules.project.model.v5_14.RulesDeploy_v5_14;
+import org.openl.rules.project.model.v5_14.converter.RulesDeployVersionConverter_v5_14;
+import org.openl.rules.project.xml.BaseRulesDeploySerializer;
 
 import java.io.FileInputStream;
 import java.util.Map;
@@ -17,7 +20,8 @@ public class XmlRulesDeploySerializer_v5_14Test {
     @Test
     public void testReadRulesDeploy() throws Exception {
         FileInputStream fis = new FileInputStream("test-resources/org.openl.rules.project.xml/rules-deploy.xml");
-        XmlRulesDescriptorSerializer_v5_14 serializer = new XmlRulesDescriptorSerializer_v5_14();
+        BaseRulesDeploySerializer<RulesDeploy_v5_14> serializer =
+                new BaseRulesDeploySerializer<>(new RulesDeployVersionConverter_v5_14(), RulesDeploy_v5_14.class);
         RulesDeploy rulesDeploy = serializer.deserialize(fis);
 
         assertNotNull(rulesDeploy);
@@ -44,7 +48,8 @@ public class XmlRulesDeploySerializer_v5_14Test {
     @Test
     public void testWriteRulesDeploy() throws Exception {
         RulesDeploy rulesDeploy = generateRulesDeployForTest();
-        XmlRulesDescriptorSerializer_v5_14 serializer = new XmlRulesDescriptorSerializer_v5_14();
+        BaseRulesDeploySerializer<RulesDeploy_v5_14> serializer =
+                new BaseRulesDeploySerializer<>(new RulesDeployVersionConverter_v5_14(), RulesDeploy_v5_14.class);
         String value = serializer.serialize(rulesDeploy);
         assertEquals(EXPECTED_VALUE, value);
     }

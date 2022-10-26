@@ -12,7 +12,7 @@ import org.openl.util.CollectionUtils;
 /**
  * @author nsamatov.
  */
-public class ProjectDescriptor_v5_11VersionConverter implements ObjectVersionConverter<ProjectDescriptor, ProjectDescriptor_v5_11> {
+public class ProjectDescriptorVersionConverter_v5_11 implements ObjectVersionConverter<ProjectDescriptor, ProjectDescriptor_v5_11> {
     private final ModuleVersionConverter moduleVersionConverter = new ModuleVersionConverter();
 
     @Override

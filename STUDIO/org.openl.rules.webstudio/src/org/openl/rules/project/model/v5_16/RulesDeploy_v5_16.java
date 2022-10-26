@@ -2,7 +2,7 @@ package org.openl.rules.project.model.v5_16;
 
 import org.openl.rules.project.model.WildcardPattern;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer.MapAdapter;
-import org.openl.rules.project.xml.v5_16.XmlRulesDescriptorSerializer_v5_16;
+import org.openl.rules.project.xml.v5_16.PublisherTypeXmlAdapter_v5_16;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -35,7 +35,7 @@ public class RulesDeploy_v5_16 {
     private String serviceName;
     @XmlElementWrapper(name = PUBLISHERS_TAG)
     @XmlElement(name = PUBLISHER_TAG)
-    @XmlJavaTypeAdapter(XmlRulesDescriptorSerializer_v5_16.PublisherTypeXmlAdapter.class)
+    @XmlJavaTypeAdapter(PublisherTypeXmlAdapter_v5_16.class)
     private PublisherType[] publishers;
     private String interceptingTemplateClassName;
     private String annotationTemplateClassName;
