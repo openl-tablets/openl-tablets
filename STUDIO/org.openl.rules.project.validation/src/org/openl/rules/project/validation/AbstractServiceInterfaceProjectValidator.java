@@ -36,7 +36,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
     private boolean provideRuntimeContext = true;
     private boolean provideVariations;
 
-    private IRulesDeploySerializer rulesDeploySerializer;
+    private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
     private RulesDeploy rulesDeploy;
     private ClassLoader classLoader;
@@ -58,20 +58,13 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
             RULES_DEPLOY_XML);
         if (projectResource != null) {
             try {
-                return getRulesDeploySerializer().deserialize(new FileInputStream(projectResource.getFile()));
+                return rulesDeploySerializer.deserialize(new FileInputStream(projectResource.getFile()));
             } catch (FileNotFoundException | JAXBException e) {
                 LOG.debug("Ignored error: ", e);
                 return null;
             }
         }
         return null;
-    }
-
-    private IRulesDeploySerializer getRulesDeploySerializer() throws JAXBException {
-        if (rulesDeploySerializer == null) {
-            rulesDeploySerializer = new XmlRulesDeploySerializer();
-        }
-        return rulesDeploySerializer;
     }
 
     protected RulesDeploy getRulesDeploy(ProjectDescriptor projectDescriptor, CompiledOpenClass compiledOpenClass) {

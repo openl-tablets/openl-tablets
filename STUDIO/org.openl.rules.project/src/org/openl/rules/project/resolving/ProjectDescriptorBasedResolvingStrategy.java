@@ -44,9 +44,9 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
     public ProjectDescriptor resolveProject(Path folder) throws ProjectResolvingException {
         Path descriptorFile = folder.resolve(PROJECT_DESCRIPTOR_FILE_NAME);
         Set<String> globalErrorMessages = new LinkedHashSet<>();
+        ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
         PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
         try {
-            ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
             ProjectDescriptor projectDescriptor = descriptorManager.readDescriptor(descriptorFile);
             PropertiesFileNameProcessor processor = null;
             try {

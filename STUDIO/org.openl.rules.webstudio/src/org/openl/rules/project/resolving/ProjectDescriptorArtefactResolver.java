@@ -1,7 +1,6 @@
 package org.openl.rules.project.resolving;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -34,9 +33,6 @@ public class ProjectDescriptorArtefactResolver {
      * Project descriptors cache. Replace with ehcache if GC occurs too often.
      */
     private final Map<String, ProjectDescriptor> cache = new WeakHashMap<>();
-
-    public ProjectDescriptorArtefactResolver() throws JAXBException {
-    }
 
     private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException, JAXBException {
         FileData fileData = project.getFileData();

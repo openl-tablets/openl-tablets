@@ -56,8 +56,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
     private final ProjectFile uploadedOpenAPIFile;
     private final String comment;
-    private ProjectDescriptorManager projectDescriptorManager;
-    private XmlRulesDeploySerializer serializer;
+    private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
+    private final XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
     private final String repositoryId;
     private final String projectName;
@@ -198,7 +198,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                 String.format("Error uploading %s file.",
                     ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
             addFile(projectBuilder,
-                openAPIHelper.editOrCreateRulesDeploy(getSerializer(), projectModel, generated, null),
+                openAPIHelper.editOrCreateRulesDeploy(serializer, projectModel, generated, null),
                 RULES_DEPLOY_XML,
                 "Error uploading rules-deploy.xml file.");
         } catch (Exception e) {
@@ -207,13 +207,6 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         }
 
         return projectBuilder;
-    }
-
-    private XmlRulesDeploySerializer getSerializer() throws JAXBException {
-        if (serializer == null) {
-            serializer = new XmlRulesDeploySerializer();
-        }
-        return serializer;
     }
 
     private void addGroovyScriptFile(RulesProjectBuilder projectBuilder,
@@ -252,17 +245,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             ValidationException, JAXBException {
         ProjectDescriptor descriptor = defineDescriptor(genJavaClasses, algorithmsInclude);
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            getProjectDescriptorManager().writeDescriptor(descriptor, baos);
+            projectDescriptorManager.writeDescriptor(descriptor, baos);
             byte[] descriptorBytes = baos.toByteArray();
             return new ByteArrayInputStream(descriptorBytes);
         }
-    }
-
-    private ProjectDescriptorManager getProjectDescriptorManager() {
-        if (projectDescriptorManager == null) {
-            projectDescriptorManager = new ProjectDescriptorManager();
-        }
-        return projectDescriptorManager;
     }
 
     private ProjectDescriptor defineDescriptor(boolean genJavaClasses, Set<String> algorithmsInclude) {
