@@ -34,7 +34,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.*;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.DEPENDENCY_TAG;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROJECT_DESCRIPTOR_TAG;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PATTERN;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PROCESSOR;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name=PROJECT_DESCRIPTOR_TAG)
