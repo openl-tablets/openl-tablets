@@ -21,6 +21,7 @@ public class ExceptionResponseDto {
     private final int statusCode;
     private final ExceptionType type;
     private final String detail;
+    private final Object body;
 
     private ExceptionResponseDto(ExceptionDetails exDetails, int statusCode, ExceptionType type, String detail) {
         this.message = exDetails.getMessage();
@@ -28,6 +29,7 @@ public class ExceptionResponseDto {
         this.type = type;
         this.detail = detail;
         this.code = exDetails.getCode();
+        this.body = exDetails.getBody();
     }
 
     public String getMessage() {
@@ -48,6 +50,10 @@ public class ExceptionResponseDto {
 
     public String getCode() {
         return code;
+    }
+
+    public Object getBody() {
+        return body;
     }
 
     public static ExceptionResponseDto createFrom(Exception e) {

@@ -2,19 +2,40 @@ package org.openl.exception;
 
 public class OpenLUserDetailedRuntimeException extends OpenLUserRuntimeException {
 
-    private final String code;
+    private final Object body;
 
-    public OpenLUserDetailedRuntimeException(String code, String message) {
-        super(message);
-        this.code = code;
+    public OpenLUserDetailedRuntimeException(Body body) {
+        super(body.getMessage());
+        this.body = body;
     }
 
-    public String getCode() {
-        return code;
+    public OpenLUserDetailedRuntimeException(Object body) {
+        this.body = body;
     }
 
-    public String getFullMessage() {
-        return String.format("%s: %s", code, super.getMessage());
+    public Object getBody() {
+        return body;
     }
 
+    public static class Body {
+        private final String message;
+        private final String code;
+
+        public Body(String code, String message) {
+            this.message = message;
+            this.code = code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public String getCode() {
+            return code;
+        }
+
+        public String getFullMessage() {
+            return String.format("%s: %s", code, message);
+        }
+    }
 }

@@ -7,4 +7,7 @@ public class OpenLUserRuntimeException extends OpenLRuntimeException {
     public OpenLUserRuntimeException(String message) {
         super(message);
     }
+
+    protected OpenLUserRuntimeException() {
+    }
 }

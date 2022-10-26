@@ -4,6 +4,7 @@ public class ExceptionDetails {
 
     private final String code;
     private final String message;
+    private final Object body;
 
     /**
      * Initialize rule service exception details
@@ -14,6 +15,13 @@ public class ExceptionDetails {
     public ExceptionDetails(String code, String message) {
         this.code = code;
         this.message = message;
+        this.body = null;
+    }
+
+    public ExceptionDetails(Object body) {
+        this.body = body;
+        this.code = null;
+        this.message = null;
     }
 
     /**
@@ -33,4 +41,7 @@ public class ExceptionDetails {
         return message;
     }
 
+    public Object getBody() {
+        return body;
+    }
 }

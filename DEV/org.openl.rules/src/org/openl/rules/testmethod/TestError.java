@@ -3,11 +3,13 @@ package org.openl.rules.testmethod;
 import java.util.Objects;
 
 import org.openl.exception.OpenLUserDetailedRuntimeException;
+import org.openl.util.print.NicePrinter;
 
 public class TestError {
 
     private String message;
     private String code;
+    private Object body;
     private boolean oldStyle;
 
     public TestError(String message) {
@@ -30,6 +32,14 @@ public class TestError {
         return code;
     }
 
+    public Object getBody() {
+        return body;
+    }
+
+    public void setBody(Object body) {
+        this.body = body;
+    }
+
     public void setCode(String code) {
         this.code = code;
     }
@@ -43,18 +53,21 @@ public class TestError {
             return false;
         }
         TestError testError = (TestError) o;
-        return Objects.equals(message, testError.message) && Objects.equals(code, testError.code);
+        return Objects.equals(message, testError.message) && Objects.equals(code, testError.code) && Objects
+            .equals(body, testError.body);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(message, code);
+        return Objects.hash(message, code, body);
     }
 
     @Override
     public String toString() {
         if (oldStyle) {
             return message;
+        } else if (body != null){
+            return NicePrinter.print(body);
         } else {
             return String.format("%s: %s", code, message);
         }
@@ -62,8 +75,13 @@ public class TestError {
 
     public static TestError from(OpenLUserDetailedRuntimeException ex) {
         var error = new TestError();
-        error.setMessage(ex.getMessage());
-        error.setCode(ex.getCode());
+        if (ex.getBody() instanceof OpenLUserDetailedRuntimeException.Body) {
+            var body = (OpenLUserDetailedRuntimeException.Body) ex.getBody();
+            error.setMessage(body.getMessage());
+            error.setCode(body.getCode());
+        } else {
+            error.setBody(ex.getBody());
+        }
         return error;
     }
 

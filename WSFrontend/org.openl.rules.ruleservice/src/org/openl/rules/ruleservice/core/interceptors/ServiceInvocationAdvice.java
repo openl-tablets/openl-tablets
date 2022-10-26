@@ -28,6 +28,7 @@ import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultBeanClass;
+import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.ruleservice.core.ExceptionDetails;
@@ -43,6 +44,7 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
+import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.runtime.AbstractOpenLMethodHandler;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.types.IOpenClass;
@@ -51,6 +53,8 @@ import org.openl.util.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 /**
  * Advice for processing method intercepting. Exception wrapping. And fix memory leaks.
@@ -80,6 +84,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
     private final Map<Class<?>, CustomSpreadsheetResultOpenClass> mapClassToSprOpenClass;
     private final Map<Method, Method> methodMap = new HashMap<>();
     private final RulesDeploy rulesDeploy;
+    private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
     public ServiceInvocationAdvice(IOpenClass openClass,
             Object serviceTarget,
@@ -97,6 +102,13 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             serviceMethodAdviceListeners) : new ArrayList<>();
         this.mapClassToSprOpenClass = initMapClassToSprOpenClass();
         this.rulesDeploy = rulesDeploy;
+        PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
+            .extractPropertyNamingStrategy(rulesDeploy, serviceClassLoader);
+        if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy) {
+            this.sprBeanPropertyNamingStrategy = (SpreadsheetResultBeanPropertyNamingStrategy) propertyNamingStrategy;
+        } else {
+            this.sprBeanPropertyNamingStrategy = null;
+        }
         init();
     }
 
@@ -482,7 +494,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
             }
             return result;
         } catch (Exception t) {
-            Pair<ExceptionType, ExceptionDetails> p = getExceptionDetailAndType(t);
+            Pair<ExceptionType, ExceptionDetails> p = getExceptionDetailAndType(t, sprBeanPropertyNamingStrategy);
             if (ExceptionType.isServerError(p.getLeft())) {
                 log.error(p.getRight().getMessage(), t);
             }
@@ -550,7 +562,8 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         return t;
     }
 
-    public static Pair<ExceptionType, ExceptionDetails> getExceptionDetailAndType(Exception ex) {
+    public static Pair<ExceptionType, ExceptionDetails> getExceptionDetailAndType(Exception ex,
+            SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy) {
         Throwable t = ex;
 
         ExceptionType type = ExceptionType.SYSTEM;
@@ -563,7 +576,14 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 type = ExceptionType.USER_ERROR;
                 if (t instanceof OpenLUserDetailedRuntimeException) {
                     OpenLUserDetailedRuntimeException uex = (OpenLUserDetailedRuntimeException) t;
-                    exceptionDetails = new ExceptionDetails(uex.getCode(), uex.getMessage());
+                    if (uex.getBody() instanceof OpenLUserDetailedRuntimeException.Body) {
+                        var body = (OpenLUserDetailedRuntimeException.Body) uex.getBody();
+                        exceptionDetails = new ExceptionDetails(body.getCode(), body.getMessage());
+                    } else {
+                        Object body = SpreadsheetResult.convertSpreadsheetResult(uex.getBody(),
+                            sprBeanPropertyNamingStrategy);
+                        exceptionDetails = new ExceptionDetails(body);
+                    }
                 } else {
                     exceptionDetails = new ExceptionDetails(t.getMessage());
                 }
