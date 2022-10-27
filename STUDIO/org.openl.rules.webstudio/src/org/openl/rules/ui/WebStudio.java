@@ -832,7 +832,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     return true;
                 }
             }
-        } catch (IOException | JAXBException e) {
+        } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
 
@@ -877,10 +877,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         try {
             newProjectDescriptor = ZipProjectDescriptorExtractor
                 .getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
-        } catch (JAXBException e) {
+        } catch (IllegalArgumentException e) {
             return ProjectDescriptorUtils.getErrorMessage();
         }
-        if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
+        if (!newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
             return validateProjectName(newProjectDescriptor.getName());
         }
 

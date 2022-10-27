@@ -2241,7 +2241,7 @@ public class RepositoryTreeController {
                 }
             }
 
-        } catch (JAXBException e) {
+        } catch (IllegalArgumentException e) {
             // Add warning that uploaded project contains incorrect rules.xml
             WebStudioUtils.addWarnMessage("Warning: " + ProjectDescriptorUtils.getErrorMessage());
         } catch (Exception ignored) {

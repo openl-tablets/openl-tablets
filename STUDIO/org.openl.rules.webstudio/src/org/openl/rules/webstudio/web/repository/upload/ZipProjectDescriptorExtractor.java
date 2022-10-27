@@ -11,9 +11,9 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.JAXBException;
-
 public final class ZipProjectDescriptorExtractor {
+    private static final Logger log = LoggerFactory.getLogger(ZipProjectDescriptorExtractor.class);
+
     private ZipProjectDescriptorExtractor() {
     }
 
@@ -23,7 +23,6 @@ public final class ZipProjectDescriptorExtractor {
         try {
             return getProjectDescriptorOrThrow(uploadedFile, zipFilter, charset);
         } catch (Exception e) {
-            final Logger log = LoggerFactory.getLogger(ZipProjectDescriptorExtractor.class);
             log.error(e.getMessage(), e);
             return null;
         }
@@ -31,11 +30,16 @@ public final class ZipProjectDescriptorExtractor {
 
     public static ProjectDescriptor getProjectDescriptorOrThrow(ProjectFile uploadedFile,
             PathFilter zipFilter,
-            Charset charset) throws IOException, JAXBException {
+            Charset charset) throws IOException, IllegalArgumentException {
         ZipWalker zipWalker = new ZipWalker(uploadedFile, zipFilter, charset);
         ProjectDescriptorFinder finder = new ProjectDescriptorFinder();
         zipWalker.iterateEntries(finder);
-        return finder.getProjectDescriptor();
+        ProjectDescriptor projectDescriptor = finder.getProjectDescriptor();
+        if (projectDescriptor == null) {
+            log.error(ProjectDescriptorUtils.getErrorMessage());
+            throw new IllegalArgumentException(ProjectDescriptorUtils.getErrorMessage());
+        }
+        return projectDescriptor;
     }
 
 }

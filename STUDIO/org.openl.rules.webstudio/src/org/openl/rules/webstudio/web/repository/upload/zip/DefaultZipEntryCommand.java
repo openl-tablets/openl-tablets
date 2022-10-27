@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.repository.upload.zip;
 
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -14,7 +13,7 @@ public class DefaultZipEntryCommand implements ZipEntryCommand {
     }
 
     @Override
-    public boolean execute(String filePath, InputStream inputStream) throws IOException, JAXBException {
+    public boolean execute(String filePath, InputStream inputStream) throws IOException {
         return true;
     }
 }

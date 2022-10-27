@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.repository.upload.zip;
 
-import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -16,7 +15,7 @@ public interface ZipEntryCommand {
      * @return true if continue entries iteration, false to stop iteration
      * @throws IOException if an I/O error occurs
      */
-    boolean execute(String filePath, InputStream inputStream) throws IOException, JAXBException;
+    boolean execute(String filePath, InputStream inputStream) throws IOException;
 
     /**
      * Execute action on directory entry
