@@ -131,7 +131,7 @@ public class OpenAPIGenerationTest {
                 actualOpenAPI = OpenApiGenerator.builder(projectDescriptor, instantiationStrategy)
                     .generator()
                     .generate();
-            } catch (RulesInstantiationException | JAXBException e) {
+            } catch (RulesInstantiationException e) {
                 error(messagesCount.getAndIncrement(), startTime, sourceFile, "OpenAPI Generation fails.", e);
                 testsFailed = true;
                 continue;

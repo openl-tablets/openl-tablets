@@ -70,7 +70,7 @@ public class OpenApiGenerator {
     private OpenApiGenerator(ProjectDescriptor projectDescriptor,
             RulesInstantiationStrategy instantiationStrategy,
             boolean provideRuntimeContext,
-            boolean provideVariations) throws RulesInstantiationException, JAXBException {
+            boolean provideVariations) throws RulesInstantiationException {
         this.projectDescriptor = projectDescriptor;
         this.instantiationStrategy = instantiationStrategy;
         this.compiledOpenClass = instantiationStrategy.compile();
@@ -349,7 +349,7 @@ public class OpenApiGenerator {
          * @return new instance of {@link OpenApiGenerator}
          * @throws RulesInstantiationException in case of compilation errors
          */
-        public OpenApiGenerator generator() throws RulesInstantiationException, JAXBException {
+        public OpenApiGenerator generator() throws RulesInstantiationException {
             return new OpenApiGenerator(projectDescriptor,
                 instantiationStrategy,
                 provideRuntimeContext,
