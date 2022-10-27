@@ -121,7 +121,6 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.jackson</artifactId>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
