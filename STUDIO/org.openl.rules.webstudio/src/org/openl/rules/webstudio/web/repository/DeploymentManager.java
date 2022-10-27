@@ -40,8 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
-import javax.xml.bind.JAXBException;
-
 /**
  * Deployment manager
  *
@@ -278,7 +276,7 @@ public class DeploymentManager implements InitializingBean {
         return null;
     }
 
-    private IRulesDeploySerializer getRulesDeploySerializer() throws JAXBException {
+    private IRulesDeploySerializer getRulesDeploySerializer() {
         if (rulesDeploySerializer == null) {
             rulesDeploySerializer = new XmlRulesDeploySerializer();
         }

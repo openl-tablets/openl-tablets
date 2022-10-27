@@ -36,15 +36,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
-import javax.xml.bind.JAXBException;
-
 public class RuleServiceDependencyManager extends AbstractDependencyManager {
 
     private final Logger log = LoggerFactory.getLogger(RuleServiceDependencyManager.class);
 
     private final RuleServiceLoader ruleServiceLoader;
     private final DeploymentDescription deployment;
-    private IRulesDeploySerializer rulesDeploySerializer;
+    private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
     private final boolean lazyCompilation;
     private final PathMatcher wildcardPatternMatcher = new AntPathMatcher();
     private final ThreadLocal<Deque<CompilationInfo>> compilationInfoThreadLocal = ThreadLocal
@@ -143,10 +141,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
         return false;
     }
 
-    public final IRulesDeploySerializer getRulesDeploySerializer() throws JAXBException {
-        if (rulesDeploySerializer == null) {
-            rulesDeploySerializer = new XmlRulesDeploySerializer();
-        }
+    public final IRulesDeploySerializer getRulesDeploySerializer() {
         return rulesDeploySerializer;
     }
 

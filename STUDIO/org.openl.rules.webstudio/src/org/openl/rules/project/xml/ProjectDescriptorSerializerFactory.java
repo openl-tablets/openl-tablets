@@ -17,8 +17,6 @@ import org.openl.rules.project.model.v5_16.converter.ProjectDescriptorVersionCon
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 
-import javax.xml.bind.JAXBException;
-
 public class ProjectDescriptorSerializerFactory {
     private final SupportedVersionSerializer supportedVersionSerializer;
 
@@ -26,11 +24,11 @@ public class ProjectDescriptorSerializerFactory {
         this.supportedVersionSerializer = new SupportedVersionSerializer(defaultVersion);
     }
 
-    public IProjectDescriptorSerializer getDefaultSerializer() throws JAXBException {
+    public IProjectDescriptorSerializer getDefaultSerializer() {
         return getSerializer(supportedVersionSerializer.getDefaultVersion());
     }
 
-    public IProjectDescriptorSerializer getSerializer(File projectFolder) throws JAXBException {
+    public IProjectDescriptorSerializer getSerializer(File projectFolder) {
         return getSerializer(getSupportedVersion(projectFolder));
     }
 
@@ -40,7 +38,7 @@ public class ProjectDescriptorSerializerFactory {
      * @param artefact can be AProject instance or any resource inside it
      * @return Project Descriptor serializer for supporting OpenL version
      */
-    public IProjectDescriptorSerializer getSerializer(AProjectArtefact artefact) throws JAXBException {
+    public IProjectDescriptorSerializer getSerializer(AProjectArtefact artefact) {
         AProject project = artefact.getProject();
         Repository repository = project.getRepository();
         if (repository instanceof FileSystemRepository) {

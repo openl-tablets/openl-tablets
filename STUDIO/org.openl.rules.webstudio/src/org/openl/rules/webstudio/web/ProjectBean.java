@@ -132,7 +132,7 @@ public class ProjectBean {
 
     public ProjectBean(RepositoryTreeState repositoryTreeState,
             ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
-            RulesDeploySerializerFactory rulesDeploySerializerFactory) throws JAXBException {
+            RulesDeploySerializerFactory rulesDeploySerializerFactory) {
         this.repositoryTreeState = repositoryTreeState;
         this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
         this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;

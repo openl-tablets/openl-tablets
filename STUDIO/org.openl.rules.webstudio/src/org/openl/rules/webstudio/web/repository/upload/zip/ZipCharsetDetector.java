@@ -25,8 +25,6 @@ import org.openl.rules.workspace.filter.PathFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.JAXBException;
-
 /**
  * This class tries to detect charset for zips compressed with non-UTF-8 encoding. First of all it iterates all entries
  * to check that they can be opened with UTF-8. If it was unsuccessful, it uses rules.xml module paths to check
@@ -183,7 +181,7 @@ public class ZipCharsetDetector {
         return null;
     }
 
-    private IProjectDescriptorSerializer getProjectDescriptorSerializer() throws JAXBException {
+    private IProjectDescriptorSerializer getProjectDescriptorSerializer() {
         if (projectDescriptorSerializer == null) {
             projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
         }
