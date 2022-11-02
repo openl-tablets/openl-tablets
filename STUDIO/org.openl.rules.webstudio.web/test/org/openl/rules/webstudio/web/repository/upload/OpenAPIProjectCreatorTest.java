@@ -1,5 +1,9 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -44,10 +48,6 @@ import org.openl.util.StringUtils;
 import org.richfaces.model.UploadedFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class OpenAPIProjectCreatorTest {
 
@@ -160,10 +160,7 @@ public class OpenAPIProjectCreatorTest {
                             MOCK_ALGORITHM_PATH,
                             MOCK_MODEL_NAME,
                             MOCK_ALGORITHM_NAME);
-                        String error = projectCreator.createRulesProject();
-                        if (error != null) {
-                            throw new RuntimeException(error);
-                        }
+                        projectCreator.createRulesProject();
                     } finally {
                         Optional.ofNullable(projectCreator).ifPresent(OpenAPIProjectCreator::destroy);
                     }

@@ -124,10 +124,12 @@ public class DisabledDesignRepositoryAclServiceImpl implements DesignRepositoryA
     }
 
     @Override
-    public void createAcl(String repositoryId, String path) {
+    public boolean createAcl(AProjectArtefact artefact, List<Permission> permissions) {
+        return true;
     }
 
     @Override
-    public void createAcl(AProjectArtefact artefact) {
+    public boolean createAcl(String repositoryId, String path, List<Permission> permissions) {
+        return true;
     }
 }

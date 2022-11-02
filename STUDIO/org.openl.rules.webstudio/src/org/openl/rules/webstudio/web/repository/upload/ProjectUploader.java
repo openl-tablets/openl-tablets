@@ -4,18 +4,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.FileTypeHelper;
 
 public class ProjectUploader {
     private final String projectName;
     private final String projectFolder;
     private final UserWorkspace userWorkspace;
+    private final DesignRepositoryAclService designRepositoryAclService;
     private final PathFilter zipFilter;
     private final List<ProjectFile> uploadedFiles;
     private final ZipCharsetDetector zipCharsetDetector;
@@ -32,6 +36,7 @@ public class ProjectUploader {
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
+            DesignRepositoryAclService designRepositoryAclService,
             String comment,
             PathFilter zipFilter,
             ZipCharsetDetector zipCharsetDetector,
@@ -48,6 +53,7 @@ public class ProjectUploader {
 
         this.projectName = projectName;
         this.userWorkspace = userWorkspace;
+        this.designRepositoryAclService = designRepositoryAclService;
         this.zipFilter = zipFilter;
         this.modelsPath = modelsPath;
         this.algorithmsPath = algorithmsPath;
@@ -60,6 +66,7 @@ public class ProjectUploader {
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
+            DesignRepositoryAclService designRepositoryAclService,
             String comment,
             PathFilter zipFilter,
             ZipCharsetDetector zipCharsetDetector,
@@ -72,6 +79,7 @@ public class ProjectUploader {
         this.projectName = projectName;
         this.projectFolder = projectFolder;
         this.userWorkspace = userWorkspace;
+        this.designRepositoryAclService = designRepositoryAclService;
         this.comment = comment;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
@@ -81,70 +89,70 @@ public class ProjectUploader {
         this.algorithmsModuleName = algorithmsModuleName;
     }
 
-    public String uploadProject() {
-        String errorMessage;
+    public RulesProject uploadProject() throws ProjectException {
         AProjectCreator projectCreator = null;
         if (uploadedFiles.isEmpty()) {
-            errorMessage = "Cannot create project from the given file.";
-        } else {
-            try {
-                // Get the last file
-                ProjectFile file = uploadedFiles.get(uploadedFiles.size() - 1);
-                String fileName = file.getName();
-                if (FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
-                    projectCreator = new OpenAPIProjectCreator(file,
-                        repositoryId,
-                        projectName,
-                        projectFolder,
-                        userWorkspace,
-                        comment,
-                        modelsPath,
-                        algorithmsPath,
-                        modelsModuleName,
-                        algorithmsModuleName);
-                } else if (FileTypeHelper.isZipFile(fileName)) {
-                    // Create project creator for the single zip file
-                    projectCreator = new ZipFileProjectCreator(repositoryId,
-                        fileName,
-                        file.getInput(),
-                        projectName,
-                        projectFolder,
-                        userWorkspace,
-                        comment,
-                        zipFilter,
-                        zipCharsetDetector);
-                } else {
-                    projectCreator = new ExcelFilesProjectCreator(repositoryId,
-                        projectName,
-                        projectFolder,
-                        userWorkspace,
-                        comment,
-                        zipFilter,
-                        uploadedFiles.toArray(new ProjectFile[0]));
-                    uploadedFiles.toArray(new ProjectFile[0]);
-                }
-                errorMessage = projectCreator.createRulesProject();
-                if (errorMessage == null) {
-                    createdProjectName = projectCreator.getCreatedProjectName();
-                    RulesProject createdProject = userWorkspace.getProject(repositoryId, createdProjectName);
-                    if (!userWorkspace.isOpenedOtherProject(createdProject)) {
-                        createdProject.open();
-                        createdProjectName = createdProject.getName();
-                    }
-                }
-            } catch (IOException e) {
-                errorMessage = e.getMessage();
-            } catch (OpenAPIProjectException e) {
-                errorMessage = "Error creating the project, " + e.getMessage();
-            } catch (Exception e) {
-                errorMessage = "Cannot create project. Error: " + e.getMessage();
-            } finally {
-                if (projectCreator != null) {
-                    projectCreator.destroy();
-                }
+            throw new ProjectException("Cannot create project from the given file.");
+        }
+        try {
+            // Get the last file
+            ProjectFile file = uploadedFiles.get(uploadedFiles.size() - 1);
+            String fileName = file.getName();
+            if (FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
+                projectCreator = new OpenAPIProjectCreator(file,
+                    repositoryId,
+                    projectName,
+                    projectFolder,
+                    userWorkspace,
+                    comment,
+                    modelsPath,
+                    algorithmsPath,
+                    modelsModuleName,
+                    algorithmsModuleName);
+            } else if (FileTypeHelper.isZipFile(fileName)) {
+                // Create project creator for the single zip file
+                projectCreator = new ZipFileProjectCreator(repositoryId,
+                    fileName,
+                    file.getInput(),
+                    projectName,
+                    projectFolder,
+                    userWorkspace,
+                    comment,
+                    zipFilter,
+                    zipCharsetDetector);
+            } else {
+                projectCreator = new ExcelFilesProjectCreator(repositoryId,
+                    projectName,
+                    projectFolder,
+                    userWorkspace,
+                    comment,
+                    zipFilter,
+                    uploadedFiles.toArray(new ProjectFile[0]));
+                uploadedFiles.toArray(new ProjectFile[0]);
+            }
+            RulesProject rulesProject = projectCreator.createRulesProject();
+            if (!designRepositoryAclService.createAcl(rulesProject.getDesignRepository().getId(),
+                rulesProject.getDesignFolderName(),
+                AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
+                throw new ProjectException("Granting permissions to the project for current user is failed.");
+            }
+            createdProjectName = projectCreator.getCreatedProjectName();
+            // Get just created project, because creator API doesn't create internals states for ProjectState
+            RulesProject createdProject = userWorkspace.getProject(repositoryId, createdProjectName);
+            if (!userWorkspace.isOpenedOtherProject(createdProject)) {
+                createdProject.open();
+                createdProjectName = createdProject.getName();
+            }
+            return createdProject;
+        } catch (IOException e) {
+            throw new ProjectException(e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ProjectException("Error creating the project, " + e.getMessage(), e);
+        } finally {
+            if (projectCreator != null) {
+                projectCreator.destroy();
             }
         }
-        return errorMessage;
     }
 
     public String getCreatedProjectName() {
