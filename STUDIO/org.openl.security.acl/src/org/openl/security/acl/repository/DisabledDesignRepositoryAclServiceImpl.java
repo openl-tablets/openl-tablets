@@ -58,15 +58,15 @@ public class DisabledDesignRepositoryAclServiceImpl implements DesignRepositoryA
     }
 
     @Override
-    public void delete(AProjectArtefact artefact) {
+    public void deleteAcl(AProjectArtefact artefact) {
     }
 
     @Override
-    public void delete(String repositoryId, String path) {
+    public void deleteAcl(String repositoryId, String path) {
     }
 
     @Override
-    public void deleteRoot() {
+    public void deleteAclRoot() {
     }
 
     @Override

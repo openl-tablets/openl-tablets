@@ -505,7 +505,7 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
 
     @Override
     @Transactional
-    public void delete(String repositoryId, String path) {
+    public void deleteAcl(String repositoryId, String path) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
         ObjectIdentity oi = new ObjectIdentityImpl(ProjectArtifact.class, concat(repositoryId, path));
         aclService.deleteAcl(oi, true);
@@ -513,7 +513,7 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
 
     @Override
     @Transactional
-    public void delete(AProjectArtefact artefact) {
+    public void deleteAcl(AProjectArtefact artefact) {
         Objects.requireNonNull(artefact, "artefact cannot be null");
         ObjectIdentity oi = buildObjectIdentity(artefact);
         aclService.deleteAcl(oi, true);
@@ -521,7 +521,7 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
 
     @Override
     @Transactional
-    public void deleteRoot() {
+    public void deleteAclRoot() {
         aclService.deleteAcl(getRootObjectIdentity(), true);
     }
 

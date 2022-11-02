@@ -182,7 +182,7 @@ public class DesignRepositoryAclServiceController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAllRootPermissions(@RequestParam(required = false) boolean recursive) {
         if (recursive) {
-            designRepositoryAclService.deleteRoot();
+            designRepositoryAclService.deleteAclRoot();
         } else {
             designRepositoryAclService.removeRootPermissions();
         }
@@ -202,7 +202,7 @@ public class DesignRepositoryAclServiceController {
             throw new NotFoundException("repository.message", repositoryId);
         }
         if (recursive) {
-            designRepositoryAclService.delete(repositoryId, path);
+            designRepositoryAclService.deleteAcl(repositoryId, path);
         } else {
             designRepositoryAclService.removePermissions(repositoryId, path);
         }

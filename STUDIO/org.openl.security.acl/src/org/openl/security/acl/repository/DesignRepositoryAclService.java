@@ -31,11 +31,11 @@ public interface DesignRepositoryAclService {
 
     void move(String repositoryId, String path, String newPath);
 
-    void delete(AProjectArtefact artefact);
+    void deleteAcl(AProjectArtefact artefact);
 
-    void delete(String repositoryId, String path);
+    void deleteAcl(String repositoryId, String path);
 
-    void deleteRoot();
+    void deleteAclRoot();
 
     void removePermissions(AProjectArtefact artefact);
 
