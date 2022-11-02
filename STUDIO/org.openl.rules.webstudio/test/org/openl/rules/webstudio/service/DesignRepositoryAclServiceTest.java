@@ -247,7 +247,7 @@ public class DesignRepositoryAclServiceTest {
             designRepositoryAclService.isGranted("repoId1", "/projectName1/rules/module1.xlsx", List.of(VIEW)));
 
         mockUser = setAdminAuthenticationToContext();
-        designRepositoryAclService.delete("repoId1", "/projectName1/rules");
+        designRepositoryAclService.deleteAcl("repoId1", "/projectName1/rules");
 
         SecurityContextHolder.getContext().setAuthentication(mockUser);
         Assert.assertFalse(designRepositoryAclService.isGranted("repoId1", "/projectName1/rules", List.of(VIEW)));

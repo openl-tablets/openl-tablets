@@ -1274,6 +1274,7 @@ public class RepositoryTreeController {
                     boolean mappedFolders = designRepository.supports().mappedFolders();
                     if (!mappedFolders || eraseFromRepository) {
                         project.erase(userWorkspace.getUser(), comment);
+                        designRepositoryAclService.deleteAcl(project);
                     } else {
                         ((FolderMapper) designRepository).removeMapping(project.getFolderPath());
                     }
@@ -1284,6 +1285,7 @@ public class RepositoryTreeController {
                         // Try to erase second time. It should resolve the issue if conflict in
                         // openl-projects.properties file.
                         project.erase(userWorkspace.getUser(), comment);
+                        designRepositoryAclService.deleteAcl(project);
                     } else {
                         throw e;
                     }
