@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.webstudio.web.Props;
@@ -80,9 +81,10 @@ public class DemoRepoInit {
                 zipFilter,
                 templateFiles);
         try {
-            String creationMessage = projectCreator.createRulesProject();
-            if (creationMessage != null) {
-                LOG.error("Project: {}. Message: {}", projectName, creationMessage);
+            try {
+                projectCreator.createRulesProject();
+            } catch (ProjectException e) {
+                LOG.error("Project: {}. Message: {}", projectName, e.getMessage());
                 return;
             }
             String technicalName = projectCreator.getCreatedProjectName();

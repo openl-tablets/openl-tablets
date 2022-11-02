@@ -13,10 +13,13 @@ import java.util.stream.Collectors;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.ProjectState;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.util.StringUtils;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
@@ -82,10 +85,10 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
     static String buildObjectIdentityId(AProjectArtefact artefact) {
         if (artefact.getRepository() instanceof LocalRepository) {
             LocalRepository localRepository = (LocalRepository) artefact.getRepository();
-            String repoPath = localRepository.getProjectState(artefact.getFileData().getName())
-                .getFileData()
-                .getAdditionalData(FileMappingData.class)
-                .getInternalPath();
+            ProjectState projectState = localRepository.getProjectState(artefact.getFileData().getName());
+            FileData fileData = projectState.getFileData();
+            FileMappingData fileMappingData = fileData.getAdditionalData(FileMappingData.class);
+            String repoPath = fileMappingData.getInternalPath();
             return concat(artefact.getRepository().getId(), repoPath);
         } else {
             return concat(artefact.getRepository().getId(), artefact.getFileData().getName());
@@ -524,16 +527,33 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
 
     @Override
     @Transactional
-    public void createAcl(String repositoryId, String path) {
+    public boolean createAcl(String repositoryId, String path, List<Permission> permissions) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
         ObjectIdentity oi = new ObjectIdentityImpl(ProjectArtifact.class, concat(repositoryId, path));
-        getOrCreateAcl(oi, false);
+        return createAcl(oi, permissions);
+    }
+
+    private boolean createAcl(ObjectIdentity oi, List<Permission> permissions) {
+        try {
+            aclService.readAclById(oi);
+            return false;
+        } catch (NotFoundException e) {
+            MutableAcl acl = getOrCreateAcl(oi, false);
+            int i = 0;
+            Sid sid = new PrincipalSid(SecurityContextHolder.getContext().getAuthentication());
+            for (Permission permission : permissions) {
+                acl.insertAce(i, permission, sid, true);
+                i++;
+            }
+            aclService.updateAcl(acl);
+            return true;
+        }
     }
 
     @Override
     @Transactional
-    public void createAcl(AProjectArtefact artefact) {
+    public boolean createAcl(AProjectArtefact artefact, List<Permission> permissions) {
         ObjectIdentity oi = buildObjectIdentity(artefact);
-        getOrCreateAcl(oi, false);
+        return createAcl(oi, permissions);
     }
 }

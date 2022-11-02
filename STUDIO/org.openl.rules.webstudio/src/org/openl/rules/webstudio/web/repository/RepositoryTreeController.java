@@ -112,6 +112,7 @@ import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.permission.AclPermissionsSets;
 import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileTypeHelper;
@@ -672,7 +673,7 @@ public class RepositoryTreeController {
         TemplatesResolver templatesResolver = CUSTOM_TEMPLATE_TYPE
             .equals(templateParts[0]) ? customTemplatesResolver : predefinedTemplatesResolver;
         ProjectFile[] templateFiles = templatesResolver.getProjectFiles(templateParts[1], templateParts[2]);
-        if (templateFiles.length <= 0) {
+        if (templateFiles.length == 0) {
             this.clearForm();
             String errorMessage = String.format("Cannot load template files: %s", newProjectTemplate);
             WebStudioUtils.addErrorMessage(errorMessage);
@@ -687,12 +688,13 @@ public class RepositoryTreeController {
             zipFilter,
             templateFiles);
         try {
-            String creationMessage = projectCreator.createRulesProject();
-            if (creationMessage == null) {
-                try {
-                    String technicalName = projectCreator.getCreatedProjectName();
-                    RulesProject createdProject = userWorkspace.getProject(repositoryId, technicalName);
-
+            try {
+                RulesProject createdProject = projectCreator.createRulesProject();
+                if (designRepositoryAclService.createAcl(createdProject.getDesignRepository().getId(),
+                    createdProject.getDesignFolderName(),
+                    AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
+                    // Get just created project, because creator API doesn't create internals states for ProjectState
+                    createdProject = userWorkspace.getProject(repositoryId, projectCreator.getCreatedProjectName());
                     if (!userWorkspace.isOpenedOtherProject(createdProject)) {
                         createdProject.open();
                     }
@@ -707,16 +709,18 @@ public class RepositoryTreeController {
                     WebStudioUtils.addInfoMessage("Project was created successfully.");
                     /* Clear the load form */
                     this.clearForm();
-                } catch (Exception e) {
-                    creationMessage = e.getMessage();
-                    log.warn(creationMessage, e);
-                    WebStudioUtils.addErrorMessage(creationMessage);
-                }
-            } else {
-                WebStudioUtils.addErrorMessage(creationMessage);
-            }
 
-            return creationMessage;
+                    return null;
+                } else {
+                    String message = "Granting permissions to the project for current user is failed.";
+                    WebStudioUtils.addErrorMessage(message);
+                    return message;
+                }
+            } catch (Exception e) {
+                log.warn(e.getMessage(), e);
+                WebStudioUtils.addErrorMessage(e.getMessage());
+                return e.getMessage();
+            }
         } finally {
             projectCreator.destroy();
         }
@@ -2047,23 +2051,29 @@ public class RepositoryTreeController {
     }
 
     public String createProjectWithFiles() {
-        String comment;
-        if (StringUtils.isNotBlank(createProjectComment)) {
-            comment = createProjectComment;
-        } else {
-            comment = getDesignRepoComments().createProject(projectName);
-        }
-        String errorMessage = validateCreateProjectParams(comment);
-        if (errorMessage != null) {
-            WebStudioUtils.addErrorMessage(errorMessage);
-        } else if (uploadedFiles.isEmpty()) {
-            WebStudioUtils.addErrorMessage("There are no uploaded files.");
-        } else {
+        try {
+            String comment;
+            if (StringUtils.isNotBlank(createProjectComment)) {
+                comment = createProjectComment;
+            } else {
+                comment = getDesignRepoComments().createProject(projectName);
+            }
+            String errorMessage = validateCreateProjectParams(comment);
+            if (errorMessage != null) {
+                WebStudioUtils.addErrorMessage(errorMessage);
+                return errorMessage;
+            }
+            if (uploadedFiles.isEmpty()) {
+                errorMessage = "There are no uploaded files.";
+                WebStudioUtils.addErrorMessage(errorMessage);
+                return errorMessage;
+            }
             final ProjectUploader uploader = new ProjectUploader(repositoryId,
                 uploadedFiles,
                 projectName,
                 projectFolder,
                 userWorkspace,
+                designRepositoryAclService,
                 comment,
                 zipFilter,
                 zipCharsetDetector,
@@ -2071,28 +2081,28 @@ public class RepositoryTreeController {
                 algorithmsPath,
                 modelsModuleName,
                 algorithmsModuleName);
-            errorMessage = uploader.uploadProject();
-            if (errorMessage != null) {
-                WebStudioUtils.addErrorMessage(errorMessage);
-            } else {
-                try {
-                    final String technicalName = uploader.getCreatedProjectName();
-                    RulesProject createdProject = userWorkspace.getProject(repositoryId, technicalName);
-                    repositoryTreeState.addRulesProjectToTree(createdProject);
-                    selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
-                    resetStudioModel();
-                    saveTags(createdProject);
-                    WebStudioUtils.addInfoMessage("Project was created successfully.");
-                } catch (Exception e) {
-                    WebStudioUtils.addErrorMessage(e.getMessage());
-                }
+            RulesProject uploadedProject;
+            try {
+                uploadedProject = uploader.uploadProject();
+            } catch (ProjectException e) {
+                WebStudioUtils.addErrorMessage(e.getMessage());
+                return e.getMessage();
             }
+            try {
+                repositoryTreeState.addRulesProjectToTree(uploadedProject);
+                selectProject(uploadedProject.getName(), repositoryTreeState.getRulesRepository());
+                resetStudioModel();
+                saveTags(uploadedProject);
+                WebStudioUtils.addInfoMessage("Project was created successfully.");
+                return null;
+            } catch (Exception e) {
+                WebStudioUtils.addErrorMessage(e.getMessage());
+                return e.getMessage();
+            }
+        } finally {
+            /* Clear the load form */
+            clearForm();
         }
-
-        /* Clear the load form */
-        clearForm();
-
-        return null;
     }
 
     private void clearForm() {
@@ -2227,6 +2237,7 @@ public class RepositoryTreeController {
                     projectName,
                     projectFolder,
                     userWorkspace,
+                    designRepositoryAclService,
                     comment,
                     zipFilter,
                     zipCharsetDetector,
@@ -2236,9 +2247,11 @@ public class RepositoryTreeController {
                     algorithmsModuleName);
                 errorMessage = validateCreateProjectParams(comment);
                 if (errorMessage == null) {
-                    errorMessage = projectUploader.uploadProject();
-                    if (errorMessage == null) {
+                    try {
+                        projectUploader.uploadProject();
                         projectName = projectUploader.getCreatedProjectName();
+                    } catch (ProjectException e) {
+                        errorMessage = e.getMessage();
                     }
                 }
             } else {

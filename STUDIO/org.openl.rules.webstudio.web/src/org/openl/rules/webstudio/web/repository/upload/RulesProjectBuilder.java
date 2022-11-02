@@ -56,7 +56,6 @@ public class RulesProjectBuilder {
             } catch (IOException e) {
                 throw new IllegalStateException("Cannot create temp folder");
             }
-
             LocalRepository localRepository = new LocalRepository(tempLocalRepositoryPath.toFile());
             localRepository.setId(repositoryId);
             localRepository.initialize();

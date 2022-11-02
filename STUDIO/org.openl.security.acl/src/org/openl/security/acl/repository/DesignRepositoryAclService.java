@@ -63,7 +63,7 @@ public interface DesignRepositoryAclService {
 
     boolean isGranted(AProjectArtefact artefact, List<Permission> permissions);
 
-    void createAcl(String repositoryId, String path);
+    boolean createAcl(String repositoryId, String path, List<Permission> permissions);
 
-    void createAcl(AProjectArtefact artefact);
+    boolean createAcl(AProjectArtefact artefact, List<Permission> permissions);
 }

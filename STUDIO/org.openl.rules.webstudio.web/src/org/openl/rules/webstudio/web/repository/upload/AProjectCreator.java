@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
@@ -43,15 +44,16 @@ public abstract class AProjectCreator {
     }
 
     /**
-     * @return error message that had occured during the project creation. In other case null.
+     * @return created project
+     * @throws ProjectException if creating a project is failed
      */
-    public String createRulesProject() {
-        String errorMessage = null;
+    public RulesProject createRulesProject() throws ProjectException {
         RulesProjectBuilder projectBuilder = null;
         try {
             projectBuilder = getProjectBuilder();
             projectBuilder.save();
             createdProjectName = projectBuilder.getCreateProjectName();
+            return projectBuilder.getProject();
         } catch (Exception e) {
             Throwable cause = e.getCause();
             if (projectBuilder != null && cause instanceof MergeConflictException) {
@@ -60,20 +62,18 @@ public abstract class AProjectCreator {
                 try {
                     projectBuilder.save();
                     createdProjectName = projectBuilder.getCreateProjectName();
+                    return projectBuilder.getProject();
                 } catch (Exception ex) {
-                    LOG.error("Error creating project.", ex);
                     projectBuilder.cancel();
-                    errorMessage = getErrorMessage(e);
+                    throw new ProjectException("Project creating is failed.", ex);
                 }
             } else {
-                LOG.error("Error creating project.", e);
                 if (projectBuilder != null) {
                     projectBuilder.cancel();
                 }
-                errorMessage = getErrorMessage(e);
+                throw new ProjectException("Project creating is failed.", e);
             }
         }
-        return errorMessage;
     }
 
     public String getCreatedProjectName() {
