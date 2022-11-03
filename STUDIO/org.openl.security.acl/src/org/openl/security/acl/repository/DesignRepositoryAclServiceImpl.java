@@ -119,7 +119,7 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
         return new ObjectIdentityImpl(Root.class, "1");
     }
 
-    private MutableAcl getOrCreateAcl(ObjectIdentity oi, boolean setRelevantSystemWideUserAsOwner) {
+    private MutableAcl getOrCreateAcl(ObjectIdentity oi) {
         MutableAcl acl;
         try {
             acl = (MutableAcl) aclService.readAclById(oi);
@@ -128,11 +128,13 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
             acl.setEntriesInheriting(true);
             ObjectIdentity poi = buildParentObjectIdentity(oi);
             if (poi != null) {
-                MutableAcl pAcl = getOrCreateAcl(poi, true);
+                MutableAcl pAcl = getOrCreateAcl(poi);
                 acl.setParent(pAcl);
-            }
-            if (setRelevantSystemWideUserAsOwner && relevantSystemWideSid != null) {
-                acl.setOwner(relevantSystemWideSid);
+                acl.setOwner(pAcl.getOwner());
+            } else {
+                if (relevantSystemWideSid != null) {
+                    acl.setOwner(relevantSystemWideSid);
+                }
             }
             aclService.updateAcl(acl);
         }
@@ -193,7 +195,7 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
         if (permissions == null) {
             return;
         }
-        MutableAcl acl = getOrCreateAcl(objectIdentity, true);
+        MutableAcl acl = getOrCreateAcl(objectIdentity);
         Map<Sid, LinkedHashSet<Permission>> existingPermissions = new HashMap<>();
         for (int i = 0; i < acl.getEntries().size(); i++) {
             AccessControlEntry ace = acl.getEntries().get(i);
@@ -283,11 +285,14 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
             ProjectArtifact.class.getName()) || (Objects.equals(objectIdentity.getType(), Root.class.getName())))) {
             throw new IllegalArgumentException("Invalid object identity");
         }
-        MutableAcl acl = getOrCreateAcl(objectIdentity, true);
-        for (int i = acl.getEntries().size() - 1; i >= 0; i--) {
-            acl.deleteAce(i);
+        try {
+            MutableAcl acl = (MutableAcl) aclService.readAclById(objectIdentity);
+            for (int i = acl.getEntries().size() - 1; i >= 0; i--) {
+                acl.deleteAce(i);
+            }
+            aclService.updateAcl(acl);
+        } catch (NotFoundException ignored) {
         }
-        aclService.updateAcl(acl);
     }
 
     @Override
@@ -317,18 +322,21 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
         if (sids == null) {
             return;
         }
-        MutableAcl acl = getOrCreateAcl(objectIdentity, true);
-        List<Integer> indexes = new ArrayList<>();
-        for (int i = acl.getEntries().size() - 1; i >= 0; i--) {
-            AccessControlEntry ace = acl.getEntries().get(i);
-            if (sids.contains(ace.getSid())) {
-                indexes.add(i);
+        try {
+            MutableAcl acl = (MutableAcl) aclService.readAclById(objectIdentity);
+            List<Integer> indexes = new ArrayList<>();
+            for (int i = acl.getEntries().size() - 1; i >= 0; i--) {
+                AccessControlEntry ace = acl.getEntries().get(i);
+                if (sids.contains(ace.getSid())) {
+                    indexes.add(i);
+                }
             }
+            for (Integer index : indexes) {
+                acl.deleteAce(index);
+            }
+            aclService.updateAcl(acl);
+        } catch (NotFoundException ignored) {
         }
-        for (Integer index : indexes) {
-            acl.deleteAce(index);
-        }
-        aclService.updateAcl(acl);
     }
 
     @Override
@@ -371,21 +379,24 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
         if (permissions == null) {
             return;
         }
-        MutableAcl acl = getOrCreateAcl(objectIdentity, true);
-        List<Integer> indexes = new ArrayList<>();
-        for (int i = acl.getEntries().size() - 1; i >= 0; i--) {
-            AccessControlEntry ace = acl.getEntries().get(i);
-            if (ace.isGranting()) {
-                List<Permission> p = permissions.get(ace.getSid());
-                if (p != null && p.contains(ace.getPermission())) {
-                    indexes.add(i);
+        try {
+            MutableAcl acl = (MutableAcl) aclService.readAclById(objectIdentity);
+            List<Integer> indexes = new ArrayList<>();
+            for (int i = acl.getEntries().size() - 1; i >= 0; i--) {
+                AccessControlEntry ace = acl.getEntries().get(i);
+                if (ace.isGranting()) {
+                    List<Permission> p = permissions.get(ace.getSid());
+                    if (p != null && p.contains(ace.getPermission())) {
+                        indexes.add(i);
+                    }
                 }
             }
+            for (Integer index : indexes) {
+                acl.deleteAce(index);
+            }
+            aclService.updateAcl(acl);
+        } catch (NotFoundException ignored) {
         }
-        for (Integer index : indexes) {
-            acl.deleteAce(index);
-        }
-        aclService.updateAcl(acl);
     }
 
     @Override
@@ -408,22 +419,25 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
 
     private void movePermissions(ObjectIdentity oldObjectIdentity,
             Function<ObjectIdentity, ObjectIdentity> mapFunction,
-            boolean deleteChildren,
-            boolean setRelevantSystemWideUserAsOwner) {
+            boolean deleteChildren) {
         ObjectIdentity newObjectIdentity = mapFunction.apply(oldObjectIdentity);
-        MutableAcl oldAcl = getOrCreateAcl(oldObjectIdentity, true);
-        MutableAcl newAcl = getOrCreateAcl(newObjectIdentity, setRelevantSystemWideUserAsOwner);
+        MutableAcl oldAcl = getOrCreateAcl(oldObjectIdentity);
+        MutableAcl newParentAcl = getOrCreateAcl(buildParentObjectIdentity(newObjectIdentity));
+        MutableAcl newAcl = aclService.createAcl(newObjectIdentity);
+        newAcl.setParent(newParentAcl);
+        newAcl.setEntriesInheriting(true);
         for (AccessControlEntry accessControlEntry : oldAcl.getEntries()) {
             newAcl.insertAce(newAcl.getEntries().size(),
                 accessControlEntry.getPermission(),
                 accessControlEntry.getSid(),
                 accessControlEntry.isGranting());
         }
+        newAcl.setOwner(oldAcl.getOwner());
         aclService.updateAcl(newAcl);
         List<ObjectIdentity> children = aclService.findChildren(oldObjectIdentity);
         if (children != null) {
             for (ObjectIdentity child : children) {
-                movePermissions(child, mapFunction, false, setRelevantSystemWideUserAsOwner);
+                movePermissions(child, mapFunction, false);
             }
         }
         if (deleteChildren) {
@@ -454,7 +468,7 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
             s = concat(repositoryId, newPath) + s.substring(((String) oi.getIdentifier()).length());
             return new ObjectIdentityImpl(ProjectArtifact.class, s);
         };
-        movePermissions(oi, mapFunction, true, false);
+        movePermissions(oi, mapFunction, true);
     }
 
     private boolean isGranted(ObjectIdentity objectIdentity, List<Sid> sids, List<Permission> permissions) {
@@ -538,7 +552,11 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
             aclService.readAclById(oi);
             return false;
         } catch (NotFoundException e) {
-            MutableAcl acl = getOrCreateAcl(oi, false);
+            ObjectIdentity poi = buildParentObjectIdentity(oi);
+            MutableAcl pacl = getOrCreateAcl(poi);
+            MutableAcl acl = aclService.createAcl(oi);
+            acl.setParent(pacl);
+            acl.setEntriesInheriting(true);
             int i = 0;
             Sid sid = new PrincipalSid(SecurityContextHolder.getContext().getAuthentication());
             for (Permission permission : permissions) {
