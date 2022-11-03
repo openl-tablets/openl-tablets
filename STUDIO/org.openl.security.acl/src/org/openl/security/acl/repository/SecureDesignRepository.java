@@ -52,7 +52,7 @@ public class SecureDesignRepository implements Repository {
         if (designRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
             return repository.check(name);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for reading data from the repository.");
     }
 
     @Override
@@ -60,7 +60,7 @@ public class SecureDesignRepository implements Repository {
         if (designRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
             return repository.read(name);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for reading data from the repository.");
     }
 
     @Override
@@ -69,10 +69,10 @@ public class SecureDesignRepository implements Repository {
             .isGranted(getId(), data.getName(), List.of(writeOrCreatePermissionIsRequired(data.getName())))) {
             return repository.save(data, stream);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for writing data into the repository.");
     }
 
-    private AclPermission writeOrCreatePermissionIsRequired(String name) {
+    protected AclPermission writeOrCreatePermissionIsRequired(String name) {
         try {
             return repository.check(name) != null ? DESIGN_REPOSITORY_WRITE : DESIGN_REPOSITORY_CREATE;
         } catch (IOException e) {
@@ -88,7 +88,7 @@ public class SecureDesignRepository implements Repository {
                 List.of(writeOrCreatePermissionIsRequired(e.getData().getName()))))) {
             return repository.save(fileItems);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for writing data into the repository.");
     }
 
     @Override
@@ -96,7 +96,7 @@ public class SecureDesignRepository implements Repository {
         if (designRepositoryAclService.isGranted(getId(), data.getName(), List.of(DESIGN_REPOSITORY_DELETE))) {
             return repository.delete(data);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for deleting data from the repository.");
     }
 
     @Override
@@ -106,7 +106,7 @@ public class SecureDesignRepository implements Repository {
                 e -> designRepositoryAclService.isGranted(getId(), e.getName(), List.of(DESIGN_REPOSITORY_DELETE)))) {
             return repository.delete(data);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for deleting data from the repository.");
     }
 
     @Override
@@ -119,7 +119,7 @@ public class SecureDesignRepository implements Repository {
         if (designRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
             return repository.listHistory(name);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for reading data from the repository.");
     }
 
     @Override
@@ -127,7 +127,7 @@ public class SecureDesignRepository implements Repository {
         if (designRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
             return repository.checkHistory(name, version);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for reading data from the repository.");
     }
 
     @Override
@@ -135,7 +135,7 @@ public class SecureDesignRepository implements Repository {
         if (designRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
             return repository.readHistory(name, version);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for reading data from the repository.");
     }
 
     @Override
@@ -150,7 +150,7 @@ public class SecureDesignRepository implements Repository {
                 .isGranted(getId(), destData.getName(), List.of(DESIGN_REPOSITORY_WRITE))) {
             return repository.copyHistory(srcName, destData, version);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for writing data into the repository.");
     }
 
     @Override

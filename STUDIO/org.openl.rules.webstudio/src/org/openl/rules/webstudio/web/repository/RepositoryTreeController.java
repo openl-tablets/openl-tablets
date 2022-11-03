@@ -285,8 +285,12 @@ public class RepositoryTreeController {
                 if (NameChecker.checkName(folderName)) {
                     if (!NameChecker.checkIsFolderPresent(folder, folderName)) {
                         try {
-                            AProjectFolder addedFolder = folder.addFolder(folderName);
-                            repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
+                            if (designRepositoryAclService.isGranted(folder, List.of(AclPermission.APPEND))) {
+                                AProjectFolder addedFolder = folder.addFolder(folderName);
+                                repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
+                            } else {
+                                errorMessage = "There is no permission for adding files to the project.";
+                            }
                         } catch (Exception e) {
                             log.error("Failed to create folder '{}'.", folderName, e);
                             errorMessage = e.getMessage();
@@ -712,7 +716,7 @@ public class RepositoryTreeController {
 
                     return null;
                 } else {
-                    String message = "Granting permissions to the project for current user is failed.";
+                    String message = "Granting permissions to the project is failed.";
                     WebStudioUtils.addErrorMessage(message);
                     return message;
                 }
@@ -1012,7 +1016,7 @@ public class RepositoryTreeController {
         String repositoryId = p.getRepository().getId();
         if (isSupportsBranches(repositoryId) && projectArtefact.getVersion() == null && !localOnly) {
             activeProjectNode = null;
-            WebStudioUtils.addErrorMessage("Failed to delete the node. Project does not exist in the branch.");
+            WebStudioUtils.addErrorMessage("Failed to delete the project. The project does not exist in the branch.");
             return null;
         }
         try {
@@ -1032,6 +1036,13 @@ public class RepositoryTreeController {
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
                 closeProjectForAllUsers(workspacesRoot, (RulesProject) projectArtefact);
             }
+            if (!designRepositoryAclService.isGranted(projectArtefact,
+                projectArtefact instanceof AProject ? List.of(AclPermission.ARCHIVE) : List.of(AclPermission.EDIT))) {
+                WebStudioUtils.addErrorMessage(
+                    "There is no permission for " + ((projectArtefact instanceof AProject) ? "archiving"
+                                                                                                         : "editing") + " the project.");
+                return null;
+            }
             if (projectArtefact instanceof UserWorkspaceProject) {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
                 String comment;
@@ -1048,6 +1059,7 @@ public class RepositoryTreeController {
             } else {
                 projectArtefact.delete();
             }
+            designRepositoryAclService.deleteAcl(projectArtefact);
             TreeNode parent = selectedNode.getParent();
             if (parent != null && parent.getData() != null) {
                 parent.refresh();
@@ -1424,14 +1436,18 @@ public class RepositoryTreeController {
         String currentRevision = WebStudioUtils.getRequestParameter("copyFileForm:currentRevision");
         boolean hasVersions = !repositoryTreeState.isLocalOnly() && getSelectedNode().hasVersions();
         if (StringUtils.isBlank(path)) {
-            WebStudioUtils.addErrorMessage("Path should not be empty");
+            WebStudioUtils.addErrorMessage("Path should not be an empty.");
             return null;
         }
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+        if (!designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.APPEND))) {
+            WebStudioUtils.addErrorMessage("There is no permission for adding a file to the project.");
+            return null;
+        }
         ArtefactPath artefactPath = new ArtefactPathImpl(path);
         try {
             selectedProject.getArtefactByPath(artefactPath);
-            WebStudioUtils.addErrorMessage(String.format("File '%s' exists already", path));
+            WebStudioUtils.addErrorMessage(String.format("File '%s' is already exists.", path));
             return null;
         } catch (Exception ignored) {
             // Artefact by this path shouldn't exist
@@ -1448,7 +1464,7 @@ public class RepositoryTreeController {
                 AProjectArtefact artefact = folder.getArtefact(segment);
                 if (!artefact.isFolder()) {
                     WebStudioUtils.addErrorMessage(
-                        String.format("Artefact %s is not a folder", artefact.getArtefactPath().getStringValue()));
+                        String.format("Artefact '%s' is not a folder.", artefact.getArtefactPath().getStringValue()));
                     return null;
                 }
                 folder = (AProjectFolder) folder.getArtefact(segment);
@@ -1478,6 +1494,7 @@ public class RepositoryTreeController {
 
             AProjectResource addedFileResource = folder
                 .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
+            designRepositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS);
             fileName = addedFileResource.getName();
             repositoryTreeState
                 .refreshNode(repositoryTreeState.getProjectNodeByPhysicalName(repositoryId, selectedProject.getName()));
@@ -2127,7 +2144,11 @@ public class RepositoryTreeController {
             if (lastUploadedFile == null) {
                 return "Upload the file";
             }
+            if (!designRepositoryAclService.isGranted(node, List.of(AclPermission.APPEND))) {
+                return "There is no permission for adding a file to the project.";
+            }
             AProjectResource addedFileResource = node.addResource(fileName, lastUploadedFile.getInput());
+            designRepositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS);
 
             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFileResource);
 
@@ -2197,6 +2218,9 @@ public class RepositoryTreeController {
 
         try {
             AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode().getData();
+            if (!designRepositoryAclService.isGranted(node, List.of(AclPermission.EDIT))) {
+                return "There is no permission for updating the file.";
+            }
             node.setContent(lastUploadedFile.getInput());
 
             clearUploadedFiles();

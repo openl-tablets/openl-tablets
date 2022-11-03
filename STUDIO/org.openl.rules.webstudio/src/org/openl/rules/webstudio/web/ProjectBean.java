@@ -77,6 +77,9 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.permission.AclPermissionsSets;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -128,14 +131,18 @@ public class ProjectBean {
     private Integer currentModuleIndex;
     private IRulesDeploySerializer rulesDeploySerializer;
 
+    private final DesignRepositoryAclService designRepositoryAclService;
+
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
 
     public ProjectBean(RepositoryTreeState repositoryTreeState,
             ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
-            RulesDeploySerializerFactory rulesDeploySerializerFactory) {
+            RulesDeploySerializerFactory rulesDeploySerializerFactory,
+            DesignRepositoryAclService designRepositoryAclService) {
         this.repositoryTreeState = repositoryTreeState;
         this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
         this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
+        this.designRepositoryAclService = designRepositoryAclService;
     }
 
     public String getModulePath(Module module) {
@@ -491,13 +498,14 @@ public class ProjectBean {
 
     public void editName() {
         tryLockProject();
-
+        RulesProject currentProject = studio.getCurrentProject();
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+            throw new Message("There is no permission for editing the project.");
+        }
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         projectDescriptor.setPropertiesFileNamePatterns(propertiesFileNamePatterns);
-
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
-        RulesProject currentProject = studio.getCurrentProject();
         Repository designRepository = currentProject.getDesignRepository();
         boolean supportsMappedFolders = designRepository != null && designRepository.supports().mappedFolders();
         if (!supportsMappedFolders && studio.isRenamed(currentProject)) {
@@ -520,7 +528,10 @@ public class ProjectBean {
 
     public void editModule() {
         tryLockProject();
-
+        RulesProject currentProject = studio.getCurrentProject();
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+            throw new Message("There is no permission for editing the project.");
+        }
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
@@ -607,27 +618,28 @@ public class ProjectBean {
 
     public void copyModule() {
         tryLockProject();
-
+        RulesProject currentProject = studio.getCurrentProject();
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+            throw new Message("There is no permission for editing the project.");
+        }
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         String name = WebStudioUtils.getRequestParameter("copyModuleForm:moduleName");
         String oldPath = WebStudioUtils.getRequestParameter("copyModuleForm:modulePathOld");
         String path = WebStudioUtils.getRequestParameter("copyModuleForm:modulePath");
-
-        Path projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder();
-        Path inputFile = projectFolder.resolve(oldPath);
-        Path outputFile = projectFolder.resolve(path);
+        AProjectResource oldProjectResource;
         try {
-            FileUtils.copy(inputFile.toFile(), outputFile.toFile());
-        } catch (IOException e) {
-            if (log.isErrorEnabled()) {
-                log.error(e.getMessage(), e);
-            }
-            throw new Message("Error while project copying");
+            oldProjectResource = (AProjectResource) currentProject.getArtefact(oldPath);
+        } catch (ProjectException e) {
+            throw new Message("Error while module copying.");
         }
-
-        RulesProject currentProject = studio.getCurrentProject();
+        try {
+            AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
+            designRepositoryAclService.createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS);
+        } catch (ProjectException e) {
+            throw new Message("Error while module copying.");
+        }
         currentProject.setModified();
 
         PathEntry pathEntry = new PathEntry();
@@ -663,6 +675,10 @@ public class ProjectBean {
 
     public void removeModule() {
         tryLockProject();
+        RulesProject currentProject = studio.getCurrentProject();
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+            throw new Message("There is no permission for editing the project.");
+        }
 
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
@@ -672,7 +688,6 @@ public class ProjectBean {
 
         List<Module> modules = newProjectDescriptor.getModules();
         Module removed = modules.remove(Integer.parseInt(toRemove));
-        String removedModuleName = removed.getName();
 
         if (StringUtils.isEmpty(leaveExcelFile)) {
             ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
@@ -685,23 +700,16 @@ public class ProjectBean {
                         continue;
                     }
                     if (module.getWildcardRulesRootPath().equals(removed.getRulesRootPath().getPath())) {
-                        tryToDeleteFile(module.getRulesPath());
+                        deleteModule(currentProject, module);
                     }
                 }
             } else {
-                Path file;
-                if (removed.getProject() != null) {
-                    file = removed.getRulesPath();
-                } else {
-                    file = currentProjectDescriptor.getProjectFolder()
-                        .resolve(removed.getRulesRootPath().getPath())
-                        .toAbsolutePath();
-                }
-                tryToDeleteFile(file);
+                deleteModule(currentProject, removed);
             }
             File rulesXmlFile = new File(projectFolder,
                 ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
             if (rulesXmlFile.exists()) {
+                String removedModuleName = removed.getName();
                 clean(newProjectDescriptor);
                 OpenAPI openAPI = newProjectDescriptor.getOpenapi();
                 if (openAPI != null) {
@@ -715,7 +723,6 @@ public class ProjectBean {
                 }
                 save(newProjectDescriptor);
             } else {
-                RulesProject currentProject = studio.getCurrentProject();
                 currentProject.setModified();
                 refreshProject(currentProject.getRepository().getId(), currentProject.getName());
             }
@@ -726,16 +733,23 @@ public class ProjectBean {
         studio.resetProjects();
     }
 
-    private static void tryToDeleteFile(Path file) {
+    private void deleteModule(RulesProject currentProject, Module module) {
         try {
-            Files.deleteIfExists(file);
-        } catch (IOException e) {
-            throw new Message("Cannot delete the file " + file.getFileName(), e);
+            AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
+            projectArtefact.delete();
+            designRepositoryAclService.deleteAcl(projectArtefact);
+        } catch (ProjectException e) {
+            throw new Message(String.format("Cannot delete '%s' module.", module.getName()), e);
         }
     }
 
     public void removeDependency(String name) {
         tryLockProject();
+
+        RulesProject currentProject = studio.getCurrentProject();
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+            throw new Message("There is no permission for editing the project.");
+        }
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
@@ -753,6 +767,11 @@ public class ProjectBean {
 
     public void editDependencies() {
         tryLockProject();
+
+        RulesProject currentProject = studio.getCurrentProject();
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+            throw new Message("There is no permission for editing the project.");
+        }
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
@@ -774,6 +793,11 @@ public class ProjectBean {
 
     public void editSources() {
         tryLockProject();
+
+        RulesProject currentProject = studio.getCurrentProject();
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+            throw new Message("There is no permission for editing the project.");
+        }
 
         List<PathEntry> sourceList = new ArrayList<>();
         String[] sourceArray = StringUtils.toLines(sources);
@@ -797,6 +821,12 @@ public class ProjectBean {
 
     public void reconcileOpenAPI() {
         tryLockProject();
+
+        RulesProject currentProject = studio.getCurrentProject();
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+            throw new Message("There is no permission for editing the project.");
+        }
+
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
         clean(newProjectDescriptor);
@@ -845,6 +875,11 @@ public class ProjectBean {
             throw new Message("Project has no modules.");
         }
         RulesProject currentProject = studio.getCurrentProject();
+
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+            throw new Message("There is no permission for editing the project.");
+        }
+
         studio.init(currentProject.getDesignRepository().getId(),
             currentProject.getBranch(),
             currentProject.getName(),
@@ -1129,6 +1164,11 @@ public class ProjectBean {
             boolean classPathChanged,
             OpenAPI openAPI,
             boolean annotationTemplateClassesAreGenerated) {
+        RulesProject currentProject = studio.getCurrentProject();
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+            throw new Message("There is no permission for editing the project.");
+        }
+
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentProjectDescriptor);
         clean(newProjectDescriptor);
         if (openAPIInfoChanged) {
@@ -1287,7 +1327,7 @@ public class ProjectBean {
     private void tryLockProject() {
         RulesProject currentProject = studio.getCurrentProject();
         if (!currentProject.tryLock()) {
-            throw new Message("Project is locked by other user");
+            throw new Message("Project is locked by other user.");
         }
     }
 
@@ -1295,7 +1335,6 @@ public class ProjectBean {
         UserWorkspaceProject project = studio.getCurrentProject();
         InputStream rulesDeployContent = null;
         try {
-            // validator.validate(descriptor);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             configureSerializer();
             projectDescriptorManager.writeDescriptor(projectDescriptor, byteArrayOutputStream);
@@ -1306,13 +1345,8 @@ public class ProjectBean {
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 artifact.setContent(inputStream);
             } else {
-                // new
-                // ProjectDescriptorManager().writeDescriptor(projectDescriptor,
-                // new FileOutputStream(projectDescriptor.getProjectFolder()));
                 project.addResource(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, inputStream);
-                // repositoryTreeState.refreshSelectedNode();
             }
-
             if (project.hasArtefact(RULES_DEPLOY_XML)) {
                 AProjectResource artifact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
                 rulesDeployContent = artifact.getContent();
@@ -1327,12 +1361,11 @@ public class ProjectBean {
             throw new Message(e.getMessage());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            throw new Message("Error while saving the project");
+            throw new Message("Error while saving the project.");
         } finally {
             IOUtils.closeQuietly(rulesDeployContent);
         }
         WebStudioUtils.getWebStudio().resetProjects();
-        // postProcess(descriptor);
     }
 
     private void configureSerializer() throws IOException, JAXBException {

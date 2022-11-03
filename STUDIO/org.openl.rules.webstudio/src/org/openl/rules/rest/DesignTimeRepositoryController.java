@@ -205,7 +205,7 @@ public class DesignTimeRepositoryController {
             }
         } else {
             if (!designRepositoryAclService
-                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE_PROJECTS))) {
+                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
                 throw new SecurityException();
             }
         }

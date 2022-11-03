@@ -740,7 +740,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanCreate() {
         for (Repository repository : userWorkspace.getDesignTimeRepository().getRepositories()) {
             if (designRepositoryAclService
-                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE_PROJECTS))) {
+                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
                 return true;
             }
         }
@@ -985,7 +985,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         UserWorkspaceProject project = getSelectedProject();
         if (project != null) {
             boolean branchProtected = isCurrentBranchProtected(project);
-            return project.isOpenedForEditing() && designRepositoryAclService.isGranted(project,
+            return project.isOpenedForEditing() && designRepositoryAclService.isGranted(getSelectedNode().getData(),
                 List.of(AclPermission.EDIT)) && !branchProtected;
         } else {
             return false;
@@ -995,6 +995,17 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanModifyTags() {
         UserWorkspaceProject project = getSelectedProject();
         return designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT));
+    }
+
+    public boolean getCanAppend() {
+        UserWorkspaceProject project = getSelectedProject();
+        if (project != null) {
+            boolean branchProtected = isCurrentBranchProtected(project);
+            return project.isOpenedForEditing() && designRepositoryAclService.isGranted(project,
+                List.of(AclPermission.APPEND)) && !branchProtected;
+        } else {
+            return false;
+        }
     }
 
     // for deployment project

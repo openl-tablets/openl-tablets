@@ -134,7 +134,7 @@ public class ProjectUploader {
             if (!designRepositoryAclService.createAcl(rulesProject.getDesignRepository().getId(),
                 rulesProject.getDesignFolderName(),
                 AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
-                throw new ProjectException("Granting permissions to the project for current user is failed.");
+                throw new ProjectException("Granting permissions to the project is failed.");
             }
             createdProjectName = projectCreator.getCreatedProjectName();
             // Get just created project, because creator API doesn't create internals states for ProjectState

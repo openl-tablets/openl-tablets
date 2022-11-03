@@ -12,13 +12,14 @@ public class AclPermission extends BasePermission {
     public static final AclPermission DESIGN_REPOSITORY_CREATE = new AclPermission(1 << 4, 'C');
 
     public static final AclPermission VIEW = new AclPermission(1 << MASK_END | DESIGN_REPOSITORY_READ.getMask(), 'V');
-    public static final AclPermission CREATE_PROJECTS = new AclPermission(
-        2 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(),
+    public static final AclPermission CREATE = new AclPermission(2 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(),
         'C');
-    public static final AclPermission CREATE_MODULES = new AclPermission(
-        3 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(),
-        'M');
-    public static final AclPermission EDIT = new AclPermission(4 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask(), 'W');
+    public static final AclPermission APPEND = new AclPermission(3 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(),
+        'A');
+    public static final AclPermission EDIT = new AclPermission(
+        4 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask() | DESIGN_REPOSITORY_CREATE
+            .getMask() | DESIGN_REPOSITORY_DELETE.getMask(),
+        'W');
     public static final AclPermission ARCHIVE = new AclPermission(5 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask(),
         'A');
     public static final AclPermission DELETE = new AclPermission(6 << MASK_END | DESIGN_REPOSITORY_DELETE.getMask(),
@@ -57,10 +58,10 @@ public class AclPermission extends BasePermission {
     public static String toString(AclPermission permission) {
         if (VIEW.getMask() == permission.getMask()) {
             return "VIEW";
-        } else if (CREATE_PROJECTS.getMask() == permission.getMask()) {
-            return "CREATE_PROJECTS";
-        } else if (CREATE_MODULES.getMask() == permission.getMask()) {
-            return "CREATE_MODULES";
+        } else if (CREATE.getMask() == permission.getMask()) {
+            return "CREATE";
+        } else if (APPEND.getMask() == permission.getMask()) {
+            return "APPEND";
         } else if (EDIT.getMask() == permission.getMask()) {
             return "EDIT";
         } else if (ARCHIVE.getMask() == permission.getMask()) {
@@ -95,10 +96,10 @@ public class AclPermission extends BasePermission {
         switch (permission) {
             case "VIEW":
                 return VIEW;
-            case "CREATE_PROJECTS":
-                return CREATE_PROJECTS;
-            case "CREATE_MODULES":
-                return CREATE_MODULES;
+            case "CREATE":
+                return CREATE;
+            case "APPEND":
+                return APPEND;
             case "EDIT":
                 return EDIT;
             case "ARCHIVE":
@@ -133,10 +134,10 @@ public class AclPermission extends BasePermission {
     public static AclPermission getPermission(int mask) {
         if (VIEW.getMask() == mask) {
             return VIEW;
-        } else if (CREATE_PROJECTS.getMask() == mask) {
-            return CREATE_PROJECTS;
-        } else if (CREATE_MODULES.getMask() == mask) {
-            return CREATE_MODULES;
+        } else if (CREATE.getMask() == mask) {
+            return CREATE;
+        } else if (APPEND.getMask() == mask) {
+            return APPEND;
         } else if (EDIT.getMask() == mask) {
             return EDIT;
         } else if (ARCHIVE.getMask() == mask) {

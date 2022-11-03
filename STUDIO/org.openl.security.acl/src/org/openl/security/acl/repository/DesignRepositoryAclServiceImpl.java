@@ -85,11 +85,11 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
     static String buildObjectIdentityId(AProjectArtefact artefact) {
         if (artefact.getRepository() instanceof LocalRepository) {
             LocalRepository localRepository = (LocalRepository) artefact.getRepository();
-            ProjectState projectState = localRepository.getProjectState(artefact.getFileData().getName());
+            ProjectState projectState = localRepository.getProjectState(artefact.getProject().getFileData().getName());
             FileData fileData = projectState.getFileData();
             FileMappingData fileMappingData = fileData.getAdditionalData(FileMappingData.class);
             String repoPath = fileMappingData.getInternalPath();
-            return concat(artefact.getRepository().getId(), repoPath);
+            return concat(artefact.getRepository().getId(), repoPath + "/" + artefact.getInternalPath());
         } else {
             return concat(artefact.getRepository().getId(), artefact.getFileData().getName());
         }

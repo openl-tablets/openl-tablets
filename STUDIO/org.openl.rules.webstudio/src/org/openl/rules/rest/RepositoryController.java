@@ -135,7 +135,7 @@ public class RepositoryController {
         if (!isGranted(Privileges.VIEW_PROJECTS)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .contentType(MediaType.TEXT_PLAIN)
-                .body("Current user does not have VIEW privilege");
+                .body("VIEW privilege is required for the action");
         }
         Collection<? extends AProject> projects = getDesignTimeRepository().getProjects();
         List<ProjectDescription> result = new ArrayList<>(projects.size());
@@ -391,7 +391,7 @@ public class RepositoryController {
                         .body("Already locked by '" + lockedBy + "'");
                 }
             } else {
-                if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.CREATE_PROJECTS))) {
+                if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.CREATE))) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .contentType(MediaType.TEXT_PLAIN)
                         .body(String.format("No permission to create a project in the repository with id '%s'.",
@@ -503,7 +503,7 @@ public class RepositoryController {
         if (!isGranted(Privileges.UNLOCK_PROJECTS)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .contentType(MediaType.TEXT_PLAIN)
-                .body("Current user does not have UNLOCK PROJECTS privilege");
+                .body("UNLOCK PROJECTS privilege is required for the action");
         }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
         if (!project.isLocked()) {

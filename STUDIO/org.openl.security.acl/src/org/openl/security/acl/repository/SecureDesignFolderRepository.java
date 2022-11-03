@@ -13,7 +13,6 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
-import org.openl.security.acl.permission.AclPermission;
 
 public class SecureDesignFolderRepository extends SecureDesignRepository implements FolderRepository {
 
@@ -45,17 +44,12 @@ public class SecureDesignFolderRepository extends SecureDesignRepository impleme
     public FileData save(FileData folderData,
             Iterable<FileItem> files,
             ChangesetType changesetType) throws IOException {
-        if (changesetType == ChangesetType.FULL && !designRepositoryAclService.isGranted(folderRepository.getId(),
-            folderData.getName(),
-            List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
-            throw new AccessDeniedException("Access denied");
-        }
         List<FileItem> fileItems = new ArrayList<>();
         for (FileItem fileItem : files) {
             if (!designRepositoryAclService.isGranted(folderRepository.getId(),
                 fileItem.getData().getName(),
-                List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
-                throw new AccessDeniedException("Access denied");
+                List.of(writeOrCreatePermissionIsRequired(fileItem.getData().getName())))) {
+                throw new AccessDeniedException("There is no permission for writing data to the repository.");
             }
             fileItems.add(fileItem);
         }
