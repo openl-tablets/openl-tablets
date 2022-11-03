@@ -43,6 +43,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.permission.AclPermissionsSets;
 import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -103,7 +104,7 @@ public class CopyBean {
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         for (Repository repository : userWorkspace.getDesignTimeRepository().getRepositories()) {
             if (designRepositoryAclService
-                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE_PROJECTS))) {
+                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
                 return true;
             }
         }
@@ -247,7 +248,7 @@ public class CopyBean {
             } else {
                 Repository designRepository = designTimeRepository.getRepository(toRepositoryId);
                 if (!designRepositoryAclService
-                    .isGranted(toRepositoryId, null, List.of(AclPermission.CREATE_PROJECTS))) {
+                    .isGranted(toRepositoryId, null, List.of(AclPermission.CREATE))) {
                     throw new AccessDeniedException();
                 }
                 String designPath = designTimeRepository.getRulesLocation() + newProjectName;
@@ -291,6 +292,7 @@ public class CopyBean {
                     designRepository,
                     designProject.getFileData(),
                     userWorkspace.getProjectsLockEngine());
+                designRepositoryAclService.createAcl(copiedProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS);
                 if (!userWorkspace.isOpenedOtherProject(copiedProject)) {
                     copiedProject.open();
                 }

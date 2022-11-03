@@ -52,9 +52,10 @@
                                  onclick="if (!canOverwriteRevision()) return false; openUpdateFileDialog();return false;"
                                  title="Upload the updated file"/>
                 <h:commandButton id="exportId" rendered="#{repositoryTreeState.canExport and node.hasVersions()}"
-                                 value="Export file" onclick="openExportModuleDialog('#{artefact.repository.id}', '#{artefact.project.name}', '#{node.internalArtifactPath.stringValue}');return false;"
+                                 value="Export file"
+                                 onclick="openExportModuleDialog('#{artefact.repository.id}', '#{artefact.project.name}', '#{node.internalArtifactPath.stringValue}');return false;"
                                  title="Export file"/>
-                <h:commandButton id="copyId" rendered="#{repositoryTreeState.canModify}" value="Copy file"
+                <h:commandButton id="copyId" rendered="#{repositoryTreeState.canAppend}" value="Copy file"
                                  onclick="if (!canOverwriteRevision()) return false; openCopyFileDialog();return false;"
                                  title="Copy file"/>
                 <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canModify}" value="Delete"
@@ -62,14 +63,14 @@
                                  title="Delete the file"/>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{node.type == 'folder' and repositoryTreeState.canModify}">
-                <h:commandButton id="addFolder1" value="Add Folder"
+            <h:panelGroup rendered="#{node.type == 'folder'}">
+                <h:commandButton id="addFolder1" rendered="#{repositoryTreeState.canAppend}" value="Add Folder"
                                  onclick="if (!canOverwriteRevision()) return false; openNewFolderDialog();return false;"
                                  title="#{addFolderMessage}"/>
-                <h:commandButton id="uploadFile1" value="Upload File"
+                <h:commandButton id="uploadFile1" rendered="#{repositoryTreeState.canAppend}" value="Upload File"
                                  onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;"
                                  title="#{uploadFileMessage}"/>
-                <h:commandButton id="deleteFolderId" value="Delete"
+                <h:commandButton id="deleteFolderId" rendered="#{repositoryTreeState.canModify}" value="Delete"
                                  onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;"
                                  title="Delete the folder"/>
             </h:panelGroup>
@@ -128,11 +129,12 @@
                         <h:commandButton id="compareId" rendered="#{repositoryTreeState.canCompare}" value="Compare"
                                          onclick="openCompareWindow(); return false;"
                                          title="Compare tables in Excel file between two project versions"/>
-                        <h:panelGroup rendered="#{repositoryTreeState.canModify}">
+                        <h:panelGroup rendered="#{repositoryTreeState.canAppend}">
                             <h:commandButton id="addFolder2" rendered="#{artefact.openedForEditing}" value="Add Folder"
                                              onclick="if (!canOverwriteRevision()) return false; openNewFolderDialog();return false;"
                                              title="#{addFolderMessage}"/>
-                            <h:commandButton id="uploadFile2" rendered="#{artefact.openedForEditing}" value="Upload File"
+                            <h:commandButton id="uploadFile2" rendered="#{artefact.openedForEditing}"
+                                             value="Upload File"
                                              onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;"
                                              title="#{uploadFileMessage}"/>
                         </h:panelGroup>

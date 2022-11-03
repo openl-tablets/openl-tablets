@@ -23,7 +23,7 @@ public class SecureDesignBranchRepository extends SecureDesignFolderRepository i
             .isGranted(branchRepository.getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_READ))) {
             return branchRepository.isMergedInto(from, to);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for the action.");
     }
 
     @Override
@@ -42,7 +42,7 @@ public class SecureDesignBranchRepository extends SecureDesignFolderRepository i
             .isGranted(branchRepository.getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
             branchRepository.createBranch(projectPath, branch);
         } else {
-            throw new AccessDeniedException("Access denied");
+            throw new AccessDeniedException("There is no permission for creating a branch.");
         }
     }
 
@@ -52,7 +52,7 @@ public class SecureDesignBranchRepository extends SecureDesignFolderRepository i
             .isGranted(branchRepository.getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_DELETE))) {
             branchRepository.deleteBranch(projectPath, branch);
         } else {
-            throw new AccessDeniedException("Access denied");
+            throw new AccessDeniedException("There is no permission for deleting a branch.");
         }
     }
 
@@ -62,7 +62,7 @@ public class SecureDesignBranchRepository extends SecureDesignFolderRepository i
             .isGranted(branchRepository.getId(), projectPath, List.of(AclPermission.DESIGN_REPOSITORY_READ))) {
             return branchRepository.getBranches(projectPath);
         }
-        throw new AccessDeniedException("Access denied");
+        throw new AccessDeniedException("There is no permission for reading branch details.");
     }
 
     @Override
@@ -86,9 +86,10 @@ public class SecureDesignBranchRepository extends SecureDesignFolderRepository i
             if (designRepositoryAclService.isGranted(branchRepository.getId(),
                 fileItem.getData().getName(),
                 List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
-                throw new AccessDeniedException("Access denied");
+                throw new AccessDeniedException("There is no permission for merging changes to a branch.");
             }
         }
+        branchRepository.merge(branchFrom, author, conflictResolveData);
     }
 
     @Override
