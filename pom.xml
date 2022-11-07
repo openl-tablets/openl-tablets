@@ -87,11 +87,11 @@
         <!-- Managing dependencies versions -->
         <!-- Spring -->
         <spring.framework.version>5.3.23</spring.framework.version>
-        <spring.boot.version>2.7.3</spring.boot.version>
+        <spring.boot.version>2.7.5</spring.boot.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
 
         <!-- Security -->
-        <spring.security.version>5.7.3</spring.security.version>
+        <spring.security.version>5.7.5</spring.security.version>
         <opensaml.version>4.2.0</opensaml.version>
 
         <!-- Bytecode manipulation -->
