@@ -211,7 +211,7 @@
         <istack.version>3.0.12</istack.version>
         <xstream.version>1.4.19</xstream.version>
         <activiti.version>5.18.0</activiti.version>
-        <snakeyaml.version>1.32</snakeyaml.version>
+        <snakeyaml.version>1.33</snakeyaml.version>
 
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
