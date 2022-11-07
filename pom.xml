@@ -109,8 +109,8 @@
         <cassandra.unit.driver.version>3.11.2</cassandra.unit.driver.version>
 
         <!-- REST -->
-        <jackson.version>2.13.4</jackson.version>
-        <cxf.version>3.5.3</cxf.version>
+        <jackson.version>2.14.0</jackson.version>
+        <cxf.version>3.5.4</cxf.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-frontend-jaxrs:jar -->
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-databinding-aegis:jar -> org.apache.cxf:cxf-core -> org.glassfish.jaxb:jaxb-runtime -->
@@ -1597,7 +1597,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.13.4.1</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.jaxrs</groupId>
