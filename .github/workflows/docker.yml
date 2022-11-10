@@ -32,7 +32,7 @@ jobs:
         gpg --batch --keyserver keyserver.ubuntu.com --recv-keys 902B17732F38021331F3019F82521DFA3BF8F6FC
 
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Determine the latest version
       run: |
