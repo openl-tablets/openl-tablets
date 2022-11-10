@@ -69,14 +69,14 @@ jobs:
       run: |
         cd Dockerfiles
         echo Platforms: ${BUILD_PLATFORMS}
-        
-        # In order to implement atomic push-all-images functionality, build and push should be split to different 
-        # steps. However, currently Docker cannot hold multi-platform images in a local storage. Therefore, docker 
-        # cache is used in order to implement this functionality. Here all images are built and docker puts all layers 
-        # of these images in a cache. In the following step, when images are built, tagged, and pushed to external 
-        # repository, docker use image layers from the cache, which are created here. In case of a build failure none 
+
+        # In order to implement atomic push-all-images functionality, build and push should be split to different
+        # steps. However, currently Docker cannot hold multi-platform images in a local storage. Therefore, docker
+        # cache is used in order to implement this functionality. Here all images are built and docker puts all layers
+        # of these images in a cache. In the following step, when images are built, tagged, and pushed to external
+        # repository, docker use image layers from the cache, which are created here. In case of a build failure none
         # of the images are pushed to the external repository.
-        
+
         docker buildx build -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws \
           --platform ${BUILD_PLATFORMS} --output type=registry,push=false
         docker buildx build -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws.all \
