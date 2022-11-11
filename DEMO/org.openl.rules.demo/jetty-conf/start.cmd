@@ -152,7 +152,7 @@ echo.
 @set TEMP=.\tmp
 @if not exist %TEMP% mkdir -p %TEMP%
 
-%_JAVA% -DDEMO=DEMO -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% -Djetty.home="%CD%" -Djetty.base="%CD%" -Djava.io.tmpdir="%TEMP%" -jar start.jar --module=http,jsp,ext,deploy,http-forwarded
+%_JAVA% -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% -Djetty.home="%CD%" -Djetty.base="%CD%" -Djava.io.tmpdir="%TEMP%" -jar start.jar --module=http,jsp,ext,deploy,http-forwarded
 
 @popd
 @exit /b 0 & endlocal
