@@ -17,7 +17,6 @@
             <outputDirectory>${jetty.root}</outputDirectory>
             <includes>
                 <include>start</include>
-                <include>stop</include>
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -26,7 +25,6 @@
             <outputDirectory>${jetty.root}</outputDirectory>
             <excludes>
                 <exclude>start</exclude>
-                <exclude>stop</exclude>
             </excludes>
         </fileSet>
         <fileSet>
