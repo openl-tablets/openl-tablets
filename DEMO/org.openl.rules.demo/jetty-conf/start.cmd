@@ -150,7 +150,7 @@ echo.
 @echo Using OPENL_HOME:      "%OPENL_HOME%"
 
 @set TEMP=.\tmp
-@if not exist %TEMP% mkdir -p %TEMP%
+@if not exist %TEMP% mkdir %TEMP%
 
 @title "OpenL WebStudio DEMO"
 @start http://localhost:8080/
