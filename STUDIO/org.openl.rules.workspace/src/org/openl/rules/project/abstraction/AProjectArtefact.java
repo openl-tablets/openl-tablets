@@ -171,7 +171,7 @@ public class AProjectArtefact implements IProjectArtefact {
     protected boolean isLockedByUser(LockInfo lockInfo, CommonUser user) {
         if (lockInfo.isLocked()) {
             String lockedBy = lockInfo.getLockedBy();
-            return lockedBy.equals(user.getUserName()) || isLockedByDefaultUser(lockedBy, user);
+            return lockedBy.equals(user.getUserName());
 
         }
         return false;
@@ -184,18 +184,6 @@ public class AProjectArtefact implements IProjectArtefact {
     public boolean isModified() {
         FileData data = getFileData();
         return data != null && (modifiedTime == null || !modifiedTime.equals(data.getModifiedAt()));
-    }
-
-    /**
-     * For backward compatibility. Earlier user name in the single user mode analog was "LOCAL". Checks that lockedUser
-     * is LOCAL and current user is DEFAULT
-     *
-     * @param lockedUser - owner of the lock
-     * @param currentUser - current user trying to unlock
-     * @return true if owner of the lock is "LOCAL" and current user is "DEFAULT"
-     */
-    private boolean isLockedByDefaultUser(String lockedUser, CommonUser currentUser) {
-        return "LOCAL".equals(lockedUser) && "DEFAULT".equals(currentUser.getUserName());
     }
 
     public boolean isHistoric() {
