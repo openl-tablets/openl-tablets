@@ -1,16 +1,18 @@
-package org.openl.rules.webstudio.service;
+package org.openl.rules.webstudio;
 
 import java.util.Arrays;
 import java.util.HashSet;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.openl.rules.webstudio.service.UserManagementService;
+
 /**
  * Creates users for demo mode.
  *
  * @author Yury Molchan
  */
-public class DemoUsers {
+public class DemoUsersInit {
     /**
      * It's assumed that demo users are stored in in-memory database and are destroyed on JVM shutdown. This global
      * static variable is needed to create demo users only once. After administration settings change context is

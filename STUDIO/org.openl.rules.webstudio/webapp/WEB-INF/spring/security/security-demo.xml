@@ -9,5 +9,5 @@
 
     <context:property-override location="classpath:openl-demo-db.properties"/>
 
-    <bean class="org.openl.rules.webstudio.service.DemoUsers" lazy-init="false" init-method="init"/>
+    <bean class="org.openl.rules.webstudio.DemoUsersInit" lazy-init="false" init-method="init"/>
 </beans>
