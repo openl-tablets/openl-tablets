@@ -152,6 +152,8 @@ echo.
 @set TEMP=.\tmp
 @if not exist %TEMP% mkdir -p %TEMP%
 
+@title "OpenL WebStudio DEMO"
+@start http://localhost:8080/
 %_JAVA% -Dh2.bindAddress=localhost -Dopenl.home="%OPENL_HOME%" %JAVA_OPTS% -Djetty.home="%CD%" -Djetty.base="%CD%" -Djava.io.tmpdir="%TEMP%" -jar start.jar --module=http,jsp,ext,deploy,http-forwarded
 
 @popd
