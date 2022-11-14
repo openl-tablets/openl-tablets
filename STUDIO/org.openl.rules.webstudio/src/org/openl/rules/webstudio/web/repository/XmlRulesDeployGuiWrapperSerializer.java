@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,6 +13,8 @@ import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
+
+import javax.xml.bind.JAXBException;
 
 public class XmlRulesDeployGuiWrapperSerializer {
     private static final Pattern CONFIGURATION_PATTERN = Pattern.compile("<configuration>.*</configuration>",
@@ -24,7 +28,7 @@ public class XmlRulesDeployGuiWrapperSerializer {
         this.serializerFactory = serializerFactory;
     }
 
-    public String serialize(final RulesDeployGuiWrapper wrapper, SupportedVersion version) {
+    public String serialize(final RulesDeployGuiWrapper wrapper, SupportedVersion version) throws JAXBException, IOException {
         String rulesDeploy = getSerializer(version).serialize(wrapper.getRulesDeploy());
 
         String configuration = "";
@@ -42,7 +46,7 @@ public class XmlRulesDeployGuiWrapperSerializer {
         return rulesDeploy;
     }
 
-    public RulesDeployGuiWrapper deserialize(String source, SupportedVersion version) {
+    public RulesDeployGuiWrapper deserialize(String source, SupportedVersion version) throws JAXBException {
         Matcher matcher = CONFIGURATION_PATTERN.matcher(source);
         String configuration = null;
 
@@ -57,10 +61,22 @@ public class XmlRulesDeployGuiWrapperSerializer {
         return result;
     }
 
-    private IRulesDeploySerializer getSerializer(SupportedVersion version) {
+    private IRulesDeploySerializer getSerializer(SupportedVersion version) throws JAXBException {
         BaseRulesDeploySerializer serializer = (BaseRulesDeploySerializer) serializerFactory.getSerializer(version);
-        // We process the "configuration" field ourself
-        serializer.getXstream().omitField(RulesDeploy.class, "configuration");
-        return serializer;
+
+        return new IRulesDeploySerializer() {
+            @Override
+            public RulesDeploy deserialize(InputStream source) throws JAXBException {
+                return serializer.deserialize(source);
+            }
+
+            @Override
+            public String serialize(RulesDeploy source) throws JAXBException, IOException {
+                // We process the "configuration" field ourself
+                return serializer.serialize(source)
+                        .replaceAll("<configuration>[\\s\\S]*?</configuration>","")
+                        .replaceAll("(?m)^[ \t]*\r?\n", "");
+            }
+        };
     }
 }

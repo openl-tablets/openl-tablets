@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.faces.model.SelectItem;
+import javax.xml.bind.JAXBException;
 
 import org.openl.base.INamedThing;
 import org.openl.rules.common.ProjectException;
@@ -55,7 +56,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.MismatchedInputException;
-import com.thoughtworks.xstream.io.StreamException;
 
 @Service
 @ViewScope
@@ -498,11 +498,13 @@ public class InputArgsBean {
                 }
             }
             return null;
-        } catch (IOException | StreamException e) {
+        } catch (IOException e) {
             if (StringUtils.isNotBlank(e.getMessage())) {
                 throw new Message("Invalid Rules Deploy Configuration: " + e.getMessage());
             }
             throw new Message("Invalid Rules Deploy Configuration.");
+        } catch (JAXBException e) {
+            throw new Message("Something went wrong during deserialization", e);
         }
     }
 

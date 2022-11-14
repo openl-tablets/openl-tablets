@@ -13,6 +13,8 @@ import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.rules.repository.folder.FileAdaptor;
 import org.openl.util.IOUtils;
 
+import javax.xml.bind.JAXBException;
+
 public class ProjectDescriptorNameAdaptor implements FileAdaptor {
 
     private final String projectName;
@@ -31,7 +33,7 @@ public class ProjectDescriptorNameAdaptor implements FileAdaptor {
     }
 
     @Override
-    public InputStream apply(InputStream inputStream) throws IOException {
+    public InputStream apply(InputStream inputStream) throws IOException, JAXBException {
         // Read the stream to memory and try to parse it and then change project name. If it cannot be parsed return
         // original rules.xml.
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

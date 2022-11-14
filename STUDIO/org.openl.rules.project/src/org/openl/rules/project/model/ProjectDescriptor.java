@@ -21,23 +21,51 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.util.FileUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.springframework.util.AntPathMatcher;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.DEPENDENCY_TAG;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROJECT_DESCRIPTOR_TAG;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PATTERN;
+import static org.openl.rules.project.xml.XmlProjectDescriptorSerializer.PROPERTIES_FILE_NAME_PROCESSOR;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name=PROJECT_DESCRIPTOR_TAG)
 public class ProjectDescriptor {
+    @XmlTransient
     private String id;
+    @XmlJavaTypeAdapter(XmlProjectDescriptorSerializer.CollapsedStringAdapter2.class)
     private String name;
     private String comment;
+    @XmlTransient
     private Path projectFolder;
+    @XmlElementWrapper(name = "modules")
+    @XmlElement(name = "module")
     private List<Module> modules;
+    @XmlElementWrapper(name = "classpath")
+    @XmlElement(name = "entry")
     private List<PathEntry> classpath;
     private OpenAPI openapi;
 
+    @XmlElementWrapper(name = "dependencies")
+    @XmlElement(name = DEPENDENCY_TAG)
     private List<ProjectDependencyDescriptor> dependencies;
+    @XmlElement(name = PROPERTIES_FILE_NAME_PATTERN)
     private String[] propertiesFileNamePatterns;
+    @XmlElement(name = PROPERTIES_FILE_NAME_PROCESSOR)
     private String propertiesFileNameProcessor;
 
+    @XmlTransient
     private volatile URL[] classPathUrls;
 
     public String[] getPropertiesFileNamePatterns() {

@@ -40,7 +40,7 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test
-    public void testReadDescriptor1() throws IOException, ValidationException {
+    public void testReadDescriptor1() throws Exception {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ProjectDescriptor descriptor = manager.readDescriptor("test-resources/descriptor/rules1.xml");
         assertReadDescriptor1(descriptor);
@@ -101,7 +101,7 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test
-    public void zipArchive_testReadDescriptor1() throws IOException, ValidationException {
+    public void zipArchive_testReadDescriptor1() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             final Path rootFolder = fs.getPath("/");
             ProjectDescriptor descriptor = new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules1.xml"));
@@ -114,20 +114,20 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test(expected = ValidationException.class)
-    public void testReadDescriptor2() throws IOException, ValidationException {
+    public void testReadDescriptor2() throws Exception {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         manager.readDescriptor("test-resources/descriptor/rules2.xml");
     }
 
     @Test(expected = ValidationException.class)
-    public void zipArchive_testReadDescriptor2() throws IOException, ValidationException {
+    public void zipArchive_testReadDescriptor2() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules2.xml"));
         }
     }
 
     @Test()
-    public void testReadDescriptor3() throws IOException, ValidationException {
+    public void testReadDescriptor3() throws Exception {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ProjectDescriptor projectDescriptor = manager.readDescriptor("test-resources/descriptor/rules3.xml");
         List<Module> modules = projectDescriptor.getModules();
@@ -135,7 +135,7 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test()
-    public void zipArchive_testReadDescriptor3() throws IOException, ValidationException {
+    public void zipArchive_testReadDescriptor3() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             ProjectDescriptor projectDescriptor = new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules3.xml"));
             List<Module> modules = projectDescriptor.getModules();
@@ -144,7 +144,7 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test
-    public void testIsCoveredByWildcardModule() throws IOException {
+    public void testIsCoveredByWildcardModule() throws Exception {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
         final ProjectDescriptor descriptor = serializer
@@ -166,7 +166,7 @@ public class ProjectDescriptorManagerTest {
     }
 
     @Test
-    public void zipArchive_testIsCoveredByWildcardModule() throws IOException {
+    public void zipArchive_testIsCoveredByWildcardModule() throws Exception {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
             ProjectDescriptorManager manager = new ProjectDescriptorManager();
             XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
@@ -178,7 +178,7 @@ public class ProjectDescriptorManagerTest {
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testWriteDescriptor1() throws IOException, ValidationException {
+    public void testWriteDescriptor1() throws Exception {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setId("id1"); // As far as id was deprecated, it should not be saved to xml.
         descriptor.setName("name1");
@@ -214,17 +214,47 @@ public class ProjectDescriptorManagerTest {
         descriptor.setModules(modules);
 
         module1.getMethodFilter().addIncludePattern(" * ");
+        module1.getMethodFilter().addExcludePattern(" * ");
 
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
 
-        String expected = "<project>" + "\n" + "  <name>name1</name>" + "\n" + "  <comment>comment1</comment>" + "\n" + "  <modules>" + "\n" + "    <module>" + "\n" + "      <name>name1</name>" + "\n" + "      <rules-root path=\"path1\"/>" + "\n" + "      <method-filter>" + "\n" + "        <includes>" + "\n" + "          <value>*</value>" + "\n" + "        </includes>" + "\n" + "      </method-filter>" + "\n" + "    </module>" + "\n" + "  </modules>" + "\n" + "  <classpath>" + "\n" + "    <entry path=\"path1\"/>" + "\n" + "    <entry path=\"path2\"/>" + "\n" + "  </classpath>" + "\n" + "  <dependencies>" + "\n" + "    <dependency>" + "\n" + "      <name>someProjectName</name>" + "\n" + "      <autoIncluded>false</autoIncluded>" + "\n" + "    </dependency>" + "\n" + "  </dependencies>" + "\n" + "  <properties-file-name-pattern>{lob}</properties-file-name-pattern>" + "\n" + "  <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>" + "\n" + "</project>";
+        String expected = "<project>\n" +
+                "    <name>name1</name>\n" +
+                "    <comment>comment1</comment>\n" +
+                "    <modules>\n" +
+                "        <module>\n" +
+                "            <name>name1</name>\n" +
+                "            <rules-root path=\"path1\"/>\n" +
+                "            <method-filter>\n" +
+                "                <includes>\n" +
+                "                    <value>*</value>\n" +
+                "                </includes>\n" +
+                "                <excludes>\n" +
+                "                    <value>*</value>\n" +
+                "                </excludes>\n" +
+                "            </method-filter>\n" +
+                "        </module>\n" +
+                "    </modules>\n" +
+                "    <classpath>\n" +
+                "        <entry path=\"path1\"/>\n" +
+                "        <entry path=\"path2\"/>\n" +
+                "    </classpath>\n" +
+                "    <dependencies>\n" +
+                "        <dependency>\n" +
+                "            <name>someProjectName</name>\n" +
+                "            <autoIncluded>false</autoIncluded>\n" +
+                "        </dependency>\n" +
+                "    </dependencies>\n" +
+                "    <properties-file-name-pattern>{lob}</properties-file-name-pattern>\n" +
+                "    <properties-file-name-processor>default.DefaultPropertiesFileNameProcessor</properties-file-name-processor>\n" +
+                "</project>";
         assertEquals(expected, dest.toString());
     }
 
     @Test()
-    public void testWriteDescriptor2() throws IOException, ValidationException {
+    public void testWriteDescriptor2() throws Exception {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName("name1");
 

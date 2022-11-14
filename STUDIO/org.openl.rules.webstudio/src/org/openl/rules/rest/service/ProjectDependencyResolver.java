@@ -5,6 +5,8 @@ import java.util.List;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 
+import javax.xml.bind.JAXBException;
+
 /**
  * @author ybiruk
  */
@@ -19,5 +21,5 @@ public interface ProjectDependencyResolver {
     /**
      * Returns all projects that depend on project
      */
-    List<RulesProject> getDependsOnProject(RulesProject project) throws ProjectException;
+    List<RulesProject> getDependsOnProject(RulesProject project) throws ProjectException, JAXBException;
 }

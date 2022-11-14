@@ -26,6 +26,7 @@ import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
+import org.openl.rules.project.model.WildcardPattern;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer;
 import org.openl.rules.ruleservice.loader.RuleServiceLoader;
@@ -169,10 +170,10 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                             IProjectResource resource = (IProjectResource) artifact;
                             content = resource.getContent();
                             rulesDeploy = getRulesDeploySerializer().deserialize(content);
-                            RulesDeploy.WildcardPattern[] compilationPatterns = rulesDeploy
+                            WildcardPattern[] compilationPatterns = rulesDeploy
                                 .getLazyModulesForCompilationPatterns();
                             if (compilationPatterns != null) {
-                                for (RulesDeploy.WildcardPattern wp : compilationPatterns) {
+                                for (WildcardPattern wp : compilationPatterns) {
                                     wildcardPatterns.add(wp.getValue());
                                 }
                             }

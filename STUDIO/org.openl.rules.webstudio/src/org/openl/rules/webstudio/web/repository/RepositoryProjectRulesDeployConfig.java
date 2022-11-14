@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProjectResource;
@@ -23,8 +24,6 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import com.thoughtworks.xstream.XStreamException;
 
 @Service
 @ViewScope
@@ -119,7 +118,7 @@ public class RepositoryProjectRulesDeployConfig {
                 studio.reset();
             }
             created = false;
-        } catch (ProjectException e) {
+        } catch (ProjectException | JAXBException | IOException e) {
             WebStudioUtils.addErrorMessage("Failed to save save '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
             log.error(e.getMessage(), e);
         }
@@ -155,11 +154,10 @@ public class RepositoryProjectRulesDeployConfig {
         } catch (IOException | ProjectException e) {
             WebStudioUtils.addErrorMessage("Failed to read '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
             log.error(e.getMessage(), e);
-        } catch (XStreamException e) {
+        } catch (JAXBException e) {
             WebStudioUtils.addErrorMessage("Failed to parse '" + RULES_DEPLOY_CONFIGURATION_FILE + " file.");
             log.error(e.getMessage(), e);
         }
-
         return null;
     }
 

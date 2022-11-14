@@ -35,7 +35,7 @@ public class ZipCharsetDetector {
     private final Logger log = LoggerFactory.getLogger(ZipCharsetDetector.class);
     private final Charset[] charsets;
     private final PathFilter zipFilter;
-    private final IProjectDescriptorSerializer projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
+    private IProjectDescriptorSerializer projectDescriptorSerializer;
 
     /**
      * Create zip charset detector.
@@ -172,13 +172,20 @@ public class ZipCharsetDetector {
                 String entryName = entry.getName();
                 String fileName = extractor.extractFromRootFolder(entryName);
                 if (ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME.equals(fileName)) {
-                    return projectDescriptorSerializer.deserialize(zipInputStream);
+                    return getProjectDescriptorSerializer().deserialize(zipInputStream);
                 }
             }
         } catch (Exception e) {
             log.debug("Cannot read project descriptor. Skip it. Cause: {}", e.getMessage(), e);
         }
         return null;
+    }
+
+    private IProjectDescriptorSerializer getProjectDescriptorSerializer() {
+        if (projectDescriptorSerializer == null) {
+            projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
+        }
+        return projectDescriptorSerializer;
     }
 
     private boolean checkNames(Collection<String> entryNames) {

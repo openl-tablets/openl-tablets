@@ -22,6 +22,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.ValidationException;
+import javax.xml.bind.JAXBException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -91,8 +92,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import com.thoughtworks.xstream.XStreamException;
 
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.DEPLOY_PROJECTS;
@@ -329,7 +328,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             userWorkspace.refresh();
             model.resetSourceModified();
-        } catch (IOException e) {
+        } catch (IOException | JAXBException e) {
             throw new ProjectException(e.getMessage(), e);
         } finally {
             releaseProject(project.getName());
@@ -878,10 +877,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         try {
             newProjectDescriptor = ZipProjectDescriptorExtractor
                 .getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
-        } catch (XStreamException e) {
-            return ProjectDescriptorUtils.getErrorMessage(e);
+        } catch (IllegalArgumentException e) {
+            return ProjectDescriptorUtils.getErrorMessage();
         }
-        if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
+        if (!newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
             return validateProjectName(newProjectDescriptor.getName());
         }
 

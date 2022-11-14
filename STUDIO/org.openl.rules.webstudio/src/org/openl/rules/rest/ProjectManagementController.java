@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
+import javax.xml.bind.JAXBException;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -22,7 +23,6 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentProjectItem;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.dtr.impl.ProjectInfo;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
@@ -87,7 +87,7 @@ public class ProjectManagementController {
                 .map(ProjectInfo::new)
                 .collect(Collectors.toList());
             return info;
-        } catch (ProjectException e) {
+        } catch (ProjectException | JAXBException e) {
             throw new NotFoundException("project.message", name);
         }
     }

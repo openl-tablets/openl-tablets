@@ -1,7 +1,26 @@
 package org.openl.rules.project.model.v5_16;
 
+import org.openl.rules.project.model.WildcardPattern;
+import org.openl.rules.project.xml.XmlRulesDeploySerializer.MapAdapter;
+import org.openl.rules.project.xml.v5_16.PublisherTypeXmlAdapter_v5_16;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.Map;
 
+import static org.openl.rules.project.xml.XmlRulesDeploySerializer.LAZY_MODULES_FOR_COMPILATION;
+import static org.openl.rules.project.xml.XmlRulesDeploySerializer.MODULE_NAME;
+import static org.openl.rules.project.xml.XmlRulesDeploySerializer.PUBLISHERS_TAG;
+import static org.openl.rules.project.xml.XmlRulesDeploySerializer.PUBLISHER_TAG;
+import static org.openl.rules.project.xml.XmlRulesDeploySerializer.RULES_DEPLOY_DESCRIPTOR_TAG;
+
+
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name=RULES_DEPLOY_DESCRIPTOR_TAG)
 public class RulesDeploy_v5_16 {
 
     public enum PublisherType {
@@ -10,34 +29,23 @@ public class RulesDeploy_v5_16 {
         RMI
     }
 
-    public static class WildcardPattern {
-        String value;
-
-        public WildcardPattern(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-    }
-
     private Boolean isProvideRuntimeContext;
     private Boolean isProvideVariations;
     private Boolean useRuleServiceRuntimeContext;
     private String serviceName;
+    @XmlElementWrapper(name = PUBLISHERS_TAG)
+    @XmlElement(name = PUBLISHER_TAG)
+    @XmlJavaTypeAdapter(PublisherTypeXmlAdapter_v5_16.class)
     private PublisherType[] publishers;
     private String interceptingTemplateClassName;
     private String annotationTemplateClassName;
     private String serviceClass;
     private String rmiServiceClass;
     private String url;
+    @XmlJavaTypeAdapter(MapAdapter.class)
     private Map<String, Object> configuration;
-
+    @XmlElementWrapper(name = LAZY_MODULES_FOR_COMPILATION)
+    @XmlElement(name = MODULE_NAME)
     private WildcardPattern[] lazyModulesForCompilationPatterns;
 
     public PublisherType[] getPublishers() {

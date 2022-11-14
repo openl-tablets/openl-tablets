@@ -50,7 +50,7 @@ public class DeploymentManager implements InitializingBean {
 
     private String[] initialProductionRepositoryConfigNames;
     private DesignTimeRepository designRepository;
-    private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+    private IRulesDeploySerializer rulesDeploySerializer;
 
     private final Set<String> deployers = new HashSet<>();
     public RepositoryFactoryProxy repositoryFactoryProxy;
@@ -255,7 +255,7 @@ public class DeploymentManager implements InitializingBean {
                     if (artifact instanceof AProjectResource) {
                         AProjectResource resource = (AProjectResource) artifact;
                         try (InputStream content = resource.getContent()) {
-                            RulesDeploy rulesDeploy = rulesDeploySerializer.deserialize(content);
+                            RulesDeploy rulesDeploy = getRulesDeploySerializer().deserialize(content);
                             String apiVersion = rulesDeploy.getVersion();
                             if (StringUtils.isNotBlank(apiVersion)) {
                                 return apiVersion;
@@ -274,6 +274,13 @@ public class DeploymentManager implements InitializingBean {
         }
 
         return null;
+    }
+
+    private IRulesDeploySerializer getRulesDeploySerializer() {
+        if (rulesDeploySerializer == null) {
+            rulesDeploySerializer = new XmlRulesDeploySerializer();
+        }
+        return rulesDeploySerializer;
     }
 
     public void setRepositoryFactoryProxy(RepositoryFactoryProxy repositoryFactoryProxy) {

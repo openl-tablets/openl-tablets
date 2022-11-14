@@ -31,7 +31,6 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.security.standalone.persistence.User;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -40,6 +39,8 @@ import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.util.IOUtils;
 import org.openl.util.ZipUtils;
+
+import javax.xml.bind.JAXBException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -64,7 +65,7 @@ public class ZipProjectSaveStrategyTest {
     private XmlProjectDescriptorSerializer projectDescriptorSerializer;
 
     @Before
-    public void setUp() {
+    public void setUp() throws JAXBException {
         this.projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
         this.fileDataCaptor = ArgumentCaptor.forClass(FileData.class);
 
@@ -89,7 +90,7 @@ public class ZipProjectSaveStrategyTest {
     }
 
     @Test
-    public void testSaveMappedRepo() throws IOException {
+    public void testSaveMappedRepo() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
             "jsmith",
@@ -117,7 +118,7 @@ public class ZipProjectSaveStrategyTest {
     }
 
     @Test
-    public void testSaveMappedRepo2() throws IOException {
+    public void testSaveMappedRepo2() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
             "jsmith",
@@ -145,7 +146,7 @@ public class ZipProjectSaveStrategyTest {
     }
 
     @Test
-    public void testSaveNotFolderRepo() throws IOException {
+    public void testSaveNotFolderRepo() throws Exception {
         mockDesignRepository(Repository.class, "design2", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design2",
             "jsmith",
@@ -170,7 +171,7 @@ public class ZipProjectSaveStrategyTest {
     }
 
     @Test
-    public void testSaveMappedRepoCustomPath() throws IOException {
+    public void testSaveMappedRepoCustomPath() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
             "jsmith",
@@ -204,7 +205,7 @@ public class ZipProjectSaveStrategyTest {
     }
 
     @Test
-    public void testSaveMappedRepoCustomPathExtraProjectDescriptor() throws IOException {
+    public void testSaveMappedRepoCustomPathExtraProjectDescriptor() throws Exception {
         mockDesignRepository(MappedRepository.class, "design1", builder -> builder.setVersions(true));
         CreateUpdateProjectModel model = new CreateUpdateProjectModel("design1",
             "jsmith",
@@ -237,7 +238,7 @@ public class ZipProjectSaveStrategyTest {
         assertEquals("custom-name", actualAddData.getInternalPath());
     }
 
-    private void assertProjectDescriptor(String expectedRootFolder, String expectedName, FileItem descriptor) {
+    private void assertProjectDescriptor(String expectedRootFolder, String expectedName, FileItem descriptor) throws Exception {
         assertNotNull(descriptor);
         assertEquals(expectedRootFolder + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
             descriptor.getData().getName());

@@ -43,6 +43,8 @@ import org.openl.util.formatters.FileNameFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBException;
+
 /**
  * Project creator from OpenAPI files, generates models, spreadsheets, rules.xml, rules-deploy and compiled annotation
  * template files.
@@ -240,7 +242,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     }
 
     private InputStream generateRulesFile(boolean genJavaClasses, Set<String> algorithmsInclude) throws IOException,
-                                                                                                 ValidationException {
+            ValidationException, JAXBException {
         ProjectDescriptor descriptor = defineDescriptor(genJavaClasses, algorithmsInclude);
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             projectDescriptorManager.writeDescriptor(descriptor, baos);

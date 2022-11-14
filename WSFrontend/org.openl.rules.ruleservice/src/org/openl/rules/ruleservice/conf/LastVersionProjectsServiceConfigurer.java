@@ -45,7 +45,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
 
     private final Logger log = LoggerFactory.getLogger(LastVersionProjectsServiceConfigurer.class);
 
-    private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+    private IRulesDeploySerializer rulesDeploySerializer;
     private boolean provideRuntimeContext = false;
     private boolean supportVariations = false;
     private String supportedGroups = null;
@@ -257,6 +257,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
     }
 
     public final IRulesDeploySerializer getRulesDeploySerializer() {
+        if (rulesDeploySerializer == null) {
+            rulesDeploySerializer = new XmlRulesDeploySerializer();
+        }
         return rulesDeploySerializer;
     }
 

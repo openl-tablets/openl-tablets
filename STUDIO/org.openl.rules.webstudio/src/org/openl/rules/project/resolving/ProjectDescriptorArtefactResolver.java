@@ -1,7 +1,6 @@
 package org.openl.rules.project.resolving;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +20,8 @@ import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBException;
+
 /**
  * Resolves specified OpenL project revision's dependencies.
  */
@@ -33,7 +34,7 @@ public class ProjectDescriptorArtefactResolver {
      */
     private final Map<String, ProjectDescriptor> cache = new WeakHashMap<>();
 
-    private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException {
+    private ProjectDescriptor getProjectDescriptor(AProject project) throws ProjectException, JAXBException {
         FileData fileData = project.getFileData();
         if (fileData == null) {
             return null;
@@ -70,7 +71,7 @@ public class ProjectDescriptorArtefactResolver {
         return null;
     }
 
-    public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException {
+    public List<ProjectDependencyDescriptor> getDependencies(AProject project) throws ProjectException, JAXBException {
         ProjectDescriptor pd = getProjectDescriptor(project);
         return (pd != null && pd.getDependencies() != null) ? pd.getDependencies() : Collections.emptyList();
     }

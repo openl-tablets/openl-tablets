@@ -3,6 +3,7 @@ package org.openl.rules.project.abstraction;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,30 +26,34 @@ import org.xmlunit.diff.Difference;
 import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelectors;
 
+import javax.xml.bind.JAXBException;
+
 public class ProjectDescriptorSerializerTest {
 
     private ProjectDescriptorSerializer serializer;
 
     @Before
-    public void setUp() {
+    public void setUp() throws JAXBException {
         this.serializer = new ProjectDescriptorSerializer();
     }
 
     @Test
-    public void serializeTest() throws FileNotFoundException {
-        assertXml(new FileInputStream("test-resources/xml/descriptor1.xml"), serializer.serialize(makeDescriptors()));
+    public void serializeTest() throws IOException, JAXBException {
+        assertXml(new FileInputStream("test-resources/xml/descriptor1.xml"),
+                new ByteArrayInputStream(serializer.serialize(makeDescriptors()).toByteArray()));
     }
 
     @Test
-    public void serializeEmpty() throws FileNotFoundException {
-        assertXml(new FileInputStream("test-resources/xml/empty_descriptor.xml"), serializer.serialize(null));
+    public void serializeEmpty() throws IOException, JAXBException {
         assertXml(new FileInputStream("test-resources/xml/empty_descriptor.xml"),
-            serializer.serialize(Collections.emptyList()));
+                new ByteArrayInputStream(serializer.serialize(null).toByteArray()));
+        assertXml(new FileInputStream("test-resources/xml/empty_descriptor.xml"),
+                new ByteArrayInputStream(serializer.serialize(Collections.emptyList()).toByteArray()));
     }
 
     @Test
     @SuppressWarnings("rawtypes")
-    public void deserialize() throws FileNotFoundException {
+    public void deserialize() throws FileNotFoundException, JAXBException {
         List<ProjectDescriptor> result = serializer
             .deserialize(new FileInputStream("test-resources/xml/descriptor1.xml"));
         List<ProjectDescriptor> expected = makeDescriptors();
@@ -63,10 +68,10 @@ public class ProjectDescriptorSerializerTest {
 
     @Test
     @SuppressWarnings("rawtypes")
-    public void checkCompatability() throws IOException {
-        String xml = IOUtils.toStringAndClose(serializer.serialize(makeDescriptors()));
+    public void checkCompatability() throws IOException, JAXBException {
+        String xml = IOUtils.toStringAndClose(new ByteArrayInputStream(serializer.serialize(makeDescriptors()).toByteArray()));
         List<ProjectDescriptor> result = serializer.deserialize(IOUtils.toInputStream(xml));
-        assertXml(xml, serializer.serialize(result));
+        assertXml(xml, IOUtils.toStringAndClose(new ByteArrayInputStream(serializer.serialize(result).toByteArray())));
 
         List<ProjectDescriptor> expected = makeDescriptors();
         assertEquals(expected.size(), result.size());
@@ -80,7 +85,7 @@ public class ProjectDescriptorSerializerTest {
 
     @Test
     @SuppressWarnings("rawtypes")
-    public void deserializeEmpty() throws FileNotFoundException {
+    public void deserializeEmpty() throws FileNotFoundException, JAXBException {
         List<ProjectDescriptor> result = serializer
             .deserialize(new FileInputStream("test-resources/xml/empty_descriptor.xml"));
         assertEquals(0, result.size());
@@ -88,7 +93,7 @@ public class ProjectDescriptorSerializerTest {
 
     @Test
     @SuppressWarnings("rawtypes")
-    public void deserializeBlack() {
+    public void deserializeBlack() throws JAXBException {
         List<ProjectDescriptor> result = serializer.deserialize(IOUtils.toInputStream(""));
         Assert.assertNull(result);
     }

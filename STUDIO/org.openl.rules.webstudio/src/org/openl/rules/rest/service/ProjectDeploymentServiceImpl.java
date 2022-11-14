@@ -40,7 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
-import com.thoughtworks.xstream.XStreamException;
+import javax.xml.bind.JAXBException;
 
 @Service
 public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
@@ -251,7 +251,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                 item.setDisabled(true);
                 item.setMessages("Internal error while reading the project from the repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
-            } catch (XStreamException e) {
+            } catch (JAXBException e) {
                 log.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Project descriptor is invalid.");

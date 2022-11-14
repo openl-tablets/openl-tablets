@@ -2,13 +2,31 @@ package org.openl.rules.project.model.v5_13;
 
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.xml.BaseProjectDescriptorSerializer;
+import org.openl.rules.project.xml.v5_13.ModuleTypeXmlAdapter_v5_13;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.METHOD_FILTER_TAG;
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.MODULE_TAG;
+import static org.openl.rules.project.xml.BaseProjectDescriptorSerializer.RULES_ROOT_TAG;
+
+@XmlRootElement(name = MODULE_TAG)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Module_v5_13 {
-
+    @XmlJavaTypeAdapter(BaseProjectDescriptorSerializer.CollapsedStringAdapter2.class)
     private String name;
+    @XmlJavaTypeAdapter(ModuleTypeXmlAdapter_v5_13.class)
     private ModuleType_v5_13 type;
+    @XmlJavaTypeAdapter(BaseProjectDescriptorSerializer.CollapsedStringAdapter2.class)
     private String classname;
+    @XmlElement(name = RULES_ROOT_TAG)
     private PathEntry rulesRootPath;
+    @XmlElement(name = METHOD_FILTER_TAG)
     private MethodFilter methodFilter;
 
     public MethodFilter getMethodFilter() {

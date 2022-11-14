@@ -19,6 +19,8 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder;
 import org.openl.rules.project.model.RulesDeploy;
 
+import javax.xml.bind.JAXBException;
+
 public final class OpenLRulesHelper {
 
     private static class OpenLRulesHelperHolder {
@@ -125,7 +127,7 @@ public final class OpenLRulesHelper {
                 deploymentCache.add(resource, simpleProjectEngineFactory);
 
                 return simpleProjectEngineFactory;
-            } catch (IOException | ClassNotFoundException e) {
+            } catch (IOException | ClassNotFoundException | JAXBException e) {
                 throw new ResourcePrepareException(
                     String.format("Preparing resource with name '%s' in deployment with id '%s' has been failed.",
                         resource,

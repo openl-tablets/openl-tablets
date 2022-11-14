@@ -48,7 +48,8 @@ import org.springframework.core.env.PropertyResolver;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thoughtworks.xstream.XStreamException;
+
+import javax.xml.bind.JAXBException;
 
 public abstract class AbstractSmartRedeployController {
 
@@ -346,7 +347,7 @@ public abstract class AbstractSmartRedeployController {
                 item.setDisabled(true);
                 item.setMessages("Internal error while reading the project from the repository.");
                 item.setStyleForMessages(UiConst.STYLE_ERROR);
-            } catch (XStreamException e) {
+            } catch (JAXBException e) {
                 LOG.error(e.getMessage(), e);
                 item.setDisabled(true);
                 item.setMessages("Project descriptor is invalid.");

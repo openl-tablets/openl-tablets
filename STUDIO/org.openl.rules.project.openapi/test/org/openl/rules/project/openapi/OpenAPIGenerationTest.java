@@ -34,6 +34,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.swagger.v3.oas.models.OpenAPI;
 
+import javax.xml.bind.JAXBException;
+
 public class OpenAPIGenerationTest {
 
     private final Logger log = LoggerFactory.getLogger("OpenAPI Project Generation Test");

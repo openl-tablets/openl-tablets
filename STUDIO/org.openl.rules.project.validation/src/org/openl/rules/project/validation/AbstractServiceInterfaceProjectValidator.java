@@ -26,6 +26,8 @@ import org.openl.validation.ValidatedCompiledOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBException;
+
 public abstract class AbstractServiceInterfaceProjectValidator implements ProjectValidator {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractServiceInterfaceProjectValidator.class);
 
@@ -57,7 +59,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
         if (projectResource != null) {
             try {
                 return rulesDeploySerializer.deserialize(new FileInputStream(projectResource.getFile()));
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException | JAXBException e) {
                 LOG.debug("Ignored error: ", e);
                 return null;
             }
