@@ -56,8 +56,12 @@ fi
 
 # Init Default repository
 if [[ -z "$OPENL_HOME" ]]; then
-  OPENL_HOME=./openl-demo
-  [[ -d "./openl-demo" ]] || JETTY_OPTS="$JETTY_OPTS -Ddemo.init=true"
+  if [[ -d "$HOME/Desktop/OpenL_Home" ]] ; then
+    OPENL_HOME="$HOME/Desktop/OpenL_Home"
+  else
+    OPENL_HOME="./openl-demo"
+    [[ -d "./openl-demo" ]] || JETTY_OPTS="$JETTY_OPTS -Ddemo.init=true"
+  fi
 fi
 
 JAVA_OPTS="-Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 -Djetty.httpConfig.requestHeaderSize=32768 -Djetty.httpConfig.responseHeaderSize=32768 -Dapple.awt.UIElement=true $JETTY_OPTS $_JAVA_MEMORY $JAVA_OPTS"
