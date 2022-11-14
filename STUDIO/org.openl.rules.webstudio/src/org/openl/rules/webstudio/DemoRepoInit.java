@@ -16,7 +16,6 @@ import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.util.StringUtils;
 
 /**
  * Creates demo projects in a repository.
@@ -24,7 +23,7 @@ import org.openl.util.StringUtils;
  * @author Yury Molchan
  */
 public class DemoRepoInit {
-    private static final Logger LOG = LoggerFactory.getLogger(Migrator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DemoRepoInit.class);
 
     private final TemplatesResolver templatesResolver = new PredefinedTemplatesResolver();
 
@@ -41,7 +40,6 @@ public class DemoRepoInit {
         }
         UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(new WorkspaceUserImpl("DEFAULT", (x) -> new UserInfo(x, "default@example.com", x)));
         //tutorials
-        boolean open = true;
 
         createProject(userWorkspace, "examples", "Example 1 - Bank Rating", true);
         createProject(userWorkspace, "examples", "Example 2 - Corporate Rating", true);
