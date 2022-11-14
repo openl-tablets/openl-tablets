@@ -238,7 +238,10 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setFillBackgroundColor(short bg) {
+    }
 
+    @Override
+    public void setFillBackgroundColor(Color color) {
     }
 
     @Override
@@ -259,6 +262,10 @@ class PoiCellStyle implements CellStyle {
 
     @Override
     public void setFillForegroundColor(short bg) {
+    }
+
+    @Override
+    public void setFillForegroundColor(Color color) {
     }
 
     @Override

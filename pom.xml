@@ -202,7 +202,7 @@
 
         <bouncycastle.version>1.72</bouncycastle.version>
         <groovy.version>3.0.13</groovy.version>
-        <poi.version>5.2.2</poi.version>
+        <poi.version>5.2.3</poi.version>
         <aspectj.version>1.9.9.1</aspectj.version>
         <velocity.version>2.3</velocity.version>
         <guava.version>31.1-jre</guava.version>
