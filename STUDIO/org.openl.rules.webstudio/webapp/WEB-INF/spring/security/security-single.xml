@@ -14,6 +14,9 @@
     <!-- Init DEFAULT user -->
     <bean class="org.openl.rules.webstudio.SingleUserModeInit" init-method="init" lazy-init="false"/>
 
+    <!-- Fill repository for the DEFAULT user -->
+    <bean class="org.openl.rules.webstudio.DemoRepoInit" init-method="init" lazy-init="false"/>
+
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
         <property name="requestRejectedHandler" ref="requestRejectedHandler"/>
         <security:filter-chain-map request-matcher="ant">

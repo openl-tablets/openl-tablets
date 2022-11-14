@@ -155,7 +155,7 @@
         <!-- Repositories -->
         <amazonaws.version>1.12.338</amazonaws.version>
         <azure.version>12.20.0</azure.version>
-        <jgit.version>6.3.0.202209071007-openl</jgit.version>
+        <jgit.version>6.3.0.202209071007-openl-2</jgit.version>
 
         <!-- DB -->
         <h2.version>2.1.214</h2.version>
