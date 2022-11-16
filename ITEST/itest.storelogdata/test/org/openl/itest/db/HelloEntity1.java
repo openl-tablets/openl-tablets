@@ -2,6 +2,7 @@ package org.openl.itest.db;
 
 import java.time.ZonedDateTime;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -24,6 +25,9 @@ import org.openl.rules.ruleservice.storelogdata.annotation.Url;
 import org.openl.rules.ruleservice.storelogdata.annotation.Value;
 
 import com.datastax.oss.driver.api.mapper.annotations.ClusteringColumn;
+
+import static org.openl.itest.db.DBFields.HOUR;
+import static org.openl.itest.db.DBFields.VALUE;
 
 @Entity(name = "openl_logging_hello_entity1")
 public class HelloEntity1 {
@@ -58,8 +62,10 @@ public class HelloEntity1 {
     @ClusteringColumn(0)
     private String publisherType;
 
+    @Column(name = HOUR)
     private Integer hour;
 
+    @Column(name = VALUE)
     private String value;
 
     @Value(value = "result", converter = NoConvertorString.class)

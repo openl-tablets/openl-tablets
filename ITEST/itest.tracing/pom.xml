@@ -69,8 +69,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.mguenther.kafka</groupId>
-            <artifactId>kafka-junit</artifactId>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>kafka</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>

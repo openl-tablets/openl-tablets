@@ -1,4 +1,4 @@
-HTTP/1.1 200
+HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
@@ -672,45 +672,45 @@ Content-Type: application/json
         "type": "object",
         "properties": {
           "Value_R10": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "Value1_R10": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "Value2_R10": {
             "type": "string"
           },
           "Value_R20": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "Value1_R20": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "Value2_R20": {
             "type": "string"
           },
           "Value_R30": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "Value1_R30": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "Value2_R30": {
             "type": "string"
           },
           "Value_R40": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "Value1_R40": {
-            "type": "number",
-            "format": "double"
+            "type": "integer",
+            "format": "int32"
           },
           "Value2_R40": {
             "type": "string"

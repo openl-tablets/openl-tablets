@@ -1,6 +1,5 @@
 package org.openl.itest;
 
-import static net.mguenther.kafka.junit.EmbeddedKafkaCluster.provisionWith;
 import static org.awaitility.Awaitility.given;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -15,15 +14,27 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import javax.persistence.Entity;
 
-import org.apache.log4j.Logger;
-import org.cassandraunit.utils.EmbeddedCassandraServerHelper;
+import com.datastax.driver.core.Cluster;
+import com.google.common.collect.ImmutableMap;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.h2.tools.Server;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -42,7 +53,6 @@ import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.cassandra.DefaultCassandraEntity;
 import org.openl.rules.ruleservice.storelogdata.db.DefaultEntity;
-import org.openl.util.IOUtils;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
@@ -50,16 +60,15 @@ import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
-
-import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
-import net.mguenther.kafka.junit.EmbeddedKafkaClusterConfig;
-import net.mguenther.kafka.junit.EmbeddedKafkaConfig;
-import net.mguenther.kafka.junit.KeyValue;
-import net.mguenther.kafka.junit.ObserveKeyValues;
-import net.mguenther.kafka.junit.SendKeyValues;
+import org.rnorth.ducttape.unreliables.Unreliables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.CassandraContainer;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.utility.DockerImageName;
 
 public class RunStoreLogDataITest {
-    private static final Logger log = Logger.getLogger(RunStoreLogDataITest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RunStoreLogDataITest.class);
 
     public static final int POLL_INTERVAL_IN_MILLISECONDS = 500;
     private static final int AWAIT_TIMEOUT = 60;
@@ -69,43 +78,40 @@ public class RunStoreLogDataITest {
 
     private static final String DEFAULT_H2_TABLE_NAME = DefaultEntity.class.getAnnotation(Entity.class).name();
 
-    private static final String HELLO_METHOD_NAME = "Hello";
-    private static final String HELLO2_METHOD_NAME = "Hello2";
-    private static final String SIMPLE1_SERVICE_NAME = "simple1";
-    private static final String SIMPLE2_SERVICE_NAME = "simple2";
-    private static final String SIMPLE3_SERVICE_NAME = "simple3";
-    private static final String SIMPLE4_SERVICE_NAME = "simple4";
-    private static final String SIMPLE5_SERVICE_NAME = "simple5";
-
     private static final String KAFKA_PUBLISHER_TYPE = PublisherType.KAFKA.name();
     private static final String RESTFUL_PUBLISHER_TYPE = PublisherType.RESTFUL.name();
     private static final String WEBSERVICE_PUBLISHER_TYPE = PublisherType.WEBSERVICE.name();
 
     private static JettyServer server;
     private static HttpClient client;
-    private static EmbeddedKafkaCluster cluster;
     private static Connection h2Connection;
     private static Server h2Server;
 
+    private static final CassandraContainer CASSANDRA_CONTAINER = new CassandraContainer<>("cassandra:4");
+    private static Cluster cassandraCluster;
+
+    private static final DockerImageName KAFKA_TEST_IMAGE = DockerImageName.parse("confluentinc/cp-kafka:7.3.0");
+
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(KAFKA_TEST_IMAGE);
+
+    private static final String CASSANDRA_SERVER_ADDRESS = System.getProperty("datastax-java-driver.basic.contact-points.0");
+    private static final String KAFKA_SERVER_ADDRESS = System.getProperty("ruleservice.kafka.bootstrap.servers");
+
     @BeforeClass
     public static void setUp() throws Exception {
-        h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9110");
+        h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists", "-tcpPort", "9110");
         h2Server.start();
 
-        System.setProperty("es.set.netty.runtime.available.processors", "false");
-        EmbeddedCassandraServerHelper.startEmbeddedCassandra(EmbeddedCassandraServerHelper.CASSANDRA_RNDPORT_YML_FILE);
-        EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
+        CASSANDRA_CONTAINER.start();
+        cassandraCluster = CASSANDRA_CONTAINER.getCluster();
+        createKeyspace(cassandraCluster, KEYSPACE, "SimpleStrategy", 1);
 
+        KAFKA_CONTAINER.start();
+
+        // TODO consider to use application.properties or servlet context instead of direct setting with System.setProperty
+        System.setProperty("ruleservice.kafka.bootstrap.servers", "localhost:" + KAFKA_CONTAINER.getBootstrapServers().split(":")[2]);
         System.setProperty("datastax-java-driver.basic.contact-points.0",
-            EmbeddedCassandraServerHelper.getHost() + ":" + EmbeddedCassandraServerHelper.getNativeTransportPort());
-        System.setProperty("datastax-java-driver.basic.load-balancing-policy.local-datacenter", "datacenter1");
-
-        createKeyspaceIfNotExists(EmbeddedCassandraServerHelper.getSession(), KEYSPACE, "SimpleStrategy", 1);
-
-        cluster = provisionWith(EmbeddedKafkaClusterConfig.create()
-            .provisionWith(EmbeddedKafkaConfig.create().with("listeners", "PLAINTEXT://:61099").build())
-            .build());
-        cluster.start();
+                CASSANDRA_CONTAINER.getHost() + ":" + CASSANDRA_CONTAINER.getFirstMappedPort());
 
         server = JettyServer.startSharingClassLoader();
         client = server.client();
@@ -113,269 +119,84 @@ public class RunStoreLogDataITest {
         h2Connection = DriverManager.getConnection("jdbc:h2:tcp://localhost:9110/mem:mydb");
     }
 
-    private void truncateCassandraTableIfExists(final String keyspace, final String table) {
-        try {
-            EmbeddedCassandraServerHelper.getSession().execute("TRUNCATE " + keyspace + "." + table);
-        } catch (QueryExecutionException | InvalidQueryException ignored) {
+    static void createKeyspace(Cluster cluster,
+                                         String keyspaceName,
+                                         String replicationStrategy,
+                                         int replicationFactor) {
+        try(Session session = cluster.connect()) {
+            String query = "CREATE KEYSPACE IF NOT EXISTS " + keyspaceName + " WITH replication = {" + "'class':'"
+                    + replicationStrategy + "','replication_factor':" + replicationFactor + "};";
+            session.execute(query);
         }
-    }
-
-    private void truncateH2TableIfExists(final String table) {
-        try {
-            CallableStatement statement = h2Connection.prepareCall("TRUNCATE TABLE " + table);
-            statement.execute();
-        } catch (SQLException ignored) {
-        }
-    }
-
-    private static void createKeyspaceIfNotExists(Session session,
-            String keyspaceName,
-            String replicationStrategy,
-            int replicationFactor) {
-        String query = "CREATE KEYSPACE IF NOT EXISTS " + keyspaceName + " WITH replication = {" + "'class':'" + replicationStrategy + "','replication_factor':" + replicationFactor + "};";
-        session.execute(query);
-    }
-
-    private List<Row> getCassandraRows(final String tableName) {
-        ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
-            .execute("SELECT * FROM " + KEYSPACE + "." + tableName);
-        return resultSet.all();
-    }
-
-    private Callable<Boolean> validateCassandra(final ExpectedLogValues input) {
-        return () -> {
-            List<Row> rows = getCassandraRows(DEFAULT_TABLE_NAME);
-            if (rows.size() == 0) { // Table is created but row is not created
-                return false;
-            }
-            assertEquals(1, rows.size());
-            Row row = rows.iterator().next();
-
-            assertNotNull(row.getString(CassandraFields.ID));
-            assertEquals(input.getRequest(), row.getString(CassandraFields.REQUEST));
-            assertEquals(input.getMethodName(), row.getString(CassandraFields.METHOD_NAME));
-            assertEquals(input.getServiceName(), row.getString(CassandraFields.SERVICE_NAME));
-            String publisherType = input.getPublisherType();
-            assertEquals(publisherType, row.getString(CassandraFields.PUBLISHER_TYPE));
-            if (publisherType.equals(RESTFUL_PUBLISHER_TYPE) || publisherType.equals(WEBSERVICE_PUBLISHER_TYPE)) {
-                assertNotNull(row.getString(CassandraFields.URL));
-            }
-            String value = row.getString(CassandraFields.RESPONSE);
-            if (input.isResponseProvided()) {
-                String expected = input.getResponse();
-                assertEquals(expected, value);
-            } else {
-                assertNotNull(value);
-            }
-            assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-            assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
-            return true;
-        };
-    }
-
-    private Callable<Boolean> validateH2(final ExpectedLogValues input) {
-        return () -> {
-            final String query = "SELECT * FROM " + DEFAULT_H2_TABLE_NAME;
-            try (Statement stmt = h2Connection.createStatement()) {
-                java.sql.ResultSet rs = stmt.executeQuery(query);
-                int count = 0;
-                while (rs.next()) {
-                    count++;
-                    assertNotNull(rs.getString(DBFields.ID));
-                    assertEquals(input.getRequest(), rs.getString(DBFields.REQUEST));
-                    assertEquals(input.getMethodName(), rs.getString(DBFields.METHOD_NAME));
-                    assertEquals(input.getServiceName(), rs.getString(DBFields.SERVICE_NAME));
-                    String publisherType = input.getPublisherType();
-                    assertEquals(publisherType, rs.getString(DBFields.PUBLISHER_TYPE));
-                    if (publisherType.equals(RESTFUL_PUBLISHER_TYPE) || publisherType
-                        .equals(WEBSERVICE_PUBLISHER_TYPE)) {
-                        assertNotNull(rs.getString(DBFields.URL));
-                    }
-                    String value = rs.getString(DBFields.RESPONSE);
-                    if (input.isResponseProvided()) {
-                        String expected = input.getResponse();
-                        assertEquals(expected, value);
-                    } else {
-                        assertNotNull(value);
-                    }
-                    assertNotNull(rs.getTimestamp(DBFields.INCOMING_TIME));
-                    assertNotNull(rs.getTimestamp(DBFields.OUTCOMING_TIME));
-                }
-                assertEquals(1, count);
-                return true;
-            } catch (SQLException e) {
-                return false;
-            }
-        };
     }
 
     @Test
-    public void testKafkaMethodServiceOk() throws Exception {
+    public void testKafkaMethodServiceOk() {
         final String REQUEST = "{\"hour\": 5}";
         final String RESPONSE = "Good Morning";
 
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
-        KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
-        cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record)).useDefaults());
-        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
-        List<String> observedValues = cluster.observeValues(observeRequest);
-        assertEquals(1, observedValues.size());
-        assertEquals(RESPONSE, observedValues.get(0));
+        testKafka("hello-in-topic", "hello-out-topic", null, REQUEST, RESPONSE);
 
-        ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            RESPONSE,
-            HELLO_METHOD_NAME,
-            SIMPLE1_SERVICE_NAME,
-            KAFKA_PUBLISHER_TYPE);
-        given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateH2(values), equalTo(true));
+        validateDatabases(REQUEST, RESPONSE, "Hello", "simple1", KAFKA_PUBLISHER_TYPE);
     }
 
     @Test
-    public void testKafkaServiceOkWithNoOutputTopic() throws Exception {
+    public void testKafkaServiceOkWithNoOutputTopic() {
         final String REQUEST = "{\"hour\": 5}";
 
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
-        KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
-        record.addHeader(KafkaHeaders.METHOD_NAME, HELLO_METHOD_NAME, StandardCharsets.UTF_8);
-        cluster.send(SendKeyValues.to("hello-in-topic-5", Collections.singletonList(record)).useDefaults());
+        try (KafkaProducer<String, String> producer = createKafkaProducer(KAFKA_CONTAINER.getBootstrapServers())) {
+            ProducerRecord<String, String> record = new ProducerRecord<>("hello-in-topic-5", null, REQUEST);
+            record.headers().add(KafkaHeaders.METHOD_NAME, "Hello".getBytes(StandardCharsets.UTF_8));
+            producer.send(record);
+        }
 
-        ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            null,
-            HELLO_METHOD_NAME,
-            SIMPLE5_SERVICE_NAME,
-            KAFKA_PUBLISHER_TYPE);
-        values.setResponseProvided(true);
-        given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateH2(values), equalTo(true));
+        validateDatabases(REQUEST, null, true, "Hello", "simple5", KAFKA_PUBLISHER_TYPE);
     }
 
     @Test
-    public void testKafkaMethodServiceFail() throws Exception {
+    public void testKafkaMethodServiceFail() {
         final String REQUEST = "5";
 
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
-        KeyValue<String, String> record1 = new KeyValue<>(null, REQUEST);
-        cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record1)).useDefaults());
+        testKafka("hello-in-topic", "hello-dlt-topic", null, REQUEST, null);
 
-        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
-        List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
-        assertEquals(1, observedValuesDlt.size());
-
-        ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            REQUEST,
-            HELLO_METHOD_NAME,
-            SIMPLE1_SERVICE_NAME,
-            KAFKA_PUBLISHER_TYPE);
-
-        given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateH2(values), equalTo(true));
+        validateDatabases(REQUEST, REQUEST, "Hello", "simple1", KAFKA_PUBLISHER_TYPE);
     }
 
     @Test
-    public void testKafkaServiceOk() throws Exception {
+    public void testKafkaServiceOk() {
         final String REQUEST = "{\"hour\": 5}";
         final String RESPONSE = "Good Morning";
 
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
-        KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
-        record.addHeader(KafkaHeaders.METHOD_NAME, HELLO_METHOD_NAME, StandardCharsets.UTF_8);
-        cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
+        ProducerRecord<String, String> producerRecord = new ProducerRecord<>("hello-in-topic-2", null, REQUEST);
+        producerRecord.headers().add(KafkaHeaders.METHOD_NAME, "Hello".getBytes(StandardCharsets.UTF_8));
+        testKafka(producerRecord, "hello-out-topic-2", RESPONSE);
 
-        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic-2", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
-        List<String> observedValues = cluster.observeValues(observeRequest);
-        assertEquals(1, observedValues.size());
-        assertEquals(RESPONSE, observedValues.get(0));
-
-        ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            RESPONSE,
-            HELLO_METHOD_NAME,
-            SIMPLE2_SERVICE_NAME,
-            KAFKA_PUBLISHER_TYPE);
-
-        given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateH2(values), equalTo(true));
+        validateDatabases(REQUEST, RESPONSE, "Hello", "simple2", KAFKA_PUBLISHER_TYPE);
     }
 
     @Test
-    public void testKafkaServiceFail() throws Exception {
+    public void testKafkaServiceFail() {
         final String REQUEST = "5";
         final String RESPONSE = "5";
 
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
-        KeyValue<String, String> record = new KeyValue<>(null, "5");
-        record.addHeader(KafkaHeaders.METHOD_NAME, HELLO_METHOD_NAME, StandardCharsets.UTF_8);
-        cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
+        testKafka("hello-in-topic-2", "hello-dlt-topic-2", null, REQUEST, null);
 
-        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic-2", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
-        List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
-        assertEquals(1, observedValuesDlt.size());
-
-        ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            RESPONSE,
-            HELLO_METHOD_NAME,
-            SIMPLE2_SERVICE_NAME,
-            KAFKA_PUBLISHER_TYPE);
-        given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateH2(values), equalTo(true));
+        validateDatabases(REQUEST, RESPONSE, null, "simple2", KAFKA_PUBLISHER_TYPE);
     }
 
     @Test
@@ -389,68 +210,29 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testRestServiceOk() throws Exception {
-        final String REQUEST = getText("simple3_Hello.req.json");
-        final String RESPONSE = getText("simple3_Hello.resp.txt");
-
+    public void testRestServiceOk() {
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
         client.send("simple3_Hello");
 
-        ExpectedLogValues parameters = new ExpectedLogValues(REQUEST,
-            RESPONSE,
-            HELLO_METHOD_NAME,
-            SIMPLE3_SERVICE_NAME,
-            RESTFUL_PUBLISHER_TYPE);
-
-        given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(parameters), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateH2(parameters), equalTo(true));
-
-    }
-
-    private String getText(String file) throws Exception {
-        return IOUtils.toStringAndClose(getClass().getResourceAsStream("/" + file));
+        validateDatabases("{\r\n  \"hour\": 5\r\n}\r\n", "Good Morning", "Hello", "simple3", RESTFUL_PUBLISHER_TYPE);
     }
 
     @Test
-    public void testRestServiceFail() throws Exception {
-        final String REQUEST = getText("simple3_Hello_fail.req.json");
-
+    public void testRestServiceFail() {
         truncateCassandraTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         truncateH2TableIfExists(DEFAULT_H2_TABLE_NAME);
 
         client.send("simple3_Hello_fail");
 
-        ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            null,
-            null,
-            SIMPLE3_SERVICE_NAME,
-            RESTFUL_PUBLISHER_TYPE);
-        given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
-
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateH2(values), equalTo(true));
+        validateDatabases("5\r\n", null, null, "simple3", RESTFUL_PUBLISHER_TYPE);
     }
 
     @Test
     public void testStoreLogDataAnnotations() throws Exception {
-        final String REQUEST = getText("simple4_Hello.req.json");
-        final String RESPONSE = getText("simple4_Hello.resp.txt");
+        final String REQUEST = "{\r\n  \"hour\": 5\r\n}\r\n";
+        final String RESPONSE = "Good Morning";
 
         final String helloEntity1TableName = getCassandraTableName(HelloEntity1.class);
         final String helloEntity2TableName = getCassandraTableName(HelloEntity2.class);
@@ -487,8 +269,8 @@ public class RunStoreLogDataITest {
         assertNotNull(row.getString(CassandraFields.ID));
         assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
         assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
-        assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
-        assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
+        assertEquals("Hello", row.getString(CassandraFields.METHOD_NAME));
+        assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
         assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
         assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
@@ -508,8 +290,8 @@ public class RunStoreLogDataITest {
         assertNotNull(row.getString(CassandraFields.ID));
         assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
         assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
-        assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
-        assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
+        assertEquals("Hello", row.getString(CassandraFields.METHOD_NAME));
+        assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
         assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
         assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
@@ -529,7 +311,7 @@ public class RunStoreLogDataITest {
         assertNull(row.getString(CassandraFields.REQUEST));
         assertNull(row.getString(CassandraFields.RESPONSE));
         assertNull(row.getString(CassandraFields.METHOD_NAME));
-        assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
+        assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
         assertNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
         assertNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
@@ -537,12 +319,12 @@ public class RunStoreLogDataITest {
         assertNull(row.getString(CassandraFields.VALUE));
         assertNull(row.getString(CassandraFields.RESULT));
 
-        assertNull(EmbeddedCassandraServerHelper.getCluster()
+        assertNull(cassandraCluster
             .getMetadata()
             .getKeyspace(KEYSPACE)
             .getTable(helloEntity4TableName));
 
-        assertNull(EmbeddedCassandraServerHelper.getCluster()
+        assertNull(cassandraCluster
             .getMetadata()
             .getKeyspace(KEYSPACE)
             .getTable(helloEntity8TableName));
@@ -558,8 +340,8 @@ public class RunStoreLogDataITest {
                 }
                 assertEquals(REQUEST, rs.getString(DBFields.REQUEST));
                 assertEquals(RESPONSE, rs.getString(DBFields.RESPONSE));
-                assertEquals(HELLO_METHOD_NAME, rs.getString(DBFields.METHOD_NAME));
-                assertEquals(SIMPLE4_SERVICE_NAME, rs.getString(DBFields.SERVICE_NAME));
+                assertEquals("Hello", rs.getString(DBFields.METHOD_NAME));
+                assertEquals("simple4", rs.getString(DBFields.SERVICE_NAME));
                 assertNotNull(rs.getTimestamp(DBFields.INCOMING_TIME));
                 assertNotNull(rs.getTimestamp(DBFields.OUTCOMING_TIME));
                 assertEquals(RESTFUL_PUBLISHER_TYPE, rs.getString(DBFields.PUBLISHER_TYPE));
@@ -583,8 +365,8 @@ public class RunStoreLogDataITest {
                 }
                 assertEquals(REQUEST, rs.getString(DBFields.REQUEST));
                 assertEquals(RESPONSE, rs.getString(DBFields.RESPONSE));
-                assertEquals(HELLO_METHOD_NAME, rs.getString(DBFields.METHOD_NAME));
-                assertEquals(SIMPLE4_SERVICE_NAME, rs.getString(DBFields.SERVICE_NAME));
+                assertEquals("Hello", rs.getString(DBFields.METHOD_NAME));
+                assertEquals("simple4", rs.getString(DBFields.SERVICE_NAME));
                 assertNotNull(rs.getTimestamp(DBFields.INCOMING_TIME));
                 assertNotNull(rs.getTimestamp(DBFields.OUTCOMING_TIME));
                 assertEquals(RESTFUL_PUBLISHER_TYPE, rs.getString(DBFields.PUBLISHER_TYPE));
@@ -607,7 +389,7 @@ public class RunStoreLogDataITest {
                 assertNull(rs.getString(DBFields.REQUEST));
                 assertNull(rs.getString(DBFields.RESPONSE));
                 assertNull(rs.getString(DBFields.METHOD_NAME));
-                assertEquals(SIMPLE4_SERVICE_NAME, rs.getString(DBFields.SERVICE_NAME));
+                assertEquals("simple4", rs.getString(DBFields.SERVICE_NAME));
                 assertNull(rs.getTimestamp(DBFields.INCOMING_TIME));
                 assertNull(rs.getTimestamp(DBFields.OUTCOMING_TIME));
                 assertEquals(RESTFUL_PUBLISHER_TYPE, rs.getString(DBFields.PUBLISHER_TYPE));
@@ -629,9 +411,9 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testStoreLogDataAnnotationsAdvanced() throws Exception {
-        final String REQUEST = getText("simple4_Hello2.req.json");
-        final String RESPONSE = getText("simple4_Hello2.resp.txt");
+    public void testStoreLogDataAnnotationsAdvanced() {
+        final String REQUEST = "{\r\n  \"hour\": 5\r\n}\r\n";
+        final String RESPONSE = "I don't know";
 
         final String helloEntity1TableName = getCassandraTableName(HelloEntity1.class);
         final String h2HelloEntity1TableName = getDBTableName(org.openl.itest.db.HelloEntity1.class);
@@ -654,8 +436,8 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString(CassandraFields.ID));
                 assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
                 assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
-                assertEquals(HELLO2_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
-                assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
+                assertEquals("Hello2", row.getString(CassandraFields.METHOD_NAME));
+                assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
                 assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
                 assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
                 assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
@@ -665,7 +447,7 @@ public class RunStoreLogDataITest {
                 assertEquals(22, row.getInt(CassandraFields.INT_VALUE3));
                 assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE1));
                 assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE2));
-                assertEquals(RESPONSE, row.getString(CassandraFields.STRING_VALUE3));
+                assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE3));
                 assertTrue(row.getBool(CassandraFields.BOOL_VALUE1));
                 assertEquals("22", row.getString(CassandraFields.INT_VALUE_TO_STRING));
                 return true;
@@ -687,8 +469,8 @@ public class RunStoreLogDataITest {
                         }
                         assertEquals(REQUEST, rs.getString(DBFields.REQUEST));
                         assertEquals(RESPONSE, rs.getString(DBFields.RESPONSE));
-                        assertEquals(HELLO2_METHOD_NAME, rs.getString(DBFields.METHOD_NAME));
-                        assertEquals(SIMPLE4_SERVICE_NAME, rs.getString(DBFields.SERVICE_NAME));
+                        assertEquals("Hello2", rs.getString(DBFields.METHOD_NAME));
+                        assertEquals("simple4", rs.getString(DBFields.SERVICE_NAME));
                         assertNotNull(rs.getTimestamp(DBFields.INCOMING_TIME));
                         assertNotNull(rs.getTimestamp(DBFields.OUTCOMING_TIME));
                         assertEquals(RESTFUL_PUBLISHER_TYPE, rs.getString(DBFields.PUBLISHER_TYPE));
@@ -698,7 +480,7 @@ public class RunStoreLogDataITest {
                         assertEquals(22, rs.getInt(DBFields.INT_VALUE3));
                         assertEquals("Good Night", rs.getString(DBFields.STRING_VALUE1));
                         assertEquals("Good Night", rs.getString(DBFields.STRING_VALUE2));
-                        assertEquals(RESPONSE, rs.getString(DBFields.STRING_VALUE3));
+                        assertEquals("Good Night", rs.getString(DBFields.STRING_VALUE3));
                         assertTrue(rs.getBoolean(DBFields.BOOL_VALUE1));
                         assertEquals("22", rs.getString(DBFields.INT_VALUE_TO_STRING));
                     }
@@ -725,9 +507,9 @@ public class RunStoreLogDataITest {
     }
 
     @Test
-    public void testKafkaHeaderAnnotations() throws Exception {
-        final String REQUEST = getText("simple4_Hello.req.json");
-        final String RESPONSE = getText("simple4_Hello.resp.txt");
+    public void testKafkaHeaderAnnotations() {
+        final String REQUEST = "{\r\n  \"hour\": 5\r\n}\r\n";
+        final String RESPONSE = "Good Morning";
 
         final String helloEntity1TableName = getCassandraTableName(HelloEntity1.class);
         final String helloEntity2TableName = getCassandraTableName(HelloEntity2.class);
@@ -749,18 +531,11 @@ public class RunStoreLogDataITest {
         truncateH2TableIfExists(h2HelloEntity3TableName);
         truncateH2TableIfExists(h2HelloEntity4TableName);
 
-        KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
-        record.addHeader(KafkaHeaders.METHOD_NAME, HELLO_METHOD_NAME, StandardCharsets.UTF_8);
-        record.addHeader(KafkaHeaders.METHOD_PARAMETERS, "*, *", StandardCharsets.UTF_8);
-        record.addHeader("testHeader", "testHeaderValue", StandardCharsets.UTF_8);
-        cluster.send(SendKeyValues.to("hello-in-topic-4", Collections.singletonList(record)).useDefaults());
-
-        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic-4", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
-        List<String> observedValues = cluster.observeValues(observeRequest);
-        assertEquals(1, observedValues.size());
-        assertEquals(RESPONSE, observedValues.get(0));
+        ProducerRecord<String, String> producerRecord = new ProducerRecord<>("hello-in-topic-4", null, REQUEST);
+        producerRecord.headers().add(KafkaHeaders.METHOD_NAME, "Hello".getBytes(StandardCharsets.UTF_8));
+        producerRecord.headers().add(KafkaHeaders.METHOD_PARAMETERS, "*, *".getBytes(StandardCharsets.UTF_8));
+        producerRecord.headers().add("testHeader", "testHeaderValue".getBytes(StandardCharsets.UTF_8));
+        testKafka(producerRecord, "hello-out-topic-4", RESPONSE);
 
         given().ignoreException(InvalidQueryException.class)
             .await()
@@ -775,13 +550,13 @@ public class RunStoreLogDataITest {
                 assertNotNull(row.getString(CassandraFields.ID));
                 assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
                 assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
-                assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
-                assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
+                assertEquals("Hello", row.getString(CassandraFields.METHOD_NAME));
+                assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
                 assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
                 assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
                 assertEquals(PublisherType.KAFKA.toString(), row.getString(CassandraFields.PUBLISHER_TYPE));
 
-                assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.HEADER1));
+                assertEquals("Hello", row.getString(CassandraFields.HEADER1));
                 assertEquals("testHeaderValue", row.getString(CassandraFields.HEADER2));
 
                 return true;
@@ -802,13 +577,13 @@ public class RunStoreLogDataITest {
                         }
                         assertEquals(REQUEST, rs.getString(DBFields.REQUEST));
                         assertEquals(RESPONSE, rs.getString(DBFields.RESPONSE));
-                        assertEquals(HELLO_METHOD_NAME, rs.getString(DBFields.METHOD_NAME));
-                        assertEquals(SIMPLE4_SERVICE_NAME, rs.getString(DBFields.SERVICE_NAME));
+                        assertEquals("Hello", rs.getString(DBFields.METHOD_NAME));
+                        assertEquals("simple4", rs.getString(DBFields.SERVICE_NAME));
                         assertNotNull(rs.getTimestamp(DBFields.INCOMING_TIME));
                         assertNotNull(rs.getTimestamp(DBFields.OUTCOMING_TIME));
                         assertEquals(PublisherType.KAFKA.toString(), rs.getString(DBFields.PUBLISHER_TYPE));
 
-                        assertEquals(HELLO_METHOD_NAME, rs.getString(DBFields.HEADER1));
+                        assertEquals("Hello", rs.getString(DBFields.HEADER1));
                         assertEquals("testHeaderValue", rs.getString(DBFields.HEADER2));
                     }
                     assertEquals(1, count);
@@ -816,6 +591,41 @@ public class RunStoreLogDataITest {
                 }
             }, equalTo(true));
 
+    }
+
+    private void testKafka(String inTopic, String outTopic, String key, String value, String expectedValue) {
+        testKafka(new ProducerRecord<>(inTopic, key, value), outTopic,expectedValue);
+    }
+
+    private void testKafka(ProducerRecord<String, String> producerRecord, String outTopic, String expectedValue) {
+        try (KafkaProducer<String, String> producer = createKafkaProducer(KAFKA_CONTAINER.getBootstrapServers());
+             KafkaConsumer<String, String> consumer = createKafkaConsumer(KAFKA_CONTAINER.getBootstrapServers())) {
+            consumer.subscribe(Collections.singletonList(outTopic));
+            producer.send(producerRecord);
+
+            checkKafkaResponse(consumer, producerRecord.key(), expectedValue);
+            consumer.unsubscribe();
+        }
+    }
+
+    private void checkKafkaResponse(KafkaConsumer<String, String> consumer, String expectedKey, String expectedValue) {
+        Unreliables.retryUntilTrue(
+                20,
+                TimeUnit.SECONDS,
+                () -> {
+                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+                    if (records.isEmpty()) {
+                        return false;
+                    }
+                    assertEquals(1, records.count());
+                    ConsumerRecord<String, String> response = records.iterator().next();
+                    if (expectedValue != null) {
+                        assertEquals(response.value(), expectedValue);
+                        assertEquals(response.key(), expectedKey);
+                    }
+                    return true;
+                }
+        );
     }
 
     @Test
@@ -848,17 +658,163 @@ public class RunStoreLogDataITest {
         try {
             procedure.invoke();
         } catch (RuntimeException e) {
-            log.warn(e);
+            LOG.warn("Error when trying to close server", e);
         }
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
+        // TODO consider to use application.properties or servlet context instead of direct setting with System.setProperty
+        // return previous values
+        Optional.ofNullable(CASSANDRA_SERVER_ADDRESS).ifPresentOrElse(
+                address -> System.setProperty("datastax-java-driver.basic.contact-points.0", address),
+                () -> System.getProperties().remove("datastax-java-driver.basic.contact-points.0"));
+        Optional.ofNullable(KAFKA_SERVER_ADDRESS).ifPresentOrElse(
+                address -> System.setProperty("ruleservice.kafka.bootstrap.servers", address),
+                () -> System.getProperties().remove("ruleservice.kafka.bootstrap.servers"));
+
+
         server.stop();
-        doQuite(EmbeddedCassandraServerHelper::cleanEmbeddedCassandra);
-        doQuite(() -> cluster.stop());
+
+        doQuite(cassandraCluster::close);
+        doQuite(KAFKA_CONTAINER::stop);
 
         h2Server.stop();
+    }
+
+    private static void validateDatabases(String REQUEST, String RESPONSE, boolean isResponseProvided, String methodName, String serviceName, String publisherType) {
+        ExpectedLogValues values = new ExpectedLogValues(REQUEST,
+                RESPONSE,
+                methodName,
+                serviceName,
+                publisherType);
+        values.setResponseProvided(isResponseProvided);
+        given().ignoreException(InvalidQueryException.class)
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(validateCassandra(values), equalTo(true));
+
+        given().ignoreExceptions()
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(validateH2(values), equalTo(true));
+    }
+
+    private static void validateDatabases(String REQUEST, String RESPONSE, String methodName, String serviceName, String publisherType) {
+        validateDatabases(REQUEST, RESPONSE, RESPONSE != null, methodName, serviceName, publisherType);
+    }
+
+    private static KafkaProducer<String, String> createKafkaProducer(String bootstrapServers) {
+        return new KafkaProducer<>(
+                ImmutableMap.of(
+                        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                        ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()
+                ),
+                new StringSerializer(),
+                new StringSerializer()
+        );
+    }
+
+    private static KafkaConsumer<String, String> createKafkaConsumer(String bootstrapServers) {
+        return new KafkaConsumer<>(
+                ImmutableMap.of(
+                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                        ConsumerConfig.GROUP_ID_CONFIG, "tc-" + UUID.randomUUID(),
+                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
+                ),
+                new StringDeserializer(),
+                new StringDeserializer()
+        );
+    }
+
+    private static void truncateCassandraTableIfExists(final String keyspace, final String table) {
+        try {
+            cassandraCluster.connect().execute("TRUNCATE " + keyspace + "." + table);
+        } catch (QueryExecutionException | InvalidQueryException ignored) {
+        }
+    }
+
+    private static void truncateH2TableIfExists(final String table) {
+        try {
+            CallableStatement statement = h2Connection.prepareCall("TRUNCATE TABLE " + table);
+            statement.execute();
+        } catch (SQLException ignored) {
+        }
+    }
+
+    private static List<Row> getCassandraRows(final String tableName) {
+        try(Session session = cassandraCluster.connect()) {
+            ResultSet resultSet = session.execute("SELECT * FROM " + KEYSPACE + "." + tableName);
+            return resultSet.all();
+        }
+    }
+
+    private static Callable<Boolean> validateCassandra(final ExpectedLogValues input) {
+        return () -> {
+            List<Row> rows = getCassandraRows(DEFAULT_TABLE_NAME);
+            if (rows.size() == 0) { // Table is created but row is not created
+                return false;
+            }
+            assertEquals(1, rows.size());
+            Row row = rows.iterator().next();
+
+            assertNotNull(row.getString(CassandraFields.ID));
+            assertEquals(input.getRequest(), row.getString(CassandraFields.REQUEST));
+            assertEquals(input.getMethodName(), row.getString(CassandraFields.METHOD_NAME));
+            assertEquals(input.getServiceName(), row.getString(CassandraFields.SERVICE_NAME));
+            String publisherType = input.getPublisherType();
+            assertEquals(publisherType, row.getString(CassandraFields.PUBLISHER_TYPE));
+            if (publisherType.equals(RESTFUL_PUBLISHER_TYPE) || publisherType.equals(WEBSERVICE_PUBLISHER_TYPE)) {
+                assertNotNull(row.getString(CassandraFields.URL));
+            }
+            String value = row.getString(CassandraFields.RESPONSE);
+            if (input.isResponseProvided()) {
+                String expected = input.getResponse();
+                assertEquals(expected, value);
+            } else {
+                assertNotNull(value);
+            }
+            assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
+            assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+            return true;
+        };
+    }
+
+    private static Callable<Boolean> validateH2(final ExpectedLogValues input) {
+        return () -> {
+            final String query = "SELECT * FROM " + DEFAULT_H2_TABLE_NAME;
+            try (Statement stmt = h2Connection.createStatement()) {
+                java.sql.ResultSet rs = stmt.executeQuery(query);
+                int count = 0;
+                while (rs.next()) {
+                    count++;
+                    assertNotNull(rs.getString(DBFields.ID));
+                    assertEquals(input.getRequest(), rs.getString(DBFields.REQUEST));
+                    assertEquals(input.getMethodName(), rs.getString(DBFields.METHOD_NAME));
+                    assertEquals(input.getServiceName(), rs.getString(DBFields.SERVICE_NAME));
+                    String publisherType = input.getPublisherType();
+                    assertEquals(publisherType, rs.getString(DBFields.PUBLISHER_TYPE));
+                    if (publisherType.equals(RESTFUL_PUBLISHER_TYPE) || publisherType
+                            .equals(WEBSERVICE_PUBLISHER_TYPE)) {
+                        assertNotNull(rs.getString(DBFields.URL));
+                    }
+                    String value = rs.getString(DBFields.RESPONSE);
+                    if (input.isResponseProvided()) {
+                        String expected = input.getResponse();
+                        assertEquals(expected, value);
+                    } else {
+                        assertNotNull(value);
+                    }
+                    assertNotNull(rs.getTimestamp(DBFields.INCOMING_TIME));
+                    assertNotNull(rs.getTimestamp(DBFields.OUTCOMING_TIME));
+                }
+                assertEquals(1, count);
+                return true;
+            } catch (SQLException e) {
+                return false;
+            }
+        };
     }
 
 }

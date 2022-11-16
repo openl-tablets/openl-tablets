@@ -1,18 +1,27 @@
 package org.openl.itest;
 
-import static net.mguenther.kafka.junit.EmbeddedKafkaCluster.provisionWith;
-import static net.mguenther.kafka.junit.EmbeddedKafkaConfig.brokers;
+import static org.apache.kafka.clients.consumer.ConsumerConfig.METADATA_MAX_AGE_CONFIG;
 import static org.awaitility.Awaitility.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringDeserializer;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,15 +32,16 @@ import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
-import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
-import net.mguenther.kafka.junit.EmbeddedKafkaClusterConfig;
-import net.mguenther.kafka.junit.KeyValue;
-import net.mguenther.kafka.junit.ObserveKeyValues;
-import net.mguenther.kafka.junit.SendKeyValues;
+import org.rnorth.ducttape.unreliables.Unreliables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
+import org.testcontainers.utility.DockerImageName;
 
 public class RunTracingITest {
 
-    private static final Logger log = Logger.getLogger(RunTracingITest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RunTracingITest.class);
     public static final int AWAIT_TIMEOUT = 1;
 
     final String TEST_REST_URL = "/REST/deployment1/simple1/Hello";
@@ -39,18 +49,21 @@ public class RunTracingITest {
     private static JettyServer server;
     private static HttpClient client;
     private static MockTracer tracer;
-    private static EmbeddedKafkaCluster cluster;
+
+    private static final DockerImageName KAFKA_TEST_IMAGE = DockerImageName.parse("confluentinc/cp-kafka:7.3.0");
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(KAFKA_TEST_IMAGE).withReuse(true);
+    private static final String KAFKA_SERVER_ADDRESS = System.getProperty("ruleservice.kafka.bootstrap.servers");
 
     @BeforeClass
     public static void setUp() throws Exception {
+        KAFKA_CONTAINER.start();
+        // TODO consider to use application.properties or servlet context instead of direct setting with System.setProperty
+        System.setProperty("ruleservice.kafka.bootstrap.servers", "localhost:" + KAFKA_CONTAINER.getBootstrapServers().split(":")[2]);
+
         tracer = new MockTracer();
         GlobalTracer.registerIfAbsent(tracer);
         server = JettyServer.startSharingClassLoader();
         client = server.client();
-        cluster = provisionWith(EmbeddedKafkaClusterConfig.newClusterConfig()
-            .configure(brokers().with("listeners", "PLAINTEXT://:61099"))
-            .build());
-        cluster.start();
     }
 
     private interface Procedure {
@@ -60,14 +73,20 @@ public class RunTracingITest {
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
-        doQuite(() -> cluster.stop());
+        // TODO consider to use application.properties or servlet context instead of direct setting with System.setProperty
+        // return previous values
+        Optional.ofNullable(KAFKA_SERVER_ADDRESS).ifPresentOrElse(
+                address -> System.setProperty("ruleservice.kafka.bootstrap.servers", address),
+                () -> System.getProperties().remove("ruleservice.kafka.bootstrap.servers"));
+
+        doQuite(KAFKA_CONTAINER::stop);
     }
 
     private static void doQuite(Procedure procedure) {
         try {
             procedure.invoke();
         } catch (RuntimeException e) {
-            log.warn(e);
+            LOG.warn("Error while trying to stop server" ,e);
         }
     }
 
@@ -93,15 +112,10 @@ public class RunTracingITest {
     }
 
     @Test
-    public void testKafkaServiceSpan() throws Exception {
+    public void testKafkaServiceSpan() {
         final String REQUEST = "{\"hour\": 5}";
-        KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
-        cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record)).useDefaults());
-        ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
-        List<String> observedValues = cluster.observeValues(observeRequest);
-        assertEquals(1, observedValues.size());
+        testKafka("hello-in-topic", "hello-out-topic", null, REQUEST, "Good Morning");
+
         List<MockSpan> mockSpans = tracer.finishedSpans();
 
         Optional<MockSpan> outTopicSpan = findKafkaSpan(mockSpans, "To_hello-out-topic");
@@ -128,16 +142,10 @@ public class RunTracingITest {
     }
 
     @Test
-    public void testKafkaServiceDLTSpan() throws Exception {
+    public void testKafkaServiceDLTSpan() {
         final String REQUEST = "{\"hour\": a}";
-        KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
-        cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record)).useDefaults());
+        testKafka("hello-in-topic", "hello-dlt-topic", null, REQUEST, REQUEST);
 
-        ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
-        List<String> observedValues = cluster.observeValues(observeRequestDlt);
-        assertEquals(1, observedValues.size());
         List<MockSpan> mockSpans = tracer.finishedSpans();
 
         Optional<MockSpan> toDlt = findKafkaSpan(mockSpans, "To_hello-dlt-topic");
@@ -204,5 +212,60 @@ public class RunTracingITest {
             final String stringTagURL = (String) tagURL;
             return containsURL && stringTagURL.contains(endpoint);
         }).findFirst();
+    }
+
+    private void testKafka(String inTopic, String outTopic, String key, String value, String expectedValue) {
+        try (KafkaProducer<String, String> producer = createKafkaProducer(KAFKA_CONTAINER.getBootstrapServers());
+             KafkaConsumer<String, String> consumer = createKafkaConsumer(KAFKA_CONTAINER.getBootstrapServers())) {
+            consumer.subscribe(Collections.singletonList(outTopic));
+            producer.send(new ProducerRecord<>(inTopic, key, value));
+
+            checkKafkaResponse(consumer, key, expectedValue);
+            consumer.unsubscribe();
+        }
+    }
+
+    private static KafkaProducer<String, String> createKafkaProducer(String bootstrapServers) {
+        return new KafkaProducer<>(
+                ImmutableMap.of(
+                        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                        ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()
+                ),
+                new StringSerializer(),
+                new StringSerializer()
+        );
+    }
+
+    private KafkaConsumer<String, String> createKafkaConsumer(String bootstrapServers) {
+        return new KafkaConsumer<>(
+                ImmutableMap.of(
+                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
+                        ConsumerConfig.GROUP_ID_CONFIG, "tc-" + UUID.randomUUID(),
+                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
+                        METADATA_MAX_AGE_CONFIG, 1000
+                ),
+                new StringDeserializer(),
+                new StringDeserializer()
+        );
+    }
+
+    private void checkKafkaResponse(KafkaConsumer<String, String> consumer, String expectedKey, String expectedValue) {
+        Unreliables.retryUntilTrue(
+                20,
+                TimeUnit.SECONDS,
+                () -> {
+                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+                    if (records.isEmpty()) {
+                        return false;
+                    }
+                    assertEquals(1, records.count());
+                    ConsumerRecord<String, String> response = records.iterator().next();
+                    if (expectedValue != null) {
+                        assertEquals(response.value(), expectedValue);
+                        assertEquals(response.key(), expectedKey);
+                    }
+                    return true;
+                }
+        );
     }
 }
