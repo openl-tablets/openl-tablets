@@ -19,6 +19,7 @@ import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.types.IOpenField;
+import org.openl.util.print.NicePrinter;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
@@ -102,16 +103,21 @@ public class BaseTestUnit implements ITestUnit {
             String oldStyleMessage = Optional.ofNullable(expectedError).map(TestError::getMessage).orElse(null);
             Throwable rootCause = ExceptionUtils.getRootCause(actualError);
             if (rootCause instanceof OpenLUserDetailedRuntimeException) {
+                var detailedEx = (OpenLUserDetailedRuntimeException) rootCause;
+                String message;
+                if (detailedEx.getBody() instanceof OpenLUserDetailedRuntimeException.Body) {
+                    message = ((OpenLUserDetailedRuntimeException.Body) detailedEx.getBody()).getFullMessage();
+                } else {
+                    message = NicePrinter.print(detailedEx.getBody());
+                }
                 if (test.isEmptyOrNewStyleErrorDescription()) {
                     // to support old behaviour
-                    return compareMessageAndGetResult(oldStyleMessage,
-                        ((OpenLUserDetailedRuntimeException) rootCause).getFullMessage(),
-                        expectedResult);
+                    return compareMessageAndGetResult(oldStyleMessage, message, expectedResult);
                 } else {
                     return compareMessageAndGetResult(expectedError,
                         TestError.from((OpenLUserDetailedRuntimeException) rootCause),
                         expectedResult,
-                        ((OpenLUserDetailedRuntimeException) rootCause).getFullMessage());
+                        message);
                 }
             } else if (rootCause instanceof OpenLUserRuntimeException || rootCause instanceof OutsideOfValidDomainException) {
                 if (test.isEmptyOrNewStyleErrorDescription()) {

@@ -33,29 +33,15 @@ jobs:
         git config --global core.autocrlf false
 
     - name: Checkout ${{ github.event.inputs.branch }}
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: ${{ github.event.inputs.branch }}
 
-    - uses: actions/setup-java@v1
+    - uses: actions/setup-java@v3
       with:
+        distribution: 'temurin'
         java-version: 11
-
-    - name: Set environment variables
-      run: |
-        echo "WEEK=$(date +%U)" >> $GITHUB_ENV
-        echo "DAY=$(date +%w)" >> $GITHUB_ENV
-      shell: bash
-
-    - name: Cache local Maven repository
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2/repository
-        key: maven-x${{ hashFiles('**/pom.xml') }}
-        restore-keys: |
-          maven-${{ env.WEEK }}-${{ env.DAY }}
-          maven-${{ env.WEEK }}
-          maven-
+        cache: 'maven'
 
     - name: Build with Maven
       run: mvn package -DskipTests "-Dstyle.color=always"
@@ -83,14 +69,14 @@ jobs:
       run: |
         cd Dockerfiles
         echo Platforms: ${BUILD_PLATFORMS}
-        
-        # In order to implement atomic push-all-images functionality, build and push should be split to different 
-        # steps. However, currently Docker cannot hold multi-platform images in a local storage. Therefore, docker 
-        # cache is used in order to implement this functionality. Here all images are built and docker puts all layers 
-        # of these images in a cache. In the following step, when images are built, tagged, and pushed to external 
-        # repository, docker use image layers from the cache, which are created here. In case of a build failure none 
+
+        # In order to implement atomic push-all-images functionality, build and push should be split to different
+        # steps. However, currently Docker cannot hold multi-platform images in a local storage. Therefore, docker
+        # cache is used in order to implement this functionality. Here all images are built and docker puts all layers
+        # of these images in a cache. In the following step, when images are built, tagged, and pushed to external
+        # repository, docker use image layers from the cache, which are created here. In case of a build failure none
         # of the images are pushed to the external repository.
-        
+
         docker buildx build -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws \
           --platform ${BUILD_PLATFORMS} --output type=registry,push=false
         docker buildx build -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws.all \
@@ -99,6 +85,7 @@ jobs:
           --platform ${BUILD_PLATFORMS} --output type=registry,push=false
         docker buildx build -f Demo   ../DEMO/org.openl.rules.demo/target \
           --platform ${BUILD_PLATFORMS} --output type=registry,push=false
+
     - name: Push docker images
       run: |
         cd Dockerfiles

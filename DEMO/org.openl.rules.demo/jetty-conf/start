@@ -54,9 +54,18 @@ fi
 # Java extensions can be outside of JAVA_HOME. Needed for security manager
 [[ -f demo-java.policy ]] && JETTY_OPTS="-Djava.security.manager -Djava.security.policy=demo-java.policy -Djava.extensions=/usr/java/packages/lib/ext"
 
-JAVA_OPTS="-Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 -Djetty.httpConfig.requestHeaderSize=32768 -Djetty.httpConfig.responseHeaderSize=32768 $JETTY_OPTS $_JAVA_MEMORY $JAVA_OPTS"
+# Init Default repository
+if [[ -z "$OPENL_HOME" ]]; then
+  if [[ -d "$HOME/Desktop/OpenL_Home" ]] ; then
+    OPENL_HOME="$HOME/Desktop/OpenL_Home"
+  else
+    OPENL_HOME="./openl-demo"
+    [[ -d "./openl-demo" ]] || JETTY_OPTS="$JETTY_OPTS -Ddemo.init=true"
+  fi
+fi
+
+JAVA_OPTS="-Dorg.eclipse.jetty.server.Request.maxFormContentSize=-1 -Djetty.httpConfig.requestHeaderSize=32768 -Djetty.httpConfig.responseHeaderSize=32768 -Dapple.awt.UIElement=true $JETTY_OPTS $_JAVA_MEMORY $JAVA_OPTS"
 JAVA_OPTS="$(eval echo \"$JAVA_OPTS\")" #Evaluate environment variables are put trough strings placeholders
-OPENL_HOME=${OPENL_HOME:-./openl-demo}
 JETTY_HOME=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 echo "### Starting OpenL Tablets DEMO ..."
@@ -66,4 +75,10 @@ echo "Java found in:              $used_java"
 echo "Using JAVA_OPTS:            $JAVA_OPTS"
 echo "Using OPENL_HOME:           $OPENL_HOME"
 
-exec "$_java" -DDEMO=DEMO -Dh2.bindAddress=localhost -Dopenl.home="$OPENL_HOME" $JAVA_OPTS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="${TMPDIR:-/tmp}" -jar "$JETTY_HOME/start.jar" --module=http,jsp,ext,deploy,http-forwarded
+if [[ $1 != "batchMode" ]]; then
+  echo -ne "\033]0;OpenL WebStudio DEMO\007"
+  echo "Open a default browser"
+  sleep 1 && open http://localhost:8080/ &
+fi
+
+exec "$_java" -Dh2.bindAddress=localhost -Dopenl.home="$OPENL_HOME" $JAVA_OPTS -Djetty.home="$JETTY_HOME" -Djetty.base="$JETTY_HOME" -Djava.io.tmpdir="${TMPDIR:-/tmp}" -jar "$JETTY_HOME/start.jar" --module=http,jsp,ext,deploy,http-forwarded

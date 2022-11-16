@@ -1355,7 +1355,11 @@ public final class RulesUtils {
     }
 
     public static ThrowableVoid error(String code, String message) {
-        throw new OpenLUserDetailedRuntimeException(code, message);
+        throw new OpenLUserDetailedRuntimeException(new OpenLUserDetailedRuntimeException.Body(code, message));
+    }
+
+    public static ThrowableVoid error(Object details) {
+        throw new OpenLUserDetailedRuntimeException(details);
     }
 
     /**

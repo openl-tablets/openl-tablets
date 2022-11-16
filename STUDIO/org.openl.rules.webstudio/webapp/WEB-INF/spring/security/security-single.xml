@@ -11,12 +11,11 @@
         <constructor-arg type="boolean" value="false"/>
     </bean>
 
-    <bean class="org.openl.rules.webstudio.service.SingleUserModeInit" lazy-init="false">
-        <constructor-arg name="userDao" ref="openlUserDao"/>
-        <constructor-arg name="userName" value="DEFAULT"/>
-        <constructor-arg name="email" value="default@example.com"/>
-        <constructor-arg name="displayName" value="DEFAULT"/>
-    </bean>
+    <!-- Init DEFAULT user -->
+    <bean class="org.openl.rules.webstudio.SingleUserModeInit" init-method="init" lazy-init="false"/>
+
+    <!-- Fill repository for the DEFAULT user -->
+    <bean class="org.openl.rules.webstudio.DemoRepoInit" init-method="init" lazy-init="false"/>
 
     <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
         <property name="requestRejectedHandler" ref="requestRejectedHandler"/>

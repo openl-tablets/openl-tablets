@@ -29,6 +29,17 @@ Content-Type: application/json
       }
     },
     {
+      "startedTime": "*",
+      "name": "EPBDS-13264_EPBDS-13264",
+      "servicePath": "EPBDS-13264/EPBDS-13264",
+      "urls": {
+        "RESTFUL": "EPBDS-13264/EPBDS-13264"
+      },
+      "hasManifest": true,
+      "deploymentName": "EPBDS-13264",
+      "status": "DEPLOYED"
+    },
+    {
       "hasManifest": false,
       "name": "multi_project_project1",
       "servicePath": "multiproject/project1",

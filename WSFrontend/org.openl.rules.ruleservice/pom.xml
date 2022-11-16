@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>5.26.3-SNAPSHOT</version>
+        <version>5.26.4-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.ruleservice</artifactId>
     <packaging>jar</packaging>
@@ -117,6 +117,10 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.deployer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.jackson</artifactId>
         </dependency>
     </dependencies>
 </project>

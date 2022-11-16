@@ -26,3 +26,4 @@ ERROR: OpenAPI Reconciliation: Expected non transient field for schema property 
 ERROR: OpenAPI Reconciliation: Expected non transient field for schema property 'missedInRulesField' is not found in type 'QualityIndicators'.
 ERROR: OpenAPI Reconciliation: Unexpected field 'missedInOpenApiField' is found in type 'QualityIndicators'.
 ERROR: Foreign table 'bankData' has errors.
+WARN: '_res_' column is missing.

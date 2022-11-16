@@ -25,9 +25,12 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.header.Header;
+import org.openl.rules.calc.SpreadsheetResultBeanPropertyNamingStrategy;
+import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.ruleservice.core.ExceptionDetails;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
@@ -37,8 +40,11 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataException;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
+import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
 public final class KafkaService implements Runnable {
 
@@ -65,6 +71,7 @@ public final class KafkaService implements Runnable {
     private final boolean storageEnabled;
     private StoreLogDataManager storeLogDataManager;
     private final KafkaTracingProvider kafkaTracingProvider;
+    private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
     public static KafkaService createService(OpenLService service,
             String inTopic,
@@ -76,7 +83,8 @@ public final class KafkaService implements Runnable {
             ObjectSerializer objectSerializer,
             StoreLogDataManager storeLogDataManager,
             boolean storeLogDataEnabled,
-            KafkaTracingProvider kafkaTracingProvider) {
+            KafkaTracingProvider kafkaTracingProvider,
+            RulesDeploy rulesDeploy) throws KafkaServiceException {
         return new KafkaService(service,
             inTopic,
             outTopic,
@@ -87,7 +95,8 @@ public final class KafkaService implements Runnable {
             objectSerializer,
             storeLogDataManager,
             storeLogDataEnabled,
-            kafkaTracingProvider);
+            kafkaTracingProvider,
+            rulesDeploy);
     }
 
     private KafkaService(OpenLService service,
@@ -100,7 +109,8 @@ public final class KafkaService implements Runnable {
             ObjectSerializer objectSerializer,
             StoreLogDataManager storeLogDataManager,
             boolean storageEnabled,
-            KafkaTracingProvider kafkaTracingProvider) {
+            KafkaTracingProvider kafkaTracingProvider,
+            RulesDeploy rulesDeploy) throws KafkaServiceException {
         this.service = Objects.requireNonNull(service);
         this.inTopic = Objects.requireNonNull(inTopic);
         this.producer = Objects.requireNonNull(producer);
@@ -114,6 +124,17 @@ public final class KafkaService implements Runnable {
         this.dltTopic = dltTopic;
         this.storageEnabled = storageEnabled;
         this.kafkaTracingProvider = kafkaTracingProvider;
+        try {
+            PropertyNamingStrategy propertyNamingStrategy = ProjectJacksonObjectMapperFactoryBean
+                .extractPropertyNamingStrategy(rulesDeploy, service.getClassLoader());
+            if (propertyNamingStrategy instanceof SpreadsheetResultBeanPropertyNamingStrategy) {
+                this.sprBeanPropertyNamingStrategy = (SpreadsheetResultBeanPropertyNamingStrategy) propertyNamingStrategy;
+            } else {
+                this.sprBeanPropertyNamingStrategy = null;
+            }
+        } catch (RuleServiceInstantiationException e) {
+            throw new KafkaServiceException("Failed to initialize 'PropertyNamingStrategy' for kafka service.", e);
+        }
     }
 
     public boolean isStoreLogDataEnabled() {
@@ -368,7 +389,9 @@ public final class KafkaService implements Runnable {
         if (exception != null) {
             dltRecord.headers()
                 .add(KafkaHeaders.DLT_EXCEPTION_FQCN, exception.getClass().getName().getBytes(StandardCharsets.UTF_8));
-            ExceptionDetails details = ServiceInvocationAdvice.getExceptionDetailAndType(exception).getRight();
+            ExceptionDetails details = ServiceInvocationAdvice
+                .getExceptionDetailAndType(exception, sprBeanPropertyNamingStrategy)
+                .getRight();
             dltRecord.headers()
                 .add(KafkaHeaders.DLT_EXCEPTION_MESSAGE,
                     Optional.ofNullable(details.getMessage())

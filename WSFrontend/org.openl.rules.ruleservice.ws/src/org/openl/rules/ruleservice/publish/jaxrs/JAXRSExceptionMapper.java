@@ -15,7 +15,9 @@ public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
         ExceptionResponseDto dto = ExceptionResponseDto.createFrom(e);
 
         Object errorResponse;
-        if (dto.getCode() != null) {
+        if (dto.getBody() != null) {
+            errorResponse = new JAXRSUserDetailedErrorResponse(dto.getBody());
+        } else if (dto.getCode() != null) {
             errorResponse = new JAXRSUserErrorResponse(dto.getMessage(), dto.getCode(), dto.getType());
         } else {
             // old style error when no localization properties

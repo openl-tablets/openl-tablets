@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -54,6 +55,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
+import org.openl.rules.ruleservice.core.annotations.ApiErrors;
 import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.types.IOpenMember;
@@ -109,6 +111,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private static final String BAD_REQUEST_EXAMPLE = "{\"message\": \"Cannot parse 'bar' to JSON\", \"type\": \"BAD_REQUEST\"}";
         private static final String INTERNAL_SERVER_ERROR_MESSAGE = "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.";
         private static final String INTERNAL_SERVER_ERROR_EXAMPLE = "{\"message\": \"Failed to load lazy method.\", \"type\": \"COMPILATION\"}";
+        private static final Class<?>[] DEFAULT_API_ERROR_TYPES = new Class<?>[] {JAXRSErrorResponse.class };
 
         private static final String REQUEST_PARAMETER_SUFFIX = "Request";
 
@@ -743,19 +746,34 @@ public class JAXRSOpenLServiceEnhancerHelper {
             AnnotationVisitor av = cv
                 .visitAnnotation(Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponses.class), true);
             AnnotationVisitor arrayAv = av.visitArray("value");
+
+            List<Class<?>> allUserApiResponses = new ArrayList<>();
+            allUserApiResponses.add(JAXRSUserErrorResponse.class);
+            allUserApiResponses.addAll(Arrays.asList(DEFAULT_API_ERROR_TYPES));
+            if (originalClass.isAnnotationPresent(ApiErrors.class)) {
+                ApiErrors apiErrors = originalClass.getDeclaredAnnotation(ApiErrors.class);
+                if (apiErrors.value() != null) {
+                    allUserApiResponses.addAll(Arrays.asList(apiErrors.value()));
+                }
+            }
+
             addOpenApiResponseAnnotation(arrayAv,
                 ExceptionResponseDto.UNPROCESSABLE_ENTITY,
                 UNPROCESSABLE_ENTITY_MESSAGE,
+                allUserApiResponses.toArray(new Class<?>[0]),
                 UNPROCESSABLE_ENTITY_EXAMPLE,
                 USER_ERROR_EXAMPLE);
             addOpenApiResponseAnnotation(arrayAv,
                 ExceptionResponseDto.BAD_REQUEST,
                 BAD_REQUEST_MESSAGE,
+                DEFAULT_API_ERROR_TYPES,
                 BAD_REQUEST_EXAMPLE);
             addOpenApiResponseAnnotation(arrayAv,
                 ExceptionResponseDto.INTERNAL_SERVER_ERROR_CODE,
                 INTERNAL_SERVER_ERROR_MESSAGE,
+                DEFAULT_API_ERROR_TYPES,
                 INTERNAL_SERVER_ERROR_EXAMPLE);
+
             arrayAv.visitEnd();
             av.visitEnd();
         }
@@ -763,6 +781,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private void addOpenApiResponseAnnotation(AnnotationVisitor av,
                 int code,
                 String message,
+                Class<?>[] responseTypes,
                 String... jsonExamples) {
             AnnotationVisitor apiResponseAv = av.visitAnnotation(null,
                 Type.getDescriptor(io.swagger.v3.oas.annotations.responses.ApiResponse.class));
@@ -773,18 +792,17 @@ public class JAXRSOpenLServiceEnhancerHelper {
             AnnotationVisitor contentAv = contentArrayAv.visitAnnotation(null, Type.getDescriptor(Content.class));
             contentAv.visit("mediaType", MediaType.APPLICATION_JSON);
 
-            if (code != ExceptionResponseDto.UNPROCESSABLE_ENTITY) {
-                AnnotationVisitor schemaAv = contentAv.visitAnnotation("schema", Type.getDescriptor(Schema.class));
-                schemaAv.visit("implementation", Type.getType(JAXRSErrorResponse.class));
-                schemaAv.visitEnd();
+            AnnotationVisitor schemaAv = contentAv.visitAnnotation("schema", Type.getDescriptor(Schema.class));
+            if (responseTypes.length == 1) {
+                schemaAv.visit("implementation", Type.getType(responseTypes[0]));
             } else {
-                AnnotationVisitor schemaAv = contentAv.visitAnnotation("schema", Type.getDescriptor(Schema.class));
                 AnnotationVisitor oneOf = schemaAv.visitArray("oneOf");
-                oneOf.visit(null, Type.getType(JAXRSUserErrorResponse.class));
-                oneOf.visit(null, Type.getType(JAXRSErrorResponse.class));
+                for (Class<?> respType : responseTypes) {
+                    oneOf.visit(null, Type.getType(respType));
+                }
                 oneOf.visitEnd();
-                schemaAv.visitEnd();
             }
+            schemaAv.visitEnd();
 
             AnnotationVisitor examplesArrAv = contentAv.visitArray("examples");
             int exampleCnt = 1;

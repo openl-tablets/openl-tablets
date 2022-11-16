@@ -35,6 +35,7 @@ public class XmlProjectDescriptorSerializerTest {
         projectDescriptor.setId("projectId ");
         projectDescriptor.setName("projectDescriptor Name ");
         projectDescriptor.setComment("projectDescriptor Comment ");
+
         projectDescriptor.setProjectFolder(Paths.get("path"));
 
         projectDescriptor.setModules(List.of(initModuleForTest(" 1"), initModuleForTest(" 2")));

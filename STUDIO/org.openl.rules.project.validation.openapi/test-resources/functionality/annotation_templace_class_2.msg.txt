@@ -72,3 +72,4 @@ ERROR: OpenAPI Reconciliation: Unexpected method 'getBankData' is found for path
 ERROR: OpenAPI Reconciliation: Unexpected method 'SetNonZeroValues' is found for path '/prefix/SetNonZeroValues'.
 ERROR: OpenAPI Reconciliation: Unexpected method 'BankRatingGroup' is found for path '/prefix/BankRatingGroup'.
 ERROR: OpenAPI Reconciliation: Unexpected method 'BankLimitIndex' is found for path '/prefix/BankLimitIndex'.
+WARN: '_res_' column is missing.

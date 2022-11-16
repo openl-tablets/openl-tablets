@@ -17,7 +17,6 @@
             <outputDirectory>${jetty.root}</outputDirectory>
             <includes>
                 <include>start</include>
-                <include>stop</include>
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -26,20 +25,7 @@
             <outputDirectory>${jetty.root}</outputDirectory>
             <excludes>
                 <exclude>start</exclude>
-                <exclude>stop</exclude>
             </excludes>
-        </fileSet>
-        <fileSet>
-            <directory>data</directory>
-            <outputDirectory>${jetty.root}</outputDirectory>
-            <excludes>
-                <exclude>openl-demo/repositories/design.git/</exclude>
-            </excludes>
-        </fileSet>
-        <!-- .git folder is ignored by VCS and by maven-assembly-plugin. -->
-        <fileSet>
-            <directory>data/openl-demo/repositories/design.git</directory>
-            <outputDirectory>${jetty.root}/openl-demo/repositories/design/.git</outputDirectory>
         </fileSet>
     </fileSets>
     <dependencySets>
