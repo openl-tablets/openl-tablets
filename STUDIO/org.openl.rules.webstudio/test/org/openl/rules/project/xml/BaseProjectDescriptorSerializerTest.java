@@ -21,7 +21,7 @@ public class BaseProjectDescriptorSerializerTest {
         projectDescriptor.setId("projectId ");
         projectDescriptor.setName("projectDescriptor Name ");
         projectDescriptor.setComment("projectDescriptor Comment ");
-        projectDescriptor.setProjectFolder(Paths.get("path "));
+        projectDescriptor.setProjectFolder(Paths.get("path"));
 
         projectDescriptor.setModules(List.of(initModuleForTest(" 1"), initModuleForTest(" 2")));
         projectDescriptor.setClasspath(List.of(new PathEntry(" rules2/*.xlsx"), new PathEntry(" rules3/*.xlsx")));
