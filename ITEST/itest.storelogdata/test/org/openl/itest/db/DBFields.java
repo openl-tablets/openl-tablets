@@ -10,8 +10,8 @@ public interface DBFields {
     String INCOMING_TIME = "incomingTime";
     String OUTCOMING_TIME = "outcomingTime";
     String URL = "url";
-    String VALUE = "value";
-    String HOUR = "hour";
+    String VALUE = "value1";
+    String HOUR = "hour1";
     String RESULT = "result";
     String AWARE_INSTANCES_FOUND = "awareInstancesFound";
     String DB_CONNECTION_FOUND = "dbConnectionFound";
