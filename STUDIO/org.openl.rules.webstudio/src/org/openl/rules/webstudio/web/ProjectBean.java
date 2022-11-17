@@ -648,7 +648,10 @@ public class ProjectBean {
         }
         try {
             AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
-            designRepositoryAclService.createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS);
+            if (!designRepositoryAclService.createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
+                String message = "Granting permissions to the module is failed.";
+                WebStudioUtils.addErrorMessage(message);
+            }
         } catch (ProjectException e) {
             throw new Message("Error while module copying.");
         }

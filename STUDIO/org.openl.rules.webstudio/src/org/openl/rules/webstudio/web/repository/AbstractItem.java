@@ -12,6 +12,8 @@ public abstract class AbstractItem implements Serializable, Comparable<AbstractI
     /** Boolean flag. If this entry is currently 'selected'. */
     private boolean selected;
 
+    private boolean disabled;
+
     /** Item name. */
     private String name;
 
@@ -72,6 +74,10 @@ public abstract class AbstractItem implements Serializable, Comparable<AbstractI
         return selected;
     }
 
+    public boolean isDisabled() {
+        return disabled;
+    }
+
     public void setMessages(String messages) {
         this.messages = messages;
     }
@@ -82,6 +88,10 @@ public abstract class AbstractItem implements Serializable, Comparable<AbstractI
 
     public void setSelected(boolean selected) {
         this.selected = selected;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
     }
 
     public void setStyleForMessages(String styleForMessages) {

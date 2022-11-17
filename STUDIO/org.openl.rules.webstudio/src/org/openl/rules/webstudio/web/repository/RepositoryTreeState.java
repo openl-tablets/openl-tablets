@@ -739,8 +739,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanCreate() {
         for (Repository repository : userWorkspace.getDesignTimeRepository().getRepositories()) {
-            if (designRepositoryAclService
-                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
+            if (designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
                 return true;
             }
         }
@@ -758,25 +757,12 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanCreateDeployment() {
-        UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject != null) {
-            return designRepositoryAclService.isGranted(selectedProject,
-                List.of(AclPermission.CREATE_DEPLOYMENT)) && userWorkspace.getDesignTimeRepository()
-                    .hasDeployConfigRepo() && !isMainBranchProtected(
-                        userWorkspace.getDesignTimeRepository().getDeployConfigRepository());
-        } else {
-            UserWorkspace userWorkspace1 = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
-            for (Repository repository : userWorkspace1.getDesignTimeRepository().getRepositories()) {
-                if (designRepositoryAclService.isGranted(repository.getId(),
-                    null,
-                    List.of(AclPermission.CREATE_DEPLOYMENT)) && userWorkspace.getDesignTimeRepository()
-                        .hasDeployConfigRepo() && !isMainBranchProtected(
-                            userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
-                    return true;
-                }
-            }
-            return false;
-        }
+        return designRepositoryAclService.isGranted(
+            userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+            null,
+            List.of(AclPermission.CREATE)) && userWorkspace.getDesignTimeRepository()
+                .hasDeployConfigRepo() && !isMainBranchProtected(
+                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository());
     }
 
     private boolean isMainBranchProtected(Repository repo) {
@@ -792,9 +778,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         if (selectedProject.isLocalOnly() || selectedProject.isOpenedForEditing() || selectedProject.isLocked()) {
             return false;
         }
-
         return designRepositoryAclService.isGranted(selectedProject,
-            List.of(AclPermission.EDIT_DEPLOYMENT)) && !isCurrentBranchProtected(selectedProject);
+            List.of(AclPermission.EDIT)) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanDeleteDeployment() {
@@ -805,14 +790,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
         return (!selectedProject.isLocked() || selectedProject
             .isLockedByUser(userWorkspace.getUser())) && designRepositoryAclService.isGranted(selectedProject,
-                List.of(AclPermission.ARCHIVE_DEPLOYMENT)) && !isCurrentBranchProtected(selectedProject);
+                List.of(AclPermission.ARCHIVE)) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanSaveDeployment() {
         ADeploymentProject selectedProject = (ADeploymentProject) getSelectedProject();
         return selectedProject.isOpenedForEditing() && selectedProject.isModified() && designRepositoryAclService
-            .isGranted(selectedProject,
-                List.of(AclPermission.EDIT_DEPLOYMENT)) && !isCurrentBranchProtected(selectedProject);
+            .isGranted(selectedProject, List.of(AclPermission.EDIT)) && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanSaveProject() {
@@ -990,6 +974,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         } else {
             return false;
         }
+    }
+
+    public boolean getAvailableProjectsExists() {
+        return !userWorkspace.getDesignTimeRepository().getProjects().isEmpty();
     }
 
     public boolean getCanModifyTags() {

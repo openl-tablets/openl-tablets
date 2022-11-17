@@ -12,10 +12,14 @@ public final class AclPermissionsSets {
         AclPermission.ARCHIVE,
         AclPermission.DELETE,
         AclPermission.RUN,
-        AclPermission.BENCHMARK,
-        AclPermission.CREATE_TABLES,
-        AclPermission.EDIT_TABLES,
-        AclPermission.DELETE_TABLES);
+        AclPermission.BENCHMARK);
+
+    public static final List<Permission> NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS = List.of(AclPermission.VIEW,
+        AclPermission.APPEND,
+        AclPermission.EDIT,
+        AclPermission.ARCHIVE,
+        AclPermission.DELETE,
+        AclPermission.DEPLOY);
 
     public static final List<Permission> NEW_FILE_PERMISSIONS = List.of(AclPermission.EDIT, AclPermission.DELETE);
 

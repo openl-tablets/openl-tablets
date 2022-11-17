@@ -569,8 +569,12 @@ public class RepositoryTreeController {
 
         try {
             String comment = deployConfigRepoComments.copiedFrom(project.getName());
-            userWorkspace.copyDDProject(project, newProjectName, comment);
-            ADeploymentProject newProject = userWorkspace.getDDProject(newProjectName);
+            ADeploymentProject newProject = userWorkspace.copyDDProject(project, newProjectName, comment);
+            if (!designRepositoryAclService.createAcl(newProject,
+                AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS)) {
+                String message = "Granting permissions to the deployment configuration is failed.";
+                WebStudioUtils.addErrorMessage(message);
+            }
             repositoryTreeState.addDeploymentProjectToTree(newProject);
         } catch (Exception e) {
             String msg = "Failed to copy deployment project.";
@@ -596,14 +600,25 @@ public class RepositoryTreeController {
                 WebStudioUtils.addErrorMessage("Specified deploy configuration name is a reserved word.");
                 return null;
             }
+            if (!designRepositoryAclService.isGranted(
+                userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+                null,
+                List.of(AclPermission.CREATE))) {
+                WebStudioUtils.addErrorMessage("There is no permission for creating deployment configuration.");
+                return null;
+            }
             if (userWorkspace.hasDDProject(projectName)) {
                 WebStudioUtils.addErrorMessage(
                     "Cannot create configuration because configuration with such name already exists.");
 
                 return null;
             }
-
             ADeploymentProject createdProject = userWorkspace.createDDProject(projectName);
+            if (!designRepositoryAclService.createAcl(createdProject,
+                AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS)) {
+                String message = "Granting permissions to the deployment configuration is failed.";
+                WebStudioUtils.addErrorMessage(message);
+            }
             createdProject.open();
             // Analogous to rules project creation (to change "created by"
             // property and revision)
@@ -891,7 +906,8 @@ public class RepositoryTreeController {
         }
     }
 
-    private void unregisterArtifactInProjectDescriptor(AProjectArtefact aProjectArtefact) throws ProjectException, JAXBException, IOException {
+    private void unregisterArtifactInProjectDescriptor(
+            AProjectArtefact aProjectArtefact) throws ProjectException, JAXBException, IOException {
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
         AProjectArtefact projectDescriptorArtifact;
         try {
@@ -1040,7 +1056,7 @@ public class RepositoryTreeController {
                 projectArtefact instanceof AProject ? List.of(AclPermission.ARCHIVE) : List.of(AclPermission.DELETE))) {
                 WebStudioUtils.addErrorMessage(
                     "There is no permission for " + ((projectArtefact instanceof AProject) ? "archiving"
-                                                                                                         : "editing") + " the project.");
+                                                                                           : "editing") + " the project.");
                 return null;
             }
             if (projectArtefact instanceof UserWorkspaceProject) {
@@ -1494,7 +1510,10 @@ public class RepositoryTreeController {
 
             AProjectResource addedFileResource = folder
                 .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
-            designRepositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS);
+            if (!designRepositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
+                String message = "Granting permissions to the file is failed.";
+                WebStudioUtils.addErrorMessage(message);
+            }
             fileName = addedFileResource.getName();
             repositoryTreeState
                 .refreshNode(repositoryTreeState.getProjectNodeByPhysicalName(repositoryId, selectedProject.getName()));
@@ -2148,8 +2167,10 @@ public class RepositoryTreeController {
                 return "There is no permission for adding a file to the project.";
             }
             AProjectResource addedFileResource = node.addResource(fileName, lastUploadedFile.getInput());
-            designRepositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS);
-
+            if (!designRepositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
+                String message = "Granting permissions to the file is failed.";
+                WebStudioUtils.addErrorMessage(message);
+            }
             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFileResource);
 
             registerInProjectDescriptor(addedFileResource);
@@ -2445,7 +2466,7 @@ public class RepositoryTreeController {
     public boolean getCanDeleteDeployment() {
         UserWorkspaceProject selectedProject = getSelectedProject();
         if (selectedProject != null) {
-            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.ARCHIVE_DEPLOYMENT));
+            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.ARCHIVE));
         }
         return false;
     }

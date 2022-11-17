@@ -27,6 +27,7 @@ import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -58,6 +59,7 @@ public class SystemSettingsBean {
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
     private RepositoryEditor designRepositoryEditor;
     private RepositoryEditor productionRepositoryEditor;
+    private DesignRepositoryAclService designRepositoryAclService;
 
     public SystemSettingsBean(ProductionRepositoriesTreeController productionRepositoriesTreeController,
             RepositoryFactoryProxy designRepositoryFactoryProxy,
@@ -65,7 +67,8 @@ public class SystemSettingsBean {
             DeploymentManager deploymentManager,
             DesignTimeRepository designTimeRepository,
             RepositoryTreeState repositoryTreeState,
-            PropertyResolver propertyResolver) {
+            PropertyResolver propertyResolver,
+            DesignRepositoryAclService designRepositoryAclService) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
         this.deploymentManager = deploymentManager;
         this.designTimeRepository = designTimeRepository;
@@ -73,8 +76,8 @@ public class SystemSettingsBean {
         this.designRepositoryFactoryProxy = designRepositoryFactoryProxy;
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
         this.propertyResolver = propertyResolver;
+        this.designRepositoryAclService = designRepositoryAclService;
         this.validator = new SystemSettingsValidator();
-
         initialize();
     }
 
@@ -85,7 +88,8 @@ public class SystemSettingsBean {
         this.properties = new InMemoryProperties(propertyResolver);
 
         try {
-            deployConfigRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DEPLOY_CONFIG.getId(), properties);
+            deployConfigRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DEPLOY_CONFIG.getId(),
+                properties);
             if (!isUseDesignRepo() && deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 WebStudioUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
@@ -97,7 +101,8 @@ public class SystemSettingsBean {
             for (RepositoryConfiguration configuration : designRepositoryEditor.getRepositoryConfigurations()) {
                 if (configuration.getErrorMessage() != null) {
                     log.error(configuration.getErrorMessage());
-                    WebStudioUtils.addErrorMessage("Incorrect design repository configuration '\" + configuration.getName() + \"'. Fix the errors and try again.");
+                    WebStudioUtils.addErrorMessage(
+                        "Incorrect design repository configuration '" + configuration.getName() + "'. Fix the errors and try again.");
                 }
             }
         } catch (Exception e) {
@@ -259,9 +264,11 @@ public class SystemSettingsBean {
             deployConfigRepositoryConfiguration.commit();
         }
 
-        //Temporary solution. Made so that when saving settings, if there were no changes, active users are still logged out.
-        //This is necessary to reset some parameters such as: information about blocking authentication attempts in git,
-        //when the maximum number of attempts is exceeded.
+        // Temporary solution. Made so that when saving settings, if there were no changes, active users are still
+        // logged out.
+        // This is necessary to reset some parameters such as: information about blocking authentication attempts in
+        // git,
+        // when the maximum number of attempts is exceeded.
         properties.setProperty("_last.modified.time", Instant.now().toString());
 
         DynamicPropertySource.get().save(properties.getConfig());
@@ -299,6 +306,7 @@ public class SystemSettingsBean {
     public void deleteDesignRepository(String configName) {
         try {
             designRepositoryEditor.deleteRepository(configName);
+            designRepositoryAclService.deleteAcl(configName, null);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage(e.getMessage());
@@ -329,22 +337,24 @@ public class SystemSettingsBean {
 
         String newConfigName = RepositoryEditor.getNewConfigName(configurations, repositoryMode);
 
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, accessType,
-                configurations, repositoryMode);
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName,
+            properties,
+            accessType,
+            configurations,
+            repositoryMode);
         repoConfig.commit();
         return repoConfig;
     }
 
     public void deleteProductionRepository(String configName) {
         try {
-            productionRepositoryEditor.deleteRepository(configName,
-                new RepositoryEditor.Callback() {
-                    @Override
-                    public void onDelete(String configName) {
-                        /* Delete Production repo from tree */
-                        productionRepositoriesTreeController.deleteProdRepo(configName);
-                    }
-                });
+            productionRepositoryEditor.deleteRepository(configName, new RepositoryEditor.Callback() {
+                @Override
+                public void onDelete(String configName) {
+                    /* Delete Production repo from tree */
+                    productionRepositoriesTreeController.deleteProdRepo(configName);
+                }
+            });
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage(e.getMessage());

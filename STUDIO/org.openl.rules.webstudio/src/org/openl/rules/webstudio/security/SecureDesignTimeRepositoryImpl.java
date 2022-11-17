@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.rules.common.CommonVersion;
@@ -44,7 +45,15 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public List<Repository> getRepositories() {
-        return designTimeRepository.getRepositories().stream().map(this::wrapToSecureRepo).collect(Collectors.toList());
+        Set<String> repoIdsWithProjects = getProjects().stream()
+            .map(e -> e.getRepository().getId())
+            .collect(Collectors.toSet());
+        return designTimeRepository.getRepositories()
+            .stream()
+            .filter(e -> repoIdsWithProjects.contains(e.getId()) || designRepositoryAclService
+                .isGranted(e.getId(), null, List.of(AclPermission.VIEW)))
+            .map(this::wrapToSecureRepo)
+            .collect(Collectors.toList());
     }
 
     @Override

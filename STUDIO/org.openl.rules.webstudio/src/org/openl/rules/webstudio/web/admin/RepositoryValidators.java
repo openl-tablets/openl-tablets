@@ -37,73 +37,72 @@ public final class RepositoryValidators {
     /**
      * Check that name, path are configured correctly and repository name does not have duplicates.
      *
-     * @param prodConfig Repository configuration
-     * @param productionRepositoryConfigurations list of all production configurations
+     * @param repoConfig Repository configuration
+     * @param repositoryConfigurations list of all configurations
      * @throws RepositoryValidationException if repository was configured incorrectly
      */
-    public static void validate(RepositoryConfiguration prodConfig,
-            List<RepositoryConfiguration> productionRepositoryConfigurations) throws RepositoryValidationException {
-        if (StringUtils.isEmpty(prodConfig.getName())) {
-            String msg = "Repository name is empty. Enter a repository name.";
+    public static void validate(RepositoryConfiguration repoConfig,
+            List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
+        if (StringUtils.isEmpty(repoConfig.getName())) {
+            String msg = "Repository name is empty. Please, enter repository name.";
             throw new RepositoryValidationException(msg);
         }
-        if (!NameChecker.checkName(prodConfig.getName())) {
+        if (!NameChecker.checkName(repoConfig.getName())) {
             String msg = String.format(
-                "The '%s' repository name contains unsupported characters. Modify the repository name and try again.",
-                prodConfig.getName());
+                    "Repository name '%s' contains illegal characters. Please, correct repository name.",
+                    repoConfig.getName());
             throw new RepositoryValidationException(msg);
         }
 
         // Check for name uniqueness.
-        for (RepositoryConfiguration other : productionRepositoryConfigurations) {
-            if (other != prodConfig) {
-                if (prodConfig.getName().equals(other.getName())) {
-                    String msg = String.format("The '%s' repository name already exists. Try another name.",
-                        prodConfig.getName());
+        for (RepositoryConfiguration other : repositoryConfigurations) {
+            if (other != repoConfig) {
+                if (repoConfig.getName().equals(other.getName())) {
+                    String msg = String.format("Repository name '%s' already exists. Please, insert a new one.",
+                            repoConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
             }
         }
 
         // Check for path uniqueness. only for git
-        if (RepositoryType.GIT.equals(prodConfig.getRepositoryType())) {
-            Path path = Paths.get(((GitRepositorySettings) prodConfig.getSettings()).getLocalRepositoryPath());
-            for (RepositoryConfiguration other : productionRepositoryConfigurations) {
-                if (other != prodConfig && RepositoryType.GIT.equals(other.getRepositoryType())) {
+        if (RepositoryType.GIT.equals(repoConfig.getRepositoryType())) {
+            Path path = Paths.get(((GitRepositorySettings) repoConfig.getSettings()).getLocalRepositoryPath());
+            for (RepositoryConfiguration other : repositoryConfigurations) {
+                if (other != repoConfig && RepositoryType.GIT.equals(other.getRepositoryType())) {
                     Path otherPath = Paths.get(((GitRepositorySettings) other.getSettings()).getLocalRepositoryPath());
                     if (path.equals(otherPath)) {
-                        String msg = String.format(
-                            "The '%s' repository local path already exists. Try another value.",
-                            path);
+                        String msg = String
+                                .format("Repository local path '%s' already exists. Please, insert a new one.", path);
                         throw new RepositoryValidationException(msg);
                     }
                 }
             }
         }
 
-        RepositorySettings settings = prodConfig.getSettings();
+        RepositorySettings settings = repoConfig.getSettings();
 
         if (settings instanceof CommonRepositorySettings) {
-            validateCommonRepository(prodConfig, productionRepositoryConfigurations);
+            validateCommonRepository(repoConfig, repositoryConfigurations);
         }
 
     }
 
-    private static void validateCommonRepository(RepositoryConfiguration prodConfig,
-            List<RepositoryConfiguration> productionRepositoryConfigurations) throws RepositoryValidationException {
-        CommonRepositorySettings settings = (CommonRepositorySettings) prodConfig.getSettings();
+    private static void validateCommonRepository(RepositoryConfiguration repoConfig,
+            List<RepositoryConfiguration> repositoryConfigurations) throws RepositoryValidationException {
+        CommonRepositorySettings settings = (CommonRepositorySettings) repoConfig.getSettings();
         String path = settings.getPath();
         if (StringUtils.isEmpty(path)) {
-            String msg = "The repository path is empty. Specify the repository path.";
+            String msg = "Repository path is empty. Please, enter repository path.";
             throw new RepositoryValidationException(msg);
         }
 
         // Check for path uniqueness.
-        for (RepositoryConfiguration other : productionRepositoryConfigurations) {
-            if (other != prodConfig) {
-                if (prodConfig.getName().equals(other.getName())) {
-                    String msg = String.format("The '%s' repository name already exists. Try another name.",
-                        prodConfig.getName());
+        for (RepositoryConfiguration other : repositoryConfigurations) {
+            if (other != repoConfig) {
+                if (repoConfig.getName().equals(other.getName())) {
+                    String msg = String.format("Repository name '%s' already exists. Please, insert a new one.",
+                            repoConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
 
@@ -113,8 +112,8 @@ public final class RepositoryValidators {
                         // Different users can access different schemas
                         String login = settings.getLogin();
                         if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
-                            String msg = String.format("The '%s' repository local path already exists. Try another value.",
-                                path);
+                            String msg = String.format("Repository path '%s' already exists. Please, insert a new one.",
+                                    path);
                             throw new RepositoryValidationException(msg);
                         }
                     }
@@ -138,14 +137,16 @@ public final class RepositoryValidators {
             validateInstantiation(repoConfig);
         } catch (Exception e) {
             throw new RepositoryValidationException(
-                String.format("Repository '%s' : %s", repoConfig.getName(), getMostSpecificMessage(e)), e);
+                String.format("Repository '%s' : %s", repoConfig.getName(), getMostSpecificMessage(e)),
+                e);
         }
     }
 
     private static void validateInstantiation(RepositoryConfiguration repoConfig) throws Exception {
         PropertyResolver propertiesResolver = DelegatedPropertySource
             .createPropertiesResolver(repoConfig.getPropertiesToValidate());
-        try (Repository repository = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
+        try (Repository repository = RepositoryInstatiator
+            .newRepository(Comments.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
             // Validate instantiation
             repository.validateConnection();
         }
@@ -168,7 +169,8 @@ public final class RepositoryValidators {
             return message != null ? String.format("Unknown host (%s).", message) : "Unknown host.";
         }
 
-        // Obviously root cause gives more specific message. If we get empty message, we should consider wrapper exception.
+        // Obviously root cause gives more specific message. If we get empty message, we should consider wrapper
+        // exception.
         ListIterator<Throwable> listIterator = list.listIterator(list.size());
         while (listIterator.hasPrevious()) {
             String message = listIterator.previous().getMessage();

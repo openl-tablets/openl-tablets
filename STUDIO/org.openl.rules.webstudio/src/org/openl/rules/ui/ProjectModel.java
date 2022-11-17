@@ -690,33 +690,11 @@ public class ProjectModel {
         return grid != null && grid.getGrid() instanceof CompositeGrid;
     }
 
-    public boolean isCanCreateTable() {
-        if (!isEditable()) {
-            return false;
-        }
-        RulesProject currentProject = studio.getCurrentProject();
-        AProjectArtefact currentModule;
-        try {
-            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
-        } catch (ProjectException e) {
-            return false;
-        }
-        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.CREATE_TABLES));
-    }
-
     public boolean isCanEditTable(String uri) {
         if (!isEditableTable(uri)) {
             return false;
         }
-        RulesProject currentProject = studio.getCurrentProject();
-        AProjectArtefact currentModule;
-        try {
-            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
-        } catch (ProjectException e) {
-            return false;
-        }
-        return studio.getDesignRepositoryAclService()
-            .isGranted(currentModule, List.of(AclPermission.EDIT_TABLES)) && !isCurrentBranchProtected();
+        return !isCurrentBranchProtected();
     }
 
     private boolean isCurrentBranchProtected() {
