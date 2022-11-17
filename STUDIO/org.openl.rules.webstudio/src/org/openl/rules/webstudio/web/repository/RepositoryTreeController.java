@@ -1037,7 +1037,7 @@ public class RepositoryTreeController {
                 closeProjectForAllUsers(workspacesRoot, (RulesProject) projectArtefact);
             }
             if (!designRepositoryAclService.isGranted(projectArtefact,
-                projectArtefact instanceof AProject ? List.of(AclPermission.ARCHIVE) : List.of(AclPermission.EDIT))) {
+                projectArtefact instanceof AProject ? List.of(AclPermission.ARCHIVE) : List.of(AclPermission.DELETE))) {
                 WebStudioUtils.addErrorMessage(
                     "There is no permission for " + ((projectArtefact instanceof AProject) ? "archiving"
                                                                                                          : "editing") + " the project.");
@@ -1058,8 +1058,8 @@ public class RepositoryTreeController {
                 project.delete(comment);
             } else {
                 projectArtefact.delete();
+                designRepositoryAclService.deleteAcl(projectArtefact);
             }
-            designRepositoryAclService.deleteAcl(projectArtefact);
             TreeNode parent = selectedNode.getParent();
             if (parent != null && parent.getData() != null) {
                 parent.refresh();
