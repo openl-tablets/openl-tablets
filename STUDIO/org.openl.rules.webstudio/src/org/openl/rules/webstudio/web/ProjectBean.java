@@ -619,8 +619,20 @@ public class ProjectBean {
     public void copyModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
-            throw new Message("There is no permission for editing the project.");
+        if (currentProject.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+            try {
+                AProjectArtefact projectDescriptorProjectArtefact = currentProject
+                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                if (!designRepositoryAclService.isGranted(projectDescriptorProjectArtefact,
+                    List.of(AclPermission.EDIT))) {
+                    throw new Message(String.format("There is no permission for editing '%s' file in the project.",
+                        ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+                }
+            } catch (ProjectException ignored) {
+            }
+        }
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.APPEND))) {
+            throw new Message("There is no permission for adding files to the project.");
         }
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
@@ -671,6 +683,35 @@ public class ProjectBean {
             // For example, repository wasn't refreshed yet
             projectNode.refresh();
         }
+    }
+
+    public boolean isModuleCanNotBeDeleted(Module module) {
+        if (module == null) {
+            return true;
+        }
+        RulesProject currentProject = studio.getCurrentProject();
+        if (currentProject != null) {
+            try {
+                if (isModuleWithWildcard(module)) {
+                    List<Module> modules = getModulesMatchingPathPattern(module);
+                    for (Module m : modules) {
+                        AProjectArtefact projectArtefact = currentProject.getArtefact(m.getRulesRootPath().getPath());
+                        if (!studio.getDesignRepositoryAclService()
+                            .isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
+                            return true;
+                        }
+                    }
+                    return false;
+                } else {
+                    AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
+                    return !studio.getDesignRepositoryAclService()
+                        .isGranted(projectArtefact, List.of(AclPermission.DELETE));
+                }
+            } catch (ProjectException e) {
+                return true;
+            }
+        }
+        return true;
     }
 
     public void removeModule() {
