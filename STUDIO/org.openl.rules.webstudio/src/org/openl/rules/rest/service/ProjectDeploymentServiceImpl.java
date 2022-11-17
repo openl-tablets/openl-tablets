@@ -119,7 +119,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             item.setName(deploymentProject.getName());
 
             DependencyChecker checker = new DependencyChecker(projectDescriptorResolver);
-            // check against latest version of the deployment project
+            // check against the latest version of the deployment project
             checker.addProjects(latestDeploymentVersion);
 
             String lastDeployedVersion = "";
@@ -187,7 +187,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                                     "Can be updated to '" + to + "' and then deployed. Deployed version is unknown.");
                             } else {
                                 item.setMessages(
-                                    "Can be updated to " + to + " and then deployed. Deployed version is being defined.");
+                                    "Can be updated to '" + to + "' and then deployed. Deployed version is being defined.");
                             }
                         } else {
                             String repositoryId = projectDescriptor.getRepositoryId();
@@ -229,7 +229,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                         }
                     } else {
                         item.setMessages(
-                            "Project version will be updated. Dependent projects should be added to deploy configuration.");
+                            "The project version will be updated. All dependent projects should be added to deploy configuration.");
                         item.setStyleForMessages(UiConst.STYLE_ERROR);
                         item.setCanDeploy(false);
                     }
