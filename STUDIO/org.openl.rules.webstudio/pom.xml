@@ -246,6 +246,13 @@
             <artifactId>greenmail-junit4</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Logging -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
 
         <!-- OpenL dependencies -->
         <dependency>
@@ -338,20 +345,4 @@
             <artifactId>org.openl.spring</artifactId>
         </dependency>
     </dependencies>
-    <profiles>
-        <profile>
-            <id>slf4j-log4j</id>
-            <activation>
-                <property>
-                    <name>!noSlf4j-log4j</name>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-slf4j-impl</artifactId>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
 </project>

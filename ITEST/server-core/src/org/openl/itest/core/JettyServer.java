@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.webapp.ClassMatcher;
 import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,9 @@ public class JettyServer {
         WebAppContext webAppContext = new WebAppContext();
         webAppContext.setResourceBase(explodedWar);
         webAppContext.setExtraClasspath(getExtraClasspath());
+        // Solve issue with different slf4j implementations comes from dependencies
+        webAppContext.addSystemClassMatcher(new ClassMatcher("org.slf4j."));
+        webAppContext.addSystemClassMatcher(new ClassMatcher("-javax.activation."));
 
         if (profiles != null && profiles.length > 0) {
             webAppContext.setInitParameter("spring.profiles.active", String.join(",", profiles));
