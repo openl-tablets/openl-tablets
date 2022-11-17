@@ -229,8 +229,9 @@
             <span class="delimeter test-section"></span>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{!empty module and studio.model.canCreateTable}">
-                <a href="#{studio.url('create/index')}" title="Create new table" class="primary" onclick="return canOverwriteRevision();">Create Table</a>
+            <h:panelGroup rendered="#{!empty module and studio.model.editable}">
+                <a href="#{studio.url('create/index')}" title="Create new table" class="primary"
+                   onclick="return canOverwriteRevision();">Create Table</a>
                 <span class="delimeter"></span>
             </h:panelGroup>
 

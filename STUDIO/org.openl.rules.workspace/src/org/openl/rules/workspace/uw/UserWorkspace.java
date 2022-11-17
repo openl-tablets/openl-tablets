@@ -21,7 +21,7 @@ public interface UserWorkspace extends ProjectsContainer {
 
     void addWorkspaceListener(UserWorkspaceListener listener);
 
-    void copyDDProject(ADeploymentProject project, String name, String comment) throws ProjectException;
+    ADeploymentProject copyDDProject(ADeploymentProject project, String name, String comment) throws ProjectException;
 
     ADeploymentProject createDDProject(String name) throws RepositoryException;
 

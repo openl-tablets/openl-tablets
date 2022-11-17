@@ -101,15 +101,17 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public void copyDDProject(ADeploymentProject project, String name, String comment) throws ProjectException {
+    public ADeploymentProject copyDDProject(ADeploymentProject project,
+            String name,
+            String comment) throws ProjectException {
         ADeploymentProject newProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
             .user(getUser())
             .lockEngine(deploymentsLockEngine)
             .build();
         newProject.getFileData().setComment(comment);
         newProject.update(project, user);
-
         refresh();
+        return newProject;
     }
 
     @Override

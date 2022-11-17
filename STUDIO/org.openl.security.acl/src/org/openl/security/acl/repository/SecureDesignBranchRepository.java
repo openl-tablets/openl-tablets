@@ -2,6 +2,7 @@ package org.openl.security.acl.repository;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,7 +63,7 @@ public class SecureDesignBranchRepository extends SecureDesignFolderRepository i
             .isGranted(branchRepository.getId(), projectPath, List.of(AclPermission.DESIGN_REPOSITORY_READ))) {
             return branchRepository.getBranches(projectPath);
         }
-        throw new AccessDeniedException("There is no permission for reading branch details.");
+        return Collections.emptyList();
     }
 
     @Override

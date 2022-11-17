@@ -27,25 +27,8 @@ public class AclPermission extends BasePermission {
 
     public static final AclPermission DEPLOY = new AclPermission(11 << MASK_END, 'Y');
 
-    public static final AclPermission CREATE_DEPLOYMENT = new AclPermission(
-        7 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(),
-        'Y');
-    public static final AclPermission EDIT_DEPLOYMENT = new AclPermission(
-        8 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask(),
-        'Y');
-    public static final AclPermission ARCHIVE_DEPLOYMENT = new AclPermission(
-        9 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask(),
-        'Y');
-    public static final AclPermission DELETE_DEPLOYMENT = new AclPermission(
-        10 << MASK_END | DESIGN_REPOSITORY_DELETE.getMask(),
-        'Y');
-
     public static final AclPermission RUN = new AclPermission(12 << MASK_END, 'X');
     public static final AclPermission BENCHMARK = new AclPermission(13 << MASK_END, 'X');
-
-    public static final AclPermission CREATE_TABLES = new AclPermission(14 << MASK_END, 'X');
-    public static final AclPermission EDIT_TABLES = new AclPermission(15 << MASK_END, 'X');
-    public static final AclPermission DELETE_TABLES = new AclPermission(16 << MASK_END, 'X');
 
     protected AclPermission(int mask) {
         super(mask);
@@ -69,25 +52,11 @@ public class AclPermission extends BasePermission {
         } else if (DELETE.getMask() == permission.getMask()) {
             return "DELETE";
         } else if (DEPLOY.getMask() == permission.getMask()) {
-            return "DEPLOY_PROJECT";
+            return "DEPLOY";
         } else if (RUN.getMask() == permission.getMask()) {
             return "RUN";
         } else if (BENCHMARK.getMask() == permission.getMask()) {
             return "BENCHMARK";
-        } else if (CREATE_TABLES.getMask() == permission.getMask()) {
-            return "CREATE_TABLES";
-        } else if (EDIT_TABLES.getMask() == permission.getMask()) {
-            return "EDIT_TABLES";
-        } else if (DELETE_TABLES.getMask() == permission.getMask()) {
-            return "DELETE_TABLES";
-        } else if (CREATE_DEPLOYMENT.getMask() == permission.getMask()) {
-            return "CREATE_DEPLOYMENT";
-        } else if (EDIT_DEPLOYMENT.getMask() == permission.getMask()) {
-            return "EDIT_DEPLOYMENT";
-        } else if (ARCHIVE_DEPLOYMENT.getMask() == permission.getMask()) {
-            return "ARCHIVE_DEPLOYMENT";
-        } else if (DELETE_DEPLOYMENT.getMask() == permission.getMask()) {
-            return "DELETE_DEPLOYMENT";
         }
         return null;
     }
@@ -106,26 +75,12 @@ public class AclPermission extends BasePermission {
                 return ARCHIVE;
             case "DELETE":
                 return DELETE;
-            case "DEPLOY_PROJECT":
+            case "DEPLOY":
                 return DEPLOY;
             case "RUN":
                 return RUN;
             case "BENCHMARK":
                 return BENCHMARK;
-            case "CREATE_TABLES":
-                return CREATE_TABLES;
-            case "EDIT_TABLES":
-                return EDIT_TABLES;
-            case "DELETE_TABLES":
-                return DELETE_TABLES;
-            case "CREATE_DEPLOYMENT":
-                return CREATE_DEPLOYMENT;
-            case "EDIT_DEPLOYMENT":
-                return EDIT_DEPLOYMENT;
-            case "ARCHIVE_DEPLOYMENT":
-                return ARCHIVE_DEPLOYMENT;
-            case "DELETE_DEPLOYMENT":
-                return DELETE_DEPLOYMENT;
             default:
                 return null;
         }
@@ -150,20 +105,6 @@ public class AclPermission extends BasePermission {
             return RUN;
         } else if (BENCHMARK.getMask() == mask) {
             return BENCHMARK;
-        } else if (CREATE_TABLES.getMask() == mask) {
-            return CREATE_TABLES;
-        } else if (EDIT_TABLES.getMask() == mask) {
-            return EDIT_TABLES;
-        } else if (DELETE_TABLES.getMask() == mask) {
-            return DELETE_TABLES;
-        } else if (CREATE_DEPLOYMENT.getMask() == mask) {
-            return CREATE_DEPLOYMENT;
-        } else if (EDIT_DEPLOYMENT.getMask() == mask) {
-            return EDIT_DEPLOYMENT;
-        } else if (ARCHIVE_DEPLOYMENT.getMask() == mask) {
-            return ARCHIVE_DEPLOYMENT;
-        } else if (DELETE_DEPLOYMENT.getMask() == mask) {
-            return DELETE_DEPLOYMENT;
         }
         return null;
     }

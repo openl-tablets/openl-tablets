@@ -87,9 +87,6 @@ public class DependencyChecker {
                     addProject(project);
                 }
             } catch (Exception e) {
-                LOG.error("Cannot get project '{}' version {}.", projectName, projectVersion.getVersionName(), e);
-
-                // WARNING: trick
                 projectVersions.put(projectName, null);
             }
         }

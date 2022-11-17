@@ -20,6 +20,7 @@ import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
+import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.DesignRepositoryAclService;
 
 public class SecureUserWorkspaceImpl implements UserWorkspace {
@@ -44,7 +45,6 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public List<? extends AProject> getProjects(String repositoryId) {
-
         return userWorkspace.getProjects(repositoryId)
             .stream()
             .filter(e -> designRepositoryAclService.isGranted(e, List.of(VIEW)))
@@ -62,28 +62,53 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public void copyDDProject(ADeploymentProject project, String name, String comment) throws ProjectException {
-        userWorkspace.copyDDProject(project, name, comment);
+    public ADeploymentProject copyDDProject(ADeploymentProject project,
+            String name,
+            String comment) throws ProjectException {
+        if (designRepositoryAclService.isGranted(project, List.of(VIEW))) {
+            if (designRepositoryAclService
+                .isGranted(project.getRepository().getId(), null, List.of(AclPermission.CREATE))) {
+                return userWorkspace.copyDDProject(project, name, comment);
+            }
+        }
+        throw new ProjectException("There is no permission for the action.");
     }
 
     @Override
     public ADeploymentProject createDDProject(String name) throws RepositoryException {
-        return userWorkspace.createDDProject(name);
+        if (designRepositoryAclService.isGranted(
+            userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+            null,
+            List.of(AclPermission.CREATE))) {
+            return userWorkspace.createDDProject(name);
+        }
+        throw new RepositoryException("There is no permission for creating a deployment configuration.");
     }
 
     @Override
     public ADeploymentProject getDDProject(String name) throws ProjectException {
-        return userWorkspace.getDDProject(name);
+        ADeploymentProject deploymentProject = userWorkspace.getDDProject(name);
+        if (designRepositoryAclService.isGranted(deploymentProject, List.of(VIEW))) {
+            return deploymentProject;
+        }
+        throw new ProjectException("There is no permission for retrieving a deployment configuration.");
     }
 
     @Override
     public ADeploymentProject getLatestDeploymentConfiguration(String name) {
-        return userWorkspace.getLatestDeploymentConfiguration(name);
+        ADeploymentProject deploymentProject = userWorkspace.getLatestDeploymentConfiguration(name);
+        if (designRepositoryAclService.isGranted(deploymentProject, List.of(VIEW))) {
+            return deploymentProject;
+        }
+        return null;
     }
 
     @Override
     public List<ADeploymentProject> getDDProjects() throws ProjectException {
-        return userWorkspace.getDDProjects();
+        return userWorkspace.getDDProjects()
+            .stream()
+            .filter(e -> designRepositoryAclService.isGranted(e, List.of(VIEW)))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -190,7 +215,6 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public Collection<RulesProject> getProjects(boolean refreshBefore) {
-
         return userWorkspace.getProjects(refreshBefore)
             .stream()
             .filter(e -> designRepositoryAclService.isGranted(e, List.of(VIEW)))

@@ -32,6 +32,7 @@ import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.permission.AclPermissionsSets;
 import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -154,8 +155,8 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                     }
                 }
             } else {
-                if (!designRepositoryAclService.isGranted(project,
-                    List.of(AclPermission.EDIT_DEPLOYMENT)) || isMainBranchProtected(
+                if (!designRepositoryAclService.isGranted(deploymentProject,
+                    List.of(AclPermission.EDIT)) || isMainBranchProtected(
                         userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
                     // skip it
@@ -238,9 +239,10 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
 
             result.add(item);
         }
-
-        if (!userWorkspace.hasDDProject(projectName) && designRepositoryAclService.isGranted(project,
-            List.of(AclPermission.CREATE_DEPLOYMENT)) && !isMainBranchProtected(
+        if (!userWorkspace.hasDDProject(projectName) && designRepositoryAclService.isGranted(
+            userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+            null,
+            List.of(AclPermission.CREATE)) && !isMainBranchProtected(
                 userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
@@ -312,8 +314,20 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             }
 
             if (deploymentName.equals(project.getBusinessName()) && !userWorkspace.hasDDProject(deploymentName)) {
-                // the same name, than create if absent
+                if (!designRepositoryAclService.isGranted(
+                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+                    null,
+                    List.of(AclPermission.CREATE))) {
+                    WebStudioUtils.addErrorMessage("There is no permission for creating deployment configuration.");
+                    return null;
+                }
+                // the same name, then create if absent
                 deployConfiguration = userWorkspace.createDDProject(deploymentName);
+                if (!designRepositoryAclService.createAcl(deployConfiguration,
+                    AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS)) {
+                    String message = "Granting permissions to the deployment configuration is failed.";
+                    WebStudioUtils.addErrorMessage(message);
+                }
             }
 
             boolean create;

@@ -143,7 +143,7 @@ public class TableBean {
     }
 
     public String getMode() {
-        return getCanEdit() ? WebStudioUtils.getRequestParameter("mode") : null;
+        return isEditable() ? WebStudioUtils.getRequestParameter("mode") : null;
     }
 
     public IOpenLTable getTable() {
@@ -193,18 +193,7 @@ public class TableBean {
      * @return true if it is possible to create tests for current table.
      */
     public boolean isCanCreateTest() {
-        if (!(table != null && table.isExecutable() && isEditable())) {
-            return false;
-        }
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
-        AProjectArtefact currentModule;
-        try {
-            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
-        } catch (ProjectException e) {
-            return false;
-        }
-        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.CREATE_TABLES));
+        return table != null && table.isExecutable() && isEditable();
     }
 
     public boolean isEditable() {
@@ -212,18 +201,7 @@ public class TableBean {
     }
 
     public boolean isCopyable() {
-        if (!copyable) {
-            return false;
-        }
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
-        AProjectArtefact currentModule;
-        try {
-            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
-        } catch (ProjectException e) {
-            return false;
-        }
-        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.CREATE_TABLES));
+        return copyable;
     }
 
     public boolean isTablePart() {
@@ -375,38 +353,8 @@ public class TableBean {
         }
     }
 
-    public boolean getCanEdit() {
-        if (!isEditable()) {
-            return false;
-        }
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
-        AProjectArtefact currentModule;
-        try {
-            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
-        } catch (ProjectException e) {
-            return false;
-        }
-        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.EDIT_TABLES));
-    }
-
     public boolean isCanOpenInExcel() {
         return canBeOpenInExcel;
-    }
-
-    public boolean getCanRemove() {
-        if (!isEditable()) {
-            return false;
-        }
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
-        AProjectArtefact currentModule;
-        try {
-            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
-        } catch (ProjectException e) {
-            return false;
-        }
-        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.DELETE_TABLES));
     }
 
     public boolean getCanRun() {

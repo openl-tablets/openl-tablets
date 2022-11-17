@@ -14,6 +14,7 @@ import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.springframework.http.HttpStatus;
@@ -69,8 +70,7 @@ public class DesignRepositoryAclServiceController {
                 throw new IllegalStateException("Unsupported sid type.");
             }
             String[] permissionsArray = entry.getValue().stream().map(e -> {
-                AclPermission projectArtifactPermission = AclPermission
-                    .getPermission(e.getMask());
+                AclPermission projectArtifactPermission = AclPermission.getPermission(e.getMask());
                 if (projectArtifactPermission != null) {
                     return AclPermission.toString(projectArtifactPermission);
                 } else {
@@ -125,6 +125,17 @@ public class DesignRepositoryAclServiceController {
         designRepositoryAclService.addRootPermissions(permissionsList, List.of(new PrincipalSid(sid)));
     }
 
+    private void validateRepositoryId(HttpSession session, String repositoryId) {
+        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
+        if (userWorkspace.getDesignTimeRepository()
+            .getRepositories()
+            .stream()
+            .noneMatch(e -> Objects.equals(e.getId(), repositoryId)) && !Objects
+                .equals(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(), repositoryId)) {
+            throw new NotFoundException("repository.message", repositoryId);
+        }
+    }
+
     @PutMapping(value = "/repo/{repo-id}/user/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addUserPermissions(@PathVariable("sid") String sid,
@@ -132,13 +143,7 @@ public class DesignRepositoryAclServiceController {
             @PathVariable("repo-id") String repositoryId,
             @RequestParam String path,
             HttpSession session) {
-        if (WebStudioUtils.getUserWorkspace(session)
-            .getDesignTimeRepository()
-            .getRepositories()
-            .stream()
-            .noneMatch(e -> Objects.equals(e.getId(), repositoryId))) {
-            throw new NotFoundException("repository.message", repositoryId);
-        }
+        validateRepositoryId(session, repositoryId);
         if (userDao.existsByName(sid)) {
             List<Permission> permissionsList = buildPermissions(permissions);
             designRepositoryAclService
@@ -162,13 +167,7 @@ public class DesignRepositoryAclServiceController {
             @PathVariable("repo-id") String repositoryId,
             @RequestParam String path,
             HttpSession session) {
-        if (WebStudioUtils.getUserWorkspace(session)
-            .getDesignTimeRepository()
-            .getRepositories()
-            .stream()
-            .noneMatch(e -> Objects.equals(e.getId(), repositoryId))) {
-            throw new NotFoundException("repository.message", repositoryId);
-        }
+        validateRepositoryId(session, repositoryId);
         if (groupDao.getGroupByName(sid) != null) {
             List<Permission> permissionsList = buildPermissions(permissions);
             designRepositoryAclService
@@ -194,13 +193,7 @@ public class DesignRepositoryAclServiceController {
             @RequestParam(required = false) String path,
             @RequestParam(required = false) boolean recursive,
             HttpSession session) {
-        if (WebStudioUtils.getUserWorkspace(session)
-            .getDesignTimeRepository()
-            .getRepositories()
-            .stream()
-            .noneMatch(e -> Objects.equals(e.getId(), repositoryId))) {
-            throw new NotFoundException("repository.message", repositoryId);
-        }
+        validateRepositoryId(session, repositoryId);
         if (recursive) {
             designRepositoryAclService.deleteAcl(repositoryId, path);
         } else {
@@ -222,13 +215,7 @@ public class DesignRepositoryAclServiceController {
             @PathVariable("repo-id") String repositoryId,
             @RequestParam String path,
             HttpSession session) {
-        if (WebStudioUtils.getUserWorkspace(session)
-            .getDesignTimeRepository()
-            .getRepositories()
-            .stream()
-            .noneMatch(e -> Objects.equals(e.getId(), repositoryId))) {
-            throw new NotFoundException("repository.message", repositoryId);
-        }
+        validateRepositoryId(session, repositoryId);
         List<Permission> permissionsList = buildPermissions(permissions);
         designRepositoryAclService
             .removePermissions(repositoryId, path, permissionsList, List.of(new PrincipalSid(sid)));
@@ -248,13 +235,7 @@ public class DesignRepositoryAclServiceController {
             @PathVariable("repo-id") String repositoryId,
             @RequestParam String path,
             HttpSession session) {
-        if (WebStudioUtils.getUserWorkspace(session)
-            .getDesignTimeRepository()
-            .getRepositories()
-            .stream()
-            .noneMatch(e -> Objects.equals(e.getId(), repositoryId))) {
-            throw new NotFoundException("repository.message", repositoryId);
-        }
+        validateRepositoryId(session, repositoryId);
         List<Permission> permissionsList = buildPermissions(permissions);
         designRepositoryAclService
             .removePermissions(repositoryId, path, permissionsList, List.of(new GrantedAuthoritySid(sid)));

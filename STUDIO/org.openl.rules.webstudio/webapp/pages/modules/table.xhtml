@@ -357,10 +357,11 @@
                         <table>
                             <tr>
                                 <td>
-                                    <h:outputLink value="javascript:void(0)" title="Edit the table" styleClass="toolbarButton"
-                                        onclick="editTable();"
-                                        rendered="#{tableBean.canEdit}"  >
-                                        <img src="#{contextPath}/webresource/images/editTable.gif" />
+                                    <h:outputLink value="javascript:void(0)" title="Edit the table"
+                                                  styleClass="toolbarButton"
+                                                  onclick="editTable();"
+                                                  rendered="#{tableBean.editable}">
+                                        <img src="#{contextPath}/webresource/images/editTable.gif"/>
                                         <div>Edit</div>
                                     </h:outputLink>
                                 </td>
@@ -385,10 +386,10 @@
                                 </td>
                                 <td>
                                     <a4j:commandLink action="#{tableBean.removeTable}" title="Delete the table"
-                                        rendered="#{tableBean.canRemove}"
-                                        onclick="if (!onBeforeEdit()) return false; if (!confirm('Do you really want to remove this table?'))return false;"
-                                        oncomplete="ws.changes.revertChanges();ws.nav.go('#' + encodeURIComponent('#{studio.currentRepositoryId}') + '/' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
-                                        styleClass="toolbarButton">
+                                                     rendered="#{tableBean.editable}"
+                                                     onclick="if (!onBeforeEdit()) return false; if (!confirm('Do you really want to remove this table?'))return false;"
+                                                     oncomplete="ws.changes.revertChanges();ws.nav.go('#' + encodeURIComponent('#{studio.currentRepositoryId}') + '/' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
+                                                     styleClass="toolbarButton">
                                         <span class="delete-icon"/>
                                         <div>Remove</div>
                                     </a4j:commandLink>
@@ -712,18 +713,22 @@
                 <input type="hidden" name="id" value="" />
             </form>
 
-            <rules:tableEditor id="t" table="#{tableBean.table}" view="#{studio.tableView}" rowIndex="#{tableBean.rowIndex}"
-                               linkBuilder="#{studio.linkBuilder}" mode="#{tableBean.mode}" editable="#{tableBean.canEdit}"
+            <rules:tableEditor id="t" table="#{tableBean.table}" view="#{studio.tableView}"
+                               rowIndex="#{tableBean.rowIndex}"
+                               linkBuilder="#{studio.linkBuilder}" mode="#{tableBean.mode}"
+                               editable="#{tableBean.editable}"
                                showFormulas="#{studio.showFormulas}"
                                beforeEditAction="#{tableBean.beforeEditAction}"
-                               beforeSaveAction="#{tableBean.beforeSaveAction}" afterSaveAction="#{tableBean.afterSaveAction}"
+                               beforeSaveAction="#{tableBean.beforeSaveAction}"
+                               afterSaveAction="#{tableBean.afterSaveAction}"
                                onBeforeEdit="return onBeforeEdit();"
                                onBeforeSave="javascript:onBeforeSave();" onAfterSave="javascript:onAfterSave(data);"
                                onRequestStart="ws.ui.showLoader();" onRequestEnd="ws.ui.hideLoader();"
                                onError="javascript:onError(data);" excludeScripts="prototype">
 
                 <h:outputLink value="javascript:editInExcel(document.forms.editInExcelForm)"
-                    rendered="#{tableBean.canEdit}">Edit in Excel</h:outputLink>
+                              rendered="#{tableBean.editable}">Edit in Excel
+                </h:outputLink>
                 <h:outputLink value="javascript:ws.nav.search($j(PopupMenu.lastTarget).text(), '#{studio.url('')}')">Search</h:outputLink>
             </rules:tableEditor>
         </div>
@@ -1301,7 +1306,7 @@
                         .replaceString(/{messageErrorCode1}/g, hasErrorCode ? ws.utils.escapeHtml(item.errorCode[0]) : "")
                         .replaceString(/{messageErrorCode2}/g, hasErrorCode ? ws.utils.escapeHtml(item.errorCode[1]) : "")
                         .replaceString(/{messageErrorCode3}/g, hasErrorCode ? ws.utils.escapeHtml(item.errorCode[2]) : "")
-                        .replaceString(/{messageEditStyle}/g, (!#{tableBean.canEdit} || !item.hasLinkToCell) ? hiddenStyle : "")
+                        .replaceString(/{messageEditStyle}/g, (!#{tableBean.editable} || !item.hasLinkToCell) ? hiddenStyle : "")
                         .replaceString(/{messageErrorCodeStyle}/g, (!item.hasLinkToCell || !hasErrorCode) ? hiddenStyle : "");
                 });
 
