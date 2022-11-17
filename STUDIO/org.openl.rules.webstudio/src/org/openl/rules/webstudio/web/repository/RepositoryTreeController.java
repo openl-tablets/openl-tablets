@@ -1441,7 +1441,7 @@ public class RepositoryTreeController {
         }
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
         if (!designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.APPEND))) {
-            WebStudioUtils.addErrorMessage("There is no permission for adding a file to the project.");
+            WebStudioUtils.addErrorMessage("There is no permission for adding files to the project.");
             return null;
         }
         ArtefactPath artefactPath = new ArtefactPathImpl(path);

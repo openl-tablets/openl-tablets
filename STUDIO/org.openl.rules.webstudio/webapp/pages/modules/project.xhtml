@@ -69,6 +69,7 @@
     </style>
 
     <ui:param name="editable" value="#{studio.model.editable}"/>
+    <ui:param name="canCopyModule" value="#{studio.model.canCopyModule}"/>
     <ui:param name="project" value="#{studio.currentProjectDescriptor}"/>
     <ui:param name="projectData" value="#{studio.currentProject}"/>
 
@@ -213,7 +214,7 @@
                                        onclick="editModule({index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}', compileThisModuleOnly: #{module.webstudioConfiguration.compileThisModuleOnly}})"><img
                                             src="#{request.contextPath}/webresource/images/edit.png"
                                             style="opacity:0.4"/></a>
-                                    <h:panelGroup>
+                                    <h:panelGroup rendered="#{canCopyModule}">
                                         <a href="javascript:void(0)" title="Copy Module"
                                            class="editable-link-inner second-button"
                                            onclick="copyModule({isModuleWithWildcard:#{isModuleWithWildcard},index:'#{i.index}',name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'})"><img
@@ -223,7 +224,7 @@
                                     <h:panelGroup rendered="#{modulesNumber > 1}">
                                         <a href="javascript:void(0)" title="Remove Module"
                                            class="editable-link-inner third-button delete-icon"
-                                           onclick="removeModule('#{i.index}')"/>
+                                           onclick="removeModule('#{i.index}', #{projectBean.isModuleCanNotBeDeleted(module)})"/>
                                     </h:panelGroup>
                                 </h:panelGroup>
                             </h:panelGroup>
@@ -685,12 +686,14 @@
                 editModule();
             }
 
-            function removeModule(module) {
+            function removeModule(module, moduleCanNotBeDeleted) {
                 if (!canOverwriteRevision()) {
                     return false;
                 }
 
                 $j("#moduleToRemove").val(module);
+                $j("#leaveExcelFile").prop('disabled', moduleCanNotBeDeleted);
+                $j("#leaveExcelFile").prop('checked', moduleCanNotBeDeleted);
                 ws.ui.show("removeModulePopup");
                 $j("#removeModuleButton").focus();
             }

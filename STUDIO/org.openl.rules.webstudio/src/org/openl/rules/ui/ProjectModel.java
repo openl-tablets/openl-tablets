@@ -57,6 +57,7 @@ import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrat
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.rules.repository.api.BranchRepository;
@@ -632,7 +633,7 @@ public class ProjectModel {
     }
 
     /**
-     * Returns if current project is read only.
+     * Returns if current project or module is read only.
      *
      * @return <code>true</code> if project is read only.
      */
@@ -649,10 +650,30 @@ public class ProjectModel {
                 } catch (ProjectException e) {
                     return false;
                 }
-                return currentProject.isLocalOnly() || !currentProject.isLocked() || currentProject
-                    .isOpenedForEditing() && studio.getDesignRepositoryAclService()
-                        .isGranted(currentModule == null ? currentProject : currentModule, List.of(AclPermission.EDIT));
+                boolean granted = true;
+                if (currentModule == null) {
+                    if (!currentProject
+                        .hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+                        granted = studio.getDesignRepositoryAclService()
+                            .isGranted(currentProject, List.of(AclPermission.APPEND));
+                    }
+                    granted = granted && studio.getDesignRepositoryAclService()
+                        .isGranted(currentProject, List.of(AclPermission.EDIT));
+                } else {
+                    granted = studio.getDesignRepositoryAclService()
+                        .isGranted(currentProject, List.of(AclPermission.EDIT));
+                }
+                return (currentProject.isLocalOnly() || !currentProject.isLocked() || currentProject
+                    .isOpenedForEditing()) && granted;
             }
+        }
+        return false;
+    }
+
+    public boolean isCanCopyModule() {
+        RulesProject currentProject = getProject();
+        if (currentProject != null) {
+            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(AclPermission.APPEND));
         }
         return false;
     }
