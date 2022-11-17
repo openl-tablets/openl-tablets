@@ -30,7 +30,8 @@ RUN set -eux ; \
     cd .. ; \
     mkdir logs; \
     chmod o=u logs; \
-    chmod o=u -R openl-demo
+    mkdir openl-demo; \
+    chmod o=u openl-demo
 
 FROM ubuntu:focal
 
