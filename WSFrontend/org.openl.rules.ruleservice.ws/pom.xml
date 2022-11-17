@@ -247,23 +247,6 @@
     </dependencies>
     <profiles>
         <profile>
-            <id>qsgvosavun</id>
-            <activation>
-                <jdk>[1.8,9)</jdk>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>com.sun.activation</groupId>
-                    <artifactId>jakarta.activation</artifactId>
-                </dependency>
-                <dependency>
-                    <groupId>jakarta.xml.ws</groupId>
-                    <artifactId>jakarta.xml.ws-api</artifactId>
-                    <version>2.3.2</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
             <id>slf4j-log4j</id>
             <activation>
                 <property>

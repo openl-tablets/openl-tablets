@@ -110,7 +110,7 @@
                 <configuration>
                     <requirements>
                         <maven>3.6</maven>
-                        <jdk>8</jdk>
+                        <jdk>11</jdk>
                         <memory>64m</memory>
                     </requirements>
                 </configuration>
