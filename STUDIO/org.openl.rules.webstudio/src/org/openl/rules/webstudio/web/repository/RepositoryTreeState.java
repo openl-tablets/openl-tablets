@@ -966,7 +966,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 return false;
             }
 
-            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.DEPLOY_PROJECT));
+            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.DEPLOY));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -1012,7 +1012,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanDeploy() {
         UserWorkspaceProject selectedProject = getSelectedProject();
         return !selectedProject.isModified() && designRepositoryAclService.isGranted(selectedProject,
-            List.of(AclPermission.DEPLOY_PROJECT));
+            List.of(AclPermission.DEPLOY));
     }
 
     public boolean getCanMerge() {

@@ -121,7 +121,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
         if (designRepositoryAclService.isGranted(project, List.of(VIEW))) {
             return userWorkspace.getActualName(project);
         } else {
-            throw new ProjectException("Access denied");
+            throw new ProjectException("There is no permission for the action.");
         }
     }
 
@@ -143,7 +143,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
         if (designRepositoryAclService.isGranted(repositoryId, projectFolder, List.of(EDIT))) {
             return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
         } else {
-            throw new ProjectException("Access denied");
+            throw new ProjectException("There is no permission for the action.");
         }
     }
 
@@ -166,7 +166,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public RulesProject getProject(String repositoryId, String name) throws ProjectException {
         RulesProject rulesProject = userWorkspace.getProject(repositoryId, name);
         if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(VIEW))) {
-            throw new ProjectException("Access denied");
+            throw new ProjectException("There is no permission for the action.");
         }
         return rulesProject;
     }
@@ -175,7 +175,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public RulesProject getProject(String repositoryId, String name, boolean refreshBefore) throws ProjectException {
         RulesProject rulesProject = userWorkspace.getProject(repositoryId, name, refreshBefore);
         if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(VIEW))) {
-            throw new ProjectException("Access denied");
+            throw new ProjectException("There is no permission for the action.");
         }
         return rulesProject;
     }

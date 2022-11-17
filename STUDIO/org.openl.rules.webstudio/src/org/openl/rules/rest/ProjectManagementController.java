@@ -209,7 +209,7 @@ public class ProjectManagementController {
             @RequestBody String[] items) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DEPLOY_PROJECT))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DEPLOY))) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canDeploy(project)) {

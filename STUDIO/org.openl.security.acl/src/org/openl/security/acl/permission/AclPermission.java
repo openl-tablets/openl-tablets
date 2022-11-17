@@ -25,6 +25,8 @@ public class AclPermission extends BasePermission {
     public static final AclPermission DELETE = new AclPermission(6 << MASK_END | DESIGN_REPOSITORY_DELETE.getMask(),
         'D');
 
+    public static final AclPermission DEPLOY = new AclPermission(11 << MASK_END, 'Y');
+
     public static final AclPermission CREATE_DEPLOYMENT = new AclPermission(
         7 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(),
         'Y');
@@ -37,8 +39,6 @@ public class AclPermission extends BasePermission {
     public static final AclPermission DELETE_DEPLOYMENT = new AclPermission(
         10 << MASK_END | DESIGN_REPOSITORY_DELETE.getMask(),
         'Y');
-
-    public static final AclPermission DEPLOY_PROJECT = new AclPermission(11 << MASK_END, 'Y');
 
     public static final AclPermission RUN = new AclPermission(12 << MASK_END, 'X');
     public static final AclPermission BENCHMARK = new AclPermission(13 << MASK_END, 'X');
@@ -68,7 +68,7 @@ public class AclPermission extends BasePermission {
             return "ARCHIVE";
         } else if (DELETE.getMask() == permission.getMask()) {
             return "DELETE";
-        } else if (DEPLOY_PROJECT.getMask() == permission.getMask()) {
+        } else if (DEPLOY.getMask() == permission.getMask()) {
             return "DEPLOY_PROJECT";
         } else if (RUN.getMask() == permission.getMask()) {
             return "RUN";
@@ -107,7 +107,7 @@ public class AclPermission extends BasePermission {
             case "DELETE":
                 return DELETE;
             case "DEPLOY_PROJECT":
-                return DEPLOY_PROJECT;
+                return DEPLOY;
             case "RUN":
                 return RUN;
             case "BENCHMARK":
@@ -144,8 +144,8 @@ public class AclPermission extends BasePermission {
             return ARCHIVE;
         } else if (DELETE.getMask() == mask) {
             return DELETE;
-        } else if (DEPLOY_PROJECT.getMask() == mask) {
-            return DEPLOY_PROJECT;
+        } else if (DEPLOY.getMask() == mask) {
+            return DEPLOY;
         } else if (RUN.getMask() == mask) {
             return RUN;
         } else if (BENCHMARK.getMask() == mask) {

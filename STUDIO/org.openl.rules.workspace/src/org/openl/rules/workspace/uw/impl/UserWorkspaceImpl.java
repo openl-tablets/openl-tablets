@@ -192,7 +192,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
         }
 
         if (uwp == null) {
-            throw new ProjectException("Cannot find project ''{0}'' or access denied to the project", null, name);
+            throw new ProjectException("Cannot find project ''{0}'' or access to the project is not permitted.",
+                null,
+                name);
         }
 
         return uwp;
