@@ -33,6 +33,18 @@ jobs:
 
     steps:
 
+    # Docker is not installed on GitHub's MacOS hosted workers due to licensing issues
+    # (and it's necessary to run testcontainers)
+    - name: Setup docker and docker-compose (missing on MacOS)
+      if: runner.os == 'macos'
+      run: |
+        brew install docker docker-compose
+        # using mount-type 9p to allow the containers launched via docker-compose to chown
+        # https://github.com/abiosoft/colima/issues/54#issuecomment-1250217077
+        colima start --mount-type 9p
+        echo "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock" >> $GITHUB_ENV
+        echo "DOCKER_HOST=unix://${HOME}/.colima/docker.sock" >> $GITHUB_ENV
+
     - name: Configure GIT
       run: |
         git config --global user.name "OpenL Tablets"
