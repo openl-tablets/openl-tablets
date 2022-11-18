@@ -29,6 +29,8 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 
 * JDK 11
 * Maven 3.8.3
+* Docker 20.10.21
+* Docker compose 1.29.2
 * 512 MiB RAM free
 * 2 GiB Disk space free
 
@@ -36,7 +38,7 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 
 `mvn`
 
-Estimated build time: ~25 minutes
+Estimated build time: ~30 minutes (with all tests)
 
 Artifacts:
 * **WebStudio** - STUDIO\org.openl.rules.webstudio\target\webapp.war
