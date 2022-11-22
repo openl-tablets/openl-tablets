@@ -4,7 +4,9 @@ import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
 
 import javax.security.auth.login.FailedLoginException;
 
@@ -49,8 +51,8 @@ public final class RepositoryValidators {
         }
         if (!NameChecker.checkName(repoConfig.getName())) {
             String msg = String.format(
-                    "Repository name '%s' contains illegal characters. Please, correct repository name.",
-                    repoConfig.getName());
+                "Repository name '%s' contains illegal characters. Please, correct repository name.",
+                repoConfig.getName());
             throw new RepositoryValidationException(msg);
         }
 
@@ -59,7 +61,7 @@ public final class RepositoryValidators {
             if (other != repoConfig) {
                 if (repoConfig.getName().equals(other.getName())) {
                     String msg = String.format("Repository name '%s' already exists. Please, insert a new one.",
-                            repoConfig.getName());
+                        repoConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
             }
@@ -73,7 +75,7 @@ public final class RepositoryValidators {
                     Path otherPath = Paths.get(((GitRepositorySettings) other.getSettings()).getLocalRepositoryPath());
                     if (path.equals(otherPath)) {
                         String msg = String
-                                .format("Repository local path '%s' already exists. Please, insert a new one.", path);
+                            .format("Repository local path '%s' already exists. Please, insert a new one.", path);
                         throw new RepositoryValidationException(msg);
                     }
                 }
@@ -102,7 +104,7 @@ public final class RepositoryValidators {
             if (other != repoConfig) {
                 if (repoConfig.getName().equals(other.getName())) {
                     String msg = String.format("Repository name '%s' already exists. Please, insert a new one.",
-                            repoConfig.getName());
+                        repoConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
 
@@ -113,7 +115,7 @@ public final class RepositoryValidators {
                         String login = settings.getLogin();
                         if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
                             String msg = String.format("Repository path '%s' already exists. Please, insert a new one.",
-                                    path);
+                                path);
                             throw new RepositoryValidationException(msg);
                         }
                     }
