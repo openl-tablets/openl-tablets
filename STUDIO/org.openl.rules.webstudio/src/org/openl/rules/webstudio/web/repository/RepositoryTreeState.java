@@ -350,7 +350,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
     }
 
-    public TreeNode getSelectedNode() { //
+    public TreeNode getSelectedNode() {
         synchronized (lock) {
             buildTree();
             return this.repositorySelectNodeStateHolder.getSelectedNode();
