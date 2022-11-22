@@ -214,8 +214,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                         final List<OpenLProject> projectsForTags = projectService.getProjectsForTag(tag.getId());
 
                         final List<RulesProject> subProjects = rulesProjects.stream()
-                            .filter(project -> projectsForTags.stream()
-                                .anyMatch(p -> p.getProjectPath().equals(project.getRealPath())))
+                            .filter(project -> (projectsForTags.stream()
+                                .anyMatch(p -> (p.getProjectPath().equals(project.getRealPath()) &&
+                                        p.getRepositoryId().equals(project.getRepository().getId())))))
                             .collect(Collectors.toList());
 
                         if (!subProjects.isEmpty()) {
@@ -349,7 +350,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
     }
 
-    public TreeNode getSelectedNode() {
+    public TreeNode getSelectedNode() { //
         synchronized (lock) {
             buildTree();
             return this.repositorySelectNodeStateHolder.getSelectedNode();
