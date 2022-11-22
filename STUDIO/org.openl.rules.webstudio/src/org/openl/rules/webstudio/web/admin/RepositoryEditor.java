@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.admin;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -10,10 +11,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
-import org.openl.rules.project.abstraction.Comments;
 import org.openl.util.StringUtils;
 
 public class RepositoryEditor {
@@ -23,23 +24,33 @@ public class RepositoryEditor {
 
     private List<RepositoryConfiguration> repositoryConfigurations;
     private final List<RepositoryConfiguration> deletedConfigurations = new ArrayList<>();
+    private final Set<String> forbiddenIds = new HashSet<>();
 
     private final PropertiesHolder properties;
 
-    public RepositoryEditor(RepositoryFactoryProxy repositoryFactoryProxy,
-            PropertiesHolder properties) {
+    public RepositoryEditor(RepositoryFactoryProxy repositoryFactoryProxy, PropertiesHolder properties) {
         this.repositoryFactoryProxy = repositoryFactoryProxy;
         this.repoListConfig = repositoryFactoryProxy.getRepoListConfig();
         this.properties = properties;
         reload();
     }
 
+    public void setForbiddenIds(String... ids) {
+        forbiddenIds.clear();
+        if (ids != null) {
+            forbiddenIds.addAll(Arrays.stream(ids).filter(Objects::nonNull).collect(Collectors.toSet()));
+        }
+    }
+
     public static String getNewConfigName(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
         AtomicInteger max = new AtomicInteger(0);
         String configName = repoMode.getId();
-        Set<String> configNames = configurations.stream().map(RepositoryConfiguration::getConfigName).collect(Collectors.toSet());
+        Set<String> configNames = configurations.stream()
+            .map(RepositoryConfiguration::getConfigName)
+            .collect(Collectors.toSet());
 
-        //existingConfigNames can contain ids that were deleted but were not saved, such ids should not be assigned to a new repository
+        // existingConfigNames can contain ids that were deleted but were not saved, such ids should not be assigned to
+        // a new repository
         String existingConfigNames = Props.getEnvironment().getProperty(configName + "-repository-configs");
         if (StringUtils.isNotEmpty(existingConfigNames)) {
             configNames.addAll(Arrays.asList(existingConfigNames.split(",")));
@@ -74,8 +85,7 @@ public class RepositoryEditor {
 
     private boolean isValidConfig(String configName) {
         return Objects.nonNull(
-            properties.getPropertyResolver().getProperty(Comments.REPOSITORY_PREFIX + configName + ".factory")
-        );
+            properties.getPropertyResolver().getProperty(Comments.REPOSITORY_PREFIX + configName + ".factory"));
     }
 
     public void addRepository(RepositoryConfiguration configuration) {
@@ -105,6 +115,11 @@ public class RepositoryEditor {
 
     public void validate() throws RepositoryValidationException {
         for (RepositoryConfiguration config : repositoryConfigurations) {
+            if (forbiddenIds.contains(config.getConfigName())) {
+                String msg = String.format("Repository name '%s' already exists. Please, choose another name.",
+                    config.getName());
+                throw new RepositoryValidationException(msg);
+            }
             RepositoryValidators.validate(config, repositoryConfigurations);
             RepositoryValidators.validateConnection(config, repositoryFactoryProxy);
         }
