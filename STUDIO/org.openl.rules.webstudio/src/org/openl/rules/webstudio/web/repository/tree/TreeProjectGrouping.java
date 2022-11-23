@@ -132,7 +132,8 @@ public class TreeProjectGrouping extends AbstractTreeNode {
 
                             final List<RulesProject> subProjects = projects.stream()
                                 .filter(project -> projectsForTags.stream()
-                                    .anyMatch(p -> p.getProjectPath().equals(project.getRealPath())))
+                                    .anyMatch(p -> (p.getProjectPath().equals(project.getRealPath())) &&
+                                            p.getRepositoryId().equals(project.getRepository().getId())))
                                 .collect(Collectors.toList());
                             projectsAtCurrentLevel.removeAll(subProjects);
 
