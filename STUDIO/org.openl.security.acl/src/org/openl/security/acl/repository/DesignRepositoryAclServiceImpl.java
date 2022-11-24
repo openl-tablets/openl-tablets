@@ -17,6 +17,7 @@ import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
+import org.openl.security.acl.MutableAclService;
 import org.openl.util.StringUtils;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -24,7 +25,6 @@ import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.MutableAcl;
-import org.springframework.security.acls.model.MutableAclService;
 import org.springframework.security.acls.model.NotFoundException;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
@@ -573,5 +573,11 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
     public boolean createAcl(AProjectArtefact artefact, List<Permission> permissions) {
         ObjectIdentity oi = buildObjectIdentity(artefact);
         return createAcl(oi, permissions);
+    }
+
+    @Override
+    @Transactional
+    public void deleteSid(Sid sid) {
+        aclService.deleteSid(sid, relevantSystemWideSid);
     }
 }

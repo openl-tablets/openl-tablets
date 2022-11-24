@@ -42,12 +42,14 @@ import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,6 +80,7 @@ public class UsersController {
     private final PasswordEncoder passwordEncoder;
     private final ExternalGroupService extGroupService;
     private final MailSender mailSender;
+    private final DesignRepositoryAclService designRepositoryAclService;
 
     @Autowired
     public UsersController(UserManagementService userManagementService,
@@ -89,7 +92,8 @@ public class UsersController {
             BeanValidationProvider validationService,
             UserSettingManagementService userSettingsManager,
             ExternalGroupService extGroupService,
-            MailSender mailSender) {
+            MailSender mailSender,
+            DesignRepositoryAclService designRepositoryAclService) {
         this.userManagementService = userManagementService;
         this.canCreateInternalUsers = canCreateInternalUsers;
         this.adminUsersInitializer = adminUsersInitializer;
@@ -100,6 +104,7 @@ public class UsersController {
         this.validationProvider = validationService;
         this.extGroupService = extGroupService;
         this.mailSender = mailSender;
+        this.designRepositoryAclService = designRepositoryAclService;
     }
 
     @Operation(description = "users.get-users.desc", summary = "users.get-users.summary")
@@ -275,6 +280,7 @@ public class UsersController {
     public void deleteUser(@Parameter(description = "users.field.username") @PathVariable("username") String username) {
         checkUserExists(username);
         userManagementService.deleteUser(username);
+        designRepositoryAclService.deleteSid(new PrincipalSid(username));
     }
 
     @Operation(description = "users.options.desc", summary = "users.options.summary")
