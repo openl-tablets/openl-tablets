@@ -79,6 +79,11 @@ public class DeploymentController {
     private Comments deployConfigRepoComments;
 
     public void onPageLoad() {
+        if (repositoryTreeState.getSelectedNode() == null) {
+            repositoryTreeState.invalidateSelection();
+            canDeploy = false;
+            return;
+        }
         if (repositoryTreeState == null || getSelectedProject() == null) {
             canDeploy = false;
             return;
