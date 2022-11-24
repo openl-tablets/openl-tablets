@@ -228,7 +228,6 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             RulesProject project = userWorkspace.getProject(repositoryId, currentProjectName, false);
-            ProjectHistoryService.deleteHistory(project.getBusinessName());
             if (isSupportsBranches() && !separateProject) {
                 Repository designRepository = project.getDesignRepository();
                 ((BranchRepository) designRepository).createBranch(project.getDesignFolderName(), newBranchName);
