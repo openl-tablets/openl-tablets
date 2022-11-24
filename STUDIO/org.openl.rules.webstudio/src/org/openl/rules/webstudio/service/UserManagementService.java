@@ -16,7 +16,9 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.StringUtils;
+import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,12 +36,18 @@ public class UserManagementService {
     private final GroupDao groupDao;
     private final SessionRegistry sessionRegistry;
     private final PasswordEncoder passwordEncoder;
+    private final DesignRepositoryAclService designRepositoryAclService;
 
-    public UserManagementService(UserDao userDao, GroupDao groupDao, SessionRegistry sessionRegistry, PasswordEncoder passwordEncoder) {
+    public UserManagementService(UserDao userDao,
+            GroupDao groupDao,
+            SessionRegistry sessionRegistry,
+            PasswordEncoder passwordEncoder,
+            DesignRepositoryAclService designRepositoryAclService) {
         this.userDao = userDao;
         this.groupDao = groupDao;
         this.sessionRegistry = sessionRegistry;
         this.passwordEncoder = passwordEncoder;
+        this.designRepositoryAclService = designRepositoryAclService;
     }
 
     public List<org.openl.rules.security.User> getAllUsers() {
@@ -187,6 +195,7 @@ public class UserManagementService {
 
     public void deleteUser(String username) {
         userDao.deleteUserByName(username);
+        designRepositoryAclService.deleteSid(new PrincipalSid(username));
     }
 
     /**

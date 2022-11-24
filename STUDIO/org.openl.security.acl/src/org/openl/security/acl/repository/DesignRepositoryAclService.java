@@ -66,4 +66,6 @@ public interface DesignRepositoryAclService {
     boolean createAcl(String repositoryId, String path, List<Permission> permissions);
 
     boolean createAcl(AProjectArtefact artefact, List<Permission> permissions);
+
+    void deleteSid(Sid sid);
 }

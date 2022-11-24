@@ -16,11 +16,13 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
+import org.openl.security.acl.repository.DesignRepositoryAclService;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,18 +54,21 @@ public class ManagementController {
     private final InMemoryProperties properties;
     private final BeanValidationProvider validationProvider;
     private final ExternalGroupService extGroupService;
+    private final DesignRepositoryAclService designRepositoryAclService;
 
     @Autowired
     public ManagementController(GroupDao groupDao,
             GroupManagementService groupManagementService,
             InMemoryProperties properties,
             BeanValidationProvider validationProvider,
-            ExternalGroupService extGroupService) {
+            ExternalGroupService extGroupService,
+            DesignRepositoryAclService designRepositoryAclService) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
         this.properties = properties;
         this.validationProvider = validationProvider;
         this.extGroupService = extGroupService;
+        this.designRepositoryAclService = designRepositoryAclService;
     }
 
     @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary")
@@ -76,10 +81,13 @@ public class ManagementController {
     @Operation(description = "mgmt.delete-group.desc", summary = "mgmt.delete-group.summary")
     @DeleteMapping(value = "/groups/{id}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void deleteGroup(
-            @Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
+    public void deleteGroup(@Parameter(description = "mgmt.schema.group.id") @PathVariable("id") final Long id) {
         SecurityChecker.allow(Privileges.ADMIN);
+        Group group = groupDao.getGroupById(id);
         groupDao.deleteGroupById(id);
+        if (group != null) {
+            designRepositoryAclService.deleteSid(new GrantedAuthoritySid(group.getName()));
+        }
     }
 
     @Operation(description = "mgmt.save-group.desc", summary = "mgmt.save-group.summary")

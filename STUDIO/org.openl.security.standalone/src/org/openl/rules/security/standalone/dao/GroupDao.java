@@ -1,8 +1,8 @@
 package org.openl.rules.security.standalone.dao;
 
-import org.openl.rules.security.standalone.persistence.Group;
-
 import java.util.List;
+
+import org.openl.rules.security.standalone.persistence.Group;
 
 /**
  * Group dao.
@@ -12,6 +12,8 @@ import java.util.List;
 public interface GroupDao extends Dao<Group> {
 
     Group getGroupByName(String name);
+
+    Group getGroupById(Long id);
 
     void deleteGroupById(Long id);
 

@@ -121,7 +121,7 @@ public class GroupManagementTest {
         userService.deleteUser("jdoe");
         queryCount = QueryCountHolder.getGrandTotal();
         assertEquals(1, queryCount.getDelete());
-        assertEquals(1, queryCount.getTotal());
+        assertEquals(2, queryCount.getTotal());
 
         QueryCountHolder.clear();
         extGroups = externalGroupService.findAllForUser("jdoe");

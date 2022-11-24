@@ -132,4 +132,8 @@ public class DisabledDesignRepositoryAclServiceImpl implements DesignRepositoryA
     public boolean createAcl(String repositoryId, String path, List<Permission> permissions) {
         return true;
     }
+
+    @Override
+    public void deleteSid(Sid sid) {
+    }
 }
