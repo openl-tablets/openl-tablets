@@ -9,22 +9,22 @@ import static org.mockito.Mockito.when;
 import javax.mail.MessagingException;
 import javax.mail.Transport;
 
+import com.icegreen.greenmail.smtp.SmtpServer;
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetup;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.openl.rules.rest.model.MailConfigModel;
-import org.openl.rules.webstudio.mail.MailSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.SocketUtils;
 import org.springframework.validation.BindingResult;
 
-import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.ServerSetup;
+import org.openl.rules.rest.model.MailConfigModel;
+import org.openl.rules.webstudio.mail.MailSender;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -32,7 +32,7 @@ import com.icegreen.greenmail.util.ServerSetup;
 public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
     private static GreenMail smtpServer;
-    private static int smtpPort;
+    private static String mailUrl;
 
     @Autowired
     private MailSender mailSender;
@@ -44,10 +44,12 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
     @BeforeClass
     public static void setUp() {
-        smtpPort = SocketUtils.findAvailableTcpPort(1000);
-        smtpServer = new GreenMail(new ServerSetup(smtpPort, "127.0.0.1", ServerSetup.PROTOCOL_SMTP));
+        smtpServer = new GreenMail(new ServerSetup(0, null, ServerSetup.PROTOCOL_SMTP));
         smtpServer.setUser("username@email", "password");
         smtpServer.start();
+        SmtpServer smtp = smtpServer.getSmtp();
+        mailUrl = smtp.getProtocol() + "://" + smtp.getBindTo() + ":" + smtp.getPort();
+
     }
 
     @AfterClass
@@ -85,7 +87,7 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
 
     private MailConfigModel getValidMailConfigModel() {
         return new MailConfigModel()
-            .setUrl("smtp://127.0.0.1:" + smtpPort)
+            .setUrl(mailUrl)
             .setUsername("username@email")
             .setPassword("password");
     }

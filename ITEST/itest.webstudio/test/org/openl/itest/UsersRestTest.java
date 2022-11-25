@@ -12,26 +12,25 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import com.icegreen.greenmail.smtp.SmtpServer;
+import com.icegreen.greenmail.store.FolderException;
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetup;
 import org.h2.tools.Server;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.itest.core.HttpClient;
-import org.openl.itest.core.JettyServer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.util.SocketUtils;
 
-import com.icegreen.greenmail.store.FolderException;
-import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.ServerSetup;
+import org.openl.itest.core.HttpClient;
+import org.openl.itest.core.JettyServer;
 
 public class UsersRestTest {
 
@@ -42,7 +41,7 @@ public class UsersRestTest {
     private static JettyServer server;
     private static HttpClient client;
     private static GreenMail smtpServer;
-    private static int smtpPort;
+    private static String mailUrl;
 
     private static Server h2Server;
     private static Connection h2Connection;
@@ -59,10 +58,12 @@ public class UsersRestTest {
         server = JettyServer.start("usr", Map.of("db.url", dbUrl));
         client = server.client();
 
-        smtpPort = SocketUtils.findAvailableTcpPort(1000);
-        smtpServer = new GreenMail(new ServerSetup(smtpPort, "127.0.0.1", ServerSetup.PROTOCOL_SMTP));
+        smtpServer = new GreenMail(new ServerSetup(0, null, ServerSetup.PROTOCOL_SMTP));
         smtpServer.setUser("username@email", "password");
         smtpServer.start();
+
+        SmtpServer smtp = smtpServer.getSmtp();
+        mailUrl = smtp.getProtocol() + "://" + smtp.getBindTo() + ":" + smtp.getPort();
 
         try (Statement statement = h2Connection.createStatement()) {
             statement.execute(String.format("SCRIPT TO '%s'", DB_DUMP_FILE));
@@ -152,14 +153,14 @@ public class UsersRestTest {
 
         MailConfig newMailConfig = new MailConfig();
         newMailConfig.password = "password";
-        newMailConfig.url = "smtp://127.0.0.1:" + smtpPort;
+        newMailConfig.url = mailUrl;
         newMailConfig.username = "username@email";
         client.putForObject("/web/mail/settings", newMailConfig, MailConfig.class, HttpStatus.NO_CONTENT, headers);
 
         MailConfig mailConfig = client.getForObject("/web/mail/settings", MailConfig.class, HttpStatus.OK, headers);
         Assert.assertEquals("password", mailConfig.password);
         Assert.assertEquals("username@email", mailConfig.username);
-        Assert.assertEquals("smtp://127.0.0.1:" + smtpPort, mailConfig.url);
+        Assert.assertEquals(mailUrl, mailConfig.url);
 
         int receivedMessagesCounter = 0;
         client.send("users-service/users-1.get");
