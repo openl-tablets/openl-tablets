@@ -8,11 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Optional;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
@@ -30,31 +29,26 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.itest.core.HttpClient;
-import org.openl.itest.core.JettyServer;
-import org.openl.rules.ruleservice.kafka.KafkaHeaders;
-
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
+
+import org.openl.itest.core.HttpClient;
+import org.openl.itest.core.JettyServer;
+import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 
 
 public class RunKafkaSmokeITest {
     private static JettyServer server;
     private static HttpClient client;
 
-    private static final DockerImageName KAFKA_TEST_IMAGE = DockerImageName.parse("confluentinc/cp-kafka:7.3.0");
-    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(KAFKA_TEST_IMAGE).withReuse(true);
-
-    private static final String KAFKA_SERVER_ADDRESS = System.getProperty("ruleservice.kafka.bootstrap.servers");
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0")).withReuse(true);
 
     @BeforeClass
     public static void setUp() throws Exception {
         KAFKA_CONTAINER.start();
-        // TODO consider to use application.properties or servlet context instead of direct setting with System.setProperty
-        System.setProperty("ruleservice.kafka.bootstrap.servers", "localhost:" + KAFKA_CONTAINER.getBootstrapServers().split(":")[2]);
 
-        server = JettyServer.start();
+        server = JettyServer.start(Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers()));
         client = server.client();
     }
 
@@ -158,7 +152,7 @@ public class RunKafkaSmokeITest {
              KafkaConsumer<String, String> consumer = createKafkaConsumer(KAFKA_CONTAINER.getBootstrapServers())) {
 
             AdminClient adminClient = AdminClient.create(
-                    ImmutableMap.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_CONTAINER.getBootstrapServers())
+                    Map.of(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_CONTAINER.getBootstrapServers())
             );
             Collection<NewTopic> topics = Collections.singletonList(new NewTopic(HELLO_REPLY_DLT_TOPIC, 10, (short) 1));
             adminClient.createTopics(topics).all().get(30, TimeUnit.SECONDS);
@@ -206,12 +200,6 @@ public class RunKafkaSmokeITest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        // TODO consider to use application.properties or servlet context instead of direct setting with System.setProperty
-        // return previous values
-        Optional.ofNullable(KAFKA_SERVER_ADDRESS).ifPresentOrElse(
-                address -> System.setProperty("ruleservice.kafka.bootstrap.servers", address),
-                () -> System.getProperties().remove("ruleservice.kafka.bootstrap.servers"));
-
         server.stop();
         KAFKA_CONTAINER.stop();
     }
@@ -221,7 +209,7 @@ public class RunKafkaSmokeITest {
     }
 
     private static void testKafka(String inTopic, String outTopic, String key, String value, String expectedValue) {
-        testKafka(new ProducerRecord<>(inTopic, key, value), outTopic,expectedValue);
+        testKafka(new ProducerRecord<>(inTopic, key, value), outTopic, expectedValue);
     }
 
     private static void testKafka(ProducerRecord<String, String> producerRecord, String outTopic, String expectedValue) {
@@ -237,7 +225,7 @@ public class RunKafkaSmokeITest {
 
     private static KafkaProducer<String, String> createKafkaProducer(String bootstrapServers) {
         return new KafkaProducer<>(
-                ImmutableMap.of(
+                Map.of(
                         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
                         bootstrapServers,
                         ProducerConfig.CLIENT_ID_CONFIG,
@@ -250,7 +238,7 @@ public class RunKafkaSmokeITest {
 
     private static KafkaConsumer<String, String> createKafkaConsumer(String bootstrapServers) {
         return new KafkaConsumer<>(
-                ImmutableMap.of(
+                Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                         ConsumerConfig.GROUP_ID_CONFIG, "junit",
                         METADATA_MAX_AGE_CONFIG, 1000,

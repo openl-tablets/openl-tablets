@@ -17,15 +17,19 @@ import java.sql.Statement;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-
 import javax.persistence.Entity;
 
 import com.datastax.driver.core.Cluster;
-import com.google.common.collect.ImmutableMap;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.exceptions.InvalidQueryException;
+import com.datastax.driver.core.exceptions.QueryExecutionException;
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -39,6 +43,13 @@ import org.h2.tools.Server;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.rnorth.ducttape.unreliables.Unreliables;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.CassandraContainer;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.utility.DockerImageName;
+
 import org.openl.itest.cassandra.CassandraFields;
 import org.openl.itest.cassandra.HelloEntity1;
 import org.openl.itest.cassandra.HelloEntity2;
@@ -53,19 +64,6 @@ import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.cassandra.DefaultCassandraEntity;
 import org.openl.rules.ruleservice.storelogdata.db.DefaultEntity;
-
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.exceptions.InvalidQueryException;
-import com.datastax.driver.core.exceptions.QueryExecutionException;
-import com.datastax.oss.driver.api.mapper.annotations.CqlName;
-import org.rnorth.ducttape.unreliables.Unreliables;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.CassandraContainer;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
 
 public class RunStoreLogDataITest {
     private static final Logger LOG = LoggerFactory.getLogger(RunStoreLogDataITest.class);
@@ -90,17 +88,14 @@ public class RunStoreLogDataITest {
     private static final CassandraContainer CASSANDRA_CONTAINER = new CassandraContainer<>("cassandra:4");
     private static Cluster cassandraCluster;
 
-    private static final DockerImageName KAFKA_TEST_IMAGE = DockerImageName.parse("confluentinc/cp-kafka:7.3.0");
-
-    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(KAFKA_TEST_IMAGE);
-
-    private static final String CASSANDRA_SERVER_ADDRESS = System.getProperty("datastax-java-driver.basic.contact-points.0");
-    private static final String KAFKA_SERVER_ADDRESS = System.getProperty("ruleservice.kafka.bootstrap.servers");
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"));
 
     @BeforeClass
     public static void setUp() throws Exception {
-        h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists", "-tcpPort", "9110");
+        h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists");
         h2Server.start();
+        String dbUrl = "jdbc:h2:" + h2Server.getURL() + "/mem:mydb";
+        h2Connection = DriverManager.getConnection(dbUrl);
 
         CASSANDRA_CONTAINER.start();
         cassandraCluster = CASSANDRA_CONTAINER.getCluster();
@@ -108,15 +103,12 @@ public class RunStoreLogDataITest {
 
         KAFKA_CONTAINER.start();
 
-        // TODO consider to use application.properties or servlet context instead of direct setting with System.setProperty
-        System.setProperty("ruleservice.kafka.bootstrap.servers", "localhost:" + KAFKA_CONTAINER.getBootstrapServers().split(":")[2]);
-        System.setProperty("datastax-java-driver.basic.contact-points.0",
-                CASSANDRA_CONTAINER.getHost() + ":" + CASSANDRA_CONTAINER.getFirstMappedPort());
-
-        server = JettyServer.startSharingClassLoader();
+        Map<String, String> params = Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers(),
+                "datastax-java-driver.basic.contact-points.0", CASSANDRA_CONTAINER.getHost() + ":" + CASSANDRA_CONTAINER.getFirstMappedPort(),
+                "hibernate.connection.url", dbUrl);
+        server = JettyServer.startSharingClassLoader(params);
         client = server.client();
 
-        h2Connection = DriverManager.getConnection("jdbc:h2:tcp://localhost:9110/mem:mydb");
     }
 
     static void createKeyspace(Cluster cluster,
@@ -594,7 +586,7 @@ public class RunStoreLogDataITest {
     }
 
     private void testKafka(String inTopic, String outTopic, String key, String value, String expectedValue) {
-        testKafka(new ProducerRecord<>(inTopic, key, value), outTopic,expectedValue);
+        testKafka(new ProducerRecord<>(inTopic, key, value), outTopic, expectedValue);
     }
 
     private void testKafka(ProducerRecord<String, String> producerRecord, String outTopic, String expectedValue) {
@@ -664,15 +656,6 @@ public class RunStoreLogDataITest {
 
     @AfterClass
     public static void tearDown() throws Exception {
-        // TODO consider to use application.properties or servlet context instead of direct setting with System.setProperty
-        // return previous values
-        Optional.ofNullable(CASSANDRA_SERVER_ADDRESS).ifPresentOrElse(
-                address -> System.setProperty("datastax-java-driver.basic.contact-points.0", address),
-                () -> System.getProperties().remove("datastax-java-driver.basic.contact-points.0"));
-        Optional.ofNullable(KAFKA_SERVER_ADDRESS).ifPresentOrElse(
-                address -> System.setProperty("ruleservice.kafka.bootstrap.servers", address),
-                () -> System.getProperties().remove("ruleservice.kafka.bootstrap.servers"));
-
 
         server.stop();
 
@@ -707,7 +690,7 @@ public class RunStoreLogDataITest {
 
     private static KafkaProducer<String, String> createKafkaProducer(String bootstrapServers) {
         return new KafkaProducer<>(
-                ImmutableMap.of(
+                Map.of(
                         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                         ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()
                 ),
@@ -718,7 +701,7 @@ public class RunStoreLogDataITest {
 
     private static KafkaConsumer<String, String> createKafkaConsumer(String bootstrapServers) {
         return new KafkaConsumer<>(
-                ImmutableMap.of(
+                Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                         ConsumerConfig.GROUP_ID_CONFIG, "tc-" + UUID.randomUUID(),
                         ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest"
@@ -744,7 +727,7 @@ public class RunStoreLogDataITest {
     }
 
     private static List<Row> getCassandraRows(final String tableName) {
-        try(Session session = cassandraCluster.connect()) {
+        try (Session session = cassandraCluster.connect()) {
             ResultSet resultSet = session.execute("SELECT * FROM " + KEYSPACE + "." + tableName);
             return resultSet.all();
         }

@@ -6,7 +6,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -32,7 +34,7 @@ public class JettyServer {
 
     private final Server server;
 
-    private JettyServer(String explodedWar, boolean sharedClassloader, String[] profiles) throws IOException {
+    private JettyServer(String explodedWar, boolean sharedClassloader, Map<String, String> params) throws IOException {
         this.server = new Server(0);
         this.server.setStopAtShutdown(true);
         WebAppContext webAppContext = new WebAppContext();
@@ -42,8 +44,8 @@ public class JettyServer {
         webAppContext.addSystemClassMatcher(new ClassMatcher("org.slf4j."));
         webAppContext.addSystemClassMatcher(new ClassMatcher("-javax.activation."));
 
-        if (profiles != null && profiles.length > 0) {
-            webAppContext.setInitParameter("spring.profiles.active", String.join(",", profiles));
+        if (params != null && params.size() > 0) {
+            webAppContext.getInitParams().putAll(params);
         }
 
         webAppContext.setAttribute(MetaInfConfiguration.WEBINF_JAR_PATTERN, ".*/classes/.*" +
@@ -67,11 +69,44 @@ public class JettyServer {
 
     /**
      * Start an application with configuration defined using {@code @WebListener}.
-     *
-     * @param profiles Spring profiles which are activated
      */
-    public static JettyServer start(String... profiles) throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, profiles);
+    public static JettyServer start() throws Exception {
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, null);
+        jetty.server.start();
+        return jetty;
+    }
+
+    /**
+     * Start an application with configuration defined using {@code @WebListener}.
+     *
+     * @param profile Spring profiles which are activated
+     */
+    public static JettyServer start(String profile) throws Exception {
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, Map.of("spring.profiles.active", profile));
+        jetty.server.start();
+        return jetty;
+    }
+
+    /**
+     * Start an application with configuration defined using {@code @WebListener}.
+     *
+     * @param params Servlet context init params
+     */
+    public static JettyServer start(String profile, Map<String, String> params) throws Exception {
+        params = new HashMap<>(params);
+        params.put("spring.profiles.active", profile);
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, params);
+        jetty.server.start();
+        return jetty;
+    }
+
+    /**
+     * Start an application with configuration defined using {@code @WebListener}.
+     *
+     * @param params Servlet context init params
+     */
+    public static JettyServer start(Map<String, String> params) throws Exception {
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, params);
         jetty.server.start();
         return jetty;
     }
@@ -79,9 +114,11 @@ public class JettyServer {
     /**
      * Start an application with configuration defined using {@code @WebListener} and sharing JUnit classloader with the
      * application.
+     *
+     * @param params Servlet context init params
      */
-    public static JettyServer startSharingClassLoader() throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), true, null);
+    public static JettyServer startSharingClassLoader(Map<String, String> params) throws Exception {
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), true, params);
         jetty.server.start();
         return jetty;
     }
@@ -104,9 +141,12 @@ public class JettyServer {
      * Starts Jetty Server and executes a set of http requests.
      */
     public static void test(String profile, boolean waitUntilReady) throws Exception {
-        String[] profiles = profile == null ? new String[0] : new String[] { profile };
+        Map<String, String> params = null;
+        if (profile != null) {
+            params = Map.of("spring.profiles.active", profile);
+        }
         String testFolder = profile == null ? "test-resources" : ("test-resources-" + profile);
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, profiles);
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, params);
 
         final Locale DEFAULT_LOCALE = Locale.getDefault();
         final TimeZone DEFAULT_TIMEZONE = TimeZone.getDefault();

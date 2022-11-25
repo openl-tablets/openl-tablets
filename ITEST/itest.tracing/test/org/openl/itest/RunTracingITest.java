@@ -13,6 +13,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import io.opentracing.mock.MockSpan;
+import io.opentracing.mock.MockTracer;
+import io.opentracing.tag.Tags;
+import io.opentracing.util.GlobalTracer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -25,19 +29,15 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.openl.itest.core.HttpClient;
-import org.openl.itest.core.JettyServer;
-
-import io.opentracing.mock.MockSpan;
-import io.opentracing.mock.MockTracer;
-import io.opentracing.tag.Tags;
-import io.opentracing.util.GlobalTracer;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import org.testcontainers.utility.DockerImageName;
+
+import org.openl.itest.core.HttpClient;
+import org.openl.itest.core.JettyServer;
 
 public class RunTracingITest {
 
@@ -50,19 +50,15 @@ public class RunTracingITest {
     private static HttpClient client;
     private static MockTracer tracer;
 
-    private static final DockerImageName KAFKA_TEST_IMAGE = DockerImageName.parse("confluentinc/cp-kafka:7.3.0");
-    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(KAFKA_TEST_IMAGE).withReuse(true);
-    private static final String KAFKA_SERVER_ADDRESS = System.getProperty("ruleservice.kafka.bootstrap.servers");
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0")).withReuse(true);
 
     @BeforeClass
     public static void setUp() throws Exception {
         KAFKA_CONTAINER.start();
-        // TODO consider to use application.properties or servlet context instead of direct setting with System.setProperty
-        System.setProperty("ruleservice.kafka.bootstrap.servers", "localhost:" + KAFKA_CONTAINER.getBootstrapServers().split(":")[2]);
 
         tracer = new MockTracer();
         GlobalTracer.registerIfAbsent(tracer);
-        server = JettyServer.startSharingClassLoader();
+        server = JettyServer.startSharingClassLoader(Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers()));
         client = server.client();
     }
 
@@ -73,11 +69,6 @@ public class RunTracingITest {
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
-        // TODO consider to use application.properties or servlet context instead of direct setting with System.setProperty
-        // return previous values
-        Optional.ofNullable(KAFKA_SERVER_ADDRESS).ifPresentOrElse(
-                address -> System.setProperty("ruleservice.kafka.bootstrap.servers", address),
-                () -> System.getProperties().remove("ruleservice.kafka.bootstrap.servers"));
 
         doQuite(KAFKA_CONTAINER::stop);
     }

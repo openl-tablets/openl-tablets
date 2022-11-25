@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.mail.Message;
@@ -49,10 +50,13 @@ public class UsersRestTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists", "-tcpPort", "9111");
+        h2Server = Server.createTcpServer("-tcp", "-tcpAllowOthers", "-ifNotExists");
         h2Server.start();
+        String dbUrl = "jdbc:h2:" + h2Server.getURL() + "/mem:mydb";
+        h2Connection = DriverManager.getConnection(dbUrl);
+        h2Connection.setAutoCommit(false);
 
-        server = JettyServer.start("usr");
+        server = JettyServer.start("usr", Map.of("db.url", dbUrl));
         client = server.client();
 
         smtpPort = SocketUtils.findAvailableTcpPort(1000);
@@ -60,11 +64,6 @@ public class UsersRestTest {
         smtpServer.setUser("username@email", "password");
         smtpServer.start();
 
-        // Most probably WebStudio loads h2 driver in its own classloader and it's not accessible from this test, so
-        // we need to register it.
-        Class.forName("org.h2.Driver");
-        h2Connection = DriverManager.getConnection("jdbc:h2:tcp://localhost:9111/mem:mydb");
-        h2Connection.setAutoCommit(false);
         try (Statement statement = h2Connection.createStatement()) {
             statement.execute(String.format("SCRIPT TO '%s'", DB_DUMP_FILE));
         }
