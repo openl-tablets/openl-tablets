@@ -53,7 +53,7 @@ import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
@@ -112,17 +112,17 @@ public class RepositoryController {
 
     private final Comments designRepoComments;
 
-    private final DesignRepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService repositoryAclService;
 
     @Autowired
     public RepositoryController(MultiUserWorkspaceManager workspaceManager,
             PropertyResolver propertyResolver,
             UserManagementService userManagementService,
-            DesignRepositoryAclService designRepositoryAclService) {
+            RepositoryAclService repositoryAclService) {
         this.workspaceManager = workspaceManager;
         this.designRepoComments = new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID);
         this.userManagementService = userManagementService;
-        this.designRepositoryAclService = designRepositoryAclService;
+        this.repositoryAclService = repositoryAclService;
     }
 
     /**
@@ -198,7 +198,7 @@ public class RepositoryController {
                 if (fileData == null) {
                     throw new FileNotFoundException(String.format("Project '%s' is not found.", name));
                 }
-                if (!designRepositoryAclService
+                if (!repositoryAclService
                     .isGranted(repository.getId(), fileData.getName(), List.of(AclPermission.VIEW))) {
                     throw new SecurityException();
                 }
@@ -212,7 +212,7 @@ public class RepositoryController {
                 if (fileItem == null) {
                     throw new FileNotFoundException(String.format("File '%s' is not found.", name));
                 }
-                if (!designRepositoryAclService
+                if (!repositoryAclService
                     .isGranted(repository.getId(), fileItem.getData().getName(), List.of(AclPermission.VIEW))) {
                     throw new SecurityException();
                 }
@@ -378,7 +378,7 @@ public class RepositoryController {
             String repositoryId = getDefaultRepositoryId();
             if (userWorkspace.hasProject(repositoryId, name)) {
                 RulesProject project = userWorkspace.getProject(repositoryId, name);
-                if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+                if (!repositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .contentType(MediaType.TEXT_PLAIN)
                         .body(String.format("No permission to modify projects in the repository with id '%s'.",
@@ -391,7 +391,7 @@ public class RepositoryController {
                         .body("Already locked by '" + lockedBy + "'");
                 }
             } else {
-                if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.CREATE))) {
+                if (!repositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.CREATE))) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .contentType(MediaType.TEXT_PLAIN)
                         .body(String.format("No permission to create a project in the repository with id '%s'.",
@@ -473,7 +473,7 @@ public class RepositoryController {
             @Parameter(description = "repo.param.project-name.desc") @PathVariable("name") String name) throws ProjectException {
         // When locking the project only EDIT_PROJECTS privilege is needed because we modify the project's state.
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+        if (!repositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .contentType(MediaType.TEXT_PLAIN)
                 .body("The project doesn't have WRITE permission.");

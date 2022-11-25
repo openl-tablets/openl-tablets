@@ -366,7 +366,7 @@ public class TableBean {
         } catch (ProjectException e) {
             return false;
         }
-        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.RUN));
+        return studio.getRepositoryAclService().isGranted(currentModule, List.of(AclPermission.RUN));
     }
 
     public boolean getCanBenchmark() {
@@ -378,7 +378,7 @@ public class TableBean {
         } catch (ProjectException e) {
             return false;
         }
-        return studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.BENCHMARK));
+        return studio.getRepositoryAclService().isGranted(currentModule, List.of(AclPermission.BENCHMARK));
     }
 
     public Integer getRowIndex() {

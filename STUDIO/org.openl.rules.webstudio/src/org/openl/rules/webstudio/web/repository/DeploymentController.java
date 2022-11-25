@@ -31,7 +31,7 @@ import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +81,7 @@ public class DeploymentController {
     private Comments deployConfigRepoComments;
 
     @Autowired
-    private DesignRepositoryAclService designRepositoryAclService;
+    private RepositoryAclService repositoryAclService;
 
     public void onPageLoad() {
         if (repositoryTreeState.getSelectedNode() == null) {
@@ -116,7 +116,7 @@ public class DeploymentController {
         if (project == null) {
             return null;
         }
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+        if (!repositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
             WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
             return null;
         }
@@ -166,7 +166,7 @@ public class DeploymentController {
                 WebStudioUtils.addErrorMessage("Deployment configuration is not selected");
                 return null;
             }
-            if (!designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.EDIT))) {
+            if (!repositoryAclService.isGranted(selectedProject, List.of(AclPermission.EDIT))) {
                 WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
                 return null;
             }
@@ -187,7 +187,7 @@ public class DeploymentController {
     public String open() {
         try {
             ADeploymentProject selectedProject = getSelectedProject();
-            if (!designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.EDIT))) {
+            if (!repositoryAclService.isGranted(selectedProject, List.of(AclPermission.EDIT))) {
                 WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
                 return null;
             }
@@ -216,7 +216,7 @@ public class DeploymentController {
     public String deleteItem() {
         String projectName = WebStudioUtils.getRequestParameter("key");
         ADeploymentProject project = getSelectedProject();
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+        if (!repositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
             WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
             return null;
         }
@@ -303,7 +303,7 @@ public class DeploymentController {
                     descriptor.getProjectVersion());
                 try {
                     RulesProject rulesProject = getRulesProject(workspace, item);
-                    if (!designRepositoryAclService.isGranted(rulesProject, List.of(AclPermission.EDIT))) {
+                    if (!repositoryAclService.isGranted(rulesProject, List.of(AclPermission.EDIT))) {
                         item.setDisabled(true);
                     }
                 } catch (ProjectException e) {
@@ -393,7 +393,7 @@ public class DeploymentController {
     private ADeploymentProject getSelectedProject() {
         AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
         if (artefact instanceof ADeploymentProject) {
-            if (designRepositoryAclService.isGranted(artefact, List.of(AclPermission.VIEW))) {
+            if (repositoryAclService.isGranted(artefact, List.of(AclPermission.VIEW))) {
                 return (ADeploymentProject) artefact;
             }
         }

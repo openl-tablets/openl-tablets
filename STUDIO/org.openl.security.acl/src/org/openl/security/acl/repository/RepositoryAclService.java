@@ -7,7 +7,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 
-public interface DesignRepositoryAclService {
+public interface RepositoryAclService {
 
     Map<Sid, List<Permission>> listPermissions(String repositoryId, String path);
 

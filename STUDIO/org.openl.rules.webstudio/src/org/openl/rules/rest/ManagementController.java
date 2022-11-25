@@ -16,7 +16,7 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class ManagementController {
     private final InMemoryProperties properties;
     private final BeanValidationProvider validationProvider;
     private final ExternalGroupService extGroupService;
-    private final DesignRepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService repositoryAclService;
 
     @Autowired
     public ManagementController(GroupDao groupDao,
@@ -62,13 +62,13 @@ public class ManagementController {
             InMemoryProperties properties,
             BeanValidationProvider validationProvider,
             ExternalGroupService extGroupService,
-            DesignRepositoryAclService designRepositoryAclService) {
+            RepositoryAclService repositoryAclService) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
         this.properties = properties;
         this.validationProvider = validationProvider;
         this.extGroupService = extGroupService;
-        this.designRepositoryAclService = designRepositoryAclService;
+        this.repositoryAclService = repositoryAclService;
     }
 
     @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary")
@@ -86,7 +86,7 @@ public class ManagementController {
         Group group = groupDao.getGroupById(id);
         groupDao.deleteGroupById(id);
         if (group != null) {
-            designRepositoryAclService.deleteSid(new GrantedAuthoritySid(group.getName()));
+            repositoryAclService.deleteSid(new GrantedAuthoritySid(group.getName()));
         }
     }
 

@@ -16,7 +16,7 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.core.AuthenticatedPrincipal;
@@ -36,18 +36,18 @@ public class UserManagementService {
     private final GroupDao groupDao;
     private final SessionRegistry sessionRegistry;
     private final PasswordEncoder passwordEncoder;
-    private final DesignRepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService repositoryAclService;
 
     public UserManagementService(UserDao userDao,
             GroupDao groupDao,
             SessionRegistry sessionRegistry,
             PasswordEncoder passwordEncoder,
-            DesignRepositoryAclService designRepositoryAclService) {
+            RepositoryAclService repositoryAclService) {
         this.userDao = userDao;
         this.groupDao = groupDao;
         this.sessionRegistry = sessionRegistry;
         this.passwordEncoder = passwordEncoder;
-        this.designRepositoryAclService = designRepositoryAclService;
+        this.repositoryAclService = repositoryAclService;
     }
 
     public List<org.openl.rules.security.User> getAllUsers() {
@@ -83,11 +83,7 @@ public class UserManagementService {
     /**
      * Update user info in Db by external data from the 3rd party identity providers (AD, SAML, CAS, OAuth2 etc.)
      */
-    public void syncUserData(String user,
-            String firstName,
-            String lastName,
-            String email,
-            String displayName) {
+    public void syncUserData(String user, String firstName, String lastName, String email, String displayName) {
 
         // Get
         User persistUser = userDao.getUserByName(user);
@@ -97,12 +93,13 @@ public class UserManagementService {
             persistUser.setLoginName(user);
         }
         UserExternalFlags flags = UserExternalFlags.builder()
-                .applyFeature(Feature.EXTERNAL_FIRST_NAME, StringUtils.isNotBlank(firstName))
-                .applyFeature(Feature.EXTERNAL_LAST_NAME, StringUtils.isNotBlank(lastName))
-                .applyFeature(Feature.EXTERNAL_EMAIL, StringUtils.isNotBlank(email))
-                .applyFeature(Feature.EMAIL_VERIFIED, StringUtils.isNotBlank(email) || persistUser.getUserExternalFlags().isEmailVerified())
-                .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, StringUtils.isNotBlank(displayName))
-                .build();
+            .applyFeature(Feature.EXTERNAL_FIRST_NAME, StringUtils.isNotBlank(firstName))
+            .applyFeature(Feature.EXTERNAL_LAST_NAME, StringUtils.isNotBlank(lastName))
+            .applyFeature(Feature.EXTERNAL_EMAIL, StringUtils.isNotBlank(email))
+            .applyFeature(Feature.EMAIL_VERIFIED,
+                StringUtils.isNotBlank(email) || persistUser.getUserExternalFlags().isEmailVerified())
+            .applyFeature(Feature.EXTERNAL_DISPLAY_NAME, StringUtils.isNotBlank(displayName))
+            .build();
 
         if (!flags.isDisplayNameExternal() && !isNewUser) {
             displayName = persistUser.getDisplayName();
@@ -195,7 +192,7 @@ public class UserManagementService {
 
     public void deleteUser(String username) {
         userDao.deleteUserByName(username);
-        designRepositoryAclService.deleteSid(new PrincipalSid(username));
+        repositoryAclService.deleteSid(new PrincipalSid(username));
     }
 
     /**
@@ -227,14 +224,14 @@ public class UserManagementService {
 
     private org.openl.rules.security.User createSecurityUser(User user) {
         return SimpleUser.builder()
-                .setFirstName(user.getFirstName())
-                .setLastName(user.getSurname())
-                .setUsername(user.getLoginName())
-                .setPasswordHash(user.getPasswordHash())
-                .setPrivileges(PrivilegesEvaluator.createPrivileges(user))
-                .setEmail(user.getEmail())
-                .setDisplayName(user.getDisplayName())
-                .setExternalFlags(user.getUserExternalFlags())
-                .build();
+            .setFirstName(user.getFirstName())
+            .setLastName(user.getSurname())
+            .setUsername(user.getLoginName())
+            .setPasswordHash(user.getPasswordHash())
+            .setPrivileges(PrivilegesEvaluator.createPrivileges(user))
+            .setEmail(user.getEmail())
+            .setDisplayName(user.getDisplayName())
+            .setExternalFlags(user.getUserExternalFlags())
+            .build();
     }
 }

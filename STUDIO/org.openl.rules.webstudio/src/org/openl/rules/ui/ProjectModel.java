@@ -42,8 +42,8 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
@@ -348,7 +348,7 @@ public class ProjectModel {
             IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
             if (resolvedMethod != null) {
                 return WrapperLogic
-                    .wrapOpenMethod(resolvedMethod, (XlsModuleOpenClass) method.getDeclaringClass(), false);
+                    .wrapOpenMethod(resolvedMethod, method.getDeclaringClass(), false);
             }
         }
 
@@ -654,14 +654,13 @@ public class ProjectModel {
                 if (currentModule == null) {
                     if (!currentProject
                         .hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
-                        granted = studio.getDesignRepositoryAclService()
+                        granted = studio.getRepositoryAclService()
                             .isGranted(currentProject, List.of(AclPermission.APPEND));
                     }
-                    granted = granted && studio.getDesignRepositoryAclService()
+                    granted = granted && studio.getRepositoryAclService()
                         .isGranted(currentProject, List.of(AclPermission.EDIT));
                 } else {
-                    granted = studio.getDesignRepositoryAclService()
-                        .isGranted(currentProject, List.of(AclPermission.EDIT));
+                    granted = studio.getRepositoryAclService().isGranted(currentProject, List.of(AclPermission.EDIT));
                 }
                 return (currentProject.isLocalOnly() || !currentProject.isLocked() || currentProject
                     .isOpenedForEditing()) && granted;
@@ -673,7 +672,7 @@ public class ProjectModel {
     public boolean isCanCopyModule() {
         RulesProject currentProject = getProject();
         if (currentProject != null) {
-            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(AclPermission.APPEND));
+            return studio.getRepositoryAclService().isGranted(currentProject, List.of(AclPermission.APPEND));
         }
         return false;
     }

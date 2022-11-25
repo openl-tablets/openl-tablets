@@ -68,8 +68,8 @@
         <property name="securityMetadataSource" ref="securityMetadataSource"/>
     </bean>
 
-    <bean name="designRepositoryAclService"
-          class="org.openl.security.acl.repository.DisabledDesignRepositoryAclServiceImpl"/>
+    <bean name="repositoryAclService"
+          class="org.openl.security.acl.repository.DisabledRepositoryAclServiceImpl"/>
 
     <bean id="logoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
         <constructor-arg value="/"/>

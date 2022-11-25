@@ -12,11 +12,7 @@ import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.project.abstraction.ADeploymentProject;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.abstraction.*;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.BranchRepository;
@@ -33,7 +29,7 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclPermissionsSets;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,19 +47,19 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
     private final DeploymentManager deploymentManager;
     private final ProjectVersionCacheManager projectVersionCacheManager;
     private final PropertyResolver propertyResolver;
-    private final DesignRepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService repositoryAclService;
 
     @Autowired
     public ProjectDeploymentServiceImpl(ProjectDescriptorArtefactResolver projectDescriptorResolver,
             DeploymentManager deploymentManager,
             ProjectVersionCacheManager projectVersionCacheManager,
             PropertyResolver propertyResolver,
-            DesignRepositoryAclService designRepositoryAclService) {
+            RepositoryAclService repositoryAclService) {
         this.projectDescriptorResolver = projectDescriptorResolver;
         this.deploymentManager = deploymentManager;
         this.projectVersionCacheManager = projectVersionCacheManager;
         this.propertyResolver = propertyResolver;
-        this.designRepositoryAclService = designRepositoryAclService;
+        this.repositoryAclService = repositoryAclService;
     }
 
     @Lookup
@@ -155,7 +151,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                     }
                 }
             } else {
-                if (!designRepositoryAclService.isGranted(deploymentProject,
+                if (!repositoryAclService.isGranted(deploymentProject,
                     List.of(AclPermission.EDIT)) || isMainBranchProtected(
                         userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
@@ -239,7 +235,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
 
             result.add(item);
         }
-        if (!userWorkspace.hasDDProject(projectName) && designRepositoryAclService.isGranted(
+        if (!userWorkspace.hasDDProject(projectName) && repositoryAclService.isGranted(
             userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
             null,
             List.of(AclPermission.CREATE)) && !isMainBranchProtected(
@@ -314,7 +310,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             }
 
             if (deploymentName.equals(project.getBusinessName()) && !userWorkspace.hasDDProject(deploymentName)) {
-                if (!designRepositoryAclService.isGranted(
+                if (!repositoryAclService.isGranted(
                     userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                     null,
                     List.of(AclPermission.CREATE))) {
@@ -323,7 +319,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                 }
                 // the same name, then create if absent
                 deployConfiguration = userWorkspace.createDDProject(deploymentName);
-                if (!designRepositoryAclService.createAcl(deployConfiguration,
+                if (!repositoryAclService.createAcl(deployConfiguration,
                     AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS)) {
                     String message = "Granting permissions to the deployment configuration is failed.";
                     WebStudioUtils.addErrorMessage(message);

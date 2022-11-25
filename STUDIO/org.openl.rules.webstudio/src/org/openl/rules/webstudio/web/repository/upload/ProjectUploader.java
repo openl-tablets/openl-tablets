@@ -12,14 +12,14 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermissionsSets;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.FileTypeHelper;
 
 public class ProjectUploader {
     private final String projectName;
     private final String projectFolder;
     private final UserWorkspace userWorkspace;
-    private final DesignRepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService repositoryAclService;
     private final PathFilter zipFilter;
     private final List<ProjectFile> uploadedFiles;
     private final ZipCharsetDetector zipCharsetDetector;
@@ -36,7 +36,7 @@ public class ProjectUploader {
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
-            DesignRepositoryAclService designRepositoryAclService,
+            RepositoryAclService repositoryAclService,
             String comment,
             PathFilter zipFilter,
             ZipCharsetDetector zipCharsetDetector,
@@ -53,7 +53,7 @@ public class ProjectUploader {
 
         this.projectName = projectName;
         this.userWorkspace = userWorkspace;
-        this.designRepositoryAclService = designRepositoryAclService;
+        this.repositoryAclService = repositoryAclService;
         this.zipFilter = zipFilter;
         this.modelsPath = modelsPath;
         this.algorithmsPath = algorithmsPath;
@@ -66,7 +66,7 @@ public class ProjectUploader {
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
-            DesignRepositoryAclService designRepositoryAclService,
+            RepositoryAclService repositoryAclService,
             String comment,
             PathFilter zipFilter,
             ZipCharsetDetector zipCharsetDetector,
@@ -79,7 +79,7 @@ public class ProjectUploader {
         this.projectName = projectName;
         this.projectFolder = projectFolder;
         this.userWorkspace = userWorkspace;
-        this.designRepositoryAclService = designRepositoryAclService;
+        this.repositoryAclService = repositoryAclService;
         this.comment = comment;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
@@ -131,7 +131,7 @@ public class ProjectUploader {
                 uploadedFiles.toArray(new ProjectFile[0]);
             }
             RulesProject rulesProject = projectCreator.createRulesProject();
-            if (!designRepositoryAclService.createAcl(rulesProject.getDesignRepository().getId(),
+            if (!repositoryAclService.createAcl(rulesProject.getDesignRepository().getId(),
                 rulesProject.getDesignFolderName(),
                 AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
                 throw new ProjectException("Granting permissions to the project is failed.");

@@ -33,8 +33,8 @@ import org.openl.rules.rest.validation.ZipArchiveValidator;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
-import org.openl.security.acl.repository.DesignRepositoryAclServiceImpl;
+import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclServiceImpl;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -70,18 +70,18 @@ public class DesignTimeRepositoryController {
     private final ZipArchiveValidator zipArchiveValidator;
     private final ZipProjectSaveStrategy zipProjectSaveStrategy;
     private final LockManager lockManager;
-    private final DesignRepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService repositoryAclService;
 
     @Autowired
     public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
-            DesignRepositoryAclService designRepositoryAclService,
+            RepositoryAclService repositoryAclService,
             BeanValidationProvider validationService,
             CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
             ZipArchiveValidator zipArchiveValidator,
             ZipProjectSaveStrategy zipProjectSaveStrategy,
             @Value("${openl.home.shared}") String homeDirectory) {
         this.designTimeRepository = designTimeRepository;
-        this.designRepositoryAclService = designRepositoryAclService;
+        this.repositoryAclService = repositoryAclService;
         this.validationProvider = validationService;
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
         this.zipArchiveValidator = zipArchiveValidator;
@@ -102,7 +102,7 @@ public class DesignTimeRepositoryController {
     @GetMapping("/{repo-name}/features")
     @Operation(summary = "repos.get-features.summary", description = "repos.get-features.desc")
     public RepositoryFeatures getFeatures(@DesignRepository("repo-name") Repository repository) {
-        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.VIEW))) {
+        if (!repositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.VIEW))) {
             throw new SecurityException();
         }
         var supports = repository.supports();
@@ -115,7 +115,7 @@ public class DesignTimeRepositoryController {
     public List<RepositoryViewModel> getRepositoryList() {
         return designTimeRepository.getRepositories()
             .stream()
-            .filter(repo -> designRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.VIEW)))
+            .filter(repo -> repositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.VIEW)))
             .map(repo -> new RepositoryViewModel(repo.getId(), repo.getName()))
             .collect(Collectors.toList());
     }
@@ -124,13 +124,13 @@ public class DesignTimeRepositoryController {
     @Operation(summary = "repos.get-project-list-by-repository.summary", description = "repos.get-project-list-by-repository.desc")
     @ApiResponse(responseCode = "200", description = "repos.get-project-list-by-repository.200.desc")
     public List<ProjectViewModel> getProjectListByRepository(@DesignRepository("repo-name") Repository repository) {
-        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.VIEW))) {
+        if (!repositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.VIEW))) {
             throw new SecurityException();
         }
         return designTimeRepository.getProjects(repository.getId())
             .stream()
             .filter(proj -> !proj.isDeleted())
-            .filter(proj -> designRepositoryAclService.isGranted(proj, List.of(AclPermission.VIEW)))
+            .filter(proj -> repositoryAclService.isGranted(proj, List.of(AclPermission.VIEW)))
             .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
             .map(src -> mapProjectResponse(src, repository.supports()))
             .collect(Collectors.toList());
@@ -194,18 +194,18 @@ public class DesignTimeRepositoryController {
             @Parameter(description = "repos.create-project-from-zip.param.path.desc") @RequestParam(value = "path", required = false) String path,
             @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
             @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam("template") MultipartFile file,
-            @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException, JAXBException {
+            @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException,
+                                                                                                                                                                                           JAXBException {
         if (overwrite) {
-            if (!designRepositoryAclService
+            if (!repositoryAclService
                 .isGranted(repository.getId(),
-                    repository.supports().mappedFolders() && !StringUtils.isBlank(path) ? DesignRepositoryAclServiceImpl
+                    repository.supports().mappedFolders() && !StringUtils.isBlank(path) ? RepositoryAclServiceImpl
                         .concatPaths(path, projectName) : projectName,
                     List.of(AclPermission.EDIT))) {
                 throw new SecurityException();
             }
         } else {
-            if (!designRepositoryAclService
-                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
+            if (!repositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
                 throw new SecurityException();
             }
         }

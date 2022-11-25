@@ -5,17 +5,17 @@ import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 
 public class SecureUserWorkspaceFactoryImpl implements UserWorkspaceFactory {
     private final UserWorkspaceFactory delegate;
 
-    private final DesignRepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService repositoryAclService;
 
     public SecureUserWorkspaceFactoryImpl(UserWorkspaceFactory userWorkspaceFactory,
-            DesignRepositoryAclService designRepositoryAclService) {
+            RepositoryAclService repositoryAclService) {
         this.delegate = userWorkspaceFactory;
-        this.designRepositoryAclService = designRepositoryAclService;
+        this.repositoryAclService = repositoryAclService;
     }
 
     @Override
@@ -23,6 +23,6 @@ public class SecureUserWorkspaceFactoryImpl implements UserWorkspaceFactory {
             DesignTimeRepository designTimeRepository,
             WorkspaceUser user) {
         UserWorkspace userWorkspace = delegate.create(localWorkspaceManager, designTimeRepository, user);
-        return new SecureUserWorkspaceImpl(userWorkspace, designRepositoryAclService);
+        return new SecureUserWorkspaceImpl(userWorkspace, repositoryAclService);
     }
 }

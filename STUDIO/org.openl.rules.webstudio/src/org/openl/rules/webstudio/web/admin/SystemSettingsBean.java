@@ -27,7 +27,7 @@ import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class SystemSettingsBean {
     private RepositoryConfiguration deployConfigRepositoryConfiguration;
     private RepositoryEditor designRepositoryEditor;
     private RepositoryEditor productionRepositoryEditor;
-    private DesignRepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService repositoryAclService;
 
     public SystemSettingsBean(ProductionRepositoriesTreeController productionRepositoriesTreeController,
             RepositoryFactoryProxy designRepositoryFactoryProxy,
@@ -68,7 +68,7 @@ public class SystemSettingsBean {
             DesignTimeRepository designTimeRepository,
             RepositoryTreeState repositoryTreeState,
             PropertyResolver propertyResolver,
-            DesignRepositoryAclService designRepositoryAclService) {
+            RepositoryAclService repositoryAclService) {
         this.productionRepositoriesTreeController = productionRepositoriesTreeController;
         this.deploymentManager = deploymentManager;
         this.designTimeRepository = designTimeRepository;
@@ -76,7 +76,7 @@ public class SystemSettingsBean {
         this.designRepositoryFactoryProxy = designRepositoryFactoryProxy;
         this.productionRepositoryFactoryProxy = productionRepositoryFactoryProxy;
         this.propertyResolver = propertyResolver;
-        this.designRepositoryAclService = designRepositoryAclService;
+        this.repositoryAclService = repositoryAclService;
         this.validator = new SystemSettingsValidator();
         initialize();
     }
@@ -306,7 +306,7 @@ public class SystemSettingsBean {
     public void deleteDesignRepository(String configName) {
         try {
             designRepositoryEditor.deleteRepository(configName);
-            designRepositoryAclService.deleteAcl(configName, null);
+            repositoryAclService.deleteAcl(configName, null);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage(e.getMessage());

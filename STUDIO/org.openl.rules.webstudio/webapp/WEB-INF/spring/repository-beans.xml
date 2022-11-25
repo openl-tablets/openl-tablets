@@ -30,7 +30,7 @@
                 <property name="repositorySettings" ref="repositorySettings"/>
             </bean>
         </property>
-        <property name="designRepositoryAclService" ref="designRepositoryAclService"/>
+        <property name="repositoryAclService" ref="repositoryAclService"/>
     </bean>
 
     <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">
@@ -41,7 +41,7 @@
                 <constructor-arg name="userWorkspaceFactory">
                     <bean class="org.openl.rules.workspace.DefaultUserWorkspaceFactory"/>
                 </constructor-arg>
-                <constructor-arg name="designRepositoryAclService" ref="designRepositoryAclService"/>
+                <constructor-arg name="repositoryAclService" ref="repositoryAclService"/>
             </bean>
         </property>
     </bean>
