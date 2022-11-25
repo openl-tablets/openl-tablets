@@ -8,6 +8,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -23,12 +24,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import javax.persistence.Entity;
 
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.exceptions.InvalidQueryException;
-import com.datastax.driver.core.exceptions.QueryExecutionException;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.Row;
+import com.datastax.oss.driver.api.core.servererrors.InvalidQueryException;
+import com.datastax.oss.driver.api.core.servererrors.QueryExecutionException;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -86,7 +85,7 @@ public class RunStoreLogDataITest {
     private static Server h2Server;
 
     private static final CassandraContainer CASSANDRA_CONTAINER = new CassandraContainer<>("cassandra:4");
-    private static Cluster cassandraCluster;
+    private static CqlSession cassandraSession;
 
     private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"));
 
@@ -98,8 +97,13 @@ public class RunStoreLogDataITest {
         h2Connection = DriverManager.getConnection(dbUrl);
 
         CASSANDRA_CONTAINER.start();
-        cassandraCluster = CASSANDRA_CONTAINER.getCluster();
-        createKeyspace(cassandraCluster, KEYSPACE, "SimpleStrategy", 1);
+        InetSocketAddress contactPoint = CASSANDRA_CONTAINER.getContactPoint();
+        cassandraSession = CqlSession.builder()
+                .addContactPoint(contactPoint)
+                .withLocalDatacenter(CASSANDRA_CONTAINER.getLocalDatacenter())
+                .build();
+        cassandraSession.execute("CREATE KEYSPACE IF NOT EXISTS " + KEYSPACE
+                + " WITH replication = {'class':'SimpleStrategy','replication_factor':1};");
 
         KAFKA_CONTAINER.start();
 
@@ -109,17 +113,6 @@ public class RunStoreLogDataITest {
         server = JettyServer.startSharingClassLoader(params);
         client = server.client();
 
-    }
-
-    static void createKeyspace(Cluster cluster,
-                                         String keyspaceName,
-                                         String replicationStrategy,
-                                         int replicationFactor) {
-        try(Session session = cluster.connect()) {
-            String query = "CREATE KEYSPACE IF NOT EXISTS " + keyspaceName + " WITH replication = {" + "'class':'"
-                    + replicationStrategy + "','replication_factor':" + replicationFactor + "};";
-            session.execute(query);
-        }
     }
 
     @Test
@@ -263,8 +256,8 @@ public class RunStoreLogDataITest {
         assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
         assertEquals("Hello", row.getString(CassandraFields.METHOD_NAME));
         assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
-        assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-        assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+        assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
+        assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
         assertEquals("value1", row.getString(CassandraFields.VALUE));
@@ -284,8 +277,8 @@ public class RunStoreLogDataITest {
         assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
         assertEquals("Hello", row.getString(CassandraFields.METHOD_NAME));
         assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
-        assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-        assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+        assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
+        assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
         assertEquals("value1", row.getString(CassandraFields.VALUE));
@@ -304,22 +297,24 @@ public class RunStoreLogDataITest {
         assertNull(row.getString(CassandraFields.RESPONSE));
         assertNull(row.getString(CassandraFields.METHOD_NAME));
         assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
-        assertNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-        assertNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+        assertNull(row.getInstant(CassandraFields.INCOMING_TIME));
+        assertNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
         assertNull(row.getString(CassandraFields.VALUE));
         assertNull(row.getString(CassandraFields.RESULT));
 
-        assertNull(cassandraCluster
+        assertTrue(cassandraSession
             .getMetadata()
             .getKeyspace(KEYSPACE)
-            .getTable(helloEntity4TableName));
+            .get()
+            .getTable(helloEntity4TableName).isEmpty());
 
-        assertNull(cassandraCluster
+        assertTrue(cassandraSession
             .getMetadata()
             .getKeyspace(KEYSPACE)
-            .getTable(helloEntity8TableName));
+            .get()
+            .getTable(helloEntity8TableName).isEmpty());
         // H2
         String query = "SELECT * FROM " + h2HelloEntity1TableName;
         try (Statement stmt = h2Connection.createStatement()) {
@@ -430,8 +425,8 @@ public class RunStoreLogDataITest {
                 assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
                 assertEquals("Hello2", row.getString(CassandraFields.METHOD_NAME));
                 assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
-                assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-                assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+                assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
+                assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
                 assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
                 assertEquals(5, row.getInt(CassandraFields.INT_VALUE1));
@@ -544,8 +539,8 @@ public class RunStoreLogDataITest {
                 assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
                 assertEquals("Hello", row.getString(CassandraFields.METHOD_NAME));
                 assertEquals("simple4", row.getString(CassandraFields.SERVICE_NAME));
-                assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-                assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+                assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
+                assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
                 assertEquals(PublisherType.KAFKA.toString(), row.getString(CassandraFields.PUBLISHER_TYPE));
 
                 assertEquals("Hello", row.getString(CassandraFields.HEADER1));
@@ -659,7 +654,8 @@ public class RunStoreLogDataITest {
 
         server.stop();
 
-        doQuite(cassandraCluster::close);
+        doQuite(cassandraSession::close);
+        doQuite(CASSANDRA_CONTAINER::stop);
         doQuite(KAFKA_CONTAINER::stop);
 
         h2Server.stop();
@@ -713,7 +709,7 @@ public class RunStoreLogDataITest {
 
     private static void truncateCassandraTableIfExists(final String keyspace, final String table) {
         try {
-            cassandraCluster.connect().execute("TRUNCATE " + keyspace + "." + table);
+            cassandraSession.execute("TRUNCATE " + keyspace + "." + table);
         } catch (QueryExecutionException | InvalidQueryException ignored) {
         }
     }
@@ -727,10 +723,7 @@ public class RunStoreLogDataITest {
     }
 
     private static List<Row> getCassandraRows(final String tableName) {
-        try (Session session = cassandraCluster.connect()) {
-            ResultSet resultSet = session.execute("SELECT * FROM " + KEYSPACE + "." + tableName);
-            return resultSet.all();
-        }
+        return cassandraSession.execute("SELECT * FROM " + KEYSPACE + "." + tableName).all();
     }
 
     private static Callable<Boolean> validateCassandra(final ExpectedLogValues input) {
@@ -758,8 +751,8 @@ public class RunStoreLogDataITest {
             } else {
                 assertNotNull(value);
             }
-            assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-            assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+            assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
+            assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
             return true;
         };
     }
