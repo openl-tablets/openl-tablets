@@ -5,7 +5,7 @@
 
     <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml"/>
 
-    <bean name="designRepositoryAclService" class="org.openl.security.acl.repository.DesignRepositoryAclServiceImpl">
+    <bean name="repositoryAclService" class="org.openl.security.acl.repository.RepositoryAclServiceImpl">
         <constructor-arg name="aclService" ref="repositoryJdbcMutableAclService"/>
         <constructor-arg name="relevantSystemWideSid">
             <bean class="org.springframework.security.acls.domain.GrantedAuthoritySid">

@@ -16,7 +16,7 @@ import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -36,17 +36,17 @@ import io.swagger.v3.oas.annotations.Hidden;
 @RestController
 @RequestMapping("/acl")
 @Hidden
-public class DesignRepositoryAclServiceController {
+public class RepositoryAclServiceController {
 
-    private final DesignRepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService repositoryAclService;
 
     private final UserDao userDao;
     private final GroupDao groupDao;
 
-    public DesignRepositoryAclServiceController(UserDao userDao,
+    public RepositoryAclServiceController(UserDao userDao,
             GroupDao groupDao,
-            DesignRepositoryAclService designRepositoryAclService) {
-        this.designRepositoryAclService = designRepositoryAclService;
+            RepositoryAclService repositoryAclService) {
+        this.repositoryAclService = repositoryAclService;
         this.userDao = userDao;
         this.groupDao = groupDao;
     }
@@ -107,14 +107,14 @@ public class DesignRepositoryAclServiceController {
 
     @GetMapping(value = "/repos")
     public Map<String, Map<String, String[]>> list() {
-        Map<Sid, List<Permission>> permissions = designRepositoryAclService.listRootPermissions();
+        Map<Sid, List<Permission>> permissions = repositoryAclService.listRootPermissions();
         return convert(permissions);
     }
 
     @GetMapping(value = "/repo/{repo-id}")
     public Map<String, Map<String, String[]>> list(@PathVariable("repo-id") String repositoryId,
             @RequestParam String path) {
-        Map<Sid, List<Permission>> permissions = designRepositoryAclService.listPermissions(repositoryId, path);
+        Map<Sid, List<Permission>> permissions = repositoryAclService.listPermissions(repositoryId, path);
         return convert(permissions);
     }
 
@@ -122,7 +122,7 @@ public class DesignRepositoryAclServiceController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addUserRootPermissions(@PathVariable("sid") String sid, @RequestParam String[] permissions) {
         List<Permission> permissionsList = buildPermissions(permissions);
-        designRepositoryAclService.addRootPermissions(permissionsList, List.of(new PrincipalSid(sid)));
+        repositoryAclService.addRootPermissions(permissionsList, List.of(new PrincipalSid(sid)));
     }
 
     private void validateRepositoryId(HttpSession session, String repositoryId) {
@@ -146,8 +146,7 @@ public class DesignRepositoryAclServiceController {
         validateRepositoryId(session, repositoryId);
         if (userDao.existsByName(sid)) {
             List<Permission> permissionsList = buildPermissions(permissions);
-            designRepositoryAclService
-                .addPermissions(repositoryId, path, permissionsList, List.of(new PrincipalSid(sid)));
+            repositoryAclService.addPermissions(repositoryId, path, permissionsList, List.of(new PrincipalSid(sid)));
         } else {
             throw new NotFoundException("users.message", sid);
         }
@@ -157,7 +156,7 @@ public class DesignRepositoryAclServiceController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addGroupRootPermissions(@PathVariable("sid") String sid, @RequestParam String[] permissions) {
         List<Permission> permissionsList = buildPermissions(permissions);
-        designRepositoryAclService.addRootPermissions(permissionsList, List.of(new GrantedAuthoritySid(sid)));
+        repositoryAclService.addRootPermissions(permissionsList, List.of(new GrantedAuthoritySid(sid)));
     }
 
     @PutMapping(value = "/repo/{repo-id}/group/{sid}")
@@ -170,7 +169,7 @@ public class DesignRepositoryAclServiceController {
         validateRepositoryId(session, repositoryId);
         if (groupDao.getGroupByName(sid) != null) {
             List<Permission> permissionsList = buildPermissions(permissions);
-            designRepositoryAclService
+            repositoryAclService
                 .addPermissions(repositoryId, path, permissionsList, List.of(new GrantedAuthoritySid(sid)));
         } else {
             throw new NotFoundException("group.message", sid);
@@ -181,9 +180,9 @@ public class DesignRepositoryAclServiceController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAllRootPermissions(@RequestParam(required = false) boolean recursive) {
         if (recursive) {
-            designRepositoryAclService.deleteAclRoot();
+            repositoryAclService.deleteAclRoot();
         } else {
-            designRepositoryAclService.removeRootPermissions();
+            repositoryAclService.removeRootPermissions();
         }
     }
 
@@ -195,9 +194,9 @@ public class DesignRepositoryAclServiceController {
             HttpSession session) {
         validateRepositoryId(session, repositoryId);
         if (recursive) {
-            designRepositoryAclService.deleteAcl(repositoryId, path);
+            repositoryAclService.deleteAcl(repositoryId, path);
         } else {
-            designRepositoryAclService.removePermissions(repositoryId, path);
+            repositoryAclService.removePermissions(repositoryId, path);
         }
     }
 
@@ -205,7 +204,7 @@ public class DesignRepositoryAclServiceController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUserRootPermissions(@PathVariable("sid") String sid, @RequestParam String[] permissions) {
         List<Permission> permissionsList = buildPermissions(permissions);
-        designRepositoryAclService.removeRootPermissions(permissionsList, List.of(new PrincipalSid(sid)));
+        repositoryAclService.removeRootPermissions(permissionsList, List.of(new PrincipalSid(sid)));
     }
 
     @DeleteMapping(value = "/repo/{repo-id}/user/{sid}")
@@ -217,15 +216,14 @@ public class DesignRepositoryAclServiceController {
             HttpSession session) {
         validateRepositoryId(session, repositoryId);
         List<Permission> permissionsList = buildPermissions(permissions);
-        designRepositoryAclService
-            .removePermissions(repositoryId, path, permissionsList, List.of(new PrincipalSid(sid)));
+        repositoryAclService.removePermissions(repositoryId, path, permissionsList, List.of(new PrincipalSid(sid)));
     }
 
     @DeleteMapping(value = "/repos/group/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGroupRootPermissions(@PathVariable("sid") String sid, @RequestParam String[] permissions) {
         List<Permission> permissionsList = buildPermissions(permissions);
-        designRepositoryAclService.removeRootPermissions(permissionsList, List.of(new GrantedAuthoritySid(sid)));
+        repositoryAclService.removeRootPermissions(permissionsList, List.of(new GrantedAuthoritySid(sid)));
     }
 
     @DeleteMapping(value = "/repo/{repo-id}/group/{sid}")
@@ -237,7 +235,7 @@ public class DesignRepositoryAclServiceController {
             HttpSession session) {
         validateRepositoryId(session, repositoryId);
         List<Permission> permissionsList = buildPermissions(permissions);
-        designRepositoryAclService
+        repositoryAclService
             .removePermissions(repositoryId, path, permissionsList, List.of(new GrantedAuthoritySid(sid)));
     }
 }

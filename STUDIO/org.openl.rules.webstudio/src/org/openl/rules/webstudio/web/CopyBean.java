@@ -44,7 +44,7 @@ import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclPermissionsSets;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +69,7 @@ public class CopyBean {
 
     private final ProjectTagsBean projectTagsBean;
 
-    private final DesignRepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService repositoryAclService;
 
     private final ApplicationContext applicationContext = FacesContextUtils
         .getRequiredWebApplicationContext(FacesContext.getCurrentInstance());
@@ -93,18 +93,17 @@ public class CopyBean {
     public CopyBean(PropertyResolver propertyResolver,
             RepositoryTreeState repositoryTreeState,
             ProjectTagsBean projectTagsBean,
-            DesignRepositoryAclService designRepositoryAclService) {
+            RepositoryAclService repositoryAclService) {
         this.propertyResolver = propertyResolver;
         this.repositoryTreeState = repositoryTreeState;
         this.projectTagsBean = projectTagsBean;
-        this.designRepositoryAclService = designRepositoryAclService;
+        this.repositoryAclService = repositoryAclService;
     }
 
     public boolean getCanCreate() {
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         for (Repository repository : userWorkspace.getDesignTimeRepository().getRepositories()) {
-            if (designRepositoryAclService
-                .isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
+            if (repositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
                 return true;
             }
         }
@@ -239,7 +238,7 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             RulesProject project = userWorkspace.getProject(repositoryId, currentProjectName, false);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!repositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
                 throw new AccessDeniedException();
             }
             if (isSupportsBranches() && !separateProject) {
@@ -247,8 +246,7 @@ public class CopyBean {
                 ((BranchRepository) designRepository).createBranch(project.getDesignFolderName(), newBranchName);
             } else {
                 Repository designRepository = designTimeRepository.getRepository(toRepositoryId);
-                if (!designRepositoryAclService
-                    .isGranted(toRepositoryId, null, List.of(AclPermission.CREATE))) {
+                if (!repositoryAclService.isGranted(toRepositoryId, null, List.of(AclPermission.CREATE))) {
                     throw new AccessDeniedException();
                 }
                 String designPath = designTimeRepository.getRulesLocation() + newProjectName;
@@ -292,7 +290,7 @@ public class CopyBean {
                     designRepository,
                     designProject.getFileData(),
                     userWorkspace.getProjectsLockEngine());
-                if (!designRepositoryAclService.createAcl(copiedProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
+                if (!repositoryAclService.createAcl(copiedProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
                     String message = "Granting permissions to the project is failed.";
                     WebStudioUtils.addErrorMessage(message);
                 }

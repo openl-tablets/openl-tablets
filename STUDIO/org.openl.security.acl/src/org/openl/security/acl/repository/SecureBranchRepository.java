@@ -9,18 +9,17 @@ import java.util.Objects;
 import org.openl.rules.repository.api.*;
 import org.openl.security.acl.permission.AclPermission;
 
-public class SecureDesignBranchRepository extends SecureDesignFolderRepository implements BranchRepository {
+public class SecureBranchRepository extends SecureFolderRepository implements BranchRepository {
     private final BranchRepository branchRepository;
 
-    public SecureDesignBranchRepository(BranchRepository repository,
-            DesignRepositoryAclService designRepositoryAclService) {
-        super(repository, designRepositoryAclService);
+    public SecureBranchRepository(BranchRepository repository, RepositoryAclService repositoryAclService) {
+        super(repository, repositoryAclService);
         this.branchRepository = Objects.requireNonNull(repository, "repository cannot be null");
     }
 
     @Override
     public boolean isMergedInto(String from, String to) throws IOException {
-        if (designRepositoryAclService
+        if (repositoryAclService
             .isGranted(branchRepository.getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_READ))) {
             return branchRepository.isMergedInto(from, to);
         }
@@ -39,7 +38,7 @@ public class SecureDesignBranchRepository extends SecureDesignFolderRepository i
 
     @Override
     public void createBranch(String projectPath, String branch) throws IOException {
-        if (designRepositoryAclService
+        if (repositoryAclService
             .isGranted(branchRepository.getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
             branchRepository.createBranch(projectPath, branch);
         } else {
@@ -49,7 +48,7 @@ public class SecureDesignBranchRepository extends SecureDesignFolderRepository i
 
     @Override
     public void deleteBranch(String projectPath, String branch) throws IOException {
-        if (designRepositoryAclService
+        if (repositoryAclService
             .isGranted(branchRepository.getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_DELETE))) {
             branchRepository.deleteBranch(projectPath, branch);
         } else {
@@ -59,7 +58,7 @@ public class SecureDesignBranchRepository extends SecureDesignFolderRepository i
 
     @Override
     public List<String> getBranches(String projectPath) throws IOException {
-        if (designRepositoryAclService
+        if (repositoryAclService
             .isGranted(branchRepository.getId(), projectPath, List.of(AclPermission.DESIGN_REPOSITORY_READ))) {
             return branchRepository.getBranches(projectPath);
         }
@@ -84,7 +83,7 @@ public class SecureDesignBranchRepository extends SecureDesignFolderRepository i
     @Override
     public void merge(String branchFrom, UserInfo author, ConflictResolveData conflictResolveData) throws IOException {
         for (FileItem fileItem : conflictResolveData.getResolvedFiles()) {
-            if (designRepositoryAclService.isGranted(branchRepository.getId(),
+            if (repositoryAclService.isGranted(branchRepository.getId(),
                 fileItem.getData().getName(),
                 List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
                 throw new AccessDeniedException("There is no permission for merging changes to a branch.");

@@ -39,7 +39,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclPermissionsSets;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +80,7 @@ public abstract class AbstractSmartRedeployController {
     private PropertyResolver propertyResolver;
 
     @Autowired
-    DesignRepositoryAclService designRepositoryAclService;
+    RepositoryAclService repositoryAclService;
 
     private List<RepositoryConfiguration> repositories;
 
@@ -246,7 +246,7 @@ public abstract class AbstractSmartRedeployController {
                     }
                 }
             } else {
-                if (!designRepositoryAclService.isGranted(deploymentProject,
+                if (!repositoryAclService.isGranted(deploymentProject,
                     List.of(AclPermission.EDIT)) || isMainBranchProtected(
                         userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
@@ -329,7 +329,7 @@ public abstract class AbstractSmartRedeployController {
 
             result.add(item);
         }
-        if (!userWorkspace.hasDDProject(projectName) && designRepositoryAclService.isGranted(
+        if (!userWorkspace.hasDDProject(projectName) && repositoryAclService.isGranted(
             userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
             null,
             List.of(AclPermission.CREATE)) && !isMainBranchProtected(
@@ -465,7 +465,7 @@ public abstract class AbstractSmartRedeployController {
             }
 
             if (deploymentName.equals(project.getBusinessName()) && !userWorkspace.hasDDProject(deploymentName)) {
-                if (!designRepositoryAclService.isGranted(
+                if (!repositoryAclService.isGranted(
                     userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                     null,
                     List.of(AclPermission.CREATE))) {
@@ -474,7 +474,7 @@ public abstract class AbstractSmartRedeployController {
                 }
                 // the same name, than create if absent
                 deployConfiguration = userWorkspace.createDDProject(deploymentName);
-                if (!designRepositoryAclService.createAcl(deployConfiguration,
+                if (!repositoryAclService.createAcl(deployConfiguration,
                     AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS)) {
                     String message = "Granting permissions to the deployment configuration is failed.";
                     WebStudioUtils.addErrorMessage(message);

@@ -8,7 +8,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 
-public class DisabledDesignRepositoryAclServiceImpl implements DesignRepositoryAclService {
+public class DisabledRepositoryAclServiceImpl implements RepositoryAclService {
 
     @Override
     public Map<Sid, List<Permission>> listPermissions(String repositoryId, String path) {

@@ -113,7 +113,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclPermissionsSets;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
@@ -178,7 +178,7 @@ public class RepositoryTreeController {
     private Comments deployConfigRepoComments;
 
     @Autowired
-    private DesignRepositoryAclService designRepositoryAclService;
+    private RepositoryAclService repositoryAclService;
 
     @Autowired
     private ProjectVersionCacheManager projectVersionCacheManager;
@@ -285,7 +285,7 @@ public class RepositoryTreeController {
                 if (NameChecker.checkName(folderName)) {
                     if (!NameChecker.checkIsFolderPresent(folder, folderName)) {
                         try {
-                            if (designRepositoryAclService.isGranted(folder, List.of(AclPermission.APPEND))) {
+                            if (repositoryAclService.isGranted(folder, List.of(AclPermission.APPEND))) {
                                 AProjectFolder addedFolder = folder.addFolder(folderName);
                                 repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
                             } else {
@@ -570,7 +570,7 @@ public class RepositoryTreeController {
         try {
             String comment = deployConfigRepoComments.copiedFrom(project.getName());
             ADeploymentProject newProject = userWorkspace.copyDDProject(project, newProjectName, comment);
-            if (!designRepositoryAclService.createAcl(newProject,
+            if (!repositoryAclService.createAcl(newProject,
                 AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS)) {
                 String message = "Granting permissions to the deployment configuration is failed.";
                 WebStudioUtils.addErrorMessage(message);
@@ -600,7 +600,7 @@ public class RepositoryTreeController {
                 WebStudioUtils.addErrorMessage("Specified deploy configuration name is a reserved word.");
                 return null;
             }
-            if (!designRepositoryAclService.isGranted(
+            if (!repositoryAclService.isGranted(
                 userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                 null,
                 List.of(AclPermission.CREATE))) {
@@ -614,7 +614,7 @@ public class RepositoryTreeController {
                 return null;
             }
             ADeploymentProject createdProject = userWorkspace.createDDProject(projectName);
-            if (!designRepositoryAclService.createAcl(createdProject,
+            if (!repositoryAclService.createAcl(createdProject,
                 AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS)) {
                 String message = "Granting permissions to the deployment configuration is failed.";
                 WebStudioUtils.addErrorMessage(message);
@@ -709,7 +709,7 @@ public class RepositoryTreeController {
         try {
             try {
                 RulesProject createdProject = projectCreator.createRulesProject();
-                if (designRepositoryAclService.createAcl(createdProject.getDesignRepository().getId(),
+                if (repositoryAclService.createAcl(createdProject.getDesignRepository().getId(),
                     createdProject.getDesignFolderName(),
                     AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
                     // Get just created project, because creator API doesn't create internals states for ProjectState
@@ -1052,7 +1052,7 @@ public class RepositoryTreeController {
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
                 closeProjectForAllUsers(workspacesRoot, (RulesProject) projectArtefact);
             }
-            if (!designRepositoryAclService.isGranted(projectArtefact,
+            if (!repositoryAclService.isGranted(projectArtefact,
                 projectArtefact instanceof AProject ? List.of(AclPermission.ARCHIVE) : List.of(AclPermission.DELETE))) {
                 WebStudioUtils.addErrorMessage(
                     "There is no permission for " + ((projectArtefact instanceof AProject) ? "archiving"
@@ -1074,7 +1074,7 @@ public class RepositoryTreeController {
                 project.delete(comment);
             } else {
                 projectArtefact.delete();
-                designRepositoryAclService.deleteAcl(projectArtefact);
+                repositoryAclService.deleteAcl(projectArtefact);
             }
             TreeNode parent = selectedNode.getParent();
             if (parent != null && parent.getData() != null) {
@@ -1302,7 +1302,7 @@ public class RepositoryTreeController {
                     boolean mappedFolders = designRepository.supports().mappedFolders();
                     if (!mappedFolders || eraseFromRepository) {
                         project.erase(userWorkspace.getUser(), comment);
-                        designRepositoryAclService.deleteAcl(project);
+                        repositoryAclService.deleteAcl(project);
                     } else {
                         ((FolderMapper) designRepository).removeMapping(project.getFolderPath());
                     }
@@ -1313,7 +1313,7 @@ public class RepositoryTreeController {
                         // Try to erase second time. It should resolve the issue if conflict in
                         // openl-projects.properties file.
                         project.erase(userWorkspace.getUser(), comment);
-                        designRepositoryAclService.deleteAcl(project);
+                        repositoryAclService.deleteAcl(project);
                     } else {
                         throw e;
                     }
@@ -1456,7 +1456,7 @@ public class RepositoryTreeController {
             return null;
         }
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
-        if (!designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.APPEND))) {
+        if (!repositoryAclService.isGranted(selectedProject, List.of(AclPermission.APPEND))) {
             WebStudioUtils.addErrorMessage("There is no permission for adding files to the project.");
             return null;
         }
@@ -1510,7 +1510,7 @@ public class RepositoryTreeController {
 
             AProjectResource addedFileResource = folder
                 .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
-            if (!designRepositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
+            if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
                 String message = "Granting permissions to the file is failed.";
                 WebStudioUtils.addErrorMessage(message);
             }
@@ -2111,7 +2111,7 @@ public class RepositoryTreeController {
                 projectName,
                 projectFolder,
                 userWorkspace,
-                designRepositoryAclService,
+                repositoryAclService,
                 comment,
                 zipFilter,
                 zipCharsetDetector,
@@ -2163,11 +2163,11 @@ public class RepositoryTreeController {
             if (lastUploadedFile == null) {
                 return "Upload the file";
             }
-            if (!designRepositoryAclService.isGranted(node, List.of(AclPermission.APPEND))) {
+            if (!repositoryAclService.isGranted(node, List.of(AclPermission.APPEND))) {
                 return "There is no permission for adding a file to the project.";
             }
             AProjectResource addedFileResource = node.addResource(fileName, lastUploadedFile.getInput());
-            if (!designRepositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
+            if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
                 String message = "Granting permissions to the file is failed.";
                 WebStudioUtils.addErrorMessage(message);
             }
@@ -2239,7 +2239,7 @@ public class RepositoryTreeController {
 
         try {
             AProjectResource node = (AProjectResource) repositoryTreeState.getSelectedNode().getData();
-            if (!designRepositoryAclService.isGranted(node, List.of(AclPermission.EDIT))) {
+            if (!repositoryAclService.isGranted(node, List.of(AclPermission.EDIT))) {
                 return "There is no permission for updating the file.";
             }
             node.setContent(lastUploadedFile.getInput());
@@ -2284,7 +2284,7 @@ public class RepositoryTreeController {
                     projectName,
                     projectFolder,
                     userWorkspace,
-                    designRepositoryAclService,
+                    repositoryAclService,
                     comment,
                     zipFilter,
                     zipCharsetDetector,
@@ -2402,7 +2402,7 @@ public class RepositoryTreeController {
                 // any user can delete own local project
                 return true;
             }
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
+            if (!repositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
                 return false;
             }
             boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
@@ -2421,7 +2421,7 @@ public class RepositoryTreeController {
             if (project.isLocalOnly()) {
                 return false;
             }
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
+            if (!repositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
                 return false;
             }
             boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
@@ -2466,7 +2466,7 @@ public class RepositoryTreeController {
     public boolean getCanDeleteDeployment() {
         UserWorkspaceProject selectedProject = getSelectedProject();
         if (selectedProject != null) {
-            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.ARCHIVE));
+            return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.ARCHIVE));
         }
         return false;
     }

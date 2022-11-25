@@ -34,14 +34,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
-public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclService {
+public class RepositoryAclServiceImpl implements RepositoryAclService {
 
     private final MutableAclService aclService;
     private Sid relevantSystemWideSid;
 
     private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
 
-    public DesignRepositoryAclServiceImpl(MutableAclService aclService) {
+    public RepositoryAclServiceImpl(MutableAclService aclService) {
         this.aclService = aclService;
     }
 
@@ -69,7 +69,7 @@ public class DesignRepositoryAclServiceImpl implements DesignRepositoryAclServic
         return StringUtils.isNotBlank(path) ? repositoryId + ":" + path : repositoryId;
     }
 
-    public DesignRepositoryAclServiceImpl(MutableAclService aclService, Sid relevantSystemWideSid) {
+    public RepositoryAclServiceImpl(MutableAclService aclService, Sid relevantSystemWideSid) {
         this(aclService);
         this.relevantSystemWideSid = relevantSystemWideSid;
     }

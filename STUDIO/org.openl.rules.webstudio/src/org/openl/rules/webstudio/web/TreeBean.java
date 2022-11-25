@@ -5,7 +5,7 @@ import java.util.List;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclPermission;
-import org.openl.security.acl.repository.DesignRepositoryAclService;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.richfaces.model.TreeNode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
@@ -27,10 +27,10 @@ public class TreeBean {
         return hideUtilityTables;
     }
 
-    private final DesignRepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService repositoryAclService;
 
-    public TreeBean(DesignRepositoryAclService designRepositoryAclService) {
-        this.designRepositoryAclService = designRepositoryAclService;
+    public TreeBean(RepositoryAclService repositoryAclService) {
+        this.repositoryAclService = repositoryAclService;
     }
 
     public void setCurrentView(String currentView) {
@@ -40,7 +40,7 @@ public class TreeBean {
 
     public boolean getCanRun() {
         WebStudio studio = WebStudioUtils.getWebStudio();
-        return designRepositoryAclService.isGranted(studio.getCurrentProject(), List.of(AclPermission.RUN));
+        return repositoryAclService.isGranted(studio.getCurrentProject(), List.of(AclPermission.RUN));
     }
 
     public TreeNode getTree() {
