@@ -93,6 +93,7 @@ import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.TagOpt;
 import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
@@ -1496,6 +1497,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private FetchResult fetchAll() throws GitAPIException {
         FetchCommand fetchCommand = git.fetch();
+        fetchCommand.setTagOpt(TagOpt.FETCH_TAGS);
         CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.FETCH_ALL);
         if (credentialsProvider != null) {
             fetchCommand.setCredentialsProvider(credentialsProvider);
