@@ -49,6 +49,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.util.StringUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
@@ -56,6 +57,7 @@ import org.richfaces.model.SequenceRowKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -96,6 +98,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private RepositoryAclService repositoryAclService;
 
     private Authentication authentication;
+
+    @Autowired
+    private DeploymentManager deploymentManager;
+
+    @Autowired
+    @Qualifier("productionRepositoryAclService")
+    private SimpleRepositoryAclService productionRepositoryAclService;
 
     private static final String DEFAULT_TAB = "Properties";
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
@@ -950,7 +959,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 return false;
             }
 
-            return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.DEPLOY));
+            return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.DEPLOY)) && deploymentManager
+                .getRepositoryConfigNames()
+                .stream()
+                .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.EDIT)));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -1000,7 +1012,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     public boolean getCanDeploy() {
         UserWorkspaceProject selectedProject = getSelectedProject();
         return !selectedProject.isModified() && repositoryAclService.isGranted(selectedProject,
-            List.of(AclPermission.DEPLOY));
+            List.of(AclPermission.DEPLOY)) && deploymentManager.getRepositoryConfigNames()
+                .stream()
+                .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.EDIT)));
     }
 
     public boolean getCanMerge() {

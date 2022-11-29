@@ -13,10 +13,13 @@ import javax.servlet.http.HttpSession;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
+import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -38,17 +41,26 @@ import io.swagger.v3.oas.annotations.Hidden;
 @Hidden
 public class RepositoryAclServiceController {
 
+    private static final String REPO_TYPE_PROD = "prod";
+    private static final String REPO_TYPE_DESIGN = "design";
+
     private final RepositoryAclService repositoryAclService;
+    private final SimpleRepositoryAclService productionRepositoryAclService;
+    private final DeploymentManager deploymentManager;
 
     private final UserDao userDao;
     private final GroupDao groupDao;
 
     public RepositoryAclServiceController(UserDao userDao,
             GroupDao groupDao,
-            RepositoryAclService repositoryAclService) {
+            RepositoryAclService repositoryAclService,
+            @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService,
+            DeploymentManager deploymentManager) {
         this.repositoryAclService = repositoryAclService;
         this.userDao = userDao;
         this.groupDao = groupDao;
+        this.productionRepositoryAclService = productionRepositoryAclService;
+        this.deploymentManager = deploymentManager;
     }
 
     private static Map<String, Map<String, String[]>> convert(Map<Sid, List<Permission>> permissions) {
@@ -92,150 +104,192 @@ public class RepositoryAclServiceController {
         return ret;
     }
 
-    private static List<Permission> buildPermissions(String[] permissions) {
+    private static List<Permission> buildPermissions(String repositoryType, String[] permissions) {
         if (permissions == null) {
             return Collections.emptyList();
         }
         List<Permission> permissionsList = Arrays.stream(permissions)
             .map(AclPermission::getPermission)
             .collect(Collectors.toList());
+        if (REPO_TYPE_PROD.equals(repositoryType) && permissionsList.stream()
+            .anyMatch(e -> !AclPermission.EDIT.equals(e))) {
+            throw new NotFoundException("project.artifact.permission.message");
+        }
         if (permissionsList.stream().anyMatch(Objects::isNull)) {
             throw new NotFoundException("project.artifact.permission.message");
         }
         return permissionsList;
     }
 
-    @GetMapping(value = "/repos")
-    public Map<String, Map<String, String[]>> list() {
-        Map<Sid, List<Permission>> permissions = repositoryAclService.listRootPermissions();
+    private SimpleRepositoryAclService getRepositoryAclService(String repositoryType) {
+        if (REPO_TYPE_PROD.equals(repositoryType)) {
+            return productionRepositoryAclService;
+        } else if (REPO_TYPE_DESIGN.equals(repositoryType)) {
+            return repositoryAclService;
+        }
+        throw new NotFoundException("repository.type.message");
+    }
+
+    @GetMapping(value = "/{repositoryType}/repos")
+    public Map<String, Map<String, String[]>> list(@PathVariable("repositoryType") String repositoryType) {
+        Map<Sid, List<Permission>> permissions = getRepositoryAclService(repositoryType).listRootPermissions();
         return convert(permissions);
     }
 
-    @GetMapping(value = "/repo/{repo-id}")
-    public Map<String, Map<String, String[]>> list(@PathVariable("repo-id") String repositoryId,
-            @RequestParam String path) {
-        Map<Sid, List<Permission>> permissions = repositoryAclService.listPermissions(repositoryId, path);
+    @GetMapping(value = "/{repositoryType}/repo/{repo-id}")
+    public Map<String, Map<String, String[]>> list(@PathVariable("repositoryType") String repositoryType,
+            @PathVariable("repo-id") String repositoryId,
+            @RequestParam(required = false) String path) {
+        Map<Sid, List<Permission>> permissions = getRepositoryAclService(repositoryType).listPermissions(repositoryId,
+            path);
         return convert(permissions);
     }
 
-    @PutMapping(value = "/repos/user/{sid}")
+    @PutMapping(value = "/{repositoryType}/repos/user/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void addUserRootPermissions(@PathVariable("sid") String sid, @RequestParam String[] permissions) {
-        List<Permission> permissionsList = buildPermissions(permissions);
-        repositoryAclService.addRootPermissions(permissionsList, List.of(new PrincipalSid(sid)));
+    public void addUserRootPermissions(@PathVariable("repositoryType") String repositoryType,
+            @PathVariable("sid") String sid,
+            @RequestParam String[] permissions) {
+        List<Permission> permissionsList = buildPermissions(repositoryType, permissions);
+        getRepositoryAclService(repositoryType).addRootPermissions(permissionsList, List.of(new PrincipalSid(sid)));
     }
 
-    private void validateRepositoryId(HttpSession session, String repositoryId) {
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
-        if (userWorkspace.getDesignTimeRepository()
-            .getRepositories()
-            .stream()
-            .noneMatch(e -> Objects.equals(e.getId(), repositoryId)) && !Objects
-                .equals(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(), repositoryId)) {
-            throw new NotFoundException("repository.message", repositoryId);
+    private void validateRepositoryId(HttpSession session, String repositoryType, String repositoryId) {
+        if (REPO_TYPE_DESIGN.equals(repositoryType)) {
+            UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
+            if (userWorkspace.getDesignTimeRepository()
+                .getRepositories()
+                .stream()
+                .noneMatch(e -> Objects.equals(e.getId(), repositoryId)) && !Objects.equals(
+                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+                    repositoryId)) {
+                throw new NotFoundException("repository.message", repositoryId);
+            }
+        } else if (REPO_TYPE_PROD.equals(repositoryType)) {
+            if (deploymentManager.getRepositoryConfigNames().stream().noneMatch(e -> Objects.equals(e, repositoryId))) {
+                throw new NotFoundException("repository.message", repositoryId);
+            }
+        } else {
+            throw new NotFoundException("repository.type.message");
         }
     }
 
-    @PutMapping(value = "/repo/{repo-id}/user/{sid}")
+    @PutMapping(value = "/{repositoryType}/repo/{repo-id}/user/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void addUserPermissions(@PathVariable("sid") String sid,
+    public void addUserPermissions(@PathVariable("repositoryType") String repositoryType,
+            @PathVariable("sid") String sid,
             @RequestParam String[] permissions,
             @PathVariable("repo-id") String repositoryId,
-            @RequestParam String path,
+            @RequestParam(required = false) String path,
             HttpSession session) {
-        validateRepositoryId(session, repositoryId);
+        validateRepositoryId(session, repositoryType, repositoryId);
         if (userDao.existsByName(sid)) {
-            List<Permission> permissionsList = buildPermissions(permissions);
-            repositoryAclService.addPermissions(repositoryId, path, permissionsList, List.of(new PrincipalSid(sid)));
+            List<Permission> permissionsList = buildPermissions(repositoryType, permissions);
+            getRepositoryAclService(repositoryType)
+                .addPermissions(repositoryId, path, permissionsList, List.of(new PrincipalSid(sid)));
         } else {
             throw new NotFoundException("users.message", sid);
         }
     }
 
-    @PutMapping(value = "/repos/group/{sid}")
+    @PutMapping(value = "/{repositoryType}/repos/group/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void addGroupRootPermissions(@PathVariable("sid") String sid, @RequestParam String[] permissions) {
-        List<Permission> permissionsList = buildPermissions(permissions);
-        repositoryAclService.addRootPermissions(permissionsList, List.of(new GrantedAuthoritySid(sid)));
+    public void addGroupRootPermissions(@PathVariable("repositoryType") String repositoryType,
+            @PathVariable("sid") String sid,
+            @RequestParam String[] permissions) {
+        List<Permission> permissionsList = buildPermissions(repositoryType, permissions);
+        getRepositoryAclService(repositoryType).addRootPermissions(permissionsList,
+            List.of(new GrantedAuthoritySid(sid)));
     }
 
-    @PutMapping(value = "/repo/{repo-id}/group/{sid}")
+    @PutMapping(value = "/{repositoryType}/repo/{repo-id}/group/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void addGroupPermissions(@PathVariable("sid") String sid,
+    public void addGroupPermissions(@PathVariable("repositoryType") String repositoryType,
+            @PathVariable("sid") String sid,
             @RequestParam String[] permissions,
             @PathVariable("repo-id") String repositoryId,
-            @RequestParam String path,
+            @RequestParam(required = false) String path,
             HttpSession session) {
-        validateRepositoryId(session, repositoryId);
+        validateRepositoryId(session, repositoryType, repositoryId);
         if (groupDao.getGroupByName(sid) != null) {
-            List<Permission> permissionsList = buildPermissions(permissions);
-            repositoryAclService
+            List<Permission> permissionsList = buildPermissions(repositoryType, permissions);
+            getRepositoryAclService(repositoryType)
                 .addPermissions(repositoryId, path, permissionsList, List.of(new GrantedAuthoritySid(sid)));
         } else {
             throw new NotFoundException("group.message", sid);
         }
     }
 
-    @DeleteMapping(value = "/repos")
+    @DeleteMapping(value = "/{repositoryType}/repos")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAllRootPermissions(@RequestParam(required = false) boolean recursive) {
+    public void deleteAllRootPermissions(@PathVariable("repositoryType") String repositoryType,
+            @RequestParam(required = false) boolean recursive) {
         if (recursive) {
-            repositoryAclService.deleteAclRoot();
+            getRepositoryAclService(repositoryType).deleteAclRoot();
         } else {
-            repositoryAclService.removeRootPermissions();
+            getRepositoryAclService(repositoryType).removeRootPermissions();
         }
     }
 
-    @DeleteMapping(value = "/repo/{repo-id}")
+    @DeleteMapping(value = "/{repositoryType}/repo/{repo-id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAllPermissions(@PathVariable("repo-id") String repositoryId,
+    public void deleteAllPermissions(@PathVariable("repositoryType") String repositoryType,
+            @PathVariable("repo-id") String repositoryId,
             @RequestParam(required = false) String path,
             @RequestParam(required = false) boolean recursive,
             HttpSession session) {
-        validateRepositoryId(session, repositoryId);
+        validateRepositoryId(session, repositoryType, repositoryId);
         if (recursive) {
-            repositoryAclService.deleteAcl(repositoryId, path);
+            getRepositoryAclService(repositoryType).deleteAcl(repositoryId, path);
         } else {
-            repositoryAclService.removePermissions(repositoryId, path);
+            getRepositoryAclService(repositoryType).removePermissions(repositoryId, path);
         }
     }
 
-    @DeleteMapping(value = "/repos/user/{sid}")
+    @DeleteMapping(value = "/{repositoryType}/repos/user/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUserRootPermissions(@PathVariable("sid") String sid, @RequestParam String[] permissions) {
-        List<Permission> permissionsList = buildPermissions(permissions);
-        repositoryAclService.removeRootPermissions(permissionsList, List.of(new PrincipalSid(sid)));
+    public void deleteUserRootPermissions(@PathVariable("repositoryType") String repositoryType,
+            @PathVariable("sid") String sid,
+            @RequestParam String[] permissions) {
+        List<Permission> permissionsList = buildPermissions(repositoryType, permissions);
+        getRepositoryAclService(repositoryType).removeRootPermissions(permissionsList, List.of(new PrincipalSid(sid)));
     }
 
-    @DeleteMapping(value = "/repo/{repo-id}/user/{sid}")
+    @DeleteMapping(value = "/{repositoryType}/repo/{repo-id}/user/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteUserPermissions(@PathVariable("sid") String sid,
+    public void deleteUserPermissions(@PathVariable("repositoryType") String repositoryType,
+            @PathVariable("sid") String sid,
             @RequestParam String[] permissions,
             @PathVariable("repo-id") String repositoryId,
-            @RequestParam String path,
+            @RequestParam(required = false) String path,
             HttpSession session) {
-        validateRepositoryId(session, repositoryId);
-        List<Permission> permissionsList = buildPermissions(permissions);
-        repositoryAclService.removePermissions(repositoryId, path, permissionsList, List.of(new PrincipalSid(sid)));
+        validateRepositoryId(session, repositoryType, repositoryId);
+        List<Permission> permissionsList = buildPermissions(repositoryType, permissions);
+        getRepositoryAclService(repositoryType)
+            .removePermissions(repositoryId, path, permissionsList, List.of(new PrincipalSid(sid)));
     }
 
-    @DeleteMapping(value = "/repos/group/{sid}")
+    @DeleteMapping(value = "/{repositoryType}/repos/group/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteGroupRootPermissions(@PathVariable("sid") String sid, @RequestParam String[] permissions) {
-        List<Permission> permissionsList = buildPermissions(permissions);
-        repositoryAclService.removeRootPermissions(permissionsList, List.of(new GrantedAuthoritySid(sid)));
+    public void deleteGroupRootPermissions(@PathVariable("repositoryType") String repositoryType,
+            @PathVariable("sid") String sid,
+            @RequestParam String[] permissions) {
+        List<Permission> permissionsList = buildPermissions(repositoryType, permissions);
+        getRepositoryAclService(repositoryType).removeRootPermissions(permissionsList,
+            List.of(new GrantedAuthoritySid(sid)));
     }
 
-    @DeleteMapping(value = "/repo/{repo-id}/group/{sid}")
+    @DeleteMapping(value = "/{repositoryType}/repo/{repo-id}/group/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteGroupPermissions(@PathVariable("sid") String sid,
+    public void deleteGroupPermissions(@PathVariable("repositoryType") String repositoryType,
+            @PathVariable("sid") String sid,
             @RequestParam String[] permissions,
             @PathVariable("repo-id") String repositoryId,
-            @RequestParam String path,
+            @RequestParam(required = false) String path,
             HttpSession session) {
-        validateRepositoryId(session, repositoryId);
-        List<Permission> permissionsList = buildPermissions(permissions);
-        repositoryAclService
+        validateRepositoryId(session, repositoryType, repositoryId);
+        List<Permission> permissionsList = buildPermissions(repositoryType, permissions);
+        getRepositoryAclService(repositoryType)
             .removePermissions(repositoryId, path, permissionsList, List.of(new GrantedAuthoritySid(sid)));
     }
 }

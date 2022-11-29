@@ -9,15 +9,15 @@ public class RepositoryAclServiceImplTest {
     @Test
     public void buildParentObjectIdentity() {
         ObjectIdentity oi = new ObjectIdentityImpl(ProjectArtifact.class, "repoId:/path1/path2/file.xlsx");
-        ObjectIdentity poi = RepositoryAclServiceImpl.buildParentObjectIdentity(oi);
+        ObjectIdentity poi = RepositoryAclServiceImpl.buildParentObjectIdentity(oi, ProjectArtifact.class, "1");
         Assert.assertEquals("repoId:/path1/path2", poi.getIdentifier());
 
         oi = poi;
-        poi = RepositoryAclServiceImpl.buildParentObjectIdentity(oi);
+        poi = SimpleRepositoryAclServiceImpl.buildParentObjectIdentity(oi, ProjectArtifact.class, "1");
         Assert.assertEquals("repoId:/path1", poi.getIdentifier());
 
         oi = poi;
-        poi = RepositoryAclServiceImpl.buildParentObjectIdentity(oi);
+        poi = SimpleRepositoryAclServiceImpl.buildParentObjectIdentity(oi, ProjectArtifact.class, "1");
         Assert.assertEquals("repoId", poi.getIdentifier());
     }
 

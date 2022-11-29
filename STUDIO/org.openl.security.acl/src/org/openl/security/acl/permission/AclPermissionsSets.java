@@ -12,7 +12,8 @@ public final class AclPermissionsSets {
         AclPermission.ARCHIVE,
         AclPermission.DELETE,
         AclPermission.RUN,
-        AclPermission.BENCHMARK);
+        AclPermission.BENCHMARK,
+        AclPermission.DEPLOY);
 
     public static final List<Permission> NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS = List.of(AclPermission.VIEW,
         AclPermission.APPEND,

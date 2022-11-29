@@ -11,13 +11,10 @@ import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
-import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.*;
 
@@ -52,28 +49,14 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
             .stream()
             .filter(e -> repoIdsWithProjects.contains(e.getId()) || repositoryAclService
                 .isGranted(e.getId(), null, List.of(AclPermission.VIEW)))
-            .map(this::wrapToSecureRepo)
+            .map(e -> SecuredRepositoryFactory.wrapToSecureRepo(e, getRepositoryAclService()))
             .collect(Collectors.toList());
     }
 
     @Override
     public Repository getRepository(String id) {
-        return wrapToSecureRepo(designTimeRepository.getRepository(id));
-    }
-
-    protected Repository wrapToSecureRepo(Repository repository) {
-        if (repository == null) {
-            return null;
-        }
-        if (repository instanceof MappedRepository) {
-            return new SecureMappedRepository((MappedRepository) repository, getRepositoryAclService());
-        } else if (repository instanceof BranchRepository) {
-            return new SecureBranchRepository((BranchRepository) repository, getRepositoryAclService());
-        } else if (repository instanceof FolderRepository) {
-            return new SecureFolderRepository((FolderRepository) repository, getRepositoryAclService());
-        } else {
-            return new SecureRepository(repository, getRepositoryAclService());
-        }
+        return SecuredRepositoryFactory.wrapToSecureRepo(designTimeRepository.getRepository(id),
+            getRepositoryAclService());
     }
 
     @Override

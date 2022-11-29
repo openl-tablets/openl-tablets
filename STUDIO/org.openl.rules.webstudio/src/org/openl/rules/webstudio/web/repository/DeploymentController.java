@@ -32,6 +32,7 @@ import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,6 +83,10 @@ public class DeploymentController {
 
     @Autowired
     private RepositoryAclService repositoryAclService;
+
+    @Autowired
+    @Qualifier("productionRepositoryAclService")
+    private SimpleRepositoryAclService productionRepositoryAclService;
 
     public void onPageLoad() {
         if (repositoryTreeState.getSelectedNode() == null) {
@@ -243,6 +248,11 @@ public class DeploymentController {
                 return null;
             }
             RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, propertyResolver);
+            if (!productionRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.EDIT))) {
+                WebStudioUtils.addErrorMessage(
+                    String.format("There is no permission for deploying to the repository '%s'.", repo.getName()));
+                return null;
+            }
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
                 String message = String.format(
@@ -535,9 +545,10 @@ public class DeploymentController {
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
             RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
-            repos.add(config);
+            if (productionRepositoryAclService.isGranted(config.getId(), null, List.of(AclPermission.VIEW))) {
+                repos.add(config);
+            }
         }
-
         repos.sort(RepositoryConfiguration.COMPARATOR);
         return repos;
     }

@@ -12,6 +12,21 @@
                 <constructor-arg name="grantedAuthority" value="Administrators"/>
             </bean>
         </constructor-arg>
+        <constructor-arg name="rootId" value="1"/>
+        <constructor-arg name="objectIdentityClass" value="org.openl.security.acl.repository.ProjectArtifact"/>
+        <property name="sidRetrievalStrategy" ref="sidRetrievalStrategy"/>
+    </bean>
+
+    <bean name="productionRepositoryAclService"
+          class="org.openl.security.acl.repository.SimpleRepositoryAclServiceImpl">
+        <constructor-arg name="aclService" ref="repositoryJdbcMutableAclService"/>
+        <constructor-arg name="relevantSystemWideSid">
+            <bean class="org.springframework.security.acls.domain.GrantedAuthoritySid">
+                <constructor-arg name="grantedAuthority" value="Administrators"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg name="rootId" value="2"/>
+        <constructor-arg name="objectIdentityClass" value="org.openl.security.acl.repository.RepositoryObjectIdentity"/>
         <property name="sidRetrievalStrategy" ref="sidRetrievalStrategy"/>
     </bean>
 

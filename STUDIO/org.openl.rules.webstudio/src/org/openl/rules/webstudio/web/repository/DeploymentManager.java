@@ -64,7 +64,7 @@ public class DeploymentManager implements InitializingBean {
         repositoryFactoryProxy.releaseRepository(repositoryConfigName);
     }
 
-    Collection<String> getRepositoryConfigNames() {
+    public Collection<String> getRepositoryConfigNames() {
         return deployers;
     }
 
