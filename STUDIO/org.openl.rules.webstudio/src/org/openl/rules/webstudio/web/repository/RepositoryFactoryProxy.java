@@ -27,6 +27,11 @@ public class RepositoryFactoryProxy {
 
     private final String repoListConfig;
 
+    public RepositoryFactoryProxy() {
+        propertyResolver = null;
+        repoListConfig = null;
+    }
+
     public RepositoryFactoryProxy(PropertyResolver propertyResolver, RepositoryMode mode) {
         switch (mode) {
             case DESIGN:

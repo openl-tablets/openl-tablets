@@ -40,6 +40,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclPermissionsSets;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +92,10 @@ public abstract class AbstractSmartRedeployController {
     private String repositoryConfigName;
 
     AProject currentProject;
+
+    @Autowired
+    @Qualifier("productionRepositoryAclService")
+    private SimpleRepositoryAclService productionRepositoryAclService;
 
     public void setUserWorkspace(UserWorkspace userWorkspace) {
         this.userWorkspace = userWorkspace;
@@ -572,7 +577,9 @@ public abstract class AbstractSmartRedeployController {
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
         for (String configName : repositoryConfigNames) {
             RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
-            repos.add(config);
+            if (productionRepositoryAclService.isGranted(config.getId(), null, List.of(AclPermission.EDIT))) {
+                repos.add(config);
+            }
         }
 
         repos.sort(RepositoryConfiguration.COMPARATOR);
@@ -585,6 +592,7 @@ public abstract class AbstractSmartRedeployController {
         Map<String, String> types = deploymentManager.getRepositoryConfigNames()
             .stream()
             .map(repositoryConfigName -> new RepositoryConfiguration(repositoryConfigName, propertyResolver))
+            .filter(e -> productionRepositoryAclService.isGranted(e.getId(), null, List.of(AclPermission.EDIT)))
             .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
         return new ObjectMapper().writeValueAsString(types);
     }
@@ -594,6 +602,7 @@ public abstract class AbstractSmartRedeployController {
             .map(DesignTimeRepository::getDeployConfigRepository)
             .map(Repository::getId)
             .map(deployConfigRepositoryId -> new RepositoryConfiguration(deployConfigRepositoryId, propertyResolver))
+            .filter(e -> productionRepositoryAclService.isGranted(e.getId(), null, List.of(AclPermission.EDIT)))
             .map(RepositoryConfiguration::getType)
             .orElse(null);
     }

@@ -45,7 +45,7 @@ public class SecureFolderRepository extends SecureRepository implements FolderRe
             ChangesetType changesetType) throws IOException {
         List<FileItem> fileItems = new ArrayList<>();
         for (FileItem fileItem : files) {
-            if (!repositoryAclService.isGranted(folderRepository.getId(),
+            if (!repositoryAclService.isGranted(getId(),
                 fileItem.getData().getName(),
                 List.of(writeOrCreatePermissionIsRequired(fileItem.getData().getName())))) {
                 throw new AccessDeniedException("There is no permission for writing data to the repository.");
