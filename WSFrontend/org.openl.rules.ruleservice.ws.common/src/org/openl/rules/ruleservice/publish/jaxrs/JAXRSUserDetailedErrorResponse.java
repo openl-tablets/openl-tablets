@@ -13,13 +13,13 @@ public class JAXRSUserDetailedErrorResponse {
 
     @JsonUnwrapped
     @JsonTypeInfo(use = JsonTypeInfo.Id.NONE)
-    private final Object body;
+    private final Object errors;
 
-    public JAXRSUserDetailedErrorResponse(Object body) {
-        this.body = body;
+    public JAXRSUserDetailedErrorResponse(Object errors) {
+        this.errors = errors;
     }
 
-    public Object getBody() {
-        return body;
+    public Object getErrors() {
+        return errors;
     }
 }

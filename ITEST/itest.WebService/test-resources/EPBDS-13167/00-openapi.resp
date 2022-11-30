@@ -627,7 +627,7 @@ Content-Type: application/json
       "ErrorWrapper": {
         "type": "object",
         "properties": {
-          "body": {
+          "errors": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/MyError"
