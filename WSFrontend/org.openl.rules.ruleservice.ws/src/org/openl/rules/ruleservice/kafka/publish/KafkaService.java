@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.kafka.publish;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.ZonedDateTime;
@@ -291,11 +293,11 @@ public final class KafkaService implements Runnable {
                                         if (exception != null) {
                                             try {
                                                 if (log.isErrorEnabled()) {
-                                                    log.error(String.format(
-                                                        "Failed to send a result message for method '%s' in service '%s' to output topic '%s'.",
+                                                    log.error(
+                                                        "Failed to send a result message for method '{}' in service '{}' to output topic '{}'.",
                                                         requestMessage.getMethod(),
                                                         getService().getDeployPath(),
-                                                        getOutTopic(consumerRecord)), exception);
+                                                        getOutTopic(consumerRecord), exception);
                                                 }
                                             } catch (Exception e) {
                                                 log.error("Unexpected error.", e);
@@ -309,17 +311,11 @@ public final class KafkaService implements Runnable {
                                         getStoreLogDataManager().store(storeLogData);
                                     }
                                 }
+                            } catch (InvocationTargetException | UndeclaredThrowableException e) {
+                                Throwable ex = e.getCause();
+                                sendError(consumerRecord, storeLogData, ex instanceof Exception ?  (Exception) ex : e);
                             } catch (Exception e) {
-                                if (log.isErrorEnabled()) {
-                                    log.error(
-                                        String.format("Failed to process a message from input topic '%s'.",
-                                            getInTopic()),
-                                        e);
-                                }
-                                if (isTracingEnabled()) {
-                                    kafkaTracingProvider.traceError(consumerRecord.headers(), service.getName(), e);
-                                }
-                                sendErrorToDlt(consumerRecord, e, storeLogData);
+                                sendError(consumerRecord, storeLogData, e);
                             } finally {
                                 countDownLatch.countDown();
                                 if (isStoreLogDataEnabled()) {
@@ -348,6 +344,16 @@ public final class KafkaService implements Runnable {
                 log.error("Something wrong.", e);
             }
         }
+    }
+
+    private void sendError(ConsumerRecord<String, RequestMessage> consumerRecord, StoreLogData storeLogData, Exception e) {
+        if (log.isErrorEnabled()) {
+            log.error("Failed to process a message from input topic '{}'.", getInTopic(), e);
+        }
+        if (isTracingEnabled()) {
+            kafkaTracingProvider.traceError(consumerRecord.headers(), service.getName(), e);
+        }
+        sendErrorToDlt(consumerRecord, e, storeLogData);
     }
 
     private void forwardHeadersToDlt(ConsumerRecord<?, ?> originalRecord, ProducerRecord<?, ?> record) {

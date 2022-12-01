@@ -50,6 +50,7 @@ import org.openl.runtime.IEngineWrapper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
 import org.openl.util.ArrayUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -468,7 +469,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                                 result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
                             }
                         } catch (InvocationTargetException | UndeclaredThrowableException e) {
-                            Throwable t = extractInvocationTargetException(e);
+                            Throwable t = e.getCause();
                             if (t instanceof Exception) {
                                 ex = (Exception) t;
                                 ex.addSuppressed(e);
@@ -551,19 +552,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
     }
 
-    private static Throwable extractInvocationTargetException(Throwable e) {
-        Throwable t = e;
-        while (t instanceof InvocationTargetException || t instanceof UndeclaredThrowableException) {
-            if (t instanceof InvocationTargetException) {
-                t = ((InvocationTargetException) t).getTargetException();
-            }
-            if (t instanceof UndeclaredThrowableException) {
-                t = ((UndeclaredThrowableException) t).getUndeclaredThrowable();
-            }
-        }
-        return t;
-    }
-
     public static Pair<ExceptionType, ExceptionDetails> getExceptionDetailAndType(Exception ex,
             SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy) {
         Throwable t = ex;
@@ -573,7 +561,6 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
 
         boolean f = true;
         while (f) {
-            t = extractInvocationTargetException(t);
             if (t instanceof OpenLUserRuntimeException) {
                 type = ExceptionType.USER_ERROR;
                 if (t instanceof OpenLUserDetailedRuntimeException) {

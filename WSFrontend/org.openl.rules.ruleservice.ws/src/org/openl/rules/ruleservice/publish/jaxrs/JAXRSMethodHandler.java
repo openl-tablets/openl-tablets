@@ -1,7 +1,9 @@
 package org.openl.rules.ruleservice.publish.jaxrs;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -58,7 +60,15 @@ public class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Metho
             }
         }
 
-        Object o = m.invoke(target, args);
+        Object o;
+
+        try {
+            o = m.invoke(target, args);
+        } catch (InvocationTargetException | UndeclaredThrowableException e) {
+            Throwable ex = e.getCause();
+            throw  ex instanceof Exception ?  (Exception) ex : e;
+        }
+
         if (o instanceof Response) {
             return o;
         } else {
