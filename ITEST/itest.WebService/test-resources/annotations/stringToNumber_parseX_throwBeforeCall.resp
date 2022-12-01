@@ -1,4 +1,7 @@
 HTTP/1.1 500
 Content-Type: application/json
 
-{"message":"java.lang.IllegalArgumentException: Service method should have at least one argument","type":"SYSTEM","details":"***"}
+{
+  "message": "java.lang.IllegalArgumentException: Service method should have at least one argument",
+  "type": "SYSTEM"
+}

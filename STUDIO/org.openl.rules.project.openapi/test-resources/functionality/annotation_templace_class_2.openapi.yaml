@@ -2290,10 +2290,6 @@ components:
             - SYSTEM
             - BAD_REQUEST
             - VALIDATION
-        details:
-          type: array
-          items:
-            type: string
     BalanceDynamicIndexCalculationRequest:
       type: object
       properties:

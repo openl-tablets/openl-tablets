@@ -3,6 +3,5 @@ Content-Type: application/json
 
 {
   "message": "java.lang.IllegalStateException: Wake up, Neo!",
-  "type": "SYSTEM",
-  "details": "***"
+  "type": "SYSTEM"
 }

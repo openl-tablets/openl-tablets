@@ -3,6 +3,5 @@ Content-Type: application/json
 
 {
   "message": "FileNotFoundException: /org/openl/itest/cassandra/HelloEntity7.cql",
-  "type": "SYSTEM",
-  "details": "*"
+  "type": "SYSTEM"
 }

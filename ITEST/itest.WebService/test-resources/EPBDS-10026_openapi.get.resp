@@ -480,12 +480,6 @@ Content-Type: application/json
               "BAD_REQUEST",
               "VALIDATION"
             ]
-          },
-          "details": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         }
       },

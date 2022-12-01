@@ -21,11 +21,7 @@ public class JAXRSExceptionMapper implements ExceptionMapper<Exception> {
             errorResponse = new JAXRSUserErrorResponse(dto.getMessage(), dto.getCode(), dto.getType());
         } else {
             // old style error when no localization properties
-            String[] details = Optional.ofNullable(dto.getDetail())
-                .map(s -> s.replaceAll("\t", "    "))
-                .map(s -> s.split(System.lineSeparator()))
-                .orElse(null);
-            errorResponse = new JAXRSErrorResponse(dto.getMessage(), dto.getType(), details);
+            errorResponse = new JAXRSErrorResponse(dto.getMessage(), dto.getType());
         }
 
         return Response.status(dto.getStatusCode()).type(MediaType.APPLICATION_JSON).entity(errorResponse).build();

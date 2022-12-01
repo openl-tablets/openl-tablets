@@ -3,6 +3,5 @@ Content-Type: application/json
 
 {
   "message": "not acceptable",
-  "type": "USER_ERROR",
-  "details": null
+  "type": "USER_ERROR"
 }

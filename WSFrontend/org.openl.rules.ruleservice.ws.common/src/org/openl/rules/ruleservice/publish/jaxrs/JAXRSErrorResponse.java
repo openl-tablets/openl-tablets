@@ -8,12 +8,10 @@ import org.openl.rules.ruleservice.core.ExceptionType;
 public class JAXRSErrorResponse {
     private final String message;
     private final ExceptionType type;
-    private final String[] details;
 
-    public JAXRSErrorResponse(String message, ExceptionType type, String[] details) {
+    public JAXRSErrorResponse(String message, ExceptionType type) {
         this.message = message;
         this.type = type;
-        this.details = details;
     }
 
     public String getMessage() {
@@ -22,10 +20,6 @@ public class JAXRSErrorResponse {
 
     public ExceptionType getType() {
         return type;
-    }
-
-    public String[] getDetails() {
-        return details;
     }
 
 }

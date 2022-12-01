@@ -3,6 +3,5 @@ Content-Type: application/json
 
 {
   "message": "Object 'WRONG' is outside of valid domain 'TransanctionType'. Valid values: [NEW_BUSINESS, ENDORSMENT]",
-  "type": "VALIDATION",
-  "details": null
+  "type": "VALIDATION"
 }

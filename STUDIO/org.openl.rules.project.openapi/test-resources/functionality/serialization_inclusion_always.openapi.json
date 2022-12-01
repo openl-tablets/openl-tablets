@@ -129,12 +129,6 @@
               "BAD_REQUEST",
               "VALIDATION"
             ]
-          },
-          "details": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         }
       },

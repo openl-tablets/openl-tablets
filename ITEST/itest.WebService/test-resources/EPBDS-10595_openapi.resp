@@ -511,12 +511,6 @@ Content-Type: application/json
           "type": {
             "type": "string",
             "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
-          },
-          "details": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
           }
         }
       },
