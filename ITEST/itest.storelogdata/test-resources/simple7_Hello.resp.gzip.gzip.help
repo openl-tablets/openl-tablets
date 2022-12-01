@@ -1,0 +1,3 @@
+echo "Before: $(gzip -d -c simple7_Hello.resp.gzip.gzip | gzip -d -c)"
+echo -n '{"message":"InvalidQueryException: table openl_logging_hello_entity7 does not exist","type":"SYSTEM"}' | gzip -c -f | gzip -c -f > simple7_Hello.resp.gzip.gzip
+echo "After:  $(gzip -d -c simple7_Hello.resp.gzip.gzip | gzip -d -c)"

@@ -3,6 +3,5 @@ Content-Type: application/json
 
 {
   "message": "Object '100' is outside of valid domain 'BrandCode'. Valid values: [10, 20, 30, 40]",
-  "type": "VALIDATION",
-  "details": null
+  "type": "VALIDATION"
 }

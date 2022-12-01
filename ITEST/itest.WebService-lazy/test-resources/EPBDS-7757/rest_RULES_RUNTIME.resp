@@ -3,6 +3,5 @@ Content-Type: application/json
 
 {
   "message": "Failure in the method 'java.lang.Double.valueOf(java.lang.String)'. Cause: For input string: \"sdsd\"",
-  "type": "RULES_RUNTIME",
-  "details": "***"
+  "type": "RULES_RUNTIME"
 }

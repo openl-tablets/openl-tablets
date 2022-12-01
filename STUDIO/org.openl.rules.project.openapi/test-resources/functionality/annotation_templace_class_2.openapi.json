@@ -620,12 +620,6 @@
       },
       "JAXRSErrorResponse": {
         "properties": {
-          "details": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
           "message": {
             "type": "string"
           },

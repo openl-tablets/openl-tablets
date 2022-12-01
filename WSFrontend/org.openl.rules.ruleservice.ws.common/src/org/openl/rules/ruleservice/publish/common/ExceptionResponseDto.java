@@ -20,14 +20,12 @@ public class ExceptionResponseDto {
     private final String code;
     private final int statusCode;
     private final ExceptionType type;
-    private final String detail;
     private final Object body;
 
-    private ExceptionResponseDto(ExceptionDetails exDetails, int statusCode, ExceptionType type, String detail) {
+    private ExceptionResponseDto(ExceptionDetails exDetails, int statusCode, ExceptionType type) {
         this.message = exDetails.getMessage();
         this.statusCode = statusCode;
         this.type = type;
-        this.detail = detail;
         this.code = exDetails.getCode();
         this.body = exDetails.getBody();
     }
@@ -42,10 +40,6 @@ public class ExceptionResponseDto {
 
     public ExceptionType getType() {
         return type;
-    }
-
-    public String getDetail() {
-        return detail;
     }
 
     public String getCode() {
@@ -69,7 +63,6 @@ public class ExceptionResponseDto {
 
         int status = INTERNAL_SERVER_ERROR_CODE;
         ExceptionType type = ExceptionType.SYSTEM;
-        String detail = null;
         ExceptionDetails exceptionDetails;
 
         if (t instanceof RuleServiceWrapperException) {
@@ -78,12 +71,9 @@ public class ExceptionResponseDto {
             type = wrapperException.getType();
             if (isUserErrorType(type)) {
                 status = UNPROCESSABLE_ENTITY;
-            } else {
-                detail = ExceptionUtils.getStackTrace(wrapperException.getCause());
             }
         } else {
             exceptionDetails = new ExceptionDetails(ExceptionUtils.getRootCauseMessage(e));
-            detail = ExceptionUtils.getStackTrace(e);
             try {
                 Class<?> jsonProcessingException = Thread.currentThread()
                     .getContextClassLoader()
@@ -96,7 +86,7 @@ public class ExceptionResponseDto {
             }
         }
 
-        return new ExceptionResponseDto(exceptionDetails, status, type, detail);
+        return new ExceptionResponseDto(exceptionDetails, status, type);
     }
 
     private static boolean isUserErrorType(ExceptionType type) {
