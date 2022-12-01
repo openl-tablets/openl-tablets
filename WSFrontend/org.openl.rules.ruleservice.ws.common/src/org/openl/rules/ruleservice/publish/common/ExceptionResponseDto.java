@@ -1,11 +1,9 @@
 package org.openl.rules.ruleservice.publish.common;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.UndeclaredThrowableException;
-
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+
 import org.openl.rules.ruleservice.core.ExceptionDetails;
 import org.openl.rules.ruleservice.core.ExceptionType;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
@@ -52,14 +50,6 @@ public class ExceptionResponseDto {
 
     public static ExceptionResponseDto createFrom(Exception e) {
         Throwable t = e;
-        while (t instanceof InvocationTargetException || t instanceof UndeclaredThrowableException) {
-            if (t instanceof InvocationTargetException) {
-                t = ((InvocationTargetException) t).getTargetException();
-            }
-            if (t instanceof UndeclaredThrowableException) {
-                t = ((UndeclaredThrowableException) t).getUndeclaredThrowable();
-            }
-        }
 
         int status = INTERNAL_SERVER_ERROR_CODE;
         ExceptionType type = ExceptionType.SYSTEM;
