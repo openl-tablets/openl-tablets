@@ -70,10 +70,6 @@
         </constructor-arg>
     </bean>
 
-    <bean id="jaxrsWebApplicationExceptionMapper" class="org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper">
-        <property name="addMessageToResponse" value="true"/>
-    </bean>
-
     <bean id="jaxrs200StatusOutInterceptor"
           class="org.openl.rules.ruleservice.publish.jaxrs.JAXRS200StatusOutInterceptor">
         <property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}"/>

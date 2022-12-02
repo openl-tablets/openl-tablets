@@ -1,4 +1,7 @@
 HTTP/1.1 405
-Content-Type: text/plain
+Content-Type: application/json
 
-WebApplicationException has been caught, status: 405, message: HTTP 405 Method Not Allowed
+{
+  "message": "HTTP 405 Method Not Allowed",
+  "type": "SYSTEM"
+}
