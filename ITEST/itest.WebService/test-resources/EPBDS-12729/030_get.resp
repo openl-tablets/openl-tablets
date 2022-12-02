@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "message": "Foo bar",
-  "type": "USER_ERROR"
+  "code": null
 }

@@ -30,16 +30,13 @@ public class RuleServiceExceptionMapper implements ExceptionMapper<RuleServiceWr
             var dto = wrapperException.getDetails();
             var error = dto.getBody();
             var message = dto.getMessage();
-            var code = dto.getCode();
             switch (type) {
                 case VALIDATION:
                     errorResponse = new JAXRSErrorResponse(message, type);
                     status = JAXRSOpenLServiceEnhancerHelper.UNPROCESSABLE_ENTITY;
                     break;
                 case USER_ERROR:
-                    errorResponse = error != null ? error
-                            : code != null ? new JAXRSUserErrorResponse(message, code)
-                            : new JAXRSErrorResponse(message, type);
+                    errorResponse = error != null ? error : new JAXRSErrorResponse(message, type);
                     status = JAXRSOpenLServiceEnhancerHelper.UNPROCESSABLE_ENTITY;
                     break;
                 default:
