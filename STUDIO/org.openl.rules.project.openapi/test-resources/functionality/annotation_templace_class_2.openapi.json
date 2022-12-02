@@ -639,12 +639,6 @@
           },
           "message": {
             "type": "string"
-          },
-          "type": {
-            "enum": [
-              "USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"
-            ],
-            "type": "string"
           }
         },
         "type": "object"
