@@ -117,10 +117,6 @@ Content-Type: application/json
           },
           "message": {
             "type": "string"
-          },
-          "type": {
-            "type": "string",
-            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
           }
         }
       },

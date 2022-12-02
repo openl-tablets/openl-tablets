@@ -38,7 +38,7 @@ public class RuleServiceExceptionMapper implements ExceptionMapper<RuleServiceWr
                     break;
                 case USER_ERROR:
                     errorResponse = error != null ? error
-                            : code != null ? new JAXRSUserErrorResponse(message, code, type)
+                            : code != null ? new JAXRSUserErrorResponse(message, code)
                             : new JAXRSErrorResponse(message, type);
                     status = JAXRSOpenLServiceEnhancerHelper.UNPROCESSABLE_ENTITY;
                     break;
