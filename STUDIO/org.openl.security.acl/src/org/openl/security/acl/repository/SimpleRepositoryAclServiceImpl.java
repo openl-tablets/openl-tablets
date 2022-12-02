@@ -49,6 +49,15 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         this.objectIdentityClass = objectIdentityClass;
     }
 
+    public SimpleRepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
+            MutableAclService aclService,
+            String rootId,
+            Class<?> objectIdentityClass,
+            Sid relevantSystemWideSid) {
+        this(springCacheBasedAclCache, aclService, rootId, objectIdentityClass);
+        this.relevantSystemWideSid = relevantSystemWideSid;
+    }
+
     public static String concatPaths(String path1, String path2) {
         if (!path1.endsWith("/")) {
             path1 = path1 + "/";
@@ -71,15 +80,6 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             }
         }
         return StringUtils.isNotBlank(path) ? repositoryId + ":" + path : repositoryId;
-    }
-
-    public SimpleRepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
-            MutableAclService aclService,
-            String rootId,
-            Class<?> objectIdentityClass,
-            Sid relevantSystemWideSid) {
-        this(springCacheBasedAclCache, aclService, rootId, objectIdentityClass);
-        this.relevantSystemWideSid = relevantSystemWideSid;
     }
 
     protected void evictCache(ObjectIdentity objectIdentity) {
@@ -491,4 +491,39 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         aclService.deleteSid(sid, relevantSystemWideSid);
     }
 
+    protected boolean updateOwner(ObjectIdentity oi, Sid newOwner) {
+        try {
+            MutableAcl acl = (MutableAcl) aclService.readAclById(oi);
+            acl.setOwner(newOwner);
+            aclService.updateAcl(acl);
+            return true;
+        } catch (NotFoundException e) {
+            return false;
+        }
+    }
+
+    @Override
+    @Transactional
+    public boolean updateOwner(String repositoryId, String path, Sid newOwner) {
+        Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
+        ObjectIdentity oi = new ObjectIdentityImpl(getObjectIdentityClass(), concat(repositoryId, path));
+        return updateOwner(oi, newOwner);
+    }
+
+    protected Sid getOwner(ObjectIdentity oi) {
+        try {
+            MutableAcl acl = (MutableAcl) aclService.readAclById(oi);
+            return acl.getOwner();
+        } catch (NotFoundException e) {
+            return null;
+        }
+    }
+
+    @Override
+    @Transactional
+    public Sid getOwner(String repositoryId, String path) {
+        Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
+        ObjectIdentity oi = new ObjectIdentityImpl(getObjectIdentityClass(), concat(repositoryId, path));
+        return getOwner(oi);
+    }
 }

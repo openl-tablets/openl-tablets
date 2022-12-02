@@ -55,4 +55,14 @@ public class DisabledRepositoryAclServiceImpl extends DisabledSimpleRepositoryAc
     public boolean createAcl(AProjectArtefact artefact, List<Permission> permissions) {
         return true;
     }
+
+    @Override
+    public Sid getOwner(AProjectArtefact projectArtefact) {
+        return null;
+    }
+
+    @Override
+    public boolean updateOwner(AProjectArtefact projectArtefact, Sid newOwner) {
+        return true;
+    }
 }
