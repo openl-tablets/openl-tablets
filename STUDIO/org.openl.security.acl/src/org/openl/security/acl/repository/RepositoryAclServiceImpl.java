@@ -29,23 +29,6 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         super(springCacheBasedAclCache, aclService, rootId, objectIdentityClass);
     }
 
-    private String buildObjectIdentityId(AProjectArtefact artefact) {
-        if (artefact.getRepository() instanceof LocalRepository) {
-            LocalRepository localRepository = (LocalRepository) artefact.getRepository();
-            ProjectState projectState = localRepository.getProjectState(artefact.getProject().getFileData().getName());
-            FileData fileData = projectState.getFileData();
-            FileMappingData fileMappingData = fileData.getAdditionalData(FileMappingData.class);
-            String repoPath = fileMappingData.getInternalPath();
-            return concat(artefact.getRepository().getId(), repoPath + "/" + artefact.getInternalPath());
-        } else {
-            return concat(artefact.getRepository().getId(), artefact.getFileData().getName());
-        }
-    }
-
-    private ObjectIdentity buildObjectIdentity(AProjectArtefact artefact) {
-        return new ObjectIdentityImpl(getObjectIdentityClass(), buildObjectIdentityId(artefact));
-    }
-
     public RepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
             MutableAclService aclService,
             String rootId,
@@ -54,95 +37,127 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         super(springCacheBasedAclCache, aclService, rootId, objectIdentityClass, relevantSystemWideSid);
     }
 
+    private String buildObjectIdentityId(AProjectArtefact projectArtefact) {
+        if (projectArtefact.getRepository() instanceof LocalRepository) {
+            LocalRepository localRepository = (LocalRepository) projectArtefact.getRepository();
+            ProjectState projectState = localRepository
+                .getProjectState(projectArtefact.getProject().getFileData().getName());
+            FileData fileData = projectState.getFileData();
+            FileMappingData fileMappingData = fileData.getAdditionalData(FileMappingData.class);
+            String repoPath = fileMappingData.getInternalPath();
+            return concat(projectArtefact.getRepository().getId(), repoPath + "/" + projectArtefact.getInternalPath());
+        } else {
+            return concat(projectArtefact.getRepository().getId(), projectArtefact.getFileData().getName());
+        }
+    }
+
+    private ObjectIdentity buildObjectIdentity(AProjectArtefact projectArtefact) {
+        return new ObjectIdentityImpl(getObjectIdentityClass(), buildObjectIdentityId(projectArtefact));
+    }
+
     @Override
     @Transactional
-    public Map<Sid, List<Permission>> listPermissions(AProjectArtefact artefact) {
-        Objects.requireNonNull(artefact, "artefact cannot be null");
-        ObjectIdentity oi = buildObjectIdentity(artefact);
+    public Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact) {
+        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         return listPermissions(oi);
     }
 
     @Override
     @Transactional
-    public void addPermissions(AProjectArtefact artefact, List<Permission> permissions, List<Sid> sids) {
-        Objects.requireNonNull(artefact, "artefact cannot be null");
-        ObjectIdentity oi = buildObjectIdentity(artefact);
+    public void addPermissions(AProjectArtefact projectArtefact, List<Permission> permissions, List<Sid> sids) {
+        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         addPermissions(oi, joinSidsAndPermissions(permissions, sids));
     }
 
     @Override
     @Transactional
-    public void addPermissions(AProjectArtefact artefact, Map<Sid, List<Permission>> permissions) {
-        Objects.requireNonNull(artefact, "artefact cannot be null");
-        ObjectIdentity oi = buildObjectIdentity(artefact);
+    public void addPermissions(AProjectArtefact projectArtefact, Map<Sid, List<Permission>> permissions) {
+        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         addPermissions(oi, permissions);
     }
 
     @Override
     @Transactional
-    public void removePermissions(AProjectArtefact artefact) {
-        Objects.requireNonNull(artefact, "artefact cannot be null");
-        ObjectIdentity oi = buildObjectIdentity(artefact);
+    public void removePermissions(AProjectArtefact projectArtefact) {
+        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         removePermissions(oi);
     }
 
     @Override
     @Transactional
-    public void removePermissions(AProjectArtefact artefact, List<Sid> sids) {
-        Objects.requireNonNull(artefact, "artefact cannot be null");
-        ObjectIdentity oi = buildObjectIdentity(artefact);
+    public void removePermissions(AProjectArtefact projectArtefact, List<Sid> sids) {
+        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         removePermissions(oi, sids);
     }
 
     @Override
     @Transactional
-    public void removePermissions(AProjectArtefact artefact, List<Permission> permissions, List<Sid> sids) {
-        Objects.requireNonNull(artefact, "artefact cannot be null");
-        ObjectIdentity oi = buildObjectIdentity(artefact);
+    public void removePermissions(AProjectArtefact projectArtefact, List<Permission> permissions, List<Sid> sids) {
+        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         removePermissions(oi, joinSidsAndPermissions(permissions, sids));
     }
 
     @Override
     @Transactional
-    public void removePermissions(AProjectArtefact artefact, Map<Sid, List<Permission>> permissions) {
-        Objects.requireNonNull(artefact, "artefact cannot be null");
-        ObjectIdentity oi = buildObjectIdentity(artefact);
+    public void removePermissions(AProjectArtefact projectArtefact, Map<Sid, List<Permission>> permissions) {
+        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         removePermissions(oi, permissions);
     }
 
     @Override
     @Transactional
-    public void move(AProjectArtefact artefact, String newPath) {
-        Objects.requireNonNull(artefact, "artefact cannot be null");
-        ObjectIdentity oi = buildObjectIdentity(artefact);
-        moveInternal(artefact.getRepository().getName(), oi, newPath);
+    public void move(AProjectArtefact projectArtefact, String newPath) {
+        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
+        moveInternal(projectArtefact.getRepository().getName(), oi, newPath);
     }
 
     @Override
     @Transactional
-    public boolean isGranted(AProjectArtefact artefact, List<Permission> permissions) {
-        Objects.requireNonNull(artefact, "artefact cannot be null");
-        if (LocalWorkspace.LOCAL_ID.equals(artefact.getRepository().getId())) {
+    public boolean isGranted(AProjectArtefact projectArtefact, List<Permission> permissions) {
+        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        if (LocalWorkspace.LOCAL_ID.equals(projectArtefact.getRepository().getId())) {
             return true;
         }
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         List<Sid> sids = getSidRetrievalStrategy().getSids(authentication);
-        ObjectIdentity oi = buildObjectIdentity(artefact);
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         return isGranted(oi, sids, permissions);
     }
 
     @Override
     @Transactional
-    public void deleteAcl(AProjectArtefact artefact) {
-        Objects.requireNonNull(artefact, "artefact cannot be null");
-        ObjectIdentity oi = buildObjectIdentity(artefact);
+    public void deleteAcl(AProjectArtefact projectArtefact) {
+        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         aclService.deleteAcl(oi, true);
     }
 
     @Override
     @Transactional
-    public boolean createAcl(AProjectArtefact artefact, List<Permission> permissions) {
-        ObjectIdentity oi = buildObjectIdentity(artefact);
+    public boolean createAcl(AProjectArtefact projectArtefact, List<Permission> permissions) {
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         return createAcl(oi, permissions);
+    }
+
+    @Override
+    @Transactional
+    public Sid getOwner(AProjectArtefact projectArtefact) {
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
+        return getOwner(oi);
+    }
+
+    @Override
+    @Transactional
+    public boolean updateOwner(AProjectArtefact projectArtefact, Sid newOwner) {
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
+        return updateOwner(oi, newOwner);
     }
 }

@@ -9,25 +9,29 @@ import org.springframework.security.acls.model.Sid;
 
 public interface RepositoryAclService extends SimpleRepositoryAclService {
 
-    Map<Sid, List<Permission>> listPermissions(AProjectArtefact artefact);
+    Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact);
 
-    void addPermissions(AProjectArtefact artefact, List<Permission> permissions, List<Sid> sids);
+    void addPermissions(AProjectArtefact projectArtefact, List<Permission> permissions, List<Sid> sids);
 
-    void addPermissions(AProjectArtefact artefact, Map<Sid, List<Permission>> permissions);
+    void addPermissions(AProjectArtefact projectArtefact, Map<Sid, List<Permission>> permissions);
 
-    void move(AProjectArtefact artefact, String newPath);
+    void move(AProjectArtefact projectArtefact, String newPath);
 
-    void deleteAcl(AProjectArtefact artefact);
+    void deleteAcl(AProjectArtefact projectArtefact);
 
-    void removePermissions(AProjectArtefact artefact);
+    void removePermissions(AProjectArtefact projectArtefact);
 
-    void removePermissions(AProjectArtefact artefact, List<Sid> sids);
+    void removePermissions(AProjectArtefact projectArtefact, List<Sid> sids);
 
-    void removePermissions(AProjectArtefact artefact, List<Permission> permissions, List<Sid> sids);
+    void removePermissions(AProjectArtefact projectArtefact, List<Permission> permissions, List<Sid> sids);
 
-    void removePermissions(AProjectArtefact artefact, Map<Sid, List<Permission>> permissions);
+    void removePermissions(AProjectArtefact v, Map<Sid, List<Permission>> permissions);
 
-    boolean isGranted(AProjectArtefact artefact, List<Permission> permissions);
+    boolean isGranted(AProjectArtefact projectArtefact, List<Permission> permissions);
 
-    boolean createAcl(AProjectArtefact artefact, List<Permission> permissions);
+    boolean createAcl(AProjectArtefact projectArtefact, List<Permission> permissions);
+
+    Sid getOwner(AProjectArtefact projectArtefact);
+
+    boolean updateOwner(AProjectArtefact projectArtefact, Sid newOwner);
 }
