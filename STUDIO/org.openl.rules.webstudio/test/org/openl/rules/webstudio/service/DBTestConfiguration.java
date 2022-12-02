@@ -49,7 +49,6 @@ public class DBTestConfiguration {
             .name("OpenL-DataSource-Logger")
             .asJson()
             .countQuery()
-            .logQueryToSysOut()
             .build();
     }
 
