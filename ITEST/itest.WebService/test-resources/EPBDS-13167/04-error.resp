@@ -1,15 +1,13 @@
 HTTP/1.1 422
 Content-Type: application/json
 
-{
-  "errors": [
-    {
-      "Message": "Foooo SPR",
-      "Code": "Bar SPR"
-    },
-    {
-      "Message": "Foooo SPR",
-      "Code": "Bar SPR"
-    }
-  ]
-}
+[
+  {
+    "Message": "Foooo SPR",
+    "Code": "Bar SPR"
+  },
+  {
+    "Message": "Foooo SPR",
+    "Code": "Bar SPR"
+  }
+]

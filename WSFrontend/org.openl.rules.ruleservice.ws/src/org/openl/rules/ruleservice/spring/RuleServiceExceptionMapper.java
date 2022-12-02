@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSErrorResponse;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
-import org.openl.rules.ruleservice.publish.jaxrs.JAXRSUserDetailedErrorResponse;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSUserErrorResponse;
 
 /**
@@ -38,7 +37,7 @@ public class RuleServiceExceptionMapper implements ExceptionMapper<RuleServiceWr
                     status = JAXRSOpenLServiceEnhancerHelper.UNPROCESSABLE_ENTITY;
                     break;
                 case USER_ERROR:
-                    errorResponse = error != null ? new JAXRSUserDetailedErrorResponse(error)
+                    errorResponse = error != null ? error
                             : code != null ? new JAXRSUserErrorResponse(message, code, type)
                             : new JAXRSErrorResponse(message, type);
                     status = JAXRSOpenLServiceEnhancerHelper.UNPROCESSABLE_ENTITY;
