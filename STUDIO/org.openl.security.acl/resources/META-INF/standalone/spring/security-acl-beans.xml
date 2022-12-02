@@ -6,6 +6,7 @@
     <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml"/>
 
     <bean name="repositoryAclService" class="org.openl.security.acl.repository.RepositoryAclServiceImpl">
+        <constructor-arg name="springCacheBasedAclCache" ref="aclCache"/>
         <constructor-arg name="aclService" ref="repositoryJdbcMutableAclService"/>
         <constructor-arg name="relevantSystemWideSid">
             <bean class="org.springframework.security.acls.domain.GrantedAuthoritySid">
@@ -19,6 +20,7 @@
 
     <bean name="productionRepositoryAclService"
           class="org.openl.security.acl.repository.SimpleRepositoryAclServiceImpl">
+        <constructor-arg name="springCacheBasedAclCache" ref="aclCache"/>
         <constructor-arg name="aclService" ref="repositoryJdbcMutableAclService"/>
         <constructor-arg name="relevantSystemWideSid">
             <bean class="org.springframework.security.acls.domain.GrantedAuthoritySid">
