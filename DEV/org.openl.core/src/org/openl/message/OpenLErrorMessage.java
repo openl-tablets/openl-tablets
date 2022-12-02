@@ -76,7 +76,7 @@ public class OpenLErrorMessage extends OpenLMessage {
         if (cause instanceof OpenLUserDetailedRuntimeException) {
             var body = ((OpenLUserDetailedRuntimeException) cause).getBody();
             if (body instanceof OpenLUserDetailedRuntimeException.Body) {
-                return ((OpenLUserDetailedRuntimeException.Body) body).getFullMessage();
+                return body.toString();
             } else {
                 return NicePrinter.print(body);
             }

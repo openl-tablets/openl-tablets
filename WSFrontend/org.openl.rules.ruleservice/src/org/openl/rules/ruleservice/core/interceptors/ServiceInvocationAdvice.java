@@ -558,14 +558,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                 type = ExceptionType.USER_ERROR;
                 if (t instanceof OpenLUserDetailedRuntimeException) {
                     OpenLUserDetailedRuntimeException uex = (OpenLUserDetailedRuntimeException) t;
-                    if (uex.getBody() instanceof OpenLUserDetailedRuntimeException.Body) {
-                        var body = (OpenLUserDetailedRuntimeException.Body) uex.getBody();
-                        exceptionDetails = new ExceptionDetails(body.getCode(), body.getMessage());
-                    } else {
-                        Object body = SpreadsheetResult.convertSpreadsheetResult(uex.getBody(),
+                    Object body = SpreadsheetResult.convertSpreadsheetResult(uex.getBody(),
                             sprBeanPropertyNamingStrategy);
-                        exceptionDetails = new ExceptionDetails(body);
-                    }
+                    exceptionDetails = new ExceptionDetails(body);
                 } else {
                     exceptionDetails = new ExceptionDetails(t.getMessage());
                 }

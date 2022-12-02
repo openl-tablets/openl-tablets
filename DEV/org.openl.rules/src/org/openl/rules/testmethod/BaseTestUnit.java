@@ -106,7 +106,7 @@ public class BaseTestUnit implements ITestUnit {
                 var detailedEx = (OpenLUserDetailedRuntimeException) rootCause;
                 String message;
                 if (detailedEx.getBody() instanceof OpenLUserDetailedRuntimeException.Body) {
-                    message = ((OpenLUserDetailedRuntimeException.Body) detailedEx.getBody()).getFullMessage();
+                    message = detailedEx.getBody().toString();
                 } else {
                     message = NicePrinter.print(detailedEx.getBody());
                 }
