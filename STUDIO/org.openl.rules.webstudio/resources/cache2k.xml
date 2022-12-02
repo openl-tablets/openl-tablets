@@ -16,6 +16,7 @@
     <caches>
         <cache>
             <name>aclCache</name>
+            <expireAfterWrite>2m</expireAfterWrite>
         </cache>
     </caches>
 </cache2k>

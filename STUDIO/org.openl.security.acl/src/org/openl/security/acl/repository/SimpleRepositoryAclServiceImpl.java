@@ -17,6 +17,7 @@ import org.openl.util.StringUtils;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.domain.SidRetrievalStrategyImpl;
+import org.springframework.security.acls.domain.SpringCacheBasedAclCache;
 import org.springframework.security.acls.model.AccessControlEntry;
 import org.springframework.security.acls.model.Acl;
 import org.springframework.security.acls.model.MutableAcl;
@@ -34,10 +35,15 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     private Sid relevantSystemWideSid;
     private final String rootId;
     private final Class<?> objectIdentityClass;
+    private final SpringCacheBasedAclCache springCacheBasedAclCache;
 
     private SidRetrievalStrategy sidRetrievalStrategy = new SidRetrievalStrategyImpl();
 
-    public SimpleRepositoryAclServiceImpl(MutableAclService aclService, String rootId, Class<?> objectIdentityClass) {
+    public SimpleRepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
+            MutableAclService aclService,
+            String rootId,
+            Class<?> objectIdentityClass) {
+        this.springCacheBasedAclCache = springCacheBasedAclCache;
         this.aclService = aclService;
         this.rootId = rootId;
         this.objectIdentityClass = objectIdentityClass;
@@ -67,12 +73,17 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         return StringUtils.isNotBlank(path) ? repositoryId + ":" + path : repositoryId;
     }
 
-    public SimpleRepositoryAclServiceImpl(MutableAclService aclService,
+    public SimpleRepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
+            MutableAclService aclService,
             String rootId,
             Class<?> objectIdentityClass,
             Sid relevantSystemWideSid) {
-        this(aclService, rootId, objectIdentityClass);
+        this(springCacheBasedAclCache, aclService, rootId, objectIdentityClass);
         this.relevantSystemWideSid = relevantSystemWideSid;
+    }
+
+    protected void evictCache(ObjectIdentity objectIdentity) {
+        springCacheBasedAclCache.evictFromCache(objectIdentity);
     }
 
     public SidRetrievalStrategy getSidRetrievalStrategy() {
@@ -124,6 +135,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     protected MutableAcl getOrCreateAcl(ObjectIdentity oi) {
         MutableAcl acl;
         try {
+            evictCache(oi);
             acl = (MutableAcl) aclService.readAclById(oi);
         } catch (NotFoundException nfe) {
             acl = aclService.createAcl(oi);
@@ -167,6 +179,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     protected Map<Sid, List<Permission>> listPermissions(ObjectIdentity objectIdentity) {
         try {
+            evictCache(objectIdentity);
             Map<Sid, List<Permission>> map = new HashMap<>();
             Acl acl = aclService.readAclById(objectIdentity);
             for (AccessControlEntry ace : acl.getEntries()) {
@@ -248,6 +261,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     protected void removePermissions(ObjectIdentity objectIdentity) {
         try {
+            evictCache(objectIdentity);
             MutableAcl acl = (MutableAcl) aclService.readAclById(objectIdentity);
             for (int i = acl.getEntries().size() - 1; i >= 0; i--) {
                 acl.deleteAce(i);
@@ -277,16 +291,13 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             return;
         }
         try {
+            evictCache(objectIdentity);
             MutableAcl acl = (MutableAcl) aclService.readAclById(objectIdentity);
-            List<Integer> indexes = new ArrayList<>();
             for (int i = acl.getEntries().size() - 1; i >= 0; i--) {
                 AccessControlEntry ace = acl.getEntries().get(i);
                 if (sids.contains(ace.getSid())) {
-                    indexes.add(i);
+                    acl.deleteAce(i);
                 }
-            }
-            for (Integer index : indexes) {
-                acl.deleteAce(index);
             }
             aclService.updateAcl(acl);
         } catch (NotFoundException ignored) {
@@ -318,19 +329,16 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             return;
         }
         try {
+            evictCache(objectIdentity);
             MutableAcl acl = (MutableAcl) aclService.readAclById(objectIdentity);
-            List<Integer> indexes = new ArrayList<>();
             for (int i = acl.getEntries().size() - 1; i >= 0; i--) {
                 AccessControlEntry ace = acl.getEntries().get(i);
                 if (ace.isGranting()) {
                     List<Permission> p = permissions.get(ace.getSid());
                     if (p != null && p.contains(ace.getPermission())) {
-                        indexes.add(i);
+                        acl.deleteAce(i);
                     }
                 }
-            }
-            for (Integer index : indexes) {
-                acl.deleteAce(index);
             }
             aclService.updateAcl(acl);
         } catch (NotFoundException ignored) {

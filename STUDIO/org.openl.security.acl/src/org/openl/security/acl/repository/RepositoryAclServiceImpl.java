@@ -12,6 +12,7 @@ import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.security.acl.MutableAclService;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.SpringCacheBasedAclCache;
 import org.springframework.security.acls.model.ObjectIdentity;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
@@ -21,8 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl implements RepositoryAclService {
 
-    public RepositoryAclServiceImpl(MutableAclService aclService, String rootId, Class<?> objectIdentityClass) {
-        super(aclService, rootId, objectIdentityClass);
+    public RepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
+            MutableAclService aclService,
+            String rootId,
+            Class<?> objectIdentityClass) {
+        super(springCacheBasedAclCache, aclService, rootId, objectIdentityClass);
     }
 
     private String buildObjectIdentityId(AProjectArtefact artefact) {
@@ -42,11 +46,12 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         return new ObjectIdentityImpl(getObjectIdentityClass(), buildObjectIdentityId(artefact));
     }
 
-    public RepositoryAclServiceImpl(MutableAclService aclService,
+    public RepositoryAclServiceImpl(SpringCacheBasedAclCache springCacheBasedAclCache,
+            MutableAclService aclService,
             String rootId,
             Class<?> objectIdentityClass,
             Sid relevantSystemWideSid) {
-        super(aclService, rootId, objectIdentityClass, relevantSystemWideSid);
+        super(springCacheBasedAclCache, aclService, rootId, objectIdentityClass, relevantSystemWideSid);
     }
 
     @Override
