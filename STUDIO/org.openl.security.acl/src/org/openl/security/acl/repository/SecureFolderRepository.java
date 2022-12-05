@@ -18,8 +18,8 @@ public class SecureFolderRepository extends SecureRepository implements FolderRe
 
     private final FolderRepository folderRepository;
 
-    public SecureFolderRepository(FolderRepository repository, RepositoryAclService repositoryAclService) {
-        super(repository, repositoryAclService);
+    public SecureFolderRepository(FolderRepository repository, SimpleRepositoryAclService simpleRepositoryAclService) {
+        super(repository, simpleRepositoryAclService);
         this.folderRepository = Objects.requireNonNull(repository, "repository cannot be null");
     }
 
@@ -27,7 +27,7 @@ public class SecureFolderRepository extends SecureRepository implements FolderRe
     public List<FileData> listFolders(String path) throws IOException {
         return folderRepository.listFolders(path)
             .stream()
-            .filter(e -> repositoryAclService.isGranted(getId(), e.getName(), List.of(DESIGN_REPOSITORY_READ)))
+            .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(DESIGN_REPOSITORY_READ)))
             .collect(Collectors.toList());
     }
 
@@ -35,7 +35,7 @@ public class SecureFolderRepository extends SecureRepository implements FolderRe
     public List<FileData> listFiles(String path, String version) throws IOException {
         return folderRepository.listFiles(path, version)
             .stream()
-            .filter(e -> repositoryAclService.isGranted(getId(), e.getName(), List.of(DESIGN_REPOSITORY_READ)))
+            .filter(e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(DESIGN_REPOSITORY_READ)))
             .collect(Collectors.toList());
     }
 
@@ -45,7 +45,7 @@ public class SecureFolderRepository extends SecureRepository implements FolderRe
             ChangesetType changesetType) throws IOException {
         List<FileItem> fileItems = new ArrayList<>();
         for (FileItem fileItem : files) {
-            if (!repositoryAclService.isGranted(getId(),
+            if (!simpleRepositoryAclService.isGranted(getId(),
                 fileItem.getData().getName(),
                 List.of(writeOrCreatePermissionIsRequired(fileItem.getData().getName())))) {
                 throw new AccessDeniedException("There is no permission for writing data to the repository.");

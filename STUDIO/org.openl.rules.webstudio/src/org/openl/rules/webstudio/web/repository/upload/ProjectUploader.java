@@ -19,7 +19,7 @@ public class ProjectUploader {
     private final String projectName;
     private final String projectFolder;
     private final UserWorkspace userWorkspace;
-    private final RepositoryAclService repositoryAclService;
+    private final RepositoryAclService designRepositoryAclService;
     private final PathFilter zipFilter;
     private final List<ProjectFile> uploadedFiles;
     private final ZipCharsetDetector zipCharsetDetector;
@@ -36,7 +36,7 @@ public class ProjectUploader {
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
-            RepositoryAclService repositoryAclService,
+            RepositoryAclService designRepositoryAclService,
             String comment,
             PathFilter zipFilter,
             ZipCharsetDetector zipCharsetDetector,
@@ -53,7 +53,7 @@ public class ProjectUploader {
 
         this.projectName = projectName;
         this.userWorkspace = userWorkspace;
-        this.repositoryAclService = repositoryAclService;
+        this.designRepositoryAclService = designRepositoryAclService;
         this.zipFilter = zipFilter;
         this.modelsPath = modelsPath;
         this.algorithmsPath = algorithmsPath;
@@ -79,7 +79,7 @@ public class ProjectUploader {
         this.projectName = projectName;
         this.projectFolder = projectFolder;
         this.userWorkspace = userWorkspace;
-        this.repositoryAclService = repositoryAclService;
+        this.designRepositoryAclService = repositoryAclService;
         this.comment = comment;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
@@ -131,7 +131,7 @@ public class ProjectUploader {
                 uploadedFiles.toArray(new ProjectFile[0]);
             }
             RulesProject rulesProject = projectCreator.createRulesProject();
-            if (!repositoryAclService.createAcl(rulesProject.getDesignRepository().getId(),
+            if (!designRepositoryAclService.createAcl(rulesProject.getDesignRepository().getId(),
                 rulesProject.getDesignFolderName(),
                 AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
                 throw new ProjectException("Granting permissions to the project is failed.");

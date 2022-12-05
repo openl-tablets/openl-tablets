@@ -30,7 +30,8 @@
                 <property name="repositorySettings" ref="repositorySettings"/>
             </bean>
         </property>
-        <property name="repositoryAclService" ref="repositoryAclService"/>
+        <property name="designRepositoryAclService" ref="designRepositoryAclService"/>
+        <property name="deployConfigRepositoryAclService" ref="deployConfigRepositoryAclService"/>
     </bean>
 
     <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">
@@ -41,7 +42,8 @@
                 <constructor-arg name="userWorkspaceFactory">
                     <bean class="org.openl.rules.workspace.DefaultUserWorkspaceFactory"/>
                 </constructor-arg>
-                <constructor-arg name="repositoryAclService" ref="repositoryAclService"/>
+                <constructor-arg name="designRepositoryAclService" ref="designRepositoryAclService"/>
+                <constructor-arg name="deployConfigRepositoryAclService" ref="deployConfigRepositoryAclService"/>
             </bean>
         </property>
     </bean>
@@ -60,7 +62,7 @@
                 <constructor-arg name="mode" value="PRODUCTION"/>
             </bean>
         </constructor-arg>
-        <constructor-arg name="repositoryAclService" ref="repositoryAclService"/>
+        <constructor-arg name="simpleRepositoryAclService" ref="productionRepositoryAclService"/>
     </bean>
 
     <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">

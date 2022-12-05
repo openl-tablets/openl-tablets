@@ -1,16 +1,17 @@
 package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.repository.api.Repository;
-import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SecuredRepositoryFactory;
+import org.openl.security.acl.repository.SimpleRepositoryAclService;
 
 public class SecuredRepositoryFactoryProxy extends RepositoryFactoryProxy {
     private final RepositoryFactoryProxy delegate;
-    private final RepositoryAclService repositoryAclService;
+    private final SimpleRepositoryAclService simpleRepositoryAclService;
 
-    public SecuredRepositoryFactoryProxy(RepositoryFactoryProxy delegate, RepositoryAclService repositoryAclService) {
+    public SecuredRepositoryFactoryProxy(RepositoryFactoryProxy delegate,
+            SimpleRepositoryAclService simpleRepositoryAclService) {
         this.delegate = delegate;
-        this.repositoryAclService = repositoryAclService;
+        this.simpleRepositoryAclService = simpleRepositoryAclService;
     }
 
     @Override
@@ -21,7 +22,7 @@ public class SecuredRepositoryFactoryProxy extends RepositoryFactoryProxy {
     @Override
     public Repository getRepositoryInstance(String configName) {
         return SecuredRepositoryFactory.wrapToSecureRepo(delegate.getRepositoryInstance(configName),
-            repositoryAclService);
+            simpleRepositoryAclService);
     }
 
     @Override

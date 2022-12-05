@@ -15,14 +15,17 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
     private String deleteEntriesBySidQuery = "delete from acl_entry ace where ace.sid=?";
 
     private final AclCache aclCache;
+    private final Sid relevantSystemWideSid;
 
     public JdbcMutableAclService(DataSource dataSource,
             LookupStrategy lookupStrategy,
             AclCache aclCache,
-            String jdbcUrl) {
+            String jdbcUrl,
+            Sid relevantSystemWideSid) {
         super(dataSource, lookupStrategy, aclCache);
         this.jdbcUrl = jdbcUrl;
         this.aclCache = aclCache;
+        this.relevantSystemWideSid = relevantSystemWideSid;
     }
 
     @Override
@@ -33,13 +36,13 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
         }
     }
 
-    public void deleteSid(Sid sid, Sid newOwner) {
+    public void deleteSid(Sid sid) {
         Long sidId = createOrRetrieveSidPrimaryKey(sid, false);
         if (sidId == null) {
             return;
         }
         this.jdbcOperations.update(deleteEntriesBySidQuery, sidId);
-        Long newOwnerSid = createOrRetrieveSidPrimaryKey(newOwner, true);
+        Long newOwnerSid = createOrRetrieveSidPrimaryKey(relevantSystemWideSid, true);
         this.jdbcOperations.update(updateOwnerQuery, newOwnerSid, sidId);
         this.jdbcOperations.update(deleteSidQuery, sidId);
         this.aclCache.clearCache();

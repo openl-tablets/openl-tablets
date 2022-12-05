@@ -10,12 +10,15 @@ import org.openl.security.acl.repository.RepositoryAclService;
 public class SecureUserWorkspaceFactoryImpl implements UserWorkspaceFactory {
     private final UserWorkspaceFactory delegate;
 
-    private final RepositoryAclService repositoryAclService;
+    private final RepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService deployConfigRepositoryAclService;
 
     public SecureUserWorkspaceFactoryImpl(UserWorkspaceFactory userWorkspaceFactory,
-            RepositoryAclService repositoryAclService) {
+            RepositoryAclService designRepositoryAclService,
+            RepositoryAclService deployConfigRepositoryAclService) {
         this.delegate = userWorkspaceFactory;
-        this.repositoryAclService = repositoryAclService;
+        this.designRepositoryAclService = designRepositoryAclService;
+        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
     }
 
     @Override
@@ -23,6 +26,6 @@ public class SecureUserWorkspaceFactoryImpl implements UserWorkspaceFactory {
             DesignTimeRepository designTimeRepository,
             WorkspaceUser user) {
         UserWorkspace userWorkspace = delegate.create(localWorkspaceManager, designTimeRepository, user);
-        return new SecureUserWorkspaceImpl(userWorkspace, repositoryAclService);
+        return new SecureUserWorkspaceImpl(userWorkspace, designRepositoryAclService, deployConfigRepositoryAclService);
     }
 }

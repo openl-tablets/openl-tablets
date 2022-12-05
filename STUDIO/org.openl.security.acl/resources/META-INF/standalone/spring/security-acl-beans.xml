@@ -5,16 +5,26 @@
 
     <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml"/>
 
-    <bean name="repositoryAclService" class="org.openl.security.acl.repository.RepositoryAclServiceImpl">
+    <bean name="relevantSystemWideSid" class="org.springframework.security.acls.domain.GrantedAuthoritySid">
+        <constructor-arg name="grantedAuthority" value="Administrators"/>
+    </bean>
+
+    <bean name="designRepositoryAclService" class="org.openl.security.acl.repository.RepositoryAclServiceImpl">
         <constructor-arg name="springCacheBasedAclCache" ref="aclCache"/>
         <constructor-arg name="aclService" ref="repositoryJdbcMutableAclService"/>
-        <constructor-arg name="relevantSystemWideSid">
-            <bean class="org.springframework.security.acls.domain.GrantedAuthoritySid">
-                <constructor-arg name="grantedAuthority" value="Administrators"/>
-            </bean>
-        </constructor-arg>
+        <constructor-arg name="relevantSystemWideSid" ref="relevantSystemWideSid"/>
         <constructor-arg name="rootId" value="1"/>
         <constructor-arg name="objectIdentityClass" value="org.openl.security.acl.repository.ProjectArtifact"/>
+        <property name="sidRetrievalStrategy" ref="sidRetrievalStrategy"/>
+    </bean>
+
+    <bean name="deployConfigRepositoryAclService" class="org.openl.security.acl.repository.RepositoryAclServiceImpl">
+        <constructor-arg name="springCacheBasedAclCache" ref="aclCache"/>
+        <constructor-arg name="aclService" ref="repositoryJdbcMutableAclService"/>
+        <constructor-arg name="relevantSystemWideSid" ref="relevantSystemWideSid"/>
+        <constructor-arg name="rootId" value="2"/>
+        <constructor-arg name="objectIdentityClass"
+                         value="org.openl.security.acl.repository.DeploymentProjectArtifact"/>
         <property name="sidRetrievalStrategy" ref="sidRetrievalStrategy"/>
     </bean>
 
@@ -22,12 +32,8 @@
           class="org.openl.security.acl.repository.SimpleRepositoryAclServiceImpl">
         <constructor-arg name="springCacheBasedAclCache" ref="aclCache"/>
         <constructor-arg name="aclService" ref="repositoryJdbcMutableAclService"/>
-        <constructor-arg name="relevantSystemWideSid">
-            <bean class="org.springframework.security.acls.domain.GrantedAuthoritySid">
-                <constructor-arg name="grantedAuthority" value="Administrators"/>
-            </bean>
-        </constructor-arg>
-        <constructor-arg name="rootId" value="2"/>
+        <constructor-arg name="relevantSystemWideSid" ref="relevantSystemWideSid"/>
+        <constructor-arg name="rootId" value="3"/>
         <constructor-arg name="objectIdentityClass" value="org.openl.security.acl.repository.RepositoryObjectIdentity"/>
         <property name="sidRetrievalStrategy" ref="sidRetrievalStrategy"/>
     </bean>
@@ -37,6 +43,7 @@
         <constructor-arg name="aclCache" ref="aclCache"/>
         <constructor-arg name="lookupStrategy" ref="repositoryAclLookupStrategy"/>
         <constructor-arg name="jdbcUrl" value="${db.url}"/>
+        <constructor-arg name="relevantSystemWideSid" ref="relevantSystemWideSid"/>
         <property name="aclClassIdSupported" value="true"/>
     </bean>
 

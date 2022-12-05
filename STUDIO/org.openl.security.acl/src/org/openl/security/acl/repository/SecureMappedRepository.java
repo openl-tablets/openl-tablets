@@ -9,8 +9,8 @@ import org.openl.rules.workspace.dtr.impl.MappedRepository;
 public class SecureMappedRepository extends SecureBranchRepository implements FolderMapper {
     private final MappedRepository mappedRepository;
 
-    public SecureMappedRepository(MappedRepository repository, RepositoryAclService repositoryAclService) {
-        super(repository, repositoryAclService);
+    public SecureMappedRepository(MappedRepository repository, SimpleRepositoryAclService simpleRepositoryAclService) {
+        super(repository, simpleRepositoryAclService);
         this.mappedRepository = repository;
     }
 

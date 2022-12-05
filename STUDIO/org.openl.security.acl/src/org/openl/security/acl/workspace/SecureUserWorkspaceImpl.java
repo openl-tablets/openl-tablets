@@ -26,18 +26,22 @@ import org.openl.security.acl.repository.RepositoryAclService;
 public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     private final UserWorkspace userWorkspace;
-    private final RepositoryAclService repositoryAclService;
+    private final RepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService deployConfigRepositoryAclService;
 
-    public SecureUserWorkspaceImpl(UserWorkspace userWorkspace, RepositoryAclService repositoryAclService) {
+    public SecureUserWorkspaceImpl(UserWorkspace userWorkspace,
+            RepositoryAclService designRepositoryAclService,
+            RepositoryAclService deployConfigRepositoryAclService) {
         this.userWorkspace = userWorkspace;
-        this.repositoryAclService = repositoryAclService;
+        this.designRepositoryAclService = designRepositoryAclService;
+        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
     }
 
     @Override
     public boolean hasProject(String repositoryId, String name) {
         try {
             RulesProject project = userWorkspace.getProject(repositoryId, name);
-            return repositoryAclService.isGranted(project, List.of(VIEW));
+            return designRepositoryAclService.isGranted(project, List.of(VIEW));
         } catch (ProjectException e) {
             return false;
         }
@@ -47,7 +51,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public List<? extends AProject> getProjects(String repositoryId) {
         return userWorkspace.getProjects(repositoryId)
             .stream()
-            .filter(e -> repositoryAclService.isGranted(e, List.of(VIEW)))
+            .filter(e -> designRepositoryAclService.isGranted(e, List.of(VIEW)))
             .collect(Collectors.toList());
     }
 
@@ -65,8 +69,9 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public ADeploymentProject copyDDProject(ADeploymentProject project,
             String name,
             String comment) throws ProjectException {
-        if (repositoryAclService.isGranted(project, List.of(VIEW))) {
-            if (repositoryAclService.isGranted(project.getRepository().getId(), null, List.of(AclPermission.CREATE))) {
+        if (deployConfigRepositoryAclService.isGranted(project, List.of(VIEW))) {
+            if (deployConfigRepositoryAclService
+                .isGranted(project.getRepository().getId(), null, List.of(AclPermission.CREATE))) {
                 return userWorkspace.copyDDProject(project, name, comment);
             }
         }
@@ -75,7 +80,8 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public ADeploymentProject createDDProject(String name) throws RepositoryException {
-        if (repositoryAclService.isGranted(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+        if (deployConfigRepositoryAclService.isGranted(
+            userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
             null,
             List.of(AclPermission.CREATE))) {
             return userWorkspace.createDDProject(name);
@@ -86,7 +92,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public ADeploymentProject getDDProject(String name) throws ProjectException {
         ADeploymentProject deploymentProject = userWorkspace.getDDProject(name);
-        if (repositoryAclService.isGranted(deploymentProject, List.of(VIEW))) {
+        if (deployConfigRepositoryAclService.isGranted(deploymentProject, List.of(VIEW))) {
             return deploymentProject;
         }
         throw new ProjectException("There is no permission for retrieving a deployment configuration.");
@@ -95,7 +101,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public ADeploymentProject getLatestDeploymentConfiguration(String name) {
         ADeploymentProject deploymentProject = userWorkspace.getLatestDeploymentConfiguration(name);
-        if (repositoryAclService.isGranted(deploymentProject, List.of(VIEW))) {
+        if (deployConfigRepositoryAclService.isGranted(deploymentProject, List.of(VIEW))) {
             return deploymentProject;
         }
         return null;
@@ -105,7 +111,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public List<ADeploymentProject> getDDProjects() throws ProjectException {
         return userWorkspace.getDDProjects()
             .stream()
-            .filter(e -> repositoryAclService.isGranted(e, List.of(VIEW)))
+            .filter(e -> deployConfigRepositoryAclService.isGranted(e, List.of(VIEW)))
             .collect(Collectors.toList());
     }
 
@@ -141,7 +147,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public String getActualName(AProject project) throws ProjectException, IOException {
-        if (repositoryAclService.isGranted(project, List.of(VIEW))) {
+        if (designRepositoryAclService.isGranted(project, List.of(VIEW))) {
             return userWorkspace.getActualName(project);
         } else {
             throw new ProjectException("There is no permission for the action.");
@@ -163,7 +169,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
             String name,
             String projectFolder,
             String comment) throws ProjectException {
-        if (repositoryAclService.isGranted(repositoryId, projectFolder, List.of(EDIT))) {
+        if (designRepositoryAclService.isGranted(repositoryId, projectFolder, List.of(EDIT))) {
             return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
         } else {
             throw new ProjectException("There is no permission for the action.");
@@ -174,7 +180,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public Optional<RulesProject> getProjectByPath(String repositoryId, String realPath) {
         Optional<RulesProject> rulesProjectOptional = userWorkspace.getProjectByPath(repositoryId, realPath);
         if (rulesProjectOptional
-            .isPresent() && !repositoryAclService.isGranted(rulesProjectOptional.get(), List.of(VIEW))) {
+            .isPresent() && !designRepositoryAclService.isGranted(rulesProjectOptional.get(), List.of(VIEW))) {
             return Optional.empty();
         }
         return rulesProjectOptional;
@@ -188,7 +194,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public RulesProject getProject(String repositoryId, String name) throws ProjectException {
         RulesProject rulesProject = userWorkspace.getProject(repositoryId, name);
-        if (rulesProject != null && !repositoryAclService.isGranted(rulesProject, List.of(VIEW))) {
+        if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(VIEW))) {
             throw new ProjectException("There is no permission for the action.");
         }
         return rulesProject;
@@ -197,7 +203,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     @Override
     public RulesProject getProject(String repositoryId, String name, boolean refreshBefore) throws ProjectException {
         RulesProject rulesProject = userWorkspace.getProject(repositoryId, name, refreshBefore);
-        if (rulesProject != null && !repositoryAclService.isGranted(rulesProject, List.of(VIEW))) {
+        if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(VIEW))) {
             throw new ProjectException("There is no permission for the action.");
         }
         return rulesProject;
@@ -207,7 +213,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public Collection<RulesProject> getProjects() {
         return userWorkspace.getProjects()
             .stream()
-            .filter(e -> repositoryAclService.isGranted(e, List.of(VIEW)))
+            .filter(e -> designRepositoryAclService.isGranted(e, List.of(VIEW)))
             .collect(Collectors.toList());
     }
 
@@ -215,7 +221,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public Collection<RulesProject> getProjects(boolean refreshBefore) {
         return userWorkspace.getProjects(refreshBefore)
             .stream()
-            .filter(e -> repositoryAclService.isGranted(e, List.of(VIEW)))
+            .filter(e -> designRepositoryAclService.isGranted(e, List.of(VIEW)))
             .collect(Collectors.toList());
     }
 

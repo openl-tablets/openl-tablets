@@ -48,6 +48,7 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
@@ -69,7 +70,7 @@ public class CopyBean {
 
     private final ProjectTagsBean projectTagsBean;
 
-    private final RepositoryAclService repositoryAclService;
+    private final RepositoryAclService designRepositoryAclService;
 
     private final ApplicationContext applicationContext = FacesContextUtils
         .getRequiredWebApplicationContext(FacesContext.getCurrentInstance());
@@ -93,17 +94,17 @@ public class CopyBean {
     public CopyBean(PropertyResolver propertyResolver,
             RepositoryTreeState repositoryTreeState,
             ProjectTagsBean projectTagsBean,
-            RepositoryAclService repositoryAclService) {
+            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.propertyResolver = propertyResolver;
         this.repositoryTreeState = repositoryTreeState;
         this.projectTagsBean = projectTagsBean;
-        this.repositoryAclService = repositoryAclService;
+        this.designRepositoryAclService = designRepositoryAclService;
     }
 
     public boolean getCanCreate() {
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         for (Repository repository : userWorkspace.getDesignTimeRepository().getRepositories()) {
-            if (repositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
+            if (designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
                 return true;
             }
         }
@@ -238,7 +239,7 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             RulesProject project = userWorkspace.getProject(repositoryId, currentProjectName, false);
-            if (!repositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
                 throw new AccessDeniedException();
             }
             if (isSupportsBranches() && !separateProject) {
@@ -246,7 +247,7 @@ public class CopyBean {
                 ((BranchRepository) designRepository).createBranch(project.getDesignFolderName(), newBranchName);
             } else {
                 Repository designRepository = designTimeRepository.getRepository(toRepositoryId);
-                if (!repositoryAclService.isGranted(toRepositoryId, null, List.of(AclPermission.CREATE))) {
+                if (!designRepositoryAclService.isGranted(toRepositoryId, null, List.of(AclPermission.CREATE))) {
                     throw new AccessDeniedException();
                 }
                 String designPath = designTimeRepository.getRulesLocation() + newProjectName;
@@ -290,7 +291,7 @@ public class CopyBean {
                     designRepository,
                     designProject.getFileData(),
                     userWorkspace.getProjectsLockEngine());
-                if (!repositoryAclService.createAcl(copiedProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
+                if (!designRepositoryAclService.createAcl(copiedProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
                     String message = "Granting permissions to the project is failed.";
                     WebStudioUtils.addErrorMessage(message);
                 }
@@ -504,9 +505,9 @@ public class CopyBean {
 
     public String getDestRepositoryType() {
         return Optional.ofNullable(toRepositoryId)
-                .map(repoId -> new RepositoryConfiguration(repoId, propertyResolver))
-                .map(RepositoryConfiguration::getType)
-                .orElse(null);
+            .map(repoId -> new RepositoryConfiguration(repoId, propertyResolver))
+            .map(RepositoryConfiguration::getType)
+            .orElse(null);
     }
 
     public boolean getCanCreateNewProject() {

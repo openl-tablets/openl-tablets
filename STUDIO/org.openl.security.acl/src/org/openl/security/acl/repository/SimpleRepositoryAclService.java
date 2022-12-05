@@ -44,8 +44,6 @@ public interface SimpleRepositoryAclService {
 
     boolean createAcl(String repositoryId, String path, List<Permission> permissions);
 
-    void deleteSid(Sid sid);
-
     Sid getOwner(String repositoryId, String path);
 
     boolean updateOwner(String repositoryId, String path, Sid newOwner);

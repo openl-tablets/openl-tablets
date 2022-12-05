@@ -90,6 +90,7 @@ import org.openl.util.formatters.FileNameFormatter;
 import org.openl.validation.ValidatedCompiledOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.context.annotation.RequestScope;
@@ -131,18 +132,18 @@ public class ProjectBean {
     private Integer currentModuleIndex;
     private IRulesDeploySerializer rulesDeploySerializer;
 
-    private final RepositoryAclService repositoryAclService;
+    private final RepositoryAclService designRepositoryAclService;
 
     private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
 
     public ProjectBean(RepositoryTreeState repositoryTreeState,
             ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory,
             RulesDeploySerializerFactory rulesDeploySerializerFactory,
-            RepositoryAclService repositoryAclService) {
+            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.repositoryTreeState = repositoryTreeState;
         this.projectDescriptorSerializerFactory = projectDescriptorSerializerFactory;
         this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
-        this.repositoryAclService = repositoryAclService;
+        this.designRepositoryAclService = designRepositoryAclService;
     }
 
     public String getModulePath(Module module) {
@@ -499,7 +500,7 @@ public class ProjectBean {
     public void editName() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
-        if (!repositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
             throw new Message("There is no permission for editing the project.");
         }
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
@@ -529,7 +530,7 @@ public class ProjectBean {
     public void editModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
-        if (!repositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
             throw new Message("There is no permission for editing the project.");
         }
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
@@ -623,14 +624,15 @@ public class ProjectBean {
             try {
                 AProjectArtefact projectDescriptorProjectArtefact = currentProject
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                if (!repositoryAclService.isGranted(projectDescriptorProjectArtefact, List.of(AclPermission.EDIT))) {
+                if (!designRepositoryAclService.isGranted(projectDescriptorProjectArtefact,
+                    List.of(AclPermission.EDIT))) {
                     throw new Message(String.format("There is no permission for editing '%s' file in the project.",
                         ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
                 }
             } catch (ProjectException ignored) {
             }
         }
-        if (!repositoryAclService.isGranted(currentProject, List.of(AclPermission.APPEND))) {
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.APPEND))) {
             throw new Message("There is no permission for adding files to the project.");
         }
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
@@ -647,7 +649,7 @@ public class ProjectBean {
         }
         try {
             AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
-            if (!repositoryAclService.createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
+            if (!designRepositoryAclService.createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
                 String message = "Granting permissions to the module is failed.";
                 WebStudioUtils.addErrorMessage(message);
             }
@@ -698,7 +700,7 @@ public class ProjectBean {
                     List<Module> modules = getModulesMatchingPathPattern(module);
                     for (Module m : modules) {
                         AProjectArtefact projectArtefact = currentProject.getArtefact(m.getRulesRootPath().getPath());
-                        if (!studio.getRepositoryAclService()
+                        if (!studio.getDesignRepositoryAclService()
                             .isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
                             return true;
                         }
@@ -706,7 +708,8 @@ public class ProjectBean {
                     return false;
                 } else {
                     AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
-                    return !studio.getRepositoryAclService().isGranted(projectArtefact, List.of(AclPermission.DELETE));
+                    return !studio.getDesignRepositoryAclService()
+                        .isGranted(projectArtefact, List.of(AclPermission.DELETE));
                 }
             } catch (ProjectException e) {
                 return true;
@@ -718,7 +721,7 @@ public class ProjectBean {
     public void removeModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
-        if (!repositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
             throw new Message("There is no permission for editing the project.");
         }
 
@@ -779,7 +782,7 @@ public class ProjectBean {
         try {
             AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
             projectArtefact.delete();
-            repositoryAclService.deleteAcl(projectArtefact);
+            designRepositoryAclService.deleteAcl(projectArtefact);
         } catch (ProjectException e) {
             throw new Message(String.format("Cannot delete '%s' module.", module.getName()), e);
         }
@@ -789,7 +792,7 @@ public class ProjectBean {
         tryLockProject();
 
         RulesProject currentProject = studio.getCurrentProject();
-        if (!repositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
             throw new Message("There is no permission for editing the project.");
         }
 
@@ -811,7 +814,7 @@ public class ProjectBean {
         tryLockProject();
 
         RulesProject currentProject = studio.getCurrentProject();
-        if (!repositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
             throw new Message("There is no permission for editing the project.");
         }
 
@@ -837,7 +840,7 @@ public class ProjectBean {
         tryLockProject();
 
         RulesProject currentProject = studio.getCurrentProject();
-        if (!repositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
             throw new Message("There is no permission for editing the project.");
         }
 
@@ -865,7 +868,7 @@ public class ProjectBean {
         tryLockProject();
 
         RulesProject currentProject = studio.getCurrentProject();
-        if (!repositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
             throw new Message("There is no permission for editing the project.");
         }
 
@@ -918,7 +921,7 @@ public class ProjectBean {
         }
         RulesProject currentProject = studio.getCurrentProject();
 
-        if (!repositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
             throw new Message("There is no permission for editing the project.");
         }
 
@@ -1207,7 +1210,7 @@ public class ProjectBean {
             OpenAPI openAPI,
             boolean annotationTemplateClassesAreGenerated) {
         RulesProject currentProject = studio.getCurrentProject();
-        if (!repositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
             throw new Message("There is no permission for editing the project.");
         }
 
