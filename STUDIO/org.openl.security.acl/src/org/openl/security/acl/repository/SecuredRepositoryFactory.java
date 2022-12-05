@@ -9,18 +9,19 @@ public final class SecuredRepositoryFactory {
     private SecuredRepositoryFactory() {
     }
 
-    public static Repository wrapToSecureRepo(Repository repository, RepositoryAclService repositoryAclService) {
+    public static Repository wrapToSecureRepo(Repository repository,
+            SimpleRepositoryAclService simpleRepositoryAclService) {
         if (repository == null) {
             return null;
         }
         if (repository instanceof MappedRepository) {
-            return new SecureMappedRepository((MappedRepository) repository, repositoryAclService);
+            return new SecureMappedRepository((MappedRepository) repository, simpleRepositoryAclService);
         } else if (repository instanceof BranchRepository) {
-            return new SecureBranchRepository((BranchRepository) repository, repositoryAclService);
+            return new SecureBranchRepository((BranchRepository) repository, simpleRepositoryAclService);
         } else if (repository instanceof FolderRepository) {
-            return new SecureFolderRepository((FolderRepository) repository, repositoryAclService);
+            return new SecureFolderRepository((FolderRepository) repository, simpleRepositoryAclService);
         } else {
-            return new SecureRepository(repository, repositoryAclService);
+            return new SecureRepository(repository, simpleRepositoryAclService);
         }
     }
 }

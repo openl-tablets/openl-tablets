@@ -168,7 +168,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private final PropertyResolver propertyResolver;
 
-    private final RepositoryAclService repositoryAclService;
+    private final RepositoryAclService designRepositoryAclService;
 
     /**
      * Projects that are currently processed, for example saved. Projects's state can be in intermediate state, and it
@@ -180,7 +180,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public WebStudio(HttpSession session) {
         model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
         userSettingsManager = WebStudioUtils.getBean(UserSettingManagementService.class);
-        repositoryAclService = WebStudioUtils.getBean(RepositoryAclService.class);
+        designRepositoryAclService = WebStudioUtils.getBean("designRepositoryAclService", RepositoryAclService.class);
         rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
         propertyResolver = WebStudioUtils.getBean(PropertyResolver.class);
         initWorkspace(session);
@@ -192,8 +192,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         copyExternalProperty(OpenLSystemProperties.DISPATCHING_VALIDATION);
     }
 
-    public RepositoryAclService getRepositoryAclService() {
-        return repositoryAclService;
+    public RepositoryAclService getDesignRepositoryAclService() {
+        return designRepositoryAclService;
     }
 
     private void copyExternalProperty(String key) {
@@ -276,7 +276,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public void saveProject(RulesProject project) throws ProjectException {
-        if (!repositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
             throw new AccessDeniedException("You don't have permissions to apply changes into the project.");
         }
         InputStream content = null;
@@ -1348,7 +1348,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return false;
             }
 
-            return getRepositoryAclService().isGranted(project, List.of(AclPermission.EDIT));
+            return getDesignRepositoryAclService().isGranted(project, List.of(AclPermission.EDIT));
         } catch (IOException e) {
             return false;
         }
@@ -1368,7 +1368,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return false;
         }
 
-        return getRepositoryAclService().isGranted(selectedProject, List.of(AclPermission.DEPLOY));
+        return getDesignRepositoryAclService().isGranted(selectedProject, List.of(AclPermission.DEPLOY));
     }
 
     public boolean getCanOpenOtherVersion() {
@@ -1379,7 +1379,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
 
         if (!selectedProject.isLocalOnly()) {
-            return repositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW));
+            return designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW));
         }
 
         return false;

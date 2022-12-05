@@ -42,7 +42,7 @@ import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +80,7 @@ public class UsersController {
     private final PasswordEncoder passwordEncoder;
     private final ExternalGroupService extGroupService;
     private final MailSender mailSender;
-    private final RepositoryAclService repositoryAclService;
+    private final JdbcMutableAclService aclService;
 
     @Autowired
     public UsersController(UserManagementService userManagementService,
@@ -93,7 +93,7 @@ public class UsersController {
             UserSettingManagementService userSettingsManager,
             ExternalGroupService extGroupService,
             MailSender mailSender,
-            RepositoryAclService repositoryAclService) {
+            @Autowired(required = false) JdbcMutableAclService aclService) {
         this.userManagementService = userManagementService;
         this.canCreateInternalUsers = canCreateInternalUsers;
         this.adminUsersInitializer = adminUsersInitializer;
@@ -104,7 +104,7 @@ public class UsersController {
         this.validationProvider = validationService;
         this.extGroupService = extGroupService;
         this.mailSender = mailSender;
-        this.repositoryAclService = repositoryAclService;
+        this.aclService = aclService;
     }
 
     @Operation(description = "users.get-users.desc", summary = "users.get-users.summary")
@@ -280,7 +280,9 @@ public class UsersController {
     public void deleteUser(@Parameter(description = "users.field.username") @PathVariable("username") String username) {
         checkUserExists(username);
         userManagementService.deleteUser(username);
-        repositoryAclService.deleteSid(new PrincipalSid(username));
+        if (aclService != null) {
+            aclService.deleteSid(new PrincipalSid(username));
+        }
     }
 
     @Operation(description = "users.options.desc", summary = "users.options.summary")

@@ -85,10 +85,6 @@ public class DisabledSimpleRepositoryAclServiceImpl implements SimpleRepositoryA
     }
 
     @Override
-    public void deleteSid(Sid sid) {
-    }
-
-    @Override
     public Sid getOwner(String repositoryId, String path) {
         return null;
     }

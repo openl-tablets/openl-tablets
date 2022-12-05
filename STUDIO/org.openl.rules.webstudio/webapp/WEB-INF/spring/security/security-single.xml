@@ -68,7 +68,10 @@
         <property name="securityMetadataSource" ref="securityMetadataSource"/>
     </bean>
 
-    <bean name="repositoryAclService"
+    <bean name="designRepositoryAclService"
+          class="org.openl.security.acl.repository.DisabledRepositoryAclServiceImpl"/>
+
+    <bean name="deployConfigRepositoryAclService"
           class="org.openl.security.acl.repository.DisabledRepositoryAclServiceImpl"/>
 
     <bean name="productionRepositoryAclService"

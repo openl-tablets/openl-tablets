@@ -485,12 +485,6 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         }
     }
 
-    @Override
-    @Transactional
-    public void deleteSid(Sid sid) {
-        aclService.deleteSid(sid, relevantSystemWideSid);
-    }
-
     protected boolean updateOwner(ObjectIdentity oi, Sid newOwner) {
         try {
             MutableAcl acl = (MutableAcl) aclService.readAclById(oi);

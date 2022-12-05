@@ -16,7 +16,7 @@ import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
-import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.JdbcMutableAclService;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +54,7 @@ public class ManagementController {
     private final InMemoryProperties properties;
     private final BeanValidationProvider validationProvider;
     private final ExternalGroupService extGroupService;
-    private final RepositoryAclService repositoryAclService;
+    private final JdbcMutableAclService aclService;
 
     @Autowired
     public ManagementController(GroupDao groupDao,
@@ -62,13 +62,13 @@ public class ManagementController {
             InMemoryProperties properties,
             BeanValidationProvider validationProvider,
             ExternalGroupService extGroupService,
-            RepositoryAclService repositoryAclService) {
+            @Autowired(required = false) JdbcMutableAclService aclService) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
         this.properties = properties;
         this.validationProvider = validationProvider;
         this.extGroupService = extGroupService;
-        this.repositoryAclService = repositoryAclService;
+        this.aclService = aclService;
     }
 
     @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary")
@@ -85,8 +85,8 @@ public class ManagementController {
         SecurityChecker.allow(Privileges.ADMIN);
         Group group = groupDao.getGroupById(id);
         groupDao.deleteGroupById(id);
-        if (group != null) {
-            repositoryAclService.deleteSid(new GrantedAuthoritySid(group.getName()));
+        if (group != null && aclService != null) {
+            aclService.deleteSid(new GrantedAuthoritySid(group.getName()));
         }
     }
 

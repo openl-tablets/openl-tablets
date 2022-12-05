@@ -22,14 +22,23 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private DesignTimeRepository designTimeRepository;
 
-    private RepositoryAclService repositoryAclService;
+    private RepositoryAclService designRepositoryAclService;
+    private RepositoryAclService deployConfigRepositoryAclService;
 
-    public RepositoryAclService getRepositoryAclService() {
-        return repositoryAclService;
+    public RepositoryAclService getDesignRepositoryAclService() {
+        return designRepositoryAclService;
     }
 
-    public void setRepositoryAclService(RepositoryAclService repositoryAclService) {
-        this.repositoryAclService = repositoryAclService;
+    public void setDesignRepositoryAclService(RepositoryAclService designRepositoryAclService) {
+        this.designRepositoryAclService = designRepositoryAclService;
+    }
+
+    public RepositoryAclService getDeployConfigRepositoryAclService() {
+        return deployConfigRepositoryAclService;
+    }
+
+    public void setDeployConfigRepositoryAclService(RepositoryAclService deployConfigRepositoryAclService) {
+        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
     }
 
     public DesignTimeRepository getDesignTimeRepository() {
@@ -47,22 +56,22 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
             .collect(Collectors.toSet());
         return designTimeRepository.getRepositories()
             .stream()
-            .filter(e -> repoIdsWithProjects.contains(e.getId()) || repositoryAclService
+            .filter(e -> repoIdsWithProjects.contains(e.getId()) || designRepositoryAclService
                 .isGranted(e.getId(), null, List.of(AclPermission.VIEW)))
-            .map(e -> SecuredRepositoryFactory.wrapToSecureRepo(e, getRepositoryAclService()))
+            .map(e -> SecuredRepositoryFactory.wrapToSecureRepo(e, getDesignRepositoryAclService()))
             .collect(Collectors.toList());
     }
 
     @Override
     public Repository getRepository(String id) {
         return SecuredRepositoryFactory.wrapToSecureRepo(designTimeRepository.getRepository(id),
-            getRepositoryAclService());
+            getDesignRepositoryAclService());
     }
 
     @Override
     public AProject getProject(String repositoryId, String name) throws ProjectException {
         AProject project = designTimeRepository.getProject(repositoryId, name);
-        if (repositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+        if (designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
             return project;
         }
         throw new ProjectException("Access denied");
@@ -71,7 +80,7 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public AProject getProject(String repositoryId, String name, CommonVersion version) {
         AProject project = designTimeRepository.getProject(repositoryId, name, version);
-        if (repositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+        if (designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
             return project;
         }
         return null;
@@ -83,7 +92,7 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
             String path,
             String version) throws IOException {
         AProject project = designTimeRepository.getProjectByPath(repositoryId, branch, path, version);
-        if (repositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+        if (designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
             return project;
         }
         throw new AccessDeniedException("Access denied");
@@ -93,7 +102,7 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
     public Collection<AProject> getProjects() {
         return designTimeRepository.getProjects()
             .stream()
-            .filter(e -> repositoryAclService.isGranted(e, List.of(AclPermission.VIEW)))
+            .filter(e -> designRepositoryAclService.isGranted(e, List.of(AclPermission.VIEW)))
             .collect(Collectors.toList());
     }
 
@@ -101,7 +110,7 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
     public List<? extends AProject> getProjects(String repositoryId) {
         return designTimeRepository.getProjects(repositoryId)
             .stream()
-            .filter(e -> repositoryAclService.isGranted(e, List.of(AclPermission.VIEW)))
+            .filter(e -> designRepositoryAclService.isGranted(e, List.of(AclPermission.VIEW)))
             .collect(Collectors.toList());
     }
 
@@ -117,7 +126,10 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
-        return designTimeRepository.getDDProjects();
+        return designTimeRepository.getDDProjects()
+            .stream()
+            .filter(e -> designRepositoryAclService.isGranted(e, List.of(AclPermission.VIEW)))
+            .collect(Collectors.toList());
     }
 
     @Override
@@ -157,7 +169,8 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public Repository getDeployConfigRepository() {
-        return designTimeRepository.getDeployConfigRepository();
+        return SecuredRepositoryFactory.wrapToSecureRepo(designTimeRepository.getDeployConfigRepository(),
+            getDeployConfigRepositoryAclService());
     }
 
     @Override

@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
@@ -47,19 +48,22 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
     private final DeploymentManager deploymentManager;
     private final ProjectVersionCacheManager projectVersionCacheManager;
     private final PropertyResolver propertyResolver;
-    private final RepositoryAclService repositoryAclService;
+
+    @Autowired
+    @Qualifier("deployConfigRepositoryAclService")
+    private RepositoryAclService deployConfigRepositoryAclService;
 
     @Autowired
     public ProjectDeploymentServiceImpl(ProjectDescriptorArtefactResolver projectDescriptorResolver,
             DeploymentManager deploymentManager,
             ProjectVersionCacheManager projectVersionCacheManager,
             PropertyResolver propertyResolver,
-            RepositoryAclService repositoryAclService) {
+            RepositoryAclService deployConfigRepositoryAclService) {
         this.projectDescriptorResolver = projectDescriptorResolver;
         this.deploymentManager = deploymentManager;
         this.projectVersionCacheManager = projectVersionCacheManager;
         this.propertyResolver = propertyResolver;
-        this.repositoryAclService = repositoryAclService;
+        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
     }
 
     @Lookup
@@ -151,7 +155,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                     }
                 }
             } else {
-                if (!repositoryAclService.isGranted(deploymentProject,
+                if (!deployConfigRepositoryAclService.isGranted(deploymentProject,
                     List.of(AclPermission.EDIT)) || isMainBranchProtected(
                         userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
@@ -235,7 +239,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
 
             result.add(item);
         }
-        if (!userWorkspace.hasDDProject(projectName) && repositoryAclService.isGranted(
+        if (!userWorkspace.hasDDProject(projectName) && deployConfigRepositoryAclService.isGranted(
             userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
             null,
             List.of(AclPermission.CREATE)) && !isMainBranchProtected(
@@ -296,7 +300,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
     }
 
     @Override
-    public ADeploymentProject update(String deploymentName, AProject project, String repoName) {
+    public ADeploymentProject update(String deploymentName, AProject project, String repoId) {
         UserWorkspace userWorkspace = getUserWorkspace();
         try {
 
@@ -310,7 +314,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
             }
 
             if (deploymentName.equals(project.getBusinessName()) && !userWorkspace.hasDDProject(deploymentName)) {
-                if (!repositoryAclService.isGranted(
+                if (!deployConfigRepositoryAclService.isGranted(
                     userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                     null,
                     List.of(AclPermission.CREATE))) {
@@ -319,7 +323,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                 }
                 // the same name, then create if absent
                 deployConfiguration = userWorkspace.createDDProject(deploymentName);
-                if (!repositoryAclService.createAcl(deployConfiguration,
+                if (!deployConfigRepositoryAclService.createAcl(deployConfiguration,
                     AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS)) {
                     String message = "Granting permissions to the deployment configuration is failed.";
                     WebStudioUtils.addErrorMessage(message);
@@ -354,7 +358,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                 deployConfiguration.addProjectDescriptor(project.getRepository()
                     .getId(), project.getBusinessName(), project.getRealPath(), branch, project.getVersion());
 
-                Comments deployConfigRepoComments = new Comments(propertyResolver, repoName);
+                Comments deployConfigRepoComments = new Comments(propertyResolver, repoId);
                 String comment = create ? deployConfigRepoComments.createProject(deploymentName)
                                         : deployConfigRepoComments.saveProject(deploymentName);
                 deployConfiguration.getFileData().setComment(comment);

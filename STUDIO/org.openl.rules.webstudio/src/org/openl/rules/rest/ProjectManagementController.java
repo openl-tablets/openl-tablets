@@ -28,6 +28,7 @@ import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,19 +52,22 @@ public class ProjectManagementController {
     private final ProjectDeploymentService projectDeploymentService;
     private final DeploymentManager deploymentManager;
     private final ProjectStateValidator projectStateValidator;
-    private final RepositoryAclService repositoryAclService;
+    private final RepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService deployConfigRepositoryAclService;
 
     @Autowired
     public ProjectManagementController(ProjectDependencyResolver projectDependencyResolver,
             ProjectDeploymentService projectDeploymentService,
             DeploymentManager deploymentManager,
             ProjectStateValidator projectStateValidator,
-            RepositoryAclService repositoryAclService) {
+            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService) {
         this.projectDependencyResolver = projectDependencyResolver;
         this.projectDeploymentService = projectDeploymentService;
         this.deploymentManager = deploymentManager;
         this.projectStateValidator = projectStateValidator;
-        this.repositoryAclService = repositoryAclService;
+        this.designRepositoryAclService = designRepositoryAclService;
+        this.deployConfigRepositoryAclService = designRepositoryAclService;
     }
 
     @Lookup
@@ -82,7 +86,7 @@ public class ProjectManagementController {
     public ProjectInfo getInfo(@DesignRepository("repo-name") Repository repo, @PathVariable("proj-name") String name) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!repositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
                 throw new SecurityException();
             }
             ProjectInfo info = new ProjectInfo(project);
@@ -134,7 +138,7 @@ public class ProjectManagementController {
         WebStudio webStudio = WebStudioUtils.getWebStudio(session);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!repositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
                 throw new SecurityException();
             }
             if (project.isDeleted()) {
@@ -171,7 +175,7 @@ public class ProjectManagementController {
         WebStudio webStudio = WebStudioUtils.getWebStudio(session);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!repositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
                 throw new SecurityException();
             }
             if (project.isDeleted()) {
@@ -209,7 +213,7 @@ public class ProjectManagementController {
             @RequestBody String[] items) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!repositoryAclService.isGranted(project, List.of(AclPermission.DEPLOY))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DEPLOY))) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canDeploy(project)) {
@@ -250,7 +254,7 @@ public class ProjectManagementController {
         // A payload within a DELETE request message has no defined semantics; sending a payload body on a DELETE request might cause some existing implementations to reject the request.
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!repositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canDelete(project)) {

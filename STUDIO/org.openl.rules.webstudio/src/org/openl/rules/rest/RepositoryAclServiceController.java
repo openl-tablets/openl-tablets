@@ -42,9 +42,11 @@ import io.swagger.v3.oas.annotations.Hidden;
 public class RepositoryAclServiceController {
 
     private static final String REPO_TYPE_PROD = "prod";
+    private static final String REPO_TYPE_DEPLOY_CONFIG = "deployConfig";
     private static final String REPO_TYPE_DESIGN = "design";
 
-    private final RepositoryAclService repositoryAclService;
+    private final RepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService deployConfigRepositoryAclService;
     private final SimpleRepositoryAclService productionRepositoryAclService;
     private final DeploymentManager deploymentManager;
 
@@ -53,10 +55,12 @@ public class RepositoryAclServiceController {
 
     public RepositoryAclServiceController(UserDao userDao,
             GroupDao groupDao,
-            RepositoryAclService repositoryAclService,
+            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
             @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService,
             DeploymentManager deploymentManager) {
-        this.repositoryAclService = repositoryAclService;
+        this.designRepositoryAclService = designRepositoryAclService;
+        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
         this.userDao = userDao;
         this.groupDao = groupDao;
         this.productionRepositoryAclService = productionRepositoryAclService;
@@ -125,7 +129,9 @@ public class RepositoryAclServiceController {
         if (REPO_TYPE_PROD.equals(repositoryType)) {
             return productionRepositoryAclService;
         } else if (REPO_TYPE_DESIGN.equals(repositoryType)) {
-            return repositoryAclService;
+            return designRepositoryAclService;
+        } else if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType)) {
+            return deployConfigRepositoryAclService;
         }
         throw new NotFoundException("repository.type.message", repositoryType);
     }
@@ -150,7 +156,8 @@ public class RepositoryAclServiceController {
         }
     }
 
-    @GetMapping(value = { "/{repositoryType:^design|prod$}/{repo-id}", "{repositoryType:^design|prod$}" })
+    @GetMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}",
+            "{repositoryType:^design|prod|deployConfig$}" })
     public Map<String, Map<String, String[]>> list(@PathVariable("repositoryType") String repositoryType,
             @PathVariable(value = "repo-id", required = false) String repositoryId,
             @RequestParam(required = false) String path,
@@ -166,8 +173,8 @@ public class RepositoryAclServiceController {
         return convert(permissions);
     }
 
-    @PutMapping(value = { "/{repositoryType:^design|prod$}/{repo-id}/user/{sid}",
-            "/{repositoryType:^design|prod$}/user/{sid}" })
+    @PutMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/user/{sid}",
+            "/{repositoryType:^design|prod|deployConfig$}/user/{sid}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addUserPermissions(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("sid") String sid,
@@ -191,8 +198,8 @@ public class RepositoryAclServiceController {
         }
     }
 
-    @PutMapping(value = { "/{repositoryType:^design|prod$}/{repo-id}/group/{sid}",
-            "/{repositoryType:^design|prod$}/group/{sid}" })
+    @PutMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/group/{sid}",
+            "/{repositoryType:^design|prod|deployConfig$}/group/{sid}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addGroupPermissions(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("sid") String sid,
@@ -217,7 +224,8 @@ public class RepositoryAclServiceController {
         }
     }
 
-    @DeleteMapping(value = { "/{repositoryType:^design|prod$}/{repo-id}", "/{repositoryType:^design|prod$}" })
+    @DeleteMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}",
+            "/{repositoryType:^design|prod|deployConfig$}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAllPermissions(@PathVariable("repositoryType") String repositoryType,
             @PathVariable(value = "repo-id", required = false) String repositoryId,
@@ -241,8 +249,8 @@ public class RepositoryAclServiceController {
         }
     }
 
-    @DeleteMapping(value = { "/{repositoryType:^design|prod$}/{repo-id}/user/{sid}",
-            "/{repositoryType:^design|prod$}/user/{sid}" })
+    @DeleteMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/user/{sid}",
+            "/{repositoryType:^design|prod|deployConfig$}/user/{sid}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUserPermissions(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("sid") String sid,
@@ -262,8 +270,8 @@ public class RepositoryAclServiceController {
         }
     }
 
-    @DeleteMapping(value = { "/{repositoryType:^design|prod$}/{repo-id}/group/{sid}",
-            "/{repositoryType:^design|prod$}/group/{sid}" })
+    @DeleteMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/group/{sid}",
+            "/{repositoryType:^design|prod|deployConfig$}/group/{sid}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGroupPermissions(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("sid") String sid,
@@ -301,7 +309,7 @@ public class RepositoryAclServiceController {
         }
     }
 
-    @GetMapping(value = "/{repositoryType:^design|prod$}/{repo-id}/owner")
+    @GetMapping(value = "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/owner")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public OwnerDetails getOwner(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("repo-id") String repositoryId,
@@ -322,7 +330,7 @@ public class RepositoryAclServiceController {
         return ownerDetails;
     }
 
-    @PutMapping(value = "/{repositoryType:^design|prod$}/{repo-id}/owner/user/{sid}")
+    @PutMapping(value = "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/owner/user/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateOwnerToUser(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("sid") String sid,
@@ -337,7 +345,7 @@ public class RepositoryAclServiceController {
         }
     }
 
-    @PutMapping(value = "/{repositoryType:^design|prod$}/{repo-id}/owner/group/{sid}")
+    @PutMapping(value = "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/owner/group/{sid}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateOwnerToGroup(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("sid") String sid,

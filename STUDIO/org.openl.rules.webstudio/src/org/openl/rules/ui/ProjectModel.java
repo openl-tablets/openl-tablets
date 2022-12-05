@@ -654,13 +654,14 @@ public class ProjectModel {
                 if (currentModule == null) {
                     if (!currentProject
                         .hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
-                        granted = studio.getRepositoryAclService()
+                        granted = studio.getDesignRepositoryAclService()
                             .isGranted(currentProject, List.of(AclPermission.APPEND));
                     }
-                    granted = granted && studio.getRepositoryAclService()
+                    granted = granted && studio.getDesignRepositoryAclService()
                         .isGranted(currentProject, List.of(AclPermission.EDIT));
                 } else {
-                    granted = studio.getRepositoryAclService().isGranted(currentProject, List.of(AclPermission.EDIT));
+                    granted = studio.getDesignRepositoryAclService()
+                        .isGranted(currentProject, List.of(AclPermission.EDIT));
                 }
                 return (currentProject.isLocalOnly() || !currentProject.isLocked() || currentProject
                     .isOpenedForEditing()) && granted;
@@ -672,7 +673,7 @@ public class ProjectModel {
     public boolean isCanCopyModule() {
         RulesProject currentProject = getProject();
         if (currentProject != null) {
-            return studio.getRepositoryAclService().isGranted(currentProject, List.of(AclPermission.APPEND));
+            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(AclPermission.APPEND));
         }
         return false;
     }
