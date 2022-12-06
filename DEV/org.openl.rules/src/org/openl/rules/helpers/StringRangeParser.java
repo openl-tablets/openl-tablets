@@ -39,16 +39,6 @@ public final class StringRangeParser extends ARangeParser<String> {
                 new SimpleParser<>(patterns[5], adapter) };
     }
 
-    public boolean isStringRange(String value) {
-        for (Pattern pattern : patterns) {
-            Matcher m = pattern.matcher(value);
-            if (m.matches()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean likelyRangeThanString(String value) {
         for (int i = 0; i < 5; i++) {
             Matcher m = patterns[i].matcher(value);
