@@ -15,8 +15,9 @@ public final class StringRangeParser extends ARangeParser<String> {
     private final RangeParser[] parsers;
     private final Pattern[] patterns;
 
-    private static final String BRACKETS_PATTERN = "\\s*([\\[(])\\s*(\\S*.{0,99}?[^\\\\.])\\s*(?:[-;…]|\\.{3}|\\.{2})\\s*(.{1,100})\\s*([])])\\s*";
-    private static final String MIN_MAX_PATTERN = "\\s*(\\S*.{0,99}?[^\\\\.])\\s*([-…]|\\.{3}|\\.{2})\\s*(.{1,100})\\s*";
+
+    private static final String BRACKETS_PATTERN = "\\s*([\\[(])\\s*(\\S*.{0,99}?)\\s*(?:[-;…]|\\.{2,3})\\s*(.{1,100})\\s*([])])\\s*";
+    private static final String MIN_MAX_PATTERN = "\\s*(\\S*.{0,99}?)\\s*([-…]|\\.{2,3})\\s*(.{1,100})\\s*";
     private static final String VERBAL_PATTERN = "(.+)(\\+|(?<=\\s)and\\s+more|(?<=\\s)or\\s+less)\\s*";
     private static final String MORE_LESS_PATTERN = "\\s*(<=?|>=?|less\\s+than(?=\\s)|more\\s+than(?=\\s))(.+)";
     private static final String RANGE_MORE_LESS_PATTERN = "\\s*(<=?|>=?)\\s*(.{1,100})\\s*(<=?|>=?)\\s*(.{1,100})\\s*";

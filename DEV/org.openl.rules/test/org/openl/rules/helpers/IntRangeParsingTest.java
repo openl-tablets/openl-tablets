@@ -123,11 +123,15 @@ public class IntRangeParsingTest {
     @Test
     public void testSignedNumber() {
         assertEquals(new IntRange(-15, -8), new IntRange("-15 - -8"));
+        assertEquals(new IntRange(-15, -8), new IntRange("-15 --8"));
+        assertEquals(new IntRange(-15, -8), new IntRange("-15- -8"));
         assertEquals(new IntRange(-100, Long.MAX_VALUE), new IntRange("-100+"));
         assertEquals(new IntRange(3, Long.MAX_VALUE), new IntRange(">2"));
         assertEquals(new IntRange(-10, -10), new IntRange("-10"));
         assertEquals(new IntRange(-4, 2), new IntRange("-4-2"));
+        assertEquals(new IntRange(-4, -2), new IntRange("-4--2"));
         assertEquals(new IntRange(-4, 2), new IntRange("[-4-2]"));
+        assertEquals(new IntRange(-4, -2), new IntRange("[-4--2]"));
     }
 
     @Test
