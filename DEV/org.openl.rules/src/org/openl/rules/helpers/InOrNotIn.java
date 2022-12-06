@@ -7,6 +7,7 @@ package org.openl.rules.helpers;
  * @author snshor
  *
  */
+@Deprecated
 public class InOrNotIn {
     private static final String IN = "IN";
     private static final String NOT_IN = "NOT IN";
