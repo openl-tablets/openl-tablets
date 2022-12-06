@@ -182,6 +182,40 @@ public class StringRangeParsingTest {
     }
 
     @Test
+    public void testDoubleDash() {
+        assertEquals("[Mister-X; Ray]", new StringRange("Mister-X - Ray").toString());
+        assertEquals("[Mister; X - Ray]", new StringRange("Mister - X - Ray").toString());
+        assertEquals("[Mister; X-Ray]", new StringRange("Mister - X-Ray").toString());
+        assertEquals("[Mister-X; Ray]", new StringRange("Mister-X-Ray").toString());
+
+        assertEquals("(Mister-X; Ray)", new StringRange("(Mister-X - Ray)").toString());
+        assertEquals("(Mister; X - Ray)", new StringRange("(Mister - X - Ray)").toString());
+        assertEquals("(Mister; X-Ray)", new StringRange("(Mister - X-Ray)").toString());
+        assertEquals("(Mister-X; Ray)", new StringRange("(Mister-X-Ray)").toString());
+
+        assertEquals("[Mister-; Ray]", new StringRange("Mister- - Ray").toString());
+        assertEquals("[Mister; Ray -]", new StringRange("Mister - Ray - ").toString());
+        assertEquals("[-Mister; -Ray]", new StringRange("-Mister - -Ray").toString());
+        assertEquals("[Mister-; Ray]", new StringRange("Mister--Ray").toString());
+        assertEquals("[- Mister; - Ray]", new StringRange("- Mister - - Ray").toString());
+        assertEquals("[- Mister; - Ray - - X]", new StringRange(" - Mister - - Ray - - X ").toString());
+
+
+        assertEquals("(Mister-; Ray)", new StringRange("(Mister- - Ray)").toString());
+        assertEquals("(Mister; Ray -)", new StringRange("(Mister - Ray - )").toString());
+        assertEquals("(-Mister; -Ray)", new StringRange("(-Mister - -Ray)").toString());
+        assertEquals("(Mister-; Ray)", new StringRange("(Mister--Ray)").toString());
+        assertEquals("(- Mister; - Ray)", new StringRange("(- Mister - - Ray)").toString());
+        assertEquals("(- Mister; - Ray - - X)", new StringRange("( - Mister - - Ray - - X )").toString());
+    }
+
+    @Test
+    public void testSpecialCases() {
+        assertEquals("[.aaa.; .bbb.]", new StringRange(".aaa.-.bbb.").toString());
+        assertEquals("[\\aaa\\; \\bbb\\]", new StringRange("\\aaa\\-\\bbb\\").toString());
+    }
+
+    @Test
     public void testEquals() {
         assertEquals(new StringRange("B", "B"), new StringRange("B"));
         assertEquals(new StringRange("B-B", "C-C"), new StringRange("B-B - C-C"));
