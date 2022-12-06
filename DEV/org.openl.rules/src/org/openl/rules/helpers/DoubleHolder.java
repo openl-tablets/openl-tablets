@@ -1,5 +1,6 @@
 package org.openl.rules.helpers;
 
+@Deprecated
 public class DoubleHolder implements IDoubleHolder {
     double value;
 

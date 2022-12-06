@@ -87,6 +87,7 @@ public class DoubleRange implements INumberRange {
      * @return a negative integer, zero, or a positive integer as lower bound of this range is less than, equal to, or
      *         greater than the lower bound of specified range.
      */
+    @Deprecated
     public int compareLowerBound(DoubleRange range) {
         if (lowerBound < range.lowerBound) {
             return -1;
@@ -107,6 +108,7 @@ public class DoubleRange implements INumberRange {
      * @return a negative integer, zero, or a positive integer as upper bound of this range is less than, equal to, or
      *         greater than the upper bound of specified range.
      */
+    @Deprecated
     public int compareUpperBound(DoubleRange range) {
         if (upperBound < range.upperBound) {
             return -1;
@@ -176,6 +178,7 @@ public class DoubleRange implements INumberRange {
         return upperBound;
     }
 
+    @Deprecated
     public DoubleRange intersect(DoubleRange range) {
         int lowerBoundComaring = compareLowerBound(range);
         int upperBoundComaring = compareUpperBound(range);
@@ -190,6 +193,7 @@ public class DoubleRange implements INumberRange {
     /**
      * @param lowerBound The lowerBound to set.
      */
+    @Deprecated
     public void setLowerBound(double lowerBound) {
         this.lowerBound = lowerBound;
     }
@@ -197,22 +201,27 @@ public class DoubleRange implements INumberRange {
     /**
      * @param upperBound The upperBound to set.
      */
+    @Deprecated
     public void setUpperBound(double upperBound) {
         this.upperBound = upperBound;
     }
 
+    @Deprecated
     public BoundType getLowerBoundType() {
         return lowerBoundType;
     }
 
+    @Deprecated
     public void setLowerBoundType(BoundType lowerBoundType) {
         this.lowerBoundType = lowerBoundType;
     }
 
+    @Deprecated
     public BoundType getUpperBoundType() {
         return upperBoundType;
     }
 
+    @Deprecated
     public void setUpperBoundType(BoundType upperBoundType) {
         this.upperBoundType = upperBoundType;
     }

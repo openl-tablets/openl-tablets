@@ -76,10 +76,12 @@ public class DateRange {
         return upperBound;
     }
 
+    @Deprecated
     public BoundType getLowerBoundType() {
         return lowerBoundType;
     }
 
+    @Deprecated
     public BoundType getUpperBoundType() {
         return upperBoundType;
     }
