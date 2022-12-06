@@ -313,7 +313,7 @@ public class DataTableBindHelper {
                 fieldName = fieldName.substring(0, brIndex);
             }
 
-            if ("_res_".equals(fieldName)) {
+            if (TestMethodHelper.EXPECTED_RESULT_NAME.equals(fieldName)) {
                 count++;
             }
         }
