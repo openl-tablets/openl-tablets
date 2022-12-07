@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.openl.util.RangeWithBounds.BoundType;
+import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 
 /**
  *
@@ -33,7 +33,7 @@ public class DoubleRangeParsingTest {
 
     private void checkWrong(String x) {
         try {
-            DoubleRangeParser.getInstance().parse(x);
+            new DoubleRange(x);
             Assert.fail();
         } catch (Exception ignored) {
         }

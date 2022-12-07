@@ -1,8 +1,8 @@
 package org.openl.rules.dt.type;
 
 import org.openl.binding.impl.NumericComparableString;
-import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 import org.openl.rules.helpers.StringRange;
+import org.openl.rules.range.Range;
 
 public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, NumericComparableString> {
 
@@ -20,7 +20,7 @@ public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, Nume
         if (range == null) {
             return null;
         }
-        if (range.getUpperBoundType() == BoundType.INCLUDING) {
+        if (range.getType().right == Range.Bound.CLOSED) {
             return range.getUpperBound().incrementAndGet();
         } else {
             return range.getUpperBound();
@@ -32,7 +32,7 @@ public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, Nume
         if (range == null) {
             return null;
         }
-        if (range.getLowerBoundType() == BoundType.EXCLUDING) {
+        if (range.getType().left == Range.Bound.OPEN) {
             return range.getLowerBound().incrementAndGet();
         }
         return range.getLowerBound();
@@ -40,7 +40,7 @@ public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, Nume
 
     @Override
     public NumericComparableString adaptValueType(Object value) {
-        return value == null ? null : NumericComparableString.valueOf(((CharSequence) value).toString());
+        return value == null ? null : NumericComparableString.valueOf(value.toString());
     }
 
     @Override

@@ -1,7 +1,7 @@
 package org.openl.rules.dt.type;
 
 import org.openl.rules.helpers.DoubleRange;
-import org.openl.util.RangeWithBounds.BoundType;
+import org.openl.rules.range.Range;
 
 public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Double> {
     private static final DoubleRangeAdaptor INSTANCE = new DoubleRangeAdaptor();
@@ -20,7 +20,7 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
         }
 
         double max = range.getUpperBound();
-        if (max != Double.POSITIVE_INFINITY && range.getUpperBoundType() == BoundType.INCLUDING) {
+        if (max != Double.POSITIVE_INFINITY && range.getType().right == Range.Bound.CLOSED) {
             // the max should be moved to the right,
             // to ensure that range.getUpperBound() will get to the interval
             //
@@ -36,7 +36,7 @@ public final class DoubleRangeAdaptor implements IRangeAdaptor<DoubleRange, Doub
         }
 
         double min = range.getLowerBound();
-        if (range.getLowerBoundType() == BoundType.EXCLUDING) {
+        if (range.getType().left == Range.Bound.OPEN) {
             min += Math.ulp(min);
         }
         return min;

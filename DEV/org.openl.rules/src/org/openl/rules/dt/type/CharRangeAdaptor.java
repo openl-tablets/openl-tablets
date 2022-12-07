@@ -1,6 +1,7 @@
 package org.openl.rules.dt.type;
 
 import org.openl.rules.helpers.CharRange;
+import org.openl.rules.range.Range;
 
 public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Character> {
     private static final CharRangeAdaptor INSTANCE = new CharRangeAdaptor();
@@ -18,13 +19,13 @@ public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Characte
             return null;
         }
 
-        long max = range.getMax();
+        Character max = range.getMax();
 
-        if (max != Character.MAX_VALUE) {
-            max = max + 1;
+        if(max != Character.MAX_VALUE && range.getType().right == Range.Bound.CLOSED) {
+            max++;
         }
 
-        return (char) max;
+        return max;
     }
 
     @Override
@@ -33,7 +34,11 @@ public final class CharRangeAdaptor implements IRangeAdaptor<CharRange, Characte
             return null;
         }
 
-        return (char) range.getMin();
+        Character min = range.getMin();
+        if (range.getType().left == Range.Bound.OPEN) {
+            min++;
+        }
+        return min;
     }
 
     @Override

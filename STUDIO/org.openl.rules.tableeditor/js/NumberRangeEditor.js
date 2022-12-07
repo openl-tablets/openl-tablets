@@ -519,12 +519,12 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             values.each(function(v) {
                 v = v.trim(); // For cases like containing spaces like "[12; 15)"
                 if (self.entryEditor == "integer") {
-                    var matchInt = v.match(/^-?[,0-9]+[KMB]?$/);
+                    var matchInt = v.match(/^\$?-?[,0-9]+[KMB]?$/);
                     if (!matchInt) {
                         valid = false;
                     }
                 } else {
-                    var matchDouble = v.match(/^-?[,0-9]+(\.?[0-9]+)?[KMB]?$/);
+                    var matchDouble = v.match(/^\$?-?[,0-9]+(\.?[0-9]+)?[KMB]?$/);
                     if (!matchDouble) {
                         valid = false;
                     }
@@ -641,7 +641,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             return true;
         }
         var code = event.charCode == undefined ? event.keyCode : event.charCode;
-        return /^[.,0-9KMB]$/.test(String.fromCharCode(code));
+        return /^[$.,0-9KMB]$/.test(String.fromCharCode(code));
     }
 
 });

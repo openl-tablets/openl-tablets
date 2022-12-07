@@ -3,14 +3,14 @@ package org.openl.rules.helpers;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.openl.binding.impl.NumericComparableString;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
+import org.openl.rules.range.Range;
 
 public class StringRangeParsingTest {
 
     @Test
     public void testToString() {
-        assertEquals("[B; B]", new StringRange("B").toString());
+        assertEquals("B", new StringRange("B").toString());
 
         assertEquals("[AA; ZZ]", new StringRange("AA-ZZ").toString());
         assertEquals("[AA; ZZ]", new StringRange("AA..ZZ").toString());
@@ -97,7 +97,7 @@ public class StringRangeParsingTest {
         assertEquals("(A  A; Z  Z)", new StringRange("<Z  Z >A  A").toString());
 
         // Part 2
-        assertEquals("[B; B]", new StringRange("  B  ").toString());
+        assertEquals("B", new StringRange("  B  ").toString());
         assertEquals("[AA; ZZ]", new StringRange("  AA  -  ZZ  ").toString());
         assertEquals("[AA; ZZ]", new StringRange("  AA  ..  ZZ  ").toString());
         assertEquals("(AA; ZZ)", new StringRange("  AA   …   ZZ  ").toString());
@@ -186,17 +186,17 @@ public class StringRangeParsingTest {
         assertEquals("[Mister-X; Ray]", new StringRange("Mister-X - Ray").toString());
         assertEquals("[Mister; X - Ray]", new StringRange("Mister - X - Ray").toString());
         assertEquals("[Mister; X-Ray]", new StringRange("Mister - X-Ray").toString());
-        assertEquals("[Mister-X; Ray]", new StringRange("Mister-X-Ray").toString());
+        assertEquals("[Mister; X-Ray]", new StringRange("Mister-X-Ray").toString());
 
         assertEquals("(Mister-X; Ray)", new StringRange("(Mister-X - Ray)").toString());
         assertEquals("(Mister; X - Ray)", new StringRange("(Mister - X - Ray)").toString());
         assertEquals("(Mister; X-Ray)", new StringRange("(Mister - X-Ray)").toString());
-        assertEquals("(Mister-X; Ray)", new StringRange("(Mister-X-Ray)").toString());
+        assertEquals("(Mister; X-Ray)", new StringRange("(Mister-X-Ray)").toString());
 
         assertEquals("[Mister-; Ray]", new StringRange("Mister- - Ray").toString());
         assertEquals("[Mister; Ray -]", new StringRange("Mister - Ray - ").toString());
         assertEquals("[-Mister; -Ray]", new StringRange("-Mister - -Ray").toString());
-        assertEquals("[Mister-; Ray]", new StringRange("Mister--Ray").toString());
+        assertEquals("[-Mister; -Ray]", new StringRange("-Mister--Ray").toString());
         assertEquals("[- Mister; - Ray]", new StringRange("- Mister - - Ray").toString());
         assertEquals("[- Mister; - Ray - - X]", new StringRange(" - Mister - - Ray - - X ").toString());
 
@@ -204,7 +204,7 @@ public class StringRangeParsingTest {
         assertEquals("(Mister-; Ray)", new StringRange("(Mister- - Ray)").toString());
         assertEquals("(Mister; Ray -)", new StringRange("(Mister - Ray - )").toString());
         assertEquals("(-Mister; -Ray)", new StringRange("(-Mister - -Ray)").toString());
-        assertEquals("(Mister-; Ray)", new StringRange("(Mister--Ray)").toString());
+        assertEquals("(-Mister; -Ray)", new StringRange("(-Mister--Ray)").toString());
         assertEquals("(- Mister; - Ray)", new StringRange("(- Mister - - Ray)").toString());
         assertEquals("(- Mister; - Ray - - X)", new StringRange("( - Mister - - Ray - - X )").toString());
     }
@@ -213,6 +213,11 @@ public class StringRangeParsingTest {
     public void testSpecialCases() {
         assertEquals("[.aaa.; .bbb.]", new StringRange(".aaa.-.bbb.").toString());
         assertEquals("[\\aaa\\; \\bbb\\]", new StringRange("\\aaa\\-\\bbb\\").toString());
+        assertEquals("[a not so long string with the spaces in the middle and with-the-dashes-in-the-long-words" +
+                        " becomes truncated when it defines in the String range; should work correctly]",
+                new StringRange("a not so long string with the spaces in the middle and with-the-dashes-in-the-long-words" +
+                        " becomes truncated when it defines in the String range - should work correctly").toString());
+
     }
 
     @Test
@@ -419,7 +424,8 @@ public class StringRangeParsingTest {
     @Test
     public void testNulls() {
         StringRange range = new StringRange(">=AA <=ZZ");
-        assertFalse(range.contains((NumericComparableString) null));
+        assertFalse(range.contains((Range<CharSequence>) null));
+        assertFalse(range.contains((CharSequence) null));
     }
 
     @Test

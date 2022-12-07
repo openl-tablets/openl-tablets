@@ -10,9 +10,7 @@ import java.util.Date;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.rules.dt.DecisionTableHelper;
-import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DoubleRange;
-import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.ICell;
@@ -124,14 +122,12 @@ public class CellEditorSelector {
                     result = factory.makeComboboxEditor(values, displayValues);
                 }
                 // Range
-            } else if (ClassUtils.isAssignable(instanceClass, INumberRange.class) && CharRange.class != instanceClass) {
-                if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
+            } else if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
                     .parsableAs(initialValue, instanceClass, null)) {
-                    result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);
-                } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class) && DecisionTableHelper
+                result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);
+            } else if (ClassUtils.isAssignable(instanceClass, DoubleRange.class) && DecisionTableHelper
                     .parsableAs(initialValue, instanceClass, null)) {
-                    result = factory.makeNumberRangeEditor(ICellEditor.CE_DOUBLE, initialValue);
-                }
+                result = factory.makeNumberRangeEditor(ICellEditor.CE_DOUBLE, initialValue);
             }
         }
         return result;

@@ -1,24 +1,22 @@
 package org.openl.rules.helpers;
 
-import java.util.Objects;
-
+import java.beans.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.openl.binding.impl.NumericComparableString;
+import org.openl.binding.impl.NumericStringComparator;
 import org.openl.binding.impl.cast.CastFactory;
-import org.openl.rules.helpers.ARangeParser.ParseStruct;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
+import org.openl.rules.range.Range;
 
 @XmlRootElement
-public class StringRange {
+public class StringRange extends Range<CharSequence> {
 
     private static final int TO_STRING_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
 
+    private final Type type;
     private final NumericComparableString lowerBound;
     private final NumericComparableString upperBound;
-
-    private final BoundType lowerBoundType;
-    private final BoundType upperBoundType;
 
     StringRange(String lowerBound, String upperBound) {
         this(lowerBound, upperBound, BoundType.INCLUDING, BoundType.INCLUDING);
@@ -27,29 +25,31 @@ public class StringRange {
     StringRange(String lowerBound, String upperBound, BoundType lowerBoundType, BoundType upperBoundType) {
         this.lowerBound = NumericComparableString.valueOf(lowerBound);
         this.upperBound = NumericComparableString.valueOf(upperBound);
-        this.lowerBoundType = lowerBoundType;
-        this.upperBoundType = upperBoundType;
+        if (StringRangeParser.MAX_VALUE.equals(upperBound)) {
+            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.LEFT_OPEN : Type.LEFT_CLOSED;
+        } else if (StringRangeParser.MIN_VALUE.equals(lowerBound)) {
+            this.type = upperBoundType == BoundType.EXCLUDING ? Type.RIGHT_OPEN : Type.RIGHT_CLOSED;
+        } else if (upperBoundType == BoundType.EXCLUDING) {
+            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN : Type.CLOSED_OPEN;
+        } else {
+            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN_CLOSED : Type.CLOSED;
+        }
         validate();
     }
 
     public StringRange(String source) {
-        ParseStruct<String> range = StringRangeParser.getInstance().parse(source);
-        this.lowerBound = NumericComparableString.valueOf(range.min);
-        this.lowerBoundType = range.leftBoundType;
-        this.upperBound = NumericComparableString.valueOf(range.max);
-        this.upperBoundType = range.rightBoundType;
-        validate();
-    }
-
-    private void validate() {
-        if (lowerBoundType == null || upperBoundType == null) {
-            throw new IllegalArgumentException("Bound types must be initialized.");
-        }
-        if (lowerBound == null || upperBound == null) {
-            throw new IllegalArgumentException("All bounds must be initialized.");
-        }
-        if (lowerBound.compareTo(upperBound) > 0) {
-            throw new IllegalArgumentException("Left bound must be lower than right.");
+        var rangeParser = parse(source);
+        if (rangeParser == null) {
+            this.type = Type.DEGENERATE;
+            this.lowerBound = NumericComparableString.valueOf(source.trim());
+            this.upperBound = this.lowerBound;
+        } else {
+            this.type = rangeParser.getType();
+            var left = rangeParser.getLeft();
+            this.lowerBound = NumericComparableString.valueOf(left == null ? StringRangeParser.MIN_VALUE : left);
+            var right = rangeParser.getRight();
+            this.upperBound = NumericComparableString.valueOf(right == null ? StringRangeParser.MAX_VALUE : right);
+            validate();
         }
     }
 
@@ -58,7 +58,7 @@ public class StringRange {
     }
 
     public BoundType getLowerBoundType() {
-        return lowerBoundType;
+        return type.left == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
     }
 
     public NumericComparableString getUpperBound() {
@@ -66,95 +66,33 @@ public class StringRange {
     }
 
     public BoundType getUpperBoundType() {
-        return upperBoundType;
-    }
-
-    public boolean contains(NumericComparableString s) {
-        if (s == null) {
-            return false;
-        }
-        int lowerComparison = lowerBound.compareTo(s);
-        int upperComparison = upperBound.compareTo(s);
-        if (lowerComparison < 0 && upperComparison > 0) {
-            return true;
-        } else if (lowerComparison == 0 && lowerBoundType == BoundType.INCLUDING) {
-            return true;
-        } else {
-            return upperComparison == 0 && upperBoundType == BoundType.INCLUDING;
-        }
-    }
-
-    public boolean contains(CharSequence s) {
-        return contains(s == null ? null : NumericComparableString.valueOf(s.toString()));
-    }
-
-    public int compareUpperBound(StringRange range) {
-        if (upperBound.compareTo(range.upperBound) < 0) {
-            return -1;
-        } else if (upperBound.compareTo(range.upperBound) == 0) {
-            if (upperBoundType == BoundType.INCLUDING && range.upperBoundType == BoundType.EXCLUDING) {
-                return -1;
-            } else if (upperBoundType == range.upperBoundType) {
-                return 0;
-            }
-        }
-        return 1;
-    }
-
-    public int compareLowerBound(StringRange range) {
-        if (lowerBound.compareTo(range.lowerBound) < 0) {
-            return -1;
-        } else if (lowerBound.compareTo(range.lowerBound) == 0) {
-            if (lowerBoundType == BoundType.INCLUDING && range.lowerBoundType == BoundType.EXCLUDING) {
-                return -1;
-            } else if (lowerBoundType == range.lowerBoundType) {
-                return 0;
-            }
-        }
-        return 1;
-    }
-
-    public boolean contains(StringRange range) {
-        return compareLowerBound(range) <= 0 && compareUpperBound(range) >= 0;
+        return type.right == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        StringRange that = (StringRange) o;
-        return Objects.equals(lowerBound.getValue(), that.lowerBound.getValue()) && Objects.equals(
-            upperBound.getValue(),
-            that.upperBound
-                .getValue()) && lowerBoundType == that.lowerBoundType && upperBoundType == that.upperBoundType;
+    public boolean contains(CharSequence value) {
+        return super.contains(value);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(lowerBound, upperBound, lowerBoundType, upperBoundType);
+    @Transient
+    public Range.Type getType() {
+        return type;
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        if (StringRangeParser.MIN_VALUE.equals(lowerBound.getValue())) {
-            sb.append(upperBoundType == BoundType.INCLUDING ? "<= " : "< ");
-            sb.append(upperBound);
-        } else if (StringRangeParser.MAX_VALUE.equals(upperBound.getValue())) {
-            sb.append(lowerBoundType == BoundType.INCLUDING ? ">= " : "> ");
-            sb.append(lowerBound);
-        } else {
-            sb.append(lowerBoundType == BoundType.INCLUDING ? '[' : '(');
-            sb.append(lowerBound);
-            sb.append("; ");
-            sb.append(upperBound);
-            sb.append(upperBoundType == BoundType.INCLUDING ? ']' : ')');
-        }
-        return sb.toString();
+    protected CharSequence getLeft() {
+        return lowerBound.getValue();
+    }
+
+    @Override
+    protected CharSequence getRight() {
+        return upperBound.getValue();
+    }
+
+    @Override
+    protected int compare(CharSequence left, CharSequence right) {
+        return NumericStringComparator.INSTANCE.compare(left, right);
     }
 
     // AUTOCASTS

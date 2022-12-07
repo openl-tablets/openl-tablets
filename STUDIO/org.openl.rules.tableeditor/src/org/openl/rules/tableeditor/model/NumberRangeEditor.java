@@ -1,7 +1,7 @@
 package org.openl.rules.tableeditor.model;
 
+import org.openl.rules.range.RangeParser;
 import org.openl.rules.tableeditor.event.TableEditorController.EditorTypeResponse;
-import org.openl.util.RangeWithBounds;
 
 public class NumberRangeEditor implements ICellEditor {
 
@@ -28,79 +28,11 @@ public class NumberRangeEditor implements ICellEditor {
         if (input == null) {
             return "";
         }
-        String min;
-        String max;
-        RangeWithBounds range;
-        if (ICellEditor.CE_INTEGER.equals(entryEditor)) {
-            try {
-                DetailedIntRangeParser parser = new DetailedIntRangeParser();
-                range = parser.parse(input);
-                if (isLimitValue(range.getMax())) {
-                    StringBuilder builder = new StringBuilder(">");
-                    if (range.getLeftBoundType() == RangeWithBounds.BoundType.INCLUDING) {
-                        builder.append("=");
-                    }
-                    builder.append(" ").append(parser.getMin());
-                    return builder.toString();
-                }
-                if (isLimitValue(range.getMin())) {
-                    StringBuilder builder = new StringBuilder("<");
-                    if (range.getRightBoundType() == RangeWithBounds.BoundType.INCLUDING) {
-                        builder.append("=");
-                    }
-                    builder.append(" ").append(parser.getMax());
-                    return builder.toString();
-                }
-                if (range.getMax().equals(range.getMin())) {
-                    return input;
-                }
-                min = parser.getMin();
-                max = parser.getMax();
-            } catch (RuntimeException e) {
-                // Range format contains syntax error
-                return input;
-            }
-        } else if (ICellEditor.CE_DOUBLE.equals(entryEditor)) {
-            try {
-                DetailedDoubleRangeParser parser = new DetailedDoubleRangeParser();
-                range = parser.parse(input);
-                if (range.getMax().equals(Double.POSITIVE_INFINITY) || range.getMin()
-                    .equals(Double.NEGATIVE_INFINITY)) {
-                    return input;
-                }
-                if (range.getMax().equals(range.getMin())) {
-                    return input;
-                }
-                min = parser.getMin();
-                max = parser.getMax();
-            } catch (Exception e) {
-                // Range format contains syntax error
-                return input;
-            }
-        } else {
-            throw new UnsupportedOperationException("Unsupported range type");
+        try {
+            return RangeParser.parse(input).toString();
+        } catch (Exception ignore) {
+            return input;
         }
-
-        StringBuilder builder = new StringBuilder();
-        if (range.getLeftBoundType() == RangeWithBounds.BoundType.INCLUDING) {
-            builder.append('[');
-        } else {
-            builder.append('(');
-        }
-        builder.append(min).append(" .. ").append(max);
-        if (range.getRightBoundType() == RangeWithBounds.BoundType.INCLUDING) {
-            builder.append(']');
-        } else {
-            builder.append(')');
-        }
-        return builder.toString();
-    }
-
-    private boolean isLimitValue(Number number) {
-        boolean isDoubleLimit = number.equals(Double.NEGATIVE_INFINITY) || number.equals(Double.POSITIVE_INFINITY);
-        boolean isIntegerLimit = number.equals(Integer.MIN_VALUE) || number.equals(Integer.MAX_VALUE);
-        boolean isLongLimit = number.equals(Long.MIN_VALUE) || number.equals(Long.MAX_VALUE);
-        return isDoubleLimit || isIntegerLimit || isLongLimit;
     }
 
     public static class NumberRangeParams {

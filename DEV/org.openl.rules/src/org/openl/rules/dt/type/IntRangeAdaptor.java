@@ -1,6 +1,7 @@
 package org.openl.rules.dt.type;
 
 import org.openl.rules.helpers.IntRange;
+import org.openl.rules.range.Range;
 
 public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Long> {
     private static final IntRangeAdaptor INSTANCE = new IntRangeAdaptor();
@@ -23,7 +24,7 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Long> {
 
         long max = range.getMax();
 
-        if (max != Long.MAX_VALUE) {
+        if (max != Long.MAX_VALUE && range.getType().right == Range.Bound.CLOSED) {
             max = max + 1;
         }
 
@@ -39,7 +40,11 @@ public final class IntRangeAdaptor implements IRangeAdaptor<IntRange, Long> {
             return null;
         }
 
-        return range.getMin();
+        long min = range.getMin();
+        if (range.getType().left == Range.Bound.OPEN) {
+            min++;
+        }
+        return min;
     }
 
     @Override

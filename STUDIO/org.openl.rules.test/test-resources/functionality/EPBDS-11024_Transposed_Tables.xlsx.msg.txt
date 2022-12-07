@@ -1,7 +1,7 @@
 ERROR: No input parameter found for horizontal condition.
-ERROR: Failed to parse int range.
-ERROR: Failed to parse int range.
-ERROR: Failed to parse int range.
+ERROR: Cannot parse cell value 'text1'. Expected value of type 'IntRange'.
+ERROR: Cannot parse cell value 'text2'. Expected value of type 'IntRange'.
+ERROR: Cannot parse cell value 'text3'. Expected value of type 'IntRange'.
 ERROR: The value 'test' is outside of valid domain 'CarValue'. Valid values: [num, param, pam]
 ERROR: The value 'test' is outside of valid domain 'CarValue'. Valid values: [num, param, pam]
 ERROR: The value 'test' is outside of valid domain 'CarValue'. Valid values: [num, param, pam]
