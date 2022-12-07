@@ -29,4 +29,9 @@ public class WebStudioTest {
     public void dtr() throws Exception {
         JettyServer.test("dtr");
     }
+
+    @Test
+    public void acl() throws Exception {
+        JettyServer.test("acl");
+    }
 }

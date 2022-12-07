@@ -1,0 +1,7 @@
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{
+  "code": "openl.error.404.repository.message",
+  "message": "Repository 'non-existing-repo-id' is not found."
+}

@@ -45,4 +45,9 @@ public class ProjectStateValidatorImpl implements ProjectStateValidator {
 
         return !project.isOpened() && !project.isLocked() && !project.isLockedByMe();
     }
+
+    @Override
+    public boolean canErase(UserWorkspaceProject project) {
+        return project != null && project.isDeleted();
+    }
 }
