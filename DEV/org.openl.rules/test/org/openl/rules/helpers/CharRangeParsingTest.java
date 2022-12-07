@@ -17,72 +17,71 @@ public class CharRangeParsingTest {
 
     @Test
     public void testBrackets() {
-        assertEquals(new CharRange('D', 'X'), new CharRange("[D; X]"));
-        assertEquals(new CharRange('D', 'X'), new CharRange("  [  D  ;   X  ]  "));
-        assertEquals(new CharRange('E', 'W'), new CharRange("(D; X)"));
-        assertEquals(new CharRange('E', 'W'), new CharRange("  (  D  ;   X  )  "));
-        assertEquals(new CharRange('E', 'X'), new CharRange("(D; X]"));
-        assertEquals(new CharRange('D', 'W'), new CharRange("[D;X)"));
-        assertEquals(new CharRange('D', 'X'), new CharRange("[D .. X]"));
-        assertEquals(new CharRange('E', 'W'), new CharRange("(D .. X)"));
-        assertEquals(new CharRange('E', 'X'), new CharRange("(D .. X]"));
-        assertEquals(new CharRange('D', 'W'), new CharRange("[D .. X)"));
+        assertEquals("[D; X]", new CharRange("[D; X]").toString());
+        assertEquals("[D; X]", new CharRange("  [  D  ;   X  ]  ").toString());
+        assertEquals("(D; X)", new CharRange("(D; X)").toString());
+        assertEquals("(D; X)", new CharRange("  (  D  ;   X  )  ").toString());
+        assertEquals("(D; X]", new CharRange("(D; X]").toString());
+        assertEquals("[D; X)", new CharRange("[D;X)").toString());
+        assertEquals("[D; X]", new CharRange("[D .. X]").toString());
+        assertEquals("(D; X)", new CharRange("(D .. X)").toString());
+        assertEquals("(D; X]", new CharRange("(D .. X]").toString());
+        assertEquals("[D; X)", new CharRange("[D .. X)").toString());
     }
 
     @Test
     public void testMinMaxFormat() {
-        assertEquals(new CharRange('A', 'B'), new CharRange("A-B"));
-        assertEquals(new CharRange('A', 'B'), new CharRange("  A  -  B  "));
-        assertEquals(new CharRange('a', 'z'), new CharRange("a-z"));
-        assertEquals(new CharRange('H', 'Z'), new CharRange("H .. Z"));
-        assertEquals(new CharRange('H', 'Z'), new CharRange("  H   ..   Z  "));
-        assertEquals(new CharRange('I', 'Y'), new CharRange("H ... Z"));
-        assertEquals(new CharRange('I', 'Y'), new CharRange("  H   ...   Z  "));
-        assertEquals(new CharRange('I', 'Y'), new CharRange("H … Z"));
-        assertEquals(new CharRange('I', 'Y'), new CharRange("  H   …   Z  "));
+        assertEquals("[A; B]", new CharRange("A-B").toString());
+        assertEquals("[A; B]", new CharRange("  A  -  B  ").toString());
+        assertEquals("[a; z]", new CharRange("a-z").toString());
+        assertEquals("[H; Z]", new CharRange("H .. Z").toString());
+        assertEquals("[H; Z]", new CharRange("  H   ..   Z  ").toString());
+        assertEquals("(H; Z)", new CharRange("H ... Z").toString());
+        assertEquals("(H; Z)", new CharRange("  H   ...   Z  ").toString());
+        assertEquals("(H; Z)", new CharRange("H … Z").toString());
+        assertEquals("(H; Z)", new CharRange("  H   …   Z  ").toString());
     }
 
     @Test
     public void testMoreLessFormat() {
-        assertEquals(new CharRange(Character.MIN_VALUE, 'x'), new CharRange("<y"));
-        assertEquals(new CharRange(Character.MIN_VALUE, 'x'), new CharRange("  <  y  "));
-        assertEquals(new CharRange(Character.MIN_VALUE, 'y'), new CharRange("<=y"));
-        assertEquals(new CharRange('B', Character.MAX_VALUE), new CharRange(">A"));
-        assertEquals(new CharRange('A', Character.MAX_VALUE), new CharRange(">=A"));
-        assertEquals(new CharRange('A', Character.MAX_VALUE), new CharRange("  >=A  "));
-        assertEquals(new CharRange('b', Character.MAX_VALUE), new CharRange("b+"));
-        assertEquals(new CharRange('b', Character.MAX_VALUE), new CharRange("  b+  "));
+        assertEquals("< y", new CharRange("<y").toString());
+        assertEquals("< y", new CharRange("  <  y  ").toString());
+        assertEquals("<= y", new CharRange("<=y").toString());
+        assertEquals("> A", new CharRange(">A").toString());
+        assertEquals(">= A", new CharRange(">=A").toString());
+        assertEquals(">= A", new CharRange("  >=A  ").toString());
+        assertEquals(">= b", new CharRange("b+").toString());
+        assertEquals(">= b", new CharRange("  b+  ").toString());
     }
 
     @Test
     public void testMoreLessFormatBothBounds() {
-        assertEquals(new CharRange('0', '8'), new CharRange(">=0 <9"));
-        assertEquals(new CharRange('4', '7'), new CharRange("<=7 >3"));
-        assertEquals(new CharRange('3', '8'), new CharRange(" > 2   < 9 "));
-        assertEquals(new CharRange('2', '9'), new CharRange(" >= 2   <=9 "));
-        assertEquals(new CharRange('2', '8'), new CharRange(" < 9   > 1 "));
-        assertEquals(new CharRange('1', '8'), new CharRange(" < 9   >= 1 "));
-        assertEquals(new CharRange('3', '9'), new CharRange(" > 2   <= 9 "));
-        assertEquals(new CharRange('A', 'Z'), new CharRange(" >=A <=Z "));
-        assertEquals(new CharRange('A', 'Z'), new CharRange(" <=Z >=A "));
+        assertEquals("[0; 9)", new CharRange(">=0 <9").toString());
+        assertEquals("(3; 7]", new CharRange("<=7 >3").toString());
+        assertEquals("(2; 9)", new CharRange(" > 2   < 9 ").toString());
+        assertEquals("[2; 9]", new CharRange(" >= 2   <=9 ").toString());
+        assertEquals("(1; 9)", new CharRange(" < 9   > 1 ").toString());
+        assertEquals("[1; 9)", new CharRange(" < 9   >= 1 ").toString());
+        assertEquals("(2; 9]", new CharRange(" > 2   <= 9 ").toString());
+        assertEquals("[A; Z]", new CharRange(" >=A <=Z ").toString());
+        assertEquals("[A; Z]", new CharRange(" <=Z >=A ").toString());
     }
 
     @Test
     public void testVerbal() {
-        assertEquals(new CharRange('A', Character.MAX_VALUE), new CharRange("A and more"));
-        assertEquals(new CharRange('B', Character.MAX_VALUE), new CharRange("more than A"));
-        assertEquals(new CharRange(Character.MIN_VALUE, 'X'), new CharRange("less than Y"));
-
-        assertEquals(new CharRange('A', Character.MAX_VALUE), new CharRange("  A   and   more  "));
-        assertEquals(new CharRange('B', Character.MAX_VALUE), new CharRange("  more   than   A  "));
-        assertEquals(new CharRange(Character.MIN_VALUE, 'X'), new CharRange("  less   than   Y  "));
+        assertEquals(">= A", new CharRange("A and more").toString());
+        assertEquals("> A", new CharRange("more than A").toString());
+        assertEquals("< Y", new CharRange("less than Y").toString());
+        assertEquals(">= A", new CharRange("  A   and   more  ").toString());
+        assertEquals("> A", new CharRange("  more   than   A  ").toString());
+        assertEquals("< Y", new CharRange("  less   than   Y  ").toString());
     }
 
     @Test
     public void testToString() {
-        assertEquals("a-z", new CharRange("a-z").toString());
-        assertEquals("b-'uffff'", new CharRange("b+").toString());
-        assertEquals("'u2'-'ua0'", new CharRange("\u0002-\u00A0").toString());
+        assertEquals("[a; z]", new CharRange("a-z").toString());
+        assertEquals(">= b", new CharRange("b+").toString());
+        assertEquals("[\\u0002; \\u00a0]", new CharRange("\u0002-\u00A0").toString());
     }
 
     @Test
@@ -90,8 +89,7 @@ public class CharRangeParsingTest {
         try {
             new CharRange(">=A >=Z");
             fail("Must be failed.");
-        } catch (RuntimeException e) {
-            assertEquals("Failed to parse a range: >=A >=Z", e.getMessage());
+        } catch (RuntimeException ignored) {
         }
     }
 

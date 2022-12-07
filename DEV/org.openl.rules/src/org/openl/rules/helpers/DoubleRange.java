@@ -1,79 +1,113 @@
 package org.openl.rules.helpers;
 
+import java.beans.Transient;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Objects;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.openl.binding.impl.cast.CastFactory;
-import org.openl.util.RangeWithBounds;
-import org.openl.util.RangeWithBounds.BoundType;
+import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
+import org.openl.rules.range.Range;
+
 
 /**
  * The <code>DoubleRange</code> class stores range of floats. Examples : "1.2-3", "2 .. 4", "123.456 ... 1000.00001"
  * (Important: using of ".." and "..." requires spaces between numbers and separator).
  */
 @XmlRootElement
-public class DoubleRange implements INumberRange {
+public class DoubleRange extends Range<Double> implements INumberRange {
     private static final int TO_DOUBLE_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
     private double lowerBound;
     private double upperBound;
 
-    private BoundType lowerBoundType;
-    private BoundType upperBoundType;
+    private final Type type;
 
     public DoubleRange(double range) {
-        this(range, range);
+        lowerBound = range;
+        upperBound = range;
+        type = Type.DEGENERATE;
     }
 
     public DoubleRange(double lowerBound, double upperBound) {
-        this(lowerBound, upperBound, BoundType.INCLUDING, BoundType.INCLUDING);
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+        if (Double.isInfinite(upperBound)) {
+            type = Type.LEFT_CLOSED;
+        } else if (Double.isInfinite(lowerBound)) {
+            type = Type.RIGHT_CLOSED;
+        } else {
+            type = Type.CLOSED;
+        }
+        validate();
     }
 
     public DoubleRange(double lowerBound, double upperBound, BoundType lowerBoundType, BoundType upperBoundType) {
-        if (lowerBound > upperBound) {
-            throw new IllegalArgumentException(
-                String.format("%s must be greater or equal than %s.", upperBound, lowerBound));
-        }
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
-        this.lowerBoundType = lowerBoundType;
-        this.upperBoundType = upperBoundType;
+        if (Double.isInfinite(upperBound)) {
+            type = lowerBoundType == BoundType.EXCLUDING ? Type.LEFT_OPEN : Type.LEFT_CLOSED;
+        } else if (Double.isInfinite(lowerBound)) {
+            type = upperBoundType == BoundType.EXCLUDING ? Type.RIGHT_OPEN : Type.RIGHT_CLOSED;
+        } else if (upperBoundType == BoundType.EXCLUDING) {
+            type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN : Type.CLOSED_OPEN;
+        } else {
+            type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN_CLOSED : Type.CLOSED;
+        }
+        validate();
     }
 
     public DoubleRange() {
         lowerBound = 0;
         upperBound = 0;
+        type = Type.DEGENERATE;
     }
 
     public DoubleRange(String range) {
-        RangeWithBounds res = getRangeWithBounds(range);
-
-        lowerBound = res.getMin().doubleValue();
-        lowerBoundType = res.getLeftBoundType();
-        upperBound = res.getMax().doubleValue();
-        upperBoundType = res.getRightBoundType();
-
-        if (isTruncated(res.getMin(), lowerBound)) {
-            // For example, is converted from BigDecimal to Double
-            throw new IllegalArgumentException("lowerBound value is truncated");
+        Type type;
+        try {
+            var parser = parse(range);
+            if (parser == null) {
+                type = Type.DEGENERATE;
+                this.lowerBound = convertToDouble(range.trim());
+                this.upperBound = this.lowerBound;
+            } else {
+                type = parser.getType();
+                var left = parser.getLeft();
+                var right = parser.getRight();
+                lowerBound = left == null ? Double.NEGATIVE_INFINITY : convertToDouble(left);
+                upperBound = right == null ? Double.POSITIVE_INFINITY : convertToDouble(right);
+            }
+        } catch (RuntimeException ex) {
+            try {
+                if (range.contains("less") || range.contains("more")) {
+                    range = range
+                            .replaceAll("less\\s+than", "<")
+                            .replaceAll("more\\s+than", ">")
+                            .replaceAll("(\\S+)\\s+or\\s+less", "<=$1")
+                            .replaceAll("(\\S+)\\s+and\\s+more", ">=$1");
+                    var parser = parse(range);
+                    type = parser.getType();
+                    String left = parser.getLeft();
+                    String right = parser.getRight();
+                    lowerBound = left == null ? Double.NEGATIVE_INFINITY : convertToDouble(left);
+                    upperBound = right == null ? Double.POSITIVE_INFINITY : convertToDouble(right);
+                } else {
+                    throw ex;
+                }
+            } catch (Exception ignore) {
+                throw ex;
+            }
         }
-        if (isTruncated(res.getMax(), upperBound)) {
-            // For example, is converted from BigDecimal to Double
-            throw new IllegalArgumentException("upperBound value is truncated");
-        }
-    }
-
-    private static RangeWithBounds getRangeWithBounds(String range) {
-        return DoubleRangeParser.getInstance().parse(range);
+        this.type = type;
+        validate();
     }
 
     /**
      * Returns true if converted value is truncated
      *
      * @param from converting number
-     * @param to converted double value
+     * @param to   converted double value
      * @return true if converted value is truncated
      */
     protected static boolean isTruncated(Number from, double to) {
@@ -85,16 +119,16 @@ public class DoubleRange implements INumberRange {
      *
      * @param range the DoubleRange to be compared
      * @return a negative integer, zero, or a positive integer as lower bound of this range is less than, equal to, or
-     *         greater than the lower bound of specified range.
+     * greater than the lower bound of specified range.
      */
     @Deprecated
     public int compareLowerBound(DoubleRange range) {
         if (lowerBound < range.lowerBound) {
             return -1;
         } else if (lowerBound == range.lowerBound) {
-            if (lowerBoundType == BoundType.INCLUDING && range.lowerBoundType == BoundType.EXCLUDING) {
+            if (type.left != Bound.OPEN && range.type.left == Bound.OPEN) {
                 return -1;
-            } else if (lowerBoundType == range.lowerBoundType) {
+            } else if (type.left == range.type.left) {
                 return 0;
             }
         }
@@ -106,35 +140,20 @@ public class DoubleRange implements INumberRange {
      *
      * @param range the DoubleRange to be compared
      * @return a negative integer, zero, or a positive integer as upper bound of this range is less than, equal to, or
-     *         greater than the upper bound of specified range.
+     * greater than the upper bound of specified range.
      */
     @Deprecated
     public int compareUpperBound(DoubleRange range) {
         if (upperBound < range.upperBound) {
             return -1;
         } else if (upperBound == range.upperBound) {
-            if (upperBoundType == BoundType.INCLUDING && range.upperBoundType == BoundType.EXCLUDING) {
+            if (type.right != Bound.OPEN && range.type.right == Bound.OPEN) {
                 return -1;
-            } else if (upperBoundType == range.upperBoundType) {
+            } else if (type.right == range.type.right) {
                 return 0;
             }
         }
         return 1;
-    }
-
-    public boolean contains(double x) {
-        if (lowerBound < x && x < upperBound) {
-            return true;
-        } else if (x == lowerBound && lowerBoundType == BoundType.INCLUDING) {
-            return true;
-        } else if (x == upperBound && upperBoundType == BoundType.INCLUDING) {
-            return true;
-        }
-        return false;
-    }
-
-    public boolean contains(DoubleRange range) {
-        return compareLowerBound(range) <= 0 && compareUpperBound(range) >= 0;
     }
 
     @Override
@@ -147,21 +166,24 @@ public class DoubleRange implements INumberRange {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(lowerBound, upperBound, lowerBoundType, upperBoundType);
+    @Transient
+    public Type getType() {
+        return type;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof DoubleRange)) {
-            return false;
-        }
-        DoubleRange that = (DoubleRange) o;
-        return Double.compare(that.lowerBound, lowerBound) == 0 && Double.compare(that.upperBound,
-            upperBound) == 0 && lowerBoundType == that.lowerBoundType && upperBoundType == that.upperBoundType;
+    protected Double getLeft() {
+        return lowerBound;
+    }
+
+    @Override
+    protected Double getRight() {
+        return upperBound;
+    }
+
+    @Override
+    protected int compare(Double left, Double right) {
+        return Double.compare(left, right);
     }
 
     /**
@@ -184,9 +206,9 @@ public class DoubleRange implements INumberRange {
         int upperBoundComaring = compareUpperBound(range);
 
         double lowerBound = lowerBoundComaring > 0 ? this.lowerBound : range.lowerBound;
-        BoundType lowerBoundType = lowerBoundComaring > 0 ? this.lowerBoundType : range.lowerBoundType;
+        BoundType lowerBoundType = lowerBoundComaring > 0 ? this.getLowerBoundType() : range.getLowerBoundType();
         double upperBound = upperBoundComaring < 0 ? this.upperBound : range.upperBound;
-        BoundType upperBoundType = upperBoundComaring < 0 ? this.upperBoundType : range.upperBoundType;
+        BoundType upperBoundType = upperBoundComaring < 0 ? this.getUpperBoundType() : range.getUpperBoundType();
         return lowerBound > upperBound ? null : new DoubleRange(lowerBound, upperBound, lowerBoundType, upperBoundType);
     }
 
@@ -208,45 +230,22 @@ public class DoubleRange implements INumberRange {
 
     @Deprecated
     public BoundType getLowerBoundType() {
-        return lowerBoundType;
+        return type.left == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
     }
 
     @Deprecated
     public void setLowerBoundType(BoundType lowerBoundType) {
-        this.lowerBoundType = lowerBoundType;
+
     }
 
     @Deprecated
     public BoundType getUpperBoundType() {
-        return upperBoundType;
+        return type.right == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
     }
 
     @Deprecated
     public void setUpperBoundType(BoundType upperBoundType) {
-        this.upperBoundType = upperBoundType;
-    }
 
-    @Override
-    public String toString() {
-        if (lowerBound == Double.NEGATIVE_INFINITY) {
-            return (upperBoundType == BoundType.INCLUDING ? "<=" : "<") + upperBound;
-        } else if (upperBound == Double.POSITIVE_INFINITY) {
-            return (lowerBoundType == BoundType.INCLUDING ? ">=" : ">") + lowerBound;
-        }
-
-        StringBuilder builder = new StringBuilder();
-        if (lowerBoundType == BoundType.INCLUDING) {
-            builder.append('[');
-        } else {
-            builder.append('(');
-        }
-        builder.append(lowerBound).append("; ").append(upperBound);
-        if (upperBoundType == BoundType.INCLUDING) {
-            builder.append(']');
-        } else {
-            builder.append(')');
-        }
-        return builder.toString();
     }
 
     public static DoubleRange autocast(byte x, DoubleRange y) {
@@ -316,4 +315,36 @@ public class DoubleRange implements INumberRange {
     public static DoubleRange autocast(IntRange x, DoubleRange y) {
         return new DoubleRange(x.getMin(), x.getMax());
     }
+
+    private static double convertToDouble(String text) {
+        double multiplier = 1.0;
+        int start = 0;
+        if (text.startsWith("$")) {
+            start++;
+        }
+        if (text.charAt(start) == ',') {
+            // special case, when comma as a group separator is in the beginning.
+            throw new NumberFormatException("For input string: \"" + text + "\"");
+        }
+        int end = text.length();
+        switch (text.charAt(end - 1)) {
+            case 'B':
+                multiplier *= 1000;
+            case 'M':
+                multiplier *= 1000;
+            case 'K':
+                multiplier *= 1000;
+                end--;
+                break;
+        }
+        if (!Character.isDigit(text.charAt(end - 1)) || text.indexOf('e') >= 0 || text.indexOf('E') >= 0) {
+            // special case, when comma or decimal separator, or letter is in the ending.
+            // These symbols are prohibited even if they are valid for Java numbers.
+            throw new NumberFormatException("For input string: \"" + text + "\"");
+        }
+        text = text.substring(start, end).replace(",", "");
+        double value = Double.parseDouble(text);
+        return value * multiplier;
+    }
+
 }

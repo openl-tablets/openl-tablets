@@ -1,71 +1,79 @@
 package org.openl.rules.helpers;
 
+import java.beans.Transient;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Objects;
 
 import org.openl.binding.impl.cast.CastFactory;
-import org.openl.rules.helpers.ARangeParser.ParseStruct;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
+import org.openl.rules.range.Range;
 
-public class DateRange {
+public class DateRange extends Range<Date> {
 
     private static final int TO_DATE_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
+    private static final DateTimeFormatter dateTimeParser = DateTimeFormatter.ofPattern("M/d/yyyy[ H:m:s]");
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy[ HH:mm:ss]");
 
     private final long lowerBound;
     private final long upperBound;
 
-    private final BoundType lowerBoundType;
-    private final BoundType upperBoundType;
+    private final Type type;
 
     public DateRange(Date bound) {
-        this(bound, bound, BoundType.INCLUDING, BoundType.INCLUDING);
+        this.lowerBound = bound.getTime();
+        this.upperBound = bound.getTime();
+        this.type = Type.DEGENERATE;
     }
 
     public DateRange(Date lowerBound, Date upperBound) {
-        this(lowerBound, upperBound, BoundType.INCLUDING, BoundType.INCLUDING);
+        this.lowerBound = lowerBound.getTime();
+        this.upperBound = upperBound.getTime();
+        this.type = Type.CLOSED;
+        validate();
     }
 
     DateRange(Date lowerBound, Date upperBound, BoundType lowerBoundType, BoundType upperBoundType) {
+
         assert lowerBound != null;
         assert upperBound != null;
-        this.lowerBoundType = lowerBoundType;
-        this.upperBoundType = upperBoundType;
         long localLowerBound = lowerBound.getTime();
-        if (this.lowerBoundType == BoundType.EXCLUDING) {
-            localLowerBound += 1;
-        }
         long localUpperBound = upperBound.getTime();
-        if (this.upperBoundType == BoundType.EXCLUDING) {
-            localUpperBound -= 1;
+
+        if (Long.MAX_VALUE == localUpperBound) {
+            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.LEFT_OPEN : Type.LEFT_CLOSED;
+        } else if (Long.MIN_VALUE == localLowerBound) {
+            this.type = upperBoundType == BoundType.EXCLUDING ? Type.RIGHT_OPEN : Type.RIGHT_CLOSED;
+        } else if (upperBoundType == BoundType.EXCLUDING) {
+            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN : Type.CLOSED_OPEN;
+        } else {
+            this.type = lowerBoundType == BoundType.EXCLUDING ? Type.OPEN_CLOSED : Type.CLOSED;
         }
+
         this.lowerBound = localLowerBound;
         this.upperBound = localUpperBound;
+        validate();
     }
 
     public DateRange(String source) {
-        ParseStruct<Long> range = DateRangeParser.getInstance().parse(source);
-        this.lowerBoundType = range.leftBoundType;
-        this.upperBoundType = range.rightBoundType;
-
-        Long lowerBound = range.min;
-        if (this.lowerBoundType == BoundType.EXCLUDING) {
-            lowerBound += 1;
+        var parser = parse(source);
+        if (parser == null) {
+            this.type = Type.DEGENERATE;
+            this.lowerBound = convertToTime(source.trim());
+            this.upperBound = this.lowerBound;
+        } else {
+            this.type = parser.getType();
+            var left = parser.getLeft();
+            var right = parser.getRight();
+            this.lowerBound = left == null ? Long.MIN_VALUE : convertToTime(left);
+            this.upperBound = right == null ? Long.MAX_VALUE : convertToTime(right);
+            validate();
         }
-        Long upperBound = range.max;
-        if (this.upperBoundType == BoundType.EXCLUDING) {
-            upperBound -= 1;
-        }
-        if (lowerBound > upperBound) {
-            throw new IllegalArgumentException(
-                    String.format("%s must be greater or equal than %s", range.max, range.min)
-            );
-        }
-        this.lowerBound = lowerBound;
-        this.upperBound = upperBound;
     }
 
     public Long getLowerBound() {
@@ -78,75 +86,44 @@ public class DateRange {
 
     @Deprecated
     public BoundType getLowerBoundType() {
-        return lowerBoundType;
+        return type.left == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
     }
 
     @Deprecated
     public BoundType getUpperBoundType() {
-        return upperBoundType;
-    }
-
-    public boolean contains(Date d) {
-        if (d == null) {
-            return false;
-        }
-        long x = d.getTime();
-        return lowerBound <= x && x <= upperBound;
+        return type.right == Bound.OPEN ? BoundType.EXCLUDING : BoundType.INCLUDING;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        DateRange dateRange = (DateRange) o;
-        return lowerBound == dateRange.lowerBound
-                && upperBound == dateRange.upperBound
-                && lowerBoundType == dateRange.lowerBoundType
-                && upperBoundType == dateRange.upperBoundType;
+    public boolean contains(Date value) {
+        return super.contains(value);
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(lowerBound, upperBound, lowerBoundType, upperBoundType);
+    @Transient
+    public Type getType() {
+        return type;
     }
 
     @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        if (Long.MIN_VALUE == lowerBound) {
-            sb.append(upperBoundType == BoundType.INCLUDING ? "<= " : "< ");
-            sb.append(DateRangeParser.dateTimeFormatter.format(getDateUpperBound()));
-        } else if (Long.MAX_VALUE == upperBound) {
-            sb.append(lowerBoundType == BoundType.INCLUDING ? ">= " : "> ");
-            sb.append(DateRangeParser.dateTimeFormatter.format(getDateLowerBound()));
-        } else {
-            sb.append(lowerBoundType == BoundType.INCLUDING ? '[' : '(');
-            sb.append(DateRangeParser.dateTimeFormatter.format(getDateLowerBound()));
-            sb.append("; ");
-            sb.append(DateRangeParser.dateTimeFormatter.format(getDateUpperBound()));
-            sb.append(upperBoundType == BoundType.INCLUDING ? ']' : ')');
-        }
-        return sb.toString();
+    protected Date getLeft() {
+        return new Date(lowerBound);
     }
 
-    private LocalDateTime getDateUpperBound() {
-        long time = upperBound;
-        if (this.upperBoundType == BoundType.EXCLUDING) {
-            time += 1;
-        }
-        return Instant.ofEpochMilli(time).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    @Override
+    protected Date getRight() {
+        return new Date(upperBound);
     }
 
-    private LocalDateTime getDateLowerBound() {
-        long time = lowerBound;
-        if (this.lowerBoundType == BoundType.EXCLUDING) {
-            time -= 1;
-        }
-        return Instant.ofEpochMilli(time).atZone(ZoneId.systemDefault()).toLocalDateTime();
+    @Override
+    protected int compare(Date left, Date right) {
+        return Long.compare(left.getTime(), right.getTime());
+    }
+
+    @Override
+    protected void format(StringBuilder sb, Date value) {
+        LocalDateTime time = Instant.ofEpochMilli(value.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
+        sb.append(dateTimeFormatter.format(time));
     }
 
     // AUTOCAST METHODS
@@ -175,4 +152,10 @@ public class DateRange {
     }
 
     // END
+
+    private static long convertToTime(String text) {
+        TemporalAccessor res = dateTimeParser.parseBest(text, LocalDateTime::from, LocalDate::from);
+        LocalDateTime localDateTime = res instanceof LocalDate ? ((LocalDate) res).atStartOfDay() : (LocalDateTime) res;
+        return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    }
 }

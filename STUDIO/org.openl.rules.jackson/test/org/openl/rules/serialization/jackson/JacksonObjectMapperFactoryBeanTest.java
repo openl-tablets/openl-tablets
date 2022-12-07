@@ -22,7 +22,6 @@ import org.openl.rules.variation.DeepCloningVariation;
 import org.openl.rules.variation.JXPathVariation;
 import org.openl.rules.variation.Variation;
 import org.openl.rules.variation.VariationsResult;
-import org.openl.util.RangeWithBounds.BoundType;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -87,7 +86,7 @@ public class JacksonObjectMapperFactoryBeanTest {
         bean.setSupportVariations(true);
         ObjectMapper objectMapper = bean.createJacksonObjectMapper();
         String text = objectMapper
-            .writeValueAsString(new DoubleRange(0.0d, 1d, BoundType.EXCLUDING, BoundType.EXCLUDING));
+            .writeValueAsString(new DoubleRange("(0; 1)"));
         DoubleRange result = objectMapper.readValue(text, DoubleRange.class);
         Assert.assertNotNull(result);
 

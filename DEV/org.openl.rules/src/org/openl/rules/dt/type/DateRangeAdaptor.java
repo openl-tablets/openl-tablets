@@ -3,6 +3,7 @@ package org.openl.rules.dt.type;
 import java.util.Date;
 
 import org.openl.rules.helpers.DateRange;
+import org.openl.rules.range.Range;
 
 public class DateRangeAdaptor implements IRangeAdaptor<DateRange, Long> {
 
@@ -23,7 +24,7 @@ public class DateRangeAdaptor implements IRangeAdaptor<DateRange, Long> {
             return null;
         }
         long max = range.getUpperBound();
-        if (max != Long.MAX_VALUE) {
+        if (max != Long.MAX_VALUE && range.getType().right == Range.Bound.CLOSED) {
             max += 1;
         }
         return max;
@@ -34,7 +35,11 @@ public class DateRangeAdaptor implements IRangeAdaptor<DateRange, Long> {
         if (range == null) {
             return null;
         }
-        return range.getLowerBound();
+        Long min = range.getLowerBound();
+        if (range.getType().left == Range.Bound.OPEN) {
+            min++;
+        }
+        return min;
     }
 
     @Override

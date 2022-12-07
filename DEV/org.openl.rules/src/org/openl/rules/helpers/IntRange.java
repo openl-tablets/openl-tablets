@@ -1,42 +1,52 @@
 package org.openl.rules.helpers;
 
+import java.beans.Transient;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.openl.binding.impl.cast.CastFactory;
-import org.openl.util.RangeWithBounds;
-import org.openl.util.RangeWithBounds.BoundType;
+import org.openl.rules.range.Range;
 
 /**
  * The <code>IntRange</code> class stores range of integers. Examples : "1-3", "2 .. 4", "123 ... 1000" (Important:
  * using of ".." and "..." requires spaces between numbers and separator).
  */
 @XmlRootElement
-public class IntRange implements INumberRange {
+public class IntRange extends Range<Long> implements INumberRange {
     private static final int TO_INT_RANGE_CAST_DISTANCE = CastFactory.AFTER_FIRST_WAVE_CASTS_DISTANCE + 8;
 
     protected long min;
     protected long max;
+    protected final Type type;
 
     /**
      * Constructor for <code>IntRange</code> with provided <code>min</code> and <code>max</code> values.
      */
     public IntRange(long min, long max) {
-        if (min > max) {
-            throw new IllegalArgumentException(max + " must be greater or equal than " + min);
-        }
         this.min = min;
         this.max = max;
+        if (max == Long.MAX_VALUE) {
+            type = Type.LEFT_CLOSED;
+        } else if (min == Long.MIN_VALUE) {
+            type = Type.RIGHT_CLOSED;
+        } else {
+            type = Type.CLOSED;
+        }
+        validate();
     }
 
     public IntRange(long number) {
-        this(number, number);
+        this.min = number;
+        this.max = number;
+        this.type = Type.DEGENERATE;
     }
 
     public IntRange() {
-        this(0, 0);
+        this.min = 0;
+        this.max = 0;
+        this.type = Type.DEGENERATE;
     }
 
     public boolean contains(BigInteger value) {
@@ -48,14 +58,6 @@ public class IntRange implements INumberRange {
         } catch (ArithmeticException e) {
             return false;
         }
-    }
-
-    public boolean contains(IntRange range) {
-        return this.min <= range.min && this.max >= range.max;
-    }
-
-    public boolean contains(long value) {
-        return min <= value && value <= max;
     }
 
     public long getMax() {
@@ -78,33 +80,64 @@ public class IntRange implements INumberRange {
      * barrels", "6-8 km^2"
      */
     public IntRange(String range) {
-        this(0, 0);
-        RangeWithBounds res = getRangeWithBounds(range);
-
-        min = res.getMin().longValue();
-        if (!res.getMin().equals(min)) {
-            // For example, is converted from Long to Integer
-            throw new IllegalArgumentException("Min value is out of int values range.");
+        Type type;
+        try {
+            var parser = parse(range);
+            if (parser == null) {
+                type = Type.DEGENERATE;
+                this.min = convertToLong(range.trim());
+                this.max = this.min;
+            } else {
+                type = parser.getType();
+                var left = parser.getLeft();
+                var right = parser.getRight();
+                this.min = left == null ? Long.MIN_VALUE : convertToLong(left);
+                this.max = right == null ? Long.MAX_VALUE : convertToLong(right);
+            }
+        } catch (RuntimeException ex) {
+            try {
+                if (range.contains("less") || range.contains("more")) {
+                    range = range
+                            .replaceAll("less\\s+than", "<")
+                            .replaceAll("more\\s+than", ">")
+                            .replaceAll("(\\S+)\\s+or\\s+less", "<=$1")
+                            .replaceAll("(\\S+)\\s+and\\s+more", ">=$1");
+                    var parser = parse(range);
+                    type = parser.getType();
+                    String left = parser.getLeft();
+                    String right = parser.getRight();
+                    min = left == null ? Long.MIN_VALUE : convertToLong(left);
+                    max = right == null ? Long.MAX_VALUE : convertToLong(right);
+                } else {
+                    throw ex;
+                }
+            } catch (Exception ignore) {
+                throw ex;
+            }
         }
-        if (res.getLeftBoundType() == BoundType.EXCLUDING) {
-            min++;
-        }
-
-        max = res.getMax().longValue();
-        if (!res.getMax().equals(max)) {
-            // For example, is converted from Long to Integer
-            throw new IllegalArgumentException("Max value is out of int values range.");
-        }
-        if (res.getRightBoundType() == BoundType.EXCLUDING) {
-            max--;
-        }
-        if (min > max) {
-            throw new RuntimeException(max + " must be more or equal than " + min);
-        }
+        this.type = type;
+        validate();
     }
 
-    private static RangeWithBounds getRangeWithBounds(String range) {
-        return IntRangeParser.getInstance().parse(range);
+    @Override
+    @Transient
+    public Type getType() {
+        return type;
+    }
+
+    @Override
+    protected Long getLeft() {
+        return min;
+    }
+
+    @Override
+    protected Long getRight() {
+        return max;
+    }
+
+    @Override
+    protected int compare(Long left, Long right) {
+        return Long.compare(left, right);
     }
 
     public static IntRange autocast(byte x, IntRange y) {
@@ -171,44 +204,33 @@ public class IntRange implements INumberRange {
         return TO_INT_RANGE_CAST_DISTANCE;
     }
 
-    @Override
-    public String toString() {
-        if (min == Integer.MIN_VALUE) {
-            return "<=" + max;
-        } else if (max == Integer.MAX_VALUE) {
-            return ">=" + min;
+    private static long convertToLong(String text) {
+        long multiplier = 1;
+        int start = 0;
+        if (text.startsWith("$")) {
+            start++;
         }
-
-        return "[" + min + ".." + max + "]";
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (max ^ max >>> 32);
-        result = prime * result + (int) (min ^ min >>> 32);
-        return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
+        if (text.charAt(start) == ',') {
+            // special case, when comma as a group separator is in the beginning.
+            throw new NumberFormatException("For input string: \"" + text + "\"");
         }
-        if (obj == null) {
-            return false;
+        int end = text.length();
+        switch (text.charAt(end - 1)) {
+            case 'B':
+                multiplier *= 1000;
+            case 'M':
+                multiplier *= 1000;
+            case 'K':
+                multiplier *= 1000;
+                end--;
+                break;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
+        if (!Character.isDigit(text.charAt(end - 1))) {
+            // special case, when comma as a group separator is in the ending.
+            throw new NumberFormatException("For input string: \"" + text + "\"");
         }
-        IntRange other = (IntRange) obj;
-        if (max != other.max) {
-            return false;
-        }
-        if (min != other.min) {
-            return false;
-        }
-        return true;
+        text = text.substring(start, end).replace(",", "");
+        long value = Long.parseLong(text);
+        return Math.multiplyExact(value, multiplier);
     }
 }
