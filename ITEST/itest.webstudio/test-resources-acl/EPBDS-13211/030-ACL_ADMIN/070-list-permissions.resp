@@ -1,0 +1,16 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "groupId": 8,
+    "groupName": "Group1",
+    "permissions": ["ARCHIVE", "DELETE"]
+  }, {
+  "username": "EPBDS_13211_3",
+  "permissions": ["VIEW", "EDIT", "DELETE"]
+}, {
+  "username": "admin",
+  "permissions": ["VIEW", "APPEND", "EDIT", "ARCHIVE", "DELETE", "RUN", "BENCHMARK", "DEPLOY"]
+}
+]

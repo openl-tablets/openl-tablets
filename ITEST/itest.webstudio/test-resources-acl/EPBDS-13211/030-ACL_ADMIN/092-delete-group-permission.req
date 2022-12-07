@@ -1,0 +1,3 @@
+DELETE /rest/acl/repo/design/design/group/99999?path=/DESIGN/rules/EPBDS_13211_3&permissions=DELETE HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

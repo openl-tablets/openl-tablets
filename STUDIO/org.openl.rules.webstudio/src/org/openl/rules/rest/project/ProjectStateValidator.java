@@ -32,10 +32,18 @@ public interface ProjectStateValidator {
     boolean canDeploy(UserWorkspaceProject project);
 
     /**
-     * Check if project can be deployed
+     * Check if project can be deleted
      *
      * @param project project
      * @return true or false
      */
     boolean canDelete(UserWorkspaceProject project);
+
+    /**
+     * Check if project can be erased
+     *
+     * @param project project
+     * @return true or false
+     */
+    boolean canErase(UserWorkspaceProject project);
 }

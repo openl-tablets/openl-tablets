@@ -274,6 +274,32 @@ public class ProjectManagementController {
         }
     }
 
+    /**
+     * WARNING: Currently it's used only for testing purpose. Should be finalized before using in real life
+     *
+     * @see org.openl.rules.webstudio.web.repository.RepositoryTreeController#deleteNode()
+     */
+    @Hidden
+    @DeleteMapping(value = "/{repo-name}/projects/{proj-name}/erase", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @ResponseStatus(HttpStatus.NOT_IMPLEMENTED) // change status after full implementation
+    public void erase(@DesignRepository("repo-name") Repository repo,
+            @PathVariable("proj-name") String name,
+            @RequestParam(value = "comment", required = false) final String comment) {
+        try {
+            RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
+                throw new SecurityException();
+            }
+            if (!projectStateValidator.canErase(project)) {
+                throw new ConflictException("project.erase.message");
+            }
+            project.erase(getUserWorkspace().getUser(), comment);
+            designRepositoryAclService.deleteAcl(project);
+        } catch (ProjectException e) {
+            throw new NotFoundException("project.message", name);
+        }
+    }
+
     private void openAllDependencies(RulesProject project) throws ProjectException {
         for (RulesProject rulesProject : projectDependencyResolver.getProjectDependencies(project)) {
             rulesProject.open();

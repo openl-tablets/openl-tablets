@@ -57,7 +57,7 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
         return designTimeRepository.getRepositories()
             .stream()
             .filter(e -> repoIdsWithProjects.contains(e.getId()) || designRepositoryAclService
-                .isGranted(e.getId(), null, List.of(AclPermission.VIEW)))
+                .isGranted(e.getId(), null, List.of(AclPermission.VIEW, AclPermission.CREATE)))
             .map(e -> SecuredRepositoryFactory.wrapToSecureRepo(e, getDesignRepositoryAclService()))
             .collect(Collectors.toList());
     }

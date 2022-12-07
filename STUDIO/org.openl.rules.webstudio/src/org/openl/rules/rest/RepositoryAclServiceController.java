@@ -2,7 +2,6 @@ package org.openl.rules.rest;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,9 +9,11 @@ import java.util.Objects;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
+import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -67,24 +68,46 @@ public class RepositoryAclServiceController {
         this.deploymentManager = deploymentManager;
     }
 
-    private static Map<String, Map<String, String[]>> convert(Map<Sid, List<Permission>> permissions) {
-        Map<String, Map<String, String[]>> ret = new HashMap<>();
-        Map<String, String[]> usersPermissions = new HashMap<>();
-        Map<String, String[]> groupsPermissions = new HashMap<>();
+    public static class SidPermissionsDto {
+        private Long groupId;
+        private String username;
+        private String groupName;
+        private String[] permissions;
+
+        public SidPermissionsDto() {
+        }
+
+        public SidPermissionsDto(Long groupId, String groupName, String[] permissions) {
+            this.groupId = groupId;
+            this.groupName = groupName;
+            this.permissions = permissions;
+        }
+
+        public SidPermissionsDto(String username, String[] permissions) {
+            this.username = username;
+            this.permissions = permissions;
+        }
+
+        public Long getGroupId() {
+            return groupId;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getGroupName() {
+            return groupName;
+        }
+
+        public String[] getPermissions() {
+            return permissions;
+        }
+    }
+
+    private List<SidPermissionsDto> convert(Map<Sid, List<Permission>> permissions) {
+        List<SidPermissionsDto> ret = new ArrayList<>();
         for (Map.Entry<Sid, List<Permission>> entry : permissions.entrySet()) {
-            String sid;
-            boolean principal;
-            if (entry.getKey() instanceof PrincipalSid) {
-                PrincipalSid principalSid = (PrincipalSid) entry.getKey();
-                principal = true;
-                sid = principalSid.getPrincipal();
-            } else if (entry.getKey() instanceof GrantedAuthoritySid) {
-                GrantedAuthoritySid grantedAuthoritySid = (GrantedAuthoritySid) entry.getKey();
-                principal = false;
-                sid = grantedAuthoritySid.getGrantedAuthority();
-            } else {
-                throw new IllegalStateException("Unsupported sid type.");
-            }
             String[] permissionsArray = entry.getValue().stream().map(e -> {
                 AclPermission projectArtifactPermission = AclPermission.getPermission(e.getMask());
                 if (projectArtifactPermission != null) {
@@ -93,17 +116,19 @@ public class RepositoryAclServiceController {
                     return String.valueOf(e.getMask());
                 }
             }).toArray(String[]::new);
-            if (principal) {
-                usersPermissions.put(sid, permissionsArray);
+
+            if (entry.getKey() instanceof PrincipalSid) {
+                PrincipalSid principalSid = (PrincipalSid) entry.getKey();
+                ret.add(new SidPermissionsDto(principalSid.getPrincipal(), permissionsArray));
+            } else if (entry.getKey() instanceof GrantedAuthoritySid) {
+                GrantedAuthoritySid grantedAuthoritySid = (GrantedAuthoritySid) entry.getKey();
+                ret.add(
+                    new SidPermissionsDto(groupDao.getGroupByName(grantedAuthoritySid.getGrantedAuthority()).getId(),
+                        grantedAuthoritySid.getGrantedAuthority(),
+                        permissionsArray));
             } else {
-                groupsPermissions.put(sid, permissionsArray);
+                throw new IllegalStateException("Unsupported sid type.");
             }
-        }
-        if (!usersPermissions.isEmpty()) {
-            ret.put("users", usersPermissions);
-        }
-        if (!groupsPermissions.isEmpty()) {
-            ret.put("groups", groupsPermissions);
         }
         return ret;
     }
@@ -121,6 +146,7 @@ public class RepositoryAclServiceController {
             if (REPO_TYPE_PROD.equals(repositoryType) && !AclPermission.EDIT.equals(aclPermission)) {
                 throw new NotFoundException("repository.permission.message", permission);
             }
+            permissionsList.add(aclPermission);
         }
         return permissionsList;
     }
@@ -137,14 +163,18 @@ public class RepositoryAclServiceController {
     }
 
     private void validateRepositoryId(HttpSession session, String repositoryType, String repositoryId) {
-        if (REPO_TYPE_DESIGN.equals(repositoryType)) {
+        if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType)) {
+            UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
+            if (!Objects.equals(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+                repositoryId)) {
+                throw new NotFoundException("repository.message", repositoryId);
+            }
+        } else if (REPO_TYPE_DESIGN.equals(repositoryType)) {
             UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
             if (userWorkspace.getDesignTimeRepository()
                 .getRepositories()
                 .stream()
-                .noneMatch(e -> Objects.equals(e.getId(), repositoryId)) && !Objects.equals(
-                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-                    repositoryId)) {
+                .noneMatch(e -> Objects.equals(e.getId(), repositoryId))) {
                 throw new NotFoundException("repository.message", repositoryId);
             }
         } else if (REPO_TYPE_PROD.equals(repositoryType)) {
@@ -158,7 +188,7 @@ public class RepositoryAclServiceController {
 
     @GetMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}",
             "{repositoryType:^design|prod|deployConfig$}" })
-    public Map<String, Map<String, String[]>> list(@PathVariable("repositoryType") String repositoryType,
+    public List<SidPermissionsDto> list(@PathVariable("repositoryType") String repositoryType,
             @PathVariable(value = "repo-id", required = false) String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
@@ -173,54 +203,56 @@ public class RepositoryAclServiceController {
         return convert(permissions);
     }
 
-    @PutMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/user/{sid}",
-            "/{repositoryType:^design|prod|deployConfig$}/user/{sid}" })
+    @PutMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/user/{username}",
+            "/{repositoryType:^design|prod|deployConfig$}/user/{username}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addUserPermissions(@PathVariable("repositoryType") String repositoryType,
-            @PathVariable("sid") String sid,
+            @PathVariable("username") String username,
             @RequestParam String[] permissions,
             @PathVariable(value = "repo-id", required = false) String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
-        if (userDao.existsByName(sid)) {
-            if (StringUtils.isBlank(repositoryId)) {
-                getRepositoryAclService(repositoryType)
-                    .addRootPermissions(buildPermissions(repositoryType, permissions), List.of(new PrincipalSid(sid)));
-            } else {
-                validateRepositoryId(session, repositoryType, repositoryId);
-                getRepositoryAclService(repositoryType).addPermissions(repositoryId,
-                    path,
-                    buildPermissions(repositoryType, permissions),
-                    List.of(new PrincipalSid(sid)));
-            }
-        } else {
-            throw new NotFoundException("users.message", sid);
-        }
-    }
-
-    @PutMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/group/{sid}",
-            "/{repositoryType:^design|prod|deployConfig$}/group/{sid}" })
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void addGroupPermissions(@PathVariable("repositoryType") String repositoryType,
-            @PathVariable("sid") String sid,
-            @RequestParam String[] permissions,
-            @PathVariable(value = "repo-id", required = false) String repositoryId,
-            @RequestParam(required = false) String path,
-            HttpSession session) {
-        if (groupDao.getGroupByName(sid) != null) {
+        if (userDao.existsByName(username)) {
             if (StringUtils.isBlank(repositoryId)) {
                 getRepositoryAclService(repositoryType).addRootPermissions(
                     buildPermissions(repositoryType, permissions),
-                    List.of(new GrantedAuthoritySid(sid)));
+                    List.of(new PrincipalSid(username)));
             } else {
                 validateRepositoryId(session, repositoryType, repositoryId);
                 getRepositoryAclService(repositoryType).addPermissions(repositoryId,
                     path,
                     buildPermissions(repositoryType, permissions),
-                    List.of(new GrantedAuthoritySid(sid)));
+                    List.of(new PrincipalSid(username)));
             }
         } else {
-            throw new NotFoundException("group.message", sid);
+            throw new NotFoundException("users.message", username);
+        }
+    }
+
+    @PutMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/group/{id}",
+            "/{repositoryType:^design|prod|deployConfig$}/group/{id}" })
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addGroupPermissions(@PathVariable("repositoryType") String repositoryType,
+            @PathVariable("id") Long id,
+            @RequestParam String[] permissions,
+            @PathVariable(value = "repo-id", required = false) String repositoryId,
+            @RequestParam(required = false) String path,
+            HttpSession session) {
+        Group group = groupDao.getGroupById(id);
+        if (group != null) {
+            if (StringUtils.isBlank(repositoryId)) {
+                getRepositoryAclService(repositoryType).addRootPermissions(
+                    buildPermissions(repositoryType, permissions),
+                    List.of(new GrantedAuthoritySid(group.getName())));
+            } else {
+                validateRepositoryId(session, repositoryType, repositoryId);
+                getRepositoryAclService(repositoryType).addPermissions(repositoryId,
+                    path,
+                    buildPermissions(repositoryType, permissions),
+                    List.of(new GrantedAuthoritySid(group.getName())));
+            }
+        } else {
+            throw new NotFoundException("group.message");
         }
     }
 
@@ -230,133 +262,160 @@ public class RepositoryAclServiceController {
     public void deleteAllPermissions(@PathVariable("repositoryType") String repositoryType,
             @PathVariable(value = "repo-id", required = false) String repositoryId,
             @RequestParam(required = false) String path,
-            @RequestParam(required = false) boolean force,
             HttpSession session) {
         SimpleRepositoryAclService repositoryAclService = getRepositoryAclService(repositoryType);
         if (StringUtils.isBlank(repositoryId)) {
-            if (force) {
-                repositoryAclService.deleteAclRoot();
-            } else {
-                repositoryAclService.removeRootPermissions();
-            }
+            repositoryAclService.removeRootPermissions();
         } else {
             validateRepositoryId(session, repositoryType, repositoryId);
-            if (force) {
-                repositoryAclService.deleteAcl(repositoryId, path);
-            } else {
-                repositoryAclService.removePermissions(repositoryId, path);
-            }
+            repositoryAclService.removePermissions(repositoryId, path);
         }
     }
 
-    @DeleteMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/user/{sid}",
-            "/{repositoryType:^design|prod|deployConfig$}/user/{sid}" })
+    @DeleteMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/user/{username}",
+            "/{repositoryType:^design|prod|deployConfig$}/user/{username}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUserPermissions(@PathVariable("repositoryType") String repositoryType,
-            @PathVariable("sid") String sid,
+            @PathVariable("username") String username,
             @RequestParam String[] permissions,
             @PathVariable(value = "repo-id", required = false) String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
         if (StringUtils.isBlank(repositoryId)) {
             getRepositoryAclService(repositoryType).removeRootPermissions(buildPermissions(repositoryType, permissions),
-                List.of(new PrincipalSid(sid)));
+                List.of(new PrincipalSid(username)));
         } else {
             validateRepositoryId(session, repositoryType, repositoryId);
             getRepositoryAclService(repositoryType).removePermissions(repositoryId,
                 path,
                 buildPermissions(repositoryType, permissions),
-                List.of(new PrincipalSid(sid)));
+                List.of(new PrincipalSid(username)));
         }
     }
 
-    @DeleteMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/group/{sid}",
-            "/{repositoryType:^design|prod|deployConfig$}/group/{sid}" })
+    @DeleteMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/group/{id}",
+            "/{repositoryType:^design|prod|deployConfig$}/group/{id}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGroupPermissions(@PathVariable("repositoryType") String repositoryType,
-            @PathVariable("sid") String sid,
+            @PathVariable("id") Long id,
             @RequestParam String[] permissions,
             @PathVariable(value = "repo-id", required = false) String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
-        if (StringUtils.isBlank(repositoryId)) {
-            getRepositoryAclService(repositoryType).removeRootPermissions(buildPermissions(repositoryType, permissions),
-                List.of(new GrantedAuthoritySid(sid)));
+        Group group = groupDao.getGroupById(id);
+        if (group != null) {
+            if (StringUtils.isBlank(repositoryId)) {
+                getRepositoryAclService(repositoryType).removeRootPermissions(
+                    buildPermissions(repositoryType, permissions),
+                    List.of(new GrantedAuthoritySid(group.getName())));
+            } else {
+                validateRepositoryId(session, repositoryType, repositoryId);
+                getRepositoryAclService(repositoryType).removePermissions(repositoryId,
+                    path,
+                    buildPermissions(repositoryType, permissions),
+                    List.of(new GrantedAuthoritySid(group.getName())));
+            }
         } else {
-            validateRepositoryId(session, repositoryType, repositoryId);
-            getRepositoryAclService(repositoryType).removePermissions(repositoryId,
-                path,
-                buildPermissions(repositoryType, permissions),
-                List.of(new GrantedAuthoritySid(sid)));
+            throw new NotFoundException("group.message");
         }
     }
 
-    private static class OwnerDetails {
-        private final boolean principal;
-        private final String sid;
+    public static class SidDto {
+        private Long groupId;
+        private String username;
+        private String groupName;
 
-        private OwnerDetails(String sid, boolean principal) {
-            this.sid = sid;
-            this.principal = principal;
+        public SidDto() {
         }
 
-        public String getSid() {
-            return sid;
+        public SidDto(Long groupId, String groupName) {
+            this.groupId = groupId;
+            this.groupName = groupName;
         }
 
-        public boolean isPrincipal() {
-            return principal;
+        public SidDto(String username) {
+            this.username = username;
+        }
+
+        public Long getGroupId() {
+            return groupId;
+        }
+
+        public void setGroupId(Long groupId) {
+            this.groupId = groupId;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getGroupName() {
+            return groupName;
+        }
+
+        public void setGroupName(String groupName) {
+            this.groupName = groupName;
         }
     }
 
     @GetMapping(value = "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/owner")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public OwnerDetails getOwner(@PathVariable("repositoryType") String repositoryType,
+    public SidDto getOwner(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("repo-id") String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
         validateRepositoryId(session, repositoryType, repositoryId);
         Sid sid = getRepositoryAclService(repositoryType).getOwner(repositoryId, path);
-        OwnerDetails ownerDetails;
+        SidDto sidDto;
         if (sid instanceof PrincipalSid) {
             PrincipalSid principalSid = (PrincipalSid) sid;
-            ownerDetails = new OwnerDetails(principalSid.getPrincipal(), true);
+            sidDto = new SidDto(principalSid.getPrincipal());
         } else if (sid instanceof GrantedAuthoritySid) {
             GrantedAuthoritySid grantedAuthoritySid = (GrantedAuthoritySid) sid;
-            ownerDetails = new OwnerDetails(grantedAuthoritySid.getGrantedAuthority(), true);
+            sidDto = new SidDto(groupDao.getGroupByName(grantedAuthoritySid.getGrantedAuthority()).getId(),
+                grantedAuthoritySid.getGrantedAuthority());
         } else {
             throw new IllegalStateException("Unsupported sid type.");
         }
-        return ownerDetails;
+        return sidDto;
     }
 
-    @PutMapping(value = "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/owner/user/{sid}")
+    @PutMapping(value = "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/owner/user/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateOwnerToUser(@PathVariable("repositoryType") String repositoryType,
-            @PathVariable("sid") String sid,
+            @PathVariable("username") String username,
             @PathVariable("repo-id") String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
         validateRepositoryId(session, repositoryType, repositoryId);
-        if (userDao.getUserByName(sid) != null) {
-            getRepositoryAclService(repositoryType).updateOwner(repositoryId, path, new PrincipalSid(sid));
+        if (userDao.getUserByName(username) != null) {
+            if (!getRepositoryAclService(repositoryType).updateOwner(repositoryId, path, new PrincipalSid(username))) {
+                throw new ConflictException("owner.message");
+            }
         } else {
-            throw new NotFoundException("group.message", sid);
+            throw new NotFoundException("group.message");
         }
     }
 
-    @PutMapping(value = "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/owner/group/{sid}")
+    @PutMapping(value = "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/owner/group/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateOwnerToGroup(@PathVariable("repositoryType") String repositoryType,
-            @PathVariable("sid") String sid,
+            @PathVariable("id") Long id,
             @PathVariable("repo-id") String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
         validateRepositoryId(session, repositoryType, repositoryId);
-        if (groupDao.getGroupByName(sid) != null) {
-            getRepositoryAclService(repositoryType).updateOwner(repositoryId, path, new GrantedAuthoritySid(sid));
+        Group group = groupDao.getGroupById(id);
+        if (group != null) {
+            if (!getRepositoryAclService(repositoryType)
+                .updateOwner(repositoryId, path, new GrantedAuthoritySid(group.getName()))) {
+                throw new ConflictException("owner.message");
+            }
         } else {
-            throw new NotFoundException("group.message", sid);
+            throw new NotFoundException("group.message");
         }
     }
 }
