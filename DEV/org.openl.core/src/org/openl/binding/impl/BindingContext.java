@@ -85,6 +85,11 @@ public class BindingContext implements IBindingContext {
         return localFrame.addVar(namespace, name, type);
     }
 
+    @Override
+    public IOpenCast mergeCasts(IOpenCast openCast1, IOpenCast openCast2) {
+        return binder.getCastFactory().mergeCasts(openCast1, openCast2);
+    }
+
     /*
      * (non-Javadoc)
      *

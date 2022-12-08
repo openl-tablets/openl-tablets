@@ -2,12 +2,12 @@ package org.openl.binding.impl.cast;
 
 import java.util.Objects;
 
-public final class CastsLinkageCast implements IOpenCast {
+final class CastsLinkageCast implements IOpenCast {
 
     private final IOpenCast[] casts;
     private int distance;
 
-    public CastsLinkageCast(IOpenCast... casts) {
+    CastsLinkageCast(IOpenCast... casts) {
         this.casts = Objects.requireNonNull(casts, "casts cannot be null");
         for (IOpenCast cast : casts) {
             int d = cast.getDistance();
