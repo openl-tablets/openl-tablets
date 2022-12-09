@@ -45,6 +45,13 @@ jobs:
         echo "TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock" >> $GITHUB_ENV
         echo "DOCKER_HOST=unix://${HOME}/.colima/docker.sock" >> $GITHUB_ENV
 
+      # Docker is not installed on GitHub's Widows hosted workers due to virtualization issues
+      # (and it's necessary to run testcontainers)
+    - name: Switch off dockerized tests on Windows
+      if: runner.os == 'windows'
+      run: |
+        echo "SETTINGS=-DnoDocker" >> $env:GITHUB_ENV
+
     - name: Configure GIT
       run: |
         git config --global user.name "OpenL Tablets"
@@ -67,4 +74,4 @@ jobs:
       run: mvn -v
 
     - name: Build with Maven
-      run: mvn "-Dstyle.color=always" ${{ github.event.inputs.mavenArgs }}
+      run: mvn "-Dstyle.color=always" ${{ env.SETTINGS }} ${{ github.event.inputs.mavenArgs }}
