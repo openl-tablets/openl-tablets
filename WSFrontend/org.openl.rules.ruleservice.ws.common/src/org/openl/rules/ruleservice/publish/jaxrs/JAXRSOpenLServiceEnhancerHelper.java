@@ -42,6 +42,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.apache.cxf.jaxrs.ext.xml.ElementClass;
 import org.objectweb.asm.AnnotationVisitor;
@@ -486,6 +487,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
             nicknames.add(nickname);
             addSwaggerMethodAnnotation(mv, originalMethod, nickname);
+            addOpenApiResponsesMethodAnnotation(mv, originalMethod);
             return mv;
         }
 
@@ -627,52 +629,65 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                                                     originalMethod.getParameterTypes(),
                                                                     false);
                 String truncatedSummary = summary.substring(0, Math.min(summary.length(), 120));
-                Class<?> type = extractOriginalType(originalMethod.getReturnType());
-                final boolean isVoidType = void.class == type || Void.class == type;
-                if (!originalMethod.isAnnotationPresent(Operation.class)) {
                     AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
                     av.visit("operationId", nickname);
                     av.visit("summary", truncatedSummary);
                     av.visit("description", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
-                    Class<?> t = originalMethod.getReturnType();
-                    int dim = 0;
-                    while (t.isArray()) {
-                        t = t.getComponentType();
-                        dim++;
-                    }
-                    if (!originalMethod.isAnnotationPresent(ApiResponse.class)) {
-                        AnnotationVisitor av1 = av.visitArray("responses");
-                        if (isVoidType || !type.isPrimitive()) {
-                            // empty response body can be only for void or non-primitive types
-                            AnnotationVisitor noContentAv = av1.visitAnnotation(null,
-                                Type.getDescriptor(ApiResponse.class));
-                            noContentAv.visit("responseCode",
-                                String.valueOf(Response.Status.NO_CONTENT.getStatusCode()));
-                            noContentAv.visit("description", "Successful operation");
-                            noContentAv.visitEnd();
-                        }
-                        if (!isVoidType) {
-                            AnnotationVisitor av2 = av1.visitAnnotation("responses",
-                                Type.getDescriptor(ApiResponse.class));
-                            av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
-                            av2.visit("description", "Successful operation");
-                            AnnotationVisitor av3 = av2.visitArray("content");
-                            AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
-                            if (dim < 2) {
-                                addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
-                            } else {
-                                addSchemaOpenApiAnnotation(av4, Object.class);
-                            }
-                            av4.visitEnd();
-                            av3.visitEnd();
-                            av2.visitEnd();
-                        }
-                        av1.visitEnd();
-                    }
-
                     av.visitEnd();
-                }
             }
+        }
+
+        private void addOpenApiResponsesMethodAnnotation(MethodVisitor mv, Method originalMethod) {
+            if (!isApiResponsesSpecifiedByUser(originalMethod)) {
+                Class<?> type = extractOriginalType(originalMethod.getReturnType());
+                final boolean isVoidType = void.class == type || Void.class == type;
+                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiResponses.class), true);
+                Class<?> t = originalMethod.getReturnType();
+                int dim = 0;
+                while (t.isArray()) {
+                    t = t.getComponentType();
+                    dim++;
+                }
+                AnnotationVisitor av1 = av.visitArray("value");
+                if (isVoidType || !type.isPrimitive()) {
+                    // empty response body can be only for void or non-primitive types
+                    AnnotationVisitor noContentAv = av1.visitAnnotation(null,
+                            Type.getDescriptor(ApiResponse.class));
+                    noContentAv.visit("responseCode", String.valueOf(Response.Status.NO_CONTENT.getStatusCode()));
+                    noContentAv.visit("description", "Successful operation");
+                    noContentAv.visitEnd();
+                }
+                if (!isVoidType) {
+                    AnnotationVisitor av2 = av1.visitAnnotation("responses",
+                            Type.getDescriptor(ApiResponse.class));
+                    av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
+                    av2.visit("description", "Successful operation");
+                    AnnotationVisitor av3 = av2.visitArray("content");
+                    AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
+                    if (dim < 2) {
+                        addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
+                    } else {
+                        addSchemaOpenApiAnnotation(av4, Object.class);
+                    }
+                    av4.visitEnd();
+                    av3.visitEnd();
+                    av2.visitEnd();
+                }
+                av1.visitEnd();
+
+                av.visitEnd();
+            }
+        }
+
+        private boolean isApiResponsesSpecifiedByUser(Method originalMethod) {
+            if (originalMethod.isAnnotationPresent(ApiResponses.class) || originalMethod.isAnnotationPresent(ApiResponse.class)) {
+                return true;
+            }
+            if (originalMethod.isAnnotationPresent(Operation.class)) {
+                Operation operationAnnotation = originalMethod.getDeclaredAnnotation(Operation.class);
+                return operationAnnotation.responses().length != 0;
+            }
+            return false;
         }
 
         private void addSchemaOpenApiAnnotation(AnnotationVisitor av, Class<?> type) {

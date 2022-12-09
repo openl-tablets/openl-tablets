@@ -13,6 +13,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openl.rules.common.impl.CommonVersionImpl;
@@ -336,6 +339,75 @@ public class JAXRSOpenLServiceEnhancerTest {
 
             }
             Assert.assertEquals("Unexpected value in @Path annotation", path, ((Path) pathAnnotation).value());
+        }
+    }
+
+    public interface TestNotAnnotatedByApiResponsesInterface {
+        @POST
+        @Path("/value")
+        String someMethod(String arg);
+    }
+
+    @Test
+    public void shouldAddApiResponsesIfNotAnnotatedByApiResponses() throws Exception {
+        Class<?> enhancedClass = createService(TestNotAnnotatedByApiResponsesInterface.class);
+        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
+        boolean apiResponsesAnnotationExists = false;
+        for (Annotation annotation : someMethod.getAnnotations()) {
+            if (annotation instanceof ApiResponses) {
+                apiResponsesAnnotationExists = true;
+            }
+        }
+        if (!apiResponsesAnnotationExists) {
+            Assert.fail("@ApiResponses annotation should be added");
+        }
+    }
+
+    public interface TestAnnotatedByApiResponseInterface {
+        @POST
+        @Path("/value")
+        @ApiResponse(responseCode = "200", description = "@ApiResponse Annotated")
+        String someMethod(String arg);
+    }
+
+    @Test
+    public void shouldNotAddApiResponsesIfAnnotatedByApiResponse() throws Exception {
+        Class<?> enhancedClass = createService(TestAnnotatedByApiResponseInterface.class);
+        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
+        boolean apiResponsesAnnotationExists = false;
+        for (Annotation annotation : someMethod.getAnnotations()) {
+            if (annotation instanceof ApiResponses) {
+                apiResponsesAnnotationExists = true;
+                break;
+            }
+        }
+        if (apiResponsesAnnotationExists) {
+            Assert.fail("@ApiResponses annotation shouldn't be added if @ApiResponse exists");
+        }
+    }
+
+    public interface TestAnnotatedByOperationWithResponsesInterface {
+        @POST
+        @Path("/value")
+        @Operation(summary = "Download resource file", tags = "Resource"
+                , responses = {@ApiResponse(responseCode = "200", description = "@OPERATION Annotated"),
+                @ApiResponse(responseCode = "204", description = "@OPERATION Annotated")})
+        String someMethod(String arg);
+    }
+
+    @Test
+    public void shouldNotAddApiResponsesIfAlreadyDefinedInOperationAnnotation() throws Exception {
+        Class<?> enhancedClass = createService(TestAnnotatedByOperationWithResponsesInterface.class);
+        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
+        boolean apiResponsesAnnotationExists = false;
+        for (Annotation annotation : someMethod.getAnnotations()) {
+            if (annotation instanceof ApiResponses) {
+                apiResponsesAnnotationExists = true;
+                break;
+            }
+        }
+        if (apiResponsesAnnotationExists) {
+            Assert.fail("@ApiResponses annotation shouldn't be added");
         }
     }
 
