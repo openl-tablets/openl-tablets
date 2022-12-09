@@ -28,8 +28,6 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
         assertInvoke("M2", ThirdClassWithMethods.class, "method1", byte.class, byte.class);
         assertInvoke("M3", ThirdClassWithMethods.class, "method2", byte.class, byte.class);
         assertInvoke("M5", ThirdClassWithMethods.class, "method3", int.class, double.class);
-
-        assertInvoke("m2-Number", ClassWithMethods.class, "m2", short.class);
     }
 
     @Test
@@ -137,14 +135,6 @@ public class MethodSearchTest extends AbstractMethodSearchTest {
 
         public String m1(BigInteger x) {
             return "m1-BigInteger";
-        }
-
-        public <T> String m2(T o) {
-            return "m2-Object";
-        }
-
-        public String m2(Number o) {
-            return "m2-Number";
         }
     }
 

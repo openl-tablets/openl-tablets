@@ -97,7 +97,7 @@ public class CastFactory implements ICastFactory {
     public static final String DISTANCE_METHOD_NAME = "distance";
 
     /**
-     * Method factory object. This factory allows to define cast operations through java methods.
+     * Method factory object. This factory allows to define cast operations thru java methods.
      */
     private IMethodFactory methodFactory;
     private ICastFactory globalCastFactory;
@@ -109,18 +109,6 @@ public class CastFactory implements ICastFactory {
 
     public void setMethodFactory(IMethodFactory factory) {
         methodFactory = factory;
-    }
-
-    public static IOpenCast merge2Casts(IOpenCast openCast1, IOpenCast openCast2) {
-        if (openCast1 instanceof JavaBoxingCast && openCast2 instanceof JavaUpCast) {
-            return JavaBoxingUpCast.getInstance();
-        }
-        return new CastsLinkageCast(openCast1, openCast2);
-    }
-
-    @Override
-    public IOpenCast mergeCasts(IOpenCast openCast1, IOpenCast openCast2) {
-        return merge2Casts(openCast1, openCast2);
     }
 
     @Override

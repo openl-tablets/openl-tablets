@@ -139,11 +139,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
                 public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
                     return CastFactory.findParentClass1(openClass1, openClass2);
                 }
-
-                @Override
-                public IOpenCast mergeCasts(IOpenCast openCast1, IOpenCast openCast2) {
-                    return CastFactory.merge2Casts(openCast1, openCast2);
-                }
             }, allMethods);
             Lock writeLock = closestClassCacheLock.readLock();
             try {
@@ -154,11 +149,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             }
         }
         return closestClass;
-    }
-
-    @Override
-    public IOpenCast mergeCasts(IOpenCast openCast1, IOpenCast openCast2) {
-        return CastFactory.merge2Casts(openCast1, openCast2);
     }
 
     @Override

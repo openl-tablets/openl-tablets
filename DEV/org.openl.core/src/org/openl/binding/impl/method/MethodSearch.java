@@ -17,6 +17,7 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.impl.cast.CastFactory;
+import org.openl.binding.impl.cast.CastsLinkageCast;
 import org.openl.binding.impl.cast.IArrayOneElementCast;
 import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -145,7 +146,7 @@ public final class MethodSearch {
                             if (cast == null || !cast.isImplicit()) {
                                 return NO_MATCH;
                             }
-                            paramCasts[i] = castFactory.mergeCasts(gCast, cast);
+                            paramCasts[i] = new CastsLinkageCast(gCast, cast);
                         } else {
                             paramCasts[i] = gCast;
                         }

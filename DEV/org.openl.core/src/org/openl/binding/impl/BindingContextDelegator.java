@@ -102,11 +102,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         return findOpenClass(openClass);
     }
 
-    @Override
-    public IOpenCast mergeCasts(IOpenCast openCast1, IOpenCast openCast2) {
-        return delegate.mergeCasts(openCast1, openCast2);
-    }
-
     protected IOpenClass findOpenClass(IOpenClass openClass) {
         return openClass;
     }

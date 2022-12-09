@@ -21,6 +21,4 @@ public interface ICastFactory {
     IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2);
 
     IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2);
-
-    IOpenCast mergeCasts(IOpenCast openCast1, IOpenCast openCast2);
 }
