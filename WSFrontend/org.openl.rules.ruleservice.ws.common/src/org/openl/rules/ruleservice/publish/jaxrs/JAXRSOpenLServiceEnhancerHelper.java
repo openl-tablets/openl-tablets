@@ -629,11 +629,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                                                     originalMethod.getParameterTypes(),
                                                                     false);
                 String truncatedSummary = summary.substring(0, Math.min(summary.length(), 120));
-                    AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
-                    av.visit("operationId", nickname);
-                    av.visit("summary", truncatedSummary);
-                    av.visit("description", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
-                    av.visitEnd();
+                AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
+                av.visit("operationId", nickname);
+                av.visit("summary", truncatedSummary);
+                av.visit("description", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
+                av.visitEnd();
             }
         }
 
