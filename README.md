@@ -40,6 +40,14 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 
 Estimated build time: ~30 minutes (with all tests)
 
+It is possible to use the following settings:
+
+`-DnoPerf` - to run tests without extreme memory limitation
+
+`-DnoDocker` - to skip dockerized tests
+
+`-P!it` - to skip integration tests
+
 Artifacts:
 * **WebStudio** - STUDIO\org.openl.rules.webstudio\target\webapp.war
 * **RuleService WS** - WSFrontend\org.openl.rules.ruleservice.ws\target\webapp.war

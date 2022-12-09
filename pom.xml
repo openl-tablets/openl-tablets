@@ -83,6 +83,7 @@
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
+        <dockerized>false</dockerized>
 
         <!-- Managing dependencies versions -->
         <!-- Spring -->
@@ -491,6 +492,17 @@
             </activation>
             <properties>
                 <surefire.argLine>${surefire.argLine.perf}</surefire.argLine>
+            </properties>
+        </profile>
+        <profile>
+            <id>noDocker</id>
+            <activation>
+                <property>
+                    <name>noDocker</name>
+                </property>
+            </activation>
+            <properties>
+                <maven.test.skip>${dockerized}</maven.test.skip>
             </properties>
         </profile>
         <profile>
