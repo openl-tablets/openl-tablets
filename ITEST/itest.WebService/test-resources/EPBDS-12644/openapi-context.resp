@@ -371,10 +371,10 @@ Content-Type: application/json
             }
           },
           "200": {
-            "description": "Response 200 added in @ApiResponses"
+            "description": "Response 200 added in @ApiResponse"
           },
           "204": {
-            "description": "Response 204 added in @ApiResponses"
+            "description": "Response 204 added in @ApiResponse"
           }
         }
       }
@@ -542,10 +542,10 @@ Content-Type: application/json
             }
           },
           "200": {
-            "description": "Response 200 added in @ApiResponses"
+            "description": "Response 200 added in @ApiResponse"
           },
           "204": {
-            "description": "Response 204 added in @ApiResponses"
+            "description": "Response 204 added in @ApiResponse"
           }
         }
       }
