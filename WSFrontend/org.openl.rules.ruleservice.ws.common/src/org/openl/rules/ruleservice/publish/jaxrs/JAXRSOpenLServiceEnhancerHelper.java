@@ -638,7 +638,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private void addOpenApiResponsesMethodAnnotation(MethodVisitor mv, Method originalMethod) {
-            if (!isApiResponsesSpecifiedByUser(originalMethod)) {
+            if (!isApiResponsesSpecified(originalMethod)) {
                 Class<?> type = extractOriginalType(originalMethod.getReturnType());
                 final boolean isVoidType = void.class == type || Void.class == type;
                 AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiResponses.class), true);
@@ -679,12 +679,12 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
         }
 
-        private boolean isApiResponsesSpecifiedByUser(Method originalMethod) {
+        private boolean isApiResponsesSpecified(Method originalMethod) {
             if (originalMethod.isAnnotationPresent(ApiResponses.class) || originalMethod.isAnnotationPresent(ApiResponse.class)) {
                 return true;
             }
             if (originalMethod.isAnnotationPresent(Operation.class)) {
-                Operation operationAnnotation = originalMethod.getDeclaredAnnotation(Operation.class);
+                Operation operationAnnotation = originalMethod.getAnnotation(Operation.class);
                 return operationAnnotation.responses().length != 0;
             }
             return false;

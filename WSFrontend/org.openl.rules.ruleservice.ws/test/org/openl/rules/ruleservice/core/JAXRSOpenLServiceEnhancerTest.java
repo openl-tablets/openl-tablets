@@ -363,6 +363,28 @@ public class JAXRSOpenLServiceEnhancerTest {
         }
     }
 
+    public interface TestWithOperationNotAnnotatedByApiResponsesInterface {
+        @POST
+        @Path("/value")
+        @Operation(summary = "Download resource file", tags = "Resource")
+        String someMethod(String arg);
+    }
+
+    @Test
+    public void shouldAddApiResponsesIfOperationNotAnnotatedByApiResponses() throws Exception {
+        Class<?> enhancedClass = createService(TestNotAnnotatedByApiResponsesInterface.class);
+        Method someMethod = enhancedClass.getMethod("someMethod", String.class);
+        boolean apiResponsesAnnotationExists = false;
+        for (Annotation annotation : someMethod.getAnnotations()) {
+            if (annotation instanceof ApiResponses) {
+                apiResponsesAnnotationExists = true;
+            }
+        }
+        if (!apiResponsesAnnotationExists) {
+            Assert.fail("@ApiResponses annotation should be added");
+        }
+    }
+
     public interface TestAnnotatedByApiResponseInterface {
         @POST
         @Path("/value")
@@ -390,7 +412,7 @@ public class JAXRSOpenLServiceEnhancerTest {
         @POST
         @Path("/value")
         @Operation(summary = "Download resource file", tags = "Resource"
-                , responses = {@ApiResponse(responseCode = "200", description = "@OPERATION Annotated"),
+                ,responses = {@ApiResponse(responseCode = "200", description = "@OPERATION Annotated"),
                 @ApiResponse(responseCode = "204", description = "@OPERATION Annotated")})
         String someMethod(String arg);
     }
