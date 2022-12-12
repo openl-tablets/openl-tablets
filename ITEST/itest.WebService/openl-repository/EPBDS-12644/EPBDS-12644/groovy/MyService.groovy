@@ -25,8 +25,8 @@ abstract class MyService {
     @POST
     @Path("parse3")
     @Operation(summary = "Should not add @ApiResponses when @Operation present and @ApiResponses added on method", tags = "Resource")
-    @ApiResponses(value = [@ApiResponse(responseCode = "200", description = "Response 200 added in @ApiResponses"),
-            @ApiResponse(responseCode = "204", description = "Response 204 added in @ApiResponses")])
+    @ApiResponse(responseCode = "200", description = "Response 200 added in @ApiResponse")
+    @ApiResponse(responseCode = "204", description = "Response 204 added in @ApiResponse")
     abstract String parse3(String num);
 
     @POST
@@ -37,8 +37,8 @@ abstract class MyService {
 
     @POST
     @Path("parse5")
-    @ApiResponses(value = [@ApiResponse(responseCode = "200", description = "Response 200 added in @ApiResponses"),
-            @ApiResponse(responseCode = "204", description = "Response 204 added in @ApiResponses")])
+    @ApiResponse(responseCode = "200", description = "Response 200 added in @ApiResponse")
+    @ApiResponse(responseCode = "204", description = "Response 204 added in @ApiResponse")
     abstract String parse5(String num);
 
     @POST
