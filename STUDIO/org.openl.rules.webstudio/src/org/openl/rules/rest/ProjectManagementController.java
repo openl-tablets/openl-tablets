@@ -53,21 +53,18 @@ public class ProjectManagementController {
     private final DeploymentManager deploymentManager;
     private final ProjectStateValidator projectStateValidator;
     private final RepositoryAclService designRepositoryAclService;
-    private final RepositoryAclService deployConfigRepositoryAclService;
 
     @Autowired
     public ProjectManagementController(ProjectDependencyResolver projectDependencyResolver,
             ProjectDeploymentService projectDeploymentService,
             DeploymentManager deploymentManager,
             ProjectStateValidator projectStateValidator,
-            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
-            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService) {
+            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.projectDependencyResolver = projectDependencyResolver;
         this.projectDeploymentService = projectDeploymentService;
         this.deploymentManager = deploymentManager;
         this.projectStateValidator = projectStateValidator;
         this.designRepositoryAclService = designRepositoryAclService;
-        this.deployConfigRepositoryAclService = designRepositoryAclService;
     }
 
     @Lookup

@@ -500,9 +500,8 @@ public class ProjectBean {
     public void editName() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
-            throw new Message("There is no permission for editing the project.");
-        }
+        validatePermissionsForDescriptorFile(currentProject, true);
+
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         projectDescriptor.setPropertiesFileNamePatterns(propertiesFileNamePatterns);
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
@@ -527,12 +526,29 @@ public class ProjectBean {
         }
     }
 
+    private void validatePermissionsForDescriptorFile(RulesProject currentProject, boolean append) {
+        if (currentProject.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+            try {
+                if (!designRepositoryAclService.isGranted(
+                    currentProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME),
+                    List.of(AclPermission.EDIT))) {
+                    throw new Message(String.format("There is no permission for editing '%s' file in the project.",
+                        ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+                }
+            } catch (ProjectException ignored) {
+            }
+        } else {
+            if (append && !designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.APPEND))) {
+                throw new Message(String.format("There is no permission for adding '%s' file in the project.",
+                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+            }
+        }
+    }
+
     public void editModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
-            throw new Message("There is no permission for editing the project.");
-        }
+        validatePermissionsForDescriptorFile(currentProject, true);
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
@@ -620,18 +636,8 @@ public class ProjectBean {
     public void copyModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
-        if (currentProject.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
-            try {
-                AProjectArtefact projectDescriptorProjectArtefact = currentProject
-                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                if (!designRepositoryAclService.isGranted(projectDescriptorProjectArtefact,
-                    List.of(AclPermission.EDIT))) {
-                    throw new Message(String.format("There is no permission for editing '%s' file in the project.",
-                        ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
-                }
-            } catch (ProjectException ignored) {
-            }
-        }
+        validatePermissionsForDescriptorFile(currentProject, false);
+
         if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.APPEND))) {
             throw new Message("There is no permission for adding files to the project.");
         }
@@ -721,9 +727,7 @@ public class ProjectBean {
     public void removeModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
-            throw new Message("There is no permission for editing the project.");
-        }
+        validatePermissionsForDescriptorFile(currentProject, false);
 
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
@@ -780,6 +784,14 @@ public class ProjectBean {
 
     private void deleteModule(RulesProject currentProject, Module module) {
         try {
+            if (!designRepositoryAclService.isGranted(currentProject.getArtefact(module.getRulesRootPath().getPath()),
+                List.of(AclPermission.DELETE))) {
+                throw new Message(String.format("There is no permission for deleting '%s' file in the project.",
+                    module.getRulesRootPath().getPath()));
+            }
+        } catch (ProjectException ignored) {
+        }
+        try {
             AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
             projectArtefact.delete();
             designRepositoryAclService.deleteAcl(projectArtefact);
@@ -792,9 +804,7 @@ public class ProjectBean {
         tryLockProject();
 
         RulesProject currentProject = studio.getCurrentProject();
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
-            throw new Message("There is no permission for editing the project.");
-        }
+        validatePermissionsForDescriptorFile(currentProject, false);
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
@@ -814,9 +824,7 @@ public class ProjectBean {
         tryLockProject();
 
         RulesProject currentProject = studio.getCurrentProject();
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
-            throw new Message("There is no permission for editing the project.");
-        }
+        validatePermissionsForDescriptorFile(currentProject, true);
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
@@ -840,9 +848,7 @@ public class ProjectBean {
         tryLockProject();
 
         RulesProject currentProject = studio.getCurrentProject();
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
-            throw new Message("There is no permission for editing the project.");
-        }
+        validatePermissionsForDescriptorFile(currentProject, true);
 
         List<PathEntry> sourceList = new ArrayList<>();
         String[] sourceArray = StringUtils.toLines(sources);
@@ -868,9 +874,7 @@ public class ProjectBean {
         tryLockProject();
 
         RulesProject currentProject = studio.getCurrentProject();
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
-            throw new Message("There is no permission for editing the project.");
-        }
+        validatePermissionsForDescriptorFile(currentProject, true);
 
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
@@ -920,10 +924,7 @@ public class ProjectBean {
             throw new Message("Project has no modules.");
         }
         RulesProject currentProject = studio.getCurrentProject();
-
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
-            throw new Message("There is no permission for editing the project.");
-        }
+        validatePermissionsForDescriptorFile(currentProject, true);
 
         studio.init(currentProject.getDesignRepository().getId(),
             currentProject.getBranch(),
@@ -1210,9 +1211,7 @@ public class ProjectBean {
             OpenAPI openAPI,
             boolean annotationTemplateClassesAreGenerated) {
         RulesProject currentProject = studio.getCurrentProject();
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.EDIT))) {
-            throw new Message("There is no permission for editing the project.");
-        }
+        validatePermissionsForDescriptorFile(currentProject, true);
 
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentProjectDescriptor);
         clean(newProjectDescriptor);

@@ -64,6 +64,7 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -84,6 +85,7 @@ import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
@@ -93,6 +95,8 @@ import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
@@ -170,6 +174,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private final RepositoryAclService designRepositoryAclService;
 
+    private final SimpleRepositoryAclService productionRepositoryAclService;
+
+    private final DeploymentManager deploymentManager;
+
+    private final Authentication authentication;
+
     /**
      * Projects that are currently processed, for example saved. Projects's state can be in intermediate state, and it
      * can affect their modified status.
@@ -181,8 +191,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
         model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
         userSettingsManager = WebStudioUtils.getBean(UserSettingManagementService.class);
         designRepositoryAclService = WebStudioUtils.getBean("designRepositoryAclService", RepositoryAclService.class);
+        productionRepositoryAclService = WebStudioUtils.getBean("productionRepositoryAclService",
+            SimpleRepositoryAclService.class);
         rulesUserSession = WebStudioUtils.getRulesUserSession(session, true);
         propertyResolver = WebStudioUtils.getBean(PropertyResolver.class);
+        deploymentManager = WebStudioUtils.getBean(DeploymentManager.class);
+        authentication = SecurityContextHolder.getContext().getAuthentication();
         initWorkspace(session);
         initUserSettings();
         projectResolver = ProjectResolver.getInstance();
@@ -711,20 +725,43 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
             final File projectFolder = projectDescriptor.getProjectFolder().toFile();
             Collection<File> files = getProjectFiles(projectFolder, filter);
+            RulesProject rulesProject = getCurrentProject();
 
+            List<FileData> absentResources = new ArrayList<>();
             // Delete absent files in project
             for (File file : files) {
                 String relative = getRelativePath(projectFolder, file);
                 if (!filesInZip.contains(relative)) {
-                    FileUtils.deleteQuietly(file);
+                    if (!designRepositoryAclService.isGranted(rulesProject.getArtefact(relative),
+                        List.of(AclPermission.DELETE))) {
+                        throw new ValidationException(String.format("There is no permission to delete a file '%s'.",
+                            projectPath + "/" + relative));
+                    }
+                    FileData absentFileData = new FileData();
+                    absentFileData.setAuthor(user.getUserInfo());
+                    absentFileData.setComment("Uploaded from external source");
+                    absentFileData.setName(projectPath + "/" + relative);
+                    absentResources.add(absentFileData);
+                } else {
+                    if (!designRepositoryAclService.isGranted(rulesProject.getArtefact(relative),
+                        List.of(AclPermission.EDIT))) {
+                        throw new ValidationException(
+                            String.format("There is no permission to edit a file '%s'.", projectPath + "/" + relative));
+                    }
                 }
             }
-
+            for (String fileInZip : filesInZip) {
+                if (!rulesProject.hasArtefact(fileInZip) && !designRepositoryAclService.isGranted(rulesProject,
+                    List.of(AclPermission.APPEND))) {
+                    throw new ValidationException(
+                        String.format("There is no permission to add a file '%s'.", fileInZip));
+                }
+            }
+            repository.delete(absentResources);
             // Update/create other files in project
             zipWalker.iterateEntries(new DefaultZipEntryCommand() {
                 @Override
                 public boolean execute(String filePath, InputStream inputStream) throws IOException {
-                    File outputFile = new File(projectFolder, filePath);
                     FileData data = new FileData();
                     data.setAuthor(user.getUserInfo());
                     data.setComment("Uploaded from external source");
@@ -733,9 +770,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     return true;
                 }
             });
-
             doResetProjects();
-
         } catch (ValidationException e) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
             throw e;
@@ -744,10 +779,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
             throw new IllegalStateException("Error while updating project in user workspace.", e);
         }
+
         storeProjectHistory();
+
         clearUploadedFiles();
 
         return null;
+
     }
 
     public void storeProjectHistory() {
@@ -1368,7 +1406,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return false;
         }
 
-        return getDesignRepositoryAclService().isGranted(selectedProject, List.of(AclPermission.DEPLOY));
+        return getDesignRepositoryAclService().isGranted(selectedProject,
+            List.of(AclPermission.DEPLOY)) && deploymentManager.getRepositoryConfigNames()
+                .stream()
+                .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.EDIT)));
     }
 
     public boolean getCanOpenOtherVersion() {
@@ -1446,14 +1487,19 @@ public class WebStudio implements DesignTimeRepositoryListener {
     @Override
     public synchronized void onRepositoryModified() {
         projects = null;
-
-        if (currentProject != null) {
-            RulesProject project = getCurrentProject();
-            if (project == null || !project.isOpened()) {
-                currentProject = null;
-                currentModule = null;
-                model.clearModuleInfo();
+        Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (currentProject != null) {
+                RulesProject project = getCurrentProject();
+                if (project == null || !project.isOpened()) {
+                    currentProject = null;
+                    currentModule = null;
+                    model.clearModuleInfo();
+                }
             }
+        } finally {
+            SecurityContextHolder.getContext().setAuthentication(oldAuthentication);
         }
     }
 

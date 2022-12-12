@@ -3,7 +3,6 @@ package org.openl.security.acl.repository;
 import static org.openl.security.acl.permission.AclPermission.DESIGN_REPOSITORY_READ;
 
 import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -43,15 +42,18 @@ public class SecureFolderRepository extends SecureRepository implements FolderRe
     public FileData save(FileData folderData,
             Iterable<FileItem> files,
             ChangesetType changesetType) throws IOException {
-        List<FileItem> fileItems = new ArrayList<>();
+        List<FileItem> newContentFileItems = new ArrayList<>();
         for (FileItem fileItem : files) {
-            if (!simpleRepositoryAclService.isGranted(getId(),
-                fileItem.getData().getName(),
-                List.of(writeOrCreatePermissionIsRequired(fileItem.getData().getName())))) {
-                throw new AccessDeniedException("There is no permission for writing data to the repository.");
-            }
-            fileItems.add(fileItem);
+            checkSavePermissions(fileItem.getData().getName());
+            newContentFileItems.add(fileItem);
         }
-        return folderRepository.save(folderData, fileItems, changesetType);
+        List<FileData> existingContentFileData = folderRepository.list(folderData.getName());
+        for (FileData fileData : existingContentFileData) {
+            if (newContentFileItems.stream()
+                .noneMatch(e -> Objects.equals(e.getData().getName(), fileData.getName()))) {
+                checkDeletePermission(fileData.getName());
+            }
+        }
+        return folderRepository.save(folderData, newContentFileItems, changesetType);
     }
 }
