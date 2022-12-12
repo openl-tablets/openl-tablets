@@ -1,9 +1,6 @@
 package org.openl.security.acl.repository;
 
-import static org.openl.security.acl.permission.AclPermission.DESIGN_REPOSITORY_CREATE;
-import static org.openl.security.acl.permission.AclPermission.DESIGN_REPOSITORY_DELETE;
 import static org.openl.security.acl.permission.AclPermission.DESIGN_REPOSITORY_READ;
-import static org.openl.security.acl.permission.AclPermission.DESIGN_REPOSITORY_WRITE;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,64 +46,70 @@ public class SecureRepository implements Repository {
 
     @Override
     public FileData check(String name) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
-            return repository.check(name);
-        }
-        throw new AccessDeniedException("There is no permission for reading data from the repository.");
+        checkReadPermission(name);
+        return repository.check(name);
     }
 
     @Override
     public FileItem read(String name) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
-            return repository.read(name);
-        }
-        throw new AccessDeniedException("There is no permission for reading data from the repository.");
+        checkReadPermission(name);
+        return repository.read(name);
     }
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        if (simpleRepositoryAclService
-            .isGranted(getId(), data.getName(), List.of(writeOrCreatePermissionIsRequired(data.getName())))) {
-            return repository.save(data, stream);
-        }
-        throw new AccessDeniedException("There is no permission for writing data into the repository.");
+        checkSavePermissions(data.getName());
+        return repository.save(data, stream);
     }
 
-    protected AclPermission writeOrCreatePermissionIsRequired(String name) {
-        try {
-            return repository.check(name) != null ? DESIGN_REPOSITORY_WRITE : DESIGN_REPOSITORY_CREATE;
-        } catch (IOException e) {
-            return DESIGN_REPOSITORY_WRITE;
+    protected void checkSavePermissions(String name) throws IOException {
+        if (repository.check(name) != null) {
+            if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
+                throw new AccessDeniedException(String
+                    .format("There is no permission for updating resource '%s' in '%s' repository.", name, getName()));
+            }
+        } else {
+            if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_CREATE))) {
+                throw new AccessDeniedException(String
+                    .format("There is no permission for appending resource '%s' to '%s' repository.", name, getName()));
+            }
+        }
+    }
+
+    protected void checkReadPermission(String name) throws IOException {
+        if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
+            throw new AccessDeniedException(String
+                .format("There is no permission for reading resource '%s' from '%s' repository.", name, getName()));
+        }
+    }
+
+    protected void checkDeletePermission(String name) throws IOException {
+        if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_DELETE))) {
+            throw new AccessDeniedException(String
+                .format("There is no permission for deleting resource '%s' from '%s' repository.", name, getName()));
         }
     }
 
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
-        if (fileItems.stream()
-            .allMatch(e -> simpleRepositoryAclService.isGranted(getId(),
-                e.getData().getName(),
-                List.of(writeOrCreatePermissionIsRequired(e.getData().getName()))))) {
-            return repository.save(fileItems);
+        for (FileItem fileItem : fileItems) {
+            checkSavePermissions(fileItem.getData().getName());
         }
-        throw new AccessDeniedException("There is no permission for writing data into the repository.");
+        return repository.save(fileItems);
     }
 
     @Override
     public boolean delete(FileData data) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), data.getName(), List.of(DESIGN_REPOSITORY_DELETE))) {
-            return repository.delete(data);
-        }
-        throw new AccessDeniedException("There is no permission for deleting data from the repository.");
+        checkDeletePermission(data.getName());
+        return repository.delete(data);
     }
 
     @Override
     public boolean delete(List<FileData> data) throws IOException {
-        if (data.stream()
-            .allMatch(
-                e -> simpleRepositoryAclService.isGranted(getId(), e.getName(), List.of(DESIGN_REPOSITORY_DELETE)))) {
-            return repository.delete(data);
+        for (FileData data1 : data) {
+            checkDeletePermission(data1.getName());
         }
-        throw new AccessDeniedException("There is no permission for deleting data from the repository.");
+        return repository.delete(data);
     }
 
     @Override
@@ -116,41 +119,33 @@ public class SecureRepository implements Repository {
 
     @Override
     public List<FileData> listHistory(String name) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
-            return repository.listHistory(name);
-        }
-        throw new AccessDeniedException("There is no permission for reading data from the repository.");
+        checkReadPermission(name);
+        return repository.listHistory(name);
     }
 
     @Override
     public FileData checkHistory(String name, String version) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
-            return repository.checkHistory(name, version);
-        }
-        throw new AccessDeniedException("There is no permission for reading data from the repository.");
+        checkReadPermission(name);
+        return repository.checkHistory(name, version);
     }
 
     @Override
     public FileItem readHistory(String name, String version) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
-            return repository.readHistory(name, version);
-        }
-        throw new AccessDeniedException("There is no permission for reading data from the repository.");
+        checkReadPermission(name);
+        return repository.readHistory(name, version);
     }
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
+        checkDeletePermission(data.getName());
         return repository.deleteHistory(data);
     }
 
     @Override
     public FileData copyHistory(String srcName, FileData destData, String version) throws IOException {
-        if (simpleRepositoryAclService
-            .isGranted(getId(), srcName, List.of(DESIGN_REPOSITORY_READ)) && simpleRepositoryAclService
-                .isGranted(getId(), destData.getName(), List.of(DESIGN_REPOSITORY_WRITE))) {
-            return repository.copyHistory(srcName, destData, version);
-        }
-        throw new AccessDeniedException("There is no permission for writing data into the repository.");
+        checkReadPermission(srcName);
+        checkSavePermissions(destData.getName());
+        return repository.copyHistory(srcName, destData, version);
     }
 
     @Override

@@ -666,6 +666,7 @@ public class RepositoryTreeController {
             .stream()
             .filter(repo -> !repo.supports().branches() || !((BranchRepository) repo)
                 .isBranchProtected(((BranchRepository) repo).getBranch()))
+            .filter(e -> designRepositoryAclService.isGranted(e.getId(), null, List.of(AclPermission.CREATE)))
             .collect(Collectors.toList());
     }
 
@@ -673,6 +674,7 @@ public class RepositoryTreeController {
         Map<String, String> types = getCreateAllowedRepositories().stream()
             .map(Repository::getId)
             .map(this::getRepositoryConfiguration)
+            .filter(e -> designRepositoryAclService.isGranted(e.getId(), null, List.of(AclPermission.CREATE)))
             .collect(Collectors.toMap(RepositoryConfiguration::getConfigName, RepositoryConfiguration::getType));
         return new ObjectMapper().writeValueAsString(types);
     }

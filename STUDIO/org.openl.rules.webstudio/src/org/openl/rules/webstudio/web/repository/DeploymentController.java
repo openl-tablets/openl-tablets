@@ -22,6 +22,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
@@ -126,9 +127,16 @@ public class DeploymentController {
         if (project == null) {
             return null;
         }
-        if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
-            WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
-            return null;
+        if (project.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
+            if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+                WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
+                return null;
+            }
+        } else {
+            if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE))) {
+                WebStudioUtils.addErrorMessage("The is no permission for adding deployment configuration.");
+                return null;
+            }
         }
         try {
             UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
@@ -146,8 +154,8 @@ public class DeploymentController {
                 project.setProjectDescriptors(newDescriptors);
             }
         } catch (ProjectException e) {
-            LOG.error("Failed to add project descriptor.", e);
-            WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
+            LOG.error("Failed to update project descriptor.", e);
+            WebStudioUtils.addErrorMessage("Failed to update project descriptor.", e.getMessage());
         }
 
         return null;
@@ -226,9 +234,19 @@ public class DeploymentController {
     public String deleteItem() {
         String projectName = WebStudioUtils.getRequestParameter("key");
         ADeploymentProject project = getSelectedProject();
-        if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
-            WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
+        if (project == null) {
             return null;
+        }
+        if (project.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
+            if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+                WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
+                return null;
+            }
+        } else {
+            if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE))) {
+                WebStudioUtils.addErrorMessage("The is no permission for adding deployment configuration.");
+                return null;
+            }
         }
         try {
             List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, null);
@@ -237,8 +255,8 @@ public class DeploymentController {
                 project.setProjectDescriptors(newDescriptors);
             }
         } catch (ProjectException e) {
-            LOG.error("Failed to delete project descriptor.", e);
-            WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
+            LOG.error("Failed to update project descriptor.", e);
+            WebStudioUtils.addErrorMessage("Failed to update project descriptor.", e.getMessage());
         }
         return null;
     }

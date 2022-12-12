@@ -986,7 +986,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         RepositoryAclService repositoryAclService = project instanceof ADeploymentProject ? deployConfigRepositoryAclService
                                                                                           : designRepositoryAclService;
         return project.isDeleted() && repositoryAclService.isGranted(project,
-            List.of(AclPermission.EDIT)) && isMainBranch(project) && !branchProtected;
+            List.of(AclPermission.ARCHIVE)) && isMainBranch(project) && !branchProtected;
     }
 
     // for any project artefact
