@@ -411,9 +411,9 @@ public class JAXRSOpenLServiceEnhancerTest {
     public interface TestAnnotatedByOperationWithResponsesInterface {
         @POST
         @Path("/value")
-        @Operation(summary = "Download resource file", tags = "Resource"
-                ,responses = {@ApiResponse(responseCode = "200", description = "@OPERATION Annotated"),
-                @ApiResponse(responseCode = "204", description = "@OPERATION Annotated")})
+        @Operation(summary = "Download resource file", tags = "Resource",
+                responses = {@ApiResponse(responseCode = "200", description = "@OPERATION Annotated"),
+                             @ApiResponse(responseCode = "204", description = "@OPERATION Annotated")})
         String someMethod(String arg);
     }
 
