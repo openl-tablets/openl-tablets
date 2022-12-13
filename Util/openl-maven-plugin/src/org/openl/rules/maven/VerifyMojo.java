@@ -82,6 +82,8 @@ public class VerifyMojo extends BaseOpenLMojo {
             try (ConfigurableApplicationContext context = new SpringApplicationBuilder(SpringBootWebApp.class)
                 .properties(Map.of(
                     "server.port", 0,
+                    "server.servlet.context-parameters.openl.config.location", "",
+                    "server.servlet.context-parameters.user.home", outputDirectory.getPath(),
                     "server.servlet.context-parameters.production-repository.factory", "repo-zip",
                     "server.servlet.context-parameters.production-repository.archives", pathDeployment
                 )).run()) {
