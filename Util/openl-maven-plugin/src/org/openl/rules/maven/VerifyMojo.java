@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -27,7 +25,6 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.servlet.SpringInitializer;
-import org.openl.util.FileUtils;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletComponentScan;
@@ -71,16 +68,7 @@ public class VerifyMojo extends BaseOpenLMojo {
             .getFile()
             .getPath();
 
-        Path itsDir = outputDirectory.toPath().resolve("its");
-        FileUtils.deleteQuietly(itsDir);
-        Path resourcesDir = itsDir.resolve("generated-resources");
-        Files.createDirectories(resourcesDir);
-
-        Path configJar = itsDir.resolve("temp.jar");
-        JarArchiver.archive(resourcesDir.toFile(), configJar.toFile());
-
         List<URL> transitiveDeps = new ArrayList<>();
-        transitiveDeps.add(configJar.toUri().toURL());
         for (File f : getTransitiveDependencies()) {
             transitiveDeps.add(f.toURI().toURL());
         }
