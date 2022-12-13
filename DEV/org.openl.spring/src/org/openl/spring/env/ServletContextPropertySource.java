@@ -11,6 +11,7 @@ public class ServletContextPropertySource extends EnumerablePropertySource<Servl
 
     public ServletContextPropertySource(String name, ServletContext servletContext) {
         super(name, servletContext);
+        ConfigLog.LOG.info("Loading ServletContext init parameters: {} properties.", getPropertyNames().length);
     }
 
     @Override

@@ -26,7 +26,6 @@ class FirewallEnvironment extends StandardEnvironment {
 
     @Override
     protected void customizePropertySources(MutablePropertySources propertySources) {
-        super.customizePropertySources(propertySources);
-        propertySources.replace(SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, new SysEnvRefPropertySource(getSystemEnvironment()));
+        // Prevent default customization. Let's configure it in PropertySourcesLoader in the centralized manner.
     }
 }
