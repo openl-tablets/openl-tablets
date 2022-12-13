@@ -29,6 +29,7 @@
         <module>itest.healthchecks</module>
         <module>itest.WebService</module>
         <module>itest.WebService-lazy</module>
+        <module>itest.WebService-csr-false</module>
         <module>itest.BigServiceDeploy</module>
         <module>itest.non-lazy-compilation</module>
         <module>itest.deployment-filter</module>
