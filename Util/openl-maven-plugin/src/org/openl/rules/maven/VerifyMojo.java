@@ -2,7 +2,6 @@ package org.openl.rules.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -73,19 +71,10 @@ public class VerifyMojo extends BaseOpenLMojo {
             .getFile()
             .getPath();
 
-        Properties properties = new Properties();
-        properties.put("production-repository.factory", "repo-zip");
-        properties.put("production-repository.archives", pathDeployment);
-
         Path itsDir = outputDirectory.toPath().resolve("its");
         FileUtils.deleteQuietly(itsDir);
         Path resourcesDir = itsDir.resolve("generated-resources");
         Files.createDirectories(resourcesDir);
-        Path propertiesFile = resourcesDir.resolve("application.properties");
-        Files.createFile(propertiesFile);
-        try (OutputStream os = Files.newOutputStream(propertiesFile)) {
-            properties.store(os, null);
-        }
 
         Path configJar = itsDir.resolve("temp.jar");
         JarArchiver.archive(resourcesDir.toFile(), configJar.toFile());
@@ -103,8 +92,11 @@ public class VerifyMojo extends BaseOpenLMojo {
             // Without it Embedded Tomcat may fail to start while build.
             TomcatURLStreamHandlerFactory.disable();
             try (ConfigurableApplicationContext context = new SpringApplicationBuilder(SpringBootWebApp.class)
-                .properties(Map.of("server.port", 0))
-                .run()) {
+                .properties(Map.of(
+                    "server.port", 0,
+                    "server.servlet.context-parameters.production-repository.factory", "repo-zip",
+                    "server.servlet.context-parameters.production-repository.archives", pathDeployment
+                )).run()) {
                 ApplicationContext openLContext = SpringInitializer
                     .getApplicationContext(context.getBean(ServletContext.class));
 
