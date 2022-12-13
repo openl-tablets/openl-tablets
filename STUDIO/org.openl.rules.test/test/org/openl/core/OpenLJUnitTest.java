@@ -1,6 +1,7 @@
 package org.openl.core;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -60,9 +61,28 @@ public class OpenLJUnitTest {
         IOpenClass openClass = engineFactory.getCompiledOpenClass().getOpenClass();
 
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
-        assertEquals(13, tests.length);
+        assertEquals(15, tests.length);
 
         Object target = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
+        for (var testSuit : tests) {
+            var result = (TestUnitsResults) testSuit.invoke(target, new Object[0], new SimpleRulesVM().getRuntimeEnv());
+            var testCases = result.getTestUnits();
+            assertFalse(testCases.isEmpty());
+            for(var testCase : testCases) {
+                var description = testCase.getDescription();
+                switch (description) {
+                    case "pass":
+                        assertEquals(String.format("Failed tests '%s' #%s", testSuit.getName(), testCase.getTest().getId()), TestStatus.TR_OK, testCase.getResultStatus());
+                        break;
+                    case "fail":
+                        assertEquals(String.format("Failed tests '%s' #%s", testSuit.getName(), testCase.getTest().getId()), TestStatus.TR_NEQ, testCase.getResultStatus());
+                        break;
+                    default:
+                        fail(String.format("Unexpected '%s' description in the tests '%s'", description, testSuit.getName()));
+                }
+            }
+
+        }
 
         {
             TestUnitsResults res1 = getRestUnitResult(target, tests, "error1_test1");
@@ -78,7 +98,7 @@ public class OpenLJUnitTest {
             ITestUnit testUnit2 = res1.getTestUnits().get(1);
             assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
             assertEquals(1, testUnit2.getComparisonResults().size());
-            assertComparedResult(new ComparedResult(null, "foo bar", "foo.bar: Foo bar", TestStatus.TR_NEQ),
+            assertComparedResult(new ComparedResult(null, "foo.bar", "foo.bar: Foo bar", TestStatus.TR_NEQ),
                 testUnit2.getComparisonResults().get(0));
 
             ITestUnit testUnit3 = res1.getTestUnits().get(2);
@@ -93,8 +113,8 @@ public class OpenLJUnitTest {
 
         {
             TestUnitsResults res1 = getRestUnitResult(target, tests, "error3_test2");
-            assertEquals(2, res1.getNumberOfFailures());
-            assertEquals(3, res1.getTestUnits().size());
+            assertEquals(3, res1.getNumberOfFailures());
+            assertEquals(4, res1.getTestUnits().size());
 
             ITestUnit testUnit1 = res1.getTestUnits().get(0);
             assertEquals(TestStatus.TR_OK, testUnit1.getResultStatus());
@@ -102,20 +122,26 @@ public class OpenLJUnitTest {
             ITestUnit testUnit2 = res1.getTestUnits().get(1);
             assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
             assertEquals(1, testUnit2.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
-                testUnit2.getComparisonResults().get(0));
+            assertComparedResult(new ComparedResult("message", "foo.bar", "Foo bar", TestStatus.TR_NEQ),
+                    testUnit2.getComparisonResults().get(0));
 
             ITestUnit testUnit3 = res1.getTestUnits().get(2);
             assertEquals(TestStatus.TR_NEQ, testUnit3.getResultStatus());
             assertEquals(1, testUnit3.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("message", "qwerty", "Foo bar", TestStatus.TR_NEQ),
+            assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
                 testUnit3.getComparisonResults().get(0));
+
+            ITestUnit testUnit4 = res1.getTestUnits().get(3);
+            assertEquals(TestStatus.TR_NEQ, testUnit4.getResultStatus());
+            assertEquals(1, testUnit4.getComparisonResults().size());
+            assertComparedResult(new ComparedResult("message", "null: Foo bar", "Foo bar", TestStatus.TR_NEQ),
+                testUnit4.getComparisonResults().get(0));
         }
 
         {
-            TestUnitsResults res1 = getRestUnitResult(target, tests, "error1_test3");
-            assertEquals(4, res1.getNumberOfFailures());
-            assertEquals(5, res1.getTestUnits().size());
+            TestUnitsResults res1 = getRestUnitResult(target, tests, "error1_test4");
+            assertEquals(5, res1.getNumberOfFailures());
+            assertEquals(6, res1.getTestUnits().size());
 
             ITestUnit testUnit1 = res1.getTestUnits().get(0);
             assertEquals(TestStatus.TR_OK, testUnit1.getResultStatus());
@@ -123,34 +149,42 @@ public class OpenLJUnitTest {
             ITestUnit testUnit2 = res1.getTestUnits().get(1);
             assertEquals(TestStatus.TR_NEQ, testUnit2.getResultStatus());
             assertEquals(2, testUnit2.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("message", "foo bar", "Foo bar", TestStatus.TR_NEQ),
-                testUnit2.getComparisonResults().get(0));
             assertComparedResult(new ComparedResult("code", "foo.bar", "foo.bar", TestStatus.TR_OK),
+                    testUnit2.getComparisonResults().get(0));
+            assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
                 testUnit2.getComparisonResults().get(1));
 
             ITestUnit testUnit3 = res1.getTestUnits().get(2);
             assertEquals(TestStatus.TR_NEQ, testUnit3.getResultStatus());
             assertEquals(2, testUnit3.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("message", "foo bar", "Foo bar", TestStatus.TR_NEQ),
-                testUnit3.getComparisonResults().get(0));
-            assertComparedResult(new ComparedResult("code", "bar.foo", "foo.bar", TestStatus.TR_NEQ),
+            assertComparedResult(new ComparedResult("code", null, "foo.bar", TestStatus.TR_NEQ),
+                    testUnit3.getComparisonResults().get(0));
+            assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
                 testUnit3.getComparisonResults().get(1));
 
             ITestUnit testUnit4 = res1.getTestUnits().get(3);
             assertEquals(TestStatus.TR_NEQ, testUnit4.getResultStatus());
             assertEquals(2, testUnit4.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("message", "Foo bar", "Foo bar", TestStatus.TR_OK),
+            assertComparedResult(new ComparedResult("code", null, "foo.bar", TestStatus.TR_NEQ),
                 testUnit4.getComparisonResults().get(0));
-            assertComparedResult(new ComparedResult("code", "bar.foo", "foo.bar", TestStatus.TR_NEQ),
-                testUnit4.getComparisonResults().get(1));
+            assertComparedResult(new ComparedResult("message", "Foo bar", "Foo bar", TestStatus.TR_OK),
+                    testUnit4.getComparisonResults().get(1));
 
             ITestUnit testUnit5 = res1.getTestUnits().get(4);
             assertEquals(TestStatus.TR_NEQ, testUnit5.getResultStatus());
             assertEquals(2, testUnit5.getComparisonResults().size());
-            assertComparedResult(new ComparedResult("message", null, "Foo bar", TestStatus.TR_NEQ),
+            assertComparedResult(new ComparedResult("code", "foo.bar", "foo.bar", TestStatus.TR_OK),
                 testUnit5.getComparisonResults().get(0));
-            assertComparedResult(new ComparedResult("code", null, "foo.bar", TestStatus.TR_NEQ),
-                testUnit5.getComparisonResults().get(1));
+            assertComparedResult(new ComparedResult("message", "baza", "Foo bar", TestStatus.TR_NEQ),
+                    testUnit5.getComparisonResults().get(1));
+
+            ITestUnit testUnit6 = res1.getTestUnits().get(5);
+            assertEquals(TestStatus.TR_NEQ, testUnit6.getResultStatus());
+            assertEquals(2, testUnit6.getComparisonResults().size());
+            assertComparedResult(new ComparedResult("code", "baza", "foo.bar", TestStatus.TR_NEQ),
+                    testUnit6.getComparisonResults().get(0));
+            assertComparedResult(new ComparedResult("message", "Foo bar", "Foo bar", TestStatus.TR_OK),
+                    testUnit6.getComparisonResults().get(1));
         }
 
     }
