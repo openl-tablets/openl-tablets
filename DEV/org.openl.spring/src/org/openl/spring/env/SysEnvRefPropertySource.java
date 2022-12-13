@@ -26,6 +26,7 @@ public class SysEnvRefPropertySource extends SystemEnvironmentPropertySource {
 
     public SysEnvRefPropertySource(Map<String, Object> source) {
         super(StandardEnvironment.SYSTEM_ENVIRONMENT_PROPERTY_SOURCE_NAME, source);
+        ConfigLog.LOG.info("Loading System Environment parameters: {} properties.", getPropertyNames().length);
     }
 
     @Override

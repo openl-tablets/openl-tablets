@@ -199,7 +199,7 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
                     } else {
                         source.addFirst(propertySource);
                     }
-                    ConfigLog.LOG.info("+       Load: [{}] '{}'", location, getInfo(resource));
+                    ConfigLog.LOG.info("+       Load: [{}] '{}' ({} properties)", location, getInfo(resource), propertySource.getPropertyNames().length);
                 } else {
                     ConfigLog.LOG.debug("- Not exist: [{}] '{}'", location, getInfo(resource));
                 }

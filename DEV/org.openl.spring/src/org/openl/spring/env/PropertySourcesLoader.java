@@ -19,22 +19,16 @@ import org.springframework.jndi.JndiPropertySource;
  * "contextInitializerClasses"} context parameter.</li>
  * <li>In Spring java configuration like <code>new PropertySourcesLoader().initialize(applicationContext)</code></li>
  * </ul>
- * Default resolving order (next resource overides previous):
+ * Resolving order (next resource overrides previous):
  * <li>OpenL default properties. {@link DefaultPropertySource}</li>
  * <li>Java preferences. {@link PreferencePropertySource}</li>
  * <li>Application externalized configuration. {@link ApplicationPropertySource} <br>
  * <li>Application modifiable configuration. {@link DynamicPropertySource} <br>
- * <li>Spring environment.
- * <ol>
  * <li>OS environment variables. {@link System#getenv()}</li>
  * <li>Java System properties. {@link System#getProperties()}</li>
  * <li>JNDI attributes from {@code java:comp/env}</li>
  * <li>Servlet context loadProperties parameters from
  * {@link javax.servlet.ServletContext#getInitParameter(java.lang.String)}</li>
- * <li>Servlet config loadProperties parameters from
- * {@link javax.servlet.ServletConfig#getInitParameter(java.lang.String)}</li>
- * </ol>
- * </li>
  * </ul>
  *
  * @author Yury Molchan
@@ -71,32 +65,33 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         FirewallPropertyResolver props = env.getRawPropertyResolver();
         MutablePropertySources propertySources = env.getPropertySources();
 
-        ConfigLog.LOG.info("Loading default properties...");
-        DefaultPropertySource defaultPropertySource = new DefaultPropertySource();
-        propertySources.addLast(defaultPropertySource);
+        ConfigLog.LOG.info("Loading OpenL System Info properties...");
+        propertySources.addFirst(new SysInfoPropertySource());
+
+        if (servletContext != null) {
+            propertySources.addLast(new ServletContextPropertySource("ServletContext init parameters", servletContext));
+            // Assuming that there is org.springframework.core.env.StandardEnvironment
+            if (JndiLocatorDelegate.isDefaultJndiEnvironmentAvailable()) {
+                ConfigLog.LOG.info("Loading JNDI properties...");
+                propertySources.addLast(new JndiPropertySource("JNDI properties"));
+            }
+        }
+        propertySources.addLast(new SysPropPropertySource(env.getSystemProperties()));
+        propertySources.addLast(new SysEnvRefPropertySource(env.getSystemEnvironment()));
 
         ConfigLog.LOG.info("Loading preference properties...");
         PreferencePropertySource preferencePropertySource = new PreferencePropertySource(appName);
         PreferencePropertySource.THE = preferencePropertySource;
-        propertySources.addBefore(DefaultPropertySource.PROPS_NAME, preferencePropertySource);
+        propertySources.addLast(preferencePropertySource);
 
-        if (servletContext != null) {
-            // Assuming that there is org.springframework.core.env.StandardEnvironment
-            ConfigLog.LOG.info("Loading JNDI properties...");
-            if (JndiLocatorDelegate.isDefaultJndiEnvironmentAvailable()) {
-                propertySources.addFirst(new JndiPropertySource("JNDI properties"));
-            }
-            ConfigLog.LOG.info("Loading ServletContext init parameters...");
-            propertySources.addFirst(new ServletContextPropertySource("ServletContext init parameters", servletContext));
-        }
+        ConfigLog.LOG.info("Loading default properties...");
+        DefaultPropertySource defaultPropertySource = new DefaultPropertySource();
+        propertySources.addLast(defaultPropertySource);
 
         ConfigLog.LOG.info("Loading application properties...");
         String[] profiles = env.getActiveProfiles();
         propertySources.addBefore(PreferencePropertySource.PROPS_NAME,
             new ApplicationPropertySource(props, appName, profiles));
-
-        ConfigLog.LOG.info("Loading OpenL System Info properties...");
-        propertySources.addFirst(new SysInfoPropertySource());
 
         ConfigLog.LOG.info("Loading reconfigurable properties...");
         DynamicPropertySource propertySource = new DynamicPropertySource(appName, props);

@@ -71,7 +71,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         if (file.exists()) {
             try {
                 PropertiesUtils.load(file.toPath(), properties::put);
-                ConfigLog.LOG.info("+       Load: '{}'", getFile());
+                ConfigLog.LOG.info("+       Load: '{}' ({} properties)", getFile(), properties.size());
             } catch (IOException e) {
                 ConfigLog.LOG.error("!     Error:", e);
             }
