@@ -147,13 +147,15 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                     combinedSpreadsheetResultOpenClass);
             }
         }
-        CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass = xlsModuleOpenClass
-            .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
-            .toCustomSpreadsheetResultOpenClass();
-        if (customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-            mapClassToCustomSpreadsheetResultOpenClass.put(
-                customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.getBeanClass(),
-                customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass);
+        if (xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass = xlsModuleOpenClass
+                .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                .toCustomSpreadsheetResultOpenClass();
+            if (customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.isGenerateBeanClass()) {
+                mapClassToCustomSpreadsheetResultOpenClass.put(
+                    customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass.getBeanClass(),
+                    customSpreadsheetResultOpenClassForSpreadsheetResultOpenClass);
+            }
         }
         return Collections.unmodifiableMap(mapClassToCustomSpreadsheetResultOpenClass);
     }
