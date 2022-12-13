@@ -688,6 +688,17 @@ public abstract class FunctionalRow implements IDecisionRow {
     }
 
     @Override
+    public Object loadValue(int row, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env) {
+        Object value = storage[row].getValue(ruleN);
+        if (value instanceof IOpenMethod) {
+            value = ((IOpenMethod) value).invoke(target, tableParams, env);
+        } else if (value instanceof ArrayHolder) {
+            value = ((ArrayHolder) value).invoke(target, tableParams, env);
+        }
+        return value;
+    }
+
+    @Override
     public boolean hasFormulas() {
         if (hasFormulas == null) {
             hasFormulas = initHasFormulas();

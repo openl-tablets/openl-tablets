@@ -45,9 +45,7 @@ public class ConditionOrActionDirectParameterField implements IOpenField {
             params = new Object[numberOfTableParameters];
             System.arraycopy(env.getLocalFrame(), 0, params, 0, numberOfTableParameters);
         }
-        decisionRow.loadValues(res, 0, ruleNum, target, params, env);
-
-        Object ret = res[paramNum];
+        Object ret = decisionRow.loadValue(paramNum, ruleNum, target, params, env);
         if (ret == null) {
             return getType().nullObject();
         }

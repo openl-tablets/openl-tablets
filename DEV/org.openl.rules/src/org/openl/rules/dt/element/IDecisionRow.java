@@ -51,6 +51,8 @@ public interface IDecisionRow extends IBaseDecisionRow {
 
     void loadValues(Object[] dest, int offset, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env);
 
+    Object loadValue(int row, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env);
+
     boolean isEqual(int rule1, int rule2);
 
     boolean hasDeclaredParams();
