@@ -6,13 +6,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import org.openl.info.OpenLVersion;
 import org.openl.info.SysInfo;
@@ -23,24 +25,14 @@ import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 @Produces(MediaType.APPLICATION_JSON)
 public class AdminRestController {
 
+    @Autowired
     private DeployClasspathJarsBean deployClasspathJarService;
+
+    @Autowired
     private ServiceInfoProvider serviceManager;
+
+    @Value("#{uiConfig}")
     private Map<String, Object> uiConfig;
-
-    @Resource
-    public void setServiceManager(ServiceInfoProvider serviceManager) {
-        this.serviceManager = serviceManager;
-    }
-
-    @Resource
-    public void setUiConfig(Map<String, Object> uiConfig) {
-        this.uiConfig = uiConfig;
-    }
-
-    @Resource
-    public void setDeployClasspathJarService(DeployClasspathJarsBean deployClasspathJarService) {
-        this.deployClasspathJarService = deployClasspathJarService;
-    }
 
     /**
      * @return a list of descriptions of published OpenL services.

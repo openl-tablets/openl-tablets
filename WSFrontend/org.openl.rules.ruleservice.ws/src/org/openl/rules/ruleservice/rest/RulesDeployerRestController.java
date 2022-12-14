@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -19,6 +18,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.deployer.RulesDeployInputException;
@@ -34,18 +35,11 @@ import org.openl.rules.ruleservice.management.ServiceManager;
 @Produces("application/json")
 public class RulesDeployerRestController {
 
+    @Autowired
     private RulesDeployerService rulesDeployerService;
+
+    @Autowired
     private ServiceManager serviceManager;
-
-    @Resource
-    public void setServiceManager(ServiceManager serviceManager) {
-        this.serviceManager = serviceManager;
-    }
-
-    @Resource
-    public void setRulesDeployerService(RulesDeployerService rulesDeployerService) {
-        this.rulesDeployerService = rulesDeployerService;
-    }
 
     /**
      * Deploys target zip input stream
