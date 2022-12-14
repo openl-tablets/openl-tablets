@@ -64,16 +64,14 @@ public class DatatypeOpenField extends AOpenField {
                         name = StringUtils.capitalize(getName()); // Always capitalize (old behavior (prior 5.21.7)
                         try {
                             getter = instanceClass.getMethod("get" + name);
-                        } catch (NoSuchMethodException e1) {
-                            throw new IllegalStateException(e);
+                        } catch (NoSuchMethodException ignored) {
                         }
                     }
                     try {
                         // Use the same name as for the getter
                         Class<?> type = getType().getInstanceClass();
                         setter = instanceClass.getMethod("set" + name, type);
-                    } catch (NoSuchMethodException e) {
-                        throw new IllegalStateException(e);
+                    } catch (NoSuchMethodException ignored) {
                     }
                     flag = 1;
                 }
