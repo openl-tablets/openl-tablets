@@ -28,6 +28,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -166,6 +167,8 @@ public final class DecisionTableHelper {
         LinkedHashMap.class);
 
     private static final String[] EMPTY_STRING_ARRAY = new String[] {};
+
+    private static final Pattern IS_ARRAY_PATTERN = Pattern.compile("[^\\\\],");
 
     private DecisionTableHelper() {
     }
@@ -2115,10 +2118,9 @@ public final class DecisionTableHelper {
         if (sourceTableColumn + originalTable.getSource()
             .getCell(sourceTableColumn, 0)
             .getWidth() == firstColumnForHCondition && h == firstColumnHeight - 1 && (WithVerticalTitles.SLASH_IN_TITLE
-                    .equals(withVerticalTitles) && StringUtils.isNotBlank(
-                        d) && d.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) || WithVerticalTitles.MERGED_COLUMN
-                            .equals(withVerticalTitles) || WithVerticalTitles.EMPTY_COLUMN
-                                .equals(withVerticalTitles))) {
+                .equals(withVerticalTitles) && StringUtils.isNotBlank(
+                    d) && d.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) || WithVerticalTitles.MERGED_COLUMN
+                        .equals(withVerticalTitles) || WithVerticalTitles.EMPTY_COLUMN.equals(withVerticalTitles))) {
             if (!onlyReturns) {
                 List<String> hTitles = new ArrayList<>(parts);
                 String p = d;
@@ -3809,8 +3811,7 @@ public final class DecisionTableHelper {
                     canMadeDecisionAboutSingle = canMadeDecisionAboutSingle && type.equals(constantOpenField.getType());
                     continue;
                 }
-
-                if (!arraySeparatorFoundFlag && value.contains(RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR)) {
+                if (!arraySeparatorFoundFlag && IS_ARRAY_PATTERN.matcher(value).find()) {
                     arraySeparatorFoundFlag = true;
                 }
                 try {
