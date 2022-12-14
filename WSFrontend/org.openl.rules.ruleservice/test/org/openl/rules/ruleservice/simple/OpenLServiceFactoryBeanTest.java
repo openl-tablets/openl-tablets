@@ -8,6 +8,8 @@ import javax.annotation.Resource;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -19,13 +21,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:OpenLServiceFactoryBeanTest.xml" })
 public class OpenLServiceFactoryBeanTest {
 
-    @Resource
+    @Autowired
     private ServiceInterface simpleService;
 
-    @Resource
+    @Autowired
     private ServiceInterface ruleService1;
 
-    @Resource
+    @Autowired
     private ServiceInterface ruleService2;
 
     @Test

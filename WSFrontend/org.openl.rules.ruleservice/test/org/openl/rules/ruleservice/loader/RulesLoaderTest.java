@@ -9,8 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.annotation.Resource;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.common.CommonVersion;
@@ -20,6 +18,8 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -36,9 +36,9 @@ import static org.junit.Assert.assertTrue;
         "classpath:openl-ruleservice-datasource-beans.xml" })
 public class RulesLoaderTest {
 
-    @Resource
+    @Autowired
     private Repository repository;
-    @Resource
+    @Autowired
     private RuleServiceLoader ruleServiceLoader;
 
     @Test
