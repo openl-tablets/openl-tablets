@@ -3,6 +3,7 @@ package org.openl.rules.lang.xls.types;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.util.ClassUtils;
@@ -64,7 +65,7 @@ public class DatatypeOpenField extends AOpenField {
                         try {
                             getter = instanceClass.getMethod("get" + name);
                         } catch (NoSuchMethodException e1) {
-                            throw new RuntimeException(e);
+                            throw new IllegalStateException(e);
                         }
                     }
                     try {
@@ -72,7 +73,7 @@ public class DatatypeOpenField extends AOpenField {
                         Class<?> type = getType().getInstanceClass();
                         setter = instanceClass.getMethod("set" + name, type);
                     } catch (NoSuchMethodException e) {
-                        throw new RuntimeException(e);
+                        throw new IllegalStateException(e);
                     }
                     flag = 1;
                 }
@@ -100,7 +101,7 @@ public class DatatypeOpenField extends AOpenField {
             Object res = getGetter().invoke(target);
             return res != null ? res : getType().nullObject();
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new OpenLRuntimeException(e);
         }
     }
 
@@ -122,7 +123,7 @@ public class DatatypeOpenField extends AOpenField {
             try {
                 setter.invoke(target, value);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                throw new OpenLRuntimeException(e);
             }
         }
     }

@@ -26,9 +26,10 @@ public class XlsLazyModuleOpenClass extends XlsModuleOpenClass {
             IDataBase dbase,
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
+            boolean appliedChangesToClasspath,
             IBindingContext bindingContext,
             IPrebindHandler prebindHandler) {
-        super(name, metaInfo, openl, dbase, usingModules, classLoader, bindingContext);
+        super(name, metaInfo, openl, dbase, usingModules, classLoader, appliedChangesToClasspath, bindingContext);
         this.prebindHandler = prebindHandler;
     }
 
