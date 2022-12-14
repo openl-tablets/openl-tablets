@@ -254,7 +254,9 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
 
             @Override
             public IOpenClass getType() {
-                return SpreadsheetResultOpenClass.this.getModule() == null ? AnySpreadsheetResultOpenClass.INSTANCE
+                return SpreadsheetResultOpenClass.this.getModule() == null
+                                                                           ? JavaOpenClass
+                                                                               .getOpenClass(SpreadsheetResult.class)
                                                                            : SpreadsheetResultOpenClass.this;
             }
         };
