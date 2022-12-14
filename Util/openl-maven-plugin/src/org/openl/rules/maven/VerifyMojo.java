@@ -2,9 +2,6 @@ package org.openl.rules.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +15,7 @@ import org.apache.cxf.service.factory.ServiceConstructionException;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -25,6 +23,8 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.servlet.SpringInitializer;
+
+import org.codehaus.plexus.classworlds.realm.ClassRealm;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletComponentScan;
@@ -58,6 +58,9 @@ public class VerifyMojo extends BaseOpenLMojo {
     @Parameter(defaultValue = "${project.build.directory}", required = true, readonly = true)
     private File outputDirectory;
 
+    @Parameter( defaultValue = "${plugin}", readonly = true )
+    private PluginDescriptor plugin;
+
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws MojoFailureException, IOException {
         String pathDeployment = project.getAttachedArtifacts()
@@ -68,14 +71,15 @@ public class VerifyMojo extends BaseOpenLMojo {
             .getFile()
             .getPath();
 
-        List<URL> transitiveDeps = new ArrayList<>();
+        final var pluginClassRealm = plugin.getClassRealm();
+        final var newClassloader = new ClassRealm(pluginClassRealm.getWorld(), "verify", null);
+        newClassloader.setParentRealm(pluginClassRealm);
         for (File f : getTransitiveDependencies()) {
-            transitiveDeps.add(f.toURI().toURL());
+            newClassloader.addURL(f.toURI().toURL());
         }
 
         final ClassLoader oldClassloader = Thread.currentThread().getContextClassLoader();
         try {
-            URLClassLoader newClassloader = new URLClassLoader(transitiveDeps.toArray(new URL[0]), oldClassloader);
             Thread.currentThread().setContextClassLoader(newClassloader);
             // Without it Embedded Tomcat may fail to start while build.
             TomcatURLStreamHandlerFactory.disable();
