@@ -54,16 +54,6 @@ public class DateRangeParser extends ARangeParser<Long> {
         return InstanceHolder.INSTANCE;
     }
 
-    public boolean isDateRange(String value) {
-        for (Pattern pattern : patterns) {
-            Matcher m = pattern.matcher(value);
-            if (m.matches()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean likelyRangeThanDate(String value) {
         for (int i = 0; i < 5; i++) {
             Matcher m = patterns[i].matcher(value);
