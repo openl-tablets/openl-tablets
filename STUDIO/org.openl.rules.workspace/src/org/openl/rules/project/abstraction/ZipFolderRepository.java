@@ -1,20 +1,34 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.openl.rules.repository.api.*;
 import org.openl.util.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Treat zip files as separate repositories
  */
 class ZipFolderRepository implements Repository {
+    private final Logger log = LoggerFactory.getLogger(ZipFolderRepository.class);
+
+    private static final int GET_FILE_RETRY_DELAY_S = 1;
+    private static final int GET_FILE_RETRY_ATTEMPTS = 5;
+
     private final Repository delegate;
     private final String zipPath;
     private final String version;
@@ -131,8 +145,38 @@ class ZipFolderRepository implements Repository {
     }
 
     private ZipInputStream getZipInputStream() throws IOException {
-        FileItem fileItem = version == null ? delegate.read(zipPath) : delegate.readHistory(zipPath, version);
+        FileItem fileItem = getFileItemWithRetry();
         return new ZipInputStream(fileItem.getStream());
+    }
+
+    private FileItem getFileItemWithRetry() throws IOException {
+        FileItem fileItem = getFileItem();
+        if (fileItem == null) {
+            for (int i = 0; i <= GET_FILE_RETRY_ATTEMPTS; i++) {
+                ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+                Callable<FileItem> getFileItemTask = this::getFileItem;
+                ScheduledFuture<FileItem> schedule = scheduledExecutorService.schedule(getFileItemTask, GET_FILE_RETRY_DELAY_S, TimeUnit.SECONDS);
+                try {
+                    fileItem = (schedule.get());
+                } catch (InterruptedException | ExecutionException e) {
+                    log.warn(e.getMessage(), e);
+                }
+
+                scheduledExecutorService.shutdown();
+                if (fileItem != null) {
+                    break;
+                }
+            }
+        }
+        if (fileItem == null) {
+            log.error("File was not found and all attempts to retrieve it was exhausted.");
+            throw new FileNotFoundException("File was not found and all attempts to retrieve it was exhausted.");
+        }
+        return fileItem;
+    }
+
+    private FileItem getFileItem() throws IOException {
+        return version == null ? delegate.read(zipPath) : delegate.readHistory(zipPath, version);
     }
 
     private FileData createFileData(ZipEntry entry) {

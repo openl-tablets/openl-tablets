@@ -175,15 +175,12 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer, 
         return serviceDescriptions;
     }
 
-    private Manifest readManifestFile(IProject project) {
-        try {
-            IProjectArtefact artifact = project.getArtefact(JarFile.MANIFEST_NAME);
-            if (artifact instanceof IProjectResource) {
-                try (InputStream content = ((IProjectResource) artifact).getContent()) {
-                    return new Manifest(content);
-                }
+    private Manifest readManifestFile(IProject project) throws ProjectException, IOException {
+        IProjectArtefact artifact = project.getArtefact(JarFile.MANIFEST_NAME);
+        if (artifact instanceof IProjectResource) {
+            try (InputStream content = ((IProjectResource) artifact).getContent()) {
+                return new Manifest(content);
             }
-        } catch (IOException | ProjectException ignored) {
         }
         return null;
     }
