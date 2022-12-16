@@ -118,7 +118,7 @@ public class SpreadsheetComponentsBuilder {
                 }
             }
             s = sb.toString();
-            if (JavaKeywordUtils.isJavaKeyword(s) || !Character.isJavaIdentifierStart(s.charAt(0))) {
+            if (JavaKeywordUtils.isJavaKeyword(s) || s.length() > 0 && !Character.isJavaIdentifierStart(s.charAt(0))) {
                 s = "_" + s;
             }
         }
@@ -301,6 +301,10 @@ public class SpreadsheetComponentsBuilder {
             nodes = Tokenizer.tokenize(source, SpreadsheetSymbols.TYPE_DELIMITER.toString());
         } catch (OpenLCompilationException e) {
             LOG.debug("Error occurred: ", e);
+            throw SyntaxNodeExceptionUtils.createError("Cannot parse header.", source);
+        }
+
+        if (nodes.length == 0) {
             throw SyntaxNodeExceptionUtils.createError("Cannot parse header.", source);
         }
 
