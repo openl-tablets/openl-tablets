@@ -22,7 +22,6 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RulesModuleBindingContextHelper;
 import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.dt.element.ConditionHelper;
@@ -445,20 +444,20 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 .stream()
                 .map(INamedThing::getName)
                 .collect(Collectors.toSet());
+            dtColumnsDefinition.setExternalParameters(externalParameters);
+            dtColumnsDefinition.setCompositeMethod(compositeMethod);
+            validate(preBindDetail.header,
+                dtColumnsDefinition.getParameters(),
+                preBindDetail.expressionCellSourceCodeModule,
+                compositeMethod,
+                bindingContext);
+            if (!bindingContext.isExecutionMode()) {
+                addMetaInfoForExpression(compositeMethod, preBindDetail.expressionCell);
+            }
+        } catch (Exception e) {
+            BindHelper.processError(e, preBindDetail.expressionCellSourceCodeModule, bindingContext);
         } finally {
             decisionTableDataType.resetLowerCasedUsedFields();
-        }
-        dtColumnsDefinition.setExternalParameters(externalParameters);
-        dtColumnsDefinition.setCompositeMethod(compositeMethod);
-
-        validate(preBindDetail.header,
-            dtColumnsDefinition.getParameters(),
-            preBindDetail.expressionCellSourceCodeModule,
-            compositeMethod,
-            bindingContext);
-
-        if (!bindingContext.isExecutionMode()) {
-            addMetaInfoForExpression(compositeMethod, preBindDetail.expressionCell);
         }
     }
 

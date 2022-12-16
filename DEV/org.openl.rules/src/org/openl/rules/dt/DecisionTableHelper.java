@@ -1834,6 +1834,9 @@ public final class DecisionTableHelper {
         boolean mayHaveCompilationErrors = false;
         if (definition.isReturn()) {
             IOpenClass methodReturnType = header.getType();
+            if (definition.getCompositeMethod() == null) {
+                return null;
+            }
             IOpenClass definitionType = definition.getCompositeMethod().getType();
             IOpenCast openCast = bindingContext.getCast(definitionType, methodReturnType);
             if (openCast == null || !openCast.isImplicit()) {
