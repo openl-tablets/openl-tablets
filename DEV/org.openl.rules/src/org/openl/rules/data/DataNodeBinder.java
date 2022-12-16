@@ -25,6 +25,7 @@ import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.AXlsTableBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -248,7 +249,7 @@ public class DataNodeBinder extends AXlsTableBinder {
                     prop),
                 tableToProcess.getTableSyntaxNode()));
         }
-        if (!resColDefined) {
+        if (!resColDefined && XlsNodeTypes.XLS_TEST_METHOD.equals(tableToProcess.getXlsNodeType())) {
             bindingContext.addMessage(
                 new OpenLWarnMessage(String.format("'%s' column is missing.", TestMethodHelper.EXPECTED_RESULT_NAME),
                     tableToProcess.getTableSyntaxNode()));
