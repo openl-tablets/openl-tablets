@@ -59,6 +59,7 @@ public class XlsPreBinder extends XlsBinder {
             OpenL openl,
             IDataBase dbase,
             Set<CompiledDependency> moduleDependencies,
+            boolean appliedChangesToClasspath,
             IBindingContext bindingContext) {
         if (prebindHandler != null) {
             return new XlsLazyModuleOpenClass(XlsHelper.getModuleName(moduleNode),
@@ -67,6 +68,7 @@ public class XlsPreBinder extends XlsBinder {
                 dbase,
                 moduleDependencies,
                 Thread.currentThread().getContextClassLoader(),
+                appliedChangesToClasspath,
                 bindingContext,
                 prebindHandler);
         } else {
@@ -76,6 +78,7 @@ public class XlsPreBinder extends XlsBinder {
                 dbase,
                 moduleDependencies,
                 Thread.currentThread().getContextClassLoader(),
+                appliedChangesToClasspath,
                 bindingContext);
         }
     }

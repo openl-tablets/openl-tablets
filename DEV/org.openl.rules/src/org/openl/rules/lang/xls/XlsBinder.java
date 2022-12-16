@@ -230,6 +230,7 @@ public class XlsBinder implements IOpenBinder {
             openl,
             getModuleDatabase(),
             compiledDependencies,
+            selectNodes(moduleNode, getSelector(XlsNodeTypes.XLS_DATATYPE)).length > 0,
             bindingContext);
         XlsModuleOpenClass oldXlsModuleOpenClass = XlsModuleOpenClassHolder.getInstance().getXlsModuleOpenClass();
         try {
@@ -412,6 +413,7 @@ public class XlsBinder implements IOpenBinder {
             OpenL openl,
             IDataBase dbase,
             Set<CompiledDependency> moduleDependencies,
+            boolean appliedChangesToClasspath,
             IBindingContext bindingContext) {
 
         return new XlsModuleOpenClass(XlsHelper.getModuleName(moduleNode),
@@ -420,6 +422,7 @@ public class XlsBinder implements IOpenBinder {
             dbase,
             moduleDependencies,
             Thread.currentThread().getContextClassLoader(),
+            appliedChangesToClasspath,
             bindingContext);
     }
 

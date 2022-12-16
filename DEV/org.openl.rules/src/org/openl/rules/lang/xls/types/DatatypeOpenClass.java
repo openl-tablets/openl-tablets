@@ -223,13 +223,13 @@ public class DatatypeOpenClass extends ADynamicClass implements BelongsToModuleO
             for (IOpenField field : fieldMap().values()) {
                 if (field instanceof DatatypeOpenField) {
                     DatatypeOpenField datatypeOpenField = (DatatypeOpenField) field;
-                    if (datatypeOpenField.getGetter().equals(javaMethod)) {
+                    if (Objects.equals(datatypeOpenField.getGetter(), javaMethod)) {
                         return new DatatypeOpenMethod(javaOpenMethod,
                             this,
                             javaOpenMethod.getParameterTypes(),
                             field.getType());
                     }
-                    if (datatypeOpenField.getSetter().equals(javaMethod)) {
+                    if (Objects.equals(datatypeOpenField.getSetter(), javaMethod)) {
                         IOpenClass[] parameterTypes = new IOpenClass[] { field.getType() };
                         return new DatatypeOpenMethod(javaOpenMethod, this, parameterTypes, javaOpenMethod.getType());
                     }

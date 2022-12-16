@@ -123,6 +123,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private final OpenLMessageSource messageSource;
 
+    private final boolean appliedChangesToClasspath;
+
     /**
      * Constructor for module with dependent modules
      *
@@ -133,6 +135,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             IDataBase dbase,
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
+            boolean appliedChangesToClasspath,
             IBindingContext bindingContext) {
         super(moduleName, openl);
         this.dataBase = dbase;
@@ -145,6 +148,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         this.classGenerationClassLoader = new OpenLClassLoader(null);
         this.classGenerationClassLoader.addClassLoader(classLoader);
         this.rulesModuleBindingContext = new RulesModuleBindingContext(bindingContext, this);
+        this.appliedChangesToClasspath = appliedChangesToClasspath;
 
         this.globalTableProperties = TablePropertyDefinitionUtils.buildGlobalTableProperties();
 
@@ -753,6 +757,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 }
             }
         }
+    }
+
+    public boolean isAppliedChangesToClasspath() {
+        return appliedChangesToClasspath;
     }
 
     @Override
