@@ -5,4 +5,3 @@ ERROR: Property 'id' cannot be defined in 'Test' table.
 ERROR: Property 'autoType' cannot be defined in 'Test' table.
 ERROR: Property 'failOnMiss' cannot be defined in 'Test' table.
 ERROR: Field 'DriverPremiumDuplicatedTest' has already been defined.
-WARN: '_res_' column is missing.
