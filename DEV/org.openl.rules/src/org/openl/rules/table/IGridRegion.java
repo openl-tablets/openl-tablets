@@ -7,7 +7,7 @@
 package org.openl.rules.table;
 
 import org.openl.rules.lang.xls.SpreadsheetConstants;
-import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 
 /**
  * @author snshor
@@ -118,7 +118,7 @@ public interface IGridRegion {
                 int row1 = getRow(range);
                 return new GridRegion(row1, col1, row1, col1);
             }
-            String[] rr = StringTool.tokenize(range, AGrid.RANGE_SEPARATOR);
+            String[] rr = StringUtils.split(range, AGrid.RANGE_SEPARATOR);
 
             int col1 = getColumn(rr[0]);
             int row1 = getRow(rr[0]);

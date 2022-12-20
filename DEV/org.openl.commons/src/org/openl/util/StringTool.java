@@ -41,16 +41,6 @@ public class StringTool {
         return null;
     }
 
-    public static String[] tokenize(String src, String delim) {
-        StringTokenizer st = new StringTokenizer(src, delim);
-        int cnt = st.countTokens();
-        String[] res = new String[cnt];
-        for (int i = 0; i < res.length; i++) {
-            res[i] = st.nextToken();
-        }
-        return res;
-    }
-
     /**
      * Split the string by the splitSymbol. To avoid splitting escapeSymbol is used. Trims the splitted result. For
      * examples see tests.
