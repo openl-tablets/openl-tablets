@@ -141,11 +141,15 @@ echo.
 
 @rem Init Default repository
 @if not defined OPENL_HOME (
-  @if exist "%userprofile%\Desktop\OpenL_Home" (
-    @set OPENL_HOME="%userprofile%\Desktop\OpenL_Home"
+  @if exist %userprofile%\Desktop\OpenL_Home (
+    @set OPENL_HOME=%userprofile%\Desktop\OpenL_Home
   ) else (
-    @set OPENL_HOME=./openl-demo
-    @if not exist ./openl-demo set JETTY_OPT=%JETTY_OPT% -Ddemo.init=true
+    @set OPENL_HOME=.\openl-demo
+    @if not exist .\openl-demo (
+      mkdir .\openl-demo
+      echo .version=LATEST > .\openl-demo\webstudio.properties
+      echo demo.init=true >> .\openl-demo\webstudio.properties
+    )
   )
 )
 

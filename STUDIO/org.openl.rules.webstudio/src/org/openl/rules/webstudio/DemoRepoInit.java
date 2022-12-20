@@ -1,5 +1,8 @@
 package org.openl.rules.webstudio;
 
+import java.io.IOException;
+import java.util.HashMap;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +19,7 @@ import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.spring.env.DynamicPropertySource;
 
 /**
  * Creates demo projects in a repository.
@@ -38,6 +42,15 @@ public class DemoRepoInit {
         if (!Props.bool("demo.init")) {
             return;
         }
+
+        try {
+            var config = new HashMap<String, String>();
+            config.put("demo.init", null);
+            DynamicPropertySource.get().save(config);
+        } catch (IOException ex) {
+            LOG.error("Could not clean demo.init property", ex);
+        }
+
         UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(new WorkspaceUserImpl("DEFAULT", (x) -> new UserInfo(x, "default@example.com", x)));
         //tutorials
 
