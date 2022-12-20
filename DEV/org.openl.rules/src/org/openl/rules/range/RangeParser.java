@@ -2,6 +2,8 @@ package org.openl.rules.range;
 
 import java.text.ParseException;
 
+import org.openl.util.StringUtils;
+
 /**
  * A performance and memory optimized parser for the range.Support the following patterns:
  * [ X; Y ]
@@ -284,7 +286,7 @@ public class RangeParser {
     }
 
     private static int nextNonSpace(CharSequence text, int start, int end) throws ParseException {
-        int index = findNonSpace(text, start, end);
+        int index = StringUtils.firstNonSpace(text, start, end + 1);
         if (index < 0) {
             throw new ParseException("Unexpected whitespace", start);
         }
@@ -300,18 +302,6 @@ public class RangeParser {
         }
         return end;
 
-    }
-
-    private static int findNonSpace(CharSequence text, int start, int end) {
-        if (start == -1) {
-            return -1;
-        }
-        for (int i = start; i <= end; i++) {
-            if (!Character.isWhitespace(text.charAt(i))) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     private static int findSep(CharSequence text, int start, int end) {
@@ -355,7 +345,7 @@ public class RangeParser {
                 if (!Character.isWhitespace(at)) {
                     return -1;
                 }
-                start = findNonSpace(text, start, end);
+                start = StringUtils.firstNonSpace(text, start, end + 1);
                 if (start < 0) {
                     return -1;
                 }

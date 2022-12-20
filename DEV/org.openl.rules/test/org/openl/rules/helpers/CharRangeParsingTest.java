@@ -81,7 +81,7 @@ public class CharRangeParsingTest {
     public void testToString() {
         assertEquals("[a; z]", new CharRange("a-z").toString());
         assertEquals(">= b", new CharRange("b+").toString());
-        assertEquals("[\\u0002; \\u00a0]", new CharRange("\u0002-\u00A0").toString());
+        assertEquals("[\\u0fff; \\uffff]", new CharRange("\u0fff-\uffff").toString());
     }
 
     @Test

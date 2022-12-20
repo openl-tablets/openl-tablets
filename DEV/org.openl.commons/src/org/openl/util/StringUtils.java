@@ -350,7 +350,7 @@ public class StringUtils {
      * @return {@code true} if character is whitespace or control, otherwise {@code false}
      */
     public static boolean isSpaceOrControl(char ch) {
-        return Character.isWhitespace(ch) || Character.isISOControl(ch) || Character.isSpaceChar(ch);
+        return ch <= ' ' || Character.isWhitespace(ch) || Character.isISOControl(ch) || Character.isSpaceChar(ch);
     }
 
     /**
@@ -506,5 +506,24 @@ public class StringUtils {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Find position of the next not white space symbol.
+     *
+     * @param text  the string where a not white space symbol should be searched
+     * @param start the start position of the searching inclusive
+     * @param end   the final position of searching exclusive
+     * @return position of a not white space symbol or -1
+     */
+    public static int firstNonSpace(CharSequence text, int start, int end) {
+        end = Math.min(text.length(), end);
+        for (int i = Math.max(start, 0); i < end; i++) {
+            char ch = text.charAt(i);
+            if (!isSpaceOrControl(ch)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

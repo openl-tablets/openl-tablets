@@ -16,7 +16,7 @@ public class StringUtilsTest {
             "\u000B\u000C\u000E\u000F\u0010\u0011\u0012\u0013\u0014\u0015\u0016\u0017\u0018\u0019\u001A\u001B\u001C" +
             "\u001D\u001E\u001F\u0020\u007F\u0080\u0081\u0082\u0083\u0084\u0085\u0086\u0087\u0088\u0089\u008A\u008B" +
             "\u008C\u008D\u008E\u008F\u0090\u0091\u0092\u0093\u0094\u0095\u0096\u0097\u0098\u0099\u009A\u009B\u009C" +
-            "\u009D\u009E\u009F\u00A0\u2007\u202F";
+            "\u009D\u009E\u009F\u00A0\u2007\u202F\r\n\t\b\f";
 
     @Test
     public void testSplit() {
@@ -248,5 +248,49 @@ public class StringUtilsTest {
         assertEquals("Returned string is not valid", "a-bar", StringUtils.camelToKebab("ABar"));
         assertEquals("Returned string is not valid", "a-bar", StringUtils.camelToKebab("aBar"));
         assertEquals("Returned string is not valid", "a-bar", StringUtils.camelToKebab("aBAR"));
+    }
+
+    @Test
+    public void testFirstNonSpace() {
+        assertEquals( StringUtils.firstNonSpace(CONTROLS_AND_SPACES,0,CONTROLS_AND_SPACES.length()), -1);
+        assertEquals( StringUtils.firstNonSpace("",0,0), -1);
+        assertEquals( StringUtils.firstNonSpace("",0,0), -1);
+        assertEquals( StringUtils.firstNonSpace("",-1,1), -1);
+        assertEquals( StringUtils.firstNonSpace("",0,-1), -1);
+        assertEquals( StringUtils.firstNonSpace("X",-1,1), 0);
+        assertEquals( StringUtils.firstNonSpace("X",0,1), 0);
+        assertEquals( StringUtils.firstNonSpace("XY",0,2), 0);
+        assertEquals( StringUtils.firstNonSpace("XY",1,2), 1);
+        assertEquals( StringUtils.firstNonSpace("XY",2,2), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,0), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,1), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,2), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,3), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,4), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,5), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,6), 5);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",0,7), 5);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",1,7), 5);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",2,7), 5);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",3,7), 5);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",4,7), 5);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",5,7), 5);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",6,7), 6);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",7,7), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",7,6), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",6,6), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",6,5), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",5,4), -1);
+        assertEquals( StringUtils.firstNonSpace(" \b\t\r\nXY",4,3), -1);
+        assertEquals( StringUtils.firstNonSpace("   \b\t\r\n   ",0,10), -1);
+        assertEquals( StringUtils.firstNonSpace("   \b\t\r\n   ",1,9), -1);
+        assertEquals( StringUtils.firstNonSpace("   \b\t\r\n   ",-1,11), -1);
+        assertEquals( StringUtils.firstNonSpace("   \b\t\r\n   ",1,11), -1);
+        assertEquals( StringUtils.firstNonSpace("   \b\t\r\n   ",-1,9), -1);
+        assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",1,11), -1);
+        assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",1,12), 11);
+        assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",0,11), 0);
+        assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",0,0), -1);
+        assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",12,12), -1);
     }
 }
