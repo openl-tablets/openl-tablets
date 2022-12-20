@@ -248,7 +248,8 @@ public class Migrator {
         if (Props.bool("project.history.unlimited")) {
             props.put("project.history.count", ""); // Define unlimited
         }
-        if (!Boolean.parseBoolean(settings.getProperty("test.run.parallel"))) {
+        String runTestParallel = settings.getProperty("test.run.parallel");
+        if (runTestParallel != null && !Boolean.parseBoolean(runTestParallel)) {
             props.put("test.run.thread.count", "1");
         }
         props.put("project.history.unlimited", null); // Remove
