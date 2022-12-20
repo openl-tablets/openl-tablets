@@ -640,62 +640,24 @@ public final class RuleRowHelper {
                 }
 
                 // load comma separated array
-                return loadCommaSeparatedArrayParams(dataTable,
-                    paramName,
-                    ruleName,
-                    openlAdaptor,
-                    paramType,
-                    arrayType);
+
+                ILogicalTable paramSource = dataTable.getRow(0);
+                Object params = loadCommaSeparatedParam(paramType, arrayType, paramName, ruleName, paramSource, openlAdaptor);
+                Class<?> paramClass = params.getClass();
+                if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
+                    for (Object o : (Object[]) params) {
+                        if (o instanceof CompositeMethod) {
+                            return new ArrayHolder(arrayType, (Object[]) params);
+                        }
+                    }
+                }
+                return params;
             } else {
                 return loadSingleParam(paramType, paramName, ruleName, dataTable, openlAdaptor);
             }
         } else {
             return loadSimpleArrayParams(dataTable, paramName, ruleName, openlAdaptor, paramType, arrayType);
         }
-    }
-
-    private static Object loadCommaSeparatedArrayParams(ILogicalTable dataTable,
-            String paramName,
-            String ruleName,
-            OpenlToolAdaptor openlAdaptor,
-            IOpenClass aggregateType,
-            IOpenClass paramType) {
-
-        ILogicalTable paramSource = dataTable.getRow(0);
-        Object params = RuleRowHelper
-            .loadCommaSeparatedParam(aggregateType, paramType, paramName, ruleName, paramSource, openlAdaptor);
-        Class<?> paramClass = params.getClass();
-        if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
-            return processAsObjectParams(paramType, (Object[]) params);
-        }
-        return params;
-    }
-
-    /**
-     * Checks if the elements of parameters array are the instances of {@link CompositeMethod}, if yes process it
-     * through {@link ArrayHolder}. If no return Object[].
-     *
-     * @param paramType parameter type
-     * @param paramsArray array of parameters
-     * @return {@link ArrayHolder} if elements of parameters array are instances of {@link CompositeMethod}, in other
-     *         case Object[].
-     */
-    private static Object processAsObjectParams(IOpenClass paramType, Object[] paramsArray) {
-        int paramsLength = paramsArray.length;
-        Object array = null;
-        boolean hasFormulas = false;
-        for (int i = 0; i < paramsLength; i++) {
-            if (paramsArray[i] instanceof CompositeMethod) {
-                hasFormulas = true;
-                break;
-            } else {
-                if (array == null) {
-                    array = paramType.getAggregateInfo().makeIndexedAggregate(paramType, paramsLength);
-                }
-                Array.set(array, i, paramsArray[i]);
-            }
-        }
-        return hasFormulas ? new ArrayHolder(paramType, paramsArray) : array;
     }
 
     private static Object loadSimpleArrayParams(ILogicalTable dataTable,
