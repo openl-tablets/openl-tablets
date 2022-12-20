@@ -2,7 +2,7 @@ package org.openl.rules.table;
 
 public abstract class AGrid implements IGrid {
 
-    public static final String RANGE_SEPARATOR = ":";
+    public static final char RANGE_SEPARATOR = ':';
 
     @Override
     public IGridTable[] getTables() {

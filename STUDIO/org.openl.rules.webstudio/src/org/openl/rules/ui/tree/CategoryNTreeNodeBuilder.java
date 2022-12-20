@@ -2,7 +2,7 @@ package org.openl.rules.ui.tree;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
-import org.openl.util.StringTool;
+import org.openl.util.StringUtils;
 
 /**
  * Builds tree node for table category.
@@ -10,11 +10,9 @@ import org.openl.util.StringTool;
 public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
 
     private final int categoryLevel;
-    private final String separators;
 
-    public CategoryNTreeNodeBuilder(int categoryLevel, String separators) {
+    public CategoryNTreeNodeBuilder(int categoryLevel) {
         this.categoryLevel = categoryLevel;
-        this.separators = separators;
     }
 
     /**
@@ -26,7 +24,7 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
         String result;
         String category = super.getCategory(tableSyntaxNode);
 
-        String[] categories = StringTool.tokenize(category, separators);
+        String[] categories = StringUtils.split(category, '-');
 
         if (categories.length == 0) {
             result = category;
@@ -51,7 +49,7 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
         }
 
         String category = super.getCategory(tableSyntaxNode);
-        String[] categories = StringTool.tokenize(category, separators);
+        String[] categories = StringUtils.split(category, '-');
 
         return categoryLevel < categories.length;
     }
