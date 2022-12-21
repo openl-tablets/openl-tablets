@@ -3568,18 +3568,15 @@ public final class DecisionTableHelper {
                                        : numberOfColumnsUnderTitle == parameters.size();
     }
 
-    private static Pair<Boolean, String[]> parsableAsArray(String src,
-            Class<?> componentType,
-            IBindingContext bindingContext) {
-        String[] values = ArraySplitter.split(src);
+    private static boolean parsableAs(String[] values, Class<?> componentType, IBindingContext bindingContext) {
         try {
             for (String value : values) {
                 String2DataConvertorFactory.parse(componentType, value, bindingContext);
             }
         } catch (Exception e) {
-            return Pair.of(false, values);
+            return false;
         }
-        return Pair.of(true, values);
+        return true;
     }
 
     public static boolean parsableAs(String src, Class<?> clazz, IBindingContext bindingContext) {
@@ -3827,10 +3824,7 @@ public final class DecisionTableHelper {
                             if (type.getDomain() == null) {
                                 isAllParsableAsDomainArrayFlag = false;
                             } else {
-                                Pair<Boolean, String[]> splited = parsableAsArray(value,
-                                    type.getInstanceClass(),
-                                    bindingContext);
-                                for (String s : splited.getRight()) {
+                                for (String s : ArraySplitter.split(value)) {
                                     if (!((IDomain<String>) type.getDomain()).selectObject(s)) {
                                         isAllParsableAsDomainArrayFlag = false;
                                         break;
@@ -3877,65 +3871,71 @@ public final class DecisionTableHelper {
                 try {
                     if (isIntType) {
                         if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
-                            Pair<Boolean, String[]> f = parsableAsArray(value, IntRange.class, bindingContext);
+                            var arrs = ArraySplitter.split(value);
+                            var f = parsableAs(arrs, IntRange.class, bindingContext);
                             boolean parsableAsSingleRange = parsableAs(value, IntRange.class, bindingContext);
-                            if (!f.getKey() && !parsableAsSingleRange) {
+                            if (!f && !parsableAsSingleRange) {
                                 isAllParsableAsRangeFlag = false;
                             }
-                            if (f.getKey() && f.getValue().length > 1 && !parsableAsSingleRange) {
+                            if (f && arrs.length > 1 && !parsableAsSingleRange) {
                                 isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                             }
                         }
                         if (isAllParsableAsArrayFlag) {
-                            Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
-                            if (g.getKey() && !zeroStartedNumbersFoundFlag) { // If array element
+                            var arrs = ArraySplitter.split(value);
+                            var g = parsableAs(arrs, type.getInstanceClass(), bindingContext);
+                            if (g && !zeroStartedNumbersFoundFlag) { // If array element
                                 // starts with 0 and
                                 // can be range
                                 // and
                                 // array for all elements then use Range by default. But if
                                 // no zero started elements then default String[]
-                                zeroStartedNumbersFoundFlag = Arrays.stream(g.getRight())
+                                zeroStartedNumbersFoundFlag = Arrays.stream(arrs)
                                     .anyMatch(e -> e != null && e.length() > 1 && e.startsWith("0"));
                             }
-                            if (!g.getKey()) {
+                            if (!g) {
                                 isAllParsableAsArrayFlag = false;
                             }
                         }
                     } else if (isDoubleType) {
                         if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
-                            Pair<Boolean, String[]> f = parsableAsArray(value, DoubleRange.class, bindingContext);
+                            var arrs = ArraySplitter.split(value);
+                            var f = parsableAs(arrs, DoubleRange.class, bindingContext);
                             boolean parsableAsSingleRange = parsableAs(value, DoubleRange.class, bindingContext);
-                            if (!f.getKey() && !parsableAsSingleRange) {
+                            if (!f && !parsableAsSingleRange) {
                                 isAllParsableAsRangeFlag = false;
                             }
-                            if (f.getKey() && f.getValue().length > 1 && !parsableAsSingleRange) {
+                            if (f && arrs.length > 1 && !parsableAsSingleRange) {
                                 isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                             }
                         }
                         if (isAllParsableAsArrayFlag) {
-                            Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
-                            if (g.getKey() && !zeroStartedNumbersFoundFlag) {
-                                zeroStartedNumbersFoundFlag = Arrays.stream(g.getRight())
+                            var arrs = ArraySplitter.split(value);
+                            var g = parsableAs(arrs, type.getInstanceClass(), bindingContext);
+                            if (g && !zeroStartedNumbersFoundFlag) {
+                                zeroStartedNumbersFoundFlag = Arrays.stream(arrs)
                                     .anyMatch(e -> e != null && e.length() > 1 && e.startsWith("0"));
                             }
-                            if (!g.getKey()) {
+                            if (!g) {
                                 isAllParsableAsArrayFlag = false;
                             }
                         }
                     } else if (isCharType) {
                         if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
-                            Pair<Boolean, String[]> f = parsableAsArray(value, CharRange.class, bindingContext);
+                            var arrs = ArraySplitter.split(value);
+                            var f = parsableAs(arrs, CharRange.class, bindingContext);
                             boolean parsableAsSingleRange = parsableAs(value, CharRange.class, bindingContext);
-                            if (!f.getKey() && !parsableAsSingleRange) {
+                            if (!f && !parsableAsSingleRange) {
                                 isAllParsableAsRangeFlag = false;
                             }
-                            if (f.getKey() && f.getValue().length > 1 && !parsableAsSingleRange) {
+                            if (f && arrs.length > 1 && !parsableAsSingleRange) {
                                 isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                             }
                         }
                         if (isAllParsableAsArrayFlag) {
-                            Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
-                            if (!g.getKey()) {
+                            var arrs = ArraySplitter.split(value);
+                            var g = parsableAs(arrs, type.getInstanceClass(), bindingContext);
+                            if (!g) {
                                 isAllParsableAsArrayFlag = false;
                             }
                         }
@@ -3947,14 +3947,15 @@ public final class DecisionTableHelper {
                         if (o instanceof String && !parsableAs(value, type.getInstanceClass(), bindingContext)) {
                             isAllParsableAsSingleFlag = false;
                         }
-                        Pair<Boolean, String[]> f = null;
+                        String[] arrs = null;
                         if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
-                            f = parsableAsArray(value, DateRange.class, bindingContext);
+                            arrs = ArraySplitter.split(value);
+                            var f = parsableAs(arrs, DateRange.class, bindingContext);
                             boolean parsableAsSingleRange = parsableAs(value, DateRange.class, bindingContext);
-                            if (isAllParsableAsRangeFlag && !f.getKey() && !parsableAsSingleRange) {
+                            if (isAllParsableAsRangeFlag && !f && !parsableAsSingleRange) {
                                 isAllParsableAsRangeFlag = false;
                             }
-                            if (f.getKey() && f.getValue().length > 1 && !parsableAsSingleRange) {
+                            if (f && arrs.length > 1 && !parsableAsSingleRange) {
                                 isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                             }
                         }
@@ -3963,10 +3964,10 @@ public final class DecisionTableHelper {
                             isAllLikelyNotRangeFlag = false;
                         }
                         if (isAllElementsLikelyNotRangeFlag) {
-                            if (f == null) {
-                                f = parsableAsArray(value, DateRange.class, bindingContext);
+                            if (arrs == null) {
+                                arrs = ArraySplitter.split(value);
                             }
-                            for (String v : f.getValue()) {
+                            for (String v : arrs) {
                                 if (DateRangeParser.getInstance().likelyRangeThanDate(v)) {
                                     isAllElementsLikelyNotRangeFlag = false;
                                     break;
@@ -3974,21 +3975,23 @@ public final class DecisionTableHelper {
                             }
                         }
                         if (isAllParsableAsArrayFlag) {
-                            Pair<Boolean, String[]> g = parsableAsArray(value, type.getInstanceClass(), bindingContext);
-                            if (!g.getKey()) {
+                            arrs = ArraySplitter.split(value);
+                            var g = parsableAs(arrs, type.getInstanceClass(), bindingContext);
+                            if (!g) {
                                 isAllParsableAsArrayFlag = false;
                             }
                         }
                     } else if (isStringType) {
-                        Pair<Boolean, String[]> f = null;
+                        String[] arrs = null;
                         if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
-                            f = parsableAsArray(value, StringRange.class, bindingContext);
+                            arrs = ArraySplitter.split(value);
+                            var f = parsableAs(arrs, StringRange.class, bindingContext);
                             if (isAllParsableAsRangeFlag && !f
-                                .getKey() && !parsableAs(value, StringRange.class, bindingContext)) {
+                                && !parsableAs(value, StringRange.class, bindingContext)) {
                                 isAllParsableAsRangeFlag = false;
                             }
                             if (!isNotParsableAsSingleRangeButParsableAsRangesArrayFlag && f
-                                .getKey() && f.getValue().length > 1) {
+                                && arrs.length > 1) {
                                 isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                             }
                         }
@@ -3996,10 +3999,10 @@ public final class DecisionTableHelper {
                             isAllLikelyNotRangeFlag = false;
                         }
                         if (isAllElementsLikelyNotRangeFlag) {
-                            if (f == null) {
-                                f = parsableAsArray(value, StringRange.class, bindingContext);
+                            if (arrs == null) {
+                                arrs = ArraySplitter.split(value);
                             }
-                            for (String v : f.getValue()) {
+                            for (String v : arrs) {
                                 if (StringRangeParser.getInstance().likelyRangeThanString(v)) {
                                     isAllElementsLikelyNotRangeFlag = false;
                                     break;
