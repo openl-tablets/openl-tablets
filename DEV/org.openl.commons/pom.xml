@@ -46,5 +46,12 @@
             <groupId>org.openl</groupId>
             <artifactId>org.openl.rules.util</artifactId>
         </dependency>
+
+        <!-- micro benchmark -->
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
