@@ -228,13 +228,7 @@ public class StringUtils {
         if (isEmpty(cs)) {
             return true;
         }
-        int strLen = cs.length();
-        for (int i = 0; i < strLen; i++) {
-            if (!Character.isWhitespace(cs.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
+        return firstNonSpace(cs, 0, cs.length()) < 0;
     }
 
     /**
