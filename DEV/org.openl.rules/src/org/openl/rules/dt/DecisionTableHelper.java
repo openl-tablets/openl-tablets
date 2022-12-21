@@ -56,6 +56,7 @@ import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
 import org.openl.rules.fuzzy.Token;
+import org.openl.rules.helpers.ArraySplitter;
 import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.DateRangeParser;
@@ -100,7 +101,6 @@ import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.IOUtils;
-import org.openl.util.StringTool;
 
 public final class DecisionTableHelper {
 
@@ -3571,9 +3571,7 @@ public final class DecisionTableHelper {
     private static Pair<Boolean, String[]> parsableAsArray(String src,
             Class<?> componentType,
             IBindingContext bindingContext) {
-        String[] values = StringTool.splitAndEscape(src,
-            RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR,
-            RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+        String[] values = ArraySplitter.split(src);
         try {
             for (String value : values) {
                 String2DataConvertorFactory.parse(componentType, value, bindingContext);
