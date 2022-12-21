@@ -3,7 +3,7 @@ package org.openl.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.function.IntPredicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -33,6 +33,7 @@ public class StringUtils {
      * StringUtils.split("", *)           = []
      * StringUtils.split("a.b.c", '.')    = ["a", "b", "c"]
      * StringUtils.split("a..b.c", '.')   = ["a", "b", "c"]
+     * StringUtils.split("a . .b.c", '.') = ["a", "b", "c"]
      * StringUtils.split(" a b:c ", '.')  = ["a b:c"]
      * StringUtils.split("a b c", ' ')    = ["a", "b", "c"]
      * StringUtils.split(" a, b, c", ',') = ["a", "b", "c"]
@@ -43,7 +44,7 @@ public class StringUtils {
      * @return an array of parsed Strings, {@code null} if null String input
      */
     public static String[] split(final String str, final char separator) {
-        return splitWorker(str, ch -> ch == separator, true);
+        return splitWorker(str, ch -> ch == separator);
     }
 
     /**
@@ -72,29 +73,47 @@ public class StringUtils {
      * @return an array of parsed Strings, {@code null} if null String input
      */
     public static String[] split(final String str) {
-        return splitWorker(str, Character::isWhitespace, false);
+        return splitWorker(str, Character::isWhitespace);
     }
 
-    private static String[] splitWorker(final String str, final Predicate<Character> tester, boolean trim) {
+    private static String[] splitWorker(final String str, final IntPredicate tester) {
         if (str == null) {
             return null;
         }
         final int len = str.length();
-        if (len == 0) {
+
+        // count of the result size
+        var count = 0;
+        var match = false;
+        for (int i = 0; i < len; i++) {
+            var ch = str.charAt(i);
+            if (tester.test(ch)) {
+                match = false;
+            } else if (!match && !isSpaceOrControl(ch)) {
+                count++;
+                match = true;
+            }
+        }
+        if (count == 0) {
             return EMPTY_STRING_ARRAY;
         }
-        final List<String> list = new ArrayList<>();
+
+        var result = new String[count];
+
+        // splitting by separator and stripping a token
         int i = 0, start = 0, end = 0;
-        boolean match = false;
+        match = false;
+        count = 0;
         while (i < len) {
             char ch = str.charAt(i++);
             if (tester.test(ch)) {
                 if (match) {
-                    list.add(str.substring(start, end));
+                    result[count] = str.substring(start, end);
                     match = false;
+                    count++;
                 }
                 start = i;
-            } else if (trim && Character.isWhitespace(ch)) {
+            } else if (isSpaceOrControl(ch)) {
                 if (!match) {
                     start = i;
                 }
@@ -104,9 +123,9 @@ public class StringUtils {
             }
         }
         if (match) {
-            list.add(str.substring(start, end));
+            result[count] = str.substring(start, end);
         }
-        return list.toArray(new String[0]);
+        return result;
     }
 
     /**
