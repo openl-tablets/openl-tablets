@@ -61,8 +61,6 @@ public final class RuleRowHelper {
     }
 
     private static final String COMMENTARY = "//";
-    public static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
-    public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
     public static final String CONSTRUCTOR = "constructor";
 
     private static final Object EMPTY_CELL = new Object();

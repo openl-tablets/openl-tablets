@@ -1,9 +1,11 @@
 package org.openl.rules.tableeditor.model;
 
-import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.tableeditor.event.TableEditorController;
 
 public class MultiSelectCellEditor extends ComboBoxCellEditor {
+    private static final String ARRAY_ELEMENTS_SEPARATOR = ",";
+    private static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
+
     public static class MultiChoiceParam extends ComboBoxParam {
         private String separator;
         private String separatorEscaper;
@@ -36,8 +38,8 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
         super(displayValues);
         String[] insertedEscChoices = new String[choices.length];
         for (int i = 0; i < choices.length; i++) {
-            insertedEscChoices[i] = choices[i].replaceAll(RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR,
-                RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR_ESCAPER + RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR);
+            insertedEscChoices[i] = choices[i].replaceAll(ARRAY_ELEMENTS_SEPARATOR,
+                ARRAY_ELEMENTS_SEPARATOR_ESCAPER + ARRAY_ELEMENTS_SEPARATOR);
         }
         super.setChoices(insertedEscChoices);
     }
@@ -48,8 +50,8 @@ public class MultiSelectCellEditor extends ComboBoxCellEditor {
             CE_MULTISELECT);
         typeResponse.setParams(new MultiChoiceParam(getChoices(),
             getDisplayValues(),
-            RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR,
-            RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR_ESCAPER));
+            ARRAY_ELEMENTS_SEPARATOR,
+            ARRAY_ELEMENTS_SEPARATOR_ESCAPER));
         return typeResponse;
     }
 }
