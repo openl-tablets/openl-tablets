@@ -14,9 +14,9 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.domain.EnumDomain;
 import org.openl.meta.StringValue;
-import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
+import org.openl.rules.helpers.ArraySplitter;
 import org.openl.rules.table.CellKey;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
@@ -43,7 +43,6 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
-    private static final String NOT_INITIALIZED = "<not_initialized>";
     private final IdentifierNode foreignKeyTable;
     private final IdentifierNode[] foreignKeyTableAccessorChainTokens;
     private final IdentifierNode foreignKey;
@@ -87,7 +86,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     /**
      * Goes through the values as foreign keys, finds all info about this objects in foreign table and puts it to array.
-     * Can process array value presented as {@link RuleRowHelper#ARRAY_ELEMENTS_SEPARATOR} array.
+     * Can process array value presented as comma separated elements.
      *
      * @param valuesTable Logical table representing array values for current table.
      * @param bindingContext binding context
@@ -107,9 +106,11 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
         if (valuesHeight == 1) {
             // load array of values as comma separated parameters
-            String[] tokens = RuleRowHelper.extractElementsFromCommaSeparatedArray(valuesTable);
 
-            if (tokens != null) {
+            String src = valuesTable.getSource().getCell(0, 0).getStringValue();
+
+            if (src != null) {
+                String[] tokens = ArraySplitter.split(src);
                 for (String token : tokens) {
                     Object res = getValueByForeignKeyIndex(bindingContext,
                         foreignTable,

@@ -3,7 +3,7 @@ package org.openl.rules.convertor;
 import java.lang.reflect.Array;
 
 import org.openl.binding.IBindingContext;
-import org.openl.util.StringTool;
+import org.openl.rules.helpers.ArraySplitter;
 
 /**
  * A converter for arrays. It converts strings to an array of a specified type. E.g. for int[]: "1,2,4,8" ==>
@@ -12,17 +12,6 @@ import org.openl.util.StringTool;
  * @author Yury Molchan
  */
 class String2ArrayConvertor<C, T> implements IString2DataConvertor<T>, IString2DataConverterWithContext<T> {
-
-    /**
-     * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It is needed when the element contains
-     * separator as part of object name, e.g: Mike\\,Sara`s Son.
-     */
-    public static final String ARRAY_ELEMENTS_SEPARATOR_ESCAPER = "\\";
-
-    /**
-     * Separator for elements of array, represented as <code>{@link String}</code>.
-     */
-    public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
     private final Class<C> componentType;
 
@@ -43,8 +32,7 @@ class String2ArrayConvertor<C, T> implements IString2DataConvertor<T>, IString2D
             return (T) Array.newInstance(componentType, 0);
         }
 
-        String[] elementValues = StringTool
-            .splitAndEscape(data, ARRAY_ELEMENTS_SEPARATOR, ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+        String[] elementValues = ArraySplitter.split(data);
         T resultArray = (T) Array.newInstance(componentType, elementValues.length);
 
         IString2DataConvertor<C> converter = String2DataConvertorFactory.getConvertor(componentType);

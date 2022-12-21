@@ -29,6 +29,7 @@ import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.element.ArrayHolder;
+import org.openl.rules.helpers.ArraySplitter;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -53,7 +54,6 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.DomainUtils;
 import org.openl.util.StringPool;
-import org.openl.util.StringTool;
 
 public final class RuleRowHelper {
 
@@ -86,15 +86,15 @@ public final class RuleRowHelper {
         String src = cell.getSource().getCell(0, 0).getStringValue();
 
         if (src != null) {
-            tokens = StringTool.splitAndEscape(src, ARRAY_ELEMENTS_SEPARATOR, ARRAY_ELEMENTS_SEPARATOR_ESCAPER);
+            tokens = ArraySplitter.split(src);
         }
 
         return tokens;
     }
 
     /**
-     * Method to support loading Arrays through {@link #ARRAY_ELEMENTS_SEPARATOR} in one cell. Gets the cell string
-     * value. Split it by {@link #ARRAY_ELEMENTS_SEPARATOR}, and process every token as single parameter. Returns array
+     * Method to support loading Arrays through comma in one cell. Gets the cell string
+     * value. Split it by comma, and process every token as single parameter. Returns array
      * of parameters.
      *
      * @return Array of parameters.
@@ -107,10 +107,12 @@ public final class RuleRowHelper {
             OpenlToolAdaptor openlAdaptor) {
 
         Object arrayValues;
-        String[] tokens = extractElementsFromCommaSeparatedArray(cell);
 
-        if (tokens != null) {
+        String src = cell.getSource().getCell(0, 0).getStringValue();
 
+        if (src != null) {
+
+            String[] tokens = ArraySplitter.split(src);
             ArrayList<Object> values = new ArrayList<>(tokens.length);
 
             for (String token : tokens) {
@@ -482,7 +484,7 @@ public final class RuleRowHelper {
             ICell theValueCell) {
         MetaInfoReader metaInfoReader = openlAdapter.getTableSyntaxNode().getMetaInfoReader();
         if (metaInfoReader instanceof BaseMetaInfoReader) {
-            String[] tokens = StringTool.splitAndEscape(theValueCell.getStringValue(), ARRAY_ELEMENTS_SEPARATOR, null);
+            String[] tokens = ArraySplitter.split(theValueCell.getStringValue());
             String cellValue = theValueCell.getStringValue();
             int startFrom = 0;
             for (String token : tokens) {
