@@ -147,6 +147,7 @@ public class StringUtilsTest {
         assertTrue("Returned value is false", StringUtils.isBlank(" "));
         assertFalse("Returned value is true", StringUtils.isBlank("boo"));
         assertFalse("Returned value is true", StringUtils.isBlank("  boo  "));
+        assertTrue("Returned value is true", StringUtils.isBlank(CONTROLS_AND_SPACES));
     }
 
     @Test
@@ -156,6 +157,7 @@ public class StringUtilsTest {
         assertFalse("Returned value is true", StringUtils.isNotBlank(" "));
         assertTrue("Returned value is false", StringUtils.isNotBlank("boo"));
         assertTrue("Returned value is false", StringUtils.isNotBlank("  boo  "));
+        assertFalse("Returned value is false", StringUtils.isNotBlank(CONTROLS_AND_SPACES));
     }
 
     @Test
