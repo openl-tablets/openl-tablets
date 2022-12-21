@@ -294,14 +294,11 @@ public class RangeParser {
     }
 
     private static int prevNonSpace(CharSequence text, int start, int end) throws ParseException {
-        while (Character.isWhitespace(text.charAt(end))) {
-            end--;
-            if (start > end) {
-                throw new ParseException("Unexpected whitespace", start);
-            }
+        int index = StringUtils.lastNonSpace(text, start, end + 1);
+        if (index < 0) {
+            throw new ParseException("Unexpected whitespace", start);
         }
-        return end;
-
+        return index;
     }
 
     private static int findSep(CharSequence text, int start, int end) {

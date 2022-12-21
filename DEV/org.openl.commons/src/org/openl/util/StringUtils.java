@@ -526,4 +526,23 @@ public class StringUtils {
         }
         return -1;
     }
+
+    /**
+     * Find position of the last not white space symbol.
+     *
+     * @param text  the string where a not white space symbol should be searched
+     * @param start the start position of the searching inclusive
+     * @param end   the final position of searching exclusive
+     * @return position of a not white space symbol or -1
+     */
+    public static int lastNonSpace(CharSequence text, int start, int end) {
+        start = Math.max(start, 0);
+        for (int i = Math.min(text.length(), end) - 1; i >= start; i--) {
+            char ch = text.charAt(i);
+            if (!isSpaceOrControl(ch)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }

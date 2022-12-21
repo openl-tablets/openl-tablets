@@ -293,4 +293,47 @@ public class StringUtilsTest {
         assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",0,0), -1);
         assertEquals( StringUtils.firstNonSpace("X  \b\t\r\n    Y",12,12), -1);
     }
+
+    @Test
+    public void testLastNonSpace() {
+        assertEquals( StringUtils.lastNonSpace(CONTROLS_AND_SPACES,0,CONTROLS_AND_SPACES.length()), -1);
+        assertEquals( StringUtils.lastNonSpace("",0,0), -1);
+        assertEquals( StringUtils.lastNonSpace("",0,0), -1);
+        assertEquals( StringUtils.lastNonSpace("",-1,1), -1);
+        assertEquals( StringUtils.lastNonSpace("",0,-1), -1);
+        assertEquals( StringUtils.lastNonSpace("X",-1,1), 0);
+        assertEquals( StringUtils.lastNonSpace("X",0,1), 0);
+        assertEquals( StringUtils.lastNonSpace("XY",0,2), 1);
+        assertEquals( StringUtils.lastNonSpace("XY",1,2), 1);
+        assertEquals( StringUtils.lastNonSpace("XY",2,2), -1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,0), -1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,1), 0);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,2), 1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,3), 1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,4), 1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,5), 1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,6), 1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",0,7), 1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",1,7), 1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",2,7), -1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",3,7), -1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",4,7), -1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",5,7), -1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",6,7), -1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",7,7), -1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",1,5), 1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",1,2), 1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",1,1), -1);
+        assertEquals( StringUtils.lastNonSpace("XY \b\t\r\n",1,0), -1);
+        assertEquals( StringUtils.lastNonSpace("   \b\t\r\n   ",0,10), -1);
+        assertEquals( StringUtils.lastNonSpace("   \b\t\r\n   ",1,9), -1);
+        assertEquals( StringUtils.lastNonSpace("   \b\t\r\n   ",-1,11), -1);
+        assertEquals( StringUtils.lastNonSpace("   \b\t\r\n   ",1,11), -1);
+        assertEquals( StringUtils.lastNonSpace("   \b\t\r\n   ",-1,9), -1);
+        assertEquals( StringUtils.lastNonSpace("X  \b\t\r\n    Y",1,11), -1);
+        assertEquals( StringUtils.lastNonSpace("X  \b\t\r\n    Y",1,12), 11);
+        assertEquals( StringUtils.lastNonSpace("X  \b\t\r\n    Y",0,11), 0);
+        assertEquals( StringUtils.lastNonSpace("X  \b\t\r\n    Y",0,0), -1);
+        assertEquals( StringUtils.lastNonSpace("X  \b\t\r\n    Y",12,12), -1);
+    }
 }
