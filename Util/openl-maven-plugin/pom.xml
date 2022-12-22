@@ -29,6 +29,7 @@
         <multimodule.timeoutInSeconds>${invoker.timeoutInSeconds}</multimodule.timeoutInSeconds>
         <multimodule.mavenOpts>${invoker.mavenOpts}</multimodule.mavenOpts>
         <gen-datatypes.timeoutInSeconds>${invoker.timeoutInSeconds}</gen-datatypes.timeoutInSeconds>
+        <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
     <dependencies>
         <dependency>
@@ -138,70 +139,46 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>install</goal>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <projectsDirectory>it</projectsDirectory>
+                    <pomIncludes>
+                        <pomInclude>*/pom.xml</pomInclude>
+                    </pomIncludes>
+                    <preBuildHookScript>setup</preBuildHookScript>
+                    <postBuildHookScript>verify</postBuildHookScript>
+                    <goals>
+                        <goal>clean</goal>
+                        <goal>verify</goal>
+                    </goals>
+                    <streamLogs>true</streamLogs>
+                    <useLocalRepository>true</useLocalRepository>
+                    <properties>
+                        <maven.compiler.release>11</maven.compiler.release>
+                        <openl.info>main</openl.info>
+                    </properties>
+                    <showErrors>true</showErrors>
+                    <!-- Estimated test's time should not take more than 10 sec on 4х CPU (2GHz) -->
+                    <!-- with limited amount of memory. It allows to detect memory leaks. -->
+                    <!-- Special cases should be defined in invoker.properties file. -->
+                    <!-- !!! Don't increase these parameters without special need !!! -->
+                    <timeoutInSeconds>${invoker.timeoutInSeconds}</timeoutInSeconds>
+                    <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <profiles>
-        <profile>
-            <id>it</id>
-            <activation>
-                <property>
-                    <name>!skipTests</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-invoker-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>install</goal>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <projectsDirectory>it</projectsDirectory>
-                            <pomIncludes>
-                                <pomInclude>*/pom.xml</pomInclude>
-                            </pomIncludes>
-                            <preBuildHookScript>setup</preBuildHookScript>
-                            <postBuildHookScript>verify</postBuildHookScript>
-                            <goals>
-                                <goal>clean</goal>
-                                <goal>verify</goal>
-                            </goals>
-                            <streamLogs>true</streamLogs>
-                            <useLocalRepository>true</useLocalRepository>
-                            <properties>
-                                <maven.compiler.release>11</maven.compiler.release>
-                                <openl.info>main</openl.info>
-                            </properties>
-                            <showErrors>true</showErrors>
-                            <!-- Estimated test's time should not take more than 10 sec on 4х CPU (2GHz) -->
-                            <!-- with limited amount of memory. It allows to detect memory leaks. -->
-                            <!-- Special cases should be defined in invoker.properties file. -->
-                            <!-- !!! Don't increase these parameters without special need !!! -->
-                            <timeoutInSeconds>${invoker.timeoutInSeconds}</timeoutInSeconds>
-                            <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-            <dependencies>
-                <dependency>
-                    <groupId>org.openl.rules</groupId>
-                    <artifactId>org.openl.rules.ruleservice.annotation</artifactId>
-                    <scope>test</scope>
-                </dependency>
-                <dependency>
-                    <groupId>org.openl.rules</groupId>
-                    <artifactId>org.openl.rules.calculation.result</artifactId>
-                    <scope>test</scope>
-                </dependency>
-            </dependencies>
-        </profile>
         <profile>
             <id>perf</id>
             <activation>

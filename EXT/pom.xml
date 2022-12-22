@@ -10,6 +10,9 @@
     <packaging>pom</packaging>
     <name>OpenL - EXT - POM</name>
     <description>OpenL Extensions Pom Project</description>
+    <properties>
+        <skipTestsForQuick>true</skipTestsForQuick>
+    </properties>
     <modules>
         <module>org.openl.rules.activiti</module>
         <module>org.openl.rules.ruleservice.activiti</module>

@@ -16,6 +16,7 @@
 
     <properties>
         <dockerized>true</dockerized>
+        <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
 
     <build>

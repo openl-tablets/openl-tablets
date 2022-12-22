@@ -17,6 +17,7 @@
     </organization>
     <properties>
         <maven.javadoc.skip>true</maven.javadoc.skip>
+        <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
     <build>
         <resources>
@@ -55,6 +56,7 @@
             </plugins>
         </pluginManagement>
     </build>
+
     <dependencies>
         <dependency>
             <groupId>org.openl.rules</groupId>
@@ -62,25 +64,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    <profiles>
-        <profile>
-            <id>it</id>
-            <activation>
-                <property>
-                    <name>!skipTests</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-archetype-plugin</artifactId>
-                        <configuration>
-                            <skip>false</skip>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+
 </project>

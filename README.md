@@ -36,9 +36,11 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 
 #### Build Maven artifacts:
 
-`mvn`
+`mvn` - full build with tests
 
 Estimated build time: ~30 minutes (with all tests)
+
+`mvn -Dquick -DnoPerf -T1C` - rapid building with less amount of the tests
 
 It is possible to use the following settings:
 
@@ -46,7 +48,10 @@ It is possible to use the following settings:
 
 `-DnoDocker` - to skip dockerized tests
 
-`-P!it` - to skip integration tests
+`-Dquick` - to skip heavy or not important tests
+
+`-DskipTests` - to skip all tests
+
 
 Artifacts:
 * **WebStudio** - STUDIO\org.openl.rules.webstudio\target\webapp.war

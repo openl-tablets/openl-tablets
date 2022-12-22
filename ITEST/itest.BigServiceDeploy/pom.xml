@@ -4,6 +4,7 @@
 
     <properties>
         <surefire.argLine>-Xms128m -Xmx2048m -Xss256k</surefire.argLine>
+        <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
 
     <parent>
