@@ -3810,8 +3810,7 @@ public final class DecisionTableHelper {
                     canMadeDecisionAboutSingle = canMadeDecisionAboutSingle && type.equals(constantOpenField.getType());
                     continue;
                 }
-
-                if (!arraySeparatorFoundFlag && value.contains(RuleRowHelper.ARRAY_ELEMENTS_SEPARATOR)) {
+                if (!arraySeparatorFoundFlag && ArraySplitter.isArray(value)) {
                     arraySeparatorFoundFlag = true;
                 }
                 try {

@@ -29,6 +29,26 @@ public class ArraySplitterTest {
     }
 
     @Test
+    public void isArray() {
+        assertFalse(ArraySplitter.isArray(""));
+        assertFalse(ArraySplitter.isArray("   \t\r\n \b "));
+        assertFalse(ArraySplitter.isArray("test"));
+        assertFalse(ArraySplitter.isArray(" t e s t "));
+        assertTrue(ArraySplitter.isArray(" \\,  "));
+        assertTrue(ArraySplitter.isArray("\\,"));
+        assertTrue(ArraySplitter.isArray("\\,\\\\,"));
+        assertTrue(ArraySplitter.isArray(",\\,\\\\,"));
+        assertTrue(ArraySplitter.isArray(",,"));
+        assertTrue(ArraySplitter.isArray(","));
+        assertTrue(ArraySplitter.isArray("  \t\r\n\b , \t\r\n\b"));
+        assertTrue(ArraySplitter.isArray("  \t\r\n\b \\, \t\r\n\b"));
+        assertTrue(ArraySplitter.isArray("a,s"));
+        assertTrue(ArraySplitter.isArray(",a,s,"));
+        assertTrue(ArraySplitter.isArray("s, ,,a"));
+        assertTrue(ArraySplitter.isArray(" a \\ , s "));
+    }
+
+    @Test
     public void testSplitAndEscape() {
         assertArrayEquals(new String[]{"Hello! I want to split it", "Right", "Lets Do it"}, ArraySplitter.split("Hello! I want to split it, Right , Lets Do it"));
         assertArrayEquals(new String[]{"Hello! I want to split it", "Right", "Lets Do it"}, ArraySplitter.split("    Hello! I want to split it, Right , Lets Do it    "));

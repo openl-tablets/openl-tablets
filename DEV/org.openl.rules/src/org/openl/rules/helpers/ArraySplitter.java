@@ -38,6 +38,13 @@ public class ArraySplitter {
         return result;
     }
 
+    /**
+     * Checks if the given string can be recognized as an array.
+     */
+    public static boolean isArray(String text) {
+        return text.indexOf(ARRAY_SEPARATOR) >= 0;
+    }
+
     private static String stripToNull(String text, int start, int end) {
         int beginIndex = StringUtils.firstNonSpace(text, start, end);
         if (beginIndex < 0) {

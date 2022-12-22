@@ -80,18 +80,6 @@ public final class RuleRowHelper {
         return last + 1;
     }
 
-    public static String[] extractElementsFromCommaSeparatedArray(ILogicalTable cell) {
-
-        String[] tokens = null;
-        String src = cell.getSource().getCell(0, 0).getStringValue();
-
-        if (src != null) {
-            tokens = ArraySplitter.split(src);
-        }
-
-        return tokens;
-    }
-
     /**
      * Method to support loading Arrays through comma in one cell. Gets the cell string
      * value. Split it by comma, and process every token as single parameter. Returns array
@@ -623,10 +611,12 @@ public final class RuleRowHelper {
         if (oneCellTable) {
             if (!isFormula(dataTable)) {
                 // try to load as constant first
-                String[] tokens = extractElementsFromCommaSeparatedArray(dataTable.getRow(0));
-                if (tokens != null && tokens.length == 1) {
-                    ConstantOpenField constantOpenField = findConstantField(openlAdaptor.getBindingContext(),
-                        tokens[0]);
+                ILogicalTable paramSource = dataTable.getRow(0);
+
+                String src = paramSource.getSource().getCell(0, 0).getStringValue();
+
+                if (src != null && !ArraySplitter.isArray(src)) {
+                    ConstantOpenField constantOpenField = findConstantField(openlAdaptor.getBindingContext(), src);
                     if (constantOpenField != null) {
                         IOpenCast openCast = openlAdaptor.getBindingContext()
                             .getCast(constantOpenField.getType(), paramType);
@@ -643,7 +633,6 @@ public final class RuleRowHelper {
 
                 // load comma separated array
 
-                ILogicalTable paramSource = dataTable.getRow(0);
                 Object params = loadCommaSeparatedParam(paramType, arrayType, paramName, ruleName, paramSource, openlAdaptor);
                 Class<?> paramClass = params.getClass();
                 if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
