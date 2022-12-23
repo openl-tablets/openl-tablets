@@ -1081,11 +1081,12 @@ Content-Type: application/json
           "aB": {
             "type": "number",
             "format": "double",
-            "default": 0
+            "default": 0.0
           },
           "Ba": {
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "default": "2020-01-15T00:00:00+02:00"
           },
           "BB": {
             "type": "boolean",

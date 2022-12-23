@@ -2652,11 +2652,11 @@ components:
         claimsSecuredByPropertyCharges:
           type: number
           format: double
-          default: 0
+          default: 0.0
         claimsOnBanks:
           type: number
           format: double
-          default: 0
+          default: 0.0
         claimsOnCustomers:
           type: number
           format: double
@@ -2664,11 +2664,11 @@ components:
         loanLossProvisionsForClaimsOnCustomers:
           type: number
           format: double
-          default: 0
+          default: 0.0
         otherAssets:
           type: number
           format: double
-          default: 0
+          default: 0.0
         capital:
           type: number
           format: double
@@ -2676,7 +2676,7 @@ components:
         equity:
           type: number
           format: double
-          default: 0
+          default: 0.0
         liabilities:
           type: number
           format: double
@@ -2684,7 +2684,7 @@ components:
         liabilitiesToBanks:
           type: number
           format: double
-          default: 0
+          default: 0.0
         liabilitiesToCustomers:
           type: number
           format: double
@@ -2696,7 +2696,7 @@ components:
         liabilitiesToCustomersOnDemand:
           type: number
           format: double
-          default: 0
+          default: 0.0
         consolidatedProfit:
           type: number
           format: double
