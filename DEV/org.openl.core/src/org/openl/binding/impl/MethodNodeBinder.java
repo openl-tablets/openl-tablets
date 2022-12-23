@@ -158,9 +158,10 @@ public class MethodNodeBinder extends ANodeBinder {
                     params.add(iBoundNode);
                 }
             }
-            if (isAllParamsAssign && namedParams.stream().allMatch(n -> type.getField(n) != null)) {
-                IMethodCaller methodCaller = MethodSearch.findConstructor(IOpenClass.EMPTY, bindingContext, type);
-                MethodBoundNode methodBoundNode = new MethodBoundNode(node, methodCaller);
+            IMethodCaller defaultConstructor = MethodSearch.findConstructor(IOpenClass.EMPTY, bindingContext, type);
+            if (defaultConstructor != null && isAllParamsAssign && namedParams.stream()
+                .allMatch(n -> type.getField(n) != null)) {
+                MethodBoundNode methodBoundNode = new MethodBoundNode(node, defaultConstructor);
                 return new ConstructorNamedParamsNode(localVar, methodBoundNode, params.toArray(IBoundNode.EMPTY));
             } else if (!Date.class.getName().equals(type.getName())) {
                 IBoundNode[] children = params.toArray(IBoundNode.EMPTY);
