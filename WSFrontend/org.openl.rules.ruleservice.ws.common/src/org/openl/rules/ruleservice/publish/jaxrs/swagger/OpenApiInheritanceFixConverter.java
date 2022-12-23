@@ -65,14 +65,8 @@ public class OpenApiInheritanceFixConverter implements ModelConverter {
         for (Class<?> parentClass : parentClasses) {
             ModelConverterContextImpl modelConverterContext1 = new ModelConverterContextImpl(converters);
             modelConverterContext1.resolve(new AnnotatedType().type(parentClass));
-            Map<String, Schema> modelByName1 = getModelByName(modelConverterContext1);
-            for (Map.Entry<String, Schema> entry : modelByName1.entrySet()) {
-                modelByNameInContext.put(entry.getKey(), entry.getValue());
-            }
-            Map<AnnotatedType, Schema> modelByType1 = getModelByType(modelConverterContext1);
-            for (Map.Entry<AnnotatedType, Schema> entry : modelByType1.entrySet()) {
-                modelByTypeInContext.put(entry.getKey(), entry.getValue());
-            }
+            modelByNameInContext.putAll(getModelByName(modelConverterContext1));
+            modelByTypeInContext.putAll(getModelByType(modelConverterContext1));
         }
     }
 

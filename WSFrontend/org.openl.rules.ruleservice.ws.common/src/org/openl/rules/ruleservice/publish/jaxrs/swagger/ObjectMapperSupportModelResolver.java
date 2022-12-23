@@ -2,9 +2,13 @@ package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
 import static io.swagger.v3.core.util.RefUtils.constructRef;
 
+import java.lang.annotation.Annotation;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.openl.rules.convertor.IString2DataConvertor;
+import org.openl.rules.convertor.String2DataConvertorFactory;
+import org.openl.util.JAXBUtils;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -28,6 +32,22 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
         super(mapper);
     }
 
+    @Override
+    protected Object resolveDefaultValue(Annotated a,
+            Annotation[] annotations,
+            io.swagger.v3.oas.annotations.media.Schema schema) {
+        Object defaultValue = super.resolveDefaultValue(a, annotations, schema);
+        if (defaultValue instanceof String) {
+            Class<?> t = JAXBUtils.extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(a.getRawType());
+            Class<?> rawType = t == null ? a.getRawType() : t;
+            IString2DataConvertor<?> convertor = String2DataConvertorFactory.getConvertor(rawType);
+            if (convertor != null) {
+                return convertor.parse((String) defaultValue, null);
+            }
+        }
+        return defaultValue;
+    }
+
     @SuppressWarnings("rawtypes")
     protected void resolveDiscriminatorProperty(JavaType type, ModelConverterContext context, Schema model) {
         final BeanDescription beanDesc = _mapper.getSerializationConfig().introspect(type);
@@ -35,7 +55,7 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
         if (typeInfo != null) {
             if (beanDesc.getBeanClass().getSuperclass() != null) {
                 final BeanDescription superBeanDesc = _mapper.getSerializationConfig()
-                        .introspect(TypeFactory.defaultInstance().constructType(beanDesc.getBeanClass().getSuperclass()));
+                    .introspect(TypeFactory.defaultInstance().constructType(beanDesc.getBeanClass().getSuperclass()));
                 JsonTypeInfo superJsonTypeInfo = superBeanDesc.getClassInfo().getAnnotation(JsonTypeInfo.class);
                 JsonSubTypes jsonSubTypes = superBeanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
                 if (jsonSubTypes != null) {
@@ -69,7 +89,7 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
     protected Discriminator resolveDiscriminator(JavaType type, ModelConverterContext context) {
 
         io.swagger.v3.oas.annotations.media.Schema declaredSchemaAnnotation = AnnotationsUtils
-                .getSchemaDeclaredAnnotation(type.getRawClass());
+            .getSchemaDeclaredAnnotation(type.getRawClass());
 
         String disc = (declaredSchemaAnnotation == null) ? "" : declaredSchemaAnnotation.discriminatorProperty();
         boolean avoidDisc = false;
@@ -84,7 +104,7 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
 
             if (StringUtils.isNotBlank(disc) && beanDesc.getBeanClass().getSuperclass() != null) {
                 final BeanDescription superBeanDesc = _mapper.getSerializationConfig()
-                        .introspect(TypeFactory.defaultInstance().constructType(beanDesc.getBeanClass().getSuperclass()));
+                    .introspect(TypeFactory.defaultInstance().constructType(beanDesc.getBeanClass().getSuperclass()));
                 JsonTypeInfo superJsonTypeInfo = superBeanDesc.getClassInfo().getAnnotation(JsonTypeInfo.class);
                 JsonSubTypes jsonSubTypes = superBeanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
                 if (jsonSubTypes != null) {
@@ -96,7 +116,7 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
                     }
                 }
                 avoidDisc = avoidDisc && superJsonTypeInfo != null && Objects.equals(superJsonTypeInfo.property(),
-                        disc);
+                    disc);
             }
         }
         if (StringUtils.isNotBlank(disc) && !avoidDisc) {
@@ -107,7 +127,7 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
                     for (DiscriminatorMapping mapping : mappings) {
                         if (!mapping.value().isEmpty() && !mapping.schema().equals(Void.class)) {
                             discriminator.mapping(mapping.value(),
-                                    constructRef(context.resolve(new AnnotatedType().type(mapping.schema())).getName()));
+                                constructRef(context.resolve(new AnnotatedType().type(mapping.schema())).getName()));
                         }
                     }
                 }
