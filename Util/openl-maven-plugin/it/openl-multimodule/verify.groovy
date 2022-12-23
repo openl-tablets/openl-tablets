@@ -22,7 +22,7 @@ try {
         assert fileNames.contains('lib/logback-classic-1.2.3.jar')
         assert fileNames.contains('lib/logback-core-1.2.3.jar')
         // from dependency-c
-        assert fileNames.contains('lib/commons-lang-2.6.jar')
+        assert fileNames.contains('lib/commons-lang3-3.12.0.jar')
 
         // openl jars should not be included
         assert !fileNames.any { it.startsWith('lib/org.openl.rules.project') }
