@@ -112,7 +112,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
     @Override
     public IOpenMethod getConstructor(IOpenClass[] params) throws AmbiguousMethodException {
-        return baseClass.getConstructor(params);
+        return null;
     }
 
     @Override
@@ -295,7 +295,7 @@ public class DomainOpenClass implements IOpenClass, BelongsToModuleOpenClass {
 
     @Override
     public Iterable<IOpenMethod> constructors() {
-        return baseClass.constructors();
+        return Collections.emptyList();
     }
 
     @Override
