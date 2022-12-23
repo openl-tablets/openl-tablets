@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,7 +33,7 @@ public final class OpenApiObjectMapperHack {
         converters.clear();
         OpenApiInheritanceFixConverter openApiInheritanceFixConverter = new OpenApiInheritanceFixConverter(objectMapper,
             hackedConverters);
-        converters.addAll(Collections.singleton(openApiInheritanceFixConverter));
+        converters.add(openApiInheritanceFixConverter);
     }
 
     @SuppressWarnings("unchecked")

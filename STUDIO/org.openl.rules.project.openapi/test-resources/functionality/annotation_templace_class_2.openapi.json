@@ -478,7 +478,7 @@
             "type": "number"
           },
           "claimsOnBanks": {
-            "default": 0,
+            "default": 0.0,
             "format": "double",
             "type": "number"
           },
@@ -493,7 +493,7 @@
             "type": "number"
           },
           "claimsSecuredByPropertyCharges": {
-            "default": 0,
+            "default": 0.0,
             "format": "double",
             "type": "number"
           },
@@ -508,7 +508,7 @@
             "type": "number"
           },
           "equity": {
-            "default": 0,
+            "default": 0.0,
             "format": "double",
             "type": "number"
           },
@@ -523,7 +523,7 @@
             "type": "number"
           },
           "liabilitiesToBanks": {
-            "default": 0,
+            "default": 0.0,
             "format": "double",
             "type": "number"
           },
@@ -533,17 +533,17 @@
             "type": "number"
           },
           "liabilitiesToCustomersOnDemand": {
-            "default": 0,
+            "default": 0.0,
             "format": "double",
             "type": "number"
           },
           "loanLossProvisionsForClaimsOnCustomers": {
-            "default": 0,
+            "default": 0.0,
             "format": "double",
             "type": "number"
           },
           "otherAssets": {
-            "default": 0,
+            "default": 0.0,
             "format": "double",
             "type": "number"
           },

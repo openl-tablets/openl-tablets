@@ -16,7 +16,6 @@ public final class SchemaJacksonObjectMapperFactoryBean extends ProjectJacksonOb
     @Override
     protected void applyAfterProjectConfiguration() {
         setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        setDefaultDateFormat(null);
         setPolymorphicTypeValidation(false);
         setFailOnUnknownProperties(false);
     }
