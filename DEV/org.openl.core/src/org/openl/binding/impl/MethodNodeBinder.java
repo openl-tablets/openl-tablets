@@ -104,7 +104,7 @@ public class MethodNodeBinder extends ANodeBinder {
 
             IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, methodName);
             Optional<IBoundNode> iBoundNode = Optional.ofNullable(type)
-                .map(t -> makeDatatypeConstructor(node, bindingContext, t, funcNode));
+                .map(t -> makeSugarConstructor(node, bindingContext, t, funcNode));
             if (iBoundNode.isPresent()) {
                 return iBoundNode.get();
             }
@@ -124,7 +124,7 @@ public class MethodNodeBinder extends ANodeBinder {
         }
     }
 
-    private IBoundNode makeDatatypeConstructor(ISyntaxNode node,
+    private IBoundNode makeSugarConstructor(ISyntaxNode node,
             IBindingContext bindingContext,
             IOpenClass type,
             ISyntaxNode typeNode) {
@@ -159,8 +159,10 @@ public class MethodNodeBinder extends ANodeBinder {
                 }
             }
             IMethodCaller defaultConstructor = MethodSearch.findConstructor(IOpenClass.EMPTY, bindingContext, type);
-            if (defaultConstructor != null && isAllParamsAssign && namedParams.stream()
-                .allMatch(n -> type.getField(n) != null)) {
+            if (defaultConstructor != null && isAllParamsAssign && namedParams.stream().allMatch(n -> {
+                IOpenField f = type.getField(n);
+                return f != null && !f.isStatic() && f.isWritable();
+            })) {
                 MethodBoundNode methodBoundNode = new MethodBoundNode(node, defaultConstructor);
                 return new ConstructorNamedParamsNode(localVar, methodBoundNode, params.toArray(IBoundNode.EMPTY));
             } else if (!Date.class.getName().equals(type.getName())) {
