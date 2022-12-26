@@ -627,7 +627,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         if (parameterDeclaration == null) {
             String errMsg = "Parameter cell format: <type> <name>";
             BindHelper.processError(errMsg, paramSource, bindingContext);
-            return null;
+            return new ParameterDeclaration(NullOpenClass.the, makeParamName(), paramSource);
         }
         if (parameterDeclaration.getName() == null) {
             return new ParameterDeclaration(parameterDeclaration.getType(), makeParamName());

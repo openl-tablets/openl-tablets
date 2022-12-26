@@ -95,6 +95,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.BelongsToModuleOpenClass;
 import org.openl.types.impl.CompositeMethod;
@@ -653,13 +654,11 @@ public final class DecisionTableHelper {
         }
         if (g instanceof BelongsToModuleOpenClass) {
             if (module.isExternalModule((XlsModuleOpenClass) ((BelongsToModuleOpenClass) g).getModule(), cache)) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(((BelongsToModuleOpenClass) g).getExternalRefName());
-                for (int i = 0; i < dim; i++) {
-                    sb.append("[]");
-                }
-                return sb.toString();
+                return ((BelongsToModuleOpenClass) g).getExternalRefName() + "[]".repeat(Math.max(0, dim));
             }
+        }
+        if (NullOpenClass.the.equals(g)) {
+            return JavaOpenClass.OBJECT.getName() + "[]".repeat(Math.max(0, dim));
         }
         return type.getName();
     }
@@ -2118,10 +2117,9 @@ public final class DecisionTableHelper {
         if (sourceTableColumn + originalTable.getSource()
             .getCell(sourceTableColumn, 0)
             .getWidth() == firstColumnForHCondition && h == firstColumnHeight - 1 && (WithVerticalTitles.SLASH_IN_TITLE
-                    .equals(withVerticalTitles) && StringUtils.isNotBlank(
-                        d) && d.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) || WithVerticalTitles.MERGED_COLUMN
-                            .equals(withVerticalTitles) || WithVerticalTitles.EMPTY_COLUMN
-                                .equals(withVerticalTitles))) {
+                .equals(withVerticalTitles) && StringUtils.isNotBlank(
+                    d) && d.contains(HORIZONTAL_VERTICAL_CONDITIONS_SPLITTER) || WithVerticalTitles.MERGED_COLUMN
+                        .equals(withVerticalTitles) || WithVerticalTitles.EMPTY_COLUMN.equals(withVerticalTitles))) {
             if (!onlyReturns) {
                 List<String> hTitles = new ArrayList<>(parts);
                 String p = d;
@@ -3986,12 +3984,12 @@ public final class DecisionTableHelper {
                         if (isAllParsableAsRangeFlag || !isNotParsableAsSingleRangeButParsableAsRangesArrayFlag) {
                             arrs = ArraySplitter.split(value);
                             var f = parsableAs(arrs, StringRange.class, bindingContext);
-                            if (isAllParsableAsRangeFlag && !f
-                                && !parsableAs(value, StringRange.class, bindingContext)) {
+                            if (isAllParsableAsRangeFlag && !f && !parsableAs(value,
+                                StringRange.class,
+                                bindingContext)) {
                                 isAllParsableAsRangeFlag = false;
                             }
-                            if (!isNotParsableAsSingleRangeButParsableAsRangesArrayFlag && f
-                                && arrs.length > 1) {
+                            if (!isNotParsableAsSingleRangeButParsableAsRangesArrayFlag && f && arrs.length > 1) {
                                 isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                             }
                         }
