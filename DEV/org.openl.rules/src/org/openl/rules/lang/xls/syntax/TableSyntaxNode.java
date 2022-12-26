@@ -171,11 +171,7 @@ public class TableSyntaxNode extends NaryNode {
      *         appropriate table in data source.
      */
     public boolean hasPropertiesDefinedInTable() {
-        boolean result = false;
-        if (tableProperties != null && tableProperties.getPropertiesSection() != null) {
-            result = true;
-        }
-        return result;
+        return tableProperties != null && tableProperties.getPropertiesSection() != null;
     }
 
     public boolean isExecutableNode() {

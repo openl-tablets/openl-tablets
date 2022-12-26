@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -454,7 +455,8 @@ public class TableProperties implements ITableProperties {
     }
 
     @Override
-    public void setEmptyResultProcessing(org.openl.rules.enumeration.DTEmptyResultProcessingEnum emptyResultProcessing) {
+    public void setEmptyResultProcessing(
+            org.openl.rules.enumeration.DTEmptyResultProcessingEnum emptyResultProcessing) {
         setFieldValue("emptyResultProcessing", emptyResultProcessing);
         reset();
     }
@@ -824,9 +826,14 @@ public class TableProperties implements ITableProperties {
             return null;
         }
         if (value.getClass().isArray()) {
-            Object[] array = ((Object[]) value).clone();
-            Arrays.sort(array);
-            return array;
+            try {
+                Object[] array = ((Object[]) value).clone();
+                Arrays.sort(array, (Comparator) Comparator.nullsLast(Comparator.naturalOrder()));
+                return array;
+            } catch (Exception e) {
+                // array component type is not comparable
+                return ((Object[]) value).clone();
+            }
         }
         if (("expirationDate".equals(name) || "endRequestDate".equals(name)) && value instanceof Date) {
             Calendar calendar = Calendar.getInstance();
