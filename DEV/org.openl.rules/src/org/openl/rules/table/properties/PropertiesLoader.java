@@ -146,7 +146,8 @@ public class PropertiesLoader {
             if (globalPropertiesTsn != null) {
                 ITableProperties globalProperties = globalPropertiesTsn.getTableProperties();
                 Map<String, Object> tablePropertiesMergedWithModule = TablePropertyDefinitionUtils
-                    .mergeGlobalProperties(globalProperties.getAllProperties(), module.getGlobalTableProperties().getGlobalProperties());
+                    .mergeGlobalProperties(globalProperties.getAllProperties(),
+                        module.getGlobalTableProperties().getGlobalProperties());
                 tableProperties.setGlobalProperties(tablePropertiesMergedWithModule);
                 tableProperties.setGlobalPropertiesTableSyntaxNode(globalPropertiesTsn);
             } else {
