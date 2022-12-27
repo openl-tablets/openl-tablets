@@ -22,7 +22,6 @@ import org.openl.binding.impl.cast.OutsideOfValidDomainException;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.exception.OpenLUserDetailedRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.rules.calc.CombinedSpreadsheetResultOpenClass;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
@@ -556,14 +555,9 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         while (f) {
             if (t instanceof OpenLUserRuntimeException) {
                 type = ExceptionType.USER_ERROR;
-                if (t instanceof OpenLUserDetailedRuntimeException) {
-                    OpenLUserDetailedRuntimeException uex = (OpenLUserDetailedRuntimeException) t;
-                    Object body = SpreadsheetResult.convertSpreadsheetResult(uex.getBody(),
-                            sprBeanPropertyNamingStrategy);
-                    exceptionDetails = new ExceptionDetails(body);
-                } else {
-                    exceptionDetails = new ExceptionDetails(t.getMessage());
-                }
+                var body = ((OpenLUserRuntimeException) t).getBody();
+                var convertedBody = SpreadsheetResult.convertSpreadsheetResult(body, sprBeanPropertyNamingStrategy);
+                exceptionDetails = new ExceptionDetails(convertedBody);
             } else if (t instanceof OutsideOfValidDomainException) {
                 type = ExceptionType.VALIDATION;
                 exceptionDetails = new ExceptionDetails(((OutsideOfValidDomainException) t).getOriginalMessage());

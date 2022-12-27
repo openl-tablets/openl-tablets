@@ -28,7 +28,6 @@ import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.binding.impl.method.IgnoreNonVarargsMatching;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.exception.OpenLUserDetailedRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.types.impl.StaticDomainOpenClass;
 import org.openl.util.ArrayTool;
@@ -1355,11 +1354,11 @@ public final class RulesUtils {
     }
 
     public static ThrowableVoid error(String code, String message) {
-        throw new OpenLUserDetailedRuntimeException(code, message);
+        throw new OpenLUserRuntimeException(code, message);
     }
 
     public static ThrowableVoid error(Object object) {
-        throw new OpenLUserDetailedRuntimeException(object);
+        throw new OpenLUserRuntimeException(object);
     }
 
     /**

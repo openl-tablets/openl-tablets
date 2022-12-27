@@ -17,7 +17,7 @@ public class ExceptionDetails {
 
     public ExceptionDetails(Object body) {
         this.body = body;
-        this.message = null;
+        this.message = String.valueOf(body);
     }
 
     public String getMessage() {
