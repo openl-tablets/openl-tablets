@@ -1,0 +1,10 @@
+<project>
+    <name>l10n</name>
+
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+
+</project>

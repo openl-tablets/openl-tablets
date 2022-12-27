@@ -1,0 +1,2 @@
+GET /l10n/l10n/getMessage HTTP/1.1
+
