@@ -13,6 +13,13 @@ abstract class AbstractContextPropertyInjector implements IContextPropertyInject
             IRulesRuntimeContext rulesRuntimeContext) {
         if (isProcessable(params)) {
             Object value = getValue(params, env);
+            if (value == null && "locale".equals(getContextProperty())) {
+                // Do not reset locale to null, because of default locale should always present.
+                // See: org.openl.rules.context.RulesRuntimeContextFactory
+                // TODO: Find more common solution, where if the value in the request is not defined, then it should not be
+                //       reset to null, like 'undefined' in JavaScript.
+                return rulesRuntimeContext;
+            }
             if (rulesRuntimeContext == null) {
                 IRulesRuntimeContext currentRuntimeContext = (IRulesRuntimeContext) simpleRulesRuntimeEnv.getContext();
                 try {
