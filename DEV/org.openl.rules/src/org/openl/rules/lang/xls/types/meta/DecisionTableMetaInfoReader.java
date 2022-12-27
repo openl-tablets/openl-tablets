@@ -548,14 +548,18 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         ILogicalTable paramsTable = funcRow.getParamsTable();
         // In the case of errors params will be null
         IParameterDeclaration[] params = funcRow.getParams();
-        if (params != null && params.length > 0 && params[0] != null) {
-            IParameterDeclaration param = params[0];
-            ICell paramCell = paramsTable.getCell(0, 0);
-            row = paramCell.getAbsoluteRow();
-            col = paramCell.getAbsoluteColumn();
-
-            if (IGridRegion.Tool.contains(region, col, row)) {
-                setPreparedMetaInfo(row, col, getMetaInfo(paramsTable, param.getType()));
+        if (params != null) {
+            int i = 0;
+            for (IParameterDeclaration param : params) {
+                if (param != null) {
+                    ICell paramCell = paramsTable.getCell(0, i);
+                    row = paramCell.getAbsoluteRow();
+                    col = paramCell.getAbsoluteColumn();
+                    if (IGridRegion.Tool.contains(region, col, row)) {
+                        setPreparedMetaInfo(row, col, getMetaInfo(paramsTable, param.getType()));
+                    }
+                }
+                i++;
             }
         }
     }

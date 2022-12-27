@@ -54,6 +54,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode myDatatypeRule;
     private TableSyntaxNode main;
     private TableSyntaxNode mySpr1;
+    private TableSyntaxNode alias1;
+    private TableSyntaxNode alias2;
+    private TableSyntaxNode myRule;
 
     public NodeUsagesMetaInfoTest() {
         super(SRC);
@@ -97,6 +100,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         myDatatypeRule = findTable("SmartRules MyDatatype[] myDatatypeRule(int a)");
         main = findTable("Spreadsheet SpreadsheetResult main ()");
         mySpr1 = findTable("Spreadsheet String mySpr1(String x)");
+        myRule = findTable("Rules Double myRule(String param1, String param2)");
+        alias1 = findTable("Datatype Alias1 <String>");
+        alias2 = findTable("Datatype Alias2 <String>");
     }
 
     @Test
@@ -740,6 +746,15 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     public void testDTLink() {
         List<? extends NodeUsage> usedNodes = assertMetaInfo(myDatatypeRule, 1, 3, 1);
         assertNodeUsage(myDatatype.getUri(), usedNodes.get(0), "MyDatatype ()", 6, 16);
+    }
+
+    @Test
+    public void testDTCondition2Columns() {
+        List<? extends NodeUsage> usedNodes = assertMetaInfo(myRule, 1, 3, 1);
+        assertNodeUsage(alias2.getUri(), usedNodes.get(0), "Datatype Alias2 <String>", 0, 6);
+
+        usedNodes = assertMetaInfo(myRule, 0, 3, 1);
+        assertNodeUsage(alias1.getUri(), usedNodes.get(0), "Datatype Alias1 <String>", 0, 6);
     }
 
     private static void assertCellType(TableSyntaxNode node, int column, int row, String type) {
