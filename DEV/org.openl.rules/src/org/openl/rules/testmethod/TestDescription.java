@@ -155,8 +155,8 @@ public class TestDescription {
         return testObject.containsField(TestMethodHelper.EXPECTED_ERROR);
     }
 
-    public TestError getExpectedError() {
-        return (TestError) getArgumentValue(TestMethodHelper.EXPECTED_ERROR);
+    public Object getExpectedError() {
+        return getArgumentValue(TestMethodHelper.EXPECTED_ERROR);
     }
 
     public boolean isRuntimeContextDefined() {

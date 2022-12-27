@@ -312,7 +312,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                     resultType = testedMethod.getType();
                 } else if (nodes[0].getIdentifier().startsWith(TestMethodHelper.EXPECTED_ERROR)) {
                     toAdd = errorFieldsToTest;
-                    resultType = JavaOpenClass.getOpenClass(TestError.class);
+                    resultType = new UserErrorOpenClass();
                 } else {
                     // skip non-'_res_' and non-'_error_' columns
                     continue;

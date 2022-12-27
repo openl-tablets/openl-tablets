@@ -7,7 +7,6 @@ import static org.openl.rules.testmethod.TestStatus.TR_OK;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
@@ -35,7 +34,7 @@ public class BaseTestUnit implements ITestUnit {
         this.test = test;
         this.executionTime = executionTime;
         Object expectedResult = test.getExpectedResult();
-        TestError expectedError = test.getExpectedError();
+        Object expectedError = test.getExpectedError();
         if (expectedError != null && expectedResult != null) {
             // Force testcase failure
             this.actualError = new IllegalArgumentException(
@@ -96,19 +95,17 @@ public class BaseTestUnit implements ITestUnit {
     /**
      * Return the comparison of the expected result and actual.
      */
-    private TestStatus compareResult(TestError expectedError, Object expectedResult, Object actualResult) {
+    private TestStatus compareResult(Object expectedError, Object expectedResult, Object actualResult) {
         if (actualError != null) {
-            String oldStyleMessage = Optional.ofNullable(expectedError).map(TestError::getMessage).orElse(null);
+            String oldStyleMessage = expectedError != null ? ((expectedError instanceof UserErrorOpenClass.Entry) ? ((UserErrorOpenClass.Entry) expectedError).get().toString() : expectedError.toString()) : null;
             Throwable rootCause = ExceptionUtils.getRootCause(actualError);
             if (rootCause instanceof OpenLUserRuntimeException) {
+                var detailedEx = ((OpenLUserRuntimeException) rootCause).getBody();
                 if (test.isEmptyOrNewStyleErrorDescription()) {
                     // to support old behaviour
                     return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
                 } else {
-                    return compareMessageAndGetResult(expectedError,
-                        TestError.from((OpenLUserRuntimeException) rootCause),
-                        expectedResult,
-                            rootCause.getMessage());
+                    return compareMessageAndGetResult(expectedError, detailedEx, expectedResult, rootCause.getMessage());
                 }
             } else if (rootCause instanceof OutsideOfValidDomainException) {
                 if (test.isEmptyOrNewStyleErrorDescription()) {
@@ -116,7 +113,7 @@ public class BaseTestUnit implements ITestUnit {
                     return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
                 } else {
                     return compareMessageAndGetResult(expectedError,
-                        TestError.from(rootCause),
+                        rootCause.getMessage(),
                         expectedResult,
                         rootCause.getMessage());
                 }
@@ -166,8 +163,8 @@ public class BaseTestUnit implements ITestUnit {
         return status;
     }
 
-    private TestStatus compareMessageAndGetResult(TestError expectedError,
-            TestError actualError,
+    private TestStatus compareMessageAndGetResult(Object expectedError,
+            Object actualError,
             Object expectedResult,
             String actualErrorMessage) {
         if (expectedResult == null) {
