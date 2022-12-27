@@ -58,7 +58,7 @@ public class TestMethodOpenClass extends ADynamicClass {
     protected void addExpectedError() {
         IOpenField errorField = new DynamicObjectField(this,
             TestMethodHelper.EXPECTED_ERROR,
-            JavaOpenClass.getOpenClass(TestError.class));
+            new UserErrorOpenClass());
         addField(errorField);
     }
 

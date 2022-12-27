@@ -25,6 +25,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.TableProperties;
+import org.openl.rules.testmethod.UserErrorOpenClass;
 import org.openl.rules.testmethod.TestMethodHelper;
 import org.openl.rules.testmethod.TestMethodOpenClass;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -1061,7 +1062,8 @@ public class DataTableBindHelper {
 
         IOpenField collectionAccessField;
         if (multiRowElement) {
-            if (ClassUtils.isAssignable(field.getType().getInstanceClass(), List.class)) {
+            IOpenClass fieldType = field.getType();
+            if (ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class)) {
                 IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
                     loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
                     bindingContext);
@@ -1070,7 +1072,12 @@ public class DataTableBindHelper {
                     elementType,
                     CollectionType.LIST);
             } else {
-                if (!field.getType().isArray() && Object.class == field.getType().getInstanceClass()) {
+                if (fieldType instanceof UserErrorOpenClass) {
+                    collectionAccessField = new CollectionElementWithMultiRowField(field,
+                        buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
+                        new UserErrorOpenClass(),
+                        CollectionType.ARRAY);
+                } else if (!fieldType.isArray() && Object.class == fieldType.getInstanceClass()) {
                     collectionAccessField = new CollectionElementWithMultiRowField(field,
                         buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
                         JavaOpenClass.OBJECT,
@@ -1078,7 +1085,7 @@ public class DataTableBindHelper {
                 } else {
                     collectionAccessField = new CollectionElementWithMultiRowField(field,
                         buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
-                        field.getType().getComponentClass(),
+                        fieldType.getComponentClass(),
                         CollectionType.ARRAY);
                 }
             }
@@ -1114,13 +1121,19 @@ public class DataTableBindHelper {
                     bindingContext.addError(error);
                     return null;
                 }
-                if (ClassUtils.isAssignable(field.getType().getInstanceClass(), List.class)) {
+                IOpenClass fieldType = field.getType();
+                if (ClassUtils.isAssignable(fieldType.getInstanceClass(), List.class)) {
                     IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
                         loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
                         bindingContext);
                     collectionAccessField = new CollectionElementField(field, index, elementType, CollectionType.LIST);
                 } else {
-                    if (!field.getType().isArray() && Object.class == field.getType().getInstanceClass()) {
+                    if (fieldType instanceof UserErrorOpenClass) {
+                        collectionAccessField = new CollectionElementField(field,
+                            index,
+                            new UserErrorOpenClass(),
+                            CollectionType.ARRAY);
+                    } else if (!fieldType.isArray() && Object.class == fieldType.getInstanceClass()) {
                         collectionAccessField = new CollectionElementField(field,
                             index,
                             JavaOpenClass.OBJECT,
@@ -1128,7 +1141,7 @@ public class DataTableBindHelper {
                     } else {
                         collectionAccessField = new CollectionElementField(field,
                             index,
-                            field.getType().getComponentClass(),
+                            fieldType.getComponentClass(),
                             CollectionType.ARRAY);
                     }
                 }
