@@ -2,7 +2,7 @@ package org.openl.rules.testmethod;
 
 import java.util.Objects;
 
-import org.openl.exception.OpenLUserDetailedRuntimeException;
+import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.util.print.NicePrinter;
 
 public class TestError {
@@ -73,12 +73,12 @@ public class TestError {
         }
     }
 
-    public static TestError from(OpenLUserDetailedRuntimeException ex) {
+    public static TestError from(OpenLUserRuntimeException ex) {
         var error = new TestError();
-        if (ex.getBody() instanceof OpenLUserDetailedRuntimeException.Body) {
-            var body = (OpenLUserDetailedRuntimeException.Body) ex.getBody();
-            error.setMessage(body.getMessage());
-            error.setCode(body.getCode());
+        if (ex.getBody() instanceof OpenLUserRuntimeException.UserCodedMessage) {
+            var body = (OpenLUserRuntimeException.UserCodedMessage) ex.getBody();
+            error.setMessage(body.message);
+            error.setCode(body.code);
         } else {
             error.setBody(ex.getBody());
         }

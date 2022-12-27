@@ -11,7 +11,6 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.binding.impl.cast.OutsideOfValidDomainException;
-import org.openl.exception.OpenLUserDetailedRuntimeException;
 import org.openl.exception.OpenLUserRuntimeException;
 import org.openl.message.OpenLMessage;
 import org.openl.rules.data.PrecisionFieldChain;
@@ -19,7 +18,6 @@ import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.rules.testmethod.result.TestResultComparator;
 import org.openl.rules.testmethod.result.TestResultComparatorFactory;
 import org.openl.types.IOpenField;
-import org.openl.util.print.NicePrinter;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
@@ -102,24 +100,17 @@ public class BaseTestUnit implements ITestUnit {
         if (actualError != null) {
             String oldStyleMessage = Optional.ofNullable(expectedError).map(TestError::getMessage).orElse(null);
             Throwable rootCause = ExceptionUtils.getRootCause(actualError);
-            if (rootCause instanceof OpenLUserDetailedRuntimeException) {
-                var detailedEx = (OpenLUserDetailedRuntimeException) rootCause;
-                String message;
-                if (detailedEx.getBody() instanceof OpenLUserDetailedRuntimeException.Body) {
-                    message = detailedEx.getBody().toString();
-                } else {
-                    message = NicePrinter.print(detailedEx.getBody());
-                }
+            if (rootCause instanceof OpenLUserRuntimeException) {
                 if (test.isEmptyOrNewStyleErrorDescription()) {
                     // to support old behaviour
-                    return compareMessageAndGetResult(oldStyleMessage, message, expectedResult);
+                    return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);
                 } else {
                     return compareMessageAndGetResult(expectedError,
-                        TestError.from((OpenLUserDetailedRuntimeException) rootCause),
+                        TestError.from((OpenLUserRuntimeException) rootCause),
                         expectedResult,
-                        message);
+                            rootCause.getMessage());
                 }
-            } else if (rootCause instanceof OpenLUserRuntimeException || rootCause instanceof OutsideOfValidDomainException) {
+            } else if (rootCause instanceof OutsideOfValidDomainException) {
                 if (test.isEmptyOrNewStyleErrorDescription()) {
                     // to support old behaviour
                     return compareMessageAndGetResult(oldStyleMessage, rootCause.getMessage(), expectedResult);

@@ -5,9 +5,7 @@ import java.io.StringWriter;
 import java.util.Objects;
 
 import org.openl.exception.OpenLException;
-import org.openl.exception.OpenLUserDetailedRuntimeException;
 import org.openl.util.StringUtils;
-import org.openl.util.print.NicePrinter;
 
 /**
  * Class defines error OpenL message abstraction. <code>OpenLErrorMessage</code> encapsulates {@link OpenLException}
@@ -73,15 +71,6 @@ public class OpenLErrorMessage extends OpenLMessage {
             t = t.getCause();
         }
 
-        if (cause instanceof OpenLUserDetailedRuntimeException) {
-            var body = ((OpenLUserDetailedRuntimeException) cause).getBody();
-            if (body instanceof OpenLUserDetailedRuntimeException.Body) {
-                return body.toString();
-            } else {
-                return NicePrinter.print(body);
-            }
-        } else {
-            return cause.getMessage();
-        }
+        return cause.getMessage();
     }
 }
