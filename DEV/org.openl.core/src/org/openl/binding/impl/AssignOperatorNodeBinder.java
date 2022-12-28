@@ -27,7 +27,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
 
         if (node.getNumberOfChildren() != 2) {
-            return makeErrorNode("Assign node must have 2 subnodes", node, bindingContext);
+            return makeErrorNode("Expected two child nodes in assign node.", node, bindingContext);
         }
 
         int index = node.getType().lastIndexOf('.');
@@ -37,7 +37,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
         IBoundNode target = children[0];
         IBoundNode source = children[1];
         if (!target.isLvalue()) {
-            return makeErrorNode("Impossible to assign value", node, bindingContext);
+            return makeErrorNode("Impossible to assign value.", node, bindingContext);
         }
 
         IOpenClass targetType = target.getType();
@@ -46,11 +46,9 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
 
         if (!"assign".equals(methodName)) {
 
-            methodCaller = BinaryOperatorNodeBinder.findBinaryOperatorMethodCaller(
-                    methodName,
-                    new IOpenClass[]{targetType, sourceType},
-                    bindingContext
-            );
+            methodCaller = BinaryOperatorNodeBinder.findBinaryOperatorMethodCaller(methodName,
+                new IOpenClass[] { targetType, sourceType },
+                bindingContext);
 
             if (methodCaller == null) {
 
@@ -79,8 +77,7 @@ public class AssignOperatorNodeBinder extends ANodeBinder {
         }
 
         /*
-         * target = source - simple assign
-         * target += source - assign with operation through methodCaller
+         * target = source - simple assign target += source - assign with operation through methodCaller
          */
         return new AssignNode(node, target, source, methodCaller, cast);
     }

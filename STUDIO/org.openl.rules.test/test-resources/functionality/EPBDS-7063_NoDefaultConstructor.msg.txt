@@ -1,5 +1,3 @@
-ERROR: Identifier 'field' is not found.
-ERROR: Impossible to assign value
-ERROR: Impossible to assign value
-ERROR: Identifier 'var' is not found.
-ERROR: Impossible to assign value
+ERROR: Default constructor is not found in type 'A1'.
+ERROR: Field 'name' is found, but it is read only.
+ERROR: Field 'var' is found, but it is declared with static modifier.
