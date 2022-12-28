@@ -243,7 +243,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
                     } else {
                         type = JavaOpenClass.getOpenClass(Integer.class);
                     }
-                    setMetaInfoForConstant(bindingContext, columnMatch, inValues[index], s, constantOpenField);
+                    setMetaInfoForConstant(bindingContext, columnMatch, inValues[index], constantOpenField);
                     v = RuleRowHelper.castConstantToExpectedType(bindingContext, constantOpenField, type);
                 } else {
                     v = matcher.fromString(s);
@@ -277,11 +277,10 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
         for (int i = 0; i < subValues.length; i++) {
             SubValue sv = subValues[i];
             String s = sv.getString();
-
             try {
                 ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, s);
                 if (constantOpenField != null && constantOpenField.getValue() != null) {
-                    setMetaInfoForConstant(bindingContext, columnMatch, sv, s, constantOpenField);
+                    setMetaInfoForConstant(bindingContext, columnMatch, sv, constantOpenField);
                     result[i] = RuleRowHelper.castConstantToExpectedType(bindingContext, constantOpenField, openClass);
                 } else {
                     IString2DataConvertor converter = String2DataConvertorFactory
@@ -300,7 +299,6 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
     protected void setMetaInfoForConstant(IBindingContext bindingContext,
             ColumnMatch columnMatch,
             SubValue sv,
-            String s,
             ConstantOpenField constantOpenField) {
         if (!bindingContext.isExecutionMode()) {
             IGridTable tableBodyGrid = columnMatch.getSyntaxNode().getTableBody().getSource();
@@ -309,8 +307,7 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             ICell cell = grid.getCell(gridRegion.getLeft(), gridRegion.getTop());
             MetaInfoReader metaInfoReader = columnMatch.getSyntaxNode().getMetaInfoReader();
             if (metaInfoReader instanceof BaseMetaInfoReader) {
-                SimpleNodeUsage nodeUsage = RuleRowHelper.createConstantNodeUsage(constantOpenField, 0, s.length());
-                ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, nodeUsage);
+                ((BaseMetaInfoReader) metaInfoReader).addConstant(cell, constantOpenField);
             }
         }
     }

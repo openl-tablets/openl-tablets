@@ -57,6 +57,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode alias1;
     private TableSyntaxNode alias2;
     private TableSyntaxNode myRule;
+    private TableSyntaxNode checkApplications;
+    private TableSyntaxNode myDatatype1;
+    private TableSyntaxNode constant1;
 
     public NodeUsagesMetaInfoTest() {
         super(SRC);
@@ -103,6 +106,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         myRule = findTable("Rules Double myRule(String param1, String param2)");
         alias1 = findTable("Datatype Alias1 <String>");
         alias2 = findTable("Datatype Alias2 <String>");
+        checkApplications = findTable("SmartRules String[] CheckApplications (String param)");
+        myDatatype1 = findTable("Datatype MyDatatype1");
+        constant1 = findTable("Constants ValidationErrors");
     }
 
     @Test
@@ -755,6 +761,15 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         usedNodes = assertMetaInfo(myRule, 0, 3, 1);
         assertNodeUsage(alias1.getUri(), usedNodes.get(0), "Datatype Alias1 <String>", 0, 6);
+    }
+
+    @Test
+    public void testConstantsHints() {
+        List<? extends NodeUsage> usedNodes = assertMetaInfo(checkApplications, 1, 3, 1);
+        assertNodeUsage(constant1.getUri(), usedNodes.get(0), "String ve_VALIDATION_RULE_NOT_FOUND = Not found", 0, 28);
+
+        usedNodes = assertMetaInfo(myDatatype1, 2, 1, 1);
+        assertNodeUsage(constant1.getUri(), usedNodes.get(0), "String ve_VALIDATION_RULE_NOT_FOUND = Not found", 0, 28);
     }
 
     private static void assertCellType(TableSyntaxNode node, int column, int row, String type) {

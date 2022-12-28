@@ -2,11 +2,19 @@ package org.openl.rules.lang.xls.types.meta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.MethodUtil;
+import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
+import org.openl.binding.impl.SimpleNodeUsage;
+import org.openl.rules.constants.ConstantOpenField;
+import org.openl.rules.helpers.ArraySplitter;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.CellKey;
@@ -26,7 +34,8 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
     protected static final CellMetaInfo NOT_FOUND = new CellMetaInfo(null, false);
 
     private static final Logger LOG = LoggerFactory.getLogger(BaseMetaInfoReader.class);
-    private final Map<CellKey, List<NodeUsage>> constantsMap = new HashMap<>();
+    private final Map<CellKey, Boolean> constantsMap = new HashMap<>();
+    private final Set<ConstantOpenField> constantOpenFields = new HashSet<>();
 
     private T boundNode;
 
@@ -42,12 +51,11 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
         return boundNode;
     }
 
-    public void addConstant(ICell cell, NodeUsage nodeUsage) {
+    public void addConstant(ICell cell, ConstantOpenField constantOpenField) {
         int row = cell.getAbsoluteRow();
         int col = cell.getAbsoluteColumn();
-        List<NodeUsage> nodeUsages = constantsMap.computeIfAbsent(CellKey.CellKeyFactory.getCellKey(col, row),
-            e -> new ArrayList<>());
-        nodeUsages.add(nodeUsage);
+        constantsMap.put(CellKey.CellKeyFactory.getCellKey(col, row), Boolean.TRUE);
+        constantOpenFields.add(constantOpenField);
     }
 
     protected IGridTable getGridTable() {
@@ -58,16 +66,21 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
         }
     }
 
+    private static SimpleNodeUsage createConstantNodeUsage(ConstantOpenField constantOpenField, int start, int end) {
+        String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
+            .getName() + " = " + constantOpenField.getValueAsString();
+        return new SimpleNodeUsage(start,
+            end,
+            description,
+            constantOpenField.getMemberMetaInfo().getSourceUrl(),
+            NodeType.OTHER);
+    }
+
     @Override
     public final CellMetaInfo getMetaInfo(int row, int col) {
         try {
             if (!IGridRegion.Tool.contains(getGridTable().getRegion(), col, row)) {
                 return null;
-            }
-
-            List<NodeUsage> nodeUsages = constantsMap.get(CellKey.CellKeyFactory.getCellKey(col, row));
-            if (nodeUsages != null) {
-                return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
             }
 
             if (isHeaderRow(row)) {
@@ -79,7 +92,35 @@ public abstract class BaseMetaInfoReader<T extends IMemberBoundNode> implements 
                 return getPropertiesMetaInfo(row, col);
             }
 
-            return getBodyMetaInfo(row, col);
+            CellMetaInfo cellMetaInfo = getBodyMetaInfo(row, col);
+
+            if (Boolean.TRUE.equals(constantsMap.get(CellKey.CellKeyFactory.getCellKey(col, row)))) {
+                ICell firstCell = getTableSyntaxNode().getTableBody().getSource().getCell(0, 0);
+                int r = row - firstCell.getAbsoluteRow();
+                int c = col - firstCell.getAbsoluteColumn();
+                ICell theValueCell = getTableSyntaxNode().getTableBody().getSource().getCell(c, r);
+                String[] tokens = ArraySplitter.split(theValueCell.getStringValue());
+                String cellValue = theValueCell.getStringValue();
+                int startFrom = 0;
+                List<NodeUsage> nodeUsages = new ArrayList<>();
+                for (String token : tokens) {
+                    int start = cellValue.indexOf(token, startFrom);
+                    startFrom = start + token.length();
+                    for (ConstantOpenField constantOpenField : constantOpenFields) {
+                        if (token.equals(constantOpenField.getName())) {
+                            int end = start + constantOpenField.getName().length();
+                            SimpleNodeUsage nodeUsage = createConstantNodeUsage(constantOpenField, start, end);
+                            nodeUsages.add(nodeUsage);
+                        }
+                    }
+                }
+                if (!nodeUsages.isEmpty()) {
+                    return cellMetaInfo != null ? new CellMetaInfo(cellMetaInfo.getDataType(),
+                        cellMetaInfo.isMultiValue(),
+                        nodeUsages) : new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
+                }
+            }
+            return cellMetaInfo;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return null;
