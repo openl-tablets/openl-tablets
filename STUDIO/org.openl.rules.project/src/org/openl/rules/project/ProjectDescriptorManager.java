@@ -189,16 +189,16 @@ public class ProjectDescriptorManager {
     }
 
     private void processModulePathPatterns(ProjectDescriptor descriptor, Path projectRoot) throws IOException {
-        List<Module> modulesWasRead = descriptor.getModules();
-        List<Module> processedModules = new ArrayList<>(modulesWasRead.size());
+        List<Module> readModules = descriptor.getModules();
+        List<Module> processedModules = new ArrayList<>(readModules.size());
         // Process modules without wildcard path
-        for (Module module : modulesWasRead) {
+        for (Module module : readModules) {
             if (!isModuleWithWildcard(module)) {
                 processedModules.add(module);
             }
         }
         // Process modules with wildcard path
-        for (Module module : modulesWasRead) {
+        for (Module module : readModules) {
             if (isModuleWithWildcard(module)) {
                 List<Module> newModules = new ArrayList<>();
                 List<Module> modules = getAllModulesMatchingPathPattern(descriptor,
