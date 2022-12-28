@@ -561,9 +561,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (module != inModule) {
             t = true;
             for (CompiledDependency compiledDependency : inModule.getDependencies()) {
-                if (!isExternalModuleRec(module,
-                    (XlsModuleOpenClass) compiledDependency.getCompiledOpenClass().getOpenClassWithErrors(),
-                    cache)) {
+                if (compiledDependency.getCompiledOpenClass()
+                    .getOpenClassWithErrors() instanceof XlsModuleOpenClass && !isExternalModuleRec(module,
+                        (XlsModuleOpenClass) compiledDependency.getCompiledOpenClass().getOpenClassWithErrors(),
+                        cache)) {
                     t = false;
                     break;
                 }
