@@ -140,7 +140,7 @@ public class WeightAlgorithmCompiler extends MatchAlgorithmCompiler {
             ConstantOpenField constantOpenField = RuleRowHelper.findConstantField(bindingContext, weightSV.getString());
             Integer rowWeight;
             if (constantOpenField != null && constantOpenField.getValue() != null) {
-                setMetaInfoForConstant(bindingContext, columnMatch, weightSV, weightSV.getString(), constantOpenField);
+                setMetaInfoForConstant(bindingContext, columnMatch, weightSV, constantOpenField);
                 rowWeight = (Integer) RuleRowHelper.castConstantToExpectedType(bindingContext,
                     constantOpenField,
                     JavaOpenClass.getOpenClass(Integer.class));

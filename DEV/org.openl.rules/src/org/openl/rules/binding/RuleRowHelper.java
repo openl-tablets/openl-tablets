@@ -79,9 +79,8 @@ public final class RuleRowHelper {
     }
 
     /**
-     * Method to support loading Arrays through comma in one cell. Gets the cell string
-     * value. Split it by comma, and process every token as single parameter. Returns array
-     * of parameters.
+     * Method to support loading Arrays through comma in one cell. Gets the cell string value. Split it by comma, and
+     * process every token as single parameter. Returns array of parameters.
      *
      * @return Array of parameters.
      */
@@ -305,16 +304,6 @@ public final class RuleRowHelper {
         return res;
     }
 
-    public static SimpleNodeUsage createConstantNodeUsage(ConstantOpenField constantOpenField, int start, int end) {
-        String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
-            .getName() + " = " + constantOpenField.getValueAsString();
-        return new SimpleNodeUsage(start,
-            end,
-            description,
-            constantOpenField.getMemberMetaInfo().getSourceUrl(),
-            NodeType.OTHER);
-    }
-
     private static XlsModuleOpenClass getComponentOpenClass(IBindingContext bindingContext) {
         if (bindingContext instanceof ComponentBindingContext) {
             IOpenClass openClass = ((ComponentBindingContext) bindingContext).getComponentOpenClass();
@@ -470,18 +459,7 @@ public final class RuleRowHelper {
             ICell theValueCell) {
         MetaInfoReader metaInfoReader = openlAdapter.getTableSyntaxNode().getMetaInfoReader();
         if (metaInfoReader instanceof BaseMetaInfoReader) {
-            String[] tokens = ArraySplitter.split(theValueCell.getStringValue());
-            String cellValue = theValueCell.getStringValue();
-            int startFrom = 0;
-            for (String token : tokens) {
-                int start = cellValue.indexOf(token, startFrom);
-                startFrom = start + token.length();
-                if (token.equals(constantOpenField.getName())) {
-                    int end = start + constantOpenField.getName().length();
-                    SimpleNodeUsage nodeUsage = createConstantNodeUsage(constantOpenField, start, end);
-                    ((BaseMetaInfoReader) metaInfoReader).addConstant(theValueCell, nodeUsage);
-                }
-            }
+            ((BaseMetaInfoReader) metaInfoReader).addConstant(theValueCell, constantOpenField);
         }
     }
 
@@ -631,7 +609,12 @@ public final class RuleRowHelper {
 
                 // load comma separated array
 
-                Object params = loadCommaSeparatedParam(paramType, arrayType, paramName, ruleName, paramSource, openlAdaptor);
+                Object params = loadCommaSeparatedParam(paramType,
+                    arrayType,
+                    paramName,
+                    ruleName,
+                    paramSource,
+                    openlAdaptor);
                 Class<?> paramClass = params.getClass();
                 if (paramClass.isArray() && !paramClass.getComponentType().isPrimitive()) {
                     for (Object o : (Object[]) params) {

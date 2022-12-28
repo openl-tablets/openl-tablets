@@ -586,9 +586,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     ICell cell = defaultValueCellSource.getCell();
                     MetaInfoReader metaInfoReader = tableSyntaxNode.getMetaInfoReader();
                     if (metaInfoReader instanceof BaseMetaInfoReader) {
-                        SimpleNodeUsage nodeUsage = RuleRowHelper
-                            .createConstantNodeUsage(constantOpenField, 0, defaultValueCode.length());
-                        ((BaseMetaInfoReader<?>) metaInfoReader).addConstant(cell, nodeUsage);
+                        ((BaseMetaInfoReader<?>) metaInfoReader).addConstant(cell, constantOpenField);
                     }
                 }
             } else {
@@ -660,9 +658,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     @Override
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
         try {
-            if (!bindingContext.isExecutionMode()) {
-                tableSyntaxNode.setMetaInfoReader(new DatatypeTableMetaInfoReader(this));
-            }
             if (!byteCodeReadyToLoad) {
                 return;
             }
@@ -680,6 +675,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     public void generateByteCode(IBindingContext bindingContext) throws Exception {
+        if (!bindingContext.isExecutionMode()) {
+            tableSyntaxNode.setMetaInfoReader(new DatatypeTableMetaInfoReader(this));
+        }
         if (!generated) {
             if (generatingInProcess) {
                 throw new OpenLCompilationException(String
