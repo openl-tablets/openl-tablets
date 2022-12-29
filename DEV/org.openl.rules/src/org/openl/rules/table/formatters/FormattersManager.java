@@ -88,6 +88,7 @@ public final class FormattersManager {
             }
             String numberFormat = StringUtils.isNotBlank(format) ? format : DEFAULT_NUMBER_FORMAT;
             formatter = new NumberFormatter(numberFormat, Locale.US);
+
             // Date
         } else if (clazz == Date.class) {
             String dateFormat = StringUtils.isNotBlank(format) ? format : DEFAULT_DATE_FORMAT;
@@ -105,9 +106,9 @@ public final class FormattersManager {
         } else if (clazz.isArray()) {
             Class<?> componentType = clazz.getComponentType();
             IFormatter componentFormatter = getFormatter(componentType);
-            formatter = new ArrayFormatter(componentFormatter);
+            formatter = new ArrayFormatter(componentFormatter, componentType);
 
-            // If formatter wasn`t found use DefaultFormat as default.
+            // If formatter has not been found use DefaultFormat as default.
         } else {
             formatter = new DefaultFormatter();
         }

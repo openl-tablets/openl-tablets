@@ -27,7 +27,7 @@ public class XlsArrayFormatTest {
 
     @Test
     public void testParse() {
-        ArrayFormatter arrayFormat = new ArrayFormatter(new DefaultFormatter());
+        ArrayFormatter arrayFormat = new ArrayFormatter(new DefaultFormatter(), String.class);
         String value = "tag1,tag2,tag3";
 
         Object result = arrayFormat.parse(value);
@@ -42,7 +42,7 @@ public class XlsArrayFormatTest {
 
     @Test
     public void testParseEmptyString() {
-        ArrayFormatter arrayFormat = new ArrayFormatter(new DefaultFormatter());
+        ArrayFormatter arrayFormat = new ArrayFormatter(new DefaultFormatter(), String.class);
         String value = null;
 
         Object result = arrayFormat.parse(value);
@@ -51,7 +51,7 @@ public class XlsArrayFormatTest {
 
     @Test
     public void testFormatEnums() {
-        ArrayFormatter arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class));
+        ArrayFormatter arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class), TestConstants.class);
 
         TestConstants[] arrayEnum = new TestConstants[2];
 
@@ -65,7 +65,7 @@ public class XlsArrayFormatTest {
 
     @Test
     public void testFormatNull() {
-        ArrayFormatter arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class));
+        ArrayFormatter arrayFormat = new ArrayFormatter(new EnumFormatter(TestConstants.class), TestConstants.class);
 
         TestConstants[] arrayEnum = new TestConstants[2];
 

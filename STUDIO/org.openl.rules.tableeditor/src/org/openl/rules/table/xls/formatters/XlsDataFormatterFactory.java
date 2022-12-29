@@ -53,7 +53,7 @@ public final class XlsDataFormatterFactory {
                 formatter = getNumberFormatter(cell, smartNumbers);
                 // Numeric Array
                 if (cellMetaInfo.isMultiValue()) {
-                    formatter = new ArrayFormatter(formatter);
+                    formatter = new ArrayFormatter(formatter, Number.class);
                 }
 
                 // Date
@@ -62,24 +62,26 @@ public final class XlsDataFormatterFactory {
                     .isAssignable(instanceClass, LocalTime.class) || ClassUtils.isAssignable(instanceClass,
                         ZonedDateTime.class) || ClassUtils.isAssignable(instanceClass, Instant.class)) {
                 formatter = getDateFormatter(cell);
-
+                if (cellMetaInfo.isMultiValue()) {
+                    formatter = new ArrayFormatter(formatter, instanceClass);
+                }
                 // Boolean
             } else if (ClassUtils.isAssignable(instanceClass, Boolean.class)) {
                 BooleanFormatter booleanFormatter = new BooleanFormatter();
-                formatter = cellMetaInfo.isMultiValue() ? new ArrayFormatter(booleanFormatter) : booleanFormatter;
+                formatter = cellMetaInfo.isMultiValue() ? new ArrayFormatter(booleanFormatter, Boolean.class) : booleanFormatter;
 
                 // Enum
             } else if (instanceClass.isEnum()) {
                 formatter = new EnumFormatter(instanceClass);
                 // Enum Array
                 if (cellMetaInfo.isMultiValue()) {
-                    formatter = new ArrayFormatter(formatter);
+                    formatter = new ArrayFormatter(formatter, instanceClass);
                 }
 
             } else {
                 formatter = new DefaultFormatter();
                 if (cellMetaInfo.isMultiValue()) {
-                    formatter = new ArrayFormatter(formatter);
+                    formatter = new ArrayFormatter(formatter, String.class);
                 }
             }
 
