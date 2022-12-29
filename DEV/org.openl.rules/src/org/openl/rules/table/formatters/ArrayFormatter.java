@@ -2,9 +2,14 @@ package org.openl.rules.table.formatters;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
+import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.helpers.ArraySplitter;
+import org.openl.types.IOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.IFormatter;
@@ -23,16 +28,19 @@ public class ArrayFormatter implements IFormatter {
 
     private final IFormatter elementFormat;
 
+    private final Class<?> elementType;
+
     /**
      * @param elementFormat formatter for the component type of array.
      */
-    public ArrayFormatter(IFormatter elementFormat) {
+    public ArrayFormatter(IFormatter elementFormat, Class<?> elementType) {
         this.elementFormat = elementFormat;
+        this.elementType = elementType;
     }
 
     /**
-     * Converts an input array of elements to <code>{@link String}</code>. Elements in the return value will be separated
-     * by comma. Null safety.
+     * Converts an input array of elements to <code>{@link String}</code>. Elements in the return value will be
+     * separated by comma. Null safety.
      *
      * @param value array of elements that should be represented as <code>{@link String}</code>.
      * @return <code>{@link String}</code> representation of the income array. <code>NULL</code> if the income value is
@@ -66,33 +74,13 @@ public class ArrayFormatter implements IFormatter {
      */
     @Override
     public Object parse(String value) {
-        Object result = null;
         if (StringUtils.isNotBlank(value)) {
-            String[] elementValues = ArraySplitter.split(value);
-
-            List<Object> elements = new ArrayList<>();
-            Class<?> elementType = null;
-
-            for (String elementValue : elementValues) {
-                Object element = elementFormat.parse(elementValue);
-                elements.add(element);
-                Class<?> type = element.getClass();
-                if (elementType == null) {
-                    elementType = type;
-                } else if (elementType != type) {
-                    elementType = Object.class;
-                }
-            }
-
-            if (elementType == null) {
-                return null;
-            }
-
-            Object[] resultArray = (Object[]) Array.newInstance(elementType, elements.size());
-            result = elements.toArray(resultArray);
+            String[] values = ArraySplitter.split(value);
+            return Arrays.stream(values)
+                .map(elementFormat::parse)
+                .toArray(e -> (Object[]) Array.newInstance(elementType, e));
         }
-
-        return result;
+        return null;
     }
 
     public IFormatter getElementFormat() {
