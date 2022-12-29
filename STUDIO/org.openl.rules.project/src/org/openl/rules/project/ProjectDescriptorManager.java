@@ -31,6 +31,7 @@ import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
+import org.openl.util.OS;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
@@ -83,7 +84,8 @@ public class ProjectDescriptorManager {
         return readDescriptor(source.toPath());
     }
 
-    public ProjectDescriptor readOriginalDescriptor(File filename) throws IOException, ValidationException, JAXBException {
+    public ProjectDescriptor readOriginalDescriptor(
+            File filename) throws IOException, ValidationException, JAXBException {
         ProjectDescriptor descriptor;
         try (FileInputStream inputStream = new FileInputStream(filename)) {
             descriptor = readDescriptorInternal(inputStream);
@@ -94,8 +96,8 @@ public class ProjectDescriptorManager {
         return descriptor;
     }
 
-    public void writeDescriptor(ProjectDescriptor descriptor, OutputStream dest) throws IOException,
-    ValidationException, JAXBException {
+    public void writeDescriptor(ProjectDescriptor descriptor,
+            OutputStream dest) throws IOException, ValidationException, JAXBException {
         validator.validate(descriptor);
         descriptor = cloner.deepClone(descriptor); // prevent changes argument
         // object
@@ -163,7 +165,10 @@ public class ProjectDescriptorManager {
     }
 
     private boolean isNotTemporaryFile(Path file) throws IOException {
-        if (file.getFileName().startsWith("~$") || Files.isHidden(file)) {
+        if (file.getFileName().startsWith("~$")) {
+            return false;
+        }
+        if (OS.isWindows() && Files.isHidden(file)) {
             OutputStream os = null;
             try {
                 os = Files.newOutputStream(file, StandardOpenOption.APPEND);
