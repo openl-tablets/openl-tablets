@@ -26,6 +26,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Type;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedFieldException;
+import org.openl.binding.impl.cast.VOID;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.gen.FieldDescription;
@@ -770,7 +771,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             .mapToObj(e -> "[")
                             .collect(joining()) + "L" + fieldClsName + ";") : fieldClsName;
                     } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
-                        .equals(t)) {
+                        .equals(t) || JavaOpenClass.getOpenClass(VOID.class).equals(t)) {
                         continue; // IGNORE VOID FIELDS
                     } else {
                         Class<?> instanceClass = field.getType().getInstanceClass();

@@ -17,7 +17,6 @@ import java.util.function.Predicate;
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.cache.GenericKey;
 import org.openl.domain.IDomain;
@@ -67,7 +66,7 @@ public class CastFactory implements ICastFactory {
 
     public static final int JAVA_BOXING_UP_CAST_DISTANCE = 10;
 
-    public static final int THROWABLE_VOID_CAST_DISTANCE = 12;
+    public static final int CAST_TO_ANY_DISTANCE = 12;
 
     public static final int STRING_ENUM_TO_CAST_DISTANCE = 16;
 
@@ -135,10 +134,10 @@ public class CastFactory implements ICastFactory {
             return OpenClassUtils.toWrapperIfPrimitive(openClass1);
         }
 
-        if (ThrowableVoid.class.equals(openClass1.getInstanceClass())) {
+        if (VOID.class.equals(openClass1.getInstanceClass())) {
             return openClass2;
         }
-        if (ThrowableVoid.class.equals(openClass2.getInstanceClass())) {
+        if (VOID.class.equals(openClass2.getInstanceClass())) {
             return openClass1;
         }
 
@@ -585,8 +584,8 @@ public class CastFactory implements ICastFactory {
             return null;
         }
 
-        if (ThrowableVoid.class == from.getInstanceClass()) {
-            return ThrowableVoidCast.getInstance();
+        if (VOID.class == from.getInstanceClass()) {
+            return CastToAnyOpenCast.getInstance();
         }
         /* END: This is very cheap operations, so no needs to cache it */
         Object key = GenericKey.getInstance(from, to);
