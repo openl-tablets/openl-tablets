@@ -24,7 +24,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.cast.MethodDetailsMethodCaller;
 import org.openl.binding.impl.cast.MethodSearchTuner;
-import org.openl.binding.impl.cast.ThrowableVoidCast.ThrowableVoid;
+import org.openl.binding.impl.cast.VOID;
 import org.openl.binding.impl.method.IgnoreNonVarargsMatching;
 import org.openl.domain.IDomain;
 import org.openl.exception.OpenLRuntimeException;
@@ -1349,15 +1349,15 @@ public final class RulesUtils {
 
     // --------------------------------------
 
-    public static ThrowableVoid error(String msg) {
+    public static VOID error(String msg) {
         throw new OpenLUserRuntimeException(msg);
     }
 
-    public static ThrowableVoid error(String code, String message) {
+    public static VOID error(String code, String message) {
         throw new OpenLUserRuntimeException(code, message);
     }
 
-    public static ThrowableVoid error(Object object) {
+    public static VOID error(Object object) {
         throw new OpenLUserRuntimeException(object);
     }
 

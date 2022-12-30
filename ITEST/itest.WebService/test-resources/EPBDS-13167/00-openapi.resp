@@ -634,14 +634,8 @@ Content-Type: application/json
         "properties": {
           "SS": {
             "$ref": "#/components/schemas/MyError"
-          },
-          "Throw": {
-            "$ref": "#/components/schemas/ThrowableVoid"
           }
         }
-      },
-      "ThrowableVoid": {
-        "type": "object"
       },
       "ThrowMyErrorArr": {
         "type": "object",
@@ -654,19 +648,11 @@ Content-Type: application/json
             "items": {
               "$ref": "#/components/schemas/MyError"
             }
-          },
-          "Throw": {
-            "$ref": "#/components/schemas/ThrowableVoid"
           }
         }
       },
       "ThrowMyErrorSPR": {
-        "type": "object",
-        "properties": {
-          "SS": {
-            "$ref": "#/components/schemas/ThrowableVoid"
-          }
-        }
+        "type": "object"
       },
       "ThrowMyErrorSPRArr": {
         "type": "object",
@@ -676,9 +662,6 @@ Content-Type: application/json
             "items": {
               "$ref": "#/components/schemas/MakeError"
             }
-          },
-          "SS": {
-            "$ref": "#/components/schemas/ThrowableVoid"
           }
         }
       }
