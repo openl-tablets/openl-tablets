@@ -145,6 +145,9 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
             return method.invoke(target, params);
         } catch (InvocationTargetException t) {
             Throwable targetException = t.getTargetException();
+            if (targetException instanceof OpenLRuntimeException) {
+                throw (OpenLRuntimeException) targetException;
+            }
             String msg = getMessage(targetException);
             throw new OpenLRuntimeException(msg, targetException);
         } catch (Exception t) {

@@ -2,5 +2,5 @@ HTTP/1.1 406
 Content-Type: application/json
 
 {
-  "body": "Failure in the method 'org.openl.rules.helpers.RulesUtils.error(java.lang.String)'. Cause: A is not valid"
+  "body": "A is not valid"
 }
