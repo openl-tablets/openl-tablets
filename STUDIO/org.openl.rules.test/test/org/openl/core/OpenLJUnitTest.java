@@ -61,7 +61,7 @@ public class OpenLJUnitTest {
         IOpenClass openClass = engineFactory.getCompiledOpenClass().getOpenClass();
 
         TestSuiteMethod[] tests = ProjectHelper.allTesters(openClass);
-        assertEquals(15, tests.length);
+        assertEquals(16, tests.length);
 
         Object target = openClass.newInstance(new SimpleRulesVM().getRuntimeEnv());
         for (var testSuit : tests) {
