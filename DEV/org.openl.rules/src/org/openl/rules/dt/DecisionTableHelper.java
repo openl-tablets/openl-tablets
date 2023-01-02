@@ -633,7 +633,7 @@ public final class DecisionTableHelper {
     private static Pair<String, IOpenClass> buildStatementByFieldsChain(IOpenClass type, IOpenField[] fieldsChain) {
         StringBuilder fieldsChainSb = new StringBuilder();
         for (int i = 0; i < fieldsChain.length; i++) {
-            IOpenField openField = type.getField(fieldsChain[i].getName(), false);
+            IOpenField openField = type.getField(fieldsChain[i].getName(), true);
             fieldsChainSb.append(openField.getName());
             if (i < fieldsChain.length - 1) {
                 fieldsChainSb.append(".");
