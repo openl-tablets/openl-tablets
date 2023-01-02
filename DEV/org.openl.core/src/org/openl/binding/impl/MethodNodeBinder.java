@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.openl.base.INamedThing;
@@ -20,6 +21,7 @@ import org.openl.binding.impl.module.ModuleSpecificOpenMethod;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.binding.impl.module.WrapModuleSpecificTypes;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -242,6 +244,10 @@ public class MethodNodeBinder extends ANodeBinder {
             //
             IOpenField field = argumentType.getField(methodName, false);
             if (field != null) {
+                if (!Objects.equals(field.getName(), methodName)) {
+                    bindingContext.addMessage(OpenLMessagesUtils
+                        .newWarnMessage(String.format("Case insensitive matching to '%s'.", methodName), methodNode));
+                }
                 if (argumentType instanceof WrapModuleSpecificTypes && field.getType() instanceof ModuleSpecificType) {
                     IOpenClass t = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, field.getType().getName());
                     if (t != null) {
