@@ -786,10 +786,13 @@ public class DataTableBindHelper {
         boolean hasAccessByArrayId = false;
         StringBuilder partPathFromRoot = new StringBuilder();
 
-        boolean multiRowsArentSupported = type instanceof TestMethodOpenClass && fieldAccessorChainTokens[0]
-            .getIdentifier()
-            .startsWith(TestMethodHelper.EXPECTED_RESULT_NAME);
+        boolean isResult = fieldAccessorChainTokens[0].getIdentifier()
+            .startsWith(TestMethodHelper.EXPECTED_RESULT_NAME) || fieldAccessorChainTokens[0].getIdentifier()
+                .startsWith(TestMethodHelper.EXPECTED_ERROR);
 
+        boolean multiRowsArentSupported = type instanceof TestMethodOpenClass && isResult;
+
+        // HERE
         for (int fieldIndex = 0; fieldIndex < fieldAccessorChain.length; fieldIndex++) {
             IdentifierNode fieldNameNode = fieldAccessorChainTokens[fieldIndex];
             String identifier = fieldNameNode.getIdentifier();
@@ -850,7 +853,7 @@ public class DataTableBindHelper {
                 }
             }
 
-            if (StringUtils.matches(PRECISION_PATTERN, identifier)) {
+            if (isResult && StringUtils.matches(PRECISION_PATTERN, identifier)) {
                 fieldAccessorChain = ArrayUtils.remove(fieldAccessorChain, fieldIndex);
                 fieldAccessorChainTokens = ArrayUtils.remove(fieldAccessorChainTokens, fieldIndex);
                 // Skip creation of IOpenField
