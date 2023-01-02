@@ -31,6 +31,10 @@ public class Argument {
         }
     }
 
+    public IOpenField getField() {
+        return field;
+    }
+
     public IOpenClass getType() {
         return type;
     }

@@ -3,9 +3,11 @@ package org.openl.rules.cmatch.algorithm;
 import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.SimpleNodeUsage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.cmatch.*;
 import org.openl.rules.cmatch.matcher.IMatcher;
@@ -340,6 +342,10 @@ public class MatchAlgorithmCompiler implements IMatchAlgorithmCompiler {
             if (arg == null) {
                 String msg = "Failed to bind name '" + varName + "'.";
                 throw SyntaxNodeExceptionUtils.createError(msg, nameSV.getStringValue().asSourceCodeModule());
+            } else if (arg.getField() != null && !Objects.equals(arg.getField().getName(), varName)) {
+                bindingContext.addMessage(
+                    OpenLMessagesUtils.newWarnMessage(String.format("Case insensitive matching to '%s'.", varName),
+                        columnMatch.getSyntaxNode()));
             }
 
             SubValue operationSV = row.get(OPERATION)[0];
