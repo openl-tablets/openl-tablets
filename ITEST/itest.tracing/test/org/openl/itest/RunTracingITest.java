@@ -50,7 +50,7 @@ public class RunTracingITest {
     private static HttpClient client;
     private static MockTracer tracer;
 
-    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0")).withReuse(true);
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"));
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -69,7 +69,6 @@ public class RunTracingITest {
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
-
         doQuite(KAFKA_CONTAINER::stop);
     }
 

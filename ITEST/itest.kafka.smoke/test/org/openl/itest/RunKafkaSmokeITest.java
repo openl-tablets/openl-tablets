@@ -42,7 +42,7 @@ public class RunKafkaSmokeITest {
     private static JettyServer server;
     private static HttpClient client;
 
-    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0")).withReuse(true);
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"));
 
     @BeforeClass
     public static void setUp() throws Exception {
