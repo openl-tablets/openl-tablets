@@ -6,6 +6,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
+
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
@@ -74,6 +77,9 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
 
     @Autowired
     private StoreLogDataManager storeLogDataManager;
+
+    @Autowired
+    private List<ExceptionMapper> exceptionMappers;
 
     public StoreLogDataManager getStoreLogDataManager() {
         return storeLogDataManager;
@@ -173,6 +179,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             ObjectMapper openApiObjectMapper;
             openApiObjectMapperHack = new OpenApiObjectMapperHack();
             openApiObjectMapperHack.apply(openApiObjectMapper = getJaxrsOpenApiObjectMapper().getObject());
+            ((List) svrFactory.getProviders()).addAll(exceptionMappers);
             ((List) svrFactory.getProviders()).add(new OpenApiHackContainerRequestFilter(openApiObjectMapper));
             ((List) svrFactory.getProviders()).add(new OpenApiHackContainerResponseFilter());
 

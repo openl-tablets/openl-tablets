@@ -99,10 +99,8 @@
         </property>
         <property name="providers">
             <list>
-                <ref bean="jaxrsExceptionMapper"/>
                 <ref bean="jaxrsJSONProvider"/>
                 <ref bean="jaxrsTextPlainDateMessageBodyWriter"/>
-                <ref bean="jaxrsWebApplicationExceptionMapper"/>
             </list>
         </property>
         <property name="bus" ref="cxf"/>
