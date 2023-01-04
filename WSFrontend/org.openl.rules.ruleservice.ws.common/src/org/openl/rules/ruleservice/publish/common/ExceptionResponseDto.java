@@ -64,16 +64,6 @@ public class ExceptionResponseDto {
             }
         } else {
             exceptionDetails = new ExceptionDetails(ExceptionUtils.getRootCauseMessage(e));
-            try {
-                Class<?> jsonProcessingException = Thread.currentThread()
-                    .getContextClassLoader()
-                    .loadClass("com.fasterxml.jackson.core.JsonProcessingException");
-                if (t != null && jsonProcessingException.isAssignableFrom(t.getClass())) {
-                    status = BAD_REQUEST;
-                    type = ExceptionType.BAD_REQUEST;
-                }
-            } catch (ClassNotFoundException ignored) {
-            }
         }
 
         return new ExceptionResponseDto(exceptionDetails, status, type);
