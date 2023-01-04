@@ -87,7 +87,8 @@ public class RunStoreLogDataITest {
     private static final CassandraContainer CASSANDRA_CONTAINER = new CassandraContainer<>("cassandra:4");
     private static CqlSession cassandraSession;
 
-    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"));
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
+        DockerImageName.parse("confluentinc/cp-kafka:7.3.1"));
 
     @BeforeClass
     public static void setUp() throws Exception {
