@@ -422,89 +422,81 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         Class<?>[] parameterTypes = calledMethod.getParameterTypes();
         Object result = null;
         IOpenMember openMember = openMemberMap.get(calledMethod);
-        try {
-            Method beanMethod = null;
-            if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
-                beanMethod = methodMap.get(calledMethod);
-                if (beanMethod == null) {
-                    throw new OpenLRuntimeException(String.format(
-                        "Called method is not found in the service bean. Please, check that excel file contains method '%s'.",
-                        MethodUtil.printMethod(methodName, parameterTypes)));
-                }
+        Method beanMethod = null;
+        if (!calledMethod.isAnnotationPresent(ServiceExtraMethod.class)) {
+            beanMethod = methodMap.get(calledMethod);
+            if (beanMethod == null) {
+                var msg = String.format(
+                    "Called method is not found in the service bean. Please, check that excel file contains method '%s'.",
+                    MethodUtil.printMethod(methodName, parameterTypes));
+                throw new RuleServiceWrapperException(new ExceptionDetails(msg), ExceptionType.SYSTEM, msg, null);
             }
+        }
+        try {
+            ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
             try {
-                ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-                try {
-                    Thread.currentThread().setContextClassLoader(serviceClassLoader);
-                    beforeInvocation(calledMethod, openMember, args);
-                    ServiceMethodAroundAdvice<?> serviceMethodAroundAdvice = aroundInterceptors.get(calledMethod);
-                    Exception ex = null;
-                    if (serviceMethodAroundAdvice != null) {
-                        invokeBeforeServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
+                Thread.currentThread().setContextClassLoader(serviceClassLoader);
+                beforeInvocation(calledMethod, openMember, args);
+                ServiceMethodAroundAdvice<?> serviceMethodAroundAdvice = aroundInterceptors.get(calledMethod);
+                Exception ex = null;
+                if (serviceMethodAroundAdvice != null) {
+                    invokeBeforeServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
+                        calledMethod,
+                        openMember,
+                        args,
+                        null,
+                        null);
+                    try {
+                        args = processArguments(calledMethod, beanMethod, args);
+                        result = serviceMethodAroundAdvice.around(calledMethod, beanMethod, serviceTarget, args);
+                    } catch (Exception e) {
+                        ex = e;
+                    } finally {
+                        invokeAfterServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
                             calledMethod,
                             openMember,
                             args,
-                            null,
-                            null);
-                        try {
+                            result,
+                            ex);
+                    }
+                } else {
+                    invokeBeforeMethodInvocationOnListeners(calledMethod, openMember, args);
+                    try {
+                        if (beanMethod != null) {
                             args = processArguments(calledMethod, beanMethod, args);
-                            result = serviceMethodAroundAdvice.around(calledMethod, beanMethod, serviceTarget, args);
-                        } catch (Exception e) {
-                            ex = e;
-                        } finally {
-                            invokeAfterServiceMethodAdviceOnListeners(serviceMethodAroundAdvice,
-                                calledMethod,
-                                openMember,
-                                args,
-                                result,
-                                ex);
+                            result = beanMethod.invoke(serviceTarget, args);
+                        } else {
+                            result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
                         }
-                    } else {
-                        invokeBeforeMethodInvocationOnListeners(calledMethod, openMember, args);
-                        try {
-                            if (beanMethod != null) {
-                                args = processArguments(calledMethod, beanMethod, args);
-                                result = beanMethod.invoke(serviceTarget, args);
-                            } else {
-                                result = serviceExtraMethodInvoke(calledMethod, serviceTarget, args);
-                            }
-                        } catch (InvocationTargetException | UndeclaredThrowableException e) {
-                            Throwable t = e.getCause();
-                            if (t instanceof Exception) {
-                                ex = (Exception) t;
-                                ex.addSuppressed(e);
-                            } else {
-                                ex = e;
-                            }
-                        } catch (Exception e) {
+                    } catch (InvocationTargetException | UndeclaredThrowableException e) {
+                        Throwable t = e.getCause();
+                        if (t instanceof Exception) {
+                            ex = (Exception) t;
+                            ex.addSuppressed(e);
+                        } else {
                             ex = e;
-                        } finally {
-                            invokeAfterMethodInvocationOnListeners(calledMethod, openMember, args, result, ex);
                         }
+                    } catch (Exception e) {
+                        ex = e;
+                    } finally {
+                        invokeAfterMethodInvocationOnListeners(calledMethod, openMember, args, result, ex);
                     }
-                    result = afterInvocation(calledMethod, openMember, result, ex, args);
-                    // repack result if arrays inside it doesn't have the returnType as interfaceMethod
-                    if (calledMethod.getReturnType().isArray()) {
-                        result = ArrayUtils.repackArray(result, calledMethod.getReturnType());
-                    }
-                } finally {
-                    Thread.currentThread().setContextClassLoader(oldClassLoader);
                 }
-            } catch (Error e) {
-                throw e;
-            } catch (Throwable t) {
-                throw new Exception(t);
+                result = afterInvocation(calledMethod, openMember, result, ex, args);
+                // repack result if arrays inside it doesn't have the returnType as interfaceMethod
+                if (calledMethod.getReturnType().isArray()) {
+                    result = ArrayUtils.repackArray(result, calledMethod.getReturnType());
+                }
+            } finally {
+                Thread.currentThread().setContextClassLoader(oldClassLoader);
             }
-            return result;
-        } catch (Exception t) {
+        } catch (Throwable t) {
             Pair<ExceptionType, ExceptionDetails> p = getExceptionDetailAndType(t, sprBeanPropertyNamingStrategy);
             if (ExceptionType.isServerError(p.getLeft())) {
                 log.error(p.getRight().getMessage(), t);
             }
-            throw new RuleServiceWrapperException(p.getRight(),
-                p.getLeft(),
-                getExceptionMessage(calledMethod, t, args),
-                t);
+            var msg = getExceptionMessage(calledMethod, t, args);
+            throw new RuleServiceWrapperException(p.getRight(), p.getLeft(), msg, t);
         } finally {
             // Memory leaks fix.
             if (serviceTarget instanceof IEngineWrapper) {
@@ -515,6 +507,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
                     "Service bean does not implement IEngineWrapper interface. Please, don't use deprecated static wrapper classes.");
             }
         }
+        return result;
     }
 
     private Object[] processArguments(Method interfaceMethod, Method beanMethod, Object[] args) {
@@ -552,7 +545,7 @@ public final class ServiceInvocationAdvice extends AbstractOpenLMethodHandler<Me
         }
     }
 
-    public static Pair<ExceptionType, ExceptionDetails> getExceptionDetailAndType(Exception ex,
+    public static Pair<ExceptionType, ExceptionDetails> getExceptionDetailAndType(Throwable ex,
             SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy) {
         Throwable t = ex;
 
