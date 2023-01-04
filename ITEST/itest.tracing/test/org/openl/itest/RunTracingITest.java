@@ -27,7 +27,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
-import org.rnorth.ducttape.unreliables.Unreliables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.KafkaContainer;
@@ -236,7 +235,7 @@ public class RunTracingITest {
     }
 
     private void checkKafkaResponse(KafkaConsumer<String, String> consumer, String expectedKey, String expectedValue) {
-        Unreliables.retryUntilTrue(20, TimeUnit.SECONDS, () -> {
+        given().ignoreExceptions().atMost(20, TimeUnit.SECONDS).until(() -> {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
             if (records.isEmpty()) {
                 return false;

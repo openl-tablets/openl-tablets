@@ -22,13 +22,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+
 import javax.persistence.Entity;
 
-import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.cql.Row;
-import com.datastax.oss.driver.api.core.servererrors.InvalidQueryException;
-import com.datastax.oss.driver.api.core.servererrors.QueryExecutionException;
-import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -42,13 +38,6 @@ import org.h2.tools.Server;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.rnorth.ducttape.unreliables.Unreliables;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.CassandraContainer;
-import org.testcontainers.containers.KafkaContainer;
-import org.testcontainers.utility.DockerImageName;
-
 import org.openl.itest.cassandra.CassandraFields;
 import org.openl.itest.cassandra.HelloEntity1;
 import org.openl.itest.cassandra.HelloEntity2;
@@ -63,6 +52,17 @@ import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.storelogdata.annotation.PublisherType;
 import org.openl.rules.ruleservice.storelogdata.cassandra.DefaultCassandraEntity;
 import org.openl.rules.ruleservice.storelogdata.db.DefaultEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.CassandraContainer;
+import org.testcontainers.containers.KafkaContainer;
+import org.testcontainers.utility.DockerImageName;
+
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.Row;
+import com.datastax.oss.driver.api.core.servererrors.InvalidQueryException;
+import com.datastax.oss.driver.api.core.servererrors.QueryExecutionException;
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 
 public class RunStoreLogDataITest {
     private static final Logger LOG = LoggerFactory.getLogger(RunStoreLogDataITest.class);
@@ -596,23 +596,19 @@ public class RunStoreLogDataITest {
     }
 
     private void checkKafkaResponse(KafkaConsumer<String, String> consumer, String expectedKey, String expectedValue) {
-        Unreliables.retryUntilTrue(
-                20,
-                TimeUnit.SECONDS,
-                () -> {
-                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
-                    if (records.isEmpty()) {
-                        return false;
-                    }
-                    assertEquals(1, records.count());
-                    ConsumerRecord<String, String> response = records.iterator().next();
-                    if (expectedValue != null) {
-                        assertEquals(response.value(), expectedValue);
-                        assertEquals(response.key(), expectedKey);
-                    }
-                    return true;
-                }
-        );
+        given().ignoreExceptions().await().atMost(20, TimeUnit.SECONDS).until(() -> {
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+            if (records.isEmpty()) {
+                return false;
+            }
+            assertEquals(1, records.count());
+            ConsumerRecord<String, String> response = records.iterator().next();
+            if (expectedValue != null) {
+                assertEquals(response.value(), expectedValue);
+                assertEquals(response.key(), expectedKey);
+            }
+            return true;
+        });
     }
 
     @Test
