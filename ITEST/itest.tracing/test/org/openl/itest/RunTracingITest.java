@@ -13,10 +13,6 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import io.opentracing.mock.MockSpan;
-import io.opentracing.mock.MockTracer;
-import io.opentracing.tag.Tags;
-import io.opentracing.util.GlobalTracer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -29,6 +25,8 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.itest.core.HttpClient;
+import org.openl.itest.core.JettyServer;
 import org.rnorth.ducttape.unreliables.Unreliables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +34,10 @@ import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import org.testcontainers.utility.DockerImageName;
 
-import org.openl.itest.core.HttpClient;
-import org.openl.itest.core.JettyServer;
+import io.opentracing.mock.MockSpan;
+import io.opentracing.mock.MockTracer;
+import io.opentracing.tag.Tags;
+import io.opentracing.util.GlobalTracer;
 
 public class RunTracingITest {
 
@@ -50,7 +50,8 @@ public class RunTracingITest {
     private static HttpClient client;
     private static MockTracer tracer;
 
-    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.3.0"));
+    private static final KafkaContainer KAFKA_CONTAINER = new KafkaContainer(
+        DockerImageName.parse("confluentinc/cp-kafka:7.3.0"));
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -58,7 +59,8 @@ public class RunTracingITest {
 
         tracer = new MockTracer();
         GlobalTracer.registerIfAbsent(tracer);
-        server = JettyServer.startSharingClassLoader(Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers()));
+        server = JettyServer.startSharingClassLoader(
+            Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers()));
         client = server.client();
     }
 
@@ -76,7 +78,7 @@ public class RunTracingITest {
         try {
             procedure.invoke();
         } catch (RuntimeException e) {
-            LOG.warn("Error while trying to stop server" ,e);
+            LOG.warn("Error while trying to stop server", e);
         }
     }
 
@@ -206,7 +208,7 @@ public class RunTracingITest {
 
     private void testKafka(String inTopic, String outTopic, String key, String value, String expectedValue) {
         try (KafkaProducer<String, String> producer = createKafkaProducer(KAFKA_CONTAINER.getBootstrapServers());
-             KafkaConsumer<String, String> consumer = createKafkaConsumer(KAFKA_CONTAINER.getBootstrapServers())) {
+                KafkaConsumer<String, String> consumer = createKafkaConsumer(KAFKA_CONTAINER.getBootstrapServers())) {
             consumer.subscribe(Collections.singletonList(outTopic));
             producer.send(new ProducerRecord<>(inTopic, key, value));
 
@@ -216,46 +218,36 @@ public class RunTracingITest {
     }
 
     private static KafkaProducer<String, String> createKafkaProducer(String bootstrapServers) {
-        return new KafkaProducer<>(
-                ImmutableMap.of(
-                        ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
-                        ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()
-                ),
-                new StringSerializer(),
-                new StringSerializer()
-        );
+        return new KafkaProducer<>(ImmutableMap.of(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+            bootstrapServers,
+            ProducerConfig.CLIENT_ID_CONFIG,
+            UUID.randomUUID().toString()), new StringSerializer(), new StringSerializer());
     }
 
     private KafkaConsumer<String, String> createKafkaConsumer(String bootstrapServers) {
-        return new KafkaConsumer<>(
-                ImmutableMap.of(
-                        ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
-                        ConsumerConfig.GROUP_ID_CONFIG, "tc-" + UUID.randomUUID(),
-                        ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
-                        METADATA_MAX_AGE_CONFIG, 1000
-                ),
-                new StringDeserializer(),
-                new StringDeserializer()
-        );
+        return new KafkaConsumer<>(ImmutableMap.of(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+            bootstrapServers,
+            ConsumerConfig.GROUP_ID_CONFIG,
+            "tc-" + UUID.randomUUID(),
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+            "earliest",
+            METADATA_MAX_AGE_CONFIG,
+            1000), new StringDeserializer(), new StringDeserializer());
     }
 
     private void checkKafkaResponse(KafkaConsumer<String, String> consumer, String expectedKey, String expectedValue) {
-        Unreliables.retryUntilTrue(
-                20,
-                TimeUnit.SECONDS,
-                () -> {
-                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
-                    if (records.isEmpty()) {
-                        return false;
-                    }
-                    assertEquals(1, records.count());
-                    ConsumerRecord<String, String> response = records.iterator().next();
-                    if (expectedValue != null) {
-                        assertEquals(response.value(), expectedValue);
-                        assertEquals(response.key(), expectedKey);
-                    }
-                    return true;
-                }
-        );
+        Unreliables.retryUntilTrue(20, TimeUnit.SECONDS, () -> {
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+            if (records.isEmpty()) {
+                return false;
+            }
+            assertEquals(1, records.count());
+            ConsumerRecord<String, String> response = records.iterator().next();
+            if (expectedValue != null) {
+                assertEquals(response.value(), expectedValue);
+                assertEquals(response.key(), expectedKey);
+            }
+            return true;
+        });
     }
 }
