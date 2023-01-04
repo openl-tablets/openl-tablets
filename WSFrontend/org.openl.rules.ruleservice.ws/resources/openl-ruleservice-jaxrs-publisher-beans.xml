@@ -75,8 +75,6 @@
         <property name="enabled" value="${ruleservice.jaxrs.responseStatusAlwaysOK}"/>
     </bean>
 
-    <bean id="jaxrsExceptionMapper" class="org.openl.rules.ruleservice.publish.jaxrs.JAXRSExceptionMapper"/>
-
     <bean id="jaxrsServiceServerPrototype" class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" scope="prototype">
         <property name="features">
             <list>

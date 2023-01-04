@@ -57,7 +57,6 @@ import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.core.annotations.ApiErrors;
-import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
@@ -85,6 +84,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
 public class JAXRSOpenLServiceEnhancerHelper {
 
     public static final int MAX_PARAMETERS_COUNT_FOR_GET = 3;
+    public static final int UNPROCESSABLE_ENTITY = 422;
     private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXRSAnnotated";
 
     private static final Set<Class<?>> TEXT_MEDIA_TYPE_SET = new HashSet<>();
@@ -773,18 +773,18 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
 
             addOpenApiResponseAnnotation(arrayAv,
-                ExceptionResponseDto.UNPROCESSABLE_ENTITY,
+                UNPROCESSABLE_ENTITY,
                 UNPROCESSABLE_ENTITY_MESSAGE,
                 allUserApiResponses.toArray(new Class<?>[0]),
                 UNPROCESSABLE_ENTITY_EXAMPLE,
                 USER_ERROR_EXAMPLE);
             addOpenApiResponseAnnotation(arrayAv,
-                ExceptionResponseDto.BAD_REQUEST,
+                Response.Status.BAD_REQUEST.getStatusCode(),
                 BAD_REQUEST_MESSAGE,
                 DEFAULT_API_ERROR_TYPES,
                 BAD_REQUEST_EXAMPLE);
             addOpenApiResponseAnnotation(arrayAv,
-                ExceptionResponseDto.INTERNAL_SERVER_ERROR_CODE,
+                Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
                 INTERNAL_SERVER_ERROR_MESSAGE,
                 DEFAULT_API_ERROR_TYPES,
                 INTERNAL_SERVER_ERROR_EXAMPLE);
