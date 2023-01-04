@@ -1,6 +1,7 @@
 package org.openl.itest;
 
 import static org.apache.kafka.clients.consumer.ConsumerConfig.METADATA_MAX_AGE_CONFIG;
+import static org.awaitility.Awaitility.given;
 import static org.junit.Assert.assertEquals;
 import static org.openl.rules.ruleservice.kafka.KafkaHeaders.CORRELATION_ID;
 
@@ -32,7 +33,6 @@ import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
-import org.rnorth.ducttape.unreliables.Unreliables;
 import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.utility.DockerImageName;
 
@@ -73,7 +73,7 @@ public class RunKafkaSmokeITest {
             checkKafkaResponse(consumer, "key1", "5");
 
             producer.send(new ProducerRecord<>("hello-in-topic", "key1", "{\"hour\": 22}"));
-            Unreliables.retryUntilTrue(20, TimeUnit.SECONDS, () -> {
+            given().ignoreExceptions().atMost(20, TimeUnit.SECONDS).until(() -> {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
                 if (records.isEmpty()) {
                     return false;
@@ -169,7 +169,7 @@ public class RunKafkaSmokeITest {
             consumer.subscribe(Collections.singletonList(HELLO_REPLY_DLT_TOPIC));
             producer.send(producerRecord);
 
-            Unreliables.retryUntilTrue(20, TimeUnit.SECONDS, () -> {
+            given().ignoreExceptions().atMost(20, TimeUnit.SECONDS).until(() -> {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
                 if (records.isEmpty()) {
                     return false;
@@ -244,7 +244,7 @@ public class RunKafkaSmokeITest {
     private static void checkKafkaResponse(KafkaConsumer<String, String> consumer,
             String expectedKey,
             String expectedValue) {
-        Unreliables.retryUntilTrue(20, TimeUnit.SECONDS, () -> {
+        given().ignoreExceptions().atMost(20, TimeUnit.SECONDS).until(() -> {
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
             if (records.isEmpty()) {
                 return false;
