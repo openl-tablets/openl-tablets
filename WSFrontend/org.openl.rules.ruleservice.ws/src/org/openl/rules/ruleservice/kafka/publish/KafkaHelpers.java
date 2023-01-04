@@ -26,6 +26,9 @@ public final class KafkaHelpers {
     public static Method findMethodInService(OpenLService service,
             String methodName,
             String methodParameters) throws RuleServiceInstantiationException {
+        if (methodName == null) {
+            throw new MethodNotFoundException("Method name is not found.");
+        }
         int cnt = 0;
         Method method = null;
         for (Method m : service.getServiceClass().getMethods()) {
