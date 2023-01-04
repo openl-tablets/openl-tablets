@@ -89,11 +89,11 @@
         <!-- Managing dependencies versions -->
         <!-- Spring -->
         <spring.framework.version>5.3.24</spring.framework.version>
-        <spring.boot.version>2.7.6</spring.boot.version>
+        <spring.boot.version>2.7.7</spring.boot.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
 
         <!-- Security -->
-        <spring.security.version>5.8.0</spring.security.version>
+        <spring.security.version>5.8.1</spring.security.version>
         <opensaml.version>4.2.0</opensaml.version>
 
         <!-- Bytecode manipulation -->
@@ -152,13 +152,13 @@
         <okhttp.version>4.10.0</okhttp.version>
 
         <!-- Repositories -->
-        <amazonaws.version>1.12.360</amazonaws.version>
+        <amazonaws.version>1.12.376</amazonaws.version>
         <azure.version>12.20.1</azure.version>
         <jgit.version>6.3.0.202209071007-openl-2</jgit.version>
 
         <!-- DB -->
         <h2.version>2.1.214</h2.version>
-        <mssql.version>11.2.1.jre11</mssql.version>
+        <mssql.version>11.2.2.jre11</mssql.version>
         <hikaricp.version>5.0.1</hikaricp.version>
         <hibernate.orm.version>5.6.14.Final</hibernate.orm.version>
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
@@ -185,7 +185,7 @@
 
         <!-- Mail -->
         <jakarta.mail.version>1.6.7</jakarta.mail.version>
-        <greenmail.version>1.6.11</greenmail.version>
+        <greenmail.version>1.6.12</greenmail.version>
 
         <!-- Commons and utils -->
         <commons.codec.version>1.15</commons.codec.version>
@@ -201,7 +201,7 @@
         <gson.version>2.10</gson.version>
 
         <bouncycastle.version>1.72</bouncycastle.version>
-        <groovy.version>3.0.13</groovy.version>
+        <groovy.version>3.0.14</groovy.version>
         <poi.version>5.2.3</poi.version>
         <aspectj.version>1.9.9.1</aspectj.version>
         <velocity.version>2.3</velocity.version>
