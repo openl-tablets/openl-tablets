@@ -3,3 +3,6 @@ service:
   consumer.configs:
     metadata.max.age.ms: 1000
     auto.offset.reset: earliest
+  producer.configs:
+    # Enabled idempotence doesn't work on kafka with single node
+    enable.idempotence: false
