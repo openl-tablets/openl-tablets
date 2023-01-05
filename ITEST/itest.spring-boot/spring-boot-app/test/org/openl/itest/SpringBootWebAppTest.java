@@ -2,6 +2,7 @@ package org.openl.itest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,7 +45,6 @@ public class SpringBootWebAppTest {
         assertThat(response).contains("Hello, World!");
     }
 
-
     @Test
     public void postMister() {
         String response = restTemplate.postForObject("/openl-rules-rs/SayHello", "Mister", String.class);
@@ -55,6 +55,28 @@ public class SpringBootWebAppTest {
     public void deployZipFromOpenLFolder() {
         String response = restTemplate.postForObject("/REST/deployed-rules/hello", new Request1("John Smith"), String.class);
         assertThat(response).contains("Hello, John Smith");
+    }
+
+    @Test
+    public void postPassVocabulary() {
+        var response = restTemplate.postForObject("/openl-rules-rs/ValidateVocabulary", "pass", String.class);
+        assertThat(response).isEqualTo("World");
+    }
+
+    @Test
+    public void postFailVocabulary() throws Exception {
+        var response = restTemplate.postForObject("/openl-rules-rs/ValidateVocabulary", "fail", String.class);
+        var json = new ObjectMapper().readTree(response);
+        assertThat(json.get("code").asText()).isEqualTo("USR001");
+        assertThat(json.get("message").asText()).isEqualTo("User Error");
+    }
+
+    @Test
+    public void postUnknownVocabulary() throws Exception {
+        var response = restTemplate.postForObject("/openl-rules-rs/ValidateVocabulary", "unknown", String.class);
+        var json = new ObjectMapper().readTree(response);
+        assertThat(json.get("code").asText()).isEqualTo("VALIDATION");
+        assertThat(json.get("message").asText()).startsWith("Object 'unknown' is outside of valid domain 'Vocabulary'");
     }
 
     public static class Request1 {
