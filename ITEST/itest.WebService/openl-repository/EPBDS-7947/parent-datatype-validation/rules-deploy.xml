@@ -4,7 +4,6 @@
   <useRuleServiceRuntimeContext>false</useRuleServiceRuntimeContext>
   <serviceName>parent-datatype-validation</serviceName>
   <publishers>
-    <publisher>WEBSERVICE</publisher>
     <publisher>RESTFUL</publisher>
   </publishers>
   <url>parent-datatype-validation</url>

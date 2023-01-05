@@ -25,7 +25,7 @@ Content-Type: application/json
     "name": "simple_simple",
     "servicePath": "simple/simple",
     "urls": {
-      "RESTFUL": "REST/simple"
+      "RESTFUL": "simple"
     },
     "hasManifest": false,
     "deploymentName": "simple",

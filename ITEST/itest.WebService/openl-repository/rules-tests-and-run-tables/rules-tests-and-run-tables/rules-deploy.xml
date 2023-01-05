@@ -5,7 +5,6 @@
     <annotationTemplateClassName>org.openl.itest.serviceclass.RunTestServiceAnnotationTemplate</annotationTemplateClassName>
     <publishers>
         <publisher>RESTFUL</publisher>
-        <publisher>WEBSERVICE</publisher>
     </publishers>
     <url>rules-tests-and-run-tables</url>
 </rules-deploy>

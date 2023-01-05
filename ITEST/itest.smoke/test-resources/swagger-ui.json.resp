@@ -8,7 +8,7 @@ Content-Type: application/json
       "url": "multi_project/project1/openapi.json"
     }, {
       "name": "simple_simple",
-      "url": "REST/simple/openapi.json"
+      "url": "simple/openapi.json"
     }
   ]
 }

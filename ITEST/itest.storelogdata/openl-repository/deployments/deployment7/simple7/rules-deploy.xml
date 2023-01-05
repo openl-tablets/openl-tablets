@@ -6,6 +6,5 @@
     </annotationTemplateClassName>
     <publishers>
         <publisher>RESTFUL</publisher>
-        <publisher>WEBSERVICE</publisher>
     </publishers>
 </rules-deploy>

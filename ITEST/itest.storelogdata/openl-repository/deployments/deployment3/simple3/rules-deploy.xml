@@ -4,7 +4,6 @@
     <serviceName>simple3</serviceName>
     <annotationTemplateClassName>org.openl.itest.serviceclass.Simple3ServiceAnnotationTemplate</annotationTemplateClassName>
     <publishers>
-        <publisher>WEBSERVICE</publisher>
         <publisher>RESTFUL</publisher>
     </publishers>
     <configuration>

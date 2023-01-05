@@ -1,7 +1,6 @@
 <rules-deploy>
     <serviceName>simple1-tracing</serviceName>
     <publishers>
-        <publisher>WEBSERVICE</publisher>
         <publisher>RESTFUL</publisher>
         <publisher>KAFKA</publisher>
     </publishers>

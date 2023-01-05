@@ -3,6 +3,5 @@
     <url>EPBDS-9576</url>
     <publishers>
         <publisher>RESTFUL</publisher>
-        <publisher>WEBSERVICE</publisher>
     </publishers>
 </rules-deploy>
