@@ -1,6 +1,14 @@
 package org.openl.rules.webstudio.web.test;
 
-import static org.openl.types.java.JavaOpenClass.*;
+import static org.openl.types.java.JavaOpenClass.BOOLEAN;
+import static org.openl.types.java.JavaOpenClass.BYTE;
+import static org.openl.types.java.JavaOpenClass.CHAR;
+import static org.openl.types.java.JavaOpenClass.DOUBLE;
+import static org.openl.types.java.JavaOpenClass.FLOAT;
+import static org.openl.types.java.JavaOpenClass.INT;
+import static org.openl.types.java.JavaOpenClass.LONG;
+import static org.openl.types.java.JavaOpenClass.SHORT;
+import static org.openl.types.java.JavaOpenClass.STRING;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -308,11 +316,10 @@ public class InputArgsBean {
         }
 
         ParameterDeclarationTreeNode parent = currentNode.getParent();
-        Object value = ParameterTreeBuilder
-            .canInstantiate(fieldType)
-                                                                    ? fieldType
-                                                                        .newInstance(new SimpleVM().getRuntimeEnv())
-                                                                    : null;
+        Object value = ParameterTreeBuilder.canInstantiate(fieldType)
+                                                                      ? fieldType
+                                                                          .newInstance(new SimpleVM().getRuntimeEnv())
+                                                                      : null;
         ParameterRenderConfig config = new ParameterRenderConfig.Builder(fieldType, value)
             .fieldNameInParent(currentNode.getName())
             .parent(parent)
@@ -498,13 +505,11 @@ public class InputArgsBean {
                 }
             }
             return null;
-        } catch (IOException e) {
+        } catch (IOException | JAXBException e) {
             if (StringUtils.isNotBlank(e.getMessage())) {
                 throw new Message("Invalid Rules Deploy Configuration: " + e.getMessage());
             }
             throw new Message("Invalid Rules Deploy Configuration.");
-        } catch (JAXBException e) {
-            throw new Message("Something went wrong during deserialization", e);
         }
     }
 
