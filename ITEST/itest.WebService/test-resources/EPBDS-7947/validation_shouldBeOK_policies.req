@@ -1,4 +1,4 @@
-POST /REST/parent-datatype-validation/checkArrayValidation HTTP/1.1
+POST /parent-datatype-validation/checkArrayValidation HTTP/1.1
 Content-Type: application/json
 
 [

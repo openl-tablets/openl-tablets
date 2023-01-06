@@ -4,7 +4,6 @@
     <serviceName>annotation-template-abstract-class / String Parser</serviceName>
     <publishers>
         <publisher>RESTFUL</publisher>
-        <publisher>WEBSERVICE</publisher>
     </publishers>
     <annotationTemplateClassName>MyService</annotationTemplateClassName>
     <url>annotation-template-abstract-class/string/toNumber</url>

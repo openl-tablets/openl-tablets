@@ -1,4 +1,4 @@
-POST /REST/simple/absent HTTP/1.1
+POST /simple/absent HTTP/1.1
 Content-Type: application/json
 Accept: text/plain;q=1.0, */*;q=0.8
 

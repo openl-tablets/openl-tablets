@@ -43,7 +43,7 @@ public class RunTracingITest {
     private static final Logger LOG = LoggerFactory.getLogger(RunTracingITest.class);
     public static final int AWAIT_TIMEOUT = 1;
 
-    final String TEST_REST_URL = "/REST/deployment1/simple1/Hello";
+    final String TEST_REST_URL = "/deployment1/simple1/Hello";
 
     private static JettyServer server;
     private static HttpClient client;

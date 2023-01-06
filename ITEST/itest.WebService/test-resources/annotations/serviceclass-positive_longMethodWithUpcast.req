@@ -1,4 +1,4 @@
-POST /REST/ws-serviceclass-positive/longMethodWithUpcast HTTP/1.1
+POST /ws-serviceclass-positive/longMethodWithUpcast HTTP/1.1
 Content-Type: text/plain
 
 1111

@@ -1,2 +1,2 @@
-GET /REST/v3/EPBDS-9622/doSomething HTTP/1.1
+GET /v3/EPBDS-9622/doSomething HTTP/1.1
 

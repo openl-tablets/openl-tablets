@@ -12,7 +12,7 @@ Content-Type: application/json
       "name": "deployed-rules",
       "servicePath": "rules-to-deploy/rules-to-deploy",
       "urls": {
-        "RESTFUL": "REST/deployed-rules"
+        "RESTFUL": "deployed-rules"
       },
       "hasManifest": false,
       "deploymentName": "rules-to-deploy",

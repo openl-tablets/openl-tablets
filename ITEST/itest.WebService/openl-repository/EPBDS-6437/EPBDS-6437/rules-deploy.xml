@@ -3,7 +3,6 @@
     <isProvideVariations>true</isProvideVariations>
     <serviceName>EPBDS-6437</serviceName>
     <publishers>
-        <publisher>WEBSERVICE</publisher>
         <publisher>RESTFUL</publisher>
     </publishers>
     <url>EPBDS-6437</url>

@@ -7,7 +7,7 @@ Content-Type: application/json
     "name": "Hello_Rule",
     "servicePath": "yaml_project/Hello_Rule",
     "urls": {
-      "RESTFUL": "REST/yaml_project/Hello_Rule"
+      "RESTFUL": "yaml_project/Hello_Rule"
     },
     "hasManifest": false,
     "deploymentName": "yaml_project",
@@ -17,7 +17,7 @@ Content-Type: application/json
     "name": "project1",
     "servicePath": "yaml_project/project1",
     "urls": {
-      "RESTFUL": "REST/project1"
+      "RESTFUL": "project1"
     },
     "hasManifest": false,
     "deploymentName": "yaml_project",

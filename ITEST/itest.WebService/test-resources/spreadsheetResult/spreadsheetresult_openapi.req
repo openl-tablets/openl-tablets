@@ -1,2 +1,2 @@
-GET /REST/spreadsheetresult/openapi.json HTTP/1.1
+GET /spreadsheetresult/openapi.json HTTP/1.1
 

@@ -3,7 +3,6 @@
     <isProvideVariations>false</isProvideVariations>
     <serviceName>http-statuses-lazycompilation-test</serviceName>
     <publishers>
-        <publisher>WEBSERVICE</publisher>
         <publisher>RESTFUL</publisher>
     </publishers>
     <url>http-statuses-lazycompilation-test</url>

@@ -14,7 +14,7 @@ Content-Type: application/json
       "status": "DEPLOYED",
       "deploymentName": "rules-to-deploy",
       "urls": {
-        "RESTFUL": "REST/deployed-rules"
+        "RESTFUL": "deployed-rules"
       }
     },
     {
@@ -80,7 +80,7 @@ Content-Type: application/json
       "status": "DEPLOYED",
       "deploymentName": "multiple-deployment_v1",
       "urls": {
-        "RESTFUL": "REST/project1"
+        "RESTFUL": "project1"
       }
     },
     {

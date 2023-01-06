@@ -4,7 +4,6 @@
     <url>simple</url>
     <publishers>
         <publisher>RESTFUL</publisher>
-        <publisher>WEBSERVICE</publisher>
     </publishers>
     <loggingStorages>
         <storage>CASSANDRA</storage>

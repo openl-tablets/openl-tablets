@@ -4,7 +4,6 @@
     <serviceName>ws-serviceclass-positive</serviceName>
     <publishers>
         <publisher>RESTFUL</publisher>
-        <publisher>WEBSERVICE</publisher>
     </publishers>
     <!-- STATIC INTERFACE -->
     <serviceClass>org.openl.itest.serviceclass.MyService</serviceClass>

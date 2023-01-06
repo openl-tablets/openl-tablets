@@ -7,7 +7,7 @@ Content-Type: application/json
     "name": "project1",
     "servicePath": "yaml_project/project1",
     "urls": {
-      "RESTFUL": "REST/project1"
+      "RESTFUL": "project1"
     },
     "hasManifest": false,
     "deploymentName": "yaml_project",

@@ -2,7 +2,6 @@
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
     <serviceName>EPBDS-9622</serviceName>
     <publishers>
-        <publisher>WEBSERVICE</publisher>
         <publisher>RESTFUL</publisher>
     </publishers>
     <url>EPBDS-9622</url>
