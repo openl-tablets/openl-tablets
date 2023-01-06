@@ -880,7 +880,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (IllegalArgumentException e) {
             return ProjectDescriptorUtils.getErrorMessage();
         }
-        if (!newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
+        if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
             return validateProjectName(newProjectDescriptor.getName());
         }
 

@@ -34,12 +34,6 @@ public final class ZipProjectDescriptorExtractor {
         ZipWalker zipWalker = new ZipWalker(uploadedFile, zipFilter, charset);
         ProjectDescriptorFinder finder = new ProjectDescriptorFinder();
         zipWalker.iterateEntries(finder);
-        ProjectDescriptor projectDescriptor = finder.getProjectDescriptor();
-        if (projectDescriptor == null) {
-            log.error(ProjectDescriptorUtils.getErrorMessage());
-            throw new IllegalArgumentException(ProjectDescriptorUtils.getErrorMessage());
-        }
-        return projectDescriptor;
+        return finder.getProjectDescriptor();
     }
-
 }
