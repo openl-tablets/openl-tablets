@@ -30,14 +30,13 @@ public final class ZipProjectDescriptorExtractor {
 
     public static ProjectDescriptor getProjectDescriptorOrThrow(ProjectFile uploadedFile,
             PathFilter zipFilter,
-            Charset charset) throws IOException, IllegalArgumentException {
+            Charset charset) throws IOException {
         ZipWalker zipWalker = new ZipWalker(uploadedFile, zipFilter, charset);
         ProjectDescriptorFinder finder = new ProjectDescriptorFinder();
         zipWalker.iterateEntries(finder);
-        if (finder.isProjectDescriptorReadFailed()) {
-            log.error(ProjectDescriptorUtils.getErrorMessage());
-            throw new IllegalArgumentException(ProjectDescriptorUtils.getErrorMessage());
+        if (finder.isExists()) {
+            return finder.getProjectDescriptor();
         }
-        return finder.getProjectDescriptor();
+        return null;
     }
 }

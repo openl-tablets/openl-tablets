@@ -67,10 +67,10 @@ import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
-import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.DefaultZipEntryCommand;
 import org.openl.rules.webstudio.web.repository.upload.zip.FilePathsCollector;
+import org.openl.rules.webstudio.web.repository.upload.zip.ProjectDescriptionException;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
@@ -877,8 +877,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
         try {
             newProjectDescriptor = ZipProjectDescriptorExtractor
                 .getProjectDescriptorOrThrow(zipFile, zipFilter, charset);
-        } catch (IllegalArgumentException e) {
-            return ProjectDescriptorUtils.getErrorMessage();
+        } catch (ProjectDescriptionException e) {
+            return e.getMessage();
         }
         if (newProjectDescriptor != null && !newProjectDescriptor.getName().equals(oldProjectDescriptor.getName())) {
             return validateProjectName(newProjectDescriptor.getName());

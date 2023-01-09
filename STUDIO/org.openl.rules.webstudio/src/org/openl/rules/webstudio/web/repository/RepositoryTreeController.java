@@ -90,9 +90,9 @@ import org.openl.rules.webstudio.web.repository.tree.TreeProductProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeProjectGrouping;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
-import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
+import org.openl.rules.webstudio.web.repository.upload.zip.ProjectDescriptionException;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
 import org.openl.rules.webstudio.web.util.OpenAPIEditorService;
@@ -2241,9 +2241,8 @@ public class RepositoryTreeController {
                 }
             }
 
-        } catch (IllegalArgumentException e) {
-            // Add warning that uploaded project contains incorrect rules.xml
-            WebStudioUtils.addWarnMessage("Warning: " + ProjectDescriptorUtils.getErrorMessage());
+        } catch (ProjectDescriptionException | IllegalArgumentException e) {
+            WebStudioUtils.addWarnMessage("Warning: " + e.getMessage());
         } catch (Exception ignored) {
         }
 
