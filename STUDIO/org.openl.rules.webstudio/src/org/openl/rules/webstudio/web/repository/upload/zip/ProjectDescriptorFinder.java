@@ -13,6 +13,7 @@ import javax.xml.bind.JAXBException;
 public class ProjectDescriptorFinder extends DefaultZipEntryCommand {
     private final XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
     private ProjectDescriptor projectDescriptor;
+    private boolean projectDescriptorReadFailed;
 
 
     @Override
@@ -21,6 +22,7 @@ public class ProjectDescriptorFinder extends DefaultZipEntryCommand {
             try {
                 projectDescriptor = serializer.deserialize(inputStream);
             } catch (JAXBException e) {
+                projectDescriptorReadFailed = true;
                 final Logger log = LoggerFactory.getLogger(ProjectDescriptorFinder.class);
                 log.error("Error during Project Description deserialization", e);
             }
@@ -31,5 +33,9 @@ public class ProjectDescriptorFinder extends DefaultZipEntryCommand {
 
     public ProjectDescriptor getProjectDescriptor() {
         return projectDescriptor;
+    }
+
+    public boolean isProjectDescriptorReadFailed() {
+        return projectDescriptorReadFailed;
     }
 }
