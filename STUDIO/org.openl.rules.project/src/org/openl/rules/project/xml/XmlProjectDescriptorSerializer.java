@@ -5,14 +5,14 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
 
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.WebstudioConfiguration;
 import org.openl.util.CollectionUtils;
-
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 
 /**
  * Project Descriptor serializer/deserializer.
@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 public class XmlProjectDescriptorSerializer implements IProjectDescriptorSerializer {
 
     public static final String PROJECT_DESCRIPTOR_TAG = "project";
-    public static final String WEBSTUDIO_CONFIGURATION = "webstudio-configuration";
+    public static final String WEBSTUDIO_CONFIGURATION = "webstudioConfiguration";
     public static final String METHOD_FILTER_TAG = "method-filter";
     public static final String DEPENDENCY_TAG = "dependency";
     public static final String PROPERTIES_FILE_NAME_PATTERN = "properties-file-name-pattern";
