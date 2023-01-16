@@ -156,7 +156,7 @@ public abstract class Range<T> {
             case CLOSED_OPEN:
                 s.append(type.left == Bound.OPEN ? '(' : '[');
                 format(s, getLeft());
-                s.append("; ");
+                s.append("..");
                 format(s, getRight());
                 s.append(type.right == Bound.OPEN ? ')' : ']');
                 break;
