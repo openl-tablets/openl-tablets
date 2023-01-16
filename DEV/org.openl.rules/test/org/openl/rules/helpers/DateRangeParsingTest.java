@@ -18,27 +18,27 @@ public class DateRangeParsingTest {
         assertEquals("12/12/2019 00:00:00", new DateRange("12/12/2019").toString());
         assertEquals("03/12/2019 00:00:00", new DateRange("03/12/2019").toString());
 
-        assertEquals("[03/12/2019 00:00:00; 12/01/2019 00:00:00]", new DateRange("03/12/2019 - 12/01/2019").toString());
-        assertEquals("[03/12/2019 00:00:00; 12/01/2019 00:00:00]", new DateRange("03/12/2019..12/01/2019").toString());
-        assertEquals("(03/12/2019 00:00:00; 12/01/2019 00:00:00)", new DateRange("03/12/2019 … 12/01/2019").toString());
-        assertEquals("(03/12/2019 00:00:00; 12/01/2019 00:00:00)",
+        assertEquals("[03/12/2019 00:00:00..12/01/2019 00:00:00]", new DateRange("03/12/2019 - 12/01/2019").toString());
+        assertEquals("[03/12/2019 00:00:00..12/01/2019 00:00:00]", new DateRange("03/12/2019..12/01/2019").toString());
+        assertEquals("(03/12/2019 00:00:00..12/01/2019 00:00:00)", new DateRange("03/12/2019 … 12/01/2019").toString());
+        assertEquals("(03/12/2019 00:00:00..12/01/2019 00:00:00)",
             new DateRange("03/12/2019 ... 12/01/2019").toString());
 
-        assertEquals("[03/12/2019 00:00:00; 12/01/2019 00:00:00]",
+        assertEquals("[03/12/2019 00:00:00..12/01/2019 00:00:00]",
             new DateRange("[03/12/2019; 12/01/2019]").toString());
-        assertEquals("(03/12/2019 00:00:00; 12/01/2019 00:00:00]", new DateRange("(03/12/2019;12/01/2019]").toString());
-        assertEquals("[03/12/2019 00:00:00; 12/01/2019 00:00:00)",
+        assertEquals("(03/12/2019 00:00:00..12/01/2019 00:00:00]", new DateRange("(03/12/2019;12/01/2019]").toString());
+        assertEquals("[03/12/2019 00:00:00..12/01/2019 00:00:00)",
             new DateRange("[03/12/2019; 12/01/2019)").toString());
-        assertEquals("(03/12/2019 00:00:00; 12/01/2019 00:00:00)",
+        assertEquals("(03/12/2019 00:00:00..12/01/2019 00:00:00)",
             new DateRange("(03/12/2019; 12/01/2019)").toString());
 
-        assertEquals("(03/12/2019 00:00:00; 12/01/2019 00:00:00)",
+        assertEquals("(03/12/2019 00:00:00..12/01/2019 00:00:00)",
             new DateRange("(03/12/2019 .. 12/01/2019)").toString());
-        assertEquals("[03/12/2019 00:00:00; 12/01/2019 00:00:00]",
+        assertEquals("[03/12/2019 00:00:00..12/01/2019 00:00:00]",
             new DateRange("[03/12/2019 .. 12/01/2019]").toString());
-        assertEquals("(03/12/2019 00:00:00; 12/01/2019 00:00:00]",
+        assertEquals("(03/12/2019 00:00:00..12/01/2019 00:00:00]",
             new DateRange("(03/12/2019 .. 12/01/2019]").toString());
-        assertEquals("[03/12/2019 00:00:00; 12/01/2019 00:00:00)",
+        assertEquals("[03/12/2019 00:00:00..12/01/2019 00:00:00)",
             new DateRange("[03/12/2019 .. 12/01/2019)").toString());
 
         assertEquals(">= 03/12/2019 00:00:00", new DateRange("03/12/2019 and more").toString());
@@ -54,23 +54,23 @@ public class DateRangeParsingTest {
         assertEquals("< 12/01/2019 00:00:00", new DateRange("< 12/01/2019").toString());
         assertEquals(">= 03/12/2019 00:00:00", new DateRange("03/12/2019+").toString());
 
-        assertEquals("[03/12/2019 00:00:00; 12/01/2019 00:00:00]",
+        assertEquals("[03/12/2019 00:00:00..12/01/2019 00:00:00]",
             new DateRange(">=03/12/2019 <=12/01/2019").toString());
-        assertEquals("[03/12/2019 00:00:00; 12/01/2019 00:00:00]",
+        assertEquals("[03/12/2019 00:00:00..12/01/2019 00:00:00]",
             new DateRange("<=12/01/2019 >=03/12/2019").toString());
 
-        assertEquals("[03/12/2019 00:00:00; 12/01/2019 00:00:00)",
+        assertEquals("[03/12/2019 00:00:00..12/01/2019 00:00:00)",
             new DateRange(">=03/12/2019 <12/01/2019").toString());
-        assertEquals("[03/12/2019 00:00:00; 12/01/2019 00:00:00)",
+        assertEquals("[03/12/2019 00:00:00..12/01/2019 00:00:00)",
             new DateRange("<12/01/2019 >=03/12/2019").toString());
 
-        assertEquals("(03/12/2019 00:00:00; 12/01/2019 00:00:00]",
+        assertEquals("(03/12/2019 00:00:00..12/01/2019 00:00:00]",
             new DateRange(">03/12/2019 <=12/01/2019").toString());
-        assertEquals("(03/12/2019 00:00:00; 12/01/2019 00:00:00]",
+        assertEquals("(03/12/2019 00:00:00..12/01/2019 00:00:00]",
             new DateRange("<=12/01/2019 >03/12/2019").toString());
 
-        assertEquals("(03/12/2019 00:00:00; 12/01/2019 00:00:00)", new DateRange(">03/12/2019 <12/01/2019").toString());
-        assertEquals("(03/12/2019 00:00:00; 12/01/2019 00:00:00)", new DateRange("<12/01/2019 >03/12/2019").toString());
+        assertEquals("(03/12/2019 00:00:00..12/01/2019 00:00:00)", new DateRange(">03/12/2019 <12/01/2019").toString());
+        assertEquals("(03/12/2019 00:00:00..12/01/2019 00:00:00)", new DateRange("<12/01/2019 >03/12/2019").toString());
     }
 
     @Test

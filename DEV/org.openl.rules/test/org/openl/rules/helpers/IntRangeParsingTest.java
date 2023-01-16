@@ -10,8 +10,8 @@ public class IntRangeParsingTest {
 
     @Test
     public void testDollarSymbol() {
-        assertEquals("[13; 200]", new IntRange("$13 - 200").toString());
-        assertEquals("[11; 32)", new IntRange("[$11; $32)").toString());
+        assertEquals("[13..200]", new IntRange("$13 - 200").toString());
+        assertEquals("[11..32)", new IntRange("[$11; $32)").toString());
         assertEquals("> 2", new IntRange(">$2").toString());
         assertEquals("10", new IntRange("$10").toString());
         assertEquals(">= 2", new IntRange("$2 +").toString());
@@ -19,15 +19,15 @@ public class IntRangeParsingTest {
 
     @Test
     public void testBrackets() {
-        assertEquals("[0; 6]", new IntRange("[0..6 ]").toString());
-        assertEquals("[0; 6]", new IntRange("[0..6 ]").toString());
-        assertEquals("[13; 200]", new IntRange("[13; 200]").toString());
-        assertEquals("(10; 32)", new IntRange("(10 .. 32)").toString());
-        assertEquals("(2; 4]", new IntRange("(2;4]").toString());
-        assertEquals("[10; 101)", new IntRange("[10 .. 101)").toString());
-        assertEquals("[-10; 0)", new IntRange("[-10;0)").toString());
-        assertEquals("[-10; 2)", new IntRange("[-10-2)").toString());
-        assertEquals("(-10; 2]", new IntRange("(-10 - 2]").toString());
+        assertEquals("[0..6]", new IntRange("[0..6 ]").toString());
+        assertEquals("[0..6]", new IntRange("[0..6 ]").toString());
+        assertEquals("[13..200]", new IntRange("[13; 200]").toString());
+        assertEquals("(10..32)", new IntRange("(10 .. 32)").toString());
+        assertEquals("(2..4]", new IntRange("(2;4]").toString());
+        assertEquals("[10..101)", new IntRange("[10 .. 101)").toString());
+        assertEquals("[-10..0)", new IntRange("[-10;0)").toString());
+        assertEquals("[-10..2)", new IntRange("[-10-2)").toString());
+        assertEquals("(-10..2]", new IntRange("(-10 - 2]").toString());
     }
 
     private void checkWrong(String x) {
@@ -89,15 +89,15 @@ public class IntRangeParsingTest {
 
     @Test
     public void testMinMaxFormat() {
-        assertEquals("[3; 15]", new IntRange("3..15").toString());
-        assertEquals("[1; 2]", new IntRange("1-2").toString());
-        assertEquals("[13; 200]", new IntRange("13 .. 200").toString());
-        assertEquals("[13; 200]", new IntRange("  13   ..   200  ").toString());
-        assertEquals("(13; 100)", new IntRange("13 ... 100").toString());
-        assertEquals("(13; 100)", new IntRange("13 … 100").toString());
-        assertEquals("[13; 20)", new IntRange("[13 .. 20)").toString());
-        assertEquals("(13; 20)", new IntRange("(13 .. 20)").toString());
-        assertEquals("(13; 20)", new IntRange("  (  13   ..   20  )  ").toString());
+        assertEquals("[3..15]", new IntRange("3..15").toString());
+        assertEquals("[1..2]", new IntRange("1-2").toString());
+        assertEquals("[13..200]", new IntRange("13 .. 200").toString());
+        assertEquals("[13..200]", new IntRange("  13   ..   200  ").toString());
+        assertEquals("(13..100)", new IntRange("13 ... 100").toString());
+        assertEquals("(13..100)", new IntRange("13 … 100").toString());
+        assertEquals("[13..20)", new IntRange("[13 .. 20)").toString());
+        assertEquals("(13..20)", new IntRange("(13 .. 20)").toString());
+        assertEquals("(13..20)", new IntRange("  (  13   ..   20  )  ").toString());
     }
 
     @Test
@@ -109,10 +109,10 @@ public class IntRangeParsingTest {
 
     @Test
     public void testMoreLessFormatBothBounds() {
-        assertEquals("[5; 12)", new IntRange(">=5 <12").toString());
-        assertEquals("(3; 7]", new IntRange("<=7 >3").toString());
-        assertEquals("(2; 9)", new IntRange(" > 2   < 9 ").toString());
-        assertEquals("[2; 9]", new IntRange(" >= 2   <=9 ").toString());
+        assertEquals("[5..12)", new IntRange(">=5 <12").toString());
+        assertEquals("(3..7]", new IntRange("<=7 >3").toString());
+        assertEquals("(2..9)", new IntRange(" > 2   < 9 ").toString());
+        assertEquals("[2..9]", new IntRange(" >= 2   <=9 ").toString());
     }
 
     @Test
@@ -128,10 +128,10 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(-100, Long.MAX_VALUE), new IntRange("-100+"));
         assertEquals("> 2", new IntRange(">2").toString());
         assertEquals("-10", new IntRange("-10").toString());
-        assertEquals("[-4; 2]", new IntRange("-4-2").toString());
-        assertEquals("[-4; -2]", new IntRange("-4--2").toString());
-        assertEquals("[-4; 2]", new IntRange("[-4-2]").toString());
-        assertEquals("[-4; -2]", new IntRange("[-4--2]").toString());
+        assertEquals("[-4..2]", new IntRange("-4-2").toString());
+        assertEquals("[-4..-2]", new IntRange("-4--2").toString());
+        assertEquals("[-4..2]", new IntRange("[-4-2]").toString());
+        assertEquals("[-4..-2]", new IntRange("[-4--2]").toString());
     }
 
     @Test
@@ -140,10 +140,10 @@ public class IntRangeParsingTest {
         assertEquals(new IntRange(123456, Long.MAX_VALUE), new IntRange("123,456+"));
         assertEquals("> 123456", new IntRange(">123,456").toString());
         assertEquals("123456", new IntRange("123,456").toString());
-        assertEquals("[123456; 987654)", new IntRange("[123,456 - 987,654)").toString());
-        assertEquals("[123456; 987654]", new IntRange(">=123,456 <=987,654").toString());
-        assertEquals("[123456; 987654]", new IntRange("123,456 and more 987,654 or less").toString());
-        assertEquals("[123456; 987654]", new IntRange("  123,456   and   more   987,654   or   less  ").toString());
+        assertEquals("[123456..987654)", new IntRange("[123,456 - 987,654)").toString());
+        assertEquals("[123456..987654]", new IntRange(">=123,456 <=987,654").toString());
+        assertEquals("[123456..987654]", new IntRange("123,456 and more 987,654 or less").toString());
+        assertEquals("[123456..987654]", new IntRange("  123,456   and   more   987,654   or   less  ").toString());
     }
 
     @Test
@@ -158,12 +158,12 @@ public class IntRangeParsingTest {
 
     @Test
     public void testVerbalBothBounds() {
-        assertEquals("[-100; 500)", new IntRange("-100 and more less than 500").toString());
-        assertEquals("[-100; 500)", new IntRange("  -100   and   more   less   than   500  ").toString());
-        assertEquals("(2; 5]", new IntRange("more than 2 5 or less").toString());
-        assertEquals("(2; 5]", new IntRange("  more   than   2   5   or   less  ").toString());
-        assertEquals("(-20; -10)", new IntRange("less than -10 more than -20").toString());
-        assertEquals("(-20; -10)", new IntRange("  less   than   -10   more   than   -20  ").toString());
+        assertEquals("[-100..500)", new IntRange("-100 and more less than 500").toString());
+        assertEquals("[-100..500)", new IntRange("  -100   and   more   less   than   500  ").toString());
+        assertEquals("(2..5]", new IntRange("more than 2 5 or less").toString());
+        assertEquals("(2..5]", new IntRange("  more   than   2   5   or   less  ").toString());
+        assertEquals("(-20..-10)", new IntRange("less than -10 more than -20").toString());
+        assertEquals("(-20..-10)", new IntRange("  less   than   -10   more   than   -20  ").toString());
     }
 
     @Test
