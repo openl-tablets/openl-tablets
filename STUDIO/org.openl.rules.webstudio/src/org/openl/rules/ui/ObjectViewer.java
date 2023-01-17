@@ -50,7 +50,7 @@ public final class ObjectViewer {
                                   boolean filter,
                                   boolean smartNumbers) {
         List<IGridFilter> filters = new ArrayList<>();
-        filters.add(new TableValueFilter(res));
+        filters.add(new TableValueFilter(res, smartNumbers));
         filters.add(CollectionCellFilter.INSTANCE);
 
         if (filter) {
