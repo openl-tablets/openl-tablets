@@ -4,7 +4,9 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.ui.filters.AGridFilter;
+import org.openl.util.formatters.IFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +16,9 @@ class TableValueFilter extends AGridFilter {
 
     private final int startX;
     private final int startY;
+    private final boolean smartNumbers;
 
-    public TableValueFilter(final SpreadsheetResult res) {
+    public TableValueFilter(final SpreadsheetResult res, boolean smartNumbers) {
         this.res = res;
         ILogicalTable table = res.getLogicalTable();
 
@@ -23,6 +26,7 @@ class TableValueFilter extends AGridFilter {
 
         this.startX = t.getGridColumn(0, 0) + table.getColumn(0).getSource().getWidth();
         this.startY = t.getGridRow(0, 0) + table.getRow(0).getSource().getHeight();
+        this.smartNumbers = smartNumbers;
     }
 
     @Override
@@ -56,13 +60,16 @@ class TableValueFilter extends AGridFilter {
             cell.setObjectValue(v);
             if (v != null) {
                 try {
-                    cell.setFormattedValue(String.valueOf(v));
+                    IFormatter formatter = FormattersManager.getFormatter(v.getClass(),
+                        smartNumbers ? null : FormattersManager.DEFAULT_NUMBER_FORMAT);
+                    cell.setFormattedValue(formatter.format(v));
                 } catch (Exception | LinkageError | StackOverflowError e) {
                     Logger log = LoggerFactory.getLogger(getClass());
                     log.debug(e.getMessage(), e);
-                    cell.setFormattedValue(String.format("<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
-                            e.getClass().getName(),
-                            v.getClass().getName()));
+                    cell.setFormattedValue(String.format(
+                        "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
+                        e.getClass().getName(),
+                        v.getClass().getName()));
                 }
             } else {
                 cell.setFormattedValue("null");
