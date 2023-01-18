@@ -1,0 +1,9 @@
+<project>
+  <name>verify-openapi-negative</name>
+  <modules>
+    <module>
+      <name>Main</name>
+      <rules-root path="Main.xlsx"/>
+    </module>
+  </modules>
+</project>
