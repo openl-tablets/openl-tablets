@@ -16,6 +16,7 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
+import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.types.IOpenClass;
 
 /**
@@ -57,7 +58,9 @@ public final class CompileMojo extends BaseOpenLMojo {
                 .setExternalParameters(externalParameters)
                 .build();
 
-            CompiledOpenClass openLRules = factory.getCompiledOpenClass();
+            CompiledOpenClass openLRules = new OpenApiProjectValidator()
+                    .validate(factory.getProjectDescriptor(), factory.getRulesInstantiationStrategy());
+            openLRules.throwErrorExceptionsIfAny();
             IOpenClass openClass = openLRules.getOpenClass();
             long end = System.nanoTime();
 
