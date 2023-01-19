@@ -203,7 +203,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // test return cell
         usedNodes = assertMetaInfo(rule2, 2, 2, 2);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "TypeB (String aaa)", 4, 9, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "Datatype TypeB\nTypeB (String aaa)", 4, 9, NodeType.DATATYPE);
 
         assertNodeUsage(usedNodes.get(1), "String res", 10, 13, NodeType.FIELD);
     }
@@ -225,7 +225,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // test return cell
         usedNodes = assertMetaInfo(rule3, 2, 2, 2);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "TypeB (String aaa)", 0, 5, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "Datatype TypeB\nTypeB (String aaa)", 0, 5, NodeType.DATATYPE);
 
         assertNodeUsage(usedNodes.get(1), "String res", 6, 9, NodeType.FIELD);
     }
@@ -247,7 +247,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // test return cell
         usedNodes = assertMetaInfo(rule4, 2, 2, 3);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "TypeB (String aaa)", 0, 5, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "Datatype TypeB\nTypeB (String aaa)", 0, 5, NodeType.DATATYPE);
 
         assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nString aaa", 6, 9, NodeType.FIELD);
 
@@ -271,7 +271,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // Return cell
         usedNodes = assertMetaInfo(method1, 0, 2, 5);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "TypeB (String aaa)", 11, 16, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "Datatype TypeB\nTypeB (String aaa)", 11, 16, NodeType.DATATYPE);
 
         assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nString aaa", 24, 27, NodeType.FIELD);
 
@@ -294,7 +294,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // Return cell
         usedNodes = assertMetaInfo(method3, 0, 2, 5);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "TypeB (String aaa)", 7, 12, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "Datatype TypeB\nTypeB (String aaa)", 7, 12, NodeType.DATATYPE);
 
         assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nString aaa", 20, 23, NodeType.FIELD);
 
@@ -317,7 +317,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         // Return cell
         usedNodes = assertMetaInfo(method4, 0, 2, 6);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "TypeB (String aaa)", 8, 13, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(0), "Datatype TypeB\nTypeB (String aaa)", 8, 13, NodeType.DATATYPE);
 
         assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nString aaa", 14, 17, NodeType.FIELD);
 
@@ -477,13 +477,13 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertNodeUsage(usedNodes.get(0), "Cell type: TypeC", 0, 1, NodeType.OTHER);
 
         assertNodeUsage(typeC
-            .getUri(), usedNodes.get(1), "TypeC (String aaa, TypeB bField, TypeB[] bArray, CarType[] carTypes)", 6, 11, NodeType.DATATYPE);
+            .getUri(), usedNodes.get(1), "Datatype TypeC extends TypeB\nTypeC (String aaa, TypeB bField, TypeB[] bArray, CarType[] carTypes)", 6, 11, NodeType.DATATYPE);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(2), "TypeB (String aaa)", 23, 28, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(2), "Datatype TypeB\nTypeB (String aaa)", 23, 28, NodeType.DATATYPE);
 
         assertNodeUsage(typeB.getUri(), usedNodes.get(3), "Datatype TypeB", 38, 43, NodeType.DATATYPE);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(4), "TypeB ()", 51, 56, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(4), "Datatype TypeB\nTypeB ()", 51, 56, NodeType.DATATYPE);
 
         assertNodeUsage(usedNodes.get(5), "java.lang\nclass String", 61, 67, NodeType.OTHER);
     }
@@ -532,7 +532,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         assertNodeUsage(usedNodes.get(0), "Cell type: TypeB", 0, 1, NodeType.OTHER);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "TypeB ()", 2, 7, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nTypeB ()", 2, 7, NodeType.DATATYPE);
     }
 
     @Test
@@ -542,7 +542,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         assertNodeUsage(usedNodes.get(0), "Cell type: TypeB", 0, 1, NodeType.OTHER);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "TypeB (String aaa)", 2, 7, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nTypeB (String aaa)", 2, 7, NodeType.DATATYPE);
     }
 
     @Test
@@ -552,7 +552,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
 
         assertNodeUsage(usedNodes.get(0), "Cell type: TypeB", 0, 1, NodeType.OTHER);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "TypeB (String aaa)", 2, 7, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nTypeB (String aaa)", 2, 7, NodeType.DATATYPE);
 
         assertNodeUsage(typeB.getUri(), usedNodes.get(2), "Datatype TypeB\nString aaa", 8, 11, NodeType.FIELD);
     }
@@ -564,12 +564,12 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertNodeUsage(usedNodes.get(0), "Cell type: TypeCTransposed", 0, 1, NodeType.OTHER);
 
         assertNodeUsage(typeCTransposed
-            .getUri(), usedNodes.get(1), "TypeCTransposed (TypeB bField, TypeB[] bArray, String aaa)", 8, 23, NodeType.DATATYPE);
+            .getUri(), usedNodes.get(1), "Datatype TypeCTransposed extends TypeB\nTypeCTransposed (TypeB bField, TypeB[] bArray, String aaa)", 8, 23, NodeType.DATATYPE);
 
         assertNodeUsage(typeCTransposed
             .getUri(), usedNodes.get(2), "Datatype TypeCTransposed extends TypeB\nTypeB bField", 24, 30, NodeType.FIELD);
 
-        assertNodeUsage(typeB.getUri(), usedNodes.get(3), "TypeB (String aaa)", 33, 38, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(3), "Datatype TypeB\nTypeB (String aaa)", 33, 38, NodeType.DATATYPE);
 
         assertNodeUsage(typeB.getUri(), usedNodes.get(4), "Datatype TypeB\nString aaa", 39, 42, NodeType.FIELD);
 
@@ -607,7 +607,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         List<? extends NodeUsage> usedNodes = assertMetaInfo(constructors, 1, 13, 2);
 
         assertNodeUsage(usedNodes.get(0), "Cell type: TypeB", 0, 1, NodeType.OTHER);
-        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "TypeB ()", 8, 13, NodeType.DATATYPE);
+        assertNodeUsage(typeB.getUri(), usedNodes.get(1), "Datatype TypeB\nTypeB ()", 8, 13, NodeType.DATATYPE);
     }
 
     @Test
@@ -752,7 +752,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     @Test
     public void testDTLink() {
         List<? extends NodeUsage> usedNodes = assertMetaInfo(myDatatypeRule, 1, 3, 1);
-        assertNodeUsage(myDatatype.getUri(), usedNodes.get(0), "MyDatatype ()", 6, 16, NodeType.DATATYPE);
+        assertNodeUsage(myDatatype.getUri(), usedNodes.get(0), "Datatype MyDatatype\nMyDatatype ()", 6, 16, NodeType.DATATYPE);
     }
 
     @Test
