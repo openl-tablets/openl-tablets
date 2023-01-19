@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openl.binding.impl.ConstructorUsage;
 import org.openl.binding.impl.MethodUsage;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.NodeUsageFactory;
@@ -65,7 +66,13 @@ public class MetaInfoReaderUtils {
                 List<NodeUsage> currentCellMethodUsages = new ArrayList<>();
                 for (NodeUsage usage : nodeUsages) {
                     if (usage.getStart() >= moduleStart && usage.getEnd() <= moduleEnd) {
-                        if (usage instanceof MethodUsage) {
+                        if (usage instanceof ConstructorUsage) {
+                            currentCellMethodUsages
+                                .add(new ConstructorUsage(((ConstructorUsage) usage).getConstructorNode(),
+                                    usage.getStart() - moduleStart,
+                                    usage.getEnd() - moduleStart,
+                                    ((MethodUsage) usage).getMethod()));
+                        } else if (usage instanceof MethodUsage) {
                             currentCellMethodUsages.add(new MethodUsage(usage.getStart() - moduleStart,
                                 usage.getEnd() - moduleStart,
                                 ((MethodUsage) usage).getMethod()));

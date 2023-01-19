@@ -1,5 +1,8 @@
 package org.openl.binding.impl;
 
+import org.openl.meta.IMetaInfo;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenConstructor;
 import org.openl.types.IOpenMethod;
 
 /**
@@ -19,8 +22,31 @@ public class ConstructorUsage extends MethodUsage {
         this.constructorNode = constructorNode;
     }
 
+    public ConstructorNode getConstructorNode() {
+        return constructorNode;
+    }
+
     @Override
     public String getDescription() {
-        return constructorNode.getDescription();
+        StringBuilder buf = new StringBuilder();
+        if (isDatatype()) {
+            var metaInfo = getMethod().getDeclaringClass().getMetaInfo();
+            buf.append(metaInfo.getDisplayName(IMetaInfo.REGULAR)).append('\n');
+        }
+        return buf.append(constructorNode.getDescription()).toString();
+    }
+
+    @Override
+    public NodeType getNodeType() {
+        if (isDatatype()) {
+            return NodeType.DATATYPE;
+        } else {
+            return NodeType.OTHER;
+        }
+    }
+
+    private boolean isDatatype() {
+        var method = getMethod();
+        return method instanceof DatatypeOpenConstructor && method.getDeclaringClass() instanceof DatatypeOpenClass;
     }
 }
