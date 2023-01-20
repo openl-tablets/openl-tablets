@@ -145,6 +145,7 @@ grant codeBase "file:${jetty.home}/webapps/webservice/-" {
         permission java.lang.RuntimePermission "accessClassInPackage.org.apache.*";
         permission java.lang.RuntimePermission "accessClassInPackage.com.sun.*";
         permission java.lang.RuntimePermission "accessClassInPackage.sun.*";
+        permission java.lang.RuntimePermission "accessClassInPackage.jdk.*";
 
         //ClassLoaders
         permission java.lang.RuntimePermission "getClassLoader";
