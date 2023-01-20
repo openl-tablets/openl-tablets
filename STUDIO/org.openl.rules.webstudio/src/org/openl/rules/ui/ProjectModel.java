@@ -655,7 +655,7 @@ public class ProjectModel {
                     if (!currentProject
                         .hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
                         granted = studio.getDesignRepositoryAclService()
-                            .isGranted(currentProject, List.of(AclPermission.APPEND));
+                            .isGranted(currentProject, List.of(AclPermission.ADD));
                     }
                     granted = granted && studio.getDesignRepositoryAclService()
                         .isGranted(currentProject, List.of(AclPermission.EDIT));
@@ -673,7 +673,7 @@ public class ProjectModel {
     public boolean isCanCopyModule() {
         RulesProject currentProject = getProject();
         if (currentProject != null) {
-            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(AclPermission.APPEND));
+            return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(AclPermission.ADD));
         }
         return false;
     }

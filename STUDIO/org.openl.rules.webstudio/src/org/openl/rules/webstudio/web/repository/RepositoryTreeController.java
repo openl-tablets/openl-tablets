@@ -293,7 +293,7 @@ public class RepositoryTreeController {
                             RepositoryAclService repositoryAclService = folder
                                 .getProject() instanceof ADeploymentProject ? deployConfigRepositoryAclService
                                                                             : designRepositoryAclService;
-                            if (repositoryAclService.isGranted(folder, List.of(AclPermission.APPEND))) {
+                            if (repositoryAclService.isGranted(folder, List.of(AclPermission.ADD))) {
                                 AProjectFolder addedFolder = folder.addFolder(folderName);
                                 repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
                             } else {
@@ -1475,7 +1475,7 @@ public class RepositoryTreeController {
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
         RepositoryAclService repositoryAclService = selectedProject instanceof ADeploymentProject ? deployConfigRepositoryAclService
                                                                                                   : designRepositoryAclService;
-        if (!repositoryAclService.isGranted(selectedProject, List.of(AclPermission.APPEND))) {
+        if (!repositoryAclService.isGranted(selectedProject, List.of(AclPermission.ADD))) {
             WebStudioUtils.addErrorMessage("There is no permission for adding files to the project.");
             return null;
         }
@@ -2185,7 +2185,7 @@ public class RepositoryTreeController {
             RepositoryAclService repositoryAclService = node
                 .getProject() instanceof ADeploymentProject ? deployConfigRepositoryAclService
                                                             : designRepositoryAclService;
-            if (!repositoryAclService.isGranted(node, List.of(AclPermission.APPEND))) {
+            if (!repositoryAclService.isGranted(node, List.of(AclPermission.ADD))) {
                 return "There is no permission for adding a file to the project.";
             }
             AProjectResource addedFileResource = node.addResource(fileName, lastUploadedFile.getInput());

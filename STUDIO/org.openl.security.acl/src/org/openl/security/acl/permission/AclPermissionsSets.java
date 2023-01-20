@@ -7,7 +7,7 @@ import org.springframework.security.acls.model.Permission;
 public final class AclPermissionsSets {
 
     public static final List<Permission> NEW_PROJECT_PERMISSIONS = List.of(AclPermission.VIEW,
-        AclPermission.APPEND,
+        AclPermission.ADD,
         AclPermission.EDIT,
         AclPermission.ARCHIVE,
         AclPermission.DELETE,
@@ -16,7 +16,7 @@ public final class AclPermissionsSets {
         AclPermission.DEPLOY);
 
     public static final List<Permission> NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS = List.of(AclPermission.VIEW,
-        AclPermission.APPEND,
+        AclPermission.ADD,
         AclPermission.EDIT,
         AclPermission.ARCHIVE,
         AclPermission.DELETE,

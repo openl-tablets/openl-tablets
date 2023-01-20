@@ -538,7 +538,7 @@ public class ProjectBean {
             } catch (ProjectException ignored) {
             }
         } else {
-            if (append && !designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.APPEND))) {
+            if (append && !designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.ADD))) {
                 throw new Message(String.format("There is no permission for adding '%s' file in the project.",
                     ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
             }
@@ -638,7 +638,7 @@ public class ProjectBean {
         RulesProject currentProject = studio.getCurrentProject();
         validatePermissionsForDescriptorFile(currentProject, false);
 
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.APPEND))) {
+        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.ADD))) {
             throw new Message("There is no permission for adding files to the project.");
         }
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();

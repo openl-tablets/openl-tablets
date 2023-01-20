@@ -14,8 +14,7 @@ public class AclPermission extends BasePermission {
     public static final AclPermission VIEW = new AclPermission(1 << MASK_END | DESIGN_REPOSITORY_READ.getMask(), 'V');
     public static final AclPermission CREATE = new AclPermission(2 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(),
         'C');
-    public static final AclPermission APPEND = new AclPermission(3 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(),
-        'A');
+    public static final AclPermission ADD = new AclPermission(3 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(), 'A');
     public static final AclPermission EDIT = new AclPermission(
         4 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask() | DESIGN_REPOSITORY_CREATE
             .getMask() | DESIGN_REPOSITORY_DELETE.getMask(),
@@ -43,8 +42,8 @@ public class AclPermission extends BasePermission {
             return "VIEW";
         } else if (CREATE.getMask() == permission.getMask()) {
             return "CREATE";
-        } else if (APPEND.getMask() == permission.getMask()) {
-            return "APPEND";
+        } else if (ADD.getMask() == permission.getMask()) {
+            return "ADD";
         } else if (EDIT.getMask() == permission.getMask()) {
             return "EDIT";
         } else if (ARCHIVE.getMask() == permission.getMask()) {
@@ -67,8 +66,8 @@ public class AclPermission extends BasePermission {
                 return VIEW;
             case "CREATE":
                 return CREATE;
-            case "APPEND":
-                return APPEND;
+            case "ADD":
+                return ADD;
             case "EDIT":
                 return EDIT;
             case "ARCHIVE":
@@ -91,8 +90,8 @@ public class AclPermission extends BasePermission {
             return VIEW;
         } else if (CREATE.getMask() == mask) {
             return CREATE;
-        } else if (APPEND.getMask() == mask) {
-            return APPEND;
+        } else if (ADD.getMask() == mask) {
+            return ADD;
         } else if (EDIT.getMask() == mask) {
             return EDIT;
         } else if (ARCHIVE.getMask() == mask) {
