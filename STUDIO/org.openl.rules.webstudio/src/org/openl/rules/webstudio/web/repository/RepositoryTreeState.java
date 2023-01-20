@@ -1021,7 +1021,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             RepositoryAclService repositoryAclService = project instanceof ADeploymentProject ? deployConfigRepositoryAclService
                                                                                               : designRepositoryAclService;
             return project.isOpenedForEditing() && repositoryAclService.isGranted(project,
-                List.of(AclPermission.APPEND)) && !branchProtected;
+                List.of(AclPermission.ADD)) && !branchProtected;
         } else {
             return false;
         }

@@ -752,7 +752,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             for (String fileInZip : filesInZip) {
                 if (!rulesProject.hasArtefact(fileInZip) && !designRepositoryAclService.isGranted(rulesProject,
-                    List.of(AclPermission.APPEND))) {
+                    List.of(AclPermission.ADD))) {
                     throw new ValidationException(
                         String.format("There is no permission to add a file '%s'.", fileInZip));
                 }
