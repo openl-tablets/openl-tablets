@@ -71,14 +71,14 @@ public class VerifyMojo extends BaseOpenLMojo {
             .getFile()
             .getPath();
 
+        final ClassLoader oldClassloader = Thread.currentThread().getContextClassLoader();
         final var pluginClassRealm = plugin.getClassRealm();
-        final var newClassloader = new ClassRealm(pluginClassRealm.getWorld(), "verify", null);
+        final var newClassloader = new ClassRealm(pluginClassRealm.getWorld(), "verify", oldClassloader);
         newClassloader.setParentRealm(pluginClassRealm);
         for (File f : getTransitiveDependencies()) {
             newClassloader.addURL(f.toURI().toURL());
         }
 
-        final ClassLoader oldClassloader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(newClassloader);
             // Without it Embedded Tomcat may fail to start while build.
