@@ -130,11 +130,6 @@ public class OpenLClassLoader extends GroovyClassLoader {
     }
 
     protected Class<?> loadClass(String name, Set<ClassLoader> c) throws ClassNotFoundException {
-        Class<?> clazz = findClassInBundles(name, c);
-
-        if (clazz != null) {
-            return clazz;
-        }
         try {
             return super.loadClass(name);
         } catch (ClassNotFoundException e) {
@@ -145,6 +140,10 @@ public class OpenLClassLoader extends GroovyClassLoader {
                 } catch (Exception e1) {
                     throw e;
                 }
+            }
+            Class<?> clazz = findClassInBundles(name, c);
+            if (clazz != null) {
+                return clazz;
             }
             throw e;
         }
@@ -269,11 +268,11 @@ public class OpenLClassLoader extends GroovyClassLoader {
     }
 
     private URL getResource(String name, Set<ClassLoader> c) {
-        URL url = findResourceInBundles(name, c);
+        URL url = super.getResource(name);
         if (url != null) {
             return url;
         }
-        return super.getResource(name);
+        return findResourceInBundles(name, c);
     }
 
     @Override
@@ -284,11 +283,11 @@ public class OpenLClassLoader extends GroovyClassLoader {
     }
 
     private InputStream getResourceAsStream(String name, Set<ClassLoader> c) {
-        InputStream inputStream = findResourceAsStreamInBundles(name, c);
+        InputStream inputStream = super.getResourceAsStream(name);
         if (inputStream != null) {
             return inputStream;
         }
-        return super.getResourceAsStream(name);
+        return findResourceAsStreamInBundles(name, c);
     }
 
     @Override

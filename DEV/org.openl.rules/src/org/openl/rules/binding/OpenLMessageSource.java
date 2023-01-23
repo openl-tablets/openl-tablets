@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OpenLMessageSource {
 
-    Logger LOG = LoggerFactory.getLogger(OpenLMessageSource.class);
+    private final static Logger LOG = LoggerFactory.getLogger(OpenLMessageSource.class);
 
     private static final String DEFAULT_MSG_SRC = "i18n/message";
 
@@ -58,36 +58,43 @@ public class OpenLMessageSource {
         var result = new HashMap<String, String>();
 
         String propFileName = basename + ".properties";
-        Enumeration<URL> urls = null;
-        try {
-            urls = classLoader.getResources(propFileName);
-        } catch (IOException ex) {
-            LOG.error("Failed to collect resources for '{}'", propFileName, ex);
-        }
-        if (urls != null) {
-            while (urls.hasMoreElements()) {
-                URL url = urls.nextElement();
-                try {
-                    PropertiesUtils.load(url, result::put);
-                } catch (IOException ex) {
-                    LOG.error("Failed to process resource '{}'", url, ex);
+        URL url = classLoader.getResource(propFileName);
+        if (url != null) {
+            try {
+                PropertiesUtils.load(url, result::put);
+            } catch (IOException ex) {
+                LOG.error("Failed to process resource '{}'", url, ex);
+            }
+            Enumeration<URL> urls = null;
+            try {
+                urls = classLoader.getResources(propFileName);
+            } catch (IOException ex) {
+                LOG.error("Failed to collect resources for '{}'", propFileName, ex);
+            }
+            if (urls != null) {
+                while (urls.hasMoreElements()) {
+                    URL url1 = urls.nextElement();
+                    try {
+                        PropertiesUtils.load(url1, result::putIfAbsent);
+                    } catch (IOException ex) {
+                        LOG.error("Failed to process resource '{}'", url1, ex);
+                    }
                 }
             }
         }
-
         return result;
     }
 
     /**
-     * Loads the bundle for the given properties basename and Locale, appending language code, country code, and
-     * variant code.
+     * Loads the bundle for the given properties basename and Locale, appending language code, country code, and variant
+     * code.
      * <p>
      * For example, basename "messages", Locale "de_AT_oo" &rarr; "messages_de_AT_OO", "messages_de_AT", "messages_de".
      * <p>
      * Follows the rules defined by {@link java.util.Locale#toString()}.
      *
      * @param basename the basename of the bundle
-     * @param locale   the locale
+     * @param locale the locale
      * @return the message bundle
      */
     private MessageBundle loadMessageBundle(String basename, Locale locale) {
