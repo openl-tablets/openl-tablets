@@ -18,6 +18,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.OpenClassUtils;
 
 public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<SpreadsheetBoundNode> {
     // Typically too few header cells have any meta info. Header may not contain any cell at all.
@@ -67,10 +68,11 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
                 nodeUsages = new ArrayList<>();
                 from = 0;
             }
+
+            IOpenMethod method = spreadsheetCell.getMethod();
             if (from > -1) {
                 from += 1; // next symbol after '=' or '{'
 
-                IOpenMethod method = spreadsheetCell.getMethod();
                 if (method instanceof CompositeMethod) {
                     List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils
                         .getNodeUsages((CompositeMethod) method, stringValue, from);
@@ -82,7 +84,15 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
                 isRet = getBoundNode().getComponentsBuilder().getReturnHeaderDefinition().isReturnCell(spreadsheetCell);
             }
 
-            return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages, isRet);
+            if (method == null && type != null) {
+                boolean multiValue = type.isArray();
+                if (multiValue) {
+                    type = OpenClassUtils.getRootComponentClass(type);
+                }
+                return new CellMetaInfo(type, multiValue, nodeUsages, isRet);
+            } else {
+                return new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages, isRet);
+            }
         }
 
         return null;
