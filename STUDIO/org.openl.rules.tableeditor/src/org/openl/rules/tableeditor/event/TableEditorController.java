@@ -63,8 +63,8 @@ public class TableEditorController extends BaseTableEditorController {
         MethodExpression methodExpression = context.getApplication()
             .getExpressionFactory()
             .createMethodExpression(elContext, expressionString, null, paramTypes == null ? new Class[0] : paramTypes);
-        return methodExpression.invoke(
-            FacesContext.getCurrentInstance().getELContext(), params == null ? new Object[0] : params);
+        return methodExpression.invoke(FacesContext.getCurrentInstance().getELContext(),
+            params == null ? new Object[0] : params);
     }
 
     public void startEditing() {
@@ -147,12 +147,11 @@ public class TableEditorController extends BaseTableEditorController {
     private String getCellEditorInitValue(String editorType, ICell cell) {
         String value = null;
 
-        if (editorType.equals(ICellEditor.CE_NUMERIC)) {
+        if (editorType.equals(ICellEditor.CE_NUMERIC) || editorType.equals(ICellEditor.CE_TEXT) || editorType
+            .equals(ICellEditor.CE_MULTILINE) || editorType.equals(ICellEditor.CE_RANGE)) {
             value = cell.getStringValue();
         } else if (editorType.equals(ICellEditor.CE_FORMULA)) {
             value = "=" + cell.getFormula();
-        } else if (editorType.equals(ICellEditor.CE_TEXT) || editorType.equals(ICellEditor.CE_MULTILINE)) {
-            value = cell.getStringValue();
         } else if (editorType.equals(ICellEditor.CE_DATE)) {
             // Format must be same as in DateEditor.js
             Object objectValue;

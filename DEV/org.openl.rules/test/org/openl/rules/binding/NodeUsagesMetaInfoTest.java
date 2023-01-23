@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.BaseOpenlBuilderHelper;
+import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
@@ -61,6 +62,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode checkApplications;
     private TableSyntaxNode myDatatype1;
     private TableSyntaxNode constant1;
+    private TableSyntaxNode sprSimpleRetType1;
+    private TableSyntaxNode sprSimpleRetType2;
+    private TableSyntaxNode sprSimpleRetType3;
 
     public NodeUsagesMetaInfoTest() {
         super(SRC);
@@ -110,6 +114,9 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         checkApplications = findTable("SmartRules String[] CheckApplications (String param)");
         myDatatype1 = findTable("Datatype MyDatatype1");
         constant1 = findTable("Constants ValidationErrors");
+        sprSimpleRetType1 = findTable("Spreadsheet DoubleRange SprSimpleRetType1()");
+        sprSimpleRetType2 = findTable("Spreadsheet Double SprSimpleRetType2()");
+        sprSimpleRetType3 = findTable("Spreadsheet Date SprSimpleRetType3()");
     }
 
     @Test
@@ -366,7 +373,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
             .getUri(), nodeUsages.get(2), "SpreadsheetResultTotalAssets\nInteger $USDValue$Total", 18, 33, NodeType.FIELD);
 
         // TotalAssets2011
-        assertCellType(assetsCompare, 1, 4, "java.lang.String");
+        assertCellType(assetsCompare, 1, 4, "java.lang.Integer");
 
         // Change in %
         nodeUsages = assertMetaInfo(assetsCompare, 1, 5, 4);
@@ -774,6 +781,13 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
             .getUri(), usedNodes.get(0), "String ve_VALIDATION_RULE_NOT_FOUND = Not found", 0, 28, NodeType.OTHER);
     }
 
+    @Test
+    public void testSprSimpleRetTypes() {
+        assertCellType(sprSimpleRetType1, 2, 2, "org.openl.rules.helpers.DoubleRange");
+        assertCellType(sprSimpleRetType2, 2, 2, "java.lang.Double");
+        assertCellType(sprSimpleRetType3, 2, 2, "java.util.Date");
+    }
+
     private static void assertCellType(TableSyntaxNode node, int column, int row, String type) {
         MetaInfoReader metaInfoReader = node.getMetaInfoReader();
         ICell cell = node.getGridTable().getCell(column, row);
@@ -791,6 +805,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         CellMetaInfo cellMetaInfo = metaInfoReader.getMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn());
         if (size > 0) {
             assertNotNull(cellMetaInfo);
+            assertEquals("java.lang.String", cellMetaInfo.getDataType().getName());
         }
         List<? extends NodeUsage> usedNodes = cellMetaInfo != null ? cellMetaInfo.getUsedNodes()
                                                                    : Collections.emptyList();
