@@ -41,6 +41,9 @@ public final class ArrayTool {
     public static final Object[] ZERO_OBJECT = {};
 
     public static boolean contains(Object array, Object test) {
+        if (array == null) {
+            return false;
+        }
         int size = Array.getLength(array);
         for (int i = 0; i < size; ++i) {
             Object obj = Array.get(array, i);
@@ -198,6 +201,9 @@ public final class ArrayTool {
     }
 
     public static String[] intersection(String[] ary1, String[] ary2) {
+        if (ary1 == null || ary2 == null) {
+            return null;
+        }
         List<String> v = new ArrayList<>();
         for (String s : ary2) {
             if (contains(ary1, s)) {
