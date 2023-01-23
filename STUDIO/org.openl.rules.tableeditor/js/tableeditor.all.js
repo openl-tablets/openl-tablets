@@ -6012,7 +6012,7 @@ var NumberRangeEditor = Class.create(BaseTextEditor, {
             return true;
         }
         var code = event.charCode == undefined ? event.keyCode : event.charCode;
-        return /^[$.,0-9KMB]$/.test(String.fromCharCode(code));
+        return /^[\-$.,0-9KMB]$/.test(String.fromCharCode(code));
     }
 
 });
