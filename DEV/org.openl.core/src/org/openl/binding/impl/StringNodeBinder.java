@@ -15,49 +15,42 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class StringNodeBinder extends ANodeBinder {
 
-    public static int processOctal(String s, int startIndex, StringBuilder buf) {
-
-        int res = 0;
-        int i;
-
-        for (i = 0; i < 3; ++i) {
-            char c = s.charAt(startIndex + i);
-
-            if ('0' <= c && c <= '7') {
-                res = res * 8 + c - '0';
-            } else {
-                break;
-            }
-        }
-
-        buf.append((char) res);
-
-        return i;
+    public static char processOctal(String s, int startIndex) {
+        int len = calcOctalLen(s, startIndex);
+        return processCharacter(s, startIndex, len, 8);
     }
 
-    public static char processUnicode(String s, int startIndex) throws Exception {
-
-        int res = 0;
-
-        for (int i = 0; i < 4; ++i) {
-            char c = s.charAt(startIndex + i);
-
-            if ('0' <= c && c <= '9') {
-                res = res * 16 + c - '0';
-            } else if ('a' <= c && c <= 'f') {
-                res = res * 16 + c - 'a';
-            } else if ('A' <= c && c <= 'F') {
-                res = res * 16 + c - 'A';
-            } else {
-                throw new Exception("Invalid unicode sequence character");
-            }
+    private static int calcOctalLen(String s, int startIndex) {
+        int i = startIndex;
+        int len = 0;
+        while (i < s.length() && len < 3 && validOctal(s.charAt(i))) {
+            i++;
+            len++;
         }
+        if (len < 1) {
+            throw new IllegalArgumentException("Invalid character sequence.");
+        }
+        return len;
+    }
 
-        return (char) res;
+    private static boolean validOctal(char ch) {
+        return ch >= '0' && ch <= '7';
+    }
+
+    public static char processUnicode(String s, int startIndex) {
+        return processCharacter(s, startIndex, 4, 16);
+    }
+
+    private static char processCharacter(String s, int startIndex, int len, int radix) {
+        int endIndex = startIndex + len;
+        if (startIndex > endIndex) {
+            throw new IllegalArgumentException("Invalid character sequence.");
+        }
+        return (char) Integer.parseUnsignedInt(s, startIndex, endIndex, radix);
     }
 
     @Override
-    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
 
         String s = node.getText();
         int len = s.length();
@@ -106,7 +99,8 @@ public class StringNodeBinder extends ANodeBinder {
                     case '5':
                     case '6':
                     case '7':
-                        i += processOctal(s, i, buf) - 1;
+                        buf.append(processOctal(s, i));
+                        i += calcOctalLen(s, i) - 1;
                         break;
                 }
             } else {

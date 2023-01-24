@@ -22,7 +22,7 @@ public class CharNodeBinder extends ANodeBinder {
      * org.openl.binding.IBindingContext)
      */
     @Override
-    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
+    public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
         String s = node.getText();
         char c = s.charAt(1);
 
@@ -64,19 +64,7 @@ public class CharNodeBinder extends ANodeBinder {
                 case '5':
                 case '6':
                 case '7': {
-                    int res = 0;
-                    int i;
-                    for (i = 0; i < 3; ++i) {
-                        char cc = s.charAt(2 + i);
-
-                        if ('0' <= cc && cc <= '7') {
-                            res = res * 8 + cc - '0';
-                        } else {
-                            break;
-                        }
-                        c = (char) res;
-                    }
-
+                    c = StringNodeBinder.processOctal(s, 2);
                     break;
                 }
             }
