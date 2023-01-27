@@ -7,7 +7,11 @@ import java.util.Set;
 
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
+import org.openl.security.acl.JdbcMutableAclService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Andrei Astrouski
@@ -16,9 +20,11 @@ import org.springframework.stereotype.Service;
 public class GroupManagementService {
 
     private final GroupDao groupDao;
+    private final JdbcMutableAclService aclService;
 
-    public GroupManagementService(GroupDao groupDao) {
+    public GroupManagementService(GroupDao groupDao, @Autowired(required = false) JdbcMutableAclService aclService) {
         this.groupDao = groupDao;
+        this.aclService = aclService;
     }
 
     public List<org.openl.rules.security.Group> getGroups() {
@@ -51,11 +57,13 @@ public class GroupManagementService {
         groupDao.save(persistGroup);
     }
 
+    @Transactional
     public void updateGroup(String name, String newName, String description) {
         Group persistGroup = groupDao.getGroupByName(name);
         persistGroup.setName(newName);
         persistGroup.setDescription(description);
         groupDao.update(persistGroup);
+        aclService.updateSid(new GrantedAuthoritySid(name), newName);
     }
 
     public void updateGroup(String name, Set<String> groups, Set<String> privileges) {
