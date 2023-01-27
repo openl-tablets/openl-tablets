@@ -341,9 +341,6 @@
                                  onclick="confirmEraseProject('#{repositoryTreeController.currentNodeRepositoryType}');return false;" title="#{eraseMessage}"/>
             </h:panelGroup>
             <h:panelGroup rendered="#{not artefact.deleted}">
-                <h:commandButton id="deployId" rendered="#{deploymentController.canDeploy}" value="Deploy"
-                                 onclick="openSelectRepositoryDialog();return false;"
-                                 title="Deploy into operations or staging"/>
                 <h:commandButton id="openVersionId3" rendered="#{repositoryTreeState.canOpen}" value="Open Revision"
                                  type="button"
                                  onclick="openOpenVersionDialog();" title="Open the specified project revision"/>
@@ -370,9 +367,13 @@
                 <h:commandButton id="unlockId2"
                                  rendered="#{repositoryTreeController.canUnlockDeployment and node.data.locked and not node.data.lockedByMe}"
                                  value="Unlock Deploy Configuration"
-                                 onclick="openSelectedUnlockDialog('deployment');return false;" title="#{unlockMessage}">
+                                 onclick="openSelectedUnlockDialog('deployment');return false;"
+                                 title="#{unlockMessage}">
                     <f:ajax render="unlockId2"/>
                 </h:commandButton>
+                <h:commandButton id="deployId" rendered="#{deploymentController.canDeploy}" value="Deploy"
+                                 onclick="openSelectRepositoryDialog();return false;"
+                                 title="Deploy into operations or staging"/>
             </h:panelGroup>
         </div>
 
