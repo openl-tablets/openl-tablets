@@ -3,6 +3,8 @@ package org.openl.security.acl;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
+import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.jdbc.LookupStrategy;
 import org.springframework.security.acls.model.AclCache;
 import org.springframework.security.acls.model.Sid;
@@ -13,6 +15,7 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
     private String deleteSidQuery = "delete from acl_sid where id=?";
     private String updateOwnerQuery = "update acl_object_identity aoi set aoi.owner_sid = ? where aoi.owner_sid = ?";
     private String deleteEntriesBySidQuery = "delete from acl_entry ace where ace.sid=?";
+    private String updateSidQuery = "update acl_sid set sid = ? where sid = ? and principal=?";
 
     private final AclCache aclCache;
     private final Sid relevantSystemWideSid;
@@ -48,6 +51,18 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
         this.aclCache.clearCache();
     }
 
+    public void updateSid(Sid sid, String newSidName) {
+        if (sid instanceof GrantedAuthoritySid) {
+            this.jdbcOperations
+                .update(updateSidQuery, newSidName, ((GrantedAuthoritySid) sid).getGrantedAuthority(), false);
+        } else if (sid instanceof PrincipalSid) {
+            this.jdbcOperations.update(updateSidQuery, newSidName, ((PrincipalSid) sid).getPrincipal(), true);
+        } else {
+            throw new IllegalStateException("Sid type is not supported");
+        }
+        this.aclCache.clearCache();
+    }
+
     public void setDeleteSidQuery(String deleteSidQuery) {
         this.deleteSidQuery = deleteSidQuery;
     }
@@ -58,5 +73,9 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
 
     public void setUpdateOwnerQuery(String updateOwnerQuery) {
         this.updateOwnerQuery = updateOwnerQuery;
+    }
+
+    public void setUpdateSidQuery(String updateSidQuery) {
+        this.updateSidQuery = updateSidQuery;
     }
 }
