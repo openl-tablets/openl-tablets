@@ -160,13 +160,27 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
     public Map<Sid, List<Permission>> listPermissions(String repositoryId, String path) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
         ObjectIdentity oi = new ObjectIdentityImpl(getObjectIdentityClass(), concat(repositoryId, path));
-        return listPermissions(oi);
+        return listPermissions(oi, null);
+    }
+
+    @Override
+    @Transactional
+    public Map<Sid, List<Permission>> listPermissions(String repositoryId, String path, List<Sid> sids) {
+        Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
+        ObjectIdentity oi = new ObjectIdentityImpl(getObjectIdentityClass(), concat(repositoryId, path));
+        return listPermissions(oi, sids);
     }
 
     @Override
     @Transactional
     public Map<Sid, List<Permission>> listRootPermissions() {
-        return listPermissions(getRootObjectIdentity());
+        return listPermissions(getRootObjectIdentity(), null);
+    }
+
+    @Override
+    @Transactional
+    public Map<Sid, List<Permission>> listRootPermissions(List<Sid> sids) {
+        return listPermissions(getRootObjectIdentity(), sids);
     }
 
     @Override
@@ -177,15 +191,18 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         addPermissions(oi, permissions);
     }
 
-    protected Map<Sid, List<Permission>> listPermissions(ObjectIdentity objectIdentity) {
+    protected Map<Sid, List<Permission>> listPermissions(ObjectIdentity objectIdentity, List<Sid> sids) {
         try {
             evictCache(objectIdentity);
             Map<Sid, List<Permission>> map = new HashMap<>();
-            Acl acl = aclService.readAclById(objectIdentity);
+            Acl acl = sids == null ? aclService.readAclById(objectIdentity)
+                                   : aclService.readAclById(objectIdentity, sids);
             for (AccessControlEntry ace : acl.getEntries()) {
                 if (ace.isGranting()) {
-                    List<Permission> p = map.computeIfAbsent(ace.getSid(), k -> new ArrayList<>());
-                    p.add(ace.getPermission());
+                    if (sids == null || sids.contains(ace.getSid())) {
+                        List<Permission> p = map.computeIfAbsent(ace.getSid(), k -> new ArrayList<>());
+                        p.add(ace.getPermission());
+                    }
                 }
             }
             return map;

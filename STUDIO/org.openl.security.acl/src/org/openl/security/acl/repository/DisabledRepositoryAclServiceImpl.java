@@ -1,5 +1,6 @@
 package org.openl.security.acl.repository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +12,12 @@ public class DisabledRepositoryAclServiceImpl extends DisabledSimpleRepositoryAc
 
     @Override
     public Map<Sid, List<Permission>> listPermissions(AProjectArtefact artefact) {
-        throw new UnsupportedOperationException();
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact, List<Sid> sids) {
+        return Collections.emptyMap();
     }
 
     @Override

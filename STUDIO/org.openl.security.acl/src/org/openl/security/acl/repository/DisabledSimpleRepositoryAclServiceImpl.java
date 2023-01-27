@@ -10,11 +10,21 @@ import org.springframework.security.acls.model.Sid;
 public class DisabledSimpleRepositoryAclServiceImpl implements SimpleRepositoryAclService {
     @Override
     public Map<Sid, List<Permission>> listPermissions(String repositoryId, String path) {
-        throw new UnsupportedOperationException();
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Map<Sid, List<Permission>> listPermissions(String repositoryId, String path, List<Sid> sids) {
+        return Collections.emptyMap();
     }
 
     @Override
     public Map<Sid, List<Permission>> listRootPermissions() {
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public Map<Sid, List<Permission>> listRootPermissions(List<Sid> sids) {
         return Collections.emptyMap();
     }
 
