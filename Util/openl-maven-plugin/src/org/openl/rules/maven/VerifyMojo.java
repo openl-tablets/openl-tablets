@@ -2,6 +2,7 @@ package org.openl.rules.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -71,14 +72,18 @@ public class VerifyMojo extends BaseOpenLMojo {
             .getFile()
             .getPath();
 
-        final ClassLoader oldClassloader = Thread.currentThread().getContextClassLoader();
         final var pluginClassRealm = plugin.getClassRealm();
-        final var newClassloader = new ClassRealm(pluginClassRealm.getWorld(), "verify", oldClassloader);
+        final var newClassloader = new ClassRealm(pluginClassRealm.getWorld(), "verify", null);
         newClassloader.setParentRealm(pluginClassRealm);
+        var loadedArtifactUrls = Arrays.stream(newClassloader.getParentRealm().getURLs())
+                .collect(Collectors.toSet());
+
         for (File f : getTransitiveDependencies()) {
-            newClassloader.addURL(f.toURI().toURL());
+            if (!loadedArtifactUrls.contains(f.toURI().toURL()))
+                newClassloader.addURL(f.toURI().toURL());
         }
 
+        final ClassLoader oldClassloader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(newClassloader);
             // Without it Embedded Tomcat may fail to start while build.
