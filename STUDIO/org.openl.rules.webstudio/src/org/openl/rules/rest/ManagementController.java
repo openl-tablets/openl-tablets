@@ -1,28 +1,43 @@
 package org.openl.rules.rest;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualLinkedHashBidiMap;
+import org.apache.commons.collections4.bidimap.UnmodifiableBidiMap;
 import org.openl.config.InMemoryProperties;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.model.GroupSettingsModel;
 import org.openl.rules.rest.validation.BeanValidationProvider;
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.service.ExternalGroupService;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.security.acl.JdbcMutableAclService;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.util.StreamUtils;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
+import org.springframework.security.acls.model.Permission;
+import org.springframework.security.acls.model.Sid;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,6 +70,9 @@ public class ManagementController {
     private final BeanValidationProvider validationProvider;
     private final ExternalGroupService extGroupService;
     private final JdbcMutableAclService aclService;
+    private final RepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService deployConfigRepositoryAclService;
+    private final SimpleRepositoryAclService productionRepositoryAclService;
 
     @Autowired
     public ManagementController(GroupDao groupDao,
@@ -62,13 +80,19 @@ public class ManagementController {
             InMemoryProperties properties,
             BeanValidationProvider validationProvider,
             ExternalGroupService extGroupService,
-            @Autowired(required = false) JdbcMutableAclService aclService) {
+            @Autowired(required = false) JdbcMutableAclService aclService,
+            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
+            @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService) {
         this.groupDao = groupDao;
         this.groupManagementService = groupManagementService;
         this.properties = properties;
         this.validationProvider = validationProvider;
         this.extGroupService = extGroupService;
         this.aclService = aclService;
+        this.designRepositoryAclService = designRepositoryAclService;
+        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
+        this.productionRepositoryAclService = productionRepositoryAclService;
     }
 
     @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary")
@@ -76,6 +100,41 @@ public class ManagementController {
     public Map<String, UIGroup> getGroups() {
         SecurityChecker.allow(Privileges.ADMIN);
         return groupDao.getAllGroups().stream().collect(StreamUtils.toLinkedMap(Group::getName, UIGroup::new));
+    }
+
+    private Set<String> getGroupUiPrivileges(Supplier<Map<Sid, List<Permission>>> g, Function<Permission, String> f) {
+        Map<Sid, List<Permission>> groupPermissions = g.get();
+        Set<String> uiPrivileges = new HashSet<>();
+        if (!groupPermissions.isEmpty()) {
+            List<Permission> permissions = groupPermissions.values().iterator().next();
+            for (Permission permission : permissions) {
+                String designPrivilege = f.apply(permission);
+                if (designPrivilege != null) {
+                    uiPrivileges.add(designPrivilege);
+                }
+            }
+        }
+        return uiPrivileges;
+    }
+
+    private UIGroup buildUIGroup(Group group) {
+        UIGroup uiGroup = new UIGroup(group);
+        List<Sid> grantedAuthoritySidList = Collections.singletonList(new GrantedAuthoritySid(group.getName()));
+        uiGroup.privileges
+            .addAll(getGroupUiPrivileges(() -> designRepositoryAclService.listRootPermissions(grantedAuthoritySidList),
+                DESIGN_PRIVILEGES::get));
+        uiGroup.privileges.addAll(getGroupUiPrivileges(
+            () -> deployConfigRepositoryAclService.listPermissions("deploy-config", null, grantedAuthoritySidList),
+            DEPLOY_CONFIG_PRIVILEGES::get));
+        return uiGroup;
+    }
+
+    @Operation(description = "mgmt.get-groups.desc", summary = "mgmt.get-groups.summary", hidden = true)
+    @GetMapping("/old/groups")
+    @Deprecated
+    public Map<String, UIGroup> getOldGroups() {
+        SecurityChecker.allow(Privileges.ADMIN);
+        return groupDao.getAllGroups().stream().collect(StreamUtils.toLinkedMap(Group::getName, this::buildUIGroup));
     }
 
     @Operation(description = "mgmt.delete-group.desc", summary = "mgmt.delete-group.summary")
@@ -108,7 +167,43 @@ public class ManagementController {
         } else {
             groupManagementService.updateGroup(oldName, name, description);
         }
-        groupManagementService.updateGroup(name, roles, privileges);
+        final Set<String> databasePrivileges = Arrays.stream(Privileges.values())
+            .map(Privileges::getName)
+            .collect(Collectors.toSet());
+        groupManagementService.updateGroup(name,
+            roles,
+            privileges == null ? null
+                               : privileges.stream().filter(databasePrivileges::contains).collect(Collectors.toSet()));
+        GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(name);
+        designRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
+        deployConfigRepositoryAclService
+            .removePermissions("deploy-config", null, Collections.singletonList(grantedAuthoritySid));
+        productionRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
+        if (privileges != null) {
+            List<Permission> designPermissions = privileges.stream()
+                .map(DESIGN_PRIVILEGES::getKey)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+            designRepositoryAclService.addRootPermissions(designPermissions,
+                Collections.singletonList(grantedAuthoritySid));
+
+            List<Permission> deployConfigPermissions = privileges.stream()
+                .map(DEPLOY_CONFIG_PRIVILEGES::getKey)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+            deployConfigRepositoryAclService.addPermissions("deploy-config",
+                null,
+                deployConfigPermissions,
+                Collections.singletonList(grantedAuthoritySid));
+
+            List<Permission> productionPermissions = privileges.stream()
+                .map(PRODUCTION_PRIVILEGES::getKey)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+            productionRepositoryAclService.addRootPermissions(productionPermissions,
+                Collections.singletonList(grantedAuthoritySid));
+
+        }
     }
 
     @Operation(description = "mgmt.save-settings.desc", summary = "mgmt.save-settings.summary")
@@ -128,12 +223,68 @@ public class ManagementController {
         return model;
     }
 
+    public static final Map<String, String> UI_PRIVILEGES;
+    public static final BidiMap<Permission, String> DESIGN_PRIVILEGES;
+    public static final BidiMap<Permission, String> DEPLOY_CONFIG_PRIVILEGES;
+    public static final BidiMap<Permission, String> PRODUCTION_PRIVILEGES;
+
+    static {
+        BidiMap<Permission, String> designPrivileges = new DualLinkedHashBidiMap<>();
+        designPrivileges.put(AclPermission.VIEW, "VIEW_PROJECTS");
+        designPrivileges.put(AclPermission.CREATE, "CREATE_PROJECTS");
+        designPrivileges.put(AclPermission.ADD, "ADD");
+        designPrivileges.put(AclPermission.EDIT, "EDIT_PROJECTS");
+        designPrivileges.put(AclPermission.ARCHIVE, "DELETE_PROJECTS");
+        designPrivileges.put(AclPermission.DELETE, "ERASE_PROJECTS");
+        designPrivileges.put(AclPermission.RUN, "RUN");
+        designPrivileges.put(AclPermission.BENCHMARK, "BENCHMARK");
+        designPrivileges.put(AclPermission.DEPLOY, "DEPLOY_PROJECTS");
+        DESIGN_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(designPrivileges);
+
+        BidiMap<Permission, String> deployConfigPrivileges = new DualLinkedHashBidiMap<>();
+        deployConfigPrivileges.put(AclPermission.VIEW, "VIEW_DEPLOYMENT");
+        deployConfigPrivileges.put(AclPermission.CREATE, "CREATE_DEPLOYMENT");
+        deployConfigPrivileges.put(AclPermission.EDIT, "EDIT_DEPLOYMENT");
+        deployConfigPrivileges.put(AclPermission.ARCHIVE, "DELETE_DEPLOYMENT");
+        deployConfigPrivileges.put(AclPermission.DELETE, "ERASE_DEPLOYMENT");
+        deployConfigPrivileges.put(AclPermission.DEPLOY, "DEPLOY_PROJECTS");
+        DEPLOY_CONFIG_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(deployConfigPrivileges);
+
+        BidiMap<Permission, String> productionPrivileges = new DualLinkedHashBidiMap<>();
+        productionPrivileges.put(AclPermission.DEPLOY, "DEPLOY_PROJECTS");
+        PRODUCTION_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(productionPrivileges);
+
+        Map<String, String> privileges = new LinkedHashMap<>();
+        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.VIEW), "View Projects");
+        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.CREATE), "Create Projects");
+        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.ADD), "Add Resource to Projects");
+        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.EDIT), "Edit Projects");
+        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.ARCHIVE), "Delete Projects");
+        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.DELETE), "Erase Projects");
+        privileges.put(Privileges.UNLOCK_PROJECTS.getName(), Privileges.UNLOCK_PROJECTS.getDisplayName());
+
+        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.DEPLOY), "Deploy Projects");
+
+        privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.VIEW), "View Deploy Configuration");
+        privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.CREATE), "Create Deploy Configuration");
+        privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.EDIT), "Edit Deploy Configuration");
+        privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.ARCHIVE), "Delete Deploy Configuration");
+        privileges.put(DEPLOY_CONFIG_PRIVILEGES.get(AclPermission.DELETE), "Erase Deploy Configuration");
+        privileges.put(Privileges.UNLOCK_DEPLOYMENT.getName(), Privileges.UNLOCK_DEPLOYMENT.getDisplayName());
+
+        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.RUN), "Run and Trace Tables");
+        privileges.put(DESIGN_PRIVILEGES.get(AclPermission.BENCHMARK), "Benchmark Tables");
+
+        privileges.put(Privileges.ADMIN.getName(), Privileges.ADMIN.getDisplayName());
+
+        UI_PRIVILEGES = Collections.unmodifiableMap(privileges);
+    }
+
     @Operation(description = "mgmt.get-privileges.desc", summary = "mgmt.get-privileges.summary")
     @GetMapping("/privileges")
     public Map<String, String> getPrivileges() {
         SecurityChecker.allow(Privileges.ADMIN);
-        return Arrays.stream(Privileges.values())
-            .collect(StreamUtils.toLinkedMap(Privilege::getName, Privilege::getDisplayName));
+        return UI_PRIVILEGES;
     }
 
     @Operation(description = "mgmt.search-external-groups.desc", summary = "mgmt.search-external-groups.summary")

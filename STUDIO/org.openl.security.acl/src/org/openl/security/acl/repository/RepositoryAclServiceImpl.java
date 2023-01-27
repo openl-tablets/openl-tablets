@@ -60,7 +60,14 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     public Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact) {
         Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
         ObjectIdentity oi = buildObjectIdentity(projectArtefact);
-        return listPermissions(oi);
+        return listPermissions(oi, null);
+    }
+
+    @Override
+    public Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact, List<Sid> sids) {
+        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
+        return listPermissions(oi, sids);
     }
 
     @Override

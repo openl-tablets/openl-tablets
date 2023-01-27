@@ -11,6 +11,8 @@ public interface RepositoryAclService extends SimpleRepositoryAclService {
 
     Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact);
 
+    Map<Sid, List<Permission>> listPermissions(AProjectArtefact projectArtefact, List<Sid> sids);
+
     void addPermissions(AProjectArtefact projectArtefact, List<Permission> permissions, List<Sid> sids);
 
     void addPermissions(AProjectArtefact projectArtefact, Map<Sid, List<Permission>> permissions);
