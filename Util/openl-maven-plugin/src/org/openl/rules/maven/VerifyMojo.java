@@ -2,6 +2,7 @@ package org.openl.rules.maven;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -76,11 +77,14 @@ public class VerifyMojo extends BaseOpenLMojo {
         final var newClassloader = new ClassRealm(pluginClassRealm.getWorld(), "verify", null);
         newClassloader.setParentRealm(pluginClassRealm);
         var loadedArtifactUrls = Arrays.stream(newClassloader.getParentRealm().getURLs())
+                .map(URL::toString)
+                .map(this::getArtifactFolderWithoutVersion)
                 .collect(Collectors.toSet());
 
         for (File f : getTransitiveDependencies()) {
-            if (!loadedArtifactUrls.contains(f.toURI().toURL()))
-                newClassloader.addURL(f.toURI().toURL());
+            URL dependencyUrl = f.toURI().toURL();
+            if (!loadedArtifactUrls.contains(getArtifactFolderWithoutVersion(dependencyUrl.toString())))
+                newClassloader.addURL(dependencyUrl);
         }
 
         final ClassLoader oldClassloader = Thread.currentThread().getContextClassLoader();
@@ -126,6 +130,10 @@ public class VerifyMojo extends BaseOpenLMojo {
         }
         info(String
             .format("Verification is passed for '%s:%s' artifact.", project.getGroupId(), project.getArtifactId()));
+    }
+
+    private String getArtifactFolderWithoutVersion(String url) {
+        return url.substring(0, url.lastIndexOf('/', url.lastIndexOf('/') - 1));
     }
 
     private static boolean isNoPublicMethodError(Throwable error) {
