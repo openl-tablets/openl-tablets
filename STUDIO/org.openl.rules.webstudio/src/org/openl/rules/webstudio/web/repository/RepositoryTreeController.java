@@ -1034,7 +1034,7 @@ public class RepositoryTreeController {
         AProjectArtefact projectArtefact = selectedNode.getData();
         if (projectArtefact == null) {
             activeProjectNode = null;
-            WebStudioUtils.addErrorMessage("Project is already deleted.");
+            WebStudioUtils.addErrorMessage("Element is already deleted.");
             return null;
         }
         AProject p = projectArtefact.getProject();
@@ -1066,7 +1066,7 @@ public class RepositoryTreeController {
                 .getProject() instanceof ADeploymentProject ? deployConfigRepositoryAclService
                                                             : designRepositoryAclService;
             if (!repositoryAclService.isGranted(projectArtefact,
-                projectArtefact instanceof AProject ? List.of(AclPermission.ARCHIVE) : List.of(AclPermission.DELETE))) {
+                projectArtefact instanceof AProject ? List.of(AclPermission.ARCHIVE) : List.of(AclPermission.EDIT))) {
                 WebStudioUtils.addErrorMessage(
                     "There is no permission for " + ((projectArtefact instanceof AProject) ? "archiving"
                                                                                            : "editing") + " the project.");

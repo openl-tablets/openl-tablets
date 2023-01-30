@@ -1,12 +1,17 @@
 package org.openl.rules.rest;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.rules.rest.exception.ConflictException;
@@ -16,6 +21,7 @@ import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -26,20 +32,29 @@ import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/acl/repo")
-@Hidden
+@Tag(name = "ACL Management")
 public class RepositoryAclServiceController {
 
     private static final String REPO_TYPE_PROD = "prod";
@@ -186,8 +201,245 @@ public class RepositoryAclServiceController {
         }
     }
 
+    @GetMapping(value = { "/projects/{repositoryType}/{repo-id}" })
+    @Operation(summary = "mgmt.acl.list-artifacts.summary", description = "mgmt.acl.list-artifacts.desc")
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = MediaType.APPLICATION_JSON))
+    public List<String> listArtifacts(
+            @Parameter(description = "repo.acl.param.repository-type.desc") @PathVariable("repositoryType") String repositoryType,
+            @Parameter(description = "repo.acl.param.repository-id.desc") @PathVariable(value = "repo-id") String repositoryId,
+            HttpSession session) {
+        if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType)) {
+            UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
+            if (!Objects.equals(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+                repositoryId)) {
+                throw new NotFoundException("repository.message", repositoryId);
+            }
+            try {
+                return userWorkspace.getDesignTimeRepository()
+                    .getDDProjects()
+                    .stream()
+                    .map(e -> e.getFileData().getName())
+                    .collect(Collectors.toList());
+            } catch (RepositoryException ignored) {
+            }
+        } else if (REPO_TYPE_DESIGN.equals(repositoryType)) {
+            UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
+            if (userWorkspace.getDesignTimeRepository()
+                .getRepositories()
+                .stream()
+                .noneMatch(e -> Objects.equals(e.getId(), repositoryId))) {
+                throw new NotFoundException("repository.message", repositoryId);
+            }
+            return userWorkspace.getDesignTimeRepository()
+                .getProjects()
+                .stream()
+                .filter(e -> Objects.equals(e.getRepository().getId(), repositoryId))
+                .map(e -> e.getFileData().getName())
+                .collect(Collectors.toList());
+        }
+        throw new BadRequestException("Invalid repository");
+    }
+
+    private static String toRepoTypeString(AclCommandSupport.RepoType repoType) {
+        if (AclCommandSupport.RepoType.PROD == repoType) {
+            return REPO_TYPE_PROD;
+        } else if (AclCommandSupport.RepoType.DESIGN == repoType) {
+            return REPO_TYPE_DESIGN;
+        } else if (AclCommandSupport.RepoType.DEPLOY_CONFIG == repoType) {
+            return REPO_TYPE_DEPLOY_CONFIG;
+        }
+        throw new IllegalStateException("Unsupported repository type");
+    }
+
+    @Transactional
+    @PostMapping(value = { "/runScript" }, consumes = { MediaType.TEXT_PLAIN })
+    @Operation(summary = "mgmt.acl.run-script.summary", description = "mgmt.acl.run-script.desc")
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = MediaType.TEXT_PLAIN))
+    public String runScript(
+            @Parameter(description = "repo.acl.param.content.desc", content = @Content(examples = @ExampleObject("-- this line prevent system from accidentally changes\n# List all permissions for all design repositories\nlist:design:\n\n# List all permissions for Example 1 - Bank Rating in 'design' repo\nlistAll:design/design:DESIGN/rules/Example 1 - Bank Rating\n\n# Add VIEW, EDIT and ARCHIVE permissions to Example 1 - Bank Rating for user with username 'user'\nadd:design/design:DESIGN/rules/Example 1 - Bank Rating:user:user:VIEW,EDIT,ARCHIVE\n\n# Set VIEW permission to Example 1 - Bank Rating for group with name 'Viewers'\nset:design::group:Viewers:VIEW\n\n# Remove VIEW permission from Example 1 - Bank Rating for group with name 'Viewers'\nremove:design::group:Viewers:VIEW"))) @RequestBody String content,
+            HttpSession session) {
+        StringBuilder ret = new StringBuilder();
+        final String[] allPermissions = Arrays.stream(AclPermission.values())
+            .map(e -> AclPermission.toString(e))
+            .toArray(String[]::new);
+        try (Scanner scanner = new Scanner(content)) {
+            int lineNum = 0;
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                lineNum++;
+                if (line.contains("#")) {
+                    line = line.substring(0, line.indexOf("#"));
+                }
+                if (StringUtils.isBlank(line)) {
+                    continue;
+                }
+                try {
+                    AclCommandSupport.AclCommand command = AclCommandSupport.toCommand(line);
+                    if (AclCommandSupport.Action.ADD == command.action || AclCommandSupport.Action.SET == command.action) {
+                        if (AclCommandSupport.SidType.USERNAME == command.sidType) {
+                            if (AclCommandSupport.Action.SET == command.action) {
+                                deleteUserPermissions(toRepoTypeString(command.repoType),
+                                    command.sid,
+                                    allPermissions,
+                                    command.repo,
+                                    command.resource,
+                                    session);
+                            }
+                            addUserPermissions(toRepoTypeString(command.repoType),
+                                command.sid,
+                                command.permissions,
+                                command.repo,
+                                command.resource,
+                                session);
+                        } else if (AclCommandSupport.SidType.GROUP_NAME == command.sidType) {
+                            Group group = groupDao.getGroupByName(command.sid);
+                            if (group == null) {
+                                throw new NotFoundException("group.message");
+                            }
+                            if (AclCommandSupport.Action.SET == command.action) {
+                                deleteGroupPermissions(toRepoTypeString(command.repoType),
+                                    group.getId(),
+                                    allPermissions,
+                                    command.repo,
+                                    command.resource,
+                                    session);
+                            }
+                            addGroupPermissions(toRepoTypeString(command.repoType),
+                                group.getId(),
+                                command.permissions,
+                                command.repo,
+                                command.resource,
+                                session);
+                        } else if (AclCommandSupport.SidType.GROUP_ID == command.sidType) {
+                            if (AclCommandSupport.Action.SET == command.action) {
+                                deleteGroupPermissions(toRepoTypeString(command.repoType),
+                                    Long.valueOf(command.sid),
+                                    allPermissions,
+                                    command.repo,
+                                    command.resource,
+                                    session);
+                            }
+                            addGroupPermissions(toRepoTypeString(command.repoType),
+                                Long.valueOf(command.sid),
+                                command.permissions,
+                                command.repo,
+                                command.resource,
+                                session);
+                        }
+                    } else if (AclCommandSupport.Action.REMOVE == command.action) {
+                        if (AclCommandSupport.SidType.USERNAME == command.sidType) {
+                            deleteUserPermissions(toRepoTypeString(command.repoType),
+                                command.sid,
+                                command.permissions,
+                                command.repo,
+                                command.resource,
+                                session);
+                        } else if (AclCommandSupport.SidType.GROUP_NAME == command.sidType) {
+                            Group group = groupDao.getGroupByName(command.sid);
+                            if (group == null) {
+                                throw new NotFoundException("group.message");
+                            }
+                            deleteGroupPermissions(toRepoTypeString(command.repoType),
+                                group.getId(),
+                                command.permissions,
+                                command.repo,
+                                command.resource,
+                                session);
+                        } else if (AclCommandSupport.SidType.GROUP_ID == command.sidType) {
+                            deleteGroupPermissions(toRepoTypeString(command.repoType),
+                                Long.valueOf(command.sid),
+                                command.permissions,
+                                command.repo,
+                                command.resource,
+                                session);
+                        }
+                    } else if (AclCommandSupport.Action.LIST == command.action || AclCommandSupport.Action.LIST_ALL == command.action) {
+                        if (ret.length() > 0 && ret.charAt(ret.length() - 1) != '\n') {
+                            ret.append("\n");
+                        }
+                        if (ret.length() > 0) {
+                            ret.append("\n");
+                        }
+                        ret.append(AclCommandSupport.Action.LIST == command.action ? "list:" : "listAll:")
+                            .append(toResourceLocationString(command.repoType, command.repo, command.resource))
+                            .append("\n");
+                        StringBuilder sb = new StringBuilder();
+
+                        String repo = command.repo;
+                        String resource = command.resource;
+                        while (resource.endsWith("/")) {
+                            resource = resource.substring(0, resource.length() - 1);
+                        }
+                        if (StringUtils.isBlank(resource)) {
+                            resource = null;
+                        }
+                        boolean f = false;
+                        while (!f) {
+                            if (repo == null || AclCommandSupport.Action.LIST_ALL != command.action) {
+                                f = true;
+                            }
+                            List<SidPermissionsDto> permissions = list(toRepoTypeString(command.repoType),
+                                repo,
+                                resource,
+                                session);
+                            for (SidPermissionsDto permission : permissions) {
+                                if (sb.length() > 0) {
+                                    sb.append("\n");
+                                }
+                                sb.append("    ");
+                                sb.append(toResourceLocationString(command.repoType, repo, resource));
+                                sb.append(":")
+                                    .append(permission.username != null ? "user:" + permission.username
+                                                                        : "group:" + permission.groupName);
+                                sb.append(":");
+                                sb.append(String.join(",", permission.permissions));
+                            }
+                            if (resource != null) {
+                                if (StringUtils.isBlank(resource) || resource.trim().equals("/")) {
+                                    resource = null;
+                                } else {
+                                    int x = resource.lastIndexOf("/");
+                                    if (x > 0) {
+                                        resource = resource.substring(0, x);
+                                    } else {
+                                        resource = null;
+                                    }
+                                }
+                            } else {
+                                repo = null;
+                            }
+                        }
+                        ret.append(sb);
+                    }
+                } catch (NotFoundException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new BadRequestException(String.format("Bad command at line %s: ", lineNum) + e.getMessage());
+                }
+            }
+        }
+        return ret.toString();
+    }
+
+    private static String toResourceLocationString(AclCommandSupport.RepoType repoType, String repo, String resource) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(toRepoTypeString(repoType));
+        if (!StringUtils.isBlank(repo)) {
+            sb.append("/").append(repo);
+        }
+        sb.append(":");
+        if (!StringUtils.isBlank(resource)) {
+            if (!resource.startsWith("/")) {
+                sb.append("/");
+            }
+            sb.append(resource);
+        }
+        return sb.toString();
+    }
+
     @GetMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}",
             "{repositoryType:^design|prod|deployConfig$}" })
+    @Hidden
     public List<SidPermissionsDto> list(@PathVariable("repositoryType") String repositoryType,
             @PathVariable(value = "repo-id", required = false) String repositoryId,
             @RequestParam(required = false) String path,
@@ -206,6 +458,7 @@ public class RepositoryAclServiceController {
     @PutMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/user/{username}",
             "/{repositoryType:^design|prod|deployConfig$}/user/{username}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Hidden
     public void addUserPermissions(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("username") String username,
             @RequestParam String[] permissions,
@@ -232,6 +485,7 @@ public class RepositoryAclServiceController {
     @PutMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/group/{id}",
             "/{repositoryType:^design|prod|deployConfig$}/group/{id}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Hidden
     public void addGroupPermissions(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("id") Long id,
             @RequestParam String[] permissions,
@@ -259,6 +513,7 @@ public class RepositoryAclServiceController {
     @DeleteMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}",
             "/{repositoryType:^design|prod|deployConfig$}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Hidden
     public void deleteAllPermissions(@PathVariable("repositoryType") String repositoryType,
             @PathVariable(value = "repo-id", required = false) String repositoryId,
             @RequestParam(required = false) String path,
@@ -275,6 +530,7 @@ public class RepositoryAclServiceController {
     @DeleteMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/user/{username}",
             "/{repositoryType:^design|prod|deployConfig$}/user/{username}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Hidden
     public void deleteUserPermissions(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("username") String username,
             @RequestParam String[] permissions,
@@ -296,6 +552,7 @@ public class RepositoryAclServiceController {
     @DeleteMapping(value = { "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/group/{id}",
             "/{repositoryType:^design|prod|deployConfig$}/group/{id}" })
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Hidden
     public void deleteGroupPermissions(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("id") Long id,
             @RequestParam String[] permissions,
@@ -363,6 +620,7 @@ public class RepositoryAclServiceController {
     }
 
     @GetMapping(value = "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/owner")
+    @Hidden
     public SidDto getOwner(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("repo-id") String repositoryId,
             @RequestParam(required = false) String path,
@@ -385,6 +643,7 @@ public class RepositoryAclServiceController {
 
     @PutMapping(value = "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/owner/user/{username}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Hidden
     public void updateOwnerToUser(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("username") String username,
             @PathVariable("repo-id") String repositoryId,
@@ -402,6 +661,7 @@ public class RepositoryAclServiceController {
 
     @PutMapping(value = "/{repositoryType:^design|prod|deployConfig$}/{repo-id}/owner/group/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Hidden
     public void updateOwnerToGroup(@PathVariable("repositoryType") String repositoryType,
             @PathVariable("id") Long id,
             @PathVariable("repo-id") String repositoryId,
