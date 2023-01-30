@@ -2,8 +2,6 @@ package org.openl.rules.maven;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -76,15 +74,9 @@ public class VerifyMojo extends BaseOpenLMojo {
         final var pluginClassRealm = plugin.getClassRealm();
         final var newClassloader = new ClassRealm(pluginClassRealm.getWorld(), "verify", null);
         newClassloader.setParentRealm(pluginClassRealm);
-        var loadedArtifactUrls = Arrays.stream(newClassloader.getParentRealm().getURLs())
-                .map(URL::toString)
-                .map(this::getArtifactFolderWithoutVersion)
-                .collect(Collectors.toSet());
 
         for (File f : getTransitiveDependencies()) {
-            URL dependencyUrl = f.toURI().toURL();
-            if (!loadedArtifactUrls.contains(getArtifactFolderWithoutVersion(dependencyUrl.toString())))
-                newClassloader.addURL(dependencyUrl);
+            newClassloader.addURL(f.toURI().toURL());
         }
 
         final ClassLoader oldClassloader = Thread.currentThread().getContextClassLoader();
@@ -141,6 +133,9 @@ public class VerifyMojo extends BaseOpenLMojo {
     }
 
     private Set<File> getTransitiveDependencies() {
+        Set<String> pluginDependencies = plugin.getDependencies().stream()
+                .map(d -> ArtifactUtils.versionlessKey(d.getGroupId(), d.getArtifactId()))
+                .collect(Collectors.toSet());
         Set<String> allowedDependencies = getAllowedDependencies();
         return getDependentNonOpenLProjects().stream().filter(artifact -> {
             if (isOpenLCoreDependency(artifact.getGroupId())) {
@@ -159,7 +154,8 @@ public class VerifyMojo extends BaseOpenLMojo {
                 return false;
             }
             return true;
-        }).filter(artifact -> {
+        }).filter(artifact -> !pluginDependencies.contains(ArtifactUtils.versionlessKey(artifact)))
+          .filter(artifact -> {
             String tr = artifact.getDependencyTrail().get(1);
             String key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
             return allowedDependencies.contains(key);
