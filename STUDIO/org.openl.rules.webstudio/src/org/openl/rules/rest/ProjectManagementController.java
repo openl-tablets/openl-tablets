@@ -80,6 +80,7 @@ public class ProjectManagementController {
      * @return project info.
      */
     @GetMapping("/{repo-name}/projects/{proj-name}/info")
+    @Hidden
     public ProjectInfo getInfo(@DesignRepository("repo-name") Repository repo, @PathVariable("proj-name") String name) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
@@ -110,6 +111,7 @@ public class ProjectManagementController {
      * @return project info.
      */
     @GetMapping("/{repo-name}/projects/{proj-name}/deployments/{deploy-repo-name}")
+    @Hidden
     public List<DeploymentProjectItem> getDeploymentItems(@DesignRepository("repo-name") Repository repo,
             @PathVariable("proj-name") String name,
             @PathVariable("deploy-repo-name") String deployRepoName) {
@@ -129,6 +131,7 @@ public class ProjectManagementController {
      */
     @PostMapping("/{repo-name}/projects/{proj-name}/close")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Hidden
     public void close(@DesignRepository("repo-name") Repository repo,
             @PathVariable("proj-name") String name,
             HttpSession session) {
@@ -165,6 +168,7 @@ public class ProjectManagementController {
      */
     @PostMapping("/{repo-name}/projects/{proj-name}/open")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Hidden
     public void open(@DesignRepository("repo-name") Repository repo,
             @PathVariable("proj-name") String name,
             @RequestParam(value = "open-dependencies", required = false, defaultValue = "false") boolean openDependencies,
@@ -204,6 +208,7 @@ public class ProjectManagementController {
      */
     @PostMapping("/{repo-name}/projects/{proj-name}/deploy")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Hidden
     public void deploy(@DesignRepository("repo-name") Repository repo,
             @PathVariable("proj-name") String name,
             @RequestParam("deploy-repo-name") String deployRepoName,
