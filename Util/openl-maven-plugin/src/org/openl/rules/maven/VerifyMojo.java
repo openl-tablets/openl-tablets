@@ -124,10 +124,6 @@ public class VerifyMojo extends BaseOpenLMojo {
             .format("Verification is passed for '%s:%s' artifact.", project.getGroupId(), project.getArtifactId()));
     }
 
-    private String getArtifactFolderWithoutVersion(String url) {
-        return url.substring(0, url.lastIndexOf('/', url.lastIndexOf('/') - 1));
-    }
-
     private static boolean isNoPublicMethodError(Throwable error) {
         return error instanceof ServiceConstructionException && "No resource classes found".equals(error.getMessage());
     }
