@@ -1,6 +1,13 @@
 package org.openl.internal.verify.lib;
 
+import javax.ws.rs.ext.Provider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
+@Provider
 public class Foo {
+
+    private ApplicationContext applicationContext;
 
     private String bar;
 
@@ -17,5 +24,10 @@ public class Foo {
 
     public void setBar(String bar) {
         this.bar = bar;
+    }
+
+    @Autowired
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 }

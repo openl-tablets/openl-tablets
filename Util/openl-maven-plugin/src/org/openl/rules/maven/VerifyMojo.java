@@ -74,6 +74,7 @@ public class VerifyMojo extends BaseOpenLMojo {
         final var pluginClassRealm = plugin.getClassRealm();
         final var newClassloader = new ClassRealm(pluginClassRealm.getWorld(), "verify", null);
         newClassloader.setParentRealm(pluginClassRealm);
+
         for (File f : getTransitiveDependencies()) {
             newClassloader.addURL(f.toURI().toURL());
         }
@@ -128,6 +129,9 @@ public class VerifyMojo extends BaseOpenLMojo {
     }
 
     private Set<File> getTransitiveDependencies() {
+        Set<String> pluginDependencies = plugin.getDependencies().stream()
+                .map(d -> ArtifactUtils.versionlessKey(d.getGroupId(), d.getArtifactId()))
+                .collect(Collectors.toSet());
         Set<String> allowedDependencies = getAllowedDependencies();
         return getDependentNonOpenLProjects().stream().filter(artifact -> {
             if (isOpenLCoreDependency(artifact.getGroupId())) {
@@ -146,7 +150,8 @@ public class VerifyMojo extends BaseOpenLMojo {
                 return false;
             }
             return true;
-        }).filter(artifact -> {
+        }).filter(artifact -> !pluginDependencies.contains(ArtifactUtils.versionlessKey(artifact)))
+          .filter(artifact -> {
             String tr = artifact.getDependencyTrail().get(1);
             String key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
             return allowedDependencies.contains(key);

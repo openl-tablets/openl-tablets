@@ -13,5 +13,21 @@
 
     <name>Jar Lib</name>
 
+    <dependencies>
+        <dependency>
+            <!-- Test dependency containing Spring and Spring boot dependencies -->
+            <groupId>io.camunda</groupId>
+            <artifactId>zeebe-util</artifactId>
+            <version>8.1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <!-- This version should differ from current OpenL version -->
+            <version>3.5.0</version>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
 
 </project>
