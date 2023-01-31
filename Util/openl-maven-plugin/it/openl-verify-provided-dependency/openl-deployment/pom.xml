@@ -23,9 +23,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <!-- To test duplicated dependencies in classpath -->
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <!-- This dependency exists in OpenL RuleServices -->
             <scope>provided</scope>
+            <!-- This version should differ from current OpenL version -->
             <version>3.5.0</version>
         </dependency>
     </dependencies>
