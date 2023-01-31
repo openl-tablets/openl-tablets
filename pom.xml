@@ -88,8 +88,8 @@
 
         <!-- Managing dependencies versions -->
         <!-- Spring -->
-        <spring.framework.version>5.3.24</spring.framework.version>
-        <spring.boot.version>2.7.7</spring.boot.version>
+        <spring.framework.version>5.3.25</spring.framework.version>
+        <spring.boot.version>2.7.8</spring.boot.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
 
         <!-- Security -->
@@ -112,13 +112,13 @@
         <avro.version>1.11.1</avro.version>
         <zookeeper.version>3.7.1</zookeeper.version>
         <thrift.version>0.17.0</thrift.version>
-        <ant.version>1.10.12</ant.version>
-        <netty.version>4.1.86.Final</netty.version>
-        <reactor-netty-http.version>1.1.1</reactor-netty-http.version>
+        <ant.version>1.10.13</ant.version>
+        <netty.version>4.1.87.Final</netty.version>
+        <reactor-netty-http.version>1.1.2</reactor-netty-http.version>
         <kotlin.stdlib.version>1.7.22</kotlin.stdlib.version>
 
         <!-- REST -->
-        <jackson.version>2.14.1</jackson.version>
+        <jackson.version>2.14.2</jackson.version>
         <cxf.version>3.5.5</cxf.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-frontend-jaxrs:jar -->
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
@@ -152,13 +152,13 @@
         <okhttp.version>4.10.0</okhttp.version>
 
         <!-- Repositories -->
-        <amazonaws.version>1.12.376</amazonaws.version>
-        <azure.version>12.20.1</azure.version>
+        <amazonaws.version>1.12.395</amazonaws.version>
+        <azure.version>12.20.2</azure.version>
         <jgit.version>6.3.0.202209071007-openl-2</jgit.version>
 
         <!-- DB -->
         <h2.version>2.1.214</h2.version>
-        <mssql.version>11.2.2.jre11</mssql.version>
+        <mssql.version>11.2.3.jre11</mssql.version>
         <hikaricp.version>5.0.1</hikaricp.version>
         <hibernate.orm.version>5.6.14.Final</hibernate.orm.version>
         <hibernate.validator.version>6.2.5.Final</hibernate.validator.version>
@@ -203,7 +203,7 @@
         <bouncycastle.version>1.72</bouncycastle.version>
         <groovy.version>3.0.14</groovy.version>
         <poi.version>5.2.3</poi.version>
-        <aspectj.version>1.9.9.1</aspectj.version>
+        <aspectj.version>1.9.19</aspectj.version>
         <velocity.version>2.3</velocity.version>
         <guava.version>31.1-jre</guava.version>
         <joda-time.version>2.12.2</joda-time.version>
