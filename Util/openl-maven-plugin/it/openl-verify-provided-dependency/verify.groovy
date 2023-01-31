@@ -13,8 +13,9 @@ try {
         assert fileNames.contains('META-INF/MANIFEST.MF')
         assert fileNames.contains('Main.xlsx')
         assert fileNames.contains('Module.xlsx')
+        assert fileNames.contains('groovy/OpenLUtils.groovy')
         // There must be no extra files and folders
-        assert zf.entries().findAll { !it.directory }.size() == 4
+        assert zf.entries().findAll { !it.directory }.size() == 5
     }
 
     def project2ZipFile = new File(folder, 'openl-jar-library/target/openl-jar-library-0.0.0.jar')

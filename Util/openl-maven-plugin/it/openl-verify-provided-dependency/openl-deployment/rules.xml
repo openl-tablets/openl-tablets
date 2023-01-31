@@ -5,4 +5,7 @@
             <rules-root path="*.xlsx"/>
         </module>
     </modules>
+    <classpath>
+        <entry path="groovy"/>
+    </classpath>
 </project>
