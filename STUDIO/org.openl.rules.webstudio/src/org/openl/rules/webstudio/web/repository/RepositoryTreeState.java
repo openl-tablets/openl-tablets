@@ -771,7 +771,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanCreateDeployment() {
-        return deployConfigRepositoryAclService.isGranted(
+        return userWorkspace.getDesignTimeRepository().hasDeployConfigRepo() && deployConfigRepositoryAclService
+            .isGranted(
             userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
             null,
             List.of(AclPermission.CREATE)) && userWorkspace.getDesignTimeRepository()

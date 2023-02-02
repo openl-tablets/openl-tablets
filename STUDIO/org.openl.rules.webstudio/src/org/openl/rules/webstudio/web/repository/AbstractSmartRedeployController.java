@@ -335,11 +335,12 @@ public abstract class AbstractSmartRedeployController {
 
             result.add(item);
         }
-        if (!userWorkspace.hasDDProject(projectName) && deployConfigRepositoryAclService.isGranted(
-            userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-            null,
-            List.of(AclPermission.CREATE)) && !isMainBranchProtected(
-                userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
+        if (!userWorkspace.hasDDProject(projectName) && userWorkspace.getDesignTimeRepository()
+            .hasDeployConfigRepo() && deployConfigRepositoryAclService.isGranted(
+                userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+                null,
+                List.of(AclPermission.CREATE)) && !isMainBranchProtected(
+                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);
