@@ -80,6 +80,9 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public ADeploymentProject createDDProject(String name) throws RepositoryException {
+        if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()) {
+            throw new RepositoryException("There is no repository for deployment configurations.");
+        }
         if (deployConfigRepositoryAclService.isGranted(
             userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
             null,

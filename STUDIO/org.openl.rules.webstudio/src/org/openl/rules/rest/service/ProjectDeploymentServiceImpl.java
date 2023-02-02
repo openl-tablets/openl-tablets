@@ -155,8 +155,8 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                     }
                 }
             } else {
-                if (!deployConfigRepositoryAclService.isGranted(deploymentProject,
-                    List.of(AclPermission.EDIT)) || isMainBranchProtected(
+                if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo() || !deployConfigRepositoryAclService
+                    .isGranted(deploymentProject, List.of(AclPermission.EDIT)) || isMainBranchProtected(
                         userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
                     // Don't have permission to edit deploy configuration -
                     // skip it
@@ -239,11 +239,12 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
 
             result.add(item);
         }
-        if (!userWorkspace.hasDDProject(projectName) && deployConfigRepositoryAclService.isGranted(
-            userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-            null,
-            List.of(AclPermission.CREATE)) && !isMainBranchProtected(
-                userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
+        if (!userWorkspace.hasDDProject(projectName) && userWorkspace.getDesignTimeRepository()
+            .hasDeployConfigRepo() && deployConfigRepositoryAclService.isGranted(
+                userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+                null,
+                List.of(AclPermission.CREATE)) && !isMainBranchProtected(
+                    userWorkspace.getDesignTimeRepository().getDeployConfigRepository())) {
             // there is no deployment project with the same name...
             DeploymentProjectItem item = new DeploymentProjectItem();
             item.setName(projectName);

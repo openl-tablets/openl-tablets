@@ -180,8 +180,8 @@ public class RepositoryAclServiceController {
     private void validateRepositoryId(HttpSession session, String repositoryType, String repositoryId) {
         if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType)) {
             UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
-            if (!Objects.equals(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-                repositoryId)) {
+            if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo() || !Objects
+                .equals(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(), repositoryId)) {
                 throw new NotFoundException("repository.message", repositoryId);
             }
         } else if (REPO_TYPE_DESIGN.equals(repositoryType)) {
@@ -210,7 +210,8 @@ public class RepositoryAclServiceController {
             HttpSession session) {
         if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType)) {
             UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
-            if (!Objects.equals(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
+            if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo() || !Objects
+                .equals(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                 repositoryId)) {
                 throw new NotFoundException("repository.message", repositoryId);
             }
