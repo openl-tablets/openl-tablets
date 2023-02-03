@@ -1,0 +1,13 @@
+<project>
+    <name>EPBDS-11992</name>
+    <modules>
+        <module>
+            <name>fieldContextBug</name>
+            <rules-root path="fieldContextBug.xlsx"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="groovy"/>
+        <entry path="jar/*.jar"/>
+    </classpath>
+</project>

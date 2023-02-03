@@ -1,8 +1,10 @@
 package org.openl.rules.serialization;
 
 import java.text.DateFormat;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -21,9 +23,13 @@ import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.AnnotationIntrospector;
+import com.fasterxml.jackson.databind.BeanDescription;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyName;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 
 public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMapperFactory {
 
@@ -308,14 +314,28 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         return enhanceObjectMapper(delegate.createJacksonObjectMapper());
     }
 
-    private void processTypesFromXlsModuleOpenClass(ObjectMapper objectMapper, XlsModuleOpenClass xlsModuleOpenClass) {
+    private static String getRootName(ObjectMapper objectMapper, Class<?> cls) {
+        AnnotationIntrospector introspector = objectMapper.getSerializationConfig().getAnnotationIntrospector();
+        BeanDescription beanDesc = objectMapper.getSerializationConfig().introspectClassAnnotations(cls);
+        AnnotatedClass ac = beanDesc.getClassInfo();
+        PropertyName propertyName = introspector.findRootName(ac);
+        if (propertyName != null && propertyName.hasSimpleName()) {
+            return propertyName.getSimpleName();
+        } else {
+            return cls.getSimpleName();
+        }
+    }
+
+    private void forEachType(XlsModuleOpenClass xlsModuleOpenClass,
+            Consumer<DatatypeOpenClass> datatypeOpenClassConsumer,
+            Consumer<CustomSpreadsheetResultOpenClass> customSpreadsheetResultOpenClassConsumer) {
         for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
             if (type instanceof DatatypeOpenClass) {
-                addMixInAnnotationsToDatatype(objectMapper, (DatatypeOpenClass) type);
+                datatypeOpenClassConsumer.accept((DatatypeOpenClass) type);
             } else if (type instanceof CustomSpreadsheetResultOpenClass) {
-                CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = ((CustomSpreadsheetResultOpenClass) type);
-                if (((CustomSpreadsheetResultOpenClass) type).isGenerateBeanClass()) {
-                    addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
+                CustomSpreadsheetResultOpenClass customResultOpenClass = (CustomSpreadsheetResultOpenClass) type;
+                if (customResultOpenClass.isGenerateBeanClass()) {
+                    customSpreadsheetResultOpenClassConsumer.accept((CustomSpreadsheetResultOpenClass) type);
                 }
             }
         }
@@ -324,16 +344,34 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             for (CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass : xlsModuleOpenClass
                 .getCombinedSpreadsheetResultOpenClasses()) {
                 if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                    addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
+                    customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
                 }
             }
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = xlsModuleOpenClass
                 .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                 .toCustomSpreadsheetResultOpenClass();
             if (customSpreadsheetResultOpenClass.isGenerateBeanClass()) {
-                addMixInAnnotationsToSprBeanClass(objectMapper, customSpreadsheetResultOpenClass);
+                customSpreadsheetResultOpenClassConsumer.accept(customSpreadsheetResultOpenClass);
             }
         }
+    }
+
+    private void processTypesFromXlsModuleOpenClass(ObjectMapper objectMapper, XlsModuleOpenClass xlsModuleOpenClass) {
+        Map<Class<?>, String> clsToRootName = new HashMap<>();
+
+        forEachType(xlsModuleOpenClass,
+            e -> clsToRootName.put(e.getInstanceClass(), getRootName(objectMapper, e.getInstanceClass())),
+            e -> clsToRootName.put(e.getBeanClass(), getRootName(objectMapper, e.getBeanClass())));
+
+        Map<Class<?>, String> conflictedRootNames = new HashMap<>();
+        for (Class<?> cls : clsToRootName.keySet()) {
+            if (clsToRootName.values().stream().filter(e -> Objects.equals(e, clsToRootName.get(cls))).count() > 1) {
+                conflictedRootNames.put(cls, cls.getName());
+            }
+        }
+        forEachType(xlsModuleOpenClass,
+            e -> addMixInAnnotationsToDatatype(objectMapper, e, conflictedRootNames.get(e.getInstanceClass())),
+            e -> addMixInAnnotationsToSprBeanClass(objectMapper, e, conflictedRootNames.get((e.getBeanClass()))));
     }
 
     protected ObjectMapper enhanceObjectMapper(ObjectMapper objectMapper) {
@@ -399,40 +437,51 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     private void addMixInAnnotationsToSprBeanClass(ObjectMapper objectMapper,
-            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass) {
+            CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
+            String rootName) {
         Class<?> sprBeanClass = customSpreadsheetResultOpenClass.getBeanClass();
         Class<?> originalMixInClass = objectMapper.findMixInClassFor(sprBeanClass);
         Class<?> mixInClass = enhanceMixInClassForSprBeanClass(
             originalMixInClass != null ? originalMixInClass : NonNullMixIn.class,
+            rootName,
             getClassLoader());
         objectMapper.addMixIn(sprBeanClass, mixInClass);
     }
 
-    private void addMixInAnnotationsToDatatype(ObjectMapper objectMapper, DatatypeOpenClass datatypeOpenClass) {
+    private void addMixInAnnotationsToDatatype(ObjectMapper objectMapper,
+            DatatypeOpenClass datatypeOpenClass,
+            String rootName) {
         Class<?> originalMixInClass = objectMapper.findMixInClassFor(datatypeOpenClass.getInstanceClass());
         Class<?> mixInClass = enhanceMixInClassForDatatypeClass(
             originalMixInClass != null ? originalMixInClass : NonNullMixIn.class,
+            rootName,
             getClassLoader());
         objectMapper.addMixIn(datatypeOpenClass.getInstanceClass(), mixInClass);
     }
 
-    private Class<?> enhanceMixInClassForSprBeanClass(Class<?> originalMixInClass, ClassLoader classLoader) {
+    private Class<?> enhanceMixInClassForSprBeanClass(Class<?> originalMixInClass,
+            String rootName,
+            ClassLoader classLoader) {
         String className = originalMixInClass.getName() + "$EnhancedMixInClassForSprBeanClass$" + incrementer
             .getAndIncrement();
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new SpreadsheetResultBeanClassMixInAnnotationsWriter(classWriter,
             className,
-            originalMixInClass);
+            originalMixInClass,
+            rootName);
         return defineAndLoadClass(originalMixInClass, classLoader, className, classWriter, classVisitor);
     }
 
-    private Class<?> enhanceMixInClassForDatatypeClass(Class<?> originalMixInClass, ClassLoader classLoader) {
+    private Class<?> enhanceMixInClassForDatatypeClass(Class<?> originalMixInClass,
+            String rootName,
+            ClassLoader classLoader) {
         String className = originalMixInClass.getName() + "$EnhancedMixInClassForDatatypeClass$" + incrementer
             .getAndIncrement();
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new DatatypeOpenClassMixInAnnotationsWriter(classWriter,
             className,
-            originalMixInClass);
+            originalMixInClass,
+            rootName);
         return defineAndLoadClass(originalMixInClass, classLoader, className, classWriter, classVisitor);
     }
 
