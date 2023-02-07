@@ -21,6 +21,7 @@ import org.openl.util.StringUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 
@@ -36,6 +37,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     public static final String JACKSON_FAIL_ON_UNKNOWN_PROPERTIES = "jackson.failOnUnknownProperties";
     public static final String JACKSON_FAIL_ON_EMPTY_BEANS = "jackson.failOnEmptyBeans";
     public static final String JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE = "jackson.simpleClassNameAsTypingPropertyValue";
+    public static final String JACKSON_JSON_TYPE_INFO_ID = "jackson.jsonTypeInfoId";
     public static final String JACKSON_TYPING_PROPERTY_NAME = "jackson.typingPropertyName";
     public static final String JACKSON_PROPERTY_NAMING_STRATEGY = "jackson.propertyNamingStrategy";
 
@@ -104,6 +106,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 processJacksonTypingPropertyNameSetting(configuration.get(JACKSON_TYPING_PROPERTY_NAME));
                 processJacksonSimpleClassNameAsTypingPropertyValueSetting(
                     configuration.get(JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE));
+                processJacksonJsonTypeInfoIdSetting(configuration.get(JACKSON_JSON_TYPE_INFO_ID));
             }
         }
         processRootClassNamesBindingSetting(
@@ -236,6 +239,22 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                 throw new ObjectMapperConfigurationParsingException(
                     String.format("Expected string value for '%s' in the configuration for service '%s'.",
                         JACKSON_TYPING_PROPERTY_NAME,
+                        rulesDeploy.getServiceName()));
+            }
+        }
+    }
+
+    protected void processJacksonJsonTypeInfoIdSetting(Object jsonTypeInfoId) {
+        if (jsonTypeInfoId != null) {
+            if (jsonTypeInfoId instanceof JsonTypeInfo.Id) {
+                delegate.setJsonTypeInfoId((JsonTypeInfo.Id) jsonTypeInfoId);
+            } else if (jsonTypeInfoId instanceof String) {
+                JsonTypeInfo.Id jtiId = JsonTypeInfo.Id.valueOf(((String) jsonTypeInfoId).trim());
+                delegate.setJsonTypeInfoId(jtiId);
+            } else {
+                throw new ObjectMapperConfigurationParsingException(
+                    String.format("Expected string value for '%s' in the configuration for service '%s'.",
+                        JACKSON_JSON_TYPE_INFO_ID,
                         rulesDeploy.getServiceName()));
             }
         }
@@ -535,7 +554,11 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         delegate.setObjectMapperFactory(objectMapperFactory);
     }
 
-    public void setSimpleClassNameAsTypingPropertyValue(boolean simpleClassNameAsTypingPropertyValue) {
+    public Boolean isSimpleClassNameAsTypingPropertyValue() {
+        return delegate.isSimpleClassNameAsTypingPropertyValue();
+    }
+
+    public void setSimpleClassNameAsTypingPropertyValue(Boolean simpleClassNameAsTypingPropertyValue) {
         delegate.setSimpleClassNameAsTypingPropertyValue(simpleClassNameAsTypingPropertyValue);
     }
 
@@ -547,7 +570,19 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         return delegate.isFailOnEmptyBeans();
     }
 
+    public String getTypingPropertyName() {
+        return delegate.getTypingPropertyName();
+    }
+
     public void setTypingPropertyName(String typingPropertyName) {
         delegate.setTypingPropertyName(typingPropertyName);
+    }
+
+    public JsonTypeInfo.Id getJsonTypeInfoId() {
+        return delegate.getJsonTypeInfoId();
+    }
+
+    public void setJsonTypeInfoId(JsonTypeInfo.Id jsonTypeInfoId) {
+        delegate.setJsonTypeInfoId(jsonTypeInfoId);
     }
 }
