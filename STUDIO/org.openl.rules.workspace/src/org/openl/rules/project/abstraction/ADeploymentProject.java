@@ -13,6 +13,8 @@ import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.xml.bind.JAXBException;
+
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectDescriptor;
@@ -32,15 +34,12 @@ import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.JAXBException;
-
 /**
  * This class stores only deploy configuration, not deployed projects! For the latter see {@link Deployment} class.
  */
 public class ADeploymentProject extends UserWorkspaceProject {
     private static final Logger LOG = LoggerFactory.getLogger(ADeploymentProject.class);
 
-    private ProjectDescriptorSerializer descriptorSerializer;
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
     /* this button is used for rendering the save button (only for deploy configuration) */
@@ -143,18 +142,18 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public void save(CommonUser user) throws ProjectException {
         synchronized (this) {
-            ByteArrayOutputStream out;
+            InputStream inputStream;
             try {
-                if (descriptorSerializer == null) {
-                    descriptorSerializer = new ProjectDescriptorSerializer();
-                }
-                out = descriptorSerializer.serialize(descriptors);
+                inputStream = new ProjectDescriptorSerializer().serialize(descriptors);
             } catch (IOException | JAXBException e) {
                 throw new ProjectException(e.getMessage(), e);
             }
             if (getRepository().supports().folders()) {
                 FileData fileData = getFileData();
                 try {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    IOUtils.copyAndClose(inputStream, out);
+
                     fileData.setAuthor(user == null ? null : user.getUserInfo());
                     fileData.setSize(out.size());
 
@@ -170,11 +169,15 @@ public class ADeploymentProject extends UserWorkspaceProject {
                 FileData fileData = getFileData();
                 ZipOutputStream zipOutputStream = null;
                 try {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
                     zipOutputStream = new ZipOutputStream(out);
 
                     ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
                     zipOutputStream.putNextEntry(entry);
 
+                    IOUtils.copy(inputStream, zipOutputStream);
+
+                    inputStream.close();
                     zipOutputStream.closeEntry();
 
                     zipOutputStream.close();
@@ -255,8 +258,9 @@ public class ADeploymentProject extends UserWorkspaceProject {
             try {
                 FileData folder = getRepository().check(getFolderPath());
                 if (folder != null) {
-                    //Determine whether the deployment project has been modified by other WebStudio instances or manually, if so, then refresh it.
-                    //do not refresh the project if it is open
+                    // Determine whether the deployment project has been modified by other WebStudio instances or
+                    // manually, if so, then refresh it.
+                    // do not refresh the project if it is open
                     Date modifiedAt = folder.getModifiedAt();
                     if (!isOpened() && !modifiedAt.equals(getFileData().getModifiedAt())) {
                         super.refresh();
@@ -276,10 +280,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     try {
                         content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE))
                             .getContent();
-                        if (descriptorSerializer == null) {
-                            descriptorSerializer = new ProjectDescriptorSerializer();
-                        }
-                        List<ProjectDescriptor> newDescriptors = descriptorSerializer.deserialize(content);
+                        List<ProjectDescriptor> newDescriptors = new ProjectDescriptorSerializer().deserialize(content);
                         if (newDescriptors != null) {
                             descriptors = newDescriptors;
                         }

@@ -1,5 +1,6 @@
 package org.openl.rules.project.abstraction;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,10 +32,10 @@ public class ProjectDescriptorSerializer {
     }
 
     @SuppressWarnings({ "rawtypes" })
-    public ByteArrayOutputStream serialize(List<ProjectDescriptor> descriptors) throws IOException, JAXBException {
+    public InputStream serialize(List<ProjectDescriptor> descriptors) throws IOException, JAXBException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             jaxbSerializer.marshal(new Wrapper(descriptors), outputStream);
-            return outputStream;
+            return new ByteArrayInputStream(outputStream.toByteArray());
         }
     }
 
