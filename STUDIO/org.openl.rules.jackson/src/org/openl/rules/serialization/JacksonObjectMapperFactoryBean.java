@@ -100,7 +100,10 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
 
     private ObjectMapperFactory objectMapperFactory = DefaultObjectMapperFactory.getInstance();
 
-    private boolean simpleClassNameAsTypingPropertyValue = false;
+    @Deprecated
+    private Boolean simpleClassNameAsTypingPropertyValue;
+
+    private JsonTypeInfo.Id jsonTypeInfoId = JsonTypeInfo.Id.CLASS;
 
     private String typingPropertyName = JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
 
@@ -133,8 +136,9 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
             originalClass,
             parentTypeClass,
             subTypeClasses.toArray(new Class<?>[0]),
-            typingPropertyName,
-            isSimpleClassNameAsTypingPropertyValue());
+            Boolean.TRUE.equals(isSimpleClassNameAsTypingPropertyValue()) && JsonTypeInfo.Id.CLASS
+                .equals(getJsonTypeInfoId()) ? JsonTypeInfo.Id.NAME : getJsonTypeInfoId(),
+            typingPropertyName);
         InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className);
         transformer.accept(classVisitor);
         classWriter.visitEnd();
@@ -489,11 +493,22 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         this.typingPropertyName = typingPropertyName;
     }
 
-    public boolean isSimpleClassNameAsTypingPropertyValue() {
+    public Boolean isSimpleClassNameAsTypingPropertyValue() {
         return simpleClassNameAsTypingPropertyValue;
     }
 
-    public void setSimpleClassNameAsTypingPropertyValue(boolean simpleClassNameAsTypingPropertyValue) {
+    public void setSimpleClassNameAsTypingPropertyValue(Boolean simpleClassNameAsTypingPropertyValue) {
         this.simpleClassNameAsTypingPropertyValue = simpleClassNameAsTypingPropertyValue;
+    }
+
+    public JsonTypeInfo.Id getJsonTypeInfoId() {
+        return jsonTypeInfoId;
+    }
+
+    public void setJsonTypeInfoId(JsonTypeInfo.Id jsonTypeInfoId) {
+        if (jsonTypeInfoId == null) {
+            throw new IllegalArgumentException("jsonTypeInfoId cannot be null");
+        }
+        this.jsonTypeInfoId = jsonTypeInfoId;
     }
 }

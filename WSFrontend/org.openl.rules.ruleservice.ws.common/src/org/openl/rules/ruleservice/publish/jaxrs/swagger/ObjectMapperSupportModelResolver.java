@@ -144,12 +144,10 @@ public class ObjectMapperSupportModelResolver extends ModelResolver {
             Discriminator discriminator = new Discriminator().propertyName(disc);
             if (declaredSchemaAnnotation != null) {
                 DiscriminatorMapping[] mappings = declaredSchemaAnnotation.discriminatorMapping();
-                if (mappings.length > 0) {
-                    for (DiscriminatorMapping mapping : mappings) {
-                        if (!mapping.value().isEmpty() && !mapping.schema().equals(Void.class)) {
-                            discriminator.mapping(mapping.value(),
-                                constructRef(context.resolve(new AnnotatedType().type(mapping.schema())).getName()));
-                        }
+                for (DiscriminatorMapping mapping : mappings) {
+                    if (!mapping.value().isEmpty() && !mapping.schema().equals(Void.class)) {
+                        discriminator.mapping(mapping.value(),
+                            constructRef(context.resolve(new AnnotatedType().type(mapping.schema())).getName()));
                     }
                 }
             }

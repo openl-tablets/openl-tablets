@@ -65,6 +65,7 @@ public class KafkaProjectJacksonObjectMapperFactoryBean extends ProjectJacksonOb
         processJacksonDefaultDateFormatSetting(getConfigurationValue(JACKSON_DEFAULT_DATE_FORMAT));
         processJacksonDefaultTypingModeSetting(getConfigurationValue(JACKSON_DEFAULT_TYPING_MODE));
         processJacksonSerializationInclusionSetting(getConfigurationValue(JACKSON_SERIALIZATION_INCLUSION));
+        processJacksonJsonTypeInfoIdSetting(getConfigurationValue(JACKSON_JSON_TYPE_INFO_ID));
     }
 
     private Object getConfigurationValue(String configurationProperty) {
