@@ -3,7 +3,6 @@ package org.openl.rules.project.abstraction;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,6 +11,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.xml.bind.JAXBException;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,8 +27,6 @@ import org.xmlunit.diff.Difference;
 import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelectors;
 
-import javax.xml.bind.JAXBException;
-
 public class ProjectDescriptorSerializerTest {
 
     private ProjectDescriptorSerializer serializer;
@@ -39,16 +38,14 @@ public class ProjectDescriptorSerializerTest {
 
     @Test
     public void serializeTest() throws IOException, JAXBException {
-        assertXml(new FileInputStream("test-resources/xml/descriptor1.xml"),
-                new ByteArrayInputStream(serializer.serialize(makeDescriptors()).toByteArray()));
+        assertXml(new FileInputStream("test-resources/xml/descriptor1.xml"), serializer.serialize(makeDescriptors()));
     }
 
     @Test
     public void serializeEmpty() throws IOException, JAXBException {
+        assertXml(new FileInputStream("test-resources/xml/empty_descriptor.xml"), serializer.serialize(null));
         assertXml(new FileInputStream("test-resources/xml/empty_descriptor.xml"),
-                new ByteArrayInputStream(serializer.serialize(null).toByteArray()));
-        assertXml(new FileInputStream("test-resources/xml/empty_descriptor.xml"),
-                new ByteArrayInputStream(serializer.serialize(Collections.emptyList()).toByteArray()));
+            serializer.serialize(Collections.emptyList()));
     }
 
     @Test
@@ -69,9 +66,9 @@ public class ProjectDescriptorSerializerTest {
     @Test
     @SuppressWarnings("rawtypes")
     public void checkCompatability() throws IOException, JAXBException {
-        String xml = IOUtils.toStringAndClose(new ByteArrayInputStream(serializer.serialize(makeDescriptors()).toByteArray()));
+        String xml = IOUtils.toStringAndClose(serializer.serialize(makeDescriptors()));
         List<ProjectDescriptor> result = serializer.deserialize(IOUtils.toInputStream(xml));
-        assertXml(xml, IOUtils.toStringAndClose(new ByteArrayInputStream(serializer.serialize(result).toByteArray())));
+        assertXml(xml, IOUtils.toStringAndClose(serializer.serialize(result)));
 
         List<ProjectDescriptor> expected = makeDescriptors();
         assertEquals(expected.size(), result.size());
