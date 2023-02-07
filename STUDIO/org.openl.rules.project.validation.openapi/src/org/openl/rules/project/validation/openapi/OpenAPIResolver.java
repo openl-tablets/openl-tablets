@@ -56,10 +56,9 @@ final class OpenAPIResolver {
                         }
                     }
                 }
-            } else {
-                if (resolvedSchema.getProperties() != null) {
-                    allSchemaProperties.putAll(resolvedSchema.getProperties());
-                }
+            }
+            if (resolvedSchema.getProperties() != null) {
+                allSchemaProperties.putAll(resolvedSchema.getProperties());
             }
             if (resolvedSchema != schema) {
                 allPropertiesCache.put(resolvedSchema, allSchemaProperties);
