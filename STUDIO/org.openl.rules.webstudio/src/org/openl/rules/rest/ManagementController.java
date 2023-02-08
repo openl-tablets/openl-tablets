@@ -123,9 +123,9 @@ public class ManagementController {
         uiGroup.privileges
             .addAll(getGroupUiPrivileges(() -> designRepositoryAclService.listRootPermissions(grantedAuthoritySidList),
                 DESIGN_PRIVILEGES::get));
-        uiGroup.privileges.addAll(getGroupUiPrivileges(
-            () -> deployConfigRepositoryAclService.listPermissions("deploy-config", null, grantedAuthoritySidList),
-            DEPLOY_CONFIG_PRIVILEGES::get));
+        uiGroup.privileges.addAll(
+            getGroupUiPrivileges(() -> deployConfigRepositoryAclService.listRootPermissions(grantedAuthoritySidList),
+                DEPLOY_CONFIG_PRIVILEGES::get));
         return uiGroup;
     }
 
@@ -176,8 +176,7 @@ public class ManagementController {
                                : privileges.stream().filter(databasePrivileges::contains).collect(Collectors.toSet()));
         GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(name);
         designRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
-        deployConfigRepositoryAclService
-            .removePermissions("deploy-config", null, Collections.singletonList(grantedAuthoritySid));
+        deployConfigRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
         productionRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
         if (privileges != null) {
             List<Permission> designPermissions = privileges.stream()
@@ -191,9 +190,7 @@ public class ManagementController {
                 .map(DEPLOY_CONFIG_PRIVILEGES::getKey)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-            deployConfigRepositoryAclService.addPermissions("deploy-config",
-                null,
-                deployConfigPermissions,
+            deployConfigRepositoryAclService.addRootPermissions(deployConfigPermissions,
                 Collections.singletonList(grantedAuthoritySid));
 
             List<Permission> productionPermissions = privileges.stream()
@@ -251,7 +248,7 @@ public class ManagementController {
         DEPLOY_CONFIG_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(deployConfigPrivileges);
 
         BidiMap<Permission, String> productionPrivileges = new DualLinkedHashBidiMap<>();
-        productionPrivileges.put(AclPermission.DEPLOY, "DEPLOY_PROJECTS");
+        productionPrivileges.put(AclPermission.EDIT, "DEPLOY_PROJECTS");
         PRODUCTION_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(productionPrivileges);
 
         Map<String, String> privileges = new LinkedHashMap<>();
