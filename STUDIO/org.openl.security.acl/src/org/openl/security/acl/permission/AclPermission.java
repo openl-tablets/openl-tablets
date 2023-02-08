@@ -109,6 +109,6 @@ public class AclPermission extends BasePermission {
     }
 
     public static AclPermission[] values() {
-        return new AclPermission[] { VIEW, EDIT, CREATE, ADD, ARCHIVE, DEPLOY, DEPLOY, RUN, BENCHMARK };
+        return new AclPermission[] { VIEW, EDIT, CREATE, ADD, ARCHIVE, DELETE, DEPLOY, RUN, BENCHMARK };
     }
 }
