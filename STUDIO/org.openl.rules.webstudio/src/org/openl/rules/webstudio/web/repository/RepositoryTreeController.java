@@ -2490,8 +2490,13 @@ public class RepositoryTreeController {
 
     public boolean getCanDeleteDeployment() {
         UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject != null) {
-            return deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.ARCHIVE));
+        return getCanDeleteDeployment(selectedProject);
+    }
+
+    public boolean getCanDeleteDeployment(UserWorkspaceProject project) {
+        if (project instanceof ADeploymentProject) {
+            return deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE)) && !project
+                .isBranchProtected() && (!project.isLocked() || project.isLockedByMe());
         }
         return false;
     }
