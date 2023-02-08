@@ -13,21 +13,21 @@ public class AclPermission extends BasePermission {
 
     public static final AclPermission VIEW = new AclPermission(1 << MASK_END | DESIGN_REPOSITORY_READ.getMask(), 'V');
     public static final AclPermission CREATE = new AclPermission(2 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(),
-        'C');
+        'N');
     public static final AclPermission ADD = new AclPermission(3 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(), 'A');
     public static final AclPermission EDIT = new AclPermission(
         4 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask() | DESIGN_REPOSITORY_CREATE
             .getMask() | DESIGN_REPOSITORY_DELETE.getMask(),
-        'W');
+        'E');
     public static final AclPermission ARCHIVE = new AclPermission(5 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask(),
         'A');
     public static final AclPermission DELETE = new AclPermission(6 << MASK_END | DESIGN_REPOSITORY_DELETE.getMask(),
-        'D');
+        'E');
 
     public static final AclPermission DEPLOY = new AclPermission(11 << MASK_END, 'Y');
 
     public static final AclPermission RUN = new AclPermission(12 << MASK_END, 'X');
-    public static final AclPermission BENCHMARK = new AclPermission(13 << MASK_END, 'X');
+    public static final AclPermission BENCHMARK = new AclPermission(13 << MASK_END, 'B');
 
     protected AclPermission(int mask) {
         super(mask);

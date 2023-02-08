@@ -368,6 +368,10 @@ public class RepositoryTreeController {
     public String closeProject() {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
+            if (!designRepositoryAclService.isGranted(repositoryProject, List.of(AclPermission.VIEW))) {
+                WebStudioUtils.addErrorMessage("The is no permission for closing the project.");
+                return null;
+            }
             ProjectHistoryService.deleteHistory(repositoryProject.getBusinessName());
             closeProjectAndReleaseResources(repositoryProject);
             repositoryTreeState.refreshSelectedNode();
@@ -1674,7 +1678,6 @@ public class RepositoryTreeController {
 
     public SelectItem[] getSelectedProjectVersions() {
         Collection<ProjectVersion> versions = repositoryTreeState.getSelectedNode().getVersions();
-
         return toSelectItems(versions);
     }
 
@@ -1702,6 +1705,10 @@ public class RepositoryTreeController {
     public String openProject() {
         try {
             UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+                WebStudioUtils.addErrorMessage("The is no permission for opening the project.");
+                return null;
+            }
             if (userWorkspace.isOpenedOtherProject(project)) {
                 WebStudioUtils.addErrorMessage(OPENED_OTHER_PROJECT);
                 return null;
@@ -1758,6 +1765,10 @@ public class RepositoryTreeController {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
             if (repositoryProject == null) {
                 WebStudioUtils.addErrorMessage("Project version is not selected.");
+                return null;
+            }
+            if (!designRepositoryAclService.isGranted(repositoryProject, List.of(AclPermission.VIEW))) {
+                WebStudioUtils.addErrorMessage("The is no permission for opening the project.");
                 return null;
             }
             if (!UiConst.TYPE_DEPLOYMENT_PROJECT.equals(repositoryTreeState.getSelectedNode().getType())) {

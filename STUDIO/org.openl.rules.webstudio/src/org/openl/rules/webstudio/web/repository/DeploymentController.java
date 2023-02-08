@@ -129,12 +129,12 @@ public class DeploymentController {
         }
         if (project.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
             if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
-                WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
+                WebStudioUtils.addErrorMessage("The is no permission for editing the deployment configuration.");
                 return null;
             }
         } else {
             if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE))) {
-                WebStudioUtils.addErrorMessage("The is no permission for adding deployment configuration.");
+                WebStudioUtils.addErrorMessage("The is no permission for adding a deployment configuration.");
                 return null;
             }
         }
@@ -185,7 +185,7 @@ public class DeploymentController {
                 return null;
             }
             if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.EDIT))) {
-                WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
+                WebStudioUtils.addErrorMessage("The is no permission for editing the deployment configuration.");
                 return null;
             }
             synchronized (selectedProject) {
@@ -205,8 +205,8 @@ public class DeploymentController {
     public String open() {
         try {
             ADeploymentProject selectedProject = getSelectedProject();
-            if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.EDIT))) {
-                WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
+            if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW))) {
+                WebStudioUtils.addErrorMessage("The is no permission for opening the deployment configuration.");
                 return null;
             }
             selectedProject.open();
@@ -221,7 +221,12 @@ public class DeploymentController {
 
     public String close() {
         try {
-            getSelectedProject().close();
+            ADeploymentProject selectedProject = getSelectedProject();
+            if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW))) {
+                WebStudioUtils.addErrorMessage("The is no permission for closing the deployment configuration.");
+                return null;
+            }
+            selectedProject.close();
             items = null;
         } catch (ProjectException e) {
             LOG.error("Failed to close.", e);
@@ -239,12 +244,12 @@ public class DeploymentController {
         }
         if (project.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
             if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
-                WebStudioUtils.addErrorMessage("The is no permission for editing deployment configuration.");
+                WebStudioUtils.addErrorMessage("The is no permission for editing the deployment configuration.");
                 return null;
             }
         } else {
             if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE))) {
-                WebStudioUtils.addErrorMessage("The is no permission for adding deployment configuration.");
+                WebStudioUtils.addErrorMessage("The is no permission for adding a deployment configuration.");
                 return null;
             }
         }
