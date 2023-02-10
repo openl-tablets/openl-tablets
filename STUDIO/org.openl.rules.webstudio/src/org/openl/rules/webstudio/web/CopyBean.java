@@ -291,7 +291,8 @@ public class CopyBean {
                     designRepository,
                     designProject.getFileData(),
                     userWorkspace.getProjectsLockEngine());
-                if (!designRepositoryAclService.createAcl(copiedProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
+                if (!designRepositoryAclService
+                    .createAcl(copiedProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS, true)) {
                     String message = "Granting permissions to the project is failed.";
                     WebStudioUtils.addErrorMessage(message);
                 }

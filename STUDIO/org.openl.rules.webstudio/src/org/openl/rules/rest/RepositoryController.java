@@ -436,7 +436,7 @@ public class RepositoryController {
             }
             if (existing == null) {
                 designRepositoryAclService
-                    .createAcl(repositoryId, fileName, AclPermissionsSets.NEW_PROJECT_PERMISSIONS);
+                    .createAcl(repositoryId, fileName, AclPermissionsSets.NEW_PROJECT_PERMISSIONS, true);
             }
             userWorkspace.getProject(repositoryId, name).unlock();
             return ResponseEntity.created(new URI(uri + "/" + StringTool.encodeURL(save.getVersion()))).build();

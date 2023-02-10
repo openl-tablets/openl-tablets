@@ -1,6 +1,7 @@
 package org.openl.rules.rest;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,18 +54,21 @@ public class ProjectManagementController {
     private final DeploymentManager deploymentManager;
     private final ProjectStateValidator projectStateValidator;
     private final RepositoryAclService designRepositoryAclService;
+    private final RepositoryAclService deployConfigRepositoryAclService;
 
     @Autowired
     public ProjectManagementController(ProjectDependencyResolver projectDependencyResolver,
             ProjectDeploymentService projectDeploymentService,
             DeploymentManager deploymentManager,
             ProjectStateValidator projectStateValidator,
-            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
+            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService) {
         this.projectDependencyResolver = projectDependencyResolver;
         this.projectDeploymentService = projectDeploymentService;
         this.deploymentManager = deploymentManager;
         this.projectStateValidator = projectStateValidator;
         this.designRepositoryAclService = designRepositoryAclService;
+        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
     }
 
     @Lookup
@@ -215,9 +219,6 @@ public class ProjectManagementController {
             @RequestBody String[] items) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DEPLOY))) {
-                throw new SecurityException();
-            }
             if (!projectStateValidator.canDeploy(project)) {
                 if (project.isDeleted()) {
                     throw new ConflictException("project.deploy.deleted.message");
@@ -226,14 +227,21 @@ public class ProjectManagementController {
             }
             List<DeploymentProjectItem> deploymentProjectItems = projectDeploymentService
                 .getDeploymentProjectItems(project, repo.getId());
+            List<ADeploymentProject> deploymentProjectsToDeploy = new ArrayList<>();
             for (String item : items) {
                 Optional<DeploymentProjectItem> deploymentProjectItem = deploymentProjectItems.stream()
                     .filter(p -> p.getName().equals(item))
                     .findFirst();
                 if (deploymentProjectItem.isPresent() && deploymentProjectItem.get().isCanDeploy()) {
                     ADeploymentProject deploymentProject = projectDeploymentService.update(item, project, repo.getId());
-                    deploymentManager.deploy(deploymentProject, deployRepoName);
+                    if (!deployConfigRepositoryAclService.isGranted(deploymentProject, List.of(AclPermission.DEPLOY))) {
+                        throw new SecurityException();
+                    }
+                    deploymentProjectsToDeploy.add(deploymentProject);
                 }
+            }
+            for (ADeploymentProject deploymentProject : deploymentProjectsToDeploy) {
+                deploymentManager.deploy(deploymentProject, deployRepoName);
             }
         } catch (ProjectException e) {
             throw new NotFoundException("project.message", name);
@@ -256,7 +264,7 @@ public class ProjectManagementController {
         // A payload within a DELETE request message has no defined semantics; sending a payload body on a DELETE request might cause some existing implementations to reject the request.
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canDelete(project)) {
@@ -289,7 +297,7 @@ public class ProjectManagementController {
             @RequestParam(value = "comment", required = false) final String comment) {
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ERASE))) {
                 throw new SecurityException();
             }
             if (!projectStateValidator.canErase(project)) {

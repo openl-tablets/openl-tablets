@@ -58,7 +58,7 @@ public class DisabledRepositoryAclServiceImpl extends DisabledSimpleRepositoryAc
     }
 
     @Override
-    public boolean createAcl(AProjectArtefact artefact, List<Permission> permissions) {
+    public boolean createAcl(AProjectArtefact artefact, List<Permission> permissions, boolean force) {
         return true;
     }
 

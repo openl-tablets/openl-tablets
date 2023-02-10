@@ -90,6 +90,14 @@ public class SecureRepository implements Repository {
         }
     }
 
+    protected void checkDeleteHistoryPermission(String name) throws IOException {
+        if (!simpleRepositoryAclService
+            .isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_DELETE_HISTORY))) {
+            throw new AccessDeniedException(String
+                .format("There is no permission for deleting resource '%s' from '%s' repository.", name, getName()));
+        }
+    }
+
     @Override
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         for (FileItem fileItem : fileItems) {
@@ -137,7 +145,7 @@ public class SecureRepository implements Repository {
 
     @Override
     public boolean deleteHistory(FileData data) throws IOException {
-        checkDeletePermission(data.getName());
+        checkDeleteHistoryPermission(data.getName());
         return repository.deleteHistory(data);
     }
 

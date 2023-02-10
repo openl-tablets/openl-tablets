@@ -55,7 +55,7 @@ public class AclServiceTest {
         Sid sid = new PrincipalSid("Samantha");
         acl.insertAce(acl.getEntries().size(), AclPermission.EDIT, sid, true);
         acl.insertAce(acl.getEntries().size(), AclPermission.VIEW, sid, true);
-        acl.insertAce(acl.getEntries().size(), AclPermission.ARCHIVE, sid, false);
+        acl.insertAce(acl.getEntries().size(), AclPermission.DELETE, sid, false);
 
         // Authority Permissions
         Sid sid1 = new GrantedAuthoritySid("Samantha");
@@ -70,7 +70,7 @@ public class AclServiceTest {
 
         Assert.assertTrue(acl.isGranted(List.of(AclPermission.EDIT), List.of(sid), false));
         Assert.assertTrue(acl.isGranted(List.of(AclPermission.VIEW), List.of(sid), false));
-        Assert.assertFalse(acl.isGranted(List.of(AclPermission.ARCHIVE), List.of(sid), false));
+        Assert.assertFalse(acl.isGranted(List.of(AclPermission.DELETE), List.of(sid), false));
         // Authority Permissions
         Assert.assertFalse(acl.isGranted(List.of(AclPermission.EDIT), List.of(sid1), false));
     }

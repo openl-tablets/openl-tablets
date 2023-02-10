@@ -149,9 +149,9 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
 
     @Override
     @Transactional
-    public boolean createAcl(AProjectArtefact projectArtefact, List<Permission> permissions) {
+    public boolean createAcl(AProjectArtefact projectArtefact, List<Permission> permissions, boolean force) {
         ObjectIdentity oi = buildObjectIdentity(projectArtefact);
-        return createAcl(oi, permissions);
+        return createAcl(oi, permissions, force);
     }
 
     @Override

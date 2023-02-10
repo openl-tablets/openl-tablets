@@ -31,7 +31,7 @@ public interface RepositoryAclService extends SimpleRepositoryAclService {
 
     boolean isGranted(AProjectArtefact projectArtefact, List<Permission> permissions);
 
-    boolean createAcl(AProjectArtefact projectArtefact, List<Permission> permissions);
+    boolean createAcl(AProjectArtefact projectArtefact, List<Permission> permissions, boolean force);
 
     Sid getOwner(AProjectArtefact projectArtefact);
 

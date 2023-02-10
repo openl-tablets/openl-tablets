@@ -325,7 +325,8 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                 // the same name, then create if absent
                 deployConfiguration = userWorkspace.createDDProject(deploymentName);
                 if (!deployConfigRepositoryAclService.createAcl(deployConfiguration,
-                    AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS)) {
+                    AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS,
+                    true)) {
                     String message = "Granting permissions to the deployment configuration is failed.";
                     WebStudioUtils.addErrorMessage(message);
                 }

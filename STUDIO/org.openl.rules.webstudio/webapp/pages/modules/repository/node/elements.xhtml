@@ -1,9 +1,9 @@
 <ui:composition
-  xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:rich="http://richfaces.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:c="http://java.sun.com/jsp/jstl/core">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+>
 
   <rich:dataTable value="#{node.childNodes}" var="el" styleClass="table" rendered="#{not empty node.childNodes}">
     <f:facet name="header">
@@ -29,10 +29,11 @@
       </rich:column>
       <rich:column style="text-align: center;" rendered="#{ el.type != 'prodproject' and artefact.project != null}" >
         <h:commandLink action="#{repositoryTreeController.deleteElement}"
-          immediate="true"
-          onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
-          rendered="#{repositoryTreeState.canModify and artefact.project.openedForEditing}" title="Delete" styleClass="delete-icon">
-          <f:param name="element" value="#{el.name}" />
+                       immediate="true"
+                       onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
+                       rendered="#{repositoryTreeState.canDeleteNode and artefact.project.openedForEditing}"
+                       title="Delete" styleClass="delete-icon">
+            <f:param name="element" value="#{el.name}"/>
         </h:commandLink>
       </rich:column>
   </rich:dataTable>

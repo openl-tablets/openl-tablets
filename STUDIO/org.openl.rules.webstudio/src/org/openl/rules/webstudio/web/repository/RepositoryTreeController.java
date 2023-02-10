@@ -582,8 +582,8 @@ public class RepositoryTreeController {
         try {
             String comment = deployConfigRepoComments.copiedFrom(project.getName());
             ADeploymentProject newProject = userWorkspace.copyDDProject(project, newProjectName, comment);
-            if (!deployConfigRepositoryAclService.createAcl(newProject,
-                AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS)) {
+            if (!deployConfigRepositoryAclService
+                .createAcl(newProject, AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS, true)) {
                 String message = "Granting permissions to the deployment configuration is failed.";
                 WebStudioUtils.addErrorMessage(message);
             }
@@ -626,8 +626,8 @@ public class RepositoryTreeController {
                 return null;
             }
             ADeploymentProject createdProject = userWorkspace.createDDProject(projectName);
-            if (!deployConfigRepositoryAclService.createAcl(createdProject,
-                AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS)) {
+            if (!deployConfigRepositoryAclService
+                .createAcl(createdProject, AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS, true)) {
                 String message = "Granting permissions to the deployment configuration is failed.";
                 WebStudioUtils.addErrorMessage(message);
             }
@@ -725,7 +725,8 @@ public class RepositoryTreeController {
                 RulesProject createdProject = projectCreator.createRulesProject();
                 if (designRepositoryAclService.createAcl(createdProject.getDesignRepository().getId(),
                     createdProject.getDesignFolderName(),
-                    AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
+                    AclPermissionsSets.NEW_PROJECT_PERMISSIONS,
+                    true)) {
                     // Get just created project, because creator API doesn't create internals states for ProjectState
                     createdProject = userWorkspace.getProject(repositoryId, projectCreator.getCreatedProjectName());
                     if (!userWorkspace.isOpenedOtherProject(createdProject)) {
@@ -1069,11 +1070,8 @@ public class RepositoryTreeController {
             RepositoryAclService repositoryAclService = projectArtefact
                 .getProject() instanceof ADeploymentProject ? deployConfigRepositoryAclService
                                                             : designRepositoryAclService;
-            if (!repositoryAclService.isGranted(projectArtefact,
-                projectArtefact instanceof AProject ? List.of(AclPermission.ARCHIVE) : List.of(AclPermission.EDIT))) {
-                WebStudioUtils.addErrorMessage(
-                    "There is no permission for " + ((projectArtefact instanceof AProject) ? "archiving"
-                                                                                           : "editing") + " the project.");
+            if (!repositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
+                WebStudioUtils.addErrorMessage("There is no permission for deleting the project.");
                 return null;
             }
             if (projectArtefact instanceof UserWorkspaceProject) {
@@ -1533,7 +1531,7 @@ public class RepositoryTreeController {
 
             AProjectResource addedFileResource = folder
                 .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
-            if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
+            if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                 String message = "Granting permissions to the file is failed.";
                 WebStudioUtils.addErrorMessage(message);
             }
@@ -2200,7 +2198,7 @@ public class RepositoryTreeController {
                 return "There is no permission for adding a file to the project.";
             }
             AProjectResource addedFileResource = node.addResource(fileName, lastUploadedFile.getInput());
-            if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
+            if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                 String message = "Granting permissions to the file is failed.";
                 WebStudioUtils.addErrorMessage(message);
             }
@@ -2438,7 +2436,7 @@ public class RepositoryTreeController {
                 // any user can delete own local project
                 return true;
             }
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
                 return false;
             }
             boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
@@ -2457,7 +2455,7 @@ public class RepositoryTreeController {
             if (project.isLocalOnly()) {
                 return false;
             }
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE))) {
+            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
                 return false;
             }
             boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
@@ -2506,7 +2504,7 @@ public class RepositoryTreeController {
 
     public boolean getCanDeleteDeployment(UserWorkspaceProject project) {
         if (project instanceof ADeploymentProject) {
-            return deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.ARCHIVE)) && !project
+            return deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.DELETE)) && !project
                 .isBranchProtected() && (!project.isLocked() || project.isLockedByMe());
         }
         return false;
