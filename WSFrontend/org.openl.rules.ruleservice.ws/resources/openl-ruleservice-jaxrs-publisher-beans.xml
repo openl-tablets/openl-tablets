@@ -19,6 +19,7 @@
         <property name="simpleClassNameAsTypingPropertyValue"
                   value="${ruleservice.jackson.simpleClassNameAsTypingPropertyValue}"/>
         <property name="typingPropertyName" value="${ruleservice.jackson.typingPropertyName}"/>
+        <property name="jsonTypeInfoId" value="${ruleservice.jackson.jsonTypeInfoId}"/>
         <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>
         <property name="rulesDeploy" ref="rulesDeployInProcess"/>
     </bean>
@@ -36,6 +37,7 @@
         <property name="simpleClassNameAsTypingPropertyValue"
                   value="${ruleservice.jackson.simpleClassNameAsTypingPropertyValue}"/>
         <property name="typingPropertyName" value="${ruleservice.jackson.typingPropertyName}"/>
+        <property name="jsonTypeInfoId" value="${ruleservice.jackson.jsonTypeInfoId}"/>
         <property name="polymorphicTypeValidation" value="true"/>
         <property name="xlsModuleOpenClass" ref="xlsModuleOpenClassInProcess"/>
         <property name="rulesDeploy" ref="rulesDeployInProcess"/>
