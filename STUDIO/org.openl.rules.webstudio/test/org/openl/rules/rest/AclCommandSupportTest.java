@@ -40,13 +40,17 @@ public class AclCommandSupportTest {
             AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username:ADD1");
             Assert.fail();
         } catch (CommandFormatException e) {
-            Assert.assertEquals(String.format(AclCommandSupport.MSG3, "ADD1"), e.getMessage());
+            Assert.assertEquals(
+                String.format(AclCommandSupport.MSG3, "ADD1", AclCommandSupport.RepoType.DESIGN.getName()),
+                e.getMessage());
         }
         try {
             AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username:VIEW,ADD1");
             Assert.fail();
         } catch (CommandFormatException e) {
-            Assert.assertEquals(String.format(AclCommandSupport.MSG3, "ADD1"), e.getMessage());
+            Assert.assertEquals(
+                String.format(AclCommandSupport.MSG3, "ADD1", AclCommandSupport.RepoType.DESIGN.getName()),
+                e.getMessage());
         }
         try {
             AclCommandSupport.toCommand("add:DESIGN:/DESIGN/rules/Project1:user:username:VIEW,ADD1");
@@ -60,7 +64,7 @@ public class AclCommandSupportTest {
     public void ok() throws CommandFormatException {
         AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username:VIEW,ADD");
         AclCommandSupport.toCommand("AdD:DeSiGn/design1:/DESIGN/rules/Project1:user:username:ViEw,AdD");
-        AclCommandSupport.toCommand("rEmOvE:PrOd/design1:/DESIGN/rules/Project1:user:username:ViEw,AdD");
+        AclCommandSupport.toCommand("rEmOvE:PrOd/design1:/DESIGN/rules/Project1:user:username:EdIt");
         AclCommandSupport.toCommand("rEmOvE:DePlOyCoNfIg/deploy-config:/DESIGN/rules/Project1:user:username:ViEw,AdD");
         AclCommandSupport.toCommand("add:DESIGN/design1:/DESIGN/rules/Project1:user:username: VIEW, ADD");
         AclCommandSupport.toCommand("add:DESIGN::user:username:VIEW,ADD");

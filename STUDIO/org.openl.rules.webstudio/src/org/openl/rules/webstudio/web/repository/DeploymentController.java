@@ -105,7 +105,7 @@ public class DeploymentController {
             return;
         }
 
-        if (!repositoryTreeState.getCanDeploy()) {
+        if (!repositoryTreeState.getCanDeployDeployment()) {
             canDeploy = false;
         } else {
             DependencyChecker checker = new DependencyChecker(projectDescriptorResolver);

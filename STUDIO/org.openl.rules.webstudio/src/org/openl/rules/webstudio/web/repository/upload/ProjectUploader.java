@@ -133,7 +133,8 @@ public class ProjectUploader {
             RulesProject rulesProject = projectCreator.createRulesProject();
             if (!designRepositoryAclService.createAcl(rulesProject.getDesignRepository().getId(),
                 rulesProject.getDesignFolderName(),
-                AclPermissionsSets.NEW_PROJECT_PERMISSIONS)) {
+                AclPermissionsSets.NEW_PROJECT_PERMISSIONS,
+                true)) {
                 throw new ProjectException("Granting permissions to the project is failed.");
             }
             createdProjectName = projectCreator.getCreatedProjectName();

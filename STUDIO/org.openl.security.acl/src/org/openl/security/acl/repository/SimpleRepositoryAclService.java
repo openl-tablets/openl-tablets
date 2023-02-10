@@ -46,7 +46,7 @@ public interface SimpleRepositoryAclService {
 
     boolean isGranted(String repositoryId, String path, List<Permission> permissions);
 
-    boolean createAcl(String repositoryId, String path, List<Permission> permissions);
+    boolean createAcl(String repositoryId, String path, List<Permission> permissions, boolean force);
 
     Sid getOwner(String repositoryId, String path);
 

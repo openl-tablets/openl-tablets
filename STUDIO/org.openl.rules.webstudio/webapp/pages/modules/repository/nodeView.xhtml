@@ -58,7 +58,7 @@
                 <h:commandButton id="copyId" rendered="#{repositoryTreeState.canAppend}" value="Copy file"
                                  onclick="if (!canOverwriteRevision()) return false; openCopyFileDialog();return false;"
                                  title="Copy file"/>
-                <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canModify}" value="Delete"
+                <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canDeleteNode}" value="Delete"
                                  onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;"
                                  title="Delete the file"/>
             </h:panelGroup>
@@ -70,7 +70,7 @@
                 <h:commandButton id="uploadFile1" rendered="#{repositoryTreeState.canAppend}" value="Upload File"
                                  onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;"
                                  title="#{uploadFileMessage}"/>
-                <h:commandButton id="deleteFolderId" rendered="#{repositoryTreeState.canModify}" value="Delete"
+                <h:commandButton id="deleteFolderId" rendered="#{repositoryTreeState.canDeleteNode}" value="Delete"
                                  onclick="if (!canOverwriteRevision()) return false; #{rich:component('modalDeleteNode')}.show();return false;"
                                  title="Delete the folder"/>
             </h:panelGroup>

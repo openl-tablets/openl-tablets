@@ -1,5 +1,8 @@
 package org.openl.security.acl.permission;
 
+import java.util.Collection;
+import java.util.List;
+
 import org.springframework.security.acls.domain.BasePermission;
 
 public class AclPermission extends BasePermission {
@@ -10,24 +13,33 @@ public class AclPermission extends BasePermission {
     public static final AclPermission DESIGN_REPOSITORY_WRITE = new AclPermission(1 << 2, 'W');
     public static final AclPermission DESIGN_REPOSITORY_DELETE = new AclPermission(1 << 3, 'D');
     public static final AclPermission DESIGN_REPOSITORY_CREATE = new AclPermission(1 << 4, 'C');
+    public static final AclPermission DESIGN_REPOSITORY_DELETE_HISTORY = new AclPermission(1 << 5, 'H');
 
     public static final AclPermission VIEW = new AclPermission(1 << MASK_END | DESIGN_REPOSITORY_READ.getMask(), 'V');
     public static final AclPermission CREATE = new AclPermission(2 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(),
         'N');
     public static final AclPermission ADD = new AclPermission(3 << MASK_END | DESIGN_REPOSITORY_CREATE.getMask(), 'A');
     public static final AclPermission EDIT = new AclPermission(
-        4 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask() | DESIGN_REPOSITORY_CREATE
-            .getMask() | DESIGN_REPOSITORY_DELETE.getMask(),
+        4 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask() | DESIGN_REPOSITORY_CREATE.getMask(),
         'E');
-    public static final AclPermission ARCHIVE = new AclPermission(5 << MASK_END | DESIGN_REPOSITORY_WRITE.getMask(),
+    public static final AclPermission DELETE = new AclPermission(5 << MASK_END | DESIGN_REPOSITORY_DELETE.getMask(),
         'A');
-    public static final AclPermission DELETE = new AclPermission(6 << MASK_END | DESIGN_REPOSITORY_DELETE.getMask(),
+    public static final AclPermission ERASE = new AclPermission(
+        6 << MASK_END | DESIGN_REPOSITORY_DELETE_HISTORY.getMask(),
         'E');
 
     public static final AclPermission DEPLOY = new AclPermission(11 << MASK_END, 'Y');
 
     public static final AclPermission RUN = new AclPermission(12 << MASK_END, 'X');
     public static final AclPermission BENCHMARK = new AclPermission(13 << MASK_END, 'B');
+
+    public static final Collection<AclPermission> ALL_SUPPORTED_DESIGN_REPO_PERMISSIONS = List
+        .of(VIEW, EDIT, CREATE, ADD, DELETE, ERASE, RUN, BENCHMARK);
+
+    public static final Collection<AclPermission> ALL_SUPPORTED_DEPLOY_CONFIG_REPO_PERMISSIONS = List
+        .of(VIEW, EDIT, CREATE, ADD, DELETE, ERASE, DEPLOY);
+
+    public static final Collection<AclPermission> ALL_SUPPORTED_PROD_REPO_PERMISSIONS = List.of(EDIT);
 
     protected AclPermission(int mask) {
         super(mask);
@@ -46,10 +58,10 @@ public class AclPermission extends BasePermission {
             return "ADD";
         } else if (EDIT.getMask() == permission.getMask()) {
             return "EDIT";
-        } else if (ARCHIVE.getMask() == permission.getMask()) {
-            return "ARCHIVE";
         } else if (DELETE.getMask() == permission.getMask()) {
             return "DELETE";
+        } else if (ERASE.getMask() == permission.getMask()) {
+            return "ERASE";
         } else if (DEPLOY.getMask() == permission.getMask()) {
             return "DEPLOY";
         } else if (RUN.getMask() == permission.getMask()) {
@@ -70,10 +82,10 @@ public class AclPermission extends BasePermission {
                 return ADD;
             case "EDIT":
                 return EDIT;
-            case "ARCHIVE":
-                return ARCHIVE;
             case "DELETE":
                 return DELETE;
+            case "ERASE":
+                return ERASE;
             case "DEPLOY":
                 return DEPLOY;
             case "RUN":
@@ -94,10 +106,10 @@ public class AclPermission extends BasePermission {
             return ADD;
         } else if (EDIT.getMask() == mask) {
             return EDIT;
-        } else if (ARCHIVE.getMask() == mask) {
-            return ARCHIVE;
         } else if (DELETE.getMask() == mask) {
             return DELETE;
+        } else if (ERASE.getMask() == mask) {
+            return ERASE;
         } else if (DEPLOY.getMask() == mask) {
             return DEPLOY;
         } else if (RUN.getMask() == mask) {
@@ -106,9 +118,5 @@ public class AclPermission extends BasePermission {
             return BENCHMARK;
         }
         return null;
-    }
-
-    public static AclPermission[] values() {
-        return new AclPermission[] { VIEW, EDIT, CREATE, ADD, ARCHIVE, DELETE, DEPLOY, RUN, BENCHMARK };
     }
 }

@@ -2,21 +2,19 @@ package org.openl.rules.rest;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Set;
+import java.util.Objects;
 
+import org.openl.security.acl.permission.AclPermission;
 import org.openl.util.StringUtils;
 
 public class AclCommandSupport {
     public static final String MSG1 = "Each line must contains 3 parts for 'list' or 'listAll' and 6 parts for 'add', 'set', or 'remove' action. Format: 'command:repo type/repo id:resource[:sid type:sid name or group id:permissions]'.";
     public static final String MSG2 = "Permissions list is an empty.";
-    public static final String MSG3 = "Permission %s is not supported.";
+    public static final String MSG3 = "Permission %s is not supported for repository type '%s'.";
     public static final String MSG4 = "Expected empty resource path, because concrete repository is not defined.";
     public static final String MSG5 = "Expected 'add' or 'remove' command, but found '%s'.";
     public static final String MSG6 = "Expected 'user', 'group' or 'groupId' for sid type, but found '%s'.";
     public static final String MSG7 = "Expected repository type one of: 'design', 'prod' or 'deployConfig', but found '%s'.";
-
-    public static final Collection<String> SUPPORTED_PERMISSIONS = Set
-        .of(new String[] { "VIEW", "ADD", "EDIT", "ARCHIVE", "DELETE", "CREATE", "DEPLOY", "RUN", "BENCHMARK" });
 
     public enum Action {
         ADD,
@@ -33,9 +31,19 @@ public class AclCommandSupport {
     }
 
     public enum RepoType {
-        DESIGN,
-        PROD,
-        DEPLOY_CONFIG
+        DESIGN("design"),
+        PROD("prod"),
+        DEPLOY_CONFIG("deployConfig");
+
+        private final String name;
+
+        RepoType(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 
     public static class AclCommand {
@@ -77,6 +85,18 @@ public class AclCommandSupport {
         }
     }
 
+    public static Collection<AclPermission> listAllSupportedPermissions(RepoType repoType) {
+        if (RepoType.DESIGN == repoType) {
+            return AclPermission.ALL_SUPPORTED_DESIGN_REPO_PERMISSIONS;
+        } else if (RepoType.DEPLOY_CONFIG == repoType) {
+            return AclPermission.ALL_SUPPORTED_DEPLOY_CONFIG_REPO_PERMISSIONS;
+        } else if (RepoType.PROD == repoType) {
+            return AclPermission.ALL_SUPPORTED_PROD_REPO_PERMISSIONS;
+        } else {
+            throw new IllegalArgumentException("Unknown repo type: " + repoType);
+        }
+    }
+
     public static AclCommand toCommand(String line) throws CommandFormatException {
         String[] split = line.split(":");
         if (line.endsWith(":")) {
@@ -107,12 +127,13 @@ public class AclCommandSupport {
                 .map(String::toUpperCase)
                 .filter(e -> !e.isEmpty())
                 .toArray(String[]::new);
-            if (permissions.length == 0) {
+            if (permissions.length == 0 && Action.SET != action) {
                 throw new CommandFormatException(MSG2);
             }
             for (String permission : permissions) {
-                if (!SUPPORTED_PERMISSIONS.contains(permission)) {
-                    throw new CommandFormatException(String.format(MSG3, permission));
+                if (listAllSupportedPermissions(repoType).stream()
+                    .noneMatch(e -> Objects.equals(AclPermission.toString(e), permission.toUpperCase()))) {
+                    throw new CommandFormatException(String.format(MSG3, permission, repoType.getName()));
                 }
             }
             return new AclCommand(action, sidType, sid, repoType, repo, resource, permissions);
@@ -168,11 +189,11 @@ public class AclCommandSupport {
         if (index > 0) {
             type = type.substring(0, index).trim();
         }
-        if ("design".equalsIgnoreCase(type)) {
+        if (RepoType.DESIGN.getName().equalsIgnoreCase(type)) {
             return RepoType.DESIGN;
-        } else if ("prod".equalsIgnoreCase(type)) {
+        } else if (RepoType.PROD.getName().equalsIgnoreCase(type)) {
             return RepoType.PROD;
-        } else if ("deployConfig".equalsIgnoreCase(type)) {
+        } else if (RepoType.DEPLOY_CONFIG.getName().equalsIgnoreCase(type)) {
             return RepoType.DEPLOY_CONFIG;
         } else {
             throw new CommandFormatException(String.format(MSG7, type));

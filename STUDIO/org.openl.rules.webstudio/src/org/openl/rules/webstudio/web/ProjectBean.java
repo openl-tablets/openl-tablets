@@ -655,7 +655,8 @@ public class ProjectBean {
         }
         try {
             AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
-            if (!designRepositoryAclService.createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS)) {
+            if (!designRepositoryAclService
+                .createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                 String message = "Granting permissions to the module is failed.";
                 WebStudioUtils.addErrorMessage(message);
             }
@@ -707,7 +708,7 @@ public class ProjectBean {
                     for (Module m : modules) {
                         AProjectArtefact projectArtefact = currentProject.getArtefact(m.getRulesRootPath().getPath());
                         if (!studio.getDesignRepositoryAclService()
-                            .isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
+                            .isGranted(projectArtefact, List.of(AclPermission.ERASE))) {
                             return true;
                         }
                     }
@@ -715,7 +716,7 @@ public class ProjectBean {
                 } else {
                     AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
                     return !studio.getDesignRepositoryAclService()
-                        .isGranted(projectArtefact, List.of(AclPermission.DELETE));
+                        .isGranted(projectArtefact, List.of(AclPermission.ERASE));
                 }
             } catch (ProjectException e) {
                 return true;

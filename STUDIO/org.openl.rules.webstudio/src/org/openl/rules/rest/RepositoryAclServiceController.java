@@ -1,7 +1,7 @@
 package org.openl.rules.rest;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -153,13 +153,23 @@ public class RepositoryAclServiceController {
             return Collections.emptyList();
         }
         List<Permission> permissionsList = new ArrayList<>();
+        Collection<AclPermission> supportedPermissions;
+        if (REPO_TYPE_DESIGN.equalsIgnoreCase(repositoryType)) {
+            supportedPermissions = AclPermission.ALL_SUPPORTED_DESIGN_REPO_PERMISSIONS;
+        } else if (REPO_TYPE_PROD.equalsIgnoreCase(repositoryType)) {
+            supportedPermissions = AclPermission.ALL_SUPPORTED_PROD_REPO_PERMISSIONS;
+        } else if (REPO_TYPE_DEPLOY_CONFIG.equalsIgnoreCase(repositoryType)) {
+            supportedPermissions = AclPermission.ALL_SUPPORTED_DEPLOY_CONFIG_REPO_PERMISSIONS;
+        } else {
+            throw new IllegalStateException("Unknown repository type: " + repositoryType);
+        }
         for (String permission : permissions) {
             AclPermission aclPermission = AclPermission.getPermission(permission);
             if (aclPermission == null) {
                 throw new NotFoundException("repository.permission.message", permission);
             }
-            if (REPO_TYPE_PROD.equals(repositoryType) && !AclPermission.EDIT.equals(aclPermission)) {
-                throw new NotFoundException("repository.permission.message", permission);
+            if (!supportedPermissions.contains(aclPermission)) {
+                throw new BadRequestException(String.format("Permission %s is not supported for repository type '%s'.", AclPermission.toString(aclPermission), repositoryType));
             }
             permissionsList.add(aclPermission);
         }
@@ -201,7 +211,7 @@ public class RepositoryAclServiceController {
         }
     }
 
-    @GetMapping(value = { "/projects/{repositoryType}/{repo-id}" })
+    @GetMapping(value = { "/artifacts/{repositoryType}/{repo-id}" })
     @Operation(summary = "mgmt.acl.list-artifacts.summary", description = "mgmt.acl.list-artifacts.desc")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = MediaType.APPLICATION_JSON))
     public List<String> listArtifacts(
@@ -211,8 +221,7 @@ public class RepositoryAclServiceController {
         if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType)) {
             UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
             if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo() || !Objects
-                .equals(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
-                repositoryId)) {
+                .equals(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(), repositoryId)) {
                 throw new NotFoundException("repository.message", repositoryId);
             }
             try {
@@ -252,17 +261,21 @@ public class RepositoryAclServiceController {
         throw new IllegalStateException("Unsupported repository type");
     }
 
+    private static String[] listAllSupportedPermissions(AclCommandSupport.RepoType repoType) {
+        return AclCommandSupport.listAllSupportedPermissions(repoType)
+            .stream()
+            .map(e -> AclPermission.toString(e))
+            .toArray(String[]::new);
+    }
+
     @Transactional
     @PostMapping(value = { "/runScript" }, consumes = { MediaType.TEXT_PLAIN })
     @Operation(summary = "mgmt.acl.run-script.summary", description = "mgmt.acl.run-script.desc")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = MediaType.TEXT_PLAIN))
     public String runScript(
-            @Parameter(description = "repo.acl.param.content.desc", content = @Content(examples = @ExampleObject("-- this line prevent system from accidentally changes\n# List all permissions for all design repositories\nlist:design:\n\n# List all permissions for Example 1 - Bank Rating in 'design' repo\nlistAll:design/design:DESIGN/rules/Example 1 - Bank Rating\n\n# Add VIEW, EDIT and ARCHIVE permissions to Example 1 - Bank Rating for user with username 'user'\nadd:design/design:DESIGN/rules/Example 1 - Bank Rating:user:user:VIEW,EDIT,ARCHIVE\n\n# Set VIEW permission to Example 1 - Bank Rating for group with name 'Viewers'\nset:design::group:Viewers:VIEW\n\n# Remove VIEW permission from Example 1 - Bank Rating for group with name 'Viewers'\nremove:design::group:Viewers:VIEW"))) @RequestBody String content,
+            @Parameter(description = "repo.acl.param.content.desc", content = @Content(examples = @ExampleObject("-- this line prevents system from accidental changes\n# List all permissions for all design repositories\nlist:design:\n\n# List all permissions for Example 1 - Bank Rating in 'design' repo\nlistAll:design/design:DESIGN/rules/Example 1 - Bank Rating\n\n# Add VIEW, EDIT, and DELETE permissions to Example 1 - Bank Rating for the user with username 'user'\nadd:design/design:DESIGN/rules/Example 1 - Bank Rating:user:user:VIEW,EDIT,DELETE\n\n# Set VIEW permission to Example 1 - Bank Rating for group with name 'Viewers'\nset:design::group:Viewers:VIEW\n\n# Remove VIEW permission from Example 1 - Bank Rating for group with name 'Viewers'\nremove:design::group:Viewers:VIEW"))) @RequestBody String content,
             HttpSession session) {
         StringBuilder ret = new StringBuilder();
-        final String[] allPermissions = Arrays.stream(AclPermission.values())
-            .map(e -> AclPermission.toString(e))
-            .toArray(String[]::new);
         try (Scanner scanner = new Scanner(content)) {
             int lineNum = 0;
             while (scanner.hasNextLine()) {
@@ -281,7 +294,7 @@ public class RepositoryAclServiceController {
                             if (AclCommandSupport.Action.SET == command.action) {
                                 deleteUserPermissions(toRepoTypeString(command.repoType),
                                     command.sid,
-                                    allPermissions,
+                                    listAllSupportedPermissions(command.repoType),
                                     command.repo,
                                     command.resource,
                                     session);
@@ -300,7 +313,7 @@ public class RepositoryAclServiceController {
                             if (AclCommandSupport.Action.SET == command.action) {
                                 deleteGroupPermissions(toRepoTypeString(command.repoType),
                                     group.getId(),
-                                    allPermissions,
+                                    listAllSupportedPermissions(command.repoType),
                                     command.repo,
                                     command.resource,
                                     session);
@@ -315,7 +328,7 @@ public class RepositoryAclServiceController {
                             if (AclCommandSupport.Action.SET == command.action) {
                                 deleteGroupPermissions(toRepoTypeString(command.repoType),
                                     Long.valueOf(command.sid),
-                                    allPermissions,
+                                    listAllSupportedPermissions(command.repoType),
                                     command.repo,
                                     command.resource,
                                     session);

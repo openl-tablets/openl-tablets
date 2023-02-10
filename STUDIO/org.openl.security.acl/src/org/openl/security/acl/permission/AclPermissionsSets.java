@@ -9,20 +9,20 @@ public final class AclPermissionsSets {
     public static final List<Permission> NEW_PROJECT_PERMISSIONS = List.of(AclPermission.VIEW,
         AclPermission.ADD,
         AclPermission.EDIT,
-        AclPermission.ARCHIVE,
         AclPermission.DELETE,
+        AclPermission.ERASE,
         AclPermission.RUN,
-        AclPermission.BENCHMARK,
-        AclPermission.DEPLOY);
+        AclPermission.BENCHMARK);
 
     public static final List<Permission> NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS = List.of(AclPermission.VIEW,
         AclPermission.ADD,
         AclPermission.EDIT,
-        AclPermission.ARCHIVE,
         AclPermission.DELETE,
+        AclPermission.ERASE,
         AclPermission.DEPLOY);
 
-    public static final List<Permission> NEW_FILE_PERMISSIONS = List.of(AclPermission.EDIT, AclPermission.DELETE);
+    public static final List<Permission> NEW_FILE_PERMISSIONS = List
+        .of(AclPermission.VIEW, AclPermission.EDIT, AclPermission.DELETE);
 
     private AclPermissionsSets() {
     }

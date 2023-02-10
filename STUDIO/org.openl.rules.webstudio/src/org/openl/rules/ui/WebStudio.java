@@ -1406,10 +1406,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
             return false;
         }
 
-        return getDesignRepositoryAclService().isGranted(selectedProject,
-            List.of(AclPermission.DEPLOY)) && deploymentManager.getRepositoryConfigNames()
-                .stream()
-                .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.EDIT)));
+        return deploymentManager.getRepositoryConfigNames()
+            .stream()
+            .anyMatch(e -> productionRepositoryAclService.isGranted(e, null, List.of(AclPermission.EDIT)));
     }
 
     public boolean getCanOpenOtherVersion() {

@@ -90,7 +90,7 @@ public class DisabledSimpleRepositoryAclServiceImpl implements SimpleRepositoryA
     }
 
     @Override
-    public boolean createAcl(String repositoryId, String path, List<Permission> permissions) {
+    public boolean createAcl(String repositoryId, String path, List<Permission> permissions, boolean force) {
         return true;
     }
 

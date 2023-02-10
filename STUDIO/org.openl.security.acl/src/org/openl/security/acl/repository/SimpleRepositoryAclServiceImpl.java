@@ -475,13 +475,13 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     @Override
     @Transactional
-    public boolean createAcl(String repositoryId, String path, List<Permission> permissions) {
+    public boolean createAcl(String repositoryId, String path, List<Permission> permissions, boolean force) {
         Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
         ObjectIdentity oi = new ObjectIdentityImpl(getObjectIdentityClass(), concat(repositoryId, path));
-        return createAcl(oi, permissions);
+        return createAcl(oi, permissions, force);
     }
 
-    protected boolean createAcl(ObjectIdentity oi, List<Permission> permissions) {
+    protected boolean tryCreateAcl(ObjectIdentity oi, List<Permission> permissions) {
         try {
             aclService.readAclById(oi);
             return false;
@@ -500,6 +500,15 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
             aclService.updateAcl(acl);
             return true;
         }
+    }
+
+    protected boolean createAcl(ObjectIdentity oi, List<Permission> permissions, boolean force) {
+        boolean created = tryCreateAcl(oi, permissions);
+        if (!created && force) {
+            aclService.deleteAcl(oi, true);
+            return tryCreateAcl(oi, permissions);
+        }
+        return created;
     }
 
     protected boolean updateOwner(ObjectIdentity oi, Sid newOwner) {

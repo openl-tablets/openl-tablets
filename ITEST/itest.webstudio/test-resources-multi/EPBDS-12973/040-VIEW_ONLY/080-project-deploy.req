@@ -1,5 +1,0 @@
-POST /web/user-workspace/design/projects/EPBDS-12973/deploy?deploy-repo-name=production HTTP/1.1
-Authorization: Basic RVBCRFNfMTI5NzM6cGFzcw==
-Content-Type: application/json
-
-[]
