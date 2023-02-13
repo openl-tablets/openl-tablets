@@ -661,7 +661,7 @@ public class ProjectModel {
                         .isGranted(currentProject, List.of(AclPermission.EDIT));
                 } else {
                     granted = studio.getDesignRepositoryAclService()
-                        .isGranted(currentProject, List.of(AclPermission.EDIT));
+                        .isGranted(currentModule, List.of(AclPermission.EDIT));
                 }
                 return (currentProject.isLocalOnly() || !currentProject.isLocked() || currentProject
                     .isOpenedForEditing()) && granted;
