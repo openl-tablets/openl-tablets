@@ -591,6 +591,10 @@ public final class Strings {
         return parsed;
     }
 
+    public static boolean isNumeric(String str) {
+        return toDouble(str) != null;
+    }
+
     public static String concatenate(Object... objects) {
         if (objects == null || objects.length == 0) {
             return null;
