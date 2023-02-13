@@ -434,6 +434,30 @@ public class StringsTest {
     }
 
     @Test
+    public void testIsNumeric() {
+        assertFalse(isNumeric(null));
+        assertFalse(isNumeric(""));
+        assertFalse(isNumeric(" "));
+        assertFalse(isNumeric("  \t  "));
+        assertTrue(isNumeric("1"));
+        assertTrue(isNumeric("0"));
+        assertTrue(isNumeric("-1"));
+        assertTrue(isNumeric("10000000"));
+        assertTrue(isNumeric("1.0"));
+        assertTrue(isNumeric("0.01"));
+        assertTrue(isNumeric("-.01"));
+        assertTrue(isNumeric("-10000000.1"));
+        assertTrue(isNumeric("1.000000000000000000000000000000000000000000000000000000001"));
+        assertTrue(isNumeric(" \n 1.1 \t  "));
+        assertTrue(isNumeric("-1e2"));
+        assertTrue(isNumeric("1e-2"));
+        assertTrue(isNumeric("1e1000"));
+        assertFalse(isNumeric("∞"));
+        assertFalse(isNumeric("X"));
+        assertFalse(isNumeric("13.."));
+    }
+
+    @Test
     public void testConcatenate() {
         assertNull(concatenate(null));
         assertNull(concatenate());
