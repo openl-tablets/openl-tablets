@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.repository;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -83,8 +82,6 @@ public abstract class AbstractSmartRedeployController {
     @Autowired
     @Qualifier("deployConfigRepositoryAclService")
     private RepositoryAclService deployConfigRepositoryAclService;
-
-    private List<RepositoryConfiguration> repositories;
 
     volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
@@ -573,22 +570,8 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        if (repositories != null) {
-            return repositories;
-        }
-        List<RepositoryConfiguration> repos = new ArrayList<>();
-        Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
-        for (String configName : repositoryConfigNames) {
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
-            if (productionRepositoryAclService.isGranted(config.getId(), null, List.of(AclPermission.EDIT))) {
-                repos.add(config);
-            }
-        }
-
-        repos.sort(RepositoryConfiguration.COMPARATOR);
-        repositories = repos;
-
-        return repos;
+        return DeploymentRepositoriesUtil
+            .getRepositories(deploymentManager, propertyResolver, productionRepositoryAclService);
     }
 
     public String getRepositoryTypes() throws JsonProcessingException {

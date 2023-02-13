@@ -569,16 +569,8 @@ public class DeploymentController {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        List<RepositoryConfiguration> repos = new ArrayList<>();
-        Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
-        for (String configName : repositoryConfigNames) {
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
-            if (productionRepositoryAclService.isGranted(config.getId(), null, List.of(AclPermission.VIEW))) {
-                repos.add(config);
-            }
-        }
-        repos.sort(RepositoryConfiguration.COMPARATOR);
-        return repos;
+        return DeploymentRepositoriesUtil
+            .getRepositories(deploymentManager, propertyResolver, productionRepositoryAclService);
     }
 
     public String getRepositoryTypes() throws JsonProcessingException {
