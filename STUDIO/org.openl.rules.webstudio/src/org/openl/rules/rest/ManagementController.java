@@ -177,7 +177,8 @@ public class ManagementController {
         GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(name);
         designRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
         deployConfigRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
-        productionRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
+        productionRepositoryAclService.removeRootPermissions(List.of(AclPermission.EDIT),
+            Collections.singletonList(grantedAuthoritySid));
         if (privileges != null) {
             List<Permission> designPermissions = privileges.stream()
                 .map(DESIGN_PRIVILEGES::getKey)

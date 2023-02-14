@@ -39,7 +39,7 @@ public class AclPermission extends BasePermission {
     public static final Collection<AclPermission> ALL_SUPPORTED_DEPLOY_CONFIG_REPO_PERMISSIONS = List
         .of(VIEW, EDIT, CREATE, ADD, DELETE, ERASE, DEPLOY);
 
-    public static final Collection<AclPermission> ALL_SUPPORTED_PROD_REPO_PERMISSIONS = List.of(EDIT);
+    public static final Collection<AclPermission> ALL_SUPPORTED_PROD_REPO_PERMISSIONS = List.of(VIEW, EDIT);
 
     protected AclPermission(int mask) {
         super(mask);
