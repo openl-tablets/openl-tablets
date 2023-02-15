@@ -52,6 +52,10 @@ public class TextInfo {
         return lineTable;
     }
 
+    public String getText() {
+        return text;
+    }
+
     protected void scanText() {
         boolean isCR = false;
         boolean isLF = true;

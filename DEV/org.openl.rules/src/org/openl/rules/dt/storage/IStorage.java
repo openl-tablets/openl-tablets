@@ -1,5 +1,7 @@
 package org.openl.rules.dt.storage;
 
+import org.openl.rules.dt.Expr;
+
 public interface IStorage<T> {
 
     int size();
@@ -21,6 +23,8 @@ public interface IStorage<T> {
     void setElse(int index);
 
     void setFormula(int index, Object formula);
+
+    Expr getExprValue(int index);
 
     enum StorageType {
         VALUE,

@@ -23,6 +23,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.Expr;
 import org.openl.rules.dt.IDecisionTableConstants;
 import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.dt.storage.IStorageBuilder;
@@ -64,6 +65,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     private final int row;
 
     protected CompositeMethod method;
+    protected Expr expr;
 
     protected IOpenClass ruleExecutionType;
 
@@ -241,6 +243,8 @@ public abstract class FunctionalRow implements IDecisionRow {
         RulesModuleBindingContextHelper.compileAllTypesInSignature(methodHeader.getSignature(), bindingContext);
         this.method = OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
 
+        this.expr = new Expr(method.getMethodBodyBoundNode());
+
         if (bindingContext.isExecutionMode()) {
             decisionTable = null;
             paramsTable = null;
@@ -248,6 +252,11 @@ public abstract class FunctionalRow implements IDecisionRow {
             infoTable = null;
             presentationTable = null;
         }
+    }
+
+    @Override
+    public Expr getExpr() {
+        return expr;
     }
 
     protected void prepareParams(IOpenClass declaringClass,
@@ -649,6 +658,11 @@ public abstract class FunctionalRow implements IDecisionRow {
     }
 
     @Override
+    public Expr getExprValue(int paramIndex, int ruleN) {
+        return storage[paramIndex].getExprValue(ruleN);
+    }
+
+    @Override
     public boolean isEmpty(int ruleN) {
         for (IStorage<?> aStorage : storage) {
             if (!aStorage.isSpace(ruleN)) {
@@ -749,6 +763,17 @@ public abstract class FunctionalRow implements IDecisionRow {
     @Override
     public void removeDebugInformation() {
         Optional.ofNullable(method).ifPresent(CompositeMethod::removeDebugInformation);
+        if (storage != null) {
+            for (IStorage<?> st : storage) {
+                int rules = st.size();
+                for (int i = 0; i < rules; i++) {
+                    Object paramValue = st.getValue(i);
+                    if (paramValue instanceof CompositeMethod) {
+                        ((CompositeMethod) paramValue).removeDebugInformation();
+                    }
+                }
+            }
+        }
     }
 
     @Override

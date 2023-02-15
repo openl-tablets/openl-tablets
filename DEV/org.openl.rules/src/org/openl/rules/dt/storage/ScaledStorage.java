@@ -1,6 +1,7 @@
 package org.openl.rules.dt.storage;
 
 import org.openl.rules.dt.DTScale.RowScale;
+import org.openl.rules.dt.Expr;
 
 public class ScaledStorage extends ReadOnlyStorage {
 
@@ -31,6 +32,11 @@ public class ScaledStorage extends ReadOnlyStorage {
     @Override
     public boolean isFormula(int index) {
         return s.isFormula(actualIndex(index));
+    }
+
+    @Override
+    public Expr getExprValue(int index) {
+        return s.getExprValue(actualIndex(index));
     }
 
     @Override

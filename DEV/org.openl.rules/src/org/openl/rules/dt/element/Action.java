@@ -16,7 +16,6 @@ import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.data.RuleExecutionObject;
-import org.openl.rules.dt.storage.IStorage;
 import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
 import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
@@ -360,21 +359,4 @@ public class Action extends FunctionalRow implements IAction {
         }
         return source;
     }
-
-    @Override
-    public void removeDebugInformation() {
-        super.removeDebugInformation();
-        if (storage != null) {
-            for (IStorage<?> st : storage) {
-                int rules = st.size();
-                for (int i = 0; i < rules; i++) {
-                    Object paramValue = st.getValue(i);
-                    if (paramValue instanceof CompositeMethod) {
-                        ((CompositeMethod) paramValue).removeDebugInformation();
-                    }
-                }
-            }
-        }
-    }
-
 }

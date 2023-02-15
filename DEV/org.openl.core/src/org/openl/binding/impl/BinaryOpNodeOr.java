@@ -50,6 +50,14 @@ public class BinaryOpNodeOr extends ABoundNode {
         }
     }
 
+    public IBoundNode getRight() {
+        return right;
+    }
+
+    public IBoundNode getLeft() {
+        return left;
+    }
+
     @Override
     public IOpenClass getType() {
         return JavaOpenClass.getOpenClass(Boolean.class);

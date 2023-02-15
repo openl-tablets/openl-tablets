@@ -25,6 +25,8 @@ public interface IBaseDecisionRow {
 
     Object getParamValue(int paramIdx, int ruleN);
 
+    Expr getExprValue(int paramIdx, int ruleN);
+
     ILogicalTable getValueCell(int column);
 
     IOpenMethod getMethod();

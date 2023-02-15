@@ -1,0 +1,8 @@
+POST /EPBDS-13530/EPBDS-13530/DriverPremium5 HTTP/1.1
+Content-Type: application/json
+
+{
+  "driverAge": "Young Driver",
+  "driverMaritalStatus": "Married"
+}
+

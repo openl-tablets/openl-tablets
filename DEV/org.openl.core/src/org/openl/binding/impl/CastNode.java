@@ -71,4 +71,8 @@ public class CastNode extends ABoundNode {
     public int getDims() {
         return children[0].getDims();
     }
+
+    public IOpenCast getCast() {
+        return cast;
+    }
 }

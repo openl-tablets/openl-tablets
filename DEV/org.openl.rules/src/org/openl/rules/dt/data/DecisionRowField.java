@@ -39,6 +39,10 @@ public class DecisionRowField implements IOpenField {
         return res;
     }
 
+    public IDecisionRow getConditionOrAction() {
+        return conditionOrAction;
+    }
+
     @Override
     public boolean isConst() {
         return false;
@@ -70,7 +74,7 @@ public class DecisionRowField implements IOpenField {
     }
 
     @Override
-    public IOpenClass getType() {
+    public ConditionOrActionDataType getType() {
         return dataType;
     }
 
