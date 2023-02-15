@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.springframework.util.StreamUtils;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.ComparisonResult;
@@ -194,7 +193,7 @@ final class Comparators {
                     continue;
                 }
                 ByteArrayOutputStream target = new ByteArrayOutputStream();
-                StreamUtils.copy(actual, target);
+                actual.transferTo(target);
                 dest.put(actualEntry.getName(), target.toByteArray());
             }
         }
