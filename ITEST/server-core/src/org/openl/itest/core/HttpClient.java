@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -116,8 +115,9 @@ public class HttpClient {
 
     public <T> T getForObject(String url, Class<T> cl, HttpStatus status) {
         HttpHeaders headers = new HttpHeaders();
-        if (StringUtils.hasLength(cookie.get())) {
-            headers.add("Cookie", cookie.get());
+        var c = cookie.get();
+        if (c != null && !c.isBlank()) {
+            headers.add("Cookie", c);
         }
         return getForObject(url, cl, status, headers);
     }
@@ -147,8 +147,9 @@ public class HttpClient {
         try {
             HttpData header = HttpData.send(baseURL, requestFile, cookie.get());
 
-            if (StringUtils.hasLength(header.getCookie())) {
-                cookie.set(header.getCookie());
+            var c = header.getCookie();
+            if (c != null && !c.isBlank()) {
+                cookie.set(c);
             }
 
             HttpData respHeader = HttpData.readFile(responseFile);

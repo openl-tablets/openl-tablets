@@ -29,9 +29,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 
-import org.springframework.util.StreamUtils;
-import org.springframework.util.StringUtils;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -94,7 +91,7 @@ class HttpData {
 
     private static HttpURLConnection openConnection(URL url, String httpMethod, String cookie) throws IOException {
         URLConnection connection = url.openConnection();
-        if (StringUtils.hasLength(cookie)) {
+        if (cookie != null && !cookie.isEmpty()) {
             connection.setRequestProperty("Cookie", cookie);
         }
         if (!(connection instanceof HttpURLConnection)) {
@@ -103,17 +100,9 @@ class HttpData {
         connection.setConnectTimeout(Integer.parseInt(System.getProperty("http.timeout.connect")));
         connection.setReadTimeout(Integer.parseInt(System.getProperty("http.timeout.read")));
         connection.setDoInput(true);
-        if ("GET".equals(httpMethod)) {
-            ((HttpURLConnection) connection).setInstanceFollowRedirects(true);
-        } else {
-            ((HttpURLConnection) connection).setInstanceFollowRedirects(false);
-        }
-        if ("POST".equals(httpMethod) || "PUT".equals(httpMethod) || "DELETE".equals(httpMethod) || "PATCH"
-            .equals(httpMethod)) {
-            connection.setDoOutput(true);
-        } else {
-            connection.setDoOutput(false);
-        }
+        ((HttpURLConnection) connection).setInstanceFollowRedirects("GET".equals(httpMethod));
+        connection.setDoOutput("POST".equals(httpMethod) || "PUT".equals(httpMethod) || "DELETE".equals(httpMethod) || "PATCH"
+                .equals(httpMethod));
         ((HttpURLConnection) connection).setRequestMethod(httpMethod);
         return (HttpURLConnection) connection;
     }
@@ -161,7 +150,6 @@ class HttpData {
             contentType = contentType == null ? "null" : contentType;
             int sep = contentType.indexOf(';');
             if (sep > 0) {
-                String encoding = contentType.substring(sep + 1);
                 contentType = contentType.substring(0, sep);
             }
             switch (contentType) {
@@ -218,7 +206,7 @@ class HttpData {
             }
             System.err.println();
 
-            StreamUtils.copy(body, System.err);
+            System.err.write(body);
             System.err.println("\n--------------------");
 
             String path = System.getProperty("server.responses") + resourceName + ".body";
@@ -253,7 +241,7 @@ class HttpData {
                 }
             }
 
-            byte[] body = input != null ? StreamUtils.copyToByteArray(input) : new byte[0];
+            byte[] body = input != null ? input.readAllBytes() : new byte[0];
             HttpData httpData = new HttpData(firstLine, headers, body, resource);
             httpData.setCookie(cookie);
             return httpData;
@@ -291,7 +279,7 @@ class HttpData {
                             if (fileStream == null) {
                                 throw new FileNotFoundException(fileRes);
                             }
-                            StreamUtils.copy(fileStream, os);
+                            fileStream.transferTo(os);
                         }
                         os.flush();
                     } else {
@@ -314,7 +302,7 @@ class HttpData {
                     if (fileStream == null) {
                         throw new FileNotFoundException(fileRes);
                     }
-                    body = StreamUtils.copyToByteArray(fileStream);
+                    body = fileStream.readAllBytes();
                 }
             } else {
                 body = line.getBytes(StandardCharsets.UTF_8);
@@ -331,7 +319,7 @@ class HttpData {
             // So for 204 status we just don't read body because it doesn't needed for this status.
             body = new byte[0];
         } else {
-            body = StreamUtils.copyToByteArray(input);
+            body = input.readAllBytes();
         }
 
         return new HttpData(firstLine, headers, body, resource);
