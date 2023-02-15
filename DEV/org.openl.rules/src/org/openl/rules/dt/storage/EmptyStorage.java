@@ -1,5 +1,7 @@
 package org.openl.rules.dt.storage;
 
+import org.openl.rules.dt.Expr;
+
 class EmptyStorage implements IStorage<Object> {
 
     private final StorageInfo info;
@@ -41,6 +43,11 @@ class EmptyStorage implements IStorage<Object> {
     @Override
     public void setValue(int index, Object o) {
 
+    }
+
+    @Override
+    public Expr getExprValue(int index) {
+        return null;
     }
 
     @Override

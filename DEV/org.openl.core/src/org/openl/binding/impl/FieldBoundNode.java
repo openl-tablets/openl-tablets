@@ -63,7 +63,7 @@ public class FieldBoundNode extends ATargetBoundNode {
         return boundField.getName();
     }
 
-    IOpenField getBoundField() {
+    public IOpenField getBoundField() {
         return boundField;
     }
 

@@ -101,7 +101,9 @@ final class Comparators {
         return trimExtraSpaces(text).replaceAll("\\\\", "\\\\\\\\")
             .replaceAll("#+", "\\\\d+")
             .replaceAll("@+", "[@\\\\w]+")
-            .replaceAll("\\*+", "[^\uFFFF]*");
+            .replaceAll("\\*+", "[^\uFFFF]*")
+            .replace("(", "\\(")
+            .replace(")", "\\)");
     }
 
     static void compareJsonObjects(JsonNode expectedJson, JsonNode actualJson, String path) {

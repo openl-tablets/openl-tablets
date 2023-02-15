@@ -3,6 +3,7 @@ package org.openl.rules.dt.element;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.Expr;
 import org.openl.rules.dt.IBaseDecisionRow;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -29,6 +30,8 @@ public interface IDecisionRow extends IBaseDecisionRow {
     boolean hasFormula(int ruleN);
 
     boolean hasFormulas();
+
+    Expr getExpr();
 
     void clearParamValues();
 

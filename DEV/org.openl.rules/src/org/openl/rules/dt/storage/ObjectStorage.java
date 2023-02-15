@@ -2,13 +2,18 @@ package org.openl.rules.dt.storage;
 
 import static org.openl.rules.dt.storage.IStorage.StorageType.ELSE;
 
+import org.openl.rules.dt.Expr;
+import org.openl.types.impl.CompositeMethod;
+
 public class ObjectStorage implements IStorage<Object> {
 
     private final Object[] values;
+    private final Expr[] exprValues;
     private StorageInfo info;
 
     ObjectStorage(int size) {
         values = new Object[size];
+        exprValues = new Expr[size];
     }
 
     @Override
@@ -54,6 +59,14 @@ public class ObjectStorage implements IStorage<Object> {
     @Override
     public void setFormula(int index, Object formula) {
         values[index] = formula;
+        if (formula instanceof CompositeMethod) {
+            exprValues[index] = new Expr(((CompositeMethod) formula).getMethodBodyBoundNode());
+        }
+    }
+
+    @Override
+    public Expr getExprValue(int index) {
+        return exprValues[index];
     }
 
     @Override

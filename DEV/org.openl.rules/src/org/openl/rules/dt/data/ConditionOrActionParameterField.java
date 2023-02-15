@@ -31,6 +31,10 @@ public class ConditionOrActionParameterField implements IOpenField {
         return conditionOrAction;
     }
 
+    public int getParamNum() {
+        return paramNum;
+    }
+
     @Override
     public boolean isConst() {
         return true;

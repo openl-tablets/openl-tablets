@@ -38,8 +38,6 @@ public class ConditionOrActionDirectParameterField implements IOpenField {
         RuleExecutionObject reo = (RuleExecutionObject) target;
         int ruleNum = reo.getRuleNum();
 
-        Object[] res = new Object[decisionRow.getNumberOfParams()];
-
         Object[] params = env.getLocalFrame();
         if (numberOfTableParameters != env.getLocalFrame().length) {
             params = new Object[numberOfTableParameters];
@@ -70,6 +68,10 @@ public class ConditionOrActionDirectParameterField implements IOpenField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         throw new UnsupportedOperationException();
+    }
+
+    public int getParamNum() {
+        return paramNum;
     }
 
     @Override
