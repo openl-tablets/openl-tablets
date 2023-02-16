@@ -146,10 +146,16 @@ public class AzureBlobRepositoryTest {
     public void read() throws IOException {
         assertNull(repo.read("rules/project1/absent-file"));
 
-        assertEquals(createFileContent("rules/project1/file11"),
-            IOUtils.toStringAndClose(repo.read("rules/project1/file11").getStream()));
-        assertEquals(createFileContent("rules/project2/folder1/file23"),
-            IOUtils.toStringAndClose(repo.read("rules/project2/folder1/file23").getStream()));
+        var file1 = "rules/project1/file11";
+        assertEquals(createFileContent(file1), readFile(file1));
+        String file2 = "rules/project2/folder1/file23";
+        assertEquals(createFileContent(file2), readFile(file2));
+    }
+
+    private String readFile(String file1) throws IOException {
+        try (var input = repo.read(file1).getStream()) {
+            return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 
     @Test
@@ -222,7 +228,10 @@ public class AzureBlobRepositoryTest {
 
         final String fileInProject2 = "rules/project2/folder1/file23";
         final String content = createFileContent(fileInProject2);
-        assertEquals(content, IOUtils.toStringAndClose(repo.readHistory(fileInProject2, "version21").getStream()));
+        try (var input = repo.readHistory(fileInProject2, "version21").getStream()) {
+            var actual = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+            assertEquals(content, actual);
+        }
 
         assertNull(repo.readHistory(fileInProject2, "absent"));
     }
@@ -342,6 +351,7 @@ public class AzureBlobRepositoryTest {
     private BlobInputStream mockBlobInputStream(ByteArrayInputStream byteStream) throws IOException {
         BlobInputStream stream = mock(BlobInputStream.class);
         when(stream.read()).thenAnswer(delegatesTo(byteStream));
+        when(stream.readAllBytes()).thenAnswer(delegatesTo(byteStream));
         when(stream.read(any())).thenAnswer(delegatesTo(byteStream));
         when(stream.read(any(), anyInt(), anyInt())).thenAnswer(delegatesTo(byteStream));
         return stream;

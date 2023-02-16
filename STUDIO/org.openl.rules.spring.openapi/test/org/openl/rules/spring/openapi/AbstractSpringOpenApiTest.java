@@ -5,13 +5,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openl.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -48,7 +48,9 @@ public abstract class AbstractSpringOpenApiTest {
     private static String getResource(String fileName) throws Exception {
         var resource = AbstractSpringOpenApiTest.class.getClassLoader().getResource(fileName);
         assertNotNull(resource);
-        return IOUtils.toStringAndClose(resource.openStream());
+        try (var input = resource.openStream()) {
+            return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 
     private static void assertJsonEquals(String expectedJson, String actualJson) throws JsonProcessingException {

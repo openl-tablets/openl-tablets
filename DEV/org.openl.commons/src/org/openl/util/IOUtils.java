@@ -10,8 +10,6 @@ import java.nio.charset.StandardCharsets;
  */
 public class IOUtils {
 
-    private static final int DEFAULT_BUFFER_SIZE = 8 * 1024;
-
     /**
      * Unconditionally close a <code>AutoCloseable</code>.
      * <p/>
@@ -64,49 +62,6 @@ public class IOUtils {
             output.write(buffer, 0, n);
         }
         output.flush();
-    }
-
-    /**
-     * Copy chars from a <code>Reader</code> to a <code>Writer</code>.
-     * <p/>
-     * This method buffers the input internally, so there is no need to use a <code>BufferedReader</code>.
-     * <p/>
-     * The buffer size is given by {@link #DEFAULT_BUFFER_SIZE}.
-     *
-     * @param reader the <code>Reader</code> to read from
-     * @param writer the <code>Writer</code> to write to
-     * @throws NullPointerException if the input or output is null
-     * @throws IOException if an I/O error occurs
-     */
-    public static void copy(Reader reader, Writer writer) throws IOException {
-        char[] buffer = new char[DEFAULT_BUFFER_SIZE];
-        int n;
-        while ((n = reader.read(buffer)) > 0) {
-            writer.write(buffer, 0, n);
-        }
-        writer.flush();
-    }
-
-    /**
-     * Get the contents of an <code>InputStream</code> as a String using UTF-8 character encoding and close the stream
-     * after.
-     * <p/>
-     * This method buffers the input internally, so there is no need to use a <code>BufferedInputStream</code>.
-     *
-     * @param input the <code>InputStream</code> to read from
-     * @return the requested String
-     * @throws NullPointerException if the input is null
-     * @throws IOException if an I/O error occurs
-     */
-    public static String toStringAndClose(InputStream input) throws IOException {
-        try {
-            StringWriter writer = new StringWriter();
-            Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8);
-            copy(reader, writer);
-            return writer.toString();
-        } finally {
-            closeQuietly(input);
-        }
     }
 
     /**

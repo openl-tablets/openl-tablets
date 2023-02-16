@@ -2909,14 +2909,19 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             File hookFile = repository.getFS().findHook(repository, PrePushHook.NAME);
-            if (hookFile != null && IOUtils.toStringAndClose(new FileInputStream(hookFile)).contains("git lfs")) {
-                // Rename pre-push hook otherwise we will be spammed with warning message (if native git with LFS is found)
-                log.info("Rename pre-push hook to avoid conflict between LFS built-in hook and existing pre-push hook. Repo: {}", repository);
-                String from = hookFile.getPath();
-                String to = from + ".renamed";
-                boolean renamed = hookFile.renameTo(new File(to));
-                if (!renamed) {
-                    log.warn("Can't rename '{}' to '{}'", from, to);
+            if (hookFile != null) {
+                try (var input = new FileInputStream(hookFile)) {
+                    var content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+                    if (content.contains("git lfs")) {
+                        // Rename pre-push hook otherwise we will be spammed with warning message (if native git with LFS is found)
+                        log.info("Rename pre-push hook to avoid conflict between LFS built-in hook and existing pre-push hook. Repo: {}", repository);
+                        String from = hookFile.getPath();
+                        String to = from + ".renamed";
+                        boolean renamed = hookFile.renameTo(new File(to));
+                        if (!renamed) {
+                            log.warn("Can't rename '{}' to '{}'", from, to);
+                        }
+                    }
                 }
             }
         }

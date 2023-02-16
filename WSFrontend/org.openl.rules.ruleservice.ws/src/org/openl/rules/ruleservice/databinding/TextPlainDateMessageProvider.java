@@ -21,7 +21,6 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,8 +66,16 @@ public class TextPlainDateMessageProvider implements MessageBodyWriter, MessageB
             MediaType mediaType,
             MultivaluedMap multivaluedMap,
             InputStream inputStream) throws IOException, WebApplicationException {
-        final String str = IOUtils.toStringAndClose(inputStream);
-        return objectMapper.readValue(quote(str), aClass);
+        try {
+            final var str = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+            return objectMapper.readValue(quote(str), aClass);
+        } finally {
+        /*
+        Without closing the stream it is not working as expected. Other implementations from CXF also close the stream
+        implicitly. But in the interface pointed that it should be done by a caller, not inside implementations.
+         */
+            inputStream.close();
+        }
     }
 
     @Override

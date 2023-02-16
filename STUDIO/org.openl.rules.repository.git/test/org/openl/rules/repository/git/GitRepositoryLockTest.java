@@ -74,7 +74,7 @@ public class GitRepositoryLockTest {
         assertEquals(text.length(), result.getSize());
         assertNotNull(result.getModifiedAt());
 
-        assertEquals(text, IOUtils.toStringAndClose(repo.read(path).getStream()));
+        assertEquals(text, GitRepositoryTest.readText(repo.read(path)));
     }
 
     @Test

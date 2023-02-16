@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import javax.faces.component.UIComponent;
@@ -148,9 +149,10 @@ public class RepositoryProjectRulesDeployConfig {
     private RulesDeployGuiWrapper loadRulesDeploy(UserWorkspaceProject project) {
         try {
             AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-            InputStream content = artefact.getContent();
-            String sourceString = IOUtils.toStringAndClose(content);
-            return serializer.deserialize(sourceString, getSupportedVersion(project));
+            try (var content = artefact.getContent()) {
+                var sourceString = new String(content.readAllBytes(), StandardCharsets.UTF_8);;
+                return serializer.deserialize(sourceString, getSupportedVersion(project));
+            }
         } catch (IOException | ProjectException e) {
             WebStudioUtils.addErrorMessage("Failed to read '" + RULES_DEPLOY_CONFIGURATION_FILE + "' file.");
             log.error(e.getMessage(), e);
