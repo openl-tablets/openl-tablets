@@ -5,7 +5,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
-import org.springframework.http.HttpStatus;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,7 +29,7 @@ public class WorkspaceCompileServiceTest {
 
         CompileProgress compileProgress;
         do {
-            compileProgress = client.getForObject("/web/compile/progress/-1/-1", CompileProgress.class, HttpStatus.OK);
+            compileProgress = client.getForObject("/web/compile/progress/-1/-1", CompileProgress.class, 200);
         } while (!compileProgress.compilationCompleted);
         assertEquals(2, compileProgress.modulesCount);
         assertEquals(4, compileProgress.errorsCount);
@@ -43,7 +42,7 @@ public class WorkspaceCompileServiceTest {
         client.send("workspace-compile/table.tests.get");
         client.send("workspace-compile/table.errors.module.get");
         TableErrorInfo tableErrorInfo = client.getForObject("/web/compile/table/8e514ef161e2f50d730dde1fdc4fb4ac",
-            TableErrorInfo.class, HttpStatus.OK);
+            TableErrorInfo.class, 200);
         assertEquals("#local/Sample/Main/table", tableErrorInfo.tableUrl);
         assertEquals(1, tableErrorInfo.errors.length);
         assertEquals(true, tableErrorInfo.errors[0].hasStacktrace);
@@ -51,7 +50,7 @@ public class WorkspaceCompileServiceTest {
         assertEquals("There can be only one active table.", tableErrorInfo.errors[0].summary);
         assertEquals("ERROR", tableErrorInfo.errors[0].severity);
         String projectError = client.getForObject("/web/message/" + tableErrorInfo.errors[0].id + "/stacktrace",
-            String.class, HttpStatus.OK);
+            String.class, 200);
         assertTrue(projectError.startsWith("Error: There can be only one active table."));
     }
 

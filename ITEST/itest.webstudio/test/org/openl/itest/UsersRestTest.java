@@ -26,8 +26,6 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -148,16 +146,13 @@ public class UsersRestTest {
         client.send("users-service/mail/users-mail-config-update-2.put");
         client.send("users-service/mail/users-mail-config-1.get");
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Basic YWRtaW46YWRtaW4=");
-
         MailConfig newMailConfig = new MailConfig();
         newMailConfig.password = "password";
         newMailConfig.url = mailUrl;
         newMailConfig.username = "username@email";
-        client.putForObject("/web/mail/settings", newMailConfig, MailConfig.class, HttpStatus.NO_CONTENT, headers);
+        client.putForObject("/web/mail/settings", newMailConfig, "Authorization", "Basic YWRtaW46YWRtaW4=");
 
-        MailConfig mailConfig = client.getForObject("/web/mail/settings", MailConfig.class, HttpStatus.OK, headers);
+        MailConfig mailConfig = client.getForObject("/web/mail/settings", MailConfig.class, 200, "Authorization", "Basic YWRtaW46YWRtaW4=");
         Assert.assertEquals("password", mailConfig.password);
         Assert.assertEquals("username@email", mailConfig.username);
         Assert.assertEquals(mailUrl, mailConfig.url);
@@ -197,7 +192,7 @@ public class UsersRestTest {
         String content = bufferedReader.lines().collect(Collectors.joining());
         int tokenStartIndex = content.indexOf(TOKEN_PARAM) + TOKEN_PARAM.length();
         String token = content.substring(tokenStartIndex, tokenStartIndex + TOKEN_LENGTH);
-        client.getForObject("/web/mail/verify/" + token, String.class, HttpStatus.NO_CONTENT);
+        client.getForObject("/web/mail/verify/" + token, String.class, 204);
         inputStreamReader.close();
         bufferedReader.close();
 
