@@ -175,7 +175,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
                     ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
                     zipOutputStream.putNextEntry(entry);
 
-                    IOUtils.copy(inputStream, zipOutputStream);
+                    inputStream.transferTo(zipOutputStream);
 
                     inputStream.close();
                     zipOutputStream.closeEntry();

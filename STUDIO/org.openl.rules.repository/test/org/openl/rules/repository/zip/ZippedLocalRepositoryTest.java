@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
@@ -97,8 +96,7 @@ public class ZippedLocalRepositoryTest {
                 zos.putNextEntry(zipEntry);
                 byte[] bytes = entry.getValue();
                 if (bytes != null) {
-                    ByteArrayInputStream baos = new ByteArrayInputStream(bytes);
-                    IOUtils.copy(baos, zos);
+                    zos.write(bytes);
                 }
                 zos.closeEntry();
             }

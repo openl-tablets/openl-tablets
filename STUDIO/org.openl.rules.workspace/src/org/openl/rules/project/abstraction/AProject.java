@@ -489,7 +489,7 @@ public class AProject extends AProjectFolder implements IProject {
 
             ResourceTransformer transformer = getResourceTransformer();
             try (InputStream content = transformer != null ? transformer.transform(resource) : resource.getContent()) {
-                IOUtils.copy(content, zipOutputStream);
+                content.transferTo(zipOutputStream);
                 zipOutputStream.closeEntry();
             }
         } else {

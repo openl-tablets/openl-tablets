@@ -174,7 +174,8 @@ public class RulesDeployerService implements Closeable {
                     try (FileItem fileItem = deployRepo.read(fileData.getName())) {
                         ZipEntry targetEntry = new ZipEntry(fileItem.getData().getName().substring(basePath.length()));
                         target.putNextEntry(targetEntry);
-                        IOUtils.copy(fileItem.getStream(), target);
+                        InputStream input = fileItem.getStream();
+                        input.transferTo(target);
                     }
                 }
             }
@@ -194,7 +195,7 @@ public class RulesDeployerService implements Closeable {
                             ZipEntry targetEntry = new ZipEntry(projectFolder + sourceEntry.getName());
                             target.putNextEntry(targetEntry);
                             if (!sourceEntry.isDirectory()) {
-                                IOUtils.copy(source, target);
+                                source.transferTo(target);
                             }
                         }
                     }
@@ -314,7 +315,7 @@ public class RulesDeployerService implements Closeable {
                                 ZipEntry targetEntry = new ZipEntry(folder.relativize(p).toString());
                                 target.putNextEntry(targetEntry);
                                 try (InputStream source = Files.newInputStream(p)) {
-                                    IOUtils.copy(source, target);
+                                    source.transferTo(target);
                                 }
                                 return FileVisitResult.CONTINUE;
                             }

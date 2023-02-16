@@ -83,7 +83,7 @@ public final class RepositoryUtils {
 
                 FileItem fileItem = folderRepository.readHistory(file.getName(), file.getVersion());
                 try (InputStream content = fileItem.getStream()) {
-                    IOUtils.copy(content, zipOutputStream);
+                    content.transferTo(zipOutputStream);
                 }
 
                 zipOutputStream.closeEntry();

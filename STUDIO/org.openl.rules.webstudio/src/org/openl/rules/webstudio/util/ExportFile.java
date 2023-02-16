@@ -32,7 +32,7 @@ public final class ExportFile {
             res.setHeader("Content-Disposition", WebTool.getContentDispositionValue(filename));
 
             input = new FileInputStream(content);
-            IOUtils.copy(input, res.getOutputStream());
+            input.transferTo(res.getOutputStream());
         } catch (final IOException e) {
             String msg = "Failed to write content of '" + content.getAbsolutePath() + "' into response.";
             final Logger log = LoggerFactory.getLogger(ExportFile.class);

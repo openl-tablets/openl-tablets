@@ -115,7 +115,7 @@ public class ZipProjectSaveStrategy {
                                 zos.putNextEntry(entry);
                                 InputStream is = fileItem.getStream();
                                 if (is != null) {
-                                    IOUtils.copy(is, zos);
+                                    is.transferTo(zos);
                                     IOUtils.closeQuietly(is);
                                 }
                             }

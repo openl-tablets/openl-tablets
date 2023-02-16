@@ -22,7 +22,6 @@ import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -86,7 +85,7 @@ public class ConflictController {
                 throw new FileNotFoundException(String.format("File '%s' is not found.", name));
             }
             try (var stream = file.getStream()) {
-                IOUtils.copy(stream, output);
+                stream.transferTo(output);
             } finally {
                 output.flush();
             }
@@ -117,7 +116,7 @@ public class ConflictController {
                     String artefactPath = name.substring(project.getRealPath().length() + 1);
                     if (project.hasArtefact(artefactPath)) {
                         try (var stream = ((AProjectResource) project.getArtefact(artefactPath)).getContent()) {
-                            IOUtils.copy(stream, output);
+                            stream.transferTo(output);
                             return;
                         } finally {
                             output.flush();
@@ -150,7 +149,7 @@ public class ConflictController {
                 .getResolutionsFromSession(request.getSession());
             ConflictResolution conflictResolution = conflictResolutions.get(name);
             try (InputStream input = conflictResolution.getCustomResolutionFile().getInput()) {
-                IOUtils.copy(input, output);
+                input.transferTo(output);
             } finally {
                 output.flush();
             }

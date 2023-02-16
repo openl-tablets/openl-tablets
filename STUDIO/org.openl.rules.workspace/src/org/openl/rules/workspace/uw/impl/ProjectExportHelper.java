@@ -65,7 +65,7 @@ public final class ProjectExportHelper {
         zipOutputStream.putNextEntry(entry);
 
         try (InputStream source = file.getContent()) {
-            IOUtils.copy(source, zipOutputStream);
+            source.transferTo(zipOutputStream);
         }
         zipOutputStream.closeEntry();
     }

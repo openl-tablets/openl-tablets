@@ -18,7 +18,6 @@ import java.util.Objects;
 
 import org.junit.Test;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.util.IOUtils;
 
 public class FileChangesFromFolderTest {
 
@@ -80,7 +79,7 @@ public class FileChangesFromFolderTest {
                 for (FileItem item : changes) {
                     try (InputStream source = item.getStream()) {
                         ByteArrayOutputStream target = new ByteArrayOutputStream();
-                        IOUtils.copy(source, target);
+                        source.transferTo(target);
                         actualEntries.put(item.getData().getName(), target.toByteArray());
                     }
                 }

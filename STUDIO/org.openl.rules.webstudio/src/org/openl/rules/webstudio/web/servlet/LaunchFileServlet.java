@@ -23,7 +23,6 @@ import org.openl.rules.webstudio.util.ExcelLauncher;
 import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.util.FileTypeHelper;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,7 +121,7 @@ public class LaunchFileServlet extends HttpServlet {
                 WebTool.getContentDispositionValue(pathToFile.getFileName().toString()));
 
             try (var in = Files.newInputStream(pathToFile); var out = response.getOutputStream()) {
-                IOUtils.copy(in, out);
+                in.transferTo(out);
             }
         } else {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);

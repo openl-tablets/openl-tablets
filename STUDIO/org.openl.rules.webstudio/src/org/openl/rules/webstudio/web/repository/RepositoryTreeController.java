@@ -1382,7 +1382,7 @@ public class RepositoryTreeController {
             is = ((AProjectResource) forExport.getArtefactByPath(selectedNodePath)).getContent();
             file = File.createTempFile("export-", "-file");
             os = new FileOutputStream(file);
-            IOUtils.copy(is, os);
+            is.transferTo(os);
 
             final FacesContext facesContext = FacesContext.getCurrentInstance();
             HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext().getResponse();

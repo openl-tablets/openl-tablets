@@ -2250,7 +2250,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         InputStream stream = change.getStream();
         if (stream != null) {
             try (FileOutputStream output = new FileOutputStream(file)) {
-                IOUtils.copy(stream, output);
+                stream.transferTo(output);
             }
             git.add().addFilepattern(change.getData().getName()).call();
             changedFiles.add(change.getData().getName());
