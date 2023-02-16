@@ -2,7 +2,7 @@ package org.openl.rules.ruleservice.storelogdata.cassandra;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,7 +17,6 @@ import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.DaoCreation
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
 import org.openl.spring.config.ConditionalOnEnable;
-import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -187,12 +186,13 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     }
 
     private static String extractCqlQueryForEntity(Class<?> entityClass) throws IOException {
-        InputStream inputStream = entityClass
-            .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".cql");
-        if (inputStream == null) {
-            throw new FileNotFoundException("/" + entityClass.getName().replaceAll("\\.", "/") + ".cql");
+        var cql = "/" + entityClass.getName().replaceAll("\\.", "/") + ".cql";
+        try (var inputStream = entityClass.getResourceAsStream(cql)) {
+            if (inputStream == null) {
+                throw new FileNotFoundException(cql);
+            }
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         }
-        return IOUtils.toStringAndClose(inputStream);
     }
 
     public boolean isCreateSchemaEnabled() {

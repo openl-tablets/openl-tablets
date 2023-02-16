@@ -87,7 +87,7 @@ public class LocalGitRepositoryTest {
         assertEquals(text.length(), result.getSize());
         assertNotNull(result.getModifiedAt());
 
-        assertEquals(text, IOUtils.toStringAndClose(repo.read("rules/project1/folder/file4").getStream()));
+        assertEquals(text, GitRepositoryTest.readText(repo.read("rules/project1/folder/file4")));
     }
 
     @Test
@@ -205,7 +205,7 @@ public class LocalGitRepositoryTest {
                 new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
 
             assertEquals(resolveMessage, repo.check(project1).getComment());
-            assertEquals(textInBranch1, IOUtils.toStringAndClose(repo.read(file).getStream()));
+            assertEquals(textInBranch1, GitRepositoryTest.readText(repo.read(file)));
 
             assertEquals(4, repo.listHistory(project1).size());
             String lastVersion = repo.listHistory(project1).get(3).getVersion();
@@ -264,7 +264,7 @@ public class LocalGitRepositoryTest {
                 new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
 
             assertEquals(resolveMessage, repo.check(project1).getComment());
-            assertEquals(textInMaster, IOUtils.toStringAndClose(repo.read(file).getStream()));
+            assertEquals(textInMaster, GitRepositoryTest.readText(repo.read(file)));
 
             assertEquals(4, repo.listHistory(project1).size());
             String lastVersion = repo.listHistory(project1).get(3).getVersion();

@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.mail;
 import static org.openl.rules.rest.MailController.MAIL_VERIFY_TOKEN;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
@@ -67,7 +68,7 @@ public class MailSender {
                 // Read template
                 String template;
                 try (var templateStream = getClass().getResourceAsStream(MAIL_VERIFICATION_TEMPLATE)) {
-                    template = IOUtils.toStringAndClose(templateStream);
+                    template = new String(templateStream.readAllBytes(), StandardCharsets.UTF_8);
                 }
 
                 // substitute values

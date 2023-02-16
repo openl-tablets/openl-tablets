@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.kafka.common.header.Header;
 import org.openl.binding.MethodUtil;
@@ -125,8 +124,8 @@ public class StoreLogDataMapper {
                 switch (storeLogData.getPublisherType()) {
                     case KAFKA:
                         if (storeLogData.getDltRecord() != null) {
-                            response = StringUtils.toEncodedString(storeLogData.getDltRecord().value(),
-                                StandardCharsets.UTF_8);
+                            final byte[] bytes = storeLogData.getDltRecord().value();
+                            response = new String(bytes, StandardCharsets.UTF_8);
                         } else if (storeLogData.getProducerRecord() != null) {
                             try {
                                 response = storeLogData.getObjectSerializer()

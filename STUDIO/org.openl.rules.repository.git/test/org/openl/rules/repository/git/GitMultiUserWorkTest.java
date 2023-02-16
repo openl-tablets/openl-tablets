@@ -17,6 +17,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
@@ -97,7 +98,7 @@ public class GitMultiUserWorkTest {
         assertEquals(text.length(), result.getSize());
         assertNotNull(result.getModifiedAt());
 
-        assertEquals(text, IOUtils.toStringAndClose(repo.read(path).getStream()));
+        assertEquals(text, GitRepositoryTest.readText(repo.read(path)));
     }
 
     private GitRepository createRepository(Path local) {

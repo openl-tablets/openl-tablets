@@ -3,6 +3,7 @@ package org.openl.rules.project.openapi;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.ws.rs.GET;
@@ -11,7 +12,6 @@ import javax.ws.rs.PathParam;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.util.IOUtils;
 
 import io.swagger.v3.jaxrs2.Reader;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -50,7 +50,9 @@ public class OpenApiSerializationUtilsTest {
     }
 
     private static String readText(String file) throws IOException {
-        return IOUtils.toStringAndClose(OpenApiSerializationUtilsTest.class.getResourceAsStream("/" + file));
+        try (var input = OpenApiSerializationUtilsTest.class.getResourceAsStream("/" + file)) {
+            return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 
     @Path("books")

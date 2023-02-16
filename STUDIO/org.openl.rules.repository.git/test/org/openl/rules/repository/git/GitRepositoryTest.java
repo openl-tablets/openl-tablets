@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -267,9 +268,9 @@ public class GitRepositoryTest {
 
     @Test
     public void read() throws IOException {
-        assertEquals("Hi.", IOUtils.toStringAndClose(repo.read("rules/project1/file1").getStream()));
-        assertEquals("Hello World.", IOUtils.toStringAndClose(repo.read("rules/project1/file2").getStream()));
-        assertEquals("In folder", IOUtils.toStringAndClose(repo.read("rules/project1/folder/file3").getStream()));
+        assertEquals("Hi.", readText(repo.read("rules/project1/file1")));
+        assertEquals("Hello World.", readText(repo.read("rules/project1/file2")));
+        assertEquals("In folder", readText(repo.read("rules/project1/folder/file3")));
 
         assertEquals(0, changesCounter.getChanges());
     }
@@ -290,7 +291,7 @@ public class GitRepositoryTest {
         assertEquals("Rules_5", result.getVersion());
         assertNotNull(result.getModifiedAt());
 
-        assertEquals(text, IOUtils.toStringAndClose(repo.read("rules/project1/folder/file4").getStream()));
+        assertEquals(text, readText(repo.read("rules/project1/folder/file4")));
 
         // Modify existing file
         text = "Modified";
@@ -298,7 +299,7 @@ public class GitRepositoryTest {
         assertNotNull(result);
         assertEquals(text.length(), result.getSize());
         assertEquals("Rules_6", result.getVersion());
-        assertEquals(text, IOUtils.toStringAndClose(repo.read("rules/project1/folder/file4").getStream()));
+        assertEquals(text, readText(repo.read("rules/project1/folder/file4")));
 
         assertEquals(2, changesCounter.getChanges());
 
@@ -306,7 +307,7 @@ public class GitRepositoryTest {
         File remote = new File(root, "remote");
         File temp = new File(root, "temp");
         try (GitRepository secondRepo = createRepository(remote, temp)) {
-            assertEquals(text, IOUtils.toStringAndClose(secondRepo.read("rules/project1/folder/file4").getStream()));
+            assertEquals(text, readText(secondRepo.read("rules/project1/folder/file4")));
         }
 
         // Check that creating new folders works correctly
@@ -510,9 +511,9 @@ public class GitRepositoryTest {
     @Test
     public void readHistory() throws IOException {
         assertEquals("Hello.",
-            IOUtils.toStringAndClose(repo.readHistory("rules/project1/file2", "Rules_2").getStream()));
+                readText(repo.readHistory("rules/project1/file2", "Rules_2")));
         assertEquals("Hello World.",
-            IOUtils.toStringAndClose(repo.readHistory("rules/project1/file2", "Rules_3").getStream()));
+                readText(repo.readHistory("rules/project1/file2", "Rules_3")));
         assertNull(repo.readHistory("rules/project1/file2", "Rules_1"));
     }
 
@@ -531,7 +532,7 @@ public class GitRepositoryTest {
         assertEquals("Copy file 2", copy.getComment());
         assertEquals(6, copy.getSize());
         assertEquals("Rules_5", copy.getVersion());
-        assertEquals("Hello.", IOUtils.toStringAndClose(repo.read("rules/project1/file2-copy").getStream()));
+        assertEquals("Hello.", readText(repo.read("rules/project1/file2-copy")));
 
         FileData destProject = new FileData();
         destProject.setName("rules/project2");
@@ -714,7 +715,7 @@ public class GitRepositoryTest {
                 FileData localData = repository2.save(fileData, IOUtils.toInputStream(text2));
 
                 FileItem remoteItem = repository2.read(filePath);
-                assertEquals(resolveText, IOUtils.toStringAndClose(remoteItem.getStream()));
+                assertEquals(resolveText, readText(remoteItem));
                 FileData remoteData = remoteItem.getData();
                 assertEquals(localData.getVersion(), remoteData.getVersion());
                 assertEquals("John Smith", remoteData.getAuthor().getDisplayName());
@@ -736,6 +737,12 @@ public class GitRepositoryTest {
                         repository2.check(filePath).getVersion());
                 }
             }
+        }
+    }
+
+    static String readText(FileItem remoteItem) throws IOException {
+        try (var input = remoteItem.getStream()) {
+            return new String(input.readAllBytes(), StandardCharsets.UTF_8);
         }
     }
 
@@ -869,14 +876,14 @@ public class GitRepositoryTest {
                 FileData localData = repository2.save(folderData2, changes2, ChangesetType.DIFF);
 
                 FileItem remoteItem = repository2.read(conflictedFile);
-                assertEquals(resolveText, IOUtils.toStringAndClose(remoteItem.getStream()));
+                assertEquals(resolveText, readText(remoteItem));
                 FileData remoteData = remoteItem.getData();
                 assertEquals(localData.getVersion(), remoteData.getVersion());
                 assertEquals("Jane Smith", remoteData.getAuthor().getDisplayName());
                 assertEquals("jasmith@email", remoteData.getAuthor().getEmail());
                 assertEquals(mergeMessage, remoteData.getComment());
 
-                String file1Content = IOUtils.toStringAndClose(repository2.read("rules/project1/file1").getStream());
+                String file1Content = readText(repository2.read("rules/project1/file1"));
                 assertEquals("Other user's non-conflicting modification is absent.", "Modified", file1Content);
 
                 // User modifies a file based on old version (baseCommit) and gets conflict.

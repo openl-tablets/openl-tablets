@@ -3,6 +3,7 @@ package org.openl.rules.project.abstraction;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -66,9 +67,14 @@ public class ProjectDescriptorSerializerTest {
     @Test
     @SuppressWarnings("rawtypes")
     public void checkCompatability() throws IOException, JAXBException {
-        String xml = IOUtils.toStringAndClose(serializer.serialize(makeDescriptors()));
-        List<ProjectDescriptor> result = serializer.deserialize(IOUtils.toInputStream(xml));
-        assertXml(xml, IOUtils.toStringAndClose(serializer.serialize(result)));
+        byte[] xml;
+        try (var input = serializer.serialize(makeDescriptors())) {
+            xml = input.readAllBytes();
+        }
+        List<ProjectDescriptor> result = serializer.deserialize(new ByteArrayInputStream(xml));
+        try (var input = serializer.serialize(result)) {
+            assertXml(xml, input.readAllBytes());
+        }
 
         List<ProjectDescriptor> expected = makeDescriptors();
         assertEquals(expected.size(), result.size());

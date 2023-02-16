@@ -2,7 +2,7 @@ package org.openl.rules.ruleservice.storelogdata.hive;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -17,7 +17,6 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
 import org.openl.spring.config.ConditionalOnEnable;
-import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,12 +145,13 @@ public class HiveOperations implements RuleServicePublisherListener {
     }
 
     private static String extractSqlQueryForEntity(Class<?> entityClass) throws IOException {
-        InputStream inputStream = entityClass
-                .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
-        if (inputStream == null) {
-            throw new FileNotFoundException("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
+        var sql = "/" + entityClass.getName().replaceAll("\\.", "/") + ".sql";
+        try (var inputStream = entityClass.getResourceAsStream(sql)) {
+            if (inputStream == null) {
+                throw new FileNotFoundException(sql);
+            }
+            return new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         }
-        return IOUtils.toStringAndClose(inputStream);
     }
 
     static String removeCommentsInStatement(String statement) {

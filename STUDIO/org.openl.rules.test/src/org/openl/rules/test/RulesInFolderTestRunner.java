@@ -3,6 +3,7 @@ package org.openl.rules.test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,7 +27,6 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
@@ -128,8 +128,8 @@ public class RulesInFolderTestRunner {
                 continue;
             }
             if (msgFile.exists()) {
-                try {
-                    String content = IOUtils.toStringAndClose(new FileInputStream(msgFile));
+                try (var input = new FileInputStream(msgFile)) {
+                    String content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
                     for (String message : content
                         .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
                         if (!StringUtils.isBlank(message)) {

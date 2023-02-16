@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
@@ -77,14 +78,15 @@ public class CombinedFileChangesTest {
     }
 
     private void assertRead(Repository repo, String name, String value) throws IOException {
-        FileItem result = repo.read(name);
-        assertNotNull("The file is not found.", result);
-        FileData data = result.getData();
-        assertNotNull("The file descriptor is missing.", data);
-        assertEquals("Wrong file name", name, data.getName());
-        InputStream stream = result.getStream();
-        String text = IOUtils.toStringAndClose(stream);
-        assertEquals("Unexpected content in the file.", value, text);
+        try (var result = repo.read(name)) {
+            assertNotNull("The file is not found.", result);
+            FileData data = result.getData();
+            assertNotNull("The file descriptor is missing.", data);
+            assertEquals("Wrong file name", name, data.getName());
+            InputStream stream = result.getStream();
+            String text = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            assertEquals("Unexpected content in the file.", value, text);
+        }
     }
 
 }
