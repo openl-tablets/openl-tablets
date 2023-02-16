@@ -19,7 +19,6 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.webapp.ClassMatcher;
 import org.eclipse.jetty.webapp.MetaInfConfiguration;
 import org.eclipse.jetty.webapp.WebAppContext;
-import org.springframework.http.HttpStatus;
 
 import static org.junit.Assert.fail;
 
@@ -164,7 +163,7 @@ public class JettyServer {
                     long started = System.currentTimeMillis();
                     while (!ready && (started - System.currentTimeMillis()) < MAX_READINESS_WAIT_TIMEOUT_MS) {
                         try {
-                            httpClient.getForObject("/admin/healthcheck/readiness", String.class, HttpStatus.OK);
+                            httpClient.getForObject("/admin/healthcheck/readiness", String.class, 200);
                             ready = true;
                         } catch (AssertionError ignored) {
                             System.out.println("Not ready yet. Wait 500 ms and retry");

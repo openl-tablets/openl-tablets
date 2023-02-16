@@ -4,23 +4,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.stream.Stream;
-
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.web.client.ResponseErrorHandler;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.DefaultUriBuilderFactory;
 
 /**
  * A simple HTTP client which allows to send a request file and compares a response with a response file.
@@ -34,43 +26,41 @@ public class HttpClient {
     public static final String ANSI_RED_BOLD = "\u001B[1;31m";
     public static final String ANSI_GREEN_BOLD = "\u001B[1;32m";
 
-    private final RestTemplate rest;
     private final URL baseURL;
+    private final java.net.http.HttpClient client;
     private final ThreadLocal<String> cookie = new ThreadLocal<>();
 
-    private HttpClient(RestTemplate rest, URL baseURL) {
-        this.rest = rest;
+    private HttpClient(URL baseURL) {
         this.baseURL = baseURL;
+        int connectTimeout = Integer.parseInt(System.getProperty("http.timeout.connect"));
+        this.client = java.net.http.HttpClient.newBuilder()
+                .version(java.net.http.HttpClient.Version.HTTP_1_1)
+                .connectTimeout(Duration.ofMillis(connectTimeout))
+                .build();
+    }
+
+    private HttpRequest.Builder requestBuilder(String url, String[] headers) throws URISyntaxException {
+        var uri = baseURL.toURI().resolve(url);
+        int readTimeout = Integer.parseInt(System.getProperty("http.timeout.read"));
+        var bld = HttpRequest.newBuilder()
+                .uri(uri)
+                .timeout(Duration.ofMillis(readTimeout));
+
+        var c = cookie.get();
+        if (c != null && !c.isBlank()) {
+            bld.header("Cookie", c);
+        }
+
+        if (headers != null && headers.length > 0) {
+            bld.headers(headers);
+        }
+
+        return bld;
     }
 
     static HttpClient create(URL url) {
-        RestTemplate rest = new RestTemplate(getClientHttpFactory());
-
-        rest.setUriTemplateHandler(new DefaultUriBuilderFactory(url.toExternalForm()));
-        rest.setErrorHandler(NO_ERROR_HANDLER);
-        return new HttpClient(rest, url);
+        return new HttpClient(url);
     }
-
-    private static ClientHttpRequestFactory getClientHttpFactory() {
-        SimpleClientHttpRequestFactory httpRequestFactory = new SimpleClientHttpRequestFactory();
-        int connectTimeout = Integer.parseInt(System.getProperty("http.timeout.connect"));
-        int readTimeout = Integer.parseInt(System.getProperty("http.timeout.read"));
-        httpRequestFactory.setConnectTimeout(connectTimeout);
-        httpRequestFactory.setReadTimeout(readTimeout);
-        return httpRequestFactory;
-    }
-
-    private static final ResponseErrorHandler NO_ERROR_HANDLER = new ResponseErrorHandler() {
-        @Override
-        public boolean hasError(ClientHttpResponse response) {
-            return false;
-        }
-
-        @Override
-        public void handleError(ClientHttpResponse response) {
-            // To prevent exception throwing and to provide ability to check error codes
-        }
-    };
 
     public void send(String reqRespFiles) {
         send("/" + reqRespFiles + ".req", "/" + reqRespFiles + ".resp");
@@ -113,25 +103,35 @@ public class HttpClient {
         }
     }
 
-    public <T> T getForObject(String url, Class<T> cl, HttpStatus status) {
-        HttpHeaders headers = new HttpHeaders();
-        var c = cookie.get();
-        if (c != null && !c.isBlank()) {
-            headers.add("Cookie", c);
+    public <T> T getForObject(String url, Class<T> cl, int status, String... headers) {
+        try {
+            var req = requestBuilder(url, headers)
+                    .GET()
+                    .build();
+            var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+            assertEquals("URL :" + url, status, resp.statusCode());
+            if (cl == String.class) {
+                return (T) resp.body();
+            }
+            return HttpData.OBJECT_MAPPER.readValue(resp.body(), cl);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        return getForObject(url, cl, status, headers);
     }
 
-    public <T> T getForObject(String url, Class<T> cl, HttpStatus status, HttpHeaders httpHeaders) {
-        ResponseEntity<T> exchange = rest.exchange(url, HttpMethod.GET, new HttpEntity<>(httpHeaders), cl);
-        assertEquals("URL :" + url, status, exchange.getStatusCode());
-        return exchange.getBody();
-    }
+    public void putForObject(String url, Object request, String... headers) {
 
-    public <T> T putForObject(String url, Object request, Class<T> cl, HttpStatus status, HttpHeaders httpHeaders) {
-        ResponseEntity<T> exchange = rest.exchange(url, HttpMethod.PUT, new HttpEntity<>(request, httpHeaders), cl);
-        assertEquals("URL :" + url, status, exchange.getStatusCode());
-        return exchange.getBody();
+        try {
+            var req = requestBuilder(url, headers)
+                    .header("Content-Type", "application/json")
+                    .PUT(HttpRequest.BodyPublishers.ofString(HttpData.OBJECT_MAPPER.writeValueAsString(request)))
+                    .build();
+
+            var resp = client.send(req, HttpResponse.BodyHandlers.discarding());
+            assertEquals("URL :" + url, 204, resp.statusCode());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
