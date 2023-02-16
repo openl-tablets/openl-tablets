@@ -264,7 +264,7 @@ public class RepositoryDiffController extends AbstractDiffController {
         try {
             tempFile = File.createTempFile("openl-cmp", excelArtefact.getName());
             out = new FileOutputStream(tempFile);
-            IOUtils.copy(in, out);
+            in.transferTo(out);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
         } finally {

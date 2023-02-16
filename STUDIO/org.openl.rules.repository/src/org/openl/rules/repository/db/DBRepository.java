@@ -24,7 +24,6 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
 import org.openl.util.db.SqlDBUtils;
@@ -472,7 +471,7 @@ abstract class DBRepository implements Repository, Closeable {
         // why copy it to byte array before.
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            IOUtils.copy(data, out);
+            data.transferTo(out);
         } catch (IOException e) {
             throw new SQLException(e);
         }

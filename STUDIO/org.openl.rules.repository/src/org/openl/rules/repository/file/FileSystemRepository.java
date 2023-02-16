@@ -23,7 +23,7 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.util.FileUtils;
-import org.openl.util.IOUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +123,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
         // Close only output stream. This class is not responsible for input stream: stream must be closed in the
         // place where it was created.
         try (FileOutputStream output = new FileOutputStream(file)) {
-            IOUtils.copy(stream, output);
+            stream.transferTo(output);
         }
         if (data.getModifiedAt() != null) {
             if (!file.setLastModified(data.getModifiedAt().getTime())) {
@@ -366,7 +366,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
             InputStream stream = change.getStream();
             if (stream != null) {
                 try (FileOutputStream output = new FileOutputStream(file)) {
-                    IOUtils.copy(stream, output);
+                    stream.transferTo(output);
                 }
                 if (data.getModifiedAt() != null) {
                     if (!file.setLastModified(data.getModifiedAt().getTime())) {

@@ -220,7 +220,8 @@ public class FileSystemRepositoryTest {
             ZipEntry entry = new ZipEntry(name);
             outputStream.putNextEntry(entry);
             String text = "Text for file " + name;
-            IOUtils.copy(IOUtils.toInputStream(text), outputStream);
+            InputStream input = IOUtils.toInputStream(text);
+            input.transferTo(outputStream);
             outputStream.closeEntry();
         }
         outputStream.close();

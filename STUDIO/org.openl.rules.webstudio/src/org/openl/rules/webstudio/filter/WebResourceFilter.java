@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openl.util.FileUtils;
-import org.openl.util.IOUtils;
+
 import org.springframework.util.AntPathMatcher;
 
 /**
@@ -82,7 +82,7 @@ public class WebResourceFilter implements Filter {
 
             try (InputStream stream = initializeInputStream(path)) {
                 OutputStream out = response.getOutputStream();
-                IOUtils.copy(stream, out);
+                stream.transferTo(out);
             } catch (FileNotFoundException ignored) {
                 ((HttpServletResponse) response).sendError(HttpServletResponse.SC_NOT_FOUND);
             }
