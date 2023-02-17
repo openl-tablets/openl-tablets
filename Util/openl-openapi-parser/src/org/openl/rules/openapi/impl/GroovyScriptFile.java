@@ -1,10 +1,6 @@
 package org.openl.rules.openapi.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import java.util.Optional;
 
 public class GroovyScriptFile {
 
@@ -28,17 +24,6 @@ public class GroovyScriptFile {
 
     public String getScriptText() {
         return scriptText;
-    }
-
-    public InputStream toInputStream() {
-        return Optional.ofNullable(scriptText)
-            .map(text -> new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8)))
-            .orElse(null);
-
-    }
-
-    public boolean isEmpty() {
-        return scriptText != null && scriptText.length() > 0;
     }
 
     @Override
