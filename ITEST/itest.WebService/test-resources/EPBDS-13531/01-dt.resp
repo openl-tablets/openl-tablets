@@ -1,0 +1,246 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "value": ["!type1.type2.isSelected && type1.type2.isSelected"],
+    "formula": ["false"]
+  }, {
+  "value": ["a1 and a2", "a1 and a3"],
+  "formula": ["a1 and a2", "a1 and a3"]
+}, {
+  "value": ["type1.type2.isSelected || true"],
+  "formula": ["true"]
+}, {
+  "value": ["false || type1.type2.isSelected"],
+  "formula": ["type1.type2.isSelected"]
+}, {
+  "value": ["b1 > 10 && 10 <= b2"],
+  "formula": ["b1 > 10 and b2 > 9"]
+}, {
+  "value": ["10 > 12 || type1.type2.isSelected"],
+  "formula": ["type1.type2.isSelected"]
+}, {
+  "value": ["10 < 12 || type1.type2.isSelected"],
+  "formula": ["true"]
+}, {
+  "value": ["Boolean.TRUE || type1.type2.isSelected"],
+  "formula": ["true"]
+}, {
+  "value": ["!type1.arr[0].isSelected && type1.arr[0].isSelected"],
+  "formula": ["false"]
+}, {
+  "value": ["!type1.arr[0].isSelected && type1.arr[1].isSelected"],
+  "formula": ["not type1.arr[0].isSelected and type1.arr[1].isSelected"]
+}, {
+  "value": ["b1 < b2 || b2 > b1"],
+  "formula": ["b1 < b2"]
+}, {
+  "value": ["a1 ? 10 < b1 : b1 <= 10"],
+  "formula": ["a1 ? b1 > 10 : b1 < 11"]
+}, {
+  "value": ["\"hello     hello\" ==        s1"],
+  "formula": ["s1 == \"hello     hello\""]
+}, {
+  "value": ["b1 < b2", "b1 == b2"],
+  "formula": ["b1 < b2", "b1 == b2"]
+}, {
+  "value": ["(true == true) == (true == true)"],
+  "formula": ["true"]
+}, {
+  "value": ["(10 == 10) == (10 == 10)"],
+  "formula": ["true"]
+}, {
+  "value": ["not (a > 1 == b2 < 1)"],
+  "formula": ["a > 1 != b2 < 1"]
+}, {
+  "value": ["a1 == a2 == (b1 == b2)"],
+  "formula": ["a1 == a2 == (b1 == b2)"]
+}, {
+  "value": ["(a1 == a2) == ((b1 == b2))"],
+  "formula": ["a1 == a2 == (b1 == b2)"]
+}, {
+  "value": ["not (a1 == a2) == not (b1 == b2)"],
+  "formula": ["a1 == a2 == (b1 == b2)"]
+}, {
+  "value": ["not (not (b1 == b2))"],
+  "formula": ["b1 == b2"]
+}, {
+  "value": ["not (not a1 == not a2)"],
+  "formula": ["a1 != a2"]
+}, {
+  "value": ["not (not true == not true)"],
+  "formula": ["false"]
+}, {
+  "value": ["(a1 == a2) == (not a1 != a2)"],
+  "formula": ["true"]
+}, {
+  "value": ["((a1  ==  a2 ) == (not  a1 !=  a2)) == (( a2  !=  !a1)   ==   (not  a1  ==   !a2   ))"],
+  "formula": ["true"]
+}, {
+  "value": ["type1.arr2[0][0].isselected == typE1.Arr2[0][0].isSelected"],
+  "formula": ["true"]
+}, {
+  "value": ["type1.arr2[0][0].isSelected == type1.arr2[0][1].isSelected"],
+  "formula": ["type1.arr2[0][0].isSelected == type1.arr2[0][1].isSelected"]
+}, {
+  "value": ["!!!!!(a1 == a1) == !!!!!(a1 == a1)"],
+  "formula": ["true"]
+}, {
+  "value": ["(not (a1 ? a2 : a3)) == (!a1 ? not a3 : not a2)"],
+  "formula": ["true"]
+}, {
+  "value": ["a1 == BoolFunc1( a1 == a1, (a2 == a1) == (a1 == a2))"],
+  "formula": ["BoolFunc1(true, true) == a1"]
+}, {
+  "value": ["BoolFunc1( true,          true)           ==  BoolFunc1(        true,  true   )"],
+  "formula": ["BoolFunc1(true, true) == BoolFunc1(true, true)"]
+}, {
+  "value": ["a1 == a2 == b1 == b2"],
+  "formula": ["a1 == a2 == b1 == b2"]
+}, {
+  "value": ["c1 == (c2 == (b1 == b2))"],
+  "formula": ["b1 == b2 == c2 == c1"]
+}, {
+  "value": ["((c1 == c2) == b1) == b2"],
+  "formula": ["b1 == (c1 == c2) == b2"]
+}, {
+  "value": ["not (b2 <= b1)"],
+  "formula": ["b1 < b2"]
+}, {
+  "value": ["not (b1 > b2) == (b2 <= b1)"],
+  "formula": ["b1 < b2 == b1 > b2"]
+}, {
+  "value": ["not (b1 >= b2) == b2 > b1"],
+  "formula": ["true"]
+}, {
+  "value": ["not (b1 >= b2) == not (b2 > b1)"],
+  "formula": ["false"]
+}, {
+  "value": ["not (not (b1 >= b2) == not (b2 > b1))"],
+  "formula": ["true"]
+}, {
+  "value": ["not ((b1 >= b2) == not (b2 > b1))"],
+  "formula": ["false"]
+}, {
+  "value": ["not (not (b1 >= b2) == (b2 > b1))"],
+  "formula": ["false"]
+}, {
+  "value": ["(not (not (not (b1 == b2)))) == (not (not (not (b1 != b2))))"],
+  "formula": ["false"]
+}, {
+  "value": ["(not (not (not (b1 == b2)))) == (not (not (not (a != c))))"],
+  "formula": ["a == c != (b1 == b2)"]
+}, {
+  "value": ["(not (not (not (b1 == b2)))) != (not (not (not (a != c))))"],
+  "formula": ["a == c == (b1 == b2)"]
+}, {
+  "value": ["f <= 10"],
+  "formula": ["f <= 10"]
+}, {
+  "value": ["b1 <= (int) 10.9"],
+  "formula": ["b1 < 11"]
+}, {
+  "value": ["- b2 + b1 + a5 > 0"],
+  "formula": ["a5 + b1 - b2 > 0"]
+}, {
+  "value": ["-(- b1) + b2 + a5 > 1"],
+  "formula": ["a5 + b1 + b2 > 1"]
+}, {
+  "value": ["- b1 - b2 - a5 > 2"],
+  "formula": ["-a5 - b1 - b2 > 2"]
+}, {
+  "value": ["- b1 - (-b2) - (-a5) > 3"],
+  "formula": ["a5 - b1 + b2 > 3"]
+}, {
+  "value": ["- (b1 + b2 + a5) > 4"],
+  "formula": ["-a5 - b1 - b2 > 4"]
+}, {
+  "value": ["b1 - (b2 - a5) > 5"],
+  "formula": ["a5 + b1 - b2 > 5"]
+}, {
+  "value": ["b1 - (b2 - a5) - (b1 - (b2 - a5)) > 5"],
+  "formula": ["false"]
+}, {
+  "value": ["b1 - (b2 - a5) - (b1 - (- a5)) > 5"],
+  "formula": ["-b2 > 5"]
+}, {
+  "value": ["(int) b1 - b1 == 0"],
+  "formula": ["true"]
+}, {
+  "value": ["(long) b1 - b1 == 0"],
+  "formula": ["(long) b1 - b1 == 0"]
+}, {
+  "value": ["(f1+ f2) + ((int) (f3+f4)) > 0"],
+  "formula": ["(int) (f3 + f4) + f1 + f2 > 0"]
+}, {
+  "value": ["2.3 + 3.2 > 0"],
+  "formula": ["true"]
+}, {
+  "value": ["length(\"world\" + \"hello\" + \"world\" ) > 0"],
+  "formula": ["length(\"worldhelloworld\") > 0"]
+}, {
+  "value": ["b2 * b1 > 0"],
+  "formula": ["b1 * b2 > 0"]
+}, {
+  "value": ["b2 * b1 / b2> 0"],
+  "formula": ["b1 > 0"]
+}, {
+  "value": ["b2 * b1 / (b1 * b2) == 1"],
+  "formula": ["true"]
+}, {
+  "value": ["b2 * b1 / (b1 * b2 * b2) > 0"],
+  "formula": ["1 / b2 > 0"]
+}, {
+  "value": ["b2 * b1 / (b1 * b2 * -b2) > 0"],
+  "formula": ["-1 / b2 > 0"]
+}, {
+  "value": ["b2 * b1 * b2 / (b1 * b2 * -b2) == -1"],
+  "formula": ["true"]
+}, {
+  "value": ["(b1 + b2)/(b2 + b1) > 0"],
+  "formula": ["b1 / (b1 + b2) + b2 / (b1 + b2) > 0"]
+}, {
+  "value": ["(b1 + b2)/(b2 + b1)*(b1 + b2) > 0"],
+  "formula": ["2 * b1 * b2 / (b1 + b2) + b1 * b1 / (b1 + b2) + b2 * b2 / (b1 + b2) > 0"]
+}, {
+  "value": ["(b1 - b2)/(b2 - b1) == -1"],
+  "formula": ["-b2 / (-b1 + b2) + b1 / (-b1 + b2) == -1"]
+}, {
+  "value": ["a5 * (b3 + b2 + b1) > 0"],
+  "formula": ["a5 * b1 + a5 * b2 + a5 * b3 > 0"]
+}, {
+  "value": ["(b1 + b2 + b1) * (b1 + b2 + b1) > 0"],
+  "formula": ["4 * b1 * b1 + 4 * b1 * b2 + b2 * b2 > 0"]
+}, {
+  "value": ["4/4 == 1"],
+  "formula": ["true"]
+}, {
+  "value": ["4 / (2+2) == 1"],
+  "formula": ["true"]
+}, {
+  "value": ["4 / (2-2) > 0"],
+  "formula": ["Double.POSITIVE_INFINITY > 0"]
+}, {
+  "value": ["0 / 5 == 0"],
+  "formula": ["true"]
+}, {
+  "value": ["4 / (2-1) > 0"],
+  "formula": ["true"]
+}, {
+  "value": ["(b1 + b2)/((b2 + b1)*(b1 + b2)) > 0"],
+  "formula": ["b1 / (2 * b1 * b2 + b1 * b1 + b2 * b2) + b2 / (2 * b1 * b2 + b1 * b1 + b2 * b2) > 0"]
+}, {
+  "value": ["String.valueOf(b2 * b1 / (b1 * b2)).length()> 0"],
+  "formula": ["String.valueOf(1).length() > 0"]
+}, {
+  "value": ["a5 / b1 * b2 < 10"],
+  "formula": ["a5 * b2 / b1 < 10"]
+}, {
+  "value": ["(b1 + b2)/((b1 + b2)*(b2 + b1)) > 0"],
+  "formula": ["b1 / (2 * b1 * b2 + b1 * b1 + b2 * b2) + b2 / (2 * b1 * b2 + b1 * b1 + b2 * b2) > 0"]
+}, {
+  "value": ["(a - c ) * (a - b) > 10"],
+  "formula": ["a * a - a * b - a * c + b * c > 10"]
+}
+]

@@ -1,0 +1,105 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+  {
+    "value": ["a == 1 and isTrue", "b == 2 and isTrue"],
+    "formula": ["a == 1 and isTrue", "b == 2 and isTrue"]
+  }, {
+  "value": ["a != 3"],
+  "formula": ["a != 3"]
+}, {
+  "value": ["a <> 0 and a <> b and isTrue", "a <> b and b != 0 and not isTrue"],
+  "formula": ["a != 0 and a != b and isTrue", "a != b and b != 0 and not isTrue"]
+}, {
+  "value": ["not (a == 1)", "not isTrue"],
+  "formula": ["a != 1", "not isTrue"]
+}, {
+  "value": ["not (a == 1)", "not isTrue"],
+  "formula": ["a != 1", "not isTrue"]
+}, {
+  "value": ["not isTrue and not ( a == 1   )"],
+  "formula": ["a != 1 and not isTrue"]
+}, {
+  "value": ["! ( isTrue or a == 1)"],
+  "formula": ["a != 1 and not isTrue"]
+}, {
+  "value": ["a==1"],
+  "formula": ["a == 1"]
+}, {
+  "value": ["a  ==  1"],
+  "formula": ["a == 1"]
+}, {
+  "value": ["(b > a) and (a > 1)"],
+  "formula": ["a < b and a > 1"]
+}, {
+  "value": ["not (isTrue <> true)"],
+  "formula": ["isTrue"]
+}, {
+  "value": ["not (a == 1 <> isTrue)"],
+  "formula": ["a == 1 == isTrue"]
+}, {}, {
+  "value": ["a == 1 and isTrue", "b == 2 and isTrue"],
+  "formula": ["a == 1 and isTrue", "b == 2 and isTrue"]
+}, {
+  "value": ["a == 1 and isTrue", "b == 2 and isTrue"],
+  "formula": ["a == 1 and isTrue", "b == 2 and isTrue"]
+}, {
+  "value": ["(isTrue && a >= 1) && (isTrue && b >= 2)"],
+  "formula": ["a > 0 and b > 1 and isTrue"]
+}, {
+  "value": ["a > 1 and b > 2 and isTrue", "b >= 10 and isTrue"],
+  "formula": ["a > 1 and b > 2 and isTrue", "b > 9 and isTrue"]
+}, {
+  "value": ["a + 1>10"],
+  "formula": ["1 + a > 10"]
+}, {
+  "value": ["a + 1<=10"],
+  "formula": ["1 + a < 11"]
+}, {
+  "value": ["not isTrue"],
+  "formula": ["not isTrue"]
+}, {
+  "value": ["not ! isTrue"],
+  "formula": ["isTrue"]
+}, {
+  "value": ["b != 1 + a and b <> a and a > b and a + 1 > 0"],
+  "formula": ["1 + a != b and 1 + a > 0 and a != b and a > b"]
+}, {
+  "value": ["isTrue and a == 1"],
+  "formula": ["a == 1 and isTrue"]
+}, {
+  "value": ["isTrue and isTrue"],
+  "formula": ["isTrue"]
+}, {
+  "value": ["isTrue or isTrue"],
+  "formula": ["isTrue"]
+}, {
+  "value": ["not ( a <= 10 )"],
+  "formula": ["a > 10"]
+}, {
+  "value": ["not ( a > 10 )"],
+  "formula": ["a < 11"]
+}, {
+  "value": ["BoolFunc( a, b ) == isTrue"],
+  "formula": ["BoolFunc(a, b) == isTrue"]
+}, {
+  "value": ["not BoolFunc( a, b ) == isTrue"],
+  "formula": ["BoolFunc(a, b) != isTrue"]
+}, {
+  "value": ["not BoolFunc( a, b ) == true"],
+  "formula": ["not BoolFunc(a, b)"]
+}, {
+  "value": ["not ( BoolFunc( a, b ) == true )"],
+  "formula": ["not BoolFunc(a, b)"]
+}, {
+  "value": ["IntFunc( a, b ) > 0", "isTrue"],
+  "formula": ["IntFunc(a, b) > 0", "isTrue"]
+}, {
+  "value": ["not (IntFunc( a, b ) > 0)", "isTrue"],
+  "formula": ["IntFunc(a, b) < 1", "isTrue"]
+}, {
+  "value": ["not ( IntFunc( a, b ) > 0 || isTrue )"],
+  "formula": ["IntFunc(a, b) < 1 and not isTrue"]
+}
+]
