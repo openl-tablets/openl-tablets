@@ -152,7 +152,7 @@
         <okhttp.version>4.10.0</okhttp.version>
 
         <!-- Repositories -->
-        <amazonaws.version>1.12.395</amazonaws.version>
+        <amazonaws.version>1.12.408</amazonaws.version>
         <azure.version>12.20.2</azure.version>
         <jgit.version>6.3.0.202209071007-openl-2</jgit.version>
 
