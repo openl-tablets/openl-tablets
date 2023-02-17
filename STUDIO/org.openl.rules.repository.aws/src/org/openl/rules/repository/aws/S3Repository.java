@@ -1,6 +1,5 @@
 package org.openl.rules.repository.aws;
 
-import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -486,7 +485,7 @@ public class S3Repository implements Repository, Closeable {
         // Create new version of modification marker file with new id
         ObjectMetadata metaData = new ObjectMetadata();
         metaData.setContentLength(0);
-        s3.putObject(bucketName, MODIFICATION_FILE, new ByteArrayInputStream(new byte[0]), metaData);
+        s3.putObject(bucketName, MODIFICATION_FILE, InputStream.nullInputStream(), metaData);
 
         // Invoke listener if exist
         if (monitor != null) {
