@@ -1,0 +1,3 @@
+GET /rest/repos/design/projects/Project/history HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+

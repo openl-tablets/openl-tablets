@@ -284,13 +284,10 @@
                   onenter="refreshVersionsContentProject()"
                   disabled="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder'}"
                   headerClass="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder' ? 'hideHeader' : 'showHeader'}">
-            <h:panelGroup id="versionsContentProject">
-                <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
-            </h:panelGroup>
+            <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
             <a4j:jsFunction name="refreshVersionsContentProject"
                             action="#{repositoryTreeController.forceUpdateVersionsBean}"
-                            render="versionsContentProject"
-                            oncomplete="initExpandableLinks()"/>
+                            oncomplete="initializeProjectRevisionTable('#{node.type}', '#{artefact.repository.id}', '#{artefact.mainBusinessName}', '#{repositoryTreeState.supportsBranches ? repositoryTreeController.projectBranch : null}', #{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted})"/>
 
         </rich:tab>
         <ui:remove><!--
@@ -381,13 +378,10 @@
                 <ui:include src="node/deployment.xhtml"/>
             </rich:tab>
             <rich:tab header="Revisions" onenter="refreshVersionsContentDeployConfig()">
-                <h:panelGroup id="versionsContentDeployConfig">
-                    <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
-                </h:panelGroup>
+                <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
                 <a4j:jsFunction name="refreshVersionsContentDeployConfig"
                                 action="#{repositoryTreeController.forceUpdateVersionsBean}"
-                                render="versionsContentDeployConfig"
-                                oncomplete="initExpandableLinks()"/>
+                                oncomplete="initializeProjectRevisionTable('#{node.type}', '#{artefact.repository.id}', '#{artefact.name}', '#{repositoryTreeState.supportsBranches ? repositoryTreeController.projectBranch : null}', #{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted})"/>
             </rich:tab>
             <rich:tab header="Projects to Deploy">
                 <ui:include src="/pages/modules/repository/node/descriptors.xhtml"/>

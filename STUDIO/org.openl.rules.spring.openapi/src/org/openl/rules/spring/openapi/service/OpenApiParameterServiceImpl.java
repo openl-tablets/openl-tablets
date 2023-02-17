@@ -1,5 +1,6 @@
 package org.openl.rules.spring.openapi.service;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -182,10 +183,17 @@ public class OpenApiParameterServiceImpl implements OpenApiParameterService {
         boolean empty = true;
         String defaultValue = null;
         if (pathVar != null) {
+            boolean optional = false;
+            if (paramInfo.getType() instanceof ParameterizedType) {
+                optional = ((ParameterizedType) paramInfo.getType()).getRawType() == Optional.class;
+            }
+            if ((optional || !pathVar.required()) && !methodInfo.getPathPattern().contains("{" + pathVar.value() + "}")) {
+                return Optional.empty();
+            }
             if (StringUtils.isNotBlank(pathVar.value())) {
                 parameter.setName(pathVar.value());
             }
-            parameter.in(ParameterIn.PATH.toString()).required(pathVar.required());
+            parameter.in(ParameterIn.PATH.toString()).required(true);
             empty = false;
         } else if (requestHeader != null) {
             if (StringUtils.isNotBlank(requestHeader.value())) {

@@ -3,6 +3,8 @@ package org.openl.rules.rest.model;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 import io.swagger.v3.oas.annotations.Parameter;
 
 public class UserInfoModel {
@@ -10,18 +12,22 @@ public class UserInfoModel {
     @Email(message = "{openl.constraints.user.email.format.message}")
     @Size(max = 254, message = "{openl.constraints.size.max.message}")
     @Parameter(description = "User e-mail", example = "test@test")
+    @JsonView({ GenericView.Full.class, View.Short.class })
     private String email;
 
     @Size(max = 64, message = "{openl.constraints.size.max.message}")
     @Parameter(description = "User display name", example = "John Doe")
+    @JsonView({ GenericView.Full.class, View.Short.class })
     private String displayName;
 
     @Size(max = 25, message = "{openl.constraints.size.max.message}")
     @Parameter(description = "User first name", example = "John")
+    @JsonView(GenericView.Full.class)
     private String firstName;
 
     @Size(max = 25, message = "{openl.constraints.size.max.message}")
     @Parameter(description = "User last name", example = "Doe")
+    @JsonView(GenericView.Full.class)
     private String lastName;
 
     public String getEmail() {
@@ -58,5 +64,13 @@ public class UserInfoModel {
     public UserInfoModel setLastName(String lastName) {
         this.lastName = lastName;
         return this;
+    }
+
+    public static final class View {
+        private View() {
+        }
+
+        public interface Short {
+        }
     }
 }

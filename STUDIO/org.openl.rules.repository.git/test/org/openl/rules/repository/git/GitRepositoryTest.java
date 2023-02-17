@@ -1,5 +1,17 @@
 package org.openl.rules.repository.git;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.openl.rules.repository.git.TestGitUtils.assertContains;
+import static org.openl.rules.repository.git.TestGitUtils.createFileData;
+import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
+import static org.openl.rules.repository.git.TestGitUtils.writeText;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,23 +45,12 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.openl.rules.repository.git.TestGitUtils.assertContains;
-import static org.openl.rules.repository.git.TestGitUtils.createFileData;
-import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
-import static org.openl.rules.repository.git.TestGitUtils.writeText;
 
 public class GitRepositoryTest {
     private static final String BRANCH = "test";
@@ -381,6 +382,18 @@ public class GitRepositoryTest {
 
         // Count actual changes in history
         assertEquals("Actual project changes must be 5.", 5, repo.listHistory(projectPath).size());
+        assertEquals("Actual project changes must be 5.", 5, repo.listHistory(projectPath, null, Page.unpaged()).size());
+        Page page = Page.ofSize(2);
+        assertEquals("Actual project changes must be 2.", 2, repo.listHistory(projectPath, null, page).size());
+        assertEquals("Actual project changes must be 2.", 2, repo.listHistory(projectPath, null, page.withPage(1)).size());
+        assertEquals("Actual project changes must be 1.", 1, repo.listHistory(projectPath, null, page.withPage(2)).size());
+        assertEquals("Actual project changes must be 0.", 0, repo.listHistory(projectPath, null, page.withPage(3)).size());
+
+        assertEquals("Global changes must be 5.", 6, repo.globalHistory(null, Page.unpaged()).size());
+        page = Page.ofSize(3);
+        assertEquals("Actual project changes must be 3.", 3, repo.globalHistory(null, page).size());
+        assertEquals("Actual project changes must be 3.", 3, repo.globalHistory(null, page.withPage(1)).size());
+        assertEquals("Actual project changes must be 0.", 0, repo.globalHistory(null, page.withPage(2)).size());
 
         // Erase the project
         toDelete.setName(projectPath);

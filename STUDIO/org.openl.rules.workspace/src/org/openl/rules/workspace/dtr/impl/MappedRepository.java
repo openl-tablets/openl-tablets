@@ -34,9 +34,12 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.HistoryLog;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.SearchableRepository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -49,7 +52,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
 
-public class MappedRepository implements FolderRepository, BranchRepository, Closeable, FolderMapper {
+public class MappedRepository implements FolderRepository, BranchRepository, SearchableRepository, Closeable, FolderMapper {
     private static final Logger log = LoggerFactory.getLogger(MappedRepository.class);
     private static final String SEPARATOR = ":";
 
@@ -249,6 +252,17 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     }
 
     @Override
+    public List<FileData> listHistory(String name, String globalFilter, Page page) throws IOException {
+        ProjectIndex mapping = getUpToDateMapping(true);
+        return toExternal(mapping, ((SearchableRepository) delegate).listHistory(toInternal(mapping, name), globalFilter, page));
+    }
+
+    @Override
+    public List<HistoryLog> globalHistory(String globalFilter, Page page) throws IOException {
+        return ((SearchableRepository) delegate).globalHistory(globalFilter, page);
+    }
+
+    @Override
     public FileData checkHistory(String name, String version) throws IOException {
         ProjectIndex mapping = getUpToDateMapping(true);
         return toExternal(mapping, delegate.checkHistory(toInternal(mapping, name), version));
@@ -361,6 +375,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
         return new FeaturesBuilder(delegate).setVersions(delegate.supports().versions())
             .setMappedFolders(true)
             .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
+            .setSearchable(delegate.supports().searchable())
             .build();
     }
 

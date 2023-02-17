@@ -1,0 +1,7 @@
+HTTP/1.1 404
+Content-Type: application/json
+
+{
+  "code": "openl.error.404.repository.history.message",
+  "message": "Overall history is not supported by requested repository."
+}

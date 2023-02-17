@@ -1,81 +1,63 @@
 <ui:composition
-        xmlns:f="http://java.sun.com/jsf/core"
-        xmlns:h="http://java.sun.com/jsf/html"
-        xmlns:rich="http://richfaces.org/rich"
         xmlns:ui="http://java.sun.com/jsf/facelets"
         xmlns:a4j="http://richfaces.org/a4j"
 >
-
     <style>
-        .padding {
-            padding: 6px 7px !important;
+        a.load-more {
+            font-size: 25px;
+            text-align: center;
+        }
+        .search-revision-form {
+            display: flex;
+            flex-direction: row;
+            margin-left: 6px;
+        }
+        .search-revision-form label {
+            font-weight: bold;
         }
     </style>
-    <rich:dataTable value="#{nodeVersionsBean.nodeToView.versions}" var="version" styleClass="table"
-                    columnClasses="padding">
-        <ui:param name="renderAction"
-                  value="#{node.type == 'project' and repositoryTreeState.canOpenOtherVersion and !artefact.deleted and !version.deleted}"/>
+    <div id="project-revisions">
+        <form class="search-revision-form">
+            <div style="flex: 0 0 8em;">
+                <label>Full log:</label>
+                <input name="full-log" type="checkbox"/>
+            </div>
+            <div>
+                <input name="search-filter" type="text" placeholder="Search filter..."/>
+            </div>
+        </form>
+        <section class="table-layout">
+            <header class="table-row">
+                <div>Modified By</div>
+                <div>Modified At</div>
+                <div class="comments">Comment</div>
+                <div>Revision ID</div>
+                <div class="actions">Action</div>
+            </header>
+            <div class="table-row" style="display: none">
+                <div attr="modified-by"> </div>
+                <div attr="modified-at"> </div>
+                <div attr="comment">
+                    <span attr="comment-parts">
+                        <span/>
+                        <a href="javascript:void(0)"/>
+                        <span/>
+                    </span>
+                </div>
+                <div attr="revision-id" class="center-align">
+                    <span class="expandable"/>
+                    <span class="hidden"/>
+                </div>
+                <div class="center-align">
+                    <a href="javascript:void(0)" class="magnifying-glass-icon" attr="open-revision" />
+                </div>
+            </div>
+        </section>
+        <span class="noEntries" style="display: none">No version history</span>
+        <a href="javascript:void(0)" class="load-more down-arrow-icon" title="Load more..." style="display: none;"/>
+    </div>
 
-        <f:facet name="header">
-            <rich:columnGroup>
-                <rich:column styleClass="modified-by-col">
-                    <h:outputText value="Modified By"/>
-                </rich:column>
-                <rich:column styleClass="modified-at-col">
-                    <h:outputText value="Modified At"/>
-                </rich:column>
-                <rich:column rendered="#{node.type == 'project'}">
-                    <h:outputText value="Comment"/>
-                </rich:column>
-                <rich:column styleClass="revision-col">
-                    <h:outputText value="Revision ID"/>
-                </rich:column>
-                <rich:column rendered="#{renderAction}" styleClass="action-col">
-                    <h:outputText value="Action"/>
-                </rich:column>
-            </rich:columnGroup>
-        </f:facet>
-        <rich:column styleClass="modified-by-col">
-            <h:outputText title="#{version.versionInfo.emailCreatedBy}" value="#{version.versionInfo.createdBy}"/>
-        </rich:column>
-        <rich:column styleClass="modified-at-col">
-            <h:outputText value="#{version.versionInfo.createdAt}">
-                <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}"/>
-            </h:outputText>
-        </rich:column>
-        <rich:column rendered="#{node.type == 'project'}">
-            <ui:param name="commentParts" value="#{repositoryTreeController.getCommentParts(artefact, version)}"/>
-            <ui:param name="hasProjectReference" value="#{commentParts.size() == 3}"/>
-            <h:outputText value="#{version.versionComment}" rendered="#{not hasProjectReference}"/>
-            <h:outputText value="#{commentParts[0]}" rendered="#{hasProjectReference}"/>
-            <h:commandLink value="#{commentParts[1]}"
-                           rendered="#{hasProjectReference}"
-                           onclick="setRulesProject('#{commentParts[1]}'); return false;"
-                           immediate="true"/>
-            <h:outputText value="#{commentParts[2]}" rendered="#{hasProjectReference}"/>
-        </rich:column>
-        <rich:column  styleClass="revision-col center-align">
-            <ui:param name="revisionNo" value="#{version.versionName}"/>
-            <ui:param name="shortRevisionNo" value="#{version.shortVersion}"/>
-
-            <h:panelGroup rendered="#{revisionNo eq shortRevisionNo}">
-                <h:outputText value="#{revisionNo}"/>
-            </h:panelGroup>
-            <h:panelGroup rendered="#{not (revisionNo eq shortRevisionNo)}">
-                <h:outputText value="#{shortRevisionNo}" styleClass="expandable"/>
-                <h:outputText value="#{revisionNo}" styleClass="hidden"/>
-            </h:panelGroup>
-        </rich:column>
-        <rich:column rendered="#{renderAction}" styleClass="action-col center-align">
-            <a href="javascript:void(0)" id="openPrjVersion"
-               title="Open Revision '#{utils.getDescriptiveVersion(version)}'"
-               onclick="if (backToPropsTab()) openProjectVersion('#{version.versionName}')">
-                <img src="#{request.contextPath}/webresource/images/view.png"/>
-            </a>
-        </rich:column>
-    </rich:dataTable>
-
-    <a4j:jsFunction name="setRulesProject"
+    <a4j:jsFunction name="openRulesProject"
                     immediate="true"
                     render="nodeView nodeTabPanel projectTree content">
         <a4j:param name="projectName" assignTo="#{repositoryTreeController.rulesProject}"/>
@@ -88,20 +70,221 @@
         <a4j:param name="version" assignTo="#{repositoryTreeController.projectVersion}"/>
     </a4j:jsFunction>
 
-    <h:panelGroup rendered="#{empty nodeVersionsBean.nodeToView.versions}" styleClass="noEntries">
-        <h:outputText value="No version history"/>
-    </h:panelGroup>
+    <script>//<![CDATA[
+        function initializeProjectRevisionTable(type, repoName, projectName, branch, canOpenOtherVersion) {
+            const revisionTableHandler = function () {
+                const LOAD_MORE_EVENT = "click.loadMoreRevisions";
+                const $loadMoreBtn = $j('#project-revisions .load-more');
+                const $searchForm = $j('#project-revisions .search-revision-form');
+                const $searchInput = $searchForm.find("input[name=search-filter]");
+                const $fullLogInput = $searchForm.find("input[name=full-log]");
+                $searchInput.unbind("keypress");
+                $searchInput.keypress((event) => {
+                    if (event.keyCode === 13) {
+                        return false;
+                    }
+                })
+                const $revisionRowTemplate = $j('#project-revisions>section>div:nth-child(2)').remove();
+                $revisionRowTemplate.css({"display": ""})
+                const $commentsPartTemplate = $revisionRowTemplate.find('[attr=comment-parts]').remove();
+                const $expandableRevisionTemplate = $revisionRowTemplate.find('[attr=revision-id]>span').remove();
 
-    <script>
-        function backToPropsTab() {
-            if (confirm("Project data in the workspace will be replaced by the data of specified revision that will be opened from repository. Dependent projects will be opened too.")) {
-                /*$j("#nodeTabPanel-value").value return undefined */
-                document.getElementById('nodeTabPanel-value').value = "#{repositoryTreeState.defSelectTab}";/*"Properties";*/
-                return true;
-            } else {
-                return false;
+                const formatDateTime = (date) => {
+                    const options = {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    };
+                    return new Date(Date.parse(date)).toLocaleString("en-US", options).replace(",", "");
+                };
+
+                function backToPropsTab() {
+                    if (confirm("Project data in the workspace will be replaced by the data of specified revision that will be opened from repository. Dependent projects will be opened too.")) {
+                        /*$j("#nodeTabPanel-value").value return undefined */
+                        document.getElementById('nodeTabPanel-value').value = "#{repositoryTreeState.defSelectTab}";/*"Properties";*/
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+
+                const fetchMoreData = (projectData, repoFeatures, query, onSuccess) => {
+                    let targetUrl = "#{contextPath}/web";
+                    const canOpenVersions = projectData.canOpenVersions && !$fullLogInput.is(":checked");
+                    if (projectData.type === "project") {
+                        targetUrl += "/repos/" + encodeURIComponent(projectData.repoName);
+                        if (repoFeatures.branches) {
+                            targetUrl += "/branches/" + encodeURIComponent(projectData.branch.replaceAll("/", " "));
+                        }
+                        if (!$fullLogInput.is(":checked")) {
+                            targetUrl += "/projects/" + encodeURIComponent(projectData.name);
+                        }
+                    } else {
+                        targetUrl += "/deploy-config-repo"
+                        if (!$fullLogInput.is(":checked")) {
+                            targetUrl += "/configs/" + encodeURIComponent(projectData.name);
+                        }
+                    }
+                    targetUrl += "/history";
+                    query = $j.extend({}, query, {
+                        search: $searchInput.val()
+                    });
+                    $j.ajax({
+                        type: "GET",
+                        url: targetUrl,
+                        datatype: "json",
+                        data: query
+                    }).done(function (data) {
+                        const content = data.content || [];
+                        content.forEach(rev => {
+                            const $revisionRow = $revisionRowTemplate.clone();
+                            $revisionRow.find("[attr=modified-by]")
+                                .attr("title", rev.author.email)
+                                .text(rev.author.displayName);
+                            $revisionRow.find("[attr=modified-at]").text(formatDateTime(rev.createdAt));
+
+                            const $comment = $revisionRow.find("[attr=comment]")
+                            if (projectData.type === "project") {
+                                const commentParts = rev.commentParts || [];
+                                if (commentParts.length === 3) {
+                                    const $commentsPart = $commentsPartTemplate.clone();
+                                    $commentsPart.find("span:nth-child(1)").text(commentParts[0])
+                                    $commentsPart.find("a").text(commentParts[1])
+                                        .on("click", () => {
+                                            openRulesProject(commentParts[1]);
+                                        });
+                                    $commentsPart.find("span:nth-child(3)").text(commentParts[2])
+                                    $comment.append($commentsPart)
+                                } else {
+                                    $comment.text(rev.fullComment);
+                                }
+                            } else {
+                                $comment.hide();
+                            }
+                            if (rev?.shortRevisionNo != null) {
+                                const $expandableRevision = $expandableRevisionTemplate.clone();
+                                $expandableRevision.filter(".expandable").text(rev.shortRevisionNo)
+                                $expandableRevision.filter(".hidden").text(rev.revisionNo)
+                                $revisionRow.find("[attr=revision-id]").append($expandableRevision)
+                            } else {
+                                $revisionRow.find("[attr=revision-id]").text(rev.revisionNo);
+                            }
+                            const $openRevisionLink = $revisionRow.find("[attr=open-revision]")
+                            if (rev.deleted || !canOpenVersions) {
+                                const $parentElem = $openRevisionLink.parent();
+                                $openRevisionLink.remove()
+                                if (!canOpenVersions) {
+                                    $parentElem.remove()
+                                } else {
+                                    $parentElem.hide()
+                                }
+                            } else {
+                                $openRevisionLink.attr("title", "Open Revision '" + rev.author.displayName + ": " + formatDateTime(rev.createdAt) + "'")
+                                    .click(() => {
+                                        if (backToPropsTab()) {
+                                            openProjectVersion(rev.revisionNo);
+                                        }
+                                    });
+                            }
+                            $j('#project-revisions>section').append($revisionRow);
+                        });
+                        if (!canOpenVersions) {
+                            $j('#project-revisions>section>header>.actions').hide();
+                        } else {
+                            $j('#project-revisions>section>header>.actions').show();
+                        }
+                        if (onSuccess) {
+                            onSuccess(data);
+                        }
+                    }).fail(function (data) {
+                        handleError(data.status);
+                    }).always(initExpandableLinks);
+                };
+
+                return {
+                    render: function (projectData) {
+                        $searchInput.unbind("change");
+                        $fullLogInput.unbind("change");
+                        if (projectData.type === "deployment") {
+                            $j('#project-revisions>section>header>.comments').hide();
+                        }
+
+                        const repoFeatures = function () {
+                            let result = {};
+                            let targetUrl = "#{contextPath}/web";
+                            if (projectData.type === "project") {
+                                targetUrl += "/repos/" + projectData.repoName + "/features";
+                            } else {
+                                targetUrl += "/deploy-config-repo/features";
+                            }
+                            $j.ajax({
+                                type: "GET",
+                                url: targetUrl,
+                                datatype: "json",
+                                async: false,
+                            }).done(function (data) {
+                                result = data;
+                            });
+                            return result;
+                        }();
+                        const pagination = {
+                            page: 0
+                        };
+                        if (repoFeatures.searchable && projectData.type === "project") {
+                            const searchCallback = () => {
+                                pagination.page = 0;
+                                $j('#project-revisions>section>div:not(nth-child(1))').remove();
+                                fetchMoreData(projectData, repoFeatures, pagination, loadMoreHandler);
+                            }
+                            $searchInput.on("change", searchCallback);
+                            $fullLogInput.on("change", searchCallback);
+                        } else {
+                            $searchForm.hide();
+                        }
+                        const loadMoreHandler = (response) => {
+                            const tableWidth = $j('#project-revisions>section').width();
+                            $searchForm.css({
+                                "width": tableWidth + "px"
+                            })
+                            $searchInput.css({
+                                "width": (tableWidth - $fullLogInput.parent().width() - 11) + "px"
+                            });
+                            $loadMoreBtn.unbind(LOAD_MORE_EVENT);
+                            $loadMoreBtn.hide();
+                            $j('#project-revisions .noEntries').hide();
+                            if (response.pageSize === response.numberOfElements && repoFeatures.searchable) {
+                                $loadMoreBtn.bind(LOAD_MORE_EVENT, () => {
+                                    pagination.page++;
+                                    fetchMoreData(projectData, repoFeatures, pagination, loadMoreHandler);
+                                });
+                                $loadMoreBtn.css({
+                                    "display":"table",
+                                    "width": tableWidth + "px"
+                                });
+                            }
+                            if ($j('#project-revisions>section>div:not(nth-child(1))').size() === 0) {
+                                $j('#project-revisions .noEntries').show();
+                            }
+                        };
+                        $j('#project-revisions>section>div:not(nth-child(1))').remove();
+                        fetchMoreData(projectData, repoFeatures, pagination, loadMoreHandler);
+                    }
+                }
+            }();
+
+            if (type === "project" || type === "deployment") {
+                revisionTableHandler.render({
+                    type: type,
+                    repoName: repoName,
+                    name: projectName,
+                    branch: branch,
+                    canOpenVersions: canOpenOtherVersion
+                });
             }
         }
-    </script>
+    //]]></script>
 
 </ui:composition>

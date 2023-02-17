@@ -1,5 +1,12 @@
 package org.openl.rules.webstudio.web.repository;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
+import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
+import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
+import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -65,6 +72,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.ProjectHistoryService;
@@ -119,13 +127,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
-import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
-import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
-import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
 
 /**
  * Repository tree controller. Used for retrieving data for repository tree and performing repository actions.
@@ -195,9 +196,6 @@ public class RepositoryTreeController {
 
     @Autowired
     private TagTypeService tagTypeService;
-
-    @Autowired
-    private NodeVersionsBean nodeVersionsBean;
 
     private String repositoryId;
     private String projectName;
@@ -353,7 +351,6 @@ public class RepositoryTreeController {
             closeProjectAndReleaseResources(repositoryProject);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
-            clearVersionsBean();
         } catch (Exception e) {
             String msg = "Failed to close project.";
             log.error(msg, e);
@@ -1645,7 +1642,6 @@ public class RepositoryTreeController {
             resetStudioModel();
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
-            clearVersionsBean();
         } catch (Exception e) {
             String msg = "Failed to open project.";
             log.error(msg, e);
@@ -1794,14 +1790,29 @@ public class RepositoryTreeController {
 
     public void setRulesProject(String businessName) {
         // Find first found project with a given business name in current repository in any path.
-        for (TreeNode node : repositoryTreeState.getRulesRepository().getChildNodes()) {
-            RulesProject project = (RulesProject) node.getData();
-            if (project.getBusinessName().equals(businessName) && repositoryId
-                .equals(project.getRepository().getId())) {
-                repositoryTreeState.setSelectedNode(node);
-                break;
+        findProjectNodeToOpen(businessName, repositoryTreeState.getRulesRepository().getChildNodes());
+    }
+
+    private boolean findProjectNodeToOpen(String businessName, List<TreeNode> nodes) {
+        if (nodes == null) {
+            return false;
+        }
+        for (TreeNode node : nodes) {
+            if (node instanceof TreeProject) {
+                RulesProject project = (RulesProject) node.getData();
+                if (project.getBusinessName().equals(businessName) && repositoryId
+                        .equals(project.getRepository().getId())) {
+                    repositoryTreeState.setSelectedNode(node);
+                    return true;
+                }
+            } else if (node instanceof TreeProjectGrouping) {
+                boolean found = findProjectNodeToOpen(businessName, node.getChildNodes());
+                if (found) {
+                    return true;
+                }
             }
         }
+        return false;
     }
 
     public void uploadListener(FileUploadEvent event) {
@@ -2958,11 +2969,7 @@ public class RepositoryTreeController {
     }
 
     public void forceUpdateVersionsBean() {
-        nodeVersionsBean.setNodeToView(repositoryTreeState.getSelectedNode());
         setVersion(null);
     }
 
-    private void clearVersionsBean() {
-        nodeVersionsBean.setNodeToView(null);
-    }
 }

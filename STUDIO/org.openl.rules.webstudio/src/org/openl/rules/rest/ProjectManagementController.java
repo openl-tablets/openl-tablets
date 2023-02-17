@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBException;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -42,6 +43,7 @@ import io.swagger.v3.oas.annotations.Hidden;
 
 @RestController
 @RequestMapping(value = "/user-workspace", produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "User Workspace")
 public class ProjectManagementController {
 
     private final ProjectDependencyResolver projectDependencyResolver;
@@ -230,6 +232,9 @@ public class ProjectManagementController {
     public void delete(@DesignRepository("repo-name") Repository repo,
             @PathVariable("proj-name") String name,
             @RequestParam(value = "comment", required = false) final String comment) {
+        // FIXME request body is not allowed for DELETE method.
+        // see: https://www.rfc-editor.org/rfc/rfc7231#section-4.3.5
+        // A payload within a DELETE request message has no defined semantics; sending a payload body on a DELETE request might cause some existing implementations to reject the request.
         SecurityChecker.allow(Privileges.DELETE_PROJECTS);
         try {
             RulesProject project = getUserWorkspace().getProject(repo.getId(), name);

@@ -1,0 +1,21 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
+      "fullComment": "Project Sample1 is created.",
+      "author": {
+        "email": "default@example.com",
+        "displayName": "DEFAULT"
+      },
+      "deleted": false
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 1
+}
