@@ -1,0 +1,10 @@
+PUT /web/repos/design-flat/projects/EPBDS-13550%20Dependency%20Project1 HTTP/1.1
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="SampleDependency1.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&SampleDependency1.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW--
