@@ -37,13 +37,14 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
 import javax.xml.bind.JAXBException;
 
 @Service
-public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
+public abstract class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
 
     private final Logger log = LoggerFactory.getLogger(ProjectDeploymentServiceImpl.class);
 
@@ -63,10 +64,13 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
         this.propertyResolver = propertyResolver;
     }
 
+    @Lookup
+    protected abstract UserWorkspace getUserWorkspace();
+
     @Override
     public List<DeploymentProjectItem> getDeploymentProjectItems(AProject project,
             String deployRepoName) throws ProjectException {
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+        UserWorkspace userWorkspace = getUserWorkspace();
         if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()) {
             return Collections.emptyList();
         }
@@ -290,8 +294,7 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
 
     @Override
     public ADeploymentProject update(String deploymentName, AProject project, String repoName) {
-
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+        UserWorkspace userWorkspace = getUserWorkspace();
         try {
 
             // get latest version
