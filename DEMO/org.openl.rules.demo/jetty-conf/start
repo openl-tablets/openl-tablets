@@ -60,7 +60,12 @@ if [[ -z "$OPENL_HOME" ]]; then
     OPENL_HOME="$HOME/Desktop/OpenL_Home"
   else
     OPENL_HOME="./openl-demo"
-    [[ -d "$OPENL_HOME" ]] && [[ "$(ls -A $OPENL_HOME)" ]] || mkdir -p "$OPENL_HOME" && echo -ne ".version=LATEST\ndemo.init=true" > "$OPENL_HOME/webstudio.properties"
+    if [[ -d "$OPENL_HOME" ]] && [[ "$(ls -A $OPENL_HOME)" ]]; then
+      echo "Skip initialization"
+    else
+      mkdir -p "$OPENL_HOME"
+      echo -ne ".version=LATEST\ndemo.init=true" > "$OPENL_HOME/webstudio.properties"
+    fi
   fi
 fi
 
