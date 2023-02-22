@@ -19,6 +19,6 @@ public class SysPropPropertySource extends MapPropertySource {
      */
     public SysPropPropertySource(Map<String, Object> source) {
         super(StandardEnvironment.SYSTEM_PROPERTIES_PROPERTY_SOURCE_NAME, source);
-        ConfigLog.LOG.info("Loading System Environment parameters: {} properties.", getPropertyNames().length);
+        ConfigLog.LOG.info("Loading System Properties parameters: {} properties.", getPropertyNames().length);
     }
 }

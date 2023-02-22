@@ -2,7 +2,7 @@ try {
     File folder = basedir
 
     def lines = new File(folder, 'build.log').readLines('UTF-8')
-    assert lines.any { it.contains('The deployment \'openl-jar-verify-negative-0.0.0\' has no public methods') }
+    assert lines.any { it.contains('Verification is failed for \'org.openl.internal:openl-jar-verify-negative\' artifact.') }
 
     return true
 } catch(Throwable e) {
