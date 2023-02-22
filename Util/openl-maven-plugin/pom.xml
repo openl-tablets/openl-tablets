@@ -76,10 +76,6 @@
             <artifactId>org.openl.rules.ruleservice.ws</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
         </dependency>
@@ -87,6 +83,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <scope>runtime</scope>
+            <version>2.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-annotations</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
@@ -196,7 +197,7 @@
             </activation>
             <properties>
                 <!-- Fine tuned settings to detects memory and performance issues -->
-                <invoker.mavenOpts>-Xms16m -Xmx56m</invoker.mavenOpts>
+                <invoker.mavenOpts>-Xms16m -Xmx64m</invoker.mavenOpts>
                 <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
                 <big-tableparts.mavenOpts>${jacoco.argLine} -Xms32m -Xmx256m</big-tableparts.mavenOpts>
                 <big-tableparts.timeoutInSeconds>60</big-tableparts.timeoutInSeconds>
