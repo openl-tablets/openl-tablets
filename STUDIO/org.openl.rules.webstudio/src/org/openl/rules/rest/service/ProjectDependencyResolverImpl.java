@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.stereotype.Service;
 
 @Service
-public abstract class ProjectDependencyResolverImpl implements ProjectDependencyResolver {
+public class ProjectDependencyResolverImpl implements ProjectDependencyResolver {
 
     private final Logger log = LoggerFactory.getLogger(ProjectDependencyResolverImpl.class);
 
@@ -35,7 +35,9 @@ public abstract class ProjectDependencyResolverImpl implements ProjectDependency
     }
 
     @Lookup
-    protected abstract UserWorkspace getUserWorkspace();
+    protected UserWorkspace getUserWorkspace() {
+        return null;
+    }
 
     @Override
     public List<RulesProject> getProjectDependencies(RulesProject project) {
