@@ -238,6 +238,7 @@ public abstract class FunctionalRow implements IDecisionRow {
 
         IMethodSignature newSignature = ((MethodSignature) signature).merge(params);
         OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, newSignature, null);
+        RulesModuleBindingContextHelper.compileAllTypesInSignature(methodHeader.getSignature(), bindingContext);
         this.method = OpenLManager.makeMethod(openl, source, methodHeader, bindingContext);
 
         if (bindingContext.isExecutionMode()) {
@@ -601,8 +602,15 @@ public abstract class FunctionalRow implements IDecisionRow {
                     OpenMethodHeader methodHeader = new OpenMethodHeader(null, methodType, signature, declaringClass);
                     RulesModuleBindingContextHelper.compileAllTypesInSignature(methodHeader.getSignature(),
                         bindingContext);
-                    CompositeMethod method = OpenLManager.makeMethod(openl, methodSource, methodHeader, bindingContext);
-
+                    CompositeMethod method;
+                    try {
+                        bindingContext.pushErrors();
+                        bindingContext.pushMessages();
+                        method = OpenLManager.makeMethod(openl, methodSource, methodHeader, bindingContext);
+                    } finally {
+                        bindingContext.popMessages();
+                        bindingContext.popErrors();
+                    }
                     IOpenClass type = method.getMethodBodyBoundNode().getType();
 
                     if (type != NullOpenClass.the) {
