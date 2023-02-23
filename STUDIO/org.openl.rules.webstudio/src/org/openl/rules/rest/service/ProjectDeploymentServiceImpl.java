@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.xml.bind.JAXBException;
+
 import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
@@ -41,10 +43,8 @@ import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
-import javax.xml.bind.JAXBException;
-
 @Service
-public abstract class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
+public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
 
     private final Logger log = LoggerFactory.getLogger(ProjectDeploymentServiceImpl.class);
 
@@ -65,7 +65,9 @@ public abstract class ProjectDeploymentServiceImpl implements ProjectDeploymentS
     }
 
     @Lookup
-    protected abstract UserWorkspace getUserWorkspace();
+    protected UserWorkspace getUserWorkspace() {
+        return null;
+    }
 
     @Override
     public List<DeploymentProjectItem> getDeploymentProjectItems(AProject project,
