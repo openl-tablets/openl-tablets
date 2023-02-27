@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.openl.binding.IBindingContext;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.exception.TypesCombinationNotSupportedException;
@@ -30,12 +31,17 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
+import org.openl.rules.types.OpenMethodDispatcher;
+import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CastingMethodCaller;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
@@ -57,6 +63,8 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static final String MODULE_PROPERTIES_KEY = "Properties:Module";
     public static final String CATEGORY_PROPERTIES_KEY = "Properties:Category:";
     private final Map<String, TableSyntaxNode> bindedTables = new HashMap<>();
+    private final Map<String, IOpenField> internalVariables = new HashMap<>();
+    private final Map<String, IOpenField> noStrictInternalVariables = new HashMap<>();
 
     /**
      * Internal OpenL service methods.
@@ -76,6 +84,14 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         internalMethods.add(new SetRuntimeContextMethod());
         internalMethods.add(new ModifyRuntimeContextMethod());
         internalMethods.add(new MessageSourceResourceMethod());
+
+        TablePropertiesOpenField tablePropertiesOpenField = new TablePropertiesOpenField();
+        internalVariables.put(tablePropertiesOpenField.getName(), tablePropertiesOpenField);
+        noStrictInternalVariables.put(tablePropertiesOpenField.getName().toLowerCase(), tablePropertiesOpenField);
+        DispatchingTablePropertiesOpenField dispatchingTablePropertiesOpenField = new DispatchingTablePropertiesOpenField();
+        internalVariables.put(dispatchingTablePropertiesOpenField.getName(), dispatchingTablePropertiesOpenField);
+        noStrictInternalVariables.put(dispatchingTablePropertiesOpenField.getName().toLowerCase(),
+            dispatchingTablePropertiesOpenField);
     }
 
     /**
@@ -97,6 +113,22 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
 
     public TableSyntaxNode getTableSyntaxNode(String key) {
         return this.bindedTables.get(key);
+    }
+
+    @Override
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
+        IOpenField openField = super.findVar(namespace, name, strictMatch);
+        if (openField != null) {
+            return openField;
+        }
+        if (strictMatch) {
+            return internalVariables.get(name);
+        } else {
+            if (name != null) {
+                return noStrictInternalVariables.get(name.toLowerCase());
+            }
+        }
+        return null;
     }
 
     @Override
@@ -312,6 +344,187 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         openMethodBinders.forEach(RecursiveOpenMethodPreBinder::preBind);
         openMethodBinders.forEach(e -> preBinderMethods.remove(e.getHeader()));
         openMethodBinders.forEach(RecursiveOpenMethodPreBinder::finishPreBind);
+    }
+
+    public static final class DispatchingTablePropertiesOpenField implements IOpenField {
+
+        @Override
+        public Object get(Object target, IRuntimeEnv env) {
+            if (env instanceof SimpleRulesRuntimeEnv) {
+                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
+                IOpenMethod method = simpleRulesRuntimeEnv.getMethodWrapper()
+                    .getTopOpenClassMethod(simpleRulesRuntimeEnv.getTopClass());
+                if (method instanceof ExecutableRulesMethod) {
+                    ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) method;
+                    return new TableProperties[] { new TableProperties(executableRulesMethod.getMethodProperties()) };
+                } else if (method instanceof OpenMethodDispatcher) {
+                    OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
+                    List<TableProperties> tableProperties = new ArrayList<>();
+                    for (IOpenMethod method1 : openMethodDispatcher.getCandidates()) {
+                        if (method1 instanceof ExecutableRulesMethod) {
+                            tableProperties
+                                .add(new TableProperties(((ExecutableRulesMethod) method1).getMethodProperties()));
+                        }
+                    }
+                    return tableProperties.toArray(new TableProperties[] {});
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public void set(Object target, Object value, IRuntimeEnv env) {
+        }
+
+        @Override
+        public boolean isConst() {
+            return false;
+        }
+
+        @Override
+        public boolean isReadable() {
+            return true;
+        }
+
+        @Override
+        public boolean isContextProperty() {
+            return false;
+        }
+
+        @Override
+        public String getContextProperty() {
+            return null;
+        }
+
+        @Override
+        public boolean isWritable() {
+            return false;
+        }
+
+        @Override
+        public boolean isTransient() {
+            return false;
+        }
+
+        @Override
+        public String getDisplayName(int mode) {
+            return getName();
+        }
+
+        @Override
+        public String getName() {
+            return "$dispatchingProperties";
+        }
+
+        @Override
+        public IOpenClass getType() {
+            return JavaOpenClass.getOpenClass(TableProperties.class).getArrayType(1);
+        }
+
+        @Override
+        public boolean isStatic() {
+            return false;
+        }
+
+        @Override
+        public IMemberMetaInfo getInfo() {
+            return null;
+        }
+
+        @Override
+        public IOpenClass getDeclaringClass() {
+            return NullOpenClass.the;
+        }
+    }
+
+    public static final class TablePropertiesOpenField implements IOpenField {
+
+        @Override
+        public Object get(Object target, IRuntimeEnv env) {
+            if (env instanceof SimpleRulesRuntimeEnv) {
+                SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = (SimpleRulesRuntimeEnv) env;
+                if (simpleRulesRuntimeEnv.getMethodWrapper().getDelegate() instanceof ExecutableRulesMethod) {
+                    ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) simpleRulesRuntimeEnv
+                        .getMethodWrapper()
+                        .getDelegate();
+                    return new TableProperties(executableRulesMethod.getMethodProperties());
+                } else if (simpleRulesRuntimeEnv.getMethodWrapper().getDelegate() instanceof OpenMethodDispatcher) {
+                    OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) simpleRulesRuntimeEnv
+                        .getMethodWrapper()
+                        .getDelegate();
+                    IOpenMethod method = openMethodDispatcher.findMatchingMethod(env);
+                    if (method instanceof ExecutableRulesMethod) {
+                        ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) method;
+                        return new TableProperties(executableRulesMethod.getMethodProperties());
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public void set(Object target, Object value, IRuntimeEnv env) {
+        }
+
+        @Override
+        public boolean isConst() {
+            return false;
+        }
+
+        @Override
+        public boolean isReadable() {
+            return true;
+        }
+
+        @Override
+        public boolean isContextProperty() {
+            return false;
+        }
+
+        @Override
+        public String getContextProperty() {
+            return null;
+        }
+
+        @Override
+        public boolean isWritable() {
+            return false;
+        }
+
+        @Override
+        public boolean isTransient() {
+            return false;
+        }
+
+        @Override
+        public String getDisplayName(int mode) {
+            return getName();
+        }
+
+        @Override
+        public String getName() {
+            return "$properties";
+        }
+
+        @Override
+        public IOpenClass getType() {
+            return JavaOpenClass.getOpenClass(TableProperties.class);
+        }
+
+        @Override
+        public boolean isStatic() {
+            return false;
+        }
+
+        @Override
+        public IMemberMetaInfo getInfo() {
+            return null;
+        }
+
+        @Override
+        public IOpenClass getDeclaringClass() {
+            return NullOpenClass.the;
+        }
     }
 
     public static final class CurrentRuntimeContextMethod implements IOpenMethod {

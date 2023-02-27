@@ -1,0 +1,18 @@
+#foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
+public $tool.getTypeName($tablePropertyDefinition.Type.InstanceClass) get$tool.formatAccessorName($tablePropertyDefinition.Name)() {
+return tableProperties.get$tool.formatAccessorName($tablePropertyDefinition.Name)();
+}
+
+#end
+@Override
+public String toString() {
+StringBuilder sb = new StringBuilder();
+sb.append("{\r\n");
+#foreach( $tablePropertyDefinition in $tablePropertyDefinitions )
+if (tableProperties.get$tool.formatAccessorName($tablePropertyDefinition.Name)() != null) {
+sb.append("$tool.formatAccessorName($tablePropertyDefinition.Name)").append(" = ").append(toString(tableProperties.get$tool.formatAccessorName($tablePropertyDefinition.Name)())).append("\r\n");
+}
+#end
+sb.append("}\r\n");
+return sb.toString();
+}

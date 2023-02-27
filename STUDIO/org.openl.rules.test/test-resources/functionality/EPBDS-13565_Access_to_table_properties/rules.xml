@@ -1,0 +1,15 @@
+<project>
+    <name>propertyAccessTest</name>
+    <comment></comment>
+    <modules>
+        <module>
+            <name>propertyAccessTest</name>
+            <rules-root path="propertyAccessTest.xlsx"/>
+        </module>
+        <module>
+            <name>propertyAccessTest-AK</name>
+            <rules-root path="propertyAccessTest-AK.xlsx"/>
+        </module>
+    </modules>
+    <properties-file-name-pattern>propertyAccessTest-%state%</properties-file-name-pattern>
+</project>

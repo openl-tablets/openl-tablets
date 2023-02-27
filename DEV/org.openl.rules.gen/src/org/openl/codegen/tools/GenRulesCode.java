@@ -63,6 +63,7 @@ public final class GenRulesCode {
         generateDefaultPropertyDefinitionsCode();
 
         generateITablePropertiesCode();
+        generateTablePropertiesCode();
         generateDefaultTableProperties();
         generateDefaultTablePropertiesSorter();
 
@@ -98,6 +99,15 @@ public final class GenRulesCode {
         String sourceFilePath = getClassSourcePathInRulesModule(ITableProperties.class);
 
         processFile(sourceFilePath, "ITableProperties-properties.vm", variables);
+    }
+
+    private void generateTablePropertiesCode() throws IOException {
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
+
+        String sourceFilePath = getClassSourcePathInRulesModule(org.openl.rules.binding.TableProperties.class);
+
+        processFile(sourceFilePath, "TableProperties-properties.vm", variables);
     }
 
     private void generateDefaultRulesRuntimeContextCode() throws IOException {
