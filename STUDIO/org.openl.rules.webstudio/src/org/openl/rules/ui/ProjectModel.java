@@ -45,6 +45,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
@@ -319,7 +320,7 @@ public class ProjectModel {
         // e.g. elder inactive versions of methods
         TableSyntaxNode tsn = getNode(tableUri);
         if (tsn != null && tsn.getMember() instanceof IOpenMethod) {
-            return (IOpenMethod) tsn.getMember();
+            return WrapperLogic.wrapOpenMethod((IOpenMethod) tsn.getMember(), (XlsModuleOpenClass) openClass, false);
         }
 
         return null;
@@ -356,6 +357,13 @@ public class ProjectModel {
     private IOpenMethod resolveMethod(IOpenMethod method, String uri) {
 
         if (isInstanceOfTable(method, uri)) {
+            if (method instanceof ExecutableRulesMethod) {
+                ExecutableRulesMethod executableRulesMethod = (ExecutableRulesMethod) method;
+                // Skip Alias tables to find original one
+                if (executableRulesMethod.isAlias()) {
+                    return null;
+                }
+            }
             return method;
         }
 
