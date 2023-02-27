@@ -13,17 +13,21 @@ import org.openl.conf.NodeBinderFactoryConfiguration;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
 import org.openl.conf.TypeCastFactory;
 import org.openl.conf.TypeFactoryConfiguration;
+import org.openl.rules.binding.TableProperties;
 import org.openl.rules.calc.AnySpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.enumeration.CaProvincesEnum;
 import org.openl.rules.enumeration.CaRegionsEnum;
 import org.openl.rules.enumeration.CountriesEnum;
 import org.openl.rules.enumeration.CurrenciesEnum;
+import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
 import org.openl.rules.enumeration.LanguagesEnum;
 import org.openl.rules.enumeration.OriginsEnum;
+import org.openl.rules.enumeration.RecalculateEnum;
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsRegionsEnum;
 import org.openl.rules.enumeration.UsStatesEnum;
+import org.openl.rules.enumeration.ValidateDTEnum;
 import org.openl.rules.helpers.CharRange;
 import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.DoubleRange;
@@ -144,6 +148,7 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         javaImport1.addClassImport(SpreadsheetResult.class.getName());
         javaImport1.addClassImport(AnySpreadsheetResult.class.getName());
+        javaImport1.addClassImport(TableProperties.class.getName());
 
         javaImport1.addClassImport(CaProvincesEnum.class.getName());
         javaImport1.addClassImport(CaRegionsEnum.class.getName());
@@ -154,6 +159,9 @@ public class OpenLBuilder extends AOpenLBuilder {
         javaImport1.addClassImport(OriginsEnum.class.getName());
         javaImport1.addClassImport(UsRegionsEnum.class.getName());
         javaImport1.addClassImport(UsStatesEnum.class.getName());
+        javaImport1.addClassImport(DTEmptyResultProcessingEnum.class.getName());
+        javaImport1.addClassImport(RecalculateEnum.class.getName());
+        javaImport1.addClassImport(ValidateDTEnum.class.getName());
 
         typeLibrary.addConfiguration(javaImport1);
 
