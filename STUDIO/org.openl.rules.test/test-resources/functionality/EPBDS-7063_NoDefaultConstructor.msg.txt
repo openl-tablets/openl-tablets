@@ -1,3 +1,4 @@
 ERROR: Default constructor is not found in type 'A1'.
 ERROR: Field 'name' is found, but it is read only.
 ERROR: Field 'var' is found, but it is declared with static modifier.
+ERROR: Method 'wrongMethodCall(java.lang.String)' is not found.

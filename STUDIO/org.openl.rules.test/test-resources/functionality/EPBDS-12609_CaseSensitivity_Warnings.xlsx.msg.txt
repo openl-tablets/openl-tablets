@@ -7,3 +7,4 @@ WARN: Case insensitive matching to 'P1'.
 WARN: Case insensitive matching to 'P1'.
 WARN: Case insensitive matching to 'P1'.
 ERROR: Field 'STRFIELD' is not found.
+WARN: Case insensitive matching to 'strParam'.

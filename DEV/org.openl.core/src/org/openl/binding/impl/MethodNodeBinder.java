@@ -129,104 +129,109 @@ public class MethodNodeBinder extends ANodeBinder {
         }
     }
 
-    private static IBoundNode bindChildNodeIgnoreErrors(ISyntaxNode node, IBindingContext bindingContext) {
-        bindingContext.pushMessages();
-        bindingContext.pushErrors();
-        try {
-            return bindChildNode(node, bindingContext);
-        } finally {
-            bindingContext.popMessages();
-            bindingContext.popErrors();
-        }
-    }
-
     private IBoundNode makeSugarConstructor(ISyntaxNode node,
             IBindingContext bindingContext,
             IOpenClass type,
             ISyntaxNode typeNode) {
-        if (type.getInstanceClass() == null) {
-            return makeErrorNode(MessageUtils.getTypeDefinedErrorMessage(((IdentifierNode) typeNode).getIdentifier()),
-                typeNode,
-                bindingContext);
-        }
-        List<IBoundNode> params = new ArrayList<>();
-        Map<String, ISyntaxNode> namedParams = new HashMap<>();
-        boolean isAllParamsAssign = true;
-        ISyntaxNode duplicatedParamSyntaxNode = null;
-        boolean isAllParamsNoAssign = true;
+        bindingContext.pushMessages();
+        bindingContext.pushErrors();
         try {
-            bindingContext.pushLocalVarContext();
-            ILocalVar localVar = bindingContext
+            if (type.getInstanceClass() == null) {
+                return makeErrorNode(MessageUtils
+                    .getTypeDefinedErrorMessage(((IdentifierNode) typeNode).getIdentifier()), typeNode, bindingContext);
+            }
+            List<IBoundNode> params = new ArrayList<>();
+            Map<String, ISyntaxNode> namedParams = new HashMap<>();
+            boolean isAllParamsAssign = true;
+            ISyntaxNode duplicatedParamSyntaxNode = null;
+            boolean isAllParamsNoAssign = true;
+            try {
+                bindingContext.pushLocalVarContext();
+                ILocalVar localVar = bindingContext
                     .addVar(ISyntaxConstants.THIS_NAMESPACE, bindingContext.getTemporaryVarName(), type);
-            TypeBindingContext varBindingContext = TypeBindingContext.create(bindingContext, localVar, 1);
-            for (int i = 0; i < node.getNumberOfChildren() - 1; i++) {
-                ISyntaxNode child = node.getChild(i);
-                String childType = child.getType();
-                if ("op.assign".equals(childType)) {
-                    isAllParamsNoAssign = false;
-                    IBoundNode iBoundNode = bindChildNodeIgnoreErrors(child, varBindingContext);
-                    ISyntaxNode paramNameSyntaxNode = child.getChild(0);
-                    String paramName = paramNameSyntaxNode.getText();
-                    if (namedParams.containsKey(paramName)) {
-                        duplicatedParamSyntaxNode = paramNameSyntaxNode;
+                TypeBindingContext varBindingContext = TypeBindingContext.create(bindingContext, localVar, 1);
+                for (int i = 0; i < node.getNumberOfChildren() - 1; i++) {
+                    ISyntaxNode child = node.getChild(i);
+                    String childType = child.getType();
+                    if ("op.assign".equals(childType)) {
+                        isAllParamsNoAssign = false;
+                        IBoundNode iBoundNode = bindChildNode(child, varBindingContext);
+                        ISyntaxNode paramNameSyntaxNode = child.getChild(0);
+                        String paramName = paramNameSyntaxNode.getText();
+                        if (namedParams.containsKey(paramName)) {
+                            duplicatedParamSyntaxNode = paramNameSyntaxNode;
+                        }
+                        namedParams.put(paramName, paramNameSyntaxNode);
+                        params.add(iBoundNode);
+                    } else {
+                        isAllParamsAssign = false;
+                        IBoundNode iBoundNode = bindChildNode(child, bindingContext);
+                        params.add(iBoundNode);
                     }
-                    namedParams.put(paramName, paramNameSyntaxNode);
-                    params.add(iBoundNode);
-                } else {
-                    isAllParamsAssign = false;
-                    IBoundNode iBoundNode = bindChildNodeIgnoreErrors(child, bindingContext);
-                    params.add(iBoundNode);
                 }
-            }
-            IMethodCaller defaultConstructor = MethodSearch.findConstructor(IOpenClass.EMPTY, bindingContext, type);
-            if (isAllParamsAssign && duplicatedParamSyntaxNode != null) {
-                return makeErrorNode(String.format("Field '%s' has already used.", duplicatedParamSyntaxNode.getText()),
-                        duplicatedParamSyntaxNode,
-                        bindingContext);
-            } else if (isAllParamsAssign && defaultConstructor == null) {
-                return makeErrorNode(String.format("Default constructor is not found in type '%s'.",
+                IMethodCaller defaultConstructor = MethodSearch.findConstructor(IOpenClass.EMPTY, bindingContext, type);
+                if (isAllParamsAssign && duplicatedParamSyntaxNode != null) {
+                    cleanErrorsAndMessages(bindingContext);
+                    return makeErrorNode(String.format("Field '%s' has already used.",
+                        duplicatedParamSyntaxNode.getText()), duplicatedParamSyntaxNode, bindingContext);
+                } else if (isAllParamsAssign && defaultConstructor == null) {
+                    cleanErrorsAndMessages(bindingContext);
+                    return makeErrorNode(String.format("Default constructor is not found in type '%s'.",
                         type.getDisplayName(INamedThing.SHORT)), node, bindingContext);
-            } else if (defaultConstructor != null && isAllParamsAssign) {
-                for (Map.Entry<String, ISyntaxNode> e : namedParams.entrySet()) {
-                    IOpenField f = type.getField(e.getKey());
-                    if (f == null) {
-                        return makeErrorNode(String.format("Field '%s' is not found.", e.getKey()),
+                } else if (defaultConstructor != null && isAllParamsAssign) {
+                    for (Map.Entry<String, ISyntaxNode> e : namedParams.entrySet()) {
+                        IOpenField f = type.getField(e.getKey());
+                        if (f == null) {
+                            cleanErrorsAndMessages(bindingContext);
+                            return makeErrorNode(String.format("Field '%s' is not found.", e.getKey()),
                                 e.getValue(),
                                 bindingContext);
-                    }
-                    if (f.isStatic()) {
-                        return makeErrorNode(
-                                String.format("Field '%s' is found, but it is declared with static modifier.", e.getKey()),
+                        }
+                        if (f.isStatic()) {
+                            cleanErrorsAndMessages(bindingContext);
+                            return makeErrorNode(
+                                String.format("Field '%s' is found, but it is declared with static modifier.",
+                                    e.getKey()),
                                 e.getValue(),
                                 bindingContext);
-                    }
-                    if (!f.isWritable()) {
-                        return makeErrorNode(String.format("Field '%s' is found, but it is read only.", e.getKey()),
+                        }
+                        if (!f.isWritable()) {
+                            cleanErrorsAndMessages(bindingContext);
+                            return makeErrorNode(String.format("Field '%s' is found, but it is read only.", e.getKey()),
                                 e.getValue(),
                                 bindingContext);
+                        }
                     }
-                }
-                MethodBoundNode methodBoundNode = new MethodBoundNode(node, defaultConstructor);
-                return new ConstructorNamedParamsNode(localVar, methodBoundNode, params.toArray(IBoundNode.EMPTY));
-            } else if (isAllParamsNoAssign && !Date.class.getName().equals(type.getName())) {
-                IBoundNode[] children = params.toArray(IBoundNode.EMPTY);
-                if (hasErrorBoundNode(children)) {
-                    return new ErrorBoundNode(node);
-                }
-                IOpenClass[] types = getTypes(children);
-                IMethodCaller methodCaller = MethodSearch.findConstructor(types, bindingContext, type);
-
-                if (methodCaller != null) {
-                    BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
-                    return new ConstructorParamsNode(
+                    MethodBoundNode methodBoundNode = new MethodBoundNode(node, defaultConstructor);
+                    return new ConstructorNamedParamsNode(localVar, methodBoundNode, params.toArray(IBoundNode.EMPTY));
+                } else if (isAllParamsNoAssign && !Date.class.getName().equals(type.getName())) {
+                    IBoundNode[] children = params.toArray(IBoundNode.EMPTY);
+                    IOpenClass[] types = getTypes(children);
+                    IMethodCaller methodCaller = MethodSearch.findConstructor(types, bindingContext, type);
+                    if (methodCaller != null) {
+                        BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
+                        return new ConstructorParamsNode(
                             new MethodBoundNode(node, methodCaller, params.toArray(IBoundNode.EMPTY)));
+                    }
                 }
-
+            } finally {
+                bindingContext.popLocalVarContext();
             }
+            cleanErrorsAndMessages(bindingContext);
+            return null;
         } finally {
-            bindingContext.popLocalVarContext();
+            List<SyntaxNodeException> errors = bindingContext.popErrors();
+            Collection<OpenLMessage> messages = bindingContext.popMessages();
+            errors.forEach(bindingContext::addError);
+            messages.forEach(bindingContext::addMessage);
         }
-        return null;
+    }
+
+    private void cleanErrorsAndMessages(IBindingContext bindingContext) {
+        bindingContext.popErrors();
+        bindingContext.popMessages();
+        bindingContext.pushErrors();
+        bindingContext.pushMessages();
     }
 
     protected FieldBoundNode bindAsFieldBoundNode(ISyntaxNode methodNode,
