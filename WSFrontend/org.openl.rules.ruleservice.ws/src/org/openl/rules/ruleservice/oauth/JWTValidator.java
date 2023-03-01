@@ -7,9 +7,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
+import com.nimbusds.jose.jwk.JWKException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
 import com.nimbusds.jose.JOSEException;
@@ -59,7 +59,7 @@ public class JWTValidator {
             .map(r -> r.getJWK(jwsToken))
             .filter(Objects::nonNull)
             .findFirst()
-            .orElseThrow(() -> new JwtException("Unable to find jwk."));
+            .orElseThrow(() -> new JWKException("Unable to find jwk."));
 
         JWSVerifier verifier;
         KeyType keyType = jwk.getKeyType();
