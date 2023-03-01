@@ -32,30 +32,35 @@ public class HttpClient {
 
     private HttpClient(URL baseURL) {
         this.baseURL = baseURL;
+        var builder = java.net.http.HttpClient.newBuilder().version(java.net.http.HttpClient.Version.HTTP_1_1);
+
         int connectTimeout = Integer.parseInt(System.getProperty("http.timeout.connect"));
-        this.client = java.net.http.HttpClient.newBuilder()
-                .version(java.net.http.HttpClient.Version.HTTP_1_1)
-                .connectTimeout(Duration.ofMillis(connectTimeout))
-                .build();
+        if (connectTimeout > 0) {
+            builder.connectTimeout(Duration.ofMillis(connectTimeout));
+        }
+
+        this.client = builder.build();
     }
 
     private HttpRequest.Builder requestBuilder(String url, String[] headers) throws URISyntaxException {
         var uri = baseURL.toURI().resolve(url);
+        var builder = HttpRequest.newBuilder().uri(uri);
+
         int readTimeout = Integer.parseInt(System.getProperty("http.timeout.read"));
-        var bld = HttpRequest.newBuilder()
-                .uri(uri)
-                .timeout(Duration.ofMillis(readTimeout));
+        if (readTimeout > 0) {
+            builder.timeout(Duration.ofMillis(readTimeout));
+        }
 
         var c = cookie.get();
         if (c != null && !c.isBlank()) {
-            bld.header("Cookie", c);
+            builder.header("Cookie", c);
         }
 
         if (headers != null && headers.length > 0) {
-            bld.headers(headers);
+            builder.headers(headers);
         }
 
-        return bld;
+        return builder;
     }
 
     static HttpClient create(URL url) {
