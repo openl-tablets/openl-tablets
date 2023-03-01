@@ -95,6 +95,7 @@
         <!-- Security -->
         <spring.security.version>5.8.2</spring.security.version>
         <opensaml.version>4.2.0</opensaml.version>
+        <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
 
         <!-- Bytecode manipulation -->
         <asm.version>9.4</asm.version>
@@ -1108,6 +1109,11 @@
                 <groupId>org.opensaml</groupId>
                 <artifactId>opensaml-saml-impl</artifactId>
                 <version>${opensaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.nimbusds</groupId>
+                <artifactId>nimbus-jose-jwt</artifactId>
+                <version>${nimbus-jose-jwt.version}</version>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
