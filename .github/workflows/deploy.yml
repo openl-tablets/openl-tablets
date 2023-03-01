@@ -69,33 +69,26 @@ jobs:
       run: |
         cd Dockerfiles
         echo Platforms: ${BUILD_PLATFORMS}
-
-        # In order to implement atomic push-all-images functionality, build and push should be split to different
-        # steps. However, currently Docker cannot hold multi-platform images in a local storage. Therefore, docker
-        # cache is used in order to implement this functionality. Here all images are built and docker puts all layers
-        # of these images in a cache. In the following step, when images are built, tagged, and pushed to external
-        # repository, docker use image layers from the cache, which are created here. In case of a build failure none
-        # of the images are pushed to the external repository.
-
-        docker buildx build -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws \
-          --platform ${BUILD_PLATFORMS} --output type=registry,push=false
-        docker buildx build -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws.all \
-          --platform ${BUILD_PLATFORMS} --output type=registry,push=false
-        docker buildx build -f WebApp ../STUDIO/org.openl.rules.webstudio \
-          --platform ${BUILD_PLATFORMS} --output type=registry,push=false
-        docker buildx build -f Demo   ../DEMO/org.openl.rules.demo/target \
-          --platform ${BUILD_PLATFORMS} --output type=registry,push=false
-
-    - name: Push docker images
-      run: |
-        cd Dockerfiles
         repo=ghcr.io/${{ github.repository_owner }}
+        created="org.opencontainers.image.created=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        version="org.opencontainers.image.version=x"
+        revision="org.opencontainers.image.revision=${GITHUB_SHA}"
         echo ${{ github.token }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
         docker buildx build -t $repo/ws:x        -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws \
-          --platform ${BUILD_PLATFORMS} --push
+          --platform ${BUILD_PLATFORMS} --push \
+          --label $created --label $version --label $revision \
+          --label "org.opencontainers.image.title=OpenL RuleServices" \
+          --label "org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"
         docker buildx build -t $repo/ws:x-all    -f WebApp ../WSFrontend/org.openl.rules.ruleservice.ws.all \
-          --platform ${BUILD_PLATFORMS} --push
+          --platform ${BUILD_PLATFORMS} --push \
+          --label $created --label $version --label $revision \
+          --label "org.opencontainers.image.title=OpenL RuleServices (All)" \
+          --label "org.opencontainers.image.description=An OpenL web service with extra modules"
         docker buildx build -t $repo/webstudio:x -f WebApp ../STUDIO/org.openl.rules.webstudio \
-          --platform ${BUILD_PLATFORMS} --push
+          --platform ${BUILD_PLATFORMS} --push \
+          --label $created --label $version --label $revision \
+          --label "org.opencontainers.image.title=OpenL WebStudio" \
+          --label "org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"
         docker buildx build -t $repo/demo:x      -f Demo ../DEMO/org.openl.rules.demo/target \
-          --platform ${BUILD_PLATFORMS} --push
+          --platform ${BUILD_PLATFORMS} --push \
+          --label $created --label $version --label $revision

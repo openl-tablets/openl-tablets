@@ -125,63 +125,22 @@ jobs:
     - name: Prepare for multi-platform docker build
       run: |
         echo "BUILD_PLATFORMS=linux/amd64,linux/arm64/v8" >> $GITHUB_ENV
+        echo "BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_ENV
         docker run --privileged --rm tonistiigi/binfmt --install all
         docker buildx create --use
-        # In order to implement atomic push-all-images functionality, build and push should be split to different 
-        # steps. However, currently Docker cannot hold multi-platform images in a local storage. Therefore, docker 
-        # cache is used in order to implement this functionality. In the subsequest steps all images are built and 
-        # docker puts all layers of those images in a cache. In the last step, when images are built, tagged, and 
-        # pushed to external repository, docker use image layers from the cache, which are created here. In case of a 
-        # build failure none of the images are pushed to the external repository.
-    
-
-    - name: DEMO JDK 11
-      env:
-        appName : demo
-      run: >
-        eval docker buildx build
-        $tags_11
-        --platform ${BUILD_PLATFORMS} --output type=registry,push=false
-        -f ./Dockerfiles/Demo .
-
-    - name: Rule Services (All) JDK 11
-      run: >
-        docker buildx build
-        -t openltablets/ws:$version-all
-        --platform ${BUILD_PLATFORMS} --output type=registry,push=false
-        --build-arg APP=webservice-all
-        --build-arg JDK=$JAVA11
-        -f ./Dockerfiles/WebApp .
-
-    - name: Rule Services JDK 11
-      env:
-        appName : ws
-      run: >
-        eval docker buildx build
-        $tags_11
-        --platform ${BUILD_PLATFORMS} --output type=registry,push=false
-        --build-arg APP=webservice
-        --build-arg JDK=$JAVA11
-        -f ./Dockerfiles/WebApp .
-
-    - name: WebStudio JDK 11
-      env:
-        appName : webstudio
-      run: >
-        eval docker buildx build
-        $tags_11
-        --platform ${BUILD_PLATFORMS} --output type=registry,push=false
-        --build-arg APP=webstudio
-        --build-arg JDK=$JAVA11
-        -f ./Dockerfiles/WebApp .
-
+        docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
 
     - name: Push DEMO
       env:
         appName : demo
-      run: |
-        docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
-        eval docker buildx build $tags_11 --platform ${BUILD_PLATFORMS} --push -f ./Dockerfiles/Demo .
+      run: >
+        eval docker buildx build
+        $tags_11
+        --platform ${BUILD_PLATFORMS} --push
+        --label "org.opencontainers.image.version=${version}"
+        --label "org.opencontainers.image.revision=${GITHUB_SHA}"
+        --label "org.opencontainers.image.created=${BUILD_DATE}"
+        -f ./Dockerfiles/Demo .
 
     - name: Push Rule Services (All)
       run: >
@@ -190,6 +149,11 @@ jobs:
         --platform ${BUILD_PLATFORMS} --push
         --build-arg APP=webservice-all
         --build-arg JDK=$JAVA11
+        --label "org.opencontainers.image.title=OpenL RuleServices (All)"
+        --label "org.opencontainers.image.version=${version}"
+        --label "org.opencontainers.image.revision=${GITHUB_SHA}"
+        --label "org.opencontainers.image.created=${BUILD_DATE}"
+        --label "org.opencontainers.image.description=An OpenL web service with extra modules"
         -f ./Dockerfiles/WebApp .
 
     - name: Push Rule Services
@@ -201,6 +165,11 @@ jobs:
         --platform ${BUILD_PLATFORMS} --push
         --build-arg APP=webservice
         --build-arg JDK=$JAVA11
+        --label '"org.opencontainers.image.title=OpenL RuleServices"'
+        --label "org.opencontainers.image.version=${version}"
+        --label "org.opencontainers.image.revision=${GITHUB_SHA}"
+        --label "org.opencontainers.image.created=${BUILD_DATE}"
+        --label '"org.opencontainers.image.description=A minimal image with OpenL web service to run OpenL rules"'
         -f ./Dockerfiles/WebApp .
 
     - name: Push WebStudio
@@ -212,4 +181,9 @@ jobs:
         --platform ${BUILD_PLATFORMS} --push
         --build-arg APP=webstudio
         --build-arg JDK=$JAVA11
+        --label '"org.opencontainers.image.title=OpenL WebStudio"'
+        --label "org.opencontainers.image.version=${version}"
+        --label "org.opencontainers.image.revision=${GITHUB_SHA}"
+        --label "org.opencontainers.image.created=${BUILD_DATE}"
+        --label '"org.opencontainers.image.description=A web application to develop, run, test and trace OpenL rules"'
         -f ./Dockerfiles/WebApp .

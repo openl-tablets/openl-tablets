@@ -4,6 +4,9 @@ FROM eclipse-temurin:${JDK} as jdk
 
 FROM ubuntu:focal
 
+LABEL org.opencontainers.image.url="https://openl-tablets.org/"
+LABEL org.opencontainers.image.vendor="OpenL Tablets"
+
 ENV LC_ALL C.UTF-8
 
 ARG APP=target/webapp
