@@ -3,12 +3,37 @@ package org.openl.rules.repository.azure;
 import static org.openl.util.formatters.FileNameFormatter.fromNormalizedPath;
 import static org.openl.util.formatters.FileNameFormatter.normalizePath;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.map.PassiveExpiringMap;
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.common.ChangesMonitor;
+import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.azure.core.http.rest.PagedIterable;
 import com.azure.core.http.rest.Response;
@@ -17,19 +42,15 @@ import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobContainerClientBuilder;
-import com.azure.storage.blob.models.*;
+import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.models.BlobListDetails;
+import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.BlobRequestConditions;
+import com.azure.storage.blob.models.BlockBlobItem;
+import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import com.azure.storage.common.StorageSharedKeyCredential;
-import org.apache.commons.collections4.map.PassiveExpiringMap;
-import org.openl.rules.repository.api.*;
-import org.openl.rules.repository.common.ChangesMonitor;
-import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.TypeDescription;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.representer.Representer;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 /**
  * Azure Blob Storage repository.<br/>
@@ -61,6 +82,8 @@ public class AzureBlobRepository implements FolderRepository {
 
     private BlobContainerClient blobContainerClient;
     private PassiveExpiringMap<CacheKey, AzureCommit> commitsCache;
+
+    private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
 
     public void setId(String id) {
         this.id = id;
@@ -638,8 +661,7 @@ public class AzureBlobRepository implements FolderRepository {
         }
 
         try (InputStreamReader in = new InputStreamReader(client.openInputStream(), StandardCharsets.UTF_8)) {
-            Yaml yaml = createYamlForCommit();
-            final AzureCommit commit = yaml.loadAs(in, AzureCommit.class);
+            final AzureCommit commit = mapper.readValue(in, AzureCommit.class);
             commit.setVersion(versionId);
             String blobName = client.getBlobName();
             if (!blobName.startsWith(VERSIONS_PREFIX) || !blobName.endsWith("/" + VERSION_FILE)) {
@@ -658,30 +680,12 @@ public class AzureBlobRepository implements FolderRepository {
     }
 
     private void saveCommit(AzureCommit commit, String path) throws IOException {
-        final Yaml yaml = createYamlForCommit();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (OutputStreamWriter out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            yaml.dump(commit, out);
-        }
-
         final BlobClient blobClient = blobContainerClient.getBlobClient(VERSIONS_PREFIX + path + "/" + VERSION_FILE);
 
         final Response<BlockBlobItem> response = blobClient
-            .uploadWithResponse(new BlobParallelUploadOptions(BinaryData.fromBytes(outputStream.toByteArray()))
+            .uploadWithResponse(new BlobParallelUploadOptions(BinaryData.fromBytes(mapper.writeValueAsBytes(commit)))
                 .setRequestConditions(new BlobRequestConditions()), null, Context.NONE);
         commit.setVersion(response.getValue().getVersionId());
-    }
-
-    static Yaml createYamlForCommit() {
-        TypeDescription projectsDescription = new TypeDescription(AzureCommit.class);
-        projectsDescription.addPropertyParameters("files", FileInfo.class);
-        projectsDescription.setExcludes("version");
-        projectsDescription.setExcludes("path");
-        Constructor constructor = new Constructor(projectsDescription);
-        Representer representer = new Representer();
-        representer.addTypeDescription(projectsDescription);
-        representer.getPropertyUtils().setSkipMissingProperties(true);
-        return new Yaml(constructor, representer);
     }
 
     private void deleteAllByPrefix(String pathPrefix) {

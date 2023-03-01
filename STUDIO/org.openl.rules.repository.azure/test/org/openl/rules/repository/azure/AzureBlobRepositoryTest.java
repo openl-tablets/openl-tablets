@@ -13,9 +13,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
@@ -33,6 +31,7 @@ import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
@@ -50,9 +49,11 @@ import com.azure.storage.blob.models.BlockBlobItem;
 import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import com.azure.storage.blob.specialized.BlobInputStream;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 public class AzureBlobRepositoryTest {
     private AzureBlobRepository repo;
+    private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
     private final Map<String, List<BlobEmulation>> blobs = new HashMap<>();
 
     @Before
@@ -406,7 +407,7 @@ public class AzureBlobRepositoryTest {
         commit.setAuthor("john_smith");
 
         String commitFile = AzureBlobRepository.VERSIONS_PREFIX + projectName + "/" + AzureBlobRepository.VERSION_FILE;
-        addBlob(commitFile, versionId, toBytes(commit));
+        addBlob(commitFile, versionId, mapper.writeValueAsBytes(commit));
     }
 
     private String createFileContent(String fileName) {
@@ -420,14 +421,6 @@ public class AzureBlobRepositoryTest {
         final List<BlobEmulation> versions = blobs.computeIfAbsent(name, k -> new ArrayList<>());
         // Newest version will be first.
         versions.add(0, new BlobEmulation(blobItem, content));
-    }
-
-    private byte[] toBytes(AzureCommit commit) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (OutputStreamWriter out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            AzureBlobRepository.createYamlForCommit().dump(commit, out);
-        }
-        return outputStream.toByteArray();
     }
 
     private static void assertContains(List<FileData> files, String fileName) {

@@ -33,6 +33,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
 import org.codehaus.plexus.util.DirectoryScanner;
 import org.openl.info.OpenLVersion;
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.ProjectPackager;
@@ -40,7 +41,6 @@ import org.openl.util.StringUtils;
 import org.openl.util.ZipArchiver;
 import org.openl.util.ZipUtils;
 import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * Packages an OpenL Tablets project in a ZIP archive.
@@ -396,7 +396,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             DumperOptions options = new DumperOptions();
             options.setPrettyFlow(true);
             options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-            new Yaml(options).dump(properties, writer);
+            YamlMapperFactory.getYamlMapper().writeValue(writer, properties);
         }
     }
 

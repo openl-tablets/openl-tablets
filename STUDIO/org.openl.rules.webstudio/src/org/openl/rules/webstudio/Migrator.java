@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -20,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.rules.webstudio.web.Props;
@@ -32,8 +32,6 @@ import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * For setting migration purposes. It cleans up default settings and reconfigure user defined properties.
@@ -399,14 +397,9 @@ public class Migrator {
     }
 
     private static void createYaml(Object data, Path filePath) {
-        DumperOptions options = new DumperOptions();
-        options.setPrettyFlow(true);
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        Yaml yaml = new Yaml(options);
-        String dump = yaml.dump(data);
         try {
             Files.createDirectories(filePath.getParent());
-            Files.write(filePath, dump.getBytes(StandardCharsets.UTF_8));
+            Files.write(filePath, YamlMapperFactory.getYamlMapper().writeValueAsBytes(data));
         } catch (IOException e) {
             LOG.error("Writing to file has been failed.", e);
         }

@@ -1,0 +1,9 @@
+!!org.openl.rules.repository.azure.AzureCommit
+files:
+  - {path: rules/project1/file11, revision: 38d9f188-7dd9-46ca-bc8d-dd351ae1c42c}
+  - {path: rules/project1/file12, revision: a4cb4b68-783b-4485-958d-7782322f1449}
+author: john_smith
+comment: Edit rules/project1
+deleted: false
+modifiedAt: null
+version: null

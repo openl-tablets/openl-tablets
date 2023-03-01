@@ -16,15 +16,9 @@
             <groupId>org.openl.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.openl.jgit</groupId>
             <artifactId>org.eclipse.jgit.lfs</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
         </dependency>
 
         <!-- OpenL dependencies -->
@@ -32,6 +26,10 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.repository</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-yaml</artifactId>
         </dependency>
     </dependencies>
 </project>
