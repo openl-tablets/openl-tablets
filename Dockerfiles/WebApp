@@ -72,8 +72,8 @@ USER openl
 
 EXPOSE 8080
 
+COPY $APP $OPENL_APP/webapps/ROOT
+
 WORKDIR $OPENL_DIR
 
-CMD ["start.sh"]
-
-COPY $APP $OPENL_APP/webapps/ROOT
+CMD ["/opt/openl/start.sh"]
