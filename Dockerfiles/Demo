@@ -54,8 +54,10 @@ USER openl
 ENV JAVA_OPTS "-Xms64m -XX:MaxRAMPercentage=90.0"
 
 EXPOSE 8080
-#Start Jetty
-CMD /demo/start batchMode
 
 COPY --from=0 /demo /demo
+
 WORKDIR /demo
+
+#Start Jetty
+CMD ["/demo/start", "batchMode"]
