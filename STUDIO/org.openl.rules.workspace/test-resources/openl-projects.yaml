@@ -1,0 +1,15 @@
+!!org.openl.rules.workspace.dtr.impl.ProjectIndex
+projects:
+- archived: false
+  modifiedAt: null
+  name: Project
+  path: Project
+- archived: true
+  modifiedAt: null
+  name: Project4
+  path: foo/bar/Project4
+- archived: false
+  modifiedAt: 2023-02-28T10:34:14Z
+  name: Project7
+  path: foo/bar/project-custom-name
+

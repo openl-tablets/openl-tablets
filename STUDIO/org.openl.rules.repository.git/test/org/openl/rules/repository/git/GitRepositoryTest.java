@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -38,6 +39,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
@@ -48,6 +50,7 @@ import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.file.FileSystemRepository;
+import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
@@ -1337,5 +1340,27 @@ public class GitRepositoryTest {
         if (!rest.isEmpty()) {
             fail(String.format("Missed expected items: %s", String.join(", ", rest)));
         }
+    }
+
+    @Test
+    public void testBranchDataSerialization() throws IOException {
+        YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
+        BranchesData branches = null;
+        try (InputStream stream = getClass().getResourceAsStream("/BranchesDataOldStyle.yaml")) {
+            branches = mapper.readValue(stream, BranchesData.class);
+            assertTheSame(branches);
+        }
+        assertNotNull(branches);
+        assertTheSame(mapper.readValue(mapper.writeValueAsBytes(branches), BranchesData.class));
+    }
+
+    private static void assertTheSame(BranchesData branches) {
+        assertEquals(1, branches.getDescriptions().size());
+        assertEquals("branch2", branches.getDescriptions().get(0).getName());
+        assertEquals("1deabde8a096756681a08c4552597ef8850963f7", branches.getDescriptions().get(0).getCommit());
+        assertEquals(1, branches.getProjectBranches().size());
+        assertEquals(2, branches.getProjectBranches().get("rules/project_2").size());
+        assertEquals("master", branches.getProjectBranches().get("rules/project_2").get(0));
+        assertEquals("branch2", branches.getProjectBranches().get("rules/project_2").get(1));
     }
 }

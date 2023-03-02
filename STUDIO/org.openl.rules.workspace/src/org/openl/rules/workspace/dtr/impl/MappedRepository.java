@@ -1,13 +1,10 @@
 package org.openl.rules.workspace.dtr.impl;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -24,6 +21,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.BranchRepository;
@@ -44,11 +42,8 @@ import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.TypeDescription;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.representer.Representer;
+
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 public class MappedRepository implements FolderRepository, BranchRepository, Closeable, FolderMapper {
     private static final Logger log = LoggerFactory.getLogger(MappedRepository.class);
@@ -62,6 +57,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     private String baseFolder;
     private RepositorySettings repositorySettings;
     private Date settingsSyncDate = new Date();
+    private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
 
     public static Repository create(FolderRepository delegate,
             String baseFolder,
@@ -725,17 +721,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
             settingsSyncDate = fileItem.getData().getModifiedAt();
         }
 
-        TypeDescription projectsDescription = new TypeDescription(ProjectIndex.class);
-        projectsDescription.addPropertyParameters("projects", ProjectInfo.class);
-        Constructor constructor = new Constructor(ProjectIndex.class);
-        constructor.addTypeDescription(projectsDescription);
-        Representer representer = new Representer();
-        representer.getPropertyUtils().setSkipMissingProperties(true);
-
         try (InputStream stream = fileItem.getStream();
                 InputStreamReader in = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-            Yaml yaml = new Yaml(constructor, representer);
-            ProjectIndex projectIndex = yaml.loadAs(in, ProjectIndex.class);
+            ProjectIndex projectIndex = mapper.readValue(in, ProjectIndex.class);
             if (projectIndex != null) {
                 return projectIndex;
             }
@@ -924,17 +912,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     }
 
     private ByteArrayInputStream getStreamFromProperties(ProjectIndex projectIndex) throws IOException {
-        DumperOptions options = new DumperOptions();
-        options.setPrettyFlow(true);
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        Yaml yaml = new Yaml(options);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            yaml.dump(projectIndex, writer);
-        }
-
-        return new ByteArrayInputStream(outputStream.toByteArray());
+        return new ByteArrayInputStream(mapper.writeValueAsBytes(projectIndex));
     }
 
     private String getProjectName(InputStream inputStream) {

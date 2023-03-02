@@ -1,0 +1,8 @@
+!!org.openl.rules.repository.git.branch.BranchesData
+descriptions:
+  - commit: 1deabde8a096756681a08c4552597ef8850963f7
+    name: branch2
+projectBranches:
+  rules/project_2:
+    - master
+    - branch2
