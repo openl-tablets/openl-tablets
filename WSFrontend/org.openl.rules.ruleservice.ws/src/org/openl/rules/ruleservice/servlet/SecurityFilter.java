@@ -30,6 +30,7 @@ public class SecurityFilter implements Filter {
     private final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
 
     private static final String ADMIN_PATH = "/admin/";
+    private static final String RAPIDOC_PATH = "/rapi-doc/";
 
     private boolean authOn;
     private JWTValidator jwtValidator;
@@ -81,7 +82,7 @@ public class SecurityFilter implements Filter {
         }
         // Swagger and admin actions should be available without authorization.
         // Admin actions such as downloading or deploying via UI should be removed.
-        if (pathInfo.startsWith(SwaggerUIResolver.SWAGGER_UI) || pathInfo.startsWith(ADMIN_PATH)) {
+        if (pathInfo.startsWith(RAPIDOC_PATH) || pathInfo.startsWith(ADMIN_PATH)) {
             return false;
         }
         // Access to openapi.json and openapi.yam should pass without authorization.
