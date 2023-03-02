@@ -91,6 +91,10 @@
             <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-yaml</artifactId>
+        </dependency>
     </dependencies>
 
     <reporting>

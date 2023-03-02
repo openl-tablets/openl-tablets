@@ -24,8 +24,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-yaml</artifactId>
         </dependency>
     </dependencies>
 </project>

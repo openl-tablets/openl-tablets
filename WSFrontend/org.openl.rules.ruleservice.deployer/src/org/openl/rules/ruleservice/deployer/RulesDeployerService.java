@@ -28,6 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -44,7 +45,6 @@ import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * This class allows to deploy a zip-based project to a production repository.
@@ -378,8 +378,7 @@ public class RulesDeployerService implements Closeable {
             return null;
         } else {
             try (InputStream fileStream = Files.newInputStream(deploymentDescriptor)) {
-                Yaml yaml = new Yaml();
-                return Optional.ofNullable(yaml.loadAs(fileStream, Map.class))
+                return Optional.ofNullable(YamlMapperFactory.getYamlMapper().readValue(fileStream, Map.class))
                     .map(prop -> prop.get("name"))
                     .map(Object::toString)
                     .filter(StringUtils::isNotBlank)

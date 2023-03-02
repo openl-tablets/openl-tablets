@@ -148,6 +148,7 @@
         <module>Util/openl-openapi-model-scaffolding</module>
         <module>Util/openl-openapi-parser</module>
         <module>Util/openl-excel-builder</module>
+        <module>Util/openl-yaml</module>
     </modules>
     <build>
         <defaultGoal>clean verify</defaultGoal>
@@ -1514,11 +1515,6 @@
                 <artifactId>jackson-dataformat-smile</artifactId>
                 <version>${com.fasterxml.jackson.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>1.33</version>
-            </dependency>
             <!-- OpenAPI -->
             <dependency>
                 <groupId>io.swagger.parser.v3</groupId>
@@ -1970,6 +1966,11 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.webstudio.web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-yaml</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
