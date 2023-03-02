@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Swagger UI</title>
-    <link rel="stylesheet" type="text/css" href="swagger-ui/swagger-ui.css" />
     <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <style>
         html
@@ -25,32 +24,121 @@
             margin:0;
             background: #fafafa;
         }
+
+        #select-api {
+            padding: 6px 5px;
+            background-color: var(--header-color-darker);
+            color: var(--header-fg);
+            border: 1px solid var(--header-color-border);
+            border-radius: 3px;
+        }
+
+        #openl-logo {
+            height: 36px;
+            margin-left: 5px;
+        }
     </style>
+        <script type="module" src="rapi-doc/rapidoc-min.js"></script>
 </head>
 
 <body>
-<div id="swagger-ui"></div>
+<rapi-doc id="swagger-ui"
+        render-style="view"
+        layout="column"
+        sort-endpoints-by="path"
+        allow-spec-url-load="false"
+        allow-spec-file-load="false"
+        allow-server-selection="false">
+    <div slot='header' style='display:flex; margin:0 16px;'>
+        <label for="select-api" style="display: none">
+            <span>Select a definition</span>
+            <select id="select-api"></select>
+        </label>
+    </div>
+</rapi-doc>
 
-<script src="swagger-ui/swagger-ui-bundle.js" charset="UTF-8"> </script>
-<script src="swagger-ui/swagger-ui-standalone-preset.js" charset="UTF-8"> </script>
 <script>
-    window.onload = function() {
-        // Begin Swagger UI call region
-        const ui = SwaggerUIBundle({
-            configUrl: "admin/swagger-ui.json",
-            dom_id: '#swagger-ui',
-            deepLinking: true,
-            "urls.primaryName": new URLSearchParams(document.location.search).get("urls.primaryName"),
-            presets: [
-                SwaggerUIBundle.presets.apis,
-                SwaggerUIStandalonePreset
-            ],
-            layout: "StandaloneLayout"
-        });
-        // End Swagger UI call region
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const rapiDoc = document.getElementById("swagger-ui");
+        const selectApi = document.getElementById("select-api");
+        let openlLogo = document.createElement("img");
+        openlLogo.setAttribute("id", "openl-logo")
+        openlLogo.setAttribute('slot', "logo");
+        openlLogo.setAttribute('src', "openl-logo.svg");
+        rapiDoc.appendChild(openlLogo);
 
-        window.ui = ui;
-    };
+        const toAbsoluteURL = (url) => {
+            let a = document.createElement("a");
+            a.href = url;
+            return a.href;
+        }
+        rapiDoc.addEventListener("before-render", (e) => {
+            const specUrl = rapiDoc.getAttribute("spec-url");
+            // convert dotted "server.url" in OpenAPI to the absolute URL
+            const targetUrl = specUrl.split("/").slice(0,-1).join("/")
+            let server = e.detail.spec.servers[0];
+            server.url = targetUrl;
+            server.computedUrl = targetUrl;
+        });
+
+        const initializeRapiDoc = (serviceUrls) => {
+            const selectedApiName = new URLSearchParams(document.location.search).get("urls.primaryName");
+            let selectedUri = null;
+            serviceUrls.forEach((it) => {
+                let option = document.createElement('option');
+                option.value = it.url;
+                option.textContent = it.name;
+                selectApi.appendChild(option);
+                if (it.name === selectedApiName) {
+                    selectedUri = it.url;
+                }
+            });
+            selectApi.addEventListener("change", (e) => {
+                let state = {
+                    specUrl: selectApi.value
+                }
+                let searchParams = new URLSearchParams(window.location.search);
+                serviceUrls.some((it) => {
+                    if (it.url === selectApi.value) {
+                        state.name = it.name;
+                        searchParams.set("urls.primaryName", it.name);
+                        return true;
+                    }
+                    return false;
+                });
+                if (!e.initial) {
+                    let newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + searchParams.toString();
+                    window.history.pushState(state, '', newurl);
+                } else {
+                    window.history.replaceState(state, '');
+                }
+                rapiDoc.setAttribute('spec-url', toAbsoluteURL(selectApi.value))
+            });
+            if (serviceUrls.length > 0) {
+                selectApi.parentElement.style.removeProperty("display")
+                selectApi.value = selectedUri || serviceUrls[0].url
+                let event = new Event('change');
+                event.initial = true;
+                selectApi.dispatchEvent(event)
+            }
+        }
+
+        const xmlhttp = new XMLHttpRequest();
+        xmlhttp.onload = function () {
+            const services = JSON.parse(this.response);
+            initializeRapiDoc(services.urls || [])
+        };
+        xmlhttp.open("GET", "admin/swagger-ui.json", true);
+        xmlhttp.send();
+
+        window.addEventListener('popstate', function (e) {
+            var state = e.state;
+            if (state !== null && state.specUrl !== null) {
+                selectApi.value = state.specUrl;
+                rapiDoc.setAttribute('spec-url', toAbsoluteURL(state.specUrl));
+            }
+        });
+    });
 </script>
 </body>
 </html>
