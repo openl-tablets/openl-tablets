@@ -21,6 +21,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -40,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.xml.sax.InputSource;
-import org.yaml.snakeyaml.Yaml;
 
 /**
  * This class allows to deploy a zip-based project to a production repository. By default configuration of destination
@@ -109,8 +109,7 @@ public class ProductionRepositoryDeployer {
         deployment = new File(zipFolder, DEPLOYMENT_DESCRIPTOR_FILE_NAME + ".yaml");
         if (deployment.exists()) {
             try {
-                Yaml yaml = new Yaml();
-                Map properties = yaml.loadAs(new FileInputStream(deployment), Map.class);
+                Map properties = YamlMapperFactory.getYamlMapper().readValue(deployment, Map.class);
                 return Optional.ofNullable(properties.get("name"))
                     .map(Object::toString)
                     .filter(StringUtils::isNotBlank)

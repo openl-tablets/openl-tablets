@@ -102,6 +102,10 @@
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.project.validation.openapi</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-yaml</artifactId>
+        </dependency>
     </dependencies>
 
     <reporting>

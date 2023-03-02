@@ -50,15 +50,15 @@
             <artifactId>jakarta.ws.rs-api</artifactId>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-        </dependency>
 
         <!-- OpenL dependencies -->
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.repository</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-yaml</artifactId>
         </dependency>
     </dependencies>
 </project>

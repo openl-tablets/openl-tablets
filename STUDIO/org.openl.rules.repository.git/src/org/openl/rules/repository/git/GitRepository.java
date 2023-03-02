@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -106,6 +105,7 @@ import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.LfsFactory;
 import org.eclipse.jgit.util.io.NullOutputStream;
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
@@ -127,11 +127,8 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.TypeDescription;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.representer.Representer;
+
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 public class GitRepository implements FolderRepository, BranchRepository, Closeable {
     static final String DELETED_MARKER_FILE = ".archived";
@@ -175,6 +172,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private boolean closed;
     private String branchesConfigFile = "design/branches.yaml";
+    private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
 
     public void setId(String id) {
         this.id = id;
@@ -2684,14 +2682,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 settingsSyncDate = fileItem.getData().getModifiedAt();
             }
             try (InputStreamReader in = new InputStreamReader(fileItem.getStream(), StandardCharsets.UTF_8)) {
-                TypeDescription projectsDescription = new TypeDescription(BranchesData.class);
-                projectsDescription.addPropertyParameters("descriptions", BranchDescription.class);
-                Constructor constructor = new Constructor(BranchesData.class);
-                constructor.addTypeDescription(projectsDescription);
-                Representer representer = new Representer();
-                representer.getPropertyUtils().setSkipMissingProperties(true);
-                Yaml yaml = new Yaml(constructor, representer);
-                branches.copyFrom(yaml.loadAs(in, BranchesData.class));
+                branches.copyFrom(mapper.readValue(in, BranchesData.class));
             }
         }
     }
@@ -2700,21 +2691,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (repositorySettings == null) {
             return;
         }
-        DumperOptions options = new DumperOptions();
-        options.setPrettyFlow(true);
-        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-        Yaml yaml = new Yaml(options);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (OutputStreamWriter out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            yaml.dump(branches, out);
-        }
-
         FileData data = new FileData();
         data.setName(branchesConfigFile);
         data.setAuthor(new UserInfo(getClass().getName()));
         data.setComment("Update branches info");
-        repositorySettings.getRepository().save(data, new ByteArrayInputStream(outputStream.toByteArray()));
+        var bytes = mapper.writeValueAsBytes(branches);
+        repositorySettings.getRepository().save(data, new ByteArrayInputStream(bytes));
     }
 
     private void removeAbsentFiles(String baseAbsolutePath,

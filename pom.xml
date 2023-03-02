@@ -212,7 +212,6 @@
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
         <activiti.version>5.18.0</activiti.version>
-        <snakeyaml.version>1.33</snakeyaml.version>
 
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
@@ -240,6 +239,7 @@
         <module>Util/openl-maven-plugin</module>
         <module>Util/openl-simple-project-archetype</module>
         <module>Util/openl-project-archetype</module>
+        <module>Util/openl-yaml</module>
     </modules>
     <build>
         <defaultGoal>clean verify</defaultGoal>
@@ -1685,11 +1685,6 @@
                 <artifactId>jackson-dataformat-smile</artifactId>
                 <version>${jackson.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.yaml</groupId>
-                <artifactId>snakeyaml</artifactId>
-                <version>${snakeyaml.version}</version>
-            </dependency>
             <!-- Jakarta Mail Api for SMTP server connection, depends on Jakarta Activation -->
             <dependency>
                 <groupId>com.sun.mail</groupId>
@@ -2194,6 +2189,11 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.webstudio.web</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-yaml</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
