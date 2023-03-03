@@ -128,7 +128,7 @@ public class SecureDesignTimeRepositoryImpl implements DesignTimeRepository {
     public List<ADeploymentProject> getDDProjects() throws RepositoryException {
         return designTimeRepository.getDDProjects()
             .stream()
-            .filter(e -> designRepositoryAclService.isGranted(e, List.of(AclPermission.VIEW)))
+            .filter(e -> deployConfigRepositoryAclService.isGranted(e, List.of(AclPermission.VIEW)))
             .collect(Collectors.toList());
     }
 

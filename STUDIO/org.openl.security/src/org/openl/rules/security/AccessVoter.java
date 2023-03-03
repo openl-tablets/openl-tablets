@@ -2,8 +2,8 @@ package org.openl.rules.security;
 
 import java.util.Collection;
 
-import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -29,7 +29,7 @@ import org.springframework.security.core.GrantedAuthority;
  *
  * @author Aleh Bykhavets
  */
-public class AccessVoter implements AccessDecisionVoter<Object> {
+public class AccessVoter extends AuthenticatedVoter {
     /**
      * This implementation supports any type of class, because it does not query the presented secure object.
      *
@@ -57,18 +57,19 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
      */
     @Override
     public int vote(Authentication authentication, Object object, Collection<ConfigAttribute> configAttributes) {
-        int result = ACCESS_ABSTAIN;
+        int result = super.vote(authentication, object, configAttributes);
+
+        if (result == ACCESS_GRANTED) {
+            return result;
+        }
 
         for (ConfigAttribute attribute : configAttributes) {
             if (this.supports(attribute)) {
-                result = ACCESS_DENIED;
-
                 String neededAuthority = attribute.getAttribute();
 
                 // Attempt to find a matching granted authority
                 for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
                     String availableAuthority = grantedAuthority.getAuthority();
-
                     if (neededAuthority.equals(availableAuthority)) {
                         return ACCESS_GRANTED;
                     }
@@ -92,5 +93,6 @@ public class AccessVoter implements AccessDecisionVoter<Object> {
         }
 
         return result;
+
     }
 }
