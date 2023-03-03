@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -134,11 +135,6 @@ public class RepositoryController {
     @GetMapping("projects")
     @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, array = @ArraySchema(schema = @Schema(implementation = ProjectDescription.class))))
     public ResponseEntity<?> getProjects() {
-        if (!isGranted(Privileges.VIEW_PROJECTS)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .contentType(MediaType.TEXT_PLAIN)
-                .body("VIEW privilege is required for the action");
-        }
         Collection<? extends AProject> projects = getDesignTimeRepository().getProjects();
         List<ProjectDescription> result = new ArrayList<>(projects.size());
         for (AProject prj : projects) {
@@ -161,13 +157,14 @@ public class RepositoryController {
     public ResponseEntity<?> getLastProject(
             @Parameter(description = "repo.param.project-name.desc") @PathVariable("name") String name) {
         try {
-            SecurityChecker.allow(Privileges.VIEW_PROJECTS);
             FileData fileData = getRepository().check(getFileName(name));
             if (fileData == null) {
                 throw new FileNotFoundException(String.format("Project '%s' is not found.", name));
             }
 
             return getProject(name, fileData.getVersion());
+        } catch (AccessDeniedException e) {
+            throw new SecurityException();
         } catch (IOException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.TEXT_PLAIN).body(ex.getMessage());
         }
@@ -187,8 +184,6 @@ public class RepositoryController {
             @Parameter(description = "repo.param.project-name.desc") @PathVariable("name") final String name,
             @Parameter(description = "repo.param.project-version.desc") @PathVariable("version") final String version) {
         try {
-            SecurityChecker.allow(Privileges.VIEW_PROJECTS);
-
             final Repository repository = getRepository();
             final String projectPath = getFileName(name);
 
@@ -226,6 +221,8 @@ public class RepositoryController {
                 .contentType(MediaType.valueOf("application/zip"))
                 .header("Content-Disposition", "attachment;filename=\"" + zipFileName + "\"")
                 .body(new InputStreamResource(entity));
+        } catch (AccessDeniedException e) {
+            throw new SecurityException();
         } catch (IOException ex) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).contentType(MediaType.TEXT_PLAIN).body(ex.getMessage());
         }

@@ -20,7 +20,7 @@
                 <!-- Don't allow unprivileged users to run install wizard by manually entering installation wizard url when studio is configured already -->
                 <security:intercept-url pattern="/faces/pages/modules/install/**" access="ADMIN"/>
                 <security:intercept-url pattern="/web/acl/repo/**" access="ADMIN"/>
-                <security:intercept-url pattern="/**" access="VIEW_PROJECTS"/>
+                <security:intercept-url pattern="/**" access="IS_AUTHENTICATED_REMEMBERED"/>
             </security:filter-security-metadata-source>
         </property>
     </bean>
