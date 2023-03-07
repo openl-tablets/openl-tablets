@@ -54,8 +54,8 @@ class SubtypeMixInClassWriter extends ClassVisitor {
 
         if (!originalMixInClass.isAnnotationPresent(JsonTypeInfo.class)) {
             AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonTypeInfo.class), true);
-            if (subTypes.length > 0 || parentType != null) {
-                if (jsonTypeInfoId.getDefaultPropertyName() != null && StringUtils.isNotBlank(typingPropertyName)) {
+            if ((subTypes.length > 0 || parentType != null) && StringUtils.isNotBlank(typingPropertyName)) {
+                if (jsonTypeInfoId.getDefaultPropertyName() != null) {
                     av.visit("property", typingPropertyName);
                 }
                 av.visitEnum("use", Type.getDescriptor(JsonTypeInfo.Id.class), jsonTypeInfoId.name());
