@@ -465,13 +465,14 @@
                     <footer>
                         <h:commandButton id="submitOpenAPIFileBtn" value="Create" styleClass="button-primary"
                                          onclick="createProjectWithRequiredInfo(() => $j('#openAPIProjectForm\\:submitOpenAPIFile').click(), $j('#openAPIProjectForm\\:repositoryOpenAPI option:selected').val(), $j('#openAPIProjectForm\\:projectName').val()); return false;"/>
-                        <h:commandButton id="submitOpenAPIFile" styleClass="hidden" action="#{repositoryTreeController.upload}"/>
+                        <h:commandButton id="submitOpenAPIFile" styleClass="hidden"
+                                         action="#{repositoryTreeController.upload}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
                 </h:form>
             </rich:tab>
 
-            <rich:tab header="Workspace" rendered="#{repositoryTreeController.canCreateNewProject}"
+            <rich:tab header="Workspace" id="uploadPrjFromLocalDiv" rendered="#{repositoryTreeController.canCreateNewProject}"
                       onenter="refreshUploadWorkspaceProjectForm()">
                 <a4j:jsFunction name="refreshUploadWorkspaceProjectForm"
                                 oncomplete="checkCreateWorkspacePanel()"
@@ -479,7 +480,7 @@
                 <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px">
                     <div style="max-height: 286px;">
                         <div style="max-height: 250px; overflow:auto">
-                            <h:panelGrid style="width: 100%" id="uploadPrjFromLocalDiv">
+                            <h:panelGrid style="width: 100%">
                                 <rich:dataTable value="#{localUpload.projects4Upload}"
                                                 rendered="#{not empty localUpload.projects4Upload}"
                                                 var="item" styleClass="table" id="uploadPrjFromLocalTable"
