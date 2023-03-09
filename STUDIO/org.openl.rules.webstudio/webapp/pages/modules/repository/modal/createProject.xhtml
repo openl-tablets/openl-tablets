@@ -3,7 +3,8 @@
         xmlns:h="http://java.sun.com/jsf/html"
         xmlns:a4j="http://richfaces.org/a4j"
         xmlns:rich="http://richfaces.org/rich"
-        xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+>
 
     <style>
         .table-templates {
@@ -42,10 +43,15 @@
             <h:graphicImage value="/images/close.gif" class="close" onclick="hideNewProjectDialog()" alt="Close"/>
         </f:facet>
 
-        <ui:param name="hasTags" value="#{repositoryTreeController.hasTags}"/>
-        <rich:tabPanel id="projectType" switchType="client" onitemchange="resizePopupPanel('modalNewProject')">
+        <h:panelGroup id="modalNewProjectAccessDenied" layout="block">
+            <h:outputText value="There are no permissions to create projects"
+                          rendered="#{!repositoryTreeController.canCreateNewProject}"/>
+        </h:panelGroup>
 
-            <rich:tab id="template" header="Template" rendered="#{repositoryTreeController.canCreateNewProject}">
+        <ui:param name="hasTags" value="#{repositoryTreeController.hasTags}"/>
+        <rich:tabPanel id="projectType" switchType="client" onitemchange="resizePopupPanel('modalNewProject')"
+                       rendered="#{repositoryTreeController.canCreateNewProject}">
+            <rich:tab id="template" header="Template">
                 <h:form id="createProjectFormTempl" style="padding-top: 4px">
                     <table class="formfields" cellspacing="1">
                         <tr>
@@ -190,7 +196,7 @@
                 </h:form>
             </rich:tab>
 
-            <rich:tab header="Excel Files" rendered="#{repositoryTreeController.canCreateNewProject}">
+            <rich:tab header="Excel Files">
                 <h:form id="createProjectFormFiles" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
@@ -260,7 +266,7 @@
                 </h:form>
             </rich:tab>
 
-            <rich:tab header="Zip Archive" rendered="#{repositoryTreeController.canCreateNewProject}">
+            <rich:tab header="Zip Archive">
                 <h:form id="uploadProjectForm" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
@@ -330,7 +336,7 @@
                 </h:form>
             </rich:tab>
 
-            <rich:tab header="OpenAPI" rendered="#{repositoryTreeController.canCreateNewProject}">
+            <rich:tab header="OpenAPI">
                 <h:form id="openAPIProjectForm" style="padding-top: 6px">
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
@@ -615,7 +621,7 @@
 
             <h:form>
                 <a4j:jsFunction name="initNewProjectDialog" action="#{repositoryTreeController.openNewProjectDialog}"
-                                render="createProjectFormTempl createProjectFormFiles uploadProjectForm openAPIProjectForm uploadWorkspaceProjectForm importFromRepoForm"
+                                render="projectType modalNewProjectAccessDenied importFromRepoForm"
                                 oncomplete="showNewProjectDialog()"/>
 
                 <a4j:jsFunction name="clearFiles">
