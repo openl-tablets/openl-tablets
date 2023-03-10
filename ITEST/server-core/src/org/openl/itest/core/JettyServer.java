@@ -133,6 +133,7 @@ public class JettyServer {
 
     public void stop() throws Exception {
         server.stop();
+        server.destroy();
     }
 
     public HttpClient client() {
