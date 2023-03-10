@@ -66,6 +66,7 @@ public class AppServer {
             }
         } finally {
             server.stop();
+            server.destroy();
         }
     }
 }
