@@ -108,6 +108,46 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         return getDispatcherTable().getMember().getInfo();
     }
 
+    private enum MethodDispatchingPriority {
+        HIGHER,
+        LOWER,
+        EQUAL
+    }
+
+    private MethodDispatchingPriority compareMethodProperties(ITableProperties candidateProperties,
+            ITableProperties mostPriorityProperties,
+            List<String> notNullPropertyNames) {
+        boolean nested = false;
+        boolean contains = false;
+        propsLoop: for (String propName : notNullPropertyNames) {
+            switch (intersectionMatcher.match(propName, candidateProperties, mostPriorityProperties)) {
+                case NESTED:
+                    nested = true;
+                    break;
+                case CONTAINS:
+                    contains = true;
+                    break;
+                case EQUALS:
+                case UNKNOWN:
+                    // do nothing
+                    break;
+                case NO_INTERSECTION:
+                case PARTLY_INTERSECTS:
+                    nested = false;
+                    contains = false;
+                    break propsLoop;
+            }
+        }
+
+        if (nested && !contains) {
+            return MethodDispatchingPriority.HIGHER;
+        } else if (contains && !nested) {
+            return MethodDispatchingPriority.LOWER;
+        } else {
+            return MethodDispatchingPriority.EQUAL;
+        }
+    }
+
     private void maxMinSelectCandidates(Set<IOpenMethod> selected, IRulesRuntimeContext context) {
         // If more that one method
         if (selected.size() > 1) {
@@ -130,94 +170,43 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                         mostPriority.clear();
                         mostPriority.add(candidate);
                         mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
-                    }
-                    if (cmp == 0) {
+                    } else if (cmp == 0) {
                         mostPriority.add(candidate);
-                    }
-                    if (cmp > 0) {
+                    } else {
                         notPriorMethods.add(candidate);
                     }
                 }
             }
-
             notPriorMethods.forEach(selected::remove);
             if (selected.size() > 1) {
                 notPriorMethods.clear();
                 mostPriority.clear();
                 for (IOpenMethod candidate : selected) {
-                    boolean nested = false;
-                    boolean contains = false;
-                    if (mostPriority.isEmpty()) {
+                    if (mostPriority.isEmpty() || notNullPropertyNames.isEmpty()) {
                         mostPriority.add(candidate);
-                        mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
                     } else {
                         ITableProperties candidateProperties = PropertiesHelper.getTableProperties(candidate);
-                        if (mostPriority.size() == 1 && !notNullPropertyNames.isEmpty()) {
-                            propsLoop: for (String propName : notNullPropertyNames) {
-                                switch (intersectionMatcher
-                                    .match(propName, candidateProperties, mostPriorityProperties)) {
-                                    case NESTED:
-                                        nested = true;
-                                        break;
-                                    case CONTAINS:
-                                        contains = true;
-                                        break;
-                                    case EQUALS:
-                                        // do nothing
-                                        break;
-                                    case NO_INTERSECTION:
-                                    case PARTLY_INTERSECTS:
-                                        nested = false;
-                                        contains = false;
-                                        break propsLoop;
-                                }
+                        int higherCount = 0;
+                        int lowerCount = 0;
+                        for (IOpenMethod m : mostPriority) {
+                            ITableProperties mProperties = PropertiesHelper.getTableProperties(m);
+                            MethodDispatchingPriority priority = compareMethodProperties(candidateProperties,
+                                mProperties,
+                                notNullPropertyNames);
+                            if (priority == MethodDispatchingPriority.HIGHER) {
+                                higherCount++;
+                            } else if (priority == MethodDispatchingPriority.LOWER) {
+                                lowerCount++;
                             }
-                            if (nested && !contains && mostPriority.size() == 1) {
-                                notPriorMethods.addAll(mostPriority);
-                                mostPriority.clear();
-                                mostPriority.add(candidate);
-                                mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
-                            } else if (contains && !nested && mostPriority.size() == 1) {
-                                notPriorMethods.add(candidate);
-
-                            } else {
-                                mostPriority.add(candidate);
-                            }
+                        }
+                        if (higherCount == mostPriority.size()) {
+                            notPriorMethods.addAll(mostPriority);
+                            mostPriority.clear();
+                            mostPriority.add(candidate);
+                        } else if (lowerCount == mostPriority.size()) {
+                            notPriorMethods.add(candidate);
                         } else {
-                            boolean moreConcreteMethod;
-                            boolean f;
-                            if (!notNullPropertyNames.isEmpty()) {
-                                moreConcreteMethod = true;
-                                f = false;
-                                for (IOpenMethod m : mostPriority) {
-                                    ITableProperties mProperties = PropertiesHelper.getTableProperties(m);
-                                    propsLoop: for (String propName : notNullPropertyNames) {
-                                        switch (intersectionMatcher.match(propName, candidateProperties, mProperties)) {
-                                            case NESTED:
-                                            case EQUALS:
-                                                f = true;
-                                                break;
-                                            case CONTAINS:
-                                            case NO_INTERSECTION:
-                                            case PARTLY_INTERSECTS:
-                                                f = true;
-                                                moreConcreteMethod = false;
-                                                break propsLoop;
-                                        }
-                                    }
-                                }
-                            } else {
-                                moreConcreteMethod = false;
-                                f = false;
-                            }
-                            if (moreConcreteMethod && f) {
-                                notPriorMethods.addAll(mostPriority);
-                                mostPriority.clear();
-                                mostPriority.add(candidate);
-                                mostPriorityProperties = PropertiesHelper.getTableProperties(candidate);
-                            } else {
-                                mostPriority.add(candidate);
-                            }
+                            mostPriority.add(candidate);
                         }
                     }
                 }
