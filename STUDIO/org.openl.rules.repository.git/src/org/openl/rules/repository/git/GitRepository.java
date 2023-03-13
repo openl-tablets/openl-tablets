@@ -31,11 +31,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -115,13 +117,16 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
 import org.openl.rules.repository.git.branch.BranchDescription;
 import org.openl.rules.repository.git.branch.BranchesData;
+import org.openl.rules.xls.merge.XlsWorkbookMerger;
+import org.openl.rules.xls.merge.diff.DiffStatus;
+import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -901,8 +906,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             } catch (RefAlreadyExistsException e) {
                 // the error may appear on non-case sensitive OS
                 log.warn(
-                        "The branch '{}' will not be tracked because a branch with the same name already exists. Branches with the same name, but different capitalization do not work on non-case sensitive OS.",
-                        remoteBranch.getName());
+                    "The branch '{}' will not be tracked because a branch with the same name already exists. Branches with the same name, but different capitalization do not work on non-case sensitive OS.",
+                    remoteBranch.getName());
             }
         }
     }
@@ -1351,7 +1356,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 .call();
 
             validateNonConflictingMerge(mergeResult);
-            validateMergeConflict(mergeResult, true);
+            validateMergeConflict(mergeResult, true, branch, mergeAuthor);
 
             applyMergeCommit(mergeResult, mergeMessage, mergeAuthor);
 
@@ -1394,8 +1399,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void validateMergeConflict(MergeResult mergeResult, boolean theirToOur) throws GitAPIException,
-                                                                                    IOException {
+    private void validateMergeConflict(MergeResult mergeResult,
+            boolean theirToOur,
+            String branchFrom,
+            UserInfo userInfo) throws GitAPIException, IOException {
         if (mergeResult.getMergeStatus() == MergeResult.MergeStatus.CONFLICTING) {
             ObjectId[] mergedCommits = mergeResult.getMergedCommits();
             Repository repository = git.getRepository();
@@ -1454,7 +1461,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         formatter.format(entry);
                         String path = entry.getChangeType() == DiffEntry.ChangeType.DELETE ? entry.getOldPath()
                                                                                            : entry.getNewPath();
-                        String comparison = outputStream.toString(StandardCharsets.UTF_8.name());
+                        String comparison = outputStream.toString(StandardCharsets.UTF_8);
 
                         // JGit currently doesn't support switching off quoting symbols with code < 0x80, so we used
                         // decode paths ourselves.
@@ -1471,8 +1478,102 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 }
             }
 
-            throw new MergeConflictException(diffs, baseCommit, ourCommit, theirCommit);
+            Map<String, WorkbookDiffResult> toAutoResolve = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+            boolean allCanAutoResolve = true;
+            for (String conflictedFile : conflictedFiles) {
+                if (!FileTypeHelper.isExcelFile(conflictedFile)) {
+                    // skip non-excel resources
+                    allCanAutoResolve = false;
+                    continue;
+                }
+                FileItem baseConflictedFile = null;
+                FileItem ourConflictedFile = null;
+                FileItem theirConflictedFile = null;
+                try {
+                    baseConflictedFile = parseHistory0(conflictedFile, baseCommit, new ReadHistoryVisitor(baseCommit));
+                    ourConflictedFile = parseHistory0(conflictedFile, ourCommit, new ReadHistoryVisitor(ourCommit));
+                    theirConflictedFile = parseHistory0(conflictedFile,
+                        theirCommit,
+                        new ReadHistoryVisitor(theirCommit));
+                    if (baseConflictedFile == null || ourConflictedFile == null || theirConflictedFile == null) {
+                        allCanAutoResolve = false;
+                        continue;
+                    }
+                    try (XlsWorkbookMerger workbookMerger = XlsWorkbookMerger.create(baseConflictedFile.getStream(),
+                        ourConflictedFile.getStream(),
+                        theirConflictedFile.getStream())) {
+                        WorkbookDiffResult diffResult = workbookMerger.getDiffResult();
+                        if (!diffResult.hasConflicts()) {
+                            toAutoResolve.put(conflictedFile, diffResult);
+                            diffs.remove(conflictedFile);
+                        } else {
+                            allCanAutoResolve = false;
+                        }
+                    }
+                } finally {
+                    IOUtils.closeQuietly(baseConflictedFile);
+                    IOUtils.closeQuietly(ourConflictedFile);
+                    IOUtils.closeQuietly(theirConflictedFile);
+                }
+            }
+
+            if (!allCanAutoResolve) {
+                throw new MergeConflictException(diffs, baseCommit, ourCommit, theirCommit, toAutoResolve);
+            } else if (!toAutoResolve.isEmpty()) {
+                String ourBranch;
+                String theirBranch;
+                if (theirToOur) {
+                    ourBranch = branch;
+                    theirBranch = branchFrom;
+                } else {
+                    ourBranch = branchFrom;
+                    theirBranch = branch;
+                }
+                ConflictResolveData conflictResolveData = autoResolveConflicts(toAutoResolve,
+                    ourCommit,
+                    ourBranch,
+                    theirCommit,
+                    theirBranch);
+                resolveConflict(mergeResult, conflictResolveData, userInfo);
+            }
         }
+    }
+
+    private ConflictResolveData autoResolveConflicts(Map<String, WorkbookDiffResult> toAutoResolve,
+            String ourCommit,
+            String ourBranch,
+            String theirCommit,
+            String theirBranch) throws IOException {
+        List<FileItem> autoResolved = new ArrayList<>();
+        StringBuilder sb = new StringBuilder("Merge commit with ").append(theirCommit)
+            .append("\n\n Automatically resolved conflicts:");
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        BiConsumer<String, String> appendSheetMergeLog = (sheetName, branchName) -> {
+            sb.append("\n\t\t").append(sheetName);
+            if (branchName != null) {
+                sb.append(" (").append(branchName).append(')');
+            }
+        };
+        for (String conflictedFile : toAutoResolve.keySet()) {
+            output.reset();
+            sb.append("\n\t").append(conflictedFile);
+            WorkbookDiffResult diffResult = toAutoResolve.get(conflictedFile);
+            var sheetDiffResult = diffResult.getSheetDiffResult();
+            FileItem ourConflictedFile = parseHistory0(conflictedFile, ourCommit, new ReadHistoryVisitor(ourCommit));
+            for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.OUR)) {
+                appendSheetMergeLog.accept(sheetName, ourBranch);
+            }
+
+            FileItem theirConflictedFile = parseHistory0(conflictedFile,
+                theirCommit,
+                new ReadHistoryVisitor(theirCommit));
+            for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
+                appendSheetMergeLog.accept(sheetName, theirBranch);
+            }
+            XlsWorkbookMerger.merge(ourConflictedFile.getStream(), theirConflictedFile.getStream(), diffResult, output);
+            autoResolved.add(new FileItem(conflictedFile, new ByteArrayInputStream(output.toByteArray())));
+        }
+        return new ConflictResolveData(theirCommit, autoResolved, sb.toString());
     }
 
     private static AbstractTreeIterator prepareTreeParser(Repository repository, ObjectId objectId) throws IOException {
@@ -1674,6 +1775,20 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.lock();
             initLfsCredentials();
 
+            return parseHistory0(name, version, historyVisitor);
+        } catch (IOException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new IOException(e);
+        } finally {
+            resetLfsCredentials();
+            readLock.unlock();
+            log.debug("parseHistory(): unlock");
+        }
+    }
+
+    private <T> T parseHistory0(String name, String version, HistoryVisitor<T> historyVisitor) throws IOException {
+        try {
             List<Ref> tags = git.tagList().call();
 
             try (RevWalk walk = new RevWalk(git.getRepository())) {
@@ -1697,10 +1812,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             throw e;
         } catch (Exception e) {
             throw new IOException(e);
-        } finally {
-            resetLfsCredentials();
-            readLock.unlock();
-            log.debug("parseHistory(): unlock");
         }
     }
 
@@ -1828,7 +1939,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         return null;
     }
 
-    private static boolean hasChangesInPath(TreeWalk tw, RevCommit commit, Git git) throws IOException, GitAPIException {
+    private static boolean hasChangesInPath(TreeWalk tw, RevCommit commit, Git git) throws IOException,
+                                                                                    GitAPIException {
         Repository repository = git.getRepository();
         RevCommit[] parents = commit.getParents();
         int parentsNum = parents.length;
@@ -2074,7 +2186,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             if (conflictResolveData != null) {
                 resolveConflict(mergeResult, conflictResolveData, author);
             } else {
-                validateMergeConflict(mergeResult, true);
+                validateMergeConflict(mergeResult, true, branchFrom, author);
                 applyMergeCommit(mergeResult, mergeMessage, author);
             }
 
@@ -2295,7 +2407,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             String mergeMessage = getMergeMessage(ref);
             MergeResult mergeDetached = git.merge().include(commitId).setMessage(mergeMessage).setCommit(false).call();
             validateNonConflictingMerge(mergeDetached);
-            validateMergeConflict(mergeDetached, false);
+            validateMergeConflict(mergeDetached, false, folderData.getBranch(), folderData.getAuthor());
             applyMergeCommit(mergeDetached, mergeMessage, folderData.getAuthor());
         }
     }
@@ -2877,7 +2989,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (useLFS) {
             log.info("LFS is enabled for repository '{}'.", name);
             try {
-                boolean installed = repository.getConfig().getBoolean(ConfigConstants.CONFIG_FILTER_SECTION,
+                boolean installed = repository.getConfig()
+                    .getBoolean(ConfigConstants.CONFIG_FILTER_SECTION,
                         ConfigConstants.CONFIG_SECTION_LFS,
                         ConfigConstants.CONFIG_KEY_USEJGITBUILTIN,
                         false);

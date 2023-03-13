@@ -11,7 +11,7 @@ import javax.faces.component.UIComponent;
 import javax.validation.ValidationException;
 
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.diff.ExcelDiffController;

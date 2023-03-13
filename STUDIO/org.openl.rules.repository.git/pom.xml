@@ -11,6 +11,12 @@
     <name>OpenL - STUDIO - Repository Git</name>
     <description>OpenL Repository Git implementation</description>
     <url>https://openl-tablets.org</url>
+
+    <properties>
+        <!-- For merge testing of XLSX  -->
+        <surefire.argLine.perf>-Xms8m -Xmx192m -Xss256k</surefire.argLine.perf>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.openl.jgit</groupId>
@@ -30,6 +36,10 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>openl-yaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.xls.merge</artifactId>
         </dependency>
     </dependencies>
 </project>

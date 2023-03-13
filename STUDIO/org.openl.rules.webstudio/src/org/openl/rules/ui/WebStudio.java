@@ -49,7 +49,7 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.testmethod.TestSuiteExecutor;
@@ -327,7 +327,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 }
             }
             userWorkspace.refresh();
-            model.resetSourceModified();
+            if (model.isModified()) {
+                // Project sources were modified while saving, probably conflicts resolved automatically
+                // Require modules reload and recompilation
+                resetProjects();
+            }
         } catch (IOException | JAXBException e) {
             throw new ProjectException(e.getMessage(), e);
         } finally {

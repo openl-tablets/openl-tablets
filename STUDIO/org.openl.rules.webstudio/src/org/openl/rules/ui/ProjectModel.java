@@ -1222,7 +1222,7 @@ public class ProjectModel {
         openedModuleCompiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
     }
 
-    private boolean isModified() {
+    public boolean isModified() {
         if (moduleInfo == null) {
             return false;
         }
