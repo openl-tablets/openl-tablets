@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.repository.merge;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -30,9 +32,9 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
-import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.WebStudioFormats;
@@ -44,6 +46,10 @@ import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.rules.xls.merge.XlsWorkbookMerger;
+import org.openl.rules.xls.merge.diff.DiffStatus;
+import org.openl.rules.xls.merge.diff.SheetDiffResult;
+import org.openl.rules.xls.merge.diff.WorkbookDiffResult;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -395,6 +401,30 @@ public class MergeConflictBean {
                 }
             }
 
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            for (var autoResolveEntry : mergeConflict.getException().getToAutoResolve().entrySet()) {
+                String fileName = autoResolveEntry.getKey();
+                WorkbookDiffResult diffResult = autoResolveEntry.getValue();
+                FileItem yoursConflictedFile;
+                if (mergeOperation) {
+                    yoursConflictedFile = designRepository.readHistory(fileName, getYourCommit());
+                } else {
+                    Optional<RulesProject> projectByPath = userWorkspace.getProjectByPath(repositoryId, fileName);
+                    if (projectByPath.isPresent()) {
+                        RulesProject p = projectByPath.get();
+                        String artefactPath = fileName.substring(p.getRealPath().length() + 1);
+                        String localName = p.getFolderPath() + "/" + artefactPath;
+                        yoursConflictedFile = localRepository.read(localName);
+                    } else {
+                        throw new IllegalStateException("Can not automatically resolve file conflict: " + fileName);
+                    }
+                }
+                FileItem theirConflictedFile = designRepository.readHistory(fileName, getTheirCommit());
+                XlsWorkbookMerger
+                    .merge(yoursConflictedFile.getStream(), theirConflictedFile.getStream(), diffResult, output);
+                resolvedFiles.add(new FileItem(fileName, new ByteArrayInputStream(output.toByteArray())));
+            }
+
             Map<String, List<Module>> modulesToAppend = findModulesToAppend(mergeConflict, resolvedFiles);
 
             ConflictResolveData conflictResolveData = new ConflictResolveData(mergeConflict.getException()
@@ -618,6 +648,33 @@ public class MergeConflictBean {
                                 }
                             }
                             messageBuilder.append(" (").append(chosen).append(')');
+                        }
+                    }
+                }
+
+                if (!exception.getToAutoResolve().isEmpty()) {
+                    messageBuilder.append("\n\n Automatically resolved conflicts:");
+                    for (Map.Entry<String, WorkbookDiffResult> entry : exception.getToAutoResolve().entrySet()) {
+                        String file = entry.getKey();
+                        if (!designRepository.supports().mappedFolders()) {
+                            if (file.startsWith(rulesLocation)) {
+                                file = file.substring(rulesLocation.length());
+                            }
+                        }
+                        messageBuilder.append("\n\t").append(file);
+                        WorkbookDiffResult diffResult = entry.getValue();
+                        SheetDiffResult sheetDiffResult = diffResult.getSheetDiffResult();
+                        for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.OUR)) {
+                            messageBuilder.append("\n\t\t").append(sheetName);
+                            if (yourBranch != null) {
+                                messageBuilder.append(" (").append(yourBranch).append(')');
+                            }
+                        }
+                        for (String sheetName : sheetDiffResult.getDiffSheets(DiffStatus.THEIR)) {
+                            messageBuilder.append("\n\t\t").append(sheetName);
+                            if (theirBranch != null) {
+                                messageBuilder.append(" (").append(theirBranch).append(')');
+                            }
                         }
                     }
                 }

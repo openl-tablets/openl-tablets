@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.studio-pom</artifactId>
+        <version>5.27.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>org.openl.rules.xls.merge</artifactId>
+    <packaging>jar</packaging>
+    <name>OpenL - XLS - Merge</name>
+    <description>OpenL Rules XLS Merge Tool</description>
+    <url>https://openl-tablets.org</url>
+
+    <properties>
+        <surefire.argLine.perf>-Xms8m -Xmx128m -Xss256k</surefire.argLine.perf>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl</groupId>
+            <artifactId>org.openl.commons</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+        </dependency>
+    </dependencies>
+</project>

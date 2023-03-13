@@ -40,5 +40,6 @@
         <module>org.openl.security.cas</module>
         <module>org.openl.rules.diff</module>
         <module>org.openl.rules.spring.openapi</module>
+        <module>org.openl.rules.xls.merge</module>
     </modules>
 </project>

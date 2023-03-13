@@ -3,7 +3,7 @@ package org.openl.rules.webstudio.web.repository.merge;
 import java.util.Objects;
 
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.repository.git.MergeConflictException;
 
 public class MergeConflictInfo {
     private final MergeConflictException exception;

@@ -9,7 +9,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
-import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
