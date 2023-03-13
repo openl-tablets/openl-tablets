@@ -102,6 +102,12 @@ public class IdentifierBinder extends ANodeBinder {
                 strictMatch = false;
             }
             field = type.getField(fieldName, strictMatch);
+            if (field != null) {
+                if (!fieldName.equals(field.getName().replaceAll("\\s", ""))) {
+                    bindingContext.addMessage(OpenLMessagesUtils
+                        .newWarnMessage(String.format("Case insensitive matching to '%s'.", field.getName()), node));
+                }
+            }
         }
 
         if (field == null) {
