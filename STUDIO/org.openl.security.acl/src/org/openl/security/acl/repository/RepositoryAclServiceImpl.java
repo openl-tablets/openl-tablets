@@ -167,4 +167,18 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         return updateOwner(oi, newOwner);
     }
+
+    protected String cutRepositoryId(String identifier) {
+        int d = identifier.indexOf(":");
+        if (d >= 0) {
+            return identifier.substring(d + 1);
+        }
+        return identifier;
+    }
+
+    @Override
+    public String getPath(AProjectArtefact projectArtefact) {
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
+        return cutRepositoryId((String) oi.getIdentifier());
+    }
 }

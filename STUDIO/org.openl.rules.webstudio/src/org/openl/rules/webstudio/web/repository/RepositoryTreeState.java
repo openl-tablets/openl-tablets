@@ -1075,8 +1075,17 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             boolean branchProtected = isCurrentBranchProtected(project);
             RepositoryAclService repositoryAclService = project instanceof ADeploymentProject ? deployConfigRepositoryAclService
                                                                                               : designRepositoryAclService;
-            return project.isOpenedForEditing() && repositoryAclService.isGranted(project,
+            return project.isOpenedForEditing() && repositoryAclService.isGranted(getSelectedNode().getData(),
                 List.of(AclPermission.ADD)) && !branchProtected;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean getCanCopy() {
+        UserWorkspaceProject project = getSelectedProject();
+        if (project != null) {
+            return project.isOpenedForEditing() && !isCurrentBranchProtected(project);
         } else {
             return false;
         }

@@ -347,8 +347,7 @@ public class ProjectModel {
         for (IOpenMethod candidate : candidates) {
             IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
             if (resolvedMethod != null) {
-                return WrapperLogic
-                    .wrapOpenMethod(resolvedMethod, method.getDeclaringClass(), false);
+                return WrapperLogic.wrapOpenMethod(resolvedMethod, method.getDeclaringClass(), false);
             }
         }
 
@@ -650,30 +649,46 @@ public class ProjectModel {
                 } catch (ProjectException e) {
                     return false;
                 }
-                boolean granted = true;
-                if (currentModule == null) {
-                    if (!currentProject
-                        .hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
-                        granted = studio.getDesignRepositoryAclService()
-                            .isGranted(currentProject, List.of(AclPermission.ADD));
+                if (currentModule != null) {
+                    if (!studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.EDIT))) {
+                        return false;
                     }
-                    granted = granted && studio.getDesignRepositoryAclService()
-                        .isGranted(currentProject, List.of(AclPermission.EDIT));
-                } else {
-                    granted = studio.getDesignRepositoryAclService()
-                        .isGranted(currentModule, List.of(AclPermission.EDIT));
                 }
-                return (currentProject.isLocalOnly() || !currentProject.isLocked() || currentProject
-                    .isOpenedForEditing()) && granted;
+                return isEditableProject(currentProject);
             }
         }
         return false;
     }
 
-    public boolean isCanCopyModule() {
-        RulesProject currentProject = getProject();
-        if (currentProject != null) {
+    public boolean isEditableProjectDescriptor() {
+        RulesProject currentProject = studio.getCurrentProject();
+        if (currentProject.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+            try {
+                AProjectArtefact rulesDescriptorArtifact = currentProject
+                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                return studio.getDesignRepositoryAclService()
+                    .isGranted(rulesDescriptorArtifact, List.of(AclPermission.EDIT));
+            } catch (ProjectException ignored) {
+                return false;
+            }
+        } else {
             return studio.getDesignRepositoryAclService().isGranted(currentProject, List.of(AclPermission.ADD));
+        }
+    }
+
+    private boolean isEditableProject(RulesProject rulesProject) {
+        return (rulesProject.isLocalOnly() || !rulesProject.isLocked() || rulesProject.isOpenedForEditing());
+    }
+
+    /*
+     * Return is editable current project
+     */
+    public boolean isEditableProject() {
+        if (!isCurrentBranchProtected()) {
+            RulesProject currentProject = getProject();
+            if (currentProject != null) {
+                return isEditableProject(currentProject);
+            }
         }
         return false;
     }
