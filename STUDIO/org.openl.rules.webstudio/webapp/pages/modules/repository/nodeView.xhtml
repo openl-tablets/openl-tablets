@@ -55,7 +55,7 @@
                                  value="Export file"
                                  onclick="openExportModuleDialog('#{artefact.repository.id}', '#{artefact.project.name}', '#{node.internalArtifactPath.stringValue}');return false;"
                                  title="Export file"/>
-                <h:commandButton id="copyId" rendered="#{repositoryTreeState.canAppend}" value="Copy file"
+                <h:commandButton id="copyId" rendered="#{repositoryTreeState.canCopy}" value="Copy file"
                                  onclick="if (!canOverwriteRevision()) return false; openCopyFileDialog();return false;"
                                  title="Copy file"/>
                 <h:commandButton id="deleteFileId" rendered="#{repositoryTreeState.canDeleteNode}" value="Delete"

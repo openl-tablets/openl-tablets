@@ -21,6 +21,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.xml.bind.JAXBException;
+
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -36,8 +38,6 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.PathMatcher;
 
 import com.rits.cloning.Cloner;
-
-import javax.xml.bind.JAXBException;
 
 public class ProjectDescriptorManager {
 
@@ -116,8 +116,8 @@ public class ProjectDescriptorManager {
     }
 
     public boolean isCoveredByWildcardModule(ProjectDescriptor descriptor, Module otherModule) {
+        final PathEntry otherModuleRootPath = otherModule.getRulesRootPath();
         for (Module module : descriptor.getModules()) {
-            final PathEntry otherModuleRootPath = otherModule.getRulesRootPath();
             if (isModuleWithWildcard(module) && otherModuleRootPath != null) {
                 String relativePath = otherModuleRootPath.getPath().replace("\\", "/");
                 if (pathMatcher.match(module.getRulesRootPath().getPath(), relativePath)) {

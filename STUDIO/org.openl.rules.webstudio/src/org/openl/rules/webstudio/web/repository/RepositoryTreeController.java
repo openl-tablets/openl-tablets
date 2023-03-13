@@ -297,7 +297,8 @@ public class RepositoryTreeController {
                                 AProjectFolder addedFolder = folder.addFolder(folderName);
                                 repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
                             } else {
-                                errorMessage = "There is no permission for adding files to the project.";
+                                errorMessage = String.format("There is no permission for creating a folder in '%s'.",
+                                    projectArtefact.getArtefactPath().withoutFirstSegment().getStringValue());
                             }
                         } catch (Exception e) {
                             log.error("Failed to create folder '{}'.", folderName, e);
@@ -1477,10 +1478,7 @@ public class RepositoryTreeController {
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
         RepositoryAclService repositoryAclService = selectedProject instanceof ADeploymentProject ? deployConfigRepositoryAclService
                                                                                                   : designRepositoryAclService;
-        if (!repositoryAclService.isGranted(selectedProject, List.of(AclPermission.ADD))) {
-            WebStudioUtils.addErrorMessage("There is no permission for adding files to the project.");
-            return null;
-        }
+
         ArtefactPath artefactPath = new ArtefactPathImpl(path);
         try {
             selectedProject.getArtefactByPath(artefactPath);
@@ -1505,6 +1503,11 @@ public class RepositoryTreeController {
                     return null;
                 }
                 folder = (AProjectFolder) folder.getArtefact(segment);
+            }
+
+            if (!repositoryAclService.isGranted(folder, List.of(AclPermission.ADD))) {
+                WebStudioUtils.addErrorMessage("There is no permission for creating a file in .");
+                return null;
             }
 
             AProject forExport;
@@ -2195,7 +2198,8 @@ public class RepositoryTreeController {
                 .getProject() instanceof ADeploymentProject ? deployConfigRepositoryAclService
                                                             : designRepositoryAclService;
             if (!repositoryAclService.isGranted(node, List.of(AclPermission.ADD))) {
-                return "There is no permission for adding a file to the project.";
+                return String.format("There is no permission for creating a file in '%s'.",
+                    node.getArtefactPath().getStringValue());
             }
             AProjectResource addedFileResource = node.addResource(fileName, lastUploadedFile.getInput());
             if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
@@ -2213,7 +2217,7 @@ public class RepositoryTreeController {
              * file is exist in the upload folder
              */
             if (e.getCause() == null || e.getCause().getClass() != IOException.class) {
-                log.error("Error adding file to user workspace.", e);
+                log.error("Error adding a file to user workspace.", e);
             }
 
             return e.getMessage();

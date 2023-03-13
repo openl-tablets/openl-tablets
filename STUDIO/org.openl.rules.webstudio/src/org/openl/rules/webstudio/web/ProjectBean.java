@@ -362,7 +362,7 @@ public class ProjectBean {
 
         if (!(path.contains("*") || path.contains("?"))) {
             Path moduleFile = projectDescriptor.getProjectFolder().resolve(path);
-            WebStudioUtils.validate(Files.exists(moduleFile), "File with such path does not exist");
+            WebStudioUtils.validate(Files.exists(moduleFile), "File with the specified path is not found");
         }
 
         final String oldName = Optional.ofNullable(WebStudioUtils.getRequestParameter("moduleNameOld"))
@@ -532,14 +532,14 @@ public class ProjectBean {
                 if (!designRepositoryAclService.isGranted(
                     currentProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME),
                     List.of(AclPermission.EDIT))) {
-                    throw new Message(String.format("There is no permission for editing '%s' file in the project.",
+                    throw new Message(String.format("There is no permission for editing '%s' file.",
                         ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
                 }
             } catch (ProjectException ignored) {
             }
         } else {
             if (append && !designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.ADD))) {
-                throw new Message(String.format("There is no permission for adding '%s' file in the project.",
+                throw new Message(String.format("There is no permission for creating '%s' file in the project.",
                     ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
             }
         }
@@ -636,22 +636,35 @@ public class ProjectBean {
     public void copyModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
-        validatePermissionsForDescriptorFile(currentProject, false);
-
-        if (!designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.ADD))) {
-            throw new Message("There is no permission for adding files to the project.");
-        }
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
 
         String name = WebStudioUtils.getRequestParameter("copyModuleForm:moduleName");
         String oldPath = WebStudioUtils.getRequestParameter("copyModuleForm:modulePathOld");
         String path = WebStudioUtils.getRequestParameter("copyModuleForm:modulePath");
+
+        PathEntry pathEntry = new PathEntry();
+        pathEntry.setPath(path);
+
+        Module newModule = new Module();
+        newModule.setName(name);
+        newModule.setRulesRootPath(pathEntry);
+        boolean moduleMatchesSomePathPattern = isModuleMatchesSomePathPattern(newModule);
+        if (!moduleMatchesSomePathPattern) {
+            validatePermissionsForDescriptorFile(currentProject, false);
+        }
+
         AProjectResource oldProjectResource;
         try {
             oldProjectResource = (AProjectResource) currentProject.getArtefact(oldPath);
         } catch (ProjectException e) {
             throw new Message("Error while module copying.");
+        }
+        String p = designRepositoryAclService.getPath(currentProject) + "/" + path;
+        if (!designRepositoryAclService
+            .isGranted(currentProject.getRepository().getId(), p, List.of(AclPermission.ADD))) {
+            throw new Message(String.format("There is no permission for creating a file in '%s'.",
+                currentProject.getArtefactPath().getStringValue() + "/" + path));
         }
         try {
             AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
@@ -665,17 +678,10 @@ public class ProjectBean {
         }
         currentProject.setModified();
 
-        PathEntry pathEntry = new PathEntry();
-        pathEntry.setPath(path);
-
-        Module module = new Module();
-        module.setName(name);
-        module.setRulesRootPath(pathEntry);
-
-        if (!isModuleMatchesSomePathPattern(module)) {
+        if (!moduleMatchesSomePathPattern) {
             // Add new Module
-            module.setProject(newProjectDescriptor);
-            newProjectDescriptor.getModules().add(module);
+            newModule.setProject(newProjectDescriptor);
+            newProjectDescriptor.getModules().add(newModule);
 
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
@@ -696,35 +702,6 @@ public class ProjectBean {
         }
     }
 
-    public boolean isModuleCanNotBeDeleted(Module module) {
-        if (module == null) {
-            return true;
-        }
-        RulesProject currentProject = studio.getCurrentProject();
-        if (currentProject != null) {
-            try {
-                if (isModuleWithWildcard(module)) {
-                    List<Module> modules = getModulesMatchingPathPattern(module);
-                    for (Module m : modules) {
-                        AProjectArtefact projectArtefact = currentProject.getArtefact(m.getRulesRootPath().getPath());
-                        if (!studio.getDesignRepositoryAclService()
-                            .isGranted(projectArtefact, List.of(AclPermission.ERASE))) {
-                            return true;
-                        }
-                    }
-                    return false;
-                } else {
-                    AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
-                    return !studio.getDesignRepositoryAclService()
-                        .isGranted(projectArtefact, List.of(AclPermission.ERASE));
-                }
-            } catch (ProjectException e) {
-                return true;
-            }
-        }
-        return true;
-    }
-
     public void removeModule() {
         tryLockProject();
         RulesProject currentProject = studio.getCurrentProject();
@@ -741,8 +718,7 @@ public class ProjectBean {
 
         if (StringUtils.isEmpty(leaveExcelFile)) {
             ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
-            File projectFolder = currentProjectDescriptor.getProjectFolder().toFile();
-
+            List<Module> modulesForRemoving = new ArrayList<>();
             if (projectDescriptorManager.isModuleWithWildcard(removed)) {
                 for (Module module : currentProjectDescriptor.getModules()) {
                     if (module.getWildcardRulesRootPath() == null) {
@@ -750,12 +726,16 @@ public class ProjectBean {
                         continue;
                     }
                     if (module.getWildcardRulesRootPath().equals(removed.getRulesRootPath().getPath())) {
-                        deleteModule(currentProject, module);
+                        checkPermissionsForDeletingModule(currentProject, module);
+                        modulesForRemoving.add(module);
                     }
                 }
             } else {
-                deleteModule(currentProject, removed);
+                checkPermissionsForDeletingModule(currentProject, removed);
+                modulesForRemoving.add(removed);
             }
+            modulesForRemoving.forEach(e -> deleteModule(currentProject, e));
+            File projectFolder = currentProjectDescriptor.getProjectFolder().toFile();
             File rulesXmlFile = new File(projectFolder,
                 ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
             if (rulesXmlFile.exists()) {
@@ -783,15 +763,20 @@ public class ProjectBean {
         studio.resetProjects();
     }
 
-    private void deleteModule(RulesProject currentProject, Module module) {
+    private void checkPermissionsForDeletingModule(RulesProject currentProject, Module module) {
+        boolean f = false;
         try {
-            if (!designRepositoryAclService.isGranted(currentProject.getArtefact(module.getRulesRootPath().getPath()),
-                List.of(AclPermission.DELETE))) {
-                throw new Message(String.format("There is no permission for deleting '%s' file in the project.",
-                    module.getRulesRootPath().getPath()));
-            }
+            f = designRepositoryAclService.isGranted(currentProject.getArtefact(module.getRulesRootPath().getPath()),
+                List.of(AclPermission.DELETE));
         } catch (ProjectException ignored) {
         }
+        if (!f) {
+            throw new Message(
+                String.format("There is no permission for deleting '%s' file.", module.getRulesRootPath().getPath()));
+        }
+    }
+
+    private void deleteModule(RulesProject currentProject, Module module) {
         try {
             AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
             projectArtefact.delete();
@@ -799,6 +784,77 @@ public class ProjectBean {
         } catch (ProjectException e) {
             throw new Message(String.format("Cannot delete '%s' module.", module.getName()), e);
         }
+    }
+
+    public boolean canCopyModule(Module module) {
+        if (studio.getModel().isEditableProject()) {
+            RulesProject currentProject = studio.getCurrentProject();
+            String path = module.getRulesRootPath().getPath();
+            boolean originalPathWithWildcards = path.contains("?") || path.contains("*");
+            path = path.replace("\\", "/");
+            int d = path.lastIndexOf("/");
+            path = d >= 0 ? path.substring(0, d) : StringUtils.EMPTY;
+            if (path.contains("?") || path.contains("*")) {
+                return true;
+            } else {
+                if (!originalPathWithWildcards && !studio.getModel().isEditableProjectDescriptor()) {
+                    return false;
+                }
+                if (path.startsWith("./")) {
+                    path = path.substring(2);
+                }
+                path = designRepositoryAclService
+                    .getPath(currentProject) + (StringUtils.isNotBlank(path) ? "/" + path : StringUtils.EMPTY);
+                return designRepositoryAclService
+                    .isGranted(currentProject.getRepository().getId(), path, List.of(AclPermission.ADD));
+            }
+        }
+        return false;
+    }
+
+    public boolean canDeleteModule(Module module) {
+        if (studio.getModel().isEditableProject()) {
+            RulesProject currentProject = studio.getCurrentProject();
+            if (currentProject.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+                try {
+                    return designRepositoryAclService.isGranted(
+                        currentProject
+                            .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME),
+                        List.of(AclPermission.EDIT));
+                } catch (ProjectException ignored) {
+                    return false;
+                }
+            } else {
+                return designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.ADD));
+            }
+        }
+        return false;
+    }
+
+    public boolean isOnlySafeModuleRemove(Module module) {
+        if (module == null) {
+            return true;
+        }
+        RulesProject currentProject = studio.getCurrentProject();
+        if (currentProject != null) {
+            try {
+                if (isModuleWithWildcard(module)) {
+                    for (Module m : getModulesMatchingPathPattern(module)) {
+                        AProjectArtefact projectArtefact = currentProject.getArtefact(m.getRulesRootPath().getPath());
+                        if (!designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
+                            return true;
+                        }
+                    }
+                    return false;
+                } else {
+                    AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
+                    return !designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE));
+                }
+            } catch (ProjectException e) {
+                return true;
+            }
+        }
+        return true;
     }
 
     public void removeDependency(String name) {
@@ -1520,18 +1576,18 @@ public class ProjectBean {
     }
 
     public boolean isModuleMatchesSomePathPattern(Module module) {
-        return getModuleWithWildcard(module) != null;
+        return projectDescriptorManager.isCoveredByWildcardModule(getOriginalProjectDescriptor(), module);
     }
 
     private Module getModuleWithWildcard(Module module) {
         List<Module> modules = getOriginalProjectDescriptor().getModules();
 
-        for (Module otherModule : modules) {
-            if (isModuleWithWildcard(otherModule)) {
-                List<Module> modulesMatchingPathPattern = getModulesMatchingPathPattern(otherModule);
+        for (Module originalModule : modules) {
+            if (isModuleWithWildcard(originalModule)) {
+                List<Module> modulesMatchingPathPattern = getModulesMatchingPathPattern(originalModule);
                 for (Module m : modulesMatchingPathPattern) {
                     if (module.getName().equals(m.getName())) {
-                        return otherModule;
+                        return originalModule;
                     }
                 }
             }

@@ -7,7 +7,8 @@
     <ui:param name="module" value="#{studio.currentModule}" />
     <ui:param name="repositoryId" value="#{studio.currentRepositoryId}" />
 
-    <ui:param name="editable" value="#{studio.model.editable}" />
+    <ui:param name="editable" value="#{studio.model.editableProject}" />
+    <ui:param name="canCopyModule" value="#{projectBean.canCopyModule(module)}"/>
     <ui:param name="includedInWildcard" value="#{projectBean.isModuleMatchesSomePathPattern(module)}" />
 
     <div class="page editable">
@@ -18,6 +19,8 @@
                 <a href="javascript:void(0)" title="Edit" class="editable-link"
                    onclick="editModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}', compileThisModuleOnly: #{module.webstudioConfiguration.compileThisModuleOnly}}, function(){ws.nav.go('#{utils.toUrl(repositoryId, module.project.name)}/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
                         src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4"/></a>
+            </h:panelGroup>
+            <h:panelGroup rendered="#{canCopyModule}">
                 <a href="javascript:void(0)" title="Copy" class="editable-link"
                    onclick="copyModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'}, function(){ws.nav.go('#{utils.toUrl(repositoryId, module.project.name)}/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
                         src="#{request.contextPath}/webresource/images/copy.png" style="opacity:0.4" /></a>
@@ -122,13 +125,14 @@
             </div>
         </div>
         </h:panelGroup>
-
     </div>
 
     <c:if test="#{editable}">
         <ui:include src="/pages/modules/editModule.xhtml" />
-        <ui:include src="/pages/modules/copyModule.xhtml" />
         <ui:include src="/pages/modules/propertiesFileNamePatternDescription.xhtml" />
+    </c:if>
+    <c:if test="${canCopyModule}">
+        <ui:include src="/pages/modules/copyModule.xhtml" />
     </c:if>
 
 </ui:composition>

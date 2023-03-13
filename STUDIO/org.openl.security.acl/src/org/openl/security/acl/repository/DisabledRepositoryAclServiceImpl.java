@@ -71,4 +71,9 @@ public class DisabledRepositoryAclServiceImpl extends DisabledSimpleRepositoryAc
     public boolean updateOwner(AProjectArtefact projectArtefact, Sid newOwner) {
         return true;
     }
+
+    @Override
+    public String getPath(AProjectArtefact projectArtefact) {
+        return null;
+    }
 }
