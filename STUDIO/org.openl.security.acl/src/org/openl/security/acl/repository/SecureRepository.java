@@ -66,12 +66,12 @@ public class SecureRepository implements Repository {
         if (repository.check(name) != null) {
             if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_WRITE))) {
                 throw new AccessDeniedException(String
-                    .format("There is no permission for updating resource '%s' in '%s' repository.", name, getName()));
+                    .format("There is no permission for modifying '%s' in '%s' repository.", name, getName()));
             }
         } else {
             if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_CREATE))) {
                 throw new AccessDeniedException(String
-                    .format("There is no permission for appending resource '%s' to '%s' repository.", name, getName()));
+                    .format("There is no permission for creating '%s' in '%s' repository.", name, getName()));
             }
         }
     }
@@ -79,14 +79,14 @@ public class SecureRepository implements Repository {
     protected void checkReadPermission(String name) throws IOException {
         if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(DESIGN_REPOSITORY_READ))) {
             throw new AccessDeniedException(String
-                .format("There is no permission for reading resource '%s' from '%s' repository.", name, getName()));
+                .format("There is no permission for reading '%s' from '%s' repository.", name, getName()));
         }
     }
 
     protected void checkDeletePermission(String name) throws IOException {
         if (!simpleRepositoryAclService.isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_DELETE))) {
             throw new AccessDeniedException(String
-                .format("There is no permission for deleting resource '%s' from '%s' repository.", name, getName()));
+                .format("There is no permission for deleting '%s' from '%s' repository.", name, getName()));
         }
     }
 
@@ -94,7 +94,7 @@ public class SecureRepository implements Repository {
         if (!simpleRepositoryAclService
             .isGranted(getId(), name, List.of(AclPermission.DESIGN_REPOSITORY_DELETE_HISTORY))) {
             throw new AccessDeniedException(String
-                .format("There is no permission for deleting resource '%s' from '%s' repository.", name, getName()));
+                .format("There is no permission for deleting '%s' from '%s' repository.", name, getName()));
         }
     }
 

@@ -26,7 +26,7 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
-import org.openl.rules.ui.AccessDeniedException;
+import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
@@ -240,7 +240,7 @@ public class CopyBean {
 
             RulesProject project = userWorkspace.getProject(repositoryId, currentProjectName, false);
             if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
-                throw new AccessDeniedException();
+                throw new Message("There is no permission for copying the project.");
             }
             if (isSupportsBranches() && !separateProject) {
                 Repository designRepository = project.getDesignRepository();
@@ -248,7 +248,7 @@ public class CopyBean {
             } else {
                 Repository designRepository = designTimeRepository.getRepository(toRepositoryId);
                 if (!designRepositoryAclService.isGranted(toRepositoryId, null, List.of(AclPermission.CREATE))) {
-                    throw new AccessDeniedException();
+                    throw new Message("There is no permission for creating the project.");
                 }
                 String designPath = designTimeRepository.getRulesLocation() + newProjectName;
                 FileData designData = new FileData();

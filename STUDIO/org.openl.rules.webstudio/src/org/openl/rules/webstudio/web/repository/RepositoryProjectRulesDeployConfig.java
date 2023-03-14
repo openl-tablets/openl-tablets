@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 
 import javax.faces.component.UIComponent;
@@ -20,10 +21,13 @@ import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -45,12 +49,17 @@ public class RepositoryProjectRulesDeployConfig {
     private String version;
     private boolean created;
 
+    private final RepositoryAclService designRepositoryAclService;
+
     public RepositoryProjectRulesDeployConfig(RepositoryTreeState repositoryTreeState,
-        RulesDeploySerializerFactory rulesDeploySerializerFactory) {
+            RulesDeploySerializerFactory rulesDeploySerializerFactory,
+            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.repositoryTreeState = repositoryTreeState;
         this.rulesDeploySerializerFactory = rulesDeploySerializerFactory;
 
         serializer = new XmlRulesDeployGuiWrapperSerializer(rulesDeploySerializerFactory);
+
+        this.designRepositoryAclService = designRepositoryAclService;
     }
 
     public RulesDeployGuiWrapper getRulesDeploy() {
@@ -79,7 +88,7 @@ public class RepositoryProjectRulesDeployConfig {
         created = true;
         rulesDeploy = new RulesDeployGuiWrapper(new RulesDeploy(), getSupportedVersion());
         rulesDeploy.setProvideRuntimeContext(true);
-        rulesDeploy.setPublishers(new RulesDeploy.PublisherType[]{RulesDeploy.PublisherType.RESTFUL});
+        rulesDeploy.setPublishers(new RulesDeploy.PublisherType[] { RulesDeploy.PublisherType.RESTFUL });
     }
 
     public void deleteRulesDeploy() {
@@ -112,8 +121,19 @@ public class RepositoryProjectRulesDeployConfig {
 
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+                if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
+                    WebStudioUtils.addErrorMessage(String.format("There is no permission for modifying '%s' file.",
+                        artefact.getArtefactPath().getStringValue()));
+                    return;
+                }
                 artefact.setContent(inputStream);
             } else {
+                if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ADD))) {
+                    WebStudioUtils.addErrorMessage(String.format("There is no permission for creating '%s/%s' file.",
+                        project.getArtefactPath().getStringValue(),
+                        RULES_DEPLOY_CONFIGURATION_FILE));
+                    return;
+                }
                 project.addResource(RULES_DEPLOY_CONFIGURATION_FILE, inputStream);
                 repositoryTreeState.refreshSelectedNode();
                 studio.reset();
@@ -150,7 +170,7 @@ public class RepositoryProjectRulesDeployConfig {
         try {
             AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
             try (var content = artefact.getContent()) {
-                var sourceString = new String(content.readAllBytes(), StandardCharsets.UTF_8);;
+                var sourceString = new String(content.readAllBytes(), StandardCharsets.UTF_8);
                 return serializer.deserialize(sourceString, getSupportedVersion(project));
             }
         } catch (IOException | ProjectException e) {

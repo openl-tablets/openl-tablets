@@ -273,7 +273,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 log.error(msg, e);
             }
 
-            throw new ValidationException(msg);
+            throw new Message(msg);
         }
     }
 
@@ -290,9 +290,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public void saveProject(RulesProject project) throws ProjectException {
-        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
-            throw new AccessDeniedException("You don't have permissions to apply changes into the project.");
-        }
         InputStream content = null;
         try {
             String projectName = project.getName();
@@ -313,8 +310,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     content = artefact.getContent();
                     ProjectDescriptor projectDescriptor = serializer.deserialize(content);
                     projectDescriptor.setName(project.getName());
+                    if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
+                        throw new Message(String.format("There is no permission for modifying '%s' file.",
+                            artefact.getArtefactPath().getStringValue()));
+                    }
                     artefact.setContent(IOUtils.toInputStream(serializer.serialize(projectDescriptor)));
-
                     resetProjects();
                 } else {
                     FileMappingData mappingData = project.getFileData().getAdditionalData(FileMappingData.class);
@@ -699,13 +699,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
             Charset charset = getZipCharsetDetector().detectCharset(new ZipFromProjectFile(lastUploadedFile),
                 filesInProject);
             if (charset == null) {
-                throw new ValidationException("Cannot detect a charset for the zip file");
+                throw new Message("Cannot detect a charset for the zip file");
             }
 
             String errorMessage = validateUploadedFiles(lastUploadedFile, filter, projectDescriptor, charset);
             if (errorMessage != null) {
                 // TODO Replace exceptions with FacesUtils.addErrorMessage()
-                throw new ValidationException(errorMessage);
+                throw new Message(errorMessage);
             }
 
             final CommonUser user = rulesUserSession.getUserWorkspace().getUser();
@@ -734,7 +734,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 if (!filesInZip.contains(relative)) {
                     if (!designRepositoryAclService.isGranted(rulesProject.getArtefact(relative),
                         List.of(AclPermission.DELETE))) {
-                        throw new ValidationException(String.format("There is no permission to delete a file '%s'.",
+                        throw new Message(String.format("There is no permission for deleting '%s' file.",
                             projectPath + "/" + relative));
                     }
                     FileData absentFileData = new FileData();
@@ -745,16 +745,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 } else {
                     if (!designRepositoryAclService.isGranted(rulesProject.getArtefact(relative),
                         List.of(AclPermission.EDIT))) {
-                        throw new ValidationException(
-                            String.format("There is no permission to edit a file '%s'.", projectPath + "/" + relative));
+                        throw new Message(String.format("There is no permission for modifying '%s' file.",
+                            projectPath + "/" + relative));
                     }
                 }
             }
             for (String fileInZip : filesInZip) {
                 if (!rulesProject.hasArtefact(fileInZip) && !designRepositoryAclService.isGranted(rulesProject,
                     List.of(AclPermission.ADD))) {
-                    throw new ValidationException(
-                        String.format("There is no permission to add a file '%s'.", fileInZip));
+                    throw new Message(String.format("There is no permission for creating '%s' file.",
+                        rulesProject.getArtefactPath().getStringValue() + "/" + fileInZip));
                 }
             }
             repository.delete(absentResources);
@@ -814,7 +814,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private void tryLockProject() {
         RulesProject currentProject = getCurrentProject();
         if (!currentProject.tryLock()) {
-            throw new ValidationException("Project is locked by other user");
+            throw new Message("Project is locked by other user");
         }
     }
 
@@ -1432,7 +1432,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             RulesProject project = getCurrentProject();
             AProject historic = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
             if (userWorkspace.isOpenedOtherProject(historic)) {
-                throw new ValidationException(
+                throw new Message(
                     "OpenL Tablets WebStudio cannot open two projects with the same name. Close the currently opened project and try again.");
             }
 
@@ -1452,7 +1452,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } catch (Exception e) {
             String msg = "Failed to open project version.";
             log.error(msg, e);
-            throw new ValidationException(msg);
+            throw new Message(msg);
         }
     }
 
