@@ -70,7 +70,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private PropertyResolver propertyResolver;
     private RepositorySettings repositorySettings;
 
-    private List<String> exceptions = new ArrayList<>();
+    private final List<String> exceptions = new ArrayList<>();
 
     public void setPropertyResolver(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
@@ -511,6 +511,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public String getRulesLocation() {
         return rulesLocation;
+    }
+
+    @Override
+    public String getDeployConfigLocation() {
+        return deploymentConfigurationLocation;
     }
 
     @Override

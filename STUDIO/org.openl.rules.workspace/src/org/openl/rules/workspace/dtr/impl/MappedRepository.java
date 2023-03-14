@@ -33,8 +33,10 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.SearchableRepository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -44,7 +46,7 @@ import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
-public class MappedRepository implements FolderRepository, BranchRepository, Closeable, FolderMapper {
+public class MappedRepository implements FolderRepository, BranchRepository, SearchableRepository, Closeable, FolderMapper {
     private static final Logger log = LoggerFactory.getLogger(MappedRepository.class);
     private static final String SEPARATOR = ":";
 
@@ -245,6 +247,17 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     }
 
     @Override
+    public List<FileData> listHistory(String name,
+            String globalFilter,
+            boolean techRevs,
+            Pageable pageable) throws IOException {
+        ProjectIndex mapping = getUpToDateMapping(true);
+        return toExternal(mapping,
+            ((SearchableRepository) delegate)
+                .listHistory(toInternal(mapping, name), globalFilter, techRevs, pageable));
+    }
+
+    @Override
     public FileData checkHistory(String name, String version) throws IOException {
         ProjectIndex mapping = getUpToDateMapping(true);
         return toExternal(mapping, delegate.checkHistory(toInternal(mapping, name), version));
@@ -357,6 +370,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
         return new FeaturesBuilder(delegate).setVersions(delegate.supports().versions())
             .setMappedFolders(true)
             .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
+            .setSearchable(delegate.supports().searchable())
             .build();
     }
 

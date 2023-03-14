@@ -46,6 +46,7 @@ import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.RepositorySettings;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.file.FileSystemRepository;
@@ -383,6 +384,12 @@ public class GitRepositoryTest {
 
         // Count actual changes in history
         assertEquals("Actual project changes must be 5.", 5, repo.listHistory(projectPath).size());
+        assertEquals("Actual project changes must be 5.", 5, repo.listHistory(projectPath, null, false, Page.unpaged()).size());
+        Page page = Page.ofSize(2);
+        assertEquals("Actual project changes must be 2.", 2, repo.listHistory(projectPath, null, false, page).size());
+        assertEquals("Actual project changes must be 2.", 2, repo.listHistory(projectPath, null, false, page.withPage(1)).size());
+        assertEquals("Actual project changes must be 1.", 1, repo.listHistory(projectPath, null, false, page.withPage(2)).size());
+        assertEquals("Actual project changes must be 0.", 0, repo.listHistory(projectPath, null, false, page.withPage(3)).size());
 
         // Erase the project
         toDelete.setName(projectPath);

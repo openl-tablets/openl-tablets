@@ -39,7 +39,7 @@
                             <h:selectOneMenu id="fileVersion" value="#{repositoryTreeController.version}"
                                              required="true"
                                              rendered="#{hasVersions}">
-                                <f:selectItems value="#{repositoryTreeController.toSelectItems(nodeVersionsBean.nodeToView.versions)}"/>
+                                <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}"/>
                             </h:selectOneMenu>
                         </h:panelGrid>
                     </div>

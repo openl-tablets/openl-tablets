@@ -13,6 +13,9 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.xml.bind.JAXBException;
+
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.lock.Lock;
 import org.openl.rules.lock.LockManager;
 import org.openl.rules.project.abstraction.AProject;
@@ -20,14 +23,22 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.exception.ForbiddenException;
+import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
 import org.openl.rules.rest.model.GenericView;
+import org.openl.rules.rest.model.PageResponse;
+import org.openl.rules.rest.model.ProjectRevision;
 import org.openl.rules.rest.model.ProjectViewModel;
+import org.openl.rules.rest.model.RepositoryFeatures;
 import org.openl.rules.rest.model.RepositoryViewModel;
+import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.resolver.DesignRepository;
+import org.openl.rules.rest.resolver.PaginationDefault;
+import org.openl.rules.rest.service.HistoryRepositoryMapper;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.rest.validation.CreateUpdateProjectModelValidator;
 import org.openl.rules.rest.validation.ZipArchiveValidator;
@@ -37,8 +48,8 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Lookup;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.PropertyResolver;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -54,12 +65,13 @@ import com.fasterxml.jackson.annotation.JsonView;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import javax.xml.bind.JAXBException;
 
 @RestController
 @RequestMapping(value = "/repos", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -67,7 +79,6 @@ import javax.xml.bind.JAXBException;
 public class DesignTimeRepositoryController {
 
     private final DesignTimeRepository designTimeRepository;
-    private final PropertyResolver propertyResolver;
     private final BeanValidationProvider validationProvider;
     private final CreateUpdateProjectModelValidator createUpdateProjectModelValidator;
     private final ZipArchiveValidator zipArchiveValidator;
@@ -76,19 +87,35 @@ public class DesignTimeRepositoryController {
 
     @Autowired
     public DesignTimeRepositoryController(DesignTimeRepository designTimeRepository,
-            PropertyResolver propertyResolver,
             BeanValidationProvider validationService,
             CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
             ZipArchiveValidator zipArchiveValidator,
             ZipProjectSaveStrategy zipProjectSaveStrategy,
             @Value("${openl.home.shared}") String homeDirectory) {
         this.designTimeRepository = designTimeRepository;
-        this.propertyResolver = propertyResolver;
         this.validationProvider = validationService;
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
         this.zipArchiveValidator = zipArchiveValidator;
         this.zipProjectSaveStrategy = zipProjectSaveStrategy;
         this.lockManager = new LockManager(Paths.get(homeDirectory).resolve("locks/api"));
+    }
+
+    @Lookup
+    protected HistoryRepositoryMapper getHistoryRepositoryMapper(Repository repository) {
+        return null;
+    }
+
+    @Lookup("commentService")
+    protected Comments getCommentsService(String repoName) {
+        return null;
+    }
+
+    @GetMapping("/{repo-name}/features")
+    @Operation(summary = "repos.get-features.summary", description = "repos.get-features.desc")
+    public RepositoryFeatures getFeatures(@DesignRepository("repo-name") Repository repository) {
+        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
+        var supports = repository.supports();
+        return new RepositoryFeatures(supports.branches(), supports.searchable());
     }
 
     @GetMapping
@@ -133,6 +160,38 @@ public class DesignTimeRepositoryController {
         return builder.build();
     }
 
+    @GetMapping({ "/{repo-name}/projects/{project-name}/history",
+            "/{repo-name}/branches/{branch-name}/projects/{project-name}/history" })
+    @Parameters({
+            @Parameter(name = "page", description = "pagination.param.page.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "0", defaultValue = "0")),
+            @Parameter(name = "size", description = "pagination.param.size.desc", in = ParameterIn.QUERY, schema = @Schema(type = "integer", format = "int32", minimum = "1", defaultValue = "50")) })
+    @Operation(summary = "repos.get-project-revs.summary", description = "repos.get-project-revs.desc")
+    @JsonView({ UserInfoModel.View.Short.class })
+    public PageResponse<ProjectRevision> getProjectRevision(@DesignRepository("repo-name") Repository repository,
+            @Parameter(description = "repo.param.branch-name.desc") @PathVariable(value = "branch-name") Optional<String> branch,
+            @Parameter(description = "repo.param.project-name.desc") @PathVariable("project-name") String projectName,
+            @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String searchTerm,
+            @Parameter(description = "repo.param.techRevs.desc") @RequestParam(name = "techRevs", required = false, defaultValue = "false") boolean techRevs,
+            @PaginationDefault(size = 50) Pageable page) throws IOException, ProjectException {
+        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
+        if (branch.isPresent()) {
+            repository = checkoutBranchIfPresent(repository, branch.get());
+        }
+
+        if (!designTimeRepository.hasProject(repository.getId(), projectName)) {
+            throw new NotFoundException("project.message", projectName);
+        }
+
+        String fullPath;
+        if (repository.supports().mappedFolders()) {
+            fullPath = designTimeRepository.getProject(repository.getId(), projectName).getFolderPath();
+        } else {
+            fullPath = designTimeRepository.getRulesLocation() + projectName;
+        }
+
+        return getHistoryRepositoryMapper(repository).getProjectHistory(fullPath, searchTerm, techRevs, page);
+    }
+
     @PutMapping(value = "/{repo-name}/projects/{project-name}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "repos.create-project-from-zip.summary", description = "repos.create-project-from-zip.desc")
     @JsonView(GenericView.CreateOrUpdate.class)
@@ -141,8 +200,8 @@ public class DesignTimeRepositoryController {
             @Parameter(description = "repos.create-project-from-zip.param.path.desc") @RequestParam(value = "path", required = false) String path,
             @Parameter(description = "repos.create-project-from-zip.param.comment.desc") @RequestParam(value = "comment", required = false) String comment,
             @Parameter(description = "repos.create-project-from-zip.param.template.desc", content = @Content(encoding = @Encoding(contentType = "application/zip"))) @RequestParam("template") MultipartFile file,
-            @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException, JAXBException {
-
+            @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException,
+                                                                                                                                                                                           JAXBException {
         SecurityChecker.allow(overwrite ? Privileges.EDIT_PROJECTS : Privileges.CREATE_PROJECTS);
         allowedToPush(repository);
 
@@ -151,7 +210,7 @@ public class DesignTimeRepositoryController {
             StringUtils.trimToNull(projectName),
             StringUtils.trimToNull(path),
             StringUtils.isNotBlank(comment) ? comment
-                                            : createCommentsService(repository.getId()).createProject(projectName),
+                                            : getCommentsService(repository.getId()).createProject(projectName),
             overwrite);
         validationProvider.validate(model); // perform basic validation
 
@@ -184,10 +243,6 @@ public class DesignTimeRepositoryController {
         return lockManager.getLock(lockId.toString());
     }
 
-    private Comments createCommentsService(String repoName) {
-        return new Comments(propertyResolver, repoName);
-    }
-
     private ProjectViewModel mapFileDataResponse(FileData src, Features features) {
         var builder = ProjectViewModel.builder();
         if (features.branches()) {
@@ -209,5 +264,17 @@ public class DesignTimeRepositoryController {
                 throw new ForbiddenException("default.message");
             }
         }
+    }
+
+    private Repository checkoutBranchIfPresent(Repository repository, String branch) throws IOException {
+        if (!repository.supports().branches()) {
+            throw new NotFoundException("repository.branch.message");
+        }
+        branch = branch.replace(' ', '/');
+        BranchRepository branchRepo = ((BranchRepository) repository);
+        if (!branchRepo.branchExists(branch)) {
+            throw new NotFoundException("repository.branch.message");
+        }
+        return branchRepo.forBranch(branch);
     }
 }

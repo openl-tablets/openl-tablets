@@ -13,16 +13,18 @@ public class Features {
     private final boolean mappedFolders;
     private final boolean uniqueFileId;
     private final boolean local;
+    private final boolean searchable;
 
     /**
      * Don't use this constructor directly. Use {@link FeaturesBuilder} instead.
      */
-    Features(Repository repository, boolean versions, boolean mappedFolders, boolean uniqueFileId, boolean local) {
+    Features(Repository repository, boolean versions, boolean mappedFolders, boolean uniqueFileId, boolean local, boolean searchable) {
         this.repository = repository;
         this.versions = versions;
         this.mappedFolders = mappedFolders;
         this.uniqueFileId = uniqueFileId;
         this.local = local;
+        this.searchable = searchable;
     }
 
     /**
@@ -67,5 +69,9 @@ public class Features {
      */
     public boolean isLocal() {
         return local;
+    }
+
+    public boolean searchable() {
+        return searchable;
     }
 }

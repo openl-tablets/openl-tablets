@@ -24,6 +24,7 @@ public class FileData {
     private String branch;
     private String uniqueId;
     private Path path;
+    private boolean technicalRevision;
     private final Map<Class<? extends AdditionalData>, AdditionalData> additionalData = new HashMap<>();
 
     /**
@@ -168,5 +169,13 @@ public class FileData {
 
     public void setPath(Path path) {
         this.path = path;
+    }
+
+    public boolean isTechnicalRevision() {
+        return technicalRevision;
+    }
+
+    public void setTechnicalRevision(boolean technicalRevision) {
+        this.technicalRevision = technicalRevision;
     }
 }

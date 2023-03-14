@@ -1708,15 +1708,15 @@ option[value=""]:disabled + option[value=""]:disabled {
     background-color: #ddd
 }
 
-.table th.modified-by-col, .table td.modified-by-col {
+.table th.modified-by-col, .table td.modified-by-col, .table-layout [attr=modified-by] {
     min-width: 70px;
 }
 
-.table th.modified-at-col, .table td.modified-at-col {
+.table th.modified-at-col, .table td.modified-at-col, .table-layout [attr=modified-at] {
     min-width: 130px;
 }
 
-.table th.revision-col, .table td.revision-col {
+.table th.revision-col, .table td.revision-col, .table-layout [attr=revision-id] {
     min-width: 60px;
 }
 
@@ -1747,4 +1747,48 @@ option[value=""]:disabled + option[value=""]:disabled {
 }
 .autocomplete-active {
     background-color: #FAE5C1;
+}
+
+.table-layout {
+    display: table;
+}
+
+.table-layout .table-row {
+    display: table-row;
+}
+
+.table-layout .table-row > div {
+    padding: 6px 7px;
+    display: table-cell;
+    border-bottom: 1px dotted #ccc;
+}
+
+.table-layout header {
+    font-weight: bold;
+}
+
+.table-layout header .table-row > div {
+    border-bottom: 1px solid #ccc;
+}
+
+.table-layout>header .table-row {
+    white-space: nowrap;
+}
+
+a.magnifying-glass-icon {
+    text-decoration: none;
+}
+
+.magnifying-glass-icon:after {
+    content: "🔍";
+    color: black;
+}
+
+a.down-arrow-icon {
+    text-decoration: none;
+}
+
+.down-arrow-icon:after {
+    content: "↓";
+    color: black;
 }

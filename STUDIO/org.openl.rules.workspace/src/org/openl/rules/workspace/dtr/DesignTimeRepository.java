@@ -76,4 +76,6 @@ public interface DesignTimeRepository extends ProjectsContainer {
     boolean hasDeployConfigRepo();
 
     Repository getDeployConfigRepository();
+
+    String getDeployConfigLocation();
 }
