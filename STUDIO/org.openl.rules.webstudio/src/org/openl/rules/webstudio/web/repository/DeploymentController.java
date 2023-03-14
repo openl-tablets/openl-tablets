@@ -22,7 +22,6 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
-import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
@@ -127,16 +126,11 @@ public class DeploymentController {
         if (project == null) {
             return null;
         }
-        if (project.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-            if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
-                WebStudioUtils.addErrorMessage("The is no permission for editing the deployment configuration.");
-                return null;
-            }
-        } else {
-            if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE))) {
-                WebStudioUtils.addErrorMessage("The is no permission for adding a deployment configuration.");
-                return null;
-            }
+        if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+            WebStudioUtils
+                .addErrorMessage(String.format("There is no permission for modifying '%s' deployment configuration.",
+                    project.getArtefactPath().getStringValue()));
+            return null;
         }
         try {
             UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
@@ -185,7 +179,9 @@ public class DeploymentController {
                 return null;
             }
             if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.EDIT))) {
-                WebStudioUtils.addErrorMessage("The is no permission for editing the deployment configuration.");
+                WebStudioUtils.addErrorMessage(
+                    String.format("There is no permission for modifying '%s' deployment configuration.",
+                        selectedProject.getArtefactPath().getStringValue()));
                 return null;
             }
             synchronized (selectedProject) {
@@ -206,7 +202,9 @@ public class DeploymentController {
         try {
             ADeploymentProject selectedProject = getSelectedProject();
             if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW))) {
-                WebStudioUtils.addErrorMessage("The is no permission for opening the deployment configuration.");
+                WebStudioUtils
+                    .addErrorMessage(String.format("There is no permission for opening '%s' deployment configuration.",
+                        selectedProject.getArtefactPath().getStringValue()));
                 return null;
             }
             selectedProject.open();
@@ -223,7 +221,9 @@ public class DeploymentController {
         try {
             ADeploymentProject selectedProject = getSelectedProject();
             if (!deployConfigRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.VIEW))) {
-                WebStudioUtils.addErrorMessage("The is no permission for closing the deployment configuration.");
+                WebStudioUtils
+                    .addErrorMessage(String.format("There is no permission for closing '%s' deployment configuration.",
+                        selectedProject.getArtefactPath().getStringValue()));
                 return null;
             }
             selectedProject.close();
@@ -242,16 +242,11 @@ public class DeploymentController {
         if (project == null) {
             return null;
         }
-        if (project.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-            if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
-                WebStudioUtils.addErrorMessage("The is no permission for editing the deployment configuration.");
-                return null;
-            }
-        } else {
-            if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.CREATE))) {
-                WebStudioUtils.addErrorMessage("The is no permission for adding a deployment configuration.");
-                return null;
-            }
+        if (!deployConfigRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
+            WebStudioUtils
+                .addErrorMessage(String.format("There is no permission for modifying '%s' deployment configuration.",
+                    project.getArtefactPath().getStringValue()));
+            return null;
         }
         try {
             List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, null);
@@ -271,20 +266,20 @@ public class DeploymentController {
         if (project != null) {
             if (project.getProjectDescriptors().isEmpty()) {
                 WebStudioUtils.addErrorMessage(
-                    String.format("Configuration '%s' should contain at least one project to be deployed",
+                    String.format("Configuration '%s' should contain at least one project to be deployed.",
                         project.getName()));
                 return null;
             }
             RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, propertyResolver);
             if (!productionRepositoryAclService.isGranted(repo.getId(), null, List.of(AclPermission.EDIT))) {
                 WebStudioUtils.addErrorMessage(
-                    String.format("There is no permission for deploying to the repository '%s'.", repo.getName()));
+                    String.format("There is no permission for deploying to the '%s' repository.", repo.getName()));
                 return null;
             }
             try {
                 DeployID id = deploymentManager.deploy(project, repositoryConfigName);
                 String message = String.format(
-                    "Configuration '%s' is successfully deployed with id '%s' to repository '%s'",
+                    "Configuration '%s' is successfully deployed with id '%s' to '%s' repository.",
                     project.getName(),
                     id.getName(),
                     repo.getName());
@@ -293,7 +288,7 @@ public class DeploymentController {
                 productionRepositoriesTreeController.refreshTree();
             } catch (Exception e) {
                 String msg = String
-                    .format("Failed to deploy '%s' to repository '%s'", project.getName(), repo.getName());
+                    .format("Failed to deploy '%s' to '%s' repository.", project.getName(), repo.getName());
                 LOG.error(msg, e);
                 WebStudioUtils.addErrorMessage(msg, e.getMessage());
             }

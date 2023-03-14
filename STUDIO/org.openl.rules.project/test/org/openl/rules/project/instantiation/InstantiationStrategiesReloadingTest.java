@@ -143,7 +143,7 @@ public class InstantiationStrategiesReloadingTest {
     }
 
     public void makeChanges() throws IOException {
-        System.out.println("Modifing files...");
+        System.out.println("Modifying files...");
         FileUtils.copy(new File(RULES_MODIFIED), new File(RULES_ENGINE));
         FileUtils.copy(new File(RULES_MODIFIED), new File(RULES_API));
         FileUtils.copy(new File(BEAN_MODIFIED), new File(BEAN_ENGINE));

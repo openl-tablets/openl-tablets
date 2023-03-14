@@ -8,11 +8,11 @@ import java.util.Optional;
 
 import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
-import javax.validation.ValidationException;
 
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.repository.api.UserInfo;
+import org.openl.rules.ui.Message;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.diff.ExcelDiffController;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
@@ -37,7 +37,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
 
     private final MultiUserWorkspaceManager workspaceManager;
     private String conflictedFile;
-    private UserManagementService userManagementService;
+    private final UserManagementService userManagementService;
 
     public ConflictedFileDiffController(MultiUserWorkspaceManager workspaceManager,
             UserManagementService userManagementService) {
@@ -101,7 +101,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new ValidationException(e.getMessage(), e);
+            throw new Message(e.getMessage(), e);
         }
     }
 

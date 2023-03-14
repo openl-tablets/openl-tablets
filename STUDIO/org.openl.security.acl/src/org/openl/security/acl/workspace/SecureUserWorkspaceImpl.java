@@ -75,7 +75,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
                 return userWorkspace.copyDDProject(project, name, comment);
             }
         }
-        throw new ProjectException("There is no permission for the action.");
+        throw new ProjectException("There is no permission for copying the deployment configuration.");
     }
 
     @Override
@@ -89,7 +89,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
             List.of(AclPermission.CREATE))) {
             return userWorkspace.createDDProject(name);
         }
-        throw new RepositoryException("There is no permission for creating a deployment configuration.");
+        throw new RepositoryException("There is no permission for creating a new deployment configuration.");
     }
 
     @Override
@@ -98,7 +98,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
         if (deployConfigRepositoryAclService.isGranted(deploymentProject, List.of(VIEW))) {
             return deploymentProject;
         }
-        throw new ProjectException("There is no permission for retrieving a deployment configuration.");
+        throw new ProjectException("There is no permission for reading the deployment configuration.");
     }
 
     @Override
@@ -153,7 +153,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
         if (designRepositoryAclService.isGranted(project, List.of(VIEW))) {
             return userWorkspace.getActualName(project);
         } else {
-            throw new ProjectException("There is no permission for the action.");
+            throw new ProjectException("There is no permission for reading the project.");
         }
     }
 
@@ -175,7 +175,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
         if (designRepositoryAclService.isGranted(repositoryId, projectFolder, List.of(EDIT))) {
             return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
         } else {
-            throw new ProjectException("There is no permission for the action.");
+            throw new ProjectException("There is no permission for uploading a project.");
         }
     }
 
@@ -198,7 +198,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public RulesProject getProject(String repositoryId, String name) throws ProjectException {
         RulesProject rulesProject = userWorkspace.getProject(repositoryId, name);
         if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(VIEW))) {
-            throw new ProjectException("There is no permission for the action.");
+            throw new ProjectException("There is no permission for reading the project.");
         }
         return rulesProject;
     }
@@ -207,7 +207,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
     public RulesProject getProject(String repositoryId, String name, boolean refreshBefore) throws ProjectException {
         RulesProject rulesProject = userWorkspace.getProject(repositoryId, name, refreshBefore);
         if (rulesProject != null && !designRepositoryAclService.isGranted(rulesProject, List.of(VIEW))) {
-            throw new ProjectException("There is no permission for the action.");
+            throw new ProjectException("There is no permission for reading the project.");
         }
         return rulesProject;
     }

@@ -43,7 +43,6 @@ import org.openl.rules.project.SafeCloner;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
@@ -529,18 +528,15 @@ public class ProjectBean {
     private void validatePermissionsForDescriptorFile(RulesProject currentProject, boolean append) {
         if (currentProject.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
             try {
-                if (!designRepositoryAclService.isGranted(
-                    currentProject.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME),
-                    List.of(AclPermission.EDIT))) {
-                    throw new Message(String.format("There is no permission for editing '%s' file.",
-                        ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
-                }
+                AProjectArtefact projectArtefact = currentProject
+                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                validatePermissionForEditing(projectArtefact);
             } catch (ProjectException ignored) {
             }
         } else {
-            if (append && !designRepositoryAclService.isGranted(currentProject, List.of(AclPermission.ADD))) {
-                throw new Message(String.format("There is no permission for creating '%s' file in the project.",
-                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
+            if (append) {
+                validatePermissionForCreating(currentProject,
+                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
             }
         }
     }
@@ -660,12 +656,7 @@ public class ProjectBean {
         } catch (ProjectException e) {
             throw new Message("Error while module copying.");
         }
-        String p = designRepositoryAclService.getPath(currentProject) + "/" + path;
-        if (!designRepositoryAclService
-            .isGranted(currentProject.getRepository().getId(), p, List.of(AclPermission.ADD))) {
-            throw new Message(String.format("There is no permission for creating a file in '%s'.",
-                currentProject.getArtefactPath().getStringValue() + "/" + path));
-        }
+        validatePermissionForCreating(currentProject, path);
         try {
             AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
             if (!designRepositoryAclService
@@ -764,15 +755,13 @@ public class ProjectBean {
     }
 
     private void checkPermissionsForDeletingModule(RulesProject currentProject, Module module) {
-        boolean f = false;
         try {
-            f = designRepositoryAclService.isGranted(currentProject.getArtefact(module.getRulesRootPath().getPath()),
-                List.of(AclPermission.DELETE));
+            AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
+            if (!designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
+                throw new Message(String.format("There is no permission for deleting '%s' file.",
+                    projectArtefact.getArtefactPath().getStringValue()));
+            }
         } catch (ProjectException ignored) {
-        }
-        if (!f) {
-            throw new Message(
-                String.format("There is no permission for deleting '%s' file.", module.getRulesRootPath().getPath()));
         }
     }
 
@@ -1021,8 +1010,12 @@ public class ProjectBean {
                 .orElse(OpenAPI.Type.JSON);
             try (InputStream in = serializeOpenApi(generator, openAPIType)) {
                 if (update) {
-                    ((AProjectResource) currentProject.getProject().getArtefact(existedOpenAPIFilePath)).setContent(in);
+                    AProjectResource resource = ((AProjectResource) currentProject.getProject()
+                        .getArtefact(existedOpenAPIFilePath));
+                    validatePermissionForEditing(resource);
+                    resource.setContent(in);
                 } else {
+                    validatePermissionForCreating(currentProject, openAPIType.getDefaultFileName());
                     currentProject.addResource(openAPIType.getDefaultFileName(), in);
                 }
             }
@@ -1226,6 +1219,23 @@ public class ProjectBean {
         }
     }
 
+    private void validatePermissionForEditing(AProjectArtefact artefact) {
+        if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
+            throw new Message(String.format("There is no permission for modifying '%s' file.",
+                artefact.getArtefactPath().getStringValue()));
+        }
+    }
+
+    private void validatePermissionForCreating(RulesProject currentProject, String path) {
+        String p = designRepositoryAclService.getPath(currentProject);
+        if (!designRepositoryAclService
+            .isGranted(currentProject.getRepository().getId(), p + "/" + path, List.of(AclPermission.ADD))) {
+            throw new Message(String.format("There is no permission for creating '%s/%s' file.",
+                currentProject.getArtefactPath().getStringValue(),
+                path));
+        }
+    }
+
     private void addGeneratedGroovyScripts(RulesProject currentProject,
             OpenAPIGeneratedClasses generated,
             boolean annotationTemplateClassesAreGenerated) {
@@ -1233,6 +1243,7 @@ public class ProjectBean {
             try {
                 GroovyScriptFile groovyFile = generated.getAnnotationTemplateGroovyFile();
                 String groovyPath = openAPIHelper.makePathToTheGeneratedFile(groovyFile.getPath());
+                validatePermissionForCreating(currentProject, groovyPath);
                 currentProject.addResource(groovyPath, IOUtils.toInputStream(groovyFile.getScriptText()));
             } catch (ProjectException e) {
                 log.error(e.getMessage(), e);
@@ -1242,6 +1253,7 @@ public class ProjectBean {
         try {
             for (GroovyScriptFile groovyCommonFile : generated.getGroovyCommonClasses()) {
                 String javaInterfacePath = openAPIHelper.makePathToTheGeneratedFile(groovyCommonFile.getPath());
+                validatePermissionForCreating(currentProject, javaInterfacePath);
                 currentProject.addResource(javaInterfacePath, IOUtils.toInputStream(groovyCommonFile.getScriptText()));
             }
         } catch (ProjectException e) {
@@ -1301,6 +1313,7 @@ public class ProjectBean {
             ProjectModel projectModel) {
         try (InputStream spreadsheets = openAPIHelper.generateAlgorithmsModule(projectModel
             .getSpreadsheetResultModels(), projectModel.getDataModels(), getEnvironmentModel(modelModuleNameParam))) {
+            validatePermissionForCreating(currentProject, algorithmModulePathParam);
             currentProject.addResource(algorithmModulePathParam, spreadsheets);
         } catch (IOException | ProjectException e) {
             log.error(e.getMessage(), e);
@@ -1310,6 +1323,7 @@ public class ProjectBean {
 
     private void addDataTypesFile(String modelModulePathParam, RulesProject currentProject, ProjectModel projectModel) {
         try (InputStream dataTypes = openAPIHelper.generateDataTypesFile(projectModel.getDatatypeModels())) {
+            validatePermissionForCreating(currentProject, modelModulePathParam);
             currentProject.addResource(modelModulePathParam, dataTypes);
         } catch (IOException | ProjectException e) {
             log.error(e.getMessage(), e);
@@ -1380,6 +1394,7 @@ public class ProjectBean {
         try {
             if (rulesDeployExists) {
                 AProjectResource artifact = (AProjectResource) currentProject.getArtefact(RULES_DEPLOY_XML);
+                validatePermissionForEditing(artifact);
                 try (InputStream rulesDeployContent = artifact.getContent()) {
                     RulesDeploy rulesDeploy = rulesDeploySerializerFactory
                         .getSerializer(SupportedVersion.getLastVersion())
@@ -1390,12 +1405,14 @@ public class ProjectBean {
             } else {
                 try (ByteArrayInputStream rulesDeployInputStream = openAPIHelper
                     .editOrCreateRulesDeploy(rulesDeploySerializer, projectModel, generatedClasses, null)) {
+                    validatePermissionForCreating(currentProject, RULES_DEPLOY_XML);
                     currentProject.addResource(RULES_DEPLOY_XML, rulesDeployInputStream);
                 }
             }
         } catch (ProjectException | IOException | JAXBException e) {
-            log.error("Cannot add rules deploy file to the project.");
-            throw new Message("Failed to add rules deploy xml file.");
+            String message = "Failed to add 'rules-deploy.xml' file to the project.";
+            log.error(message, e);
+            throw new Message("Failed to add 'rules-deploy.xml' file to the project.");
         }
     }
 
@@ -1428,12 +1445,12 @@ public class ProjectBean {
     private void tryLockProject() {
         RulesProject currentProject = studio.getCurrentProject();
         if (!currentProject.tryLock()) {
-            throw new Message("Project is locked by other user.");
+            throw new Message("Project is locked by the other user.");
         }
     }
 
     private void save(ProjectDescriptor projectDescriptor) {
-        UserWorkspaceProject project = studio.getCurrentProject();
+        RulesProject project = studio.getCurrentProject();
         InputStream rulesDeployContent = null;
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -1444,12 +1461,16 @@ public class ProjectBean {
             if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
                 AProjectResource artifact = (AProjectResource) project
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                validatePermissionForEditing(artifact);
                 artifact.setContent(inputStream);
             } else {
+                validatePermissionForCreating(project,
+                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 project.addResource(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, inputStream);
             }
             if (project.hasArtefact(RULES_DEPLOY_XML)) {
                 AProjectResource artifact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
+                validatePermissionForEditing(artifact);
                 rulesDeployContent = artifact.getContent();
                 RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
                     .deserialize(rulesDeployContent);
@@ -1460,6 +1481,8 @@ public class ProjectBean {
             refreshProject(project.getRepository().getId(), project.getName());
         } catch (ValidationException e) {
             throw new Message(e.getMessage());
+        } catch (Message e) {
+            throw e;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new Message("Error while saving the project.");

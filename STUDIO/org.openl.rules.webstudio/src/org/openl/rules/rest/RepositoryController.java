@@ -380,7 +380,7 @@ public class RepositoryController {
                 if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .contentType(MediaType.TEXT_PLAIN)
-                        .body(String.format("No permission to modify projects in the repository with id '%s'.",
+                        .body(String.format("No permission for modifying projects in the repository with id '%s'.",
                             repositoryId));
                 }
                 if (!project.tryLock()) {
@@ -393,7 +393,7 @@ public class RepositoryController {
                 if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.CREATE))) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .contentType(MediaType.TEXT_PLAIN)
-                        .body(String.format("No permission to create a project in the repository with id '%s'.",
+                        .body(String.format("No permission for creating a project in the repository with id '%s'.",
                             repositoryId));
                 }
                 if (getRepository().supports().mappedFolders()) {
@@ -479,7 +479,7 @@ public class RepositoryController {
         if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.EDIT))) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .contentType(MediaType.TEXT_PLAIN)
-                .body("The project doesn't have WRITE permission.");
+                .body("There is no permission for modifying the project.");
         }
         if (!project.tryLock()) {
             String lockedBy = project.getLockInfo().getLockedBy();
@@ -506,7 +506,7 @@ public class RepositoryController {
         if (!isGranted(Privileges.UNLOCK_PROJECTS)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .contentType(MediaType.TEXT_PLAIN)
-                .body("UNLOCK PROJECTS privilege is required for the action");
+                .body("There is no permission for unlocking the project.");
         }
         RulesProject project = workspaceManager.getUserWorkspace(getUser()).getProject(getDefaultRepositoryId(), name);
         if (!project.isLocked()) {
