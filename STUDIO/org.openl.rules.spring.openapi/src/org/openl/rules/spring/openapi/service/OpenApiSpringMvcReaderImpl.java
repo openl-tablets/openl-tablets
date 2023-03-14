@@ -26,6 +26,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -385,8 +386,8 @@ public class OpenApiSpringMvcReaderImpl implements OpenApiSpringMvcReader {
     }
 
     private static boolean isRestControllers(HandlerMethod method, Map<String, Class<?>> controllers) {
-        return isRestController(method.getBeanType()) && controllers.get(method.getBean().toString()) == method
-            .getBeanType() && hasResponseBody(method);
+        return isRestController(method.getBeanType()) && ClassUtils.getUserClass(
+            controllers.get(method.getBean().toString())) == method.getBeanType() && hasResponseBody(method);
     }
 
     private static boolean isRestController(Class<?> cl) {

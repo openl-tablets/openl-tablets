@@ -1,0 +1,34 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
+      "fullComment": "EPBDS-10682 Update project via rest",
+      "deleted": false,
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "technicalRevision": false
+    },
+    {
+      "revisionNo": "*",
+      "shortRevisionNo": "*",
+      "createdAt": "*",
+      "fullComment": "EPBDS-10682 Create project via rest",
+      "deleted": false,
+      "author": {
+        "email": "admin@email",
+        "displayName": "Admin"
+      },
+      "technicalRevision": false
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 50,
+  "numberOfElements": 2
+}

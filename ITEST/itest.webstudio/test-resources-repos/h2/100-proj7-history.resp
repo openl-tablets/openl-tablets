@@ -1,0 +1,30 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "content": [
+    {
+      "revisionNo": "2",
+      "createdAt": "*",
+      "fullComment": "Project is created.",
+      "author": {
+        "displayName": "admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    },
+    {
+      "revisionNo": "1",
+      "createdAt": "*",
+      "fullComment": "Project Project is created.",
+      "author": {
+        "displayName": "admin"
+      },
+      "deleted": false,
+      "technicalRevision": false
+    }
+  ],
+  "pageNumber": -1,
+  "pageSize": 2,
+  "numberOfElements": 2
+}

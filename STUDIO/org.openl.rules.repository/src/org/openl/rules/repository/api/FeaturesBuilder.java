@@ -6,6 +6,7 @@ public class FeaturesBuilder {
     private boolean mappedFolders;
     private boolean uniqueFileId;
     private boolean local;
+    private boolean searchable;
 
     public FeaturesBuilder(Repository repository) {
         this.repository = repository;
@@ -31,7 +32,12 @@ public class FeaturesBuilder {
         return this;
     }
 
+    public FeaturesBuilder setSearchable(boolean searchable) {
+        this.searchable = searchable;
+        return this;
+    }
+
     public Features build() {
-        return new Features(repository, versions, mappedFolders, uniqueFileId, local);
+        return new Features(repository, versions, mappedFolders, uniqueFileId, local, searchable);
     }
 }

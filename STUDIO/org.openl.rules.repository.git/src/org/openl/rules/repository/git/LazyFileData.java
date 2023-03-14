@@ -182,7 +182,7 @@ class LazyFileData extends FileData {
             String userDisplayName = committerIdent.getName();
             if (commitMessage != null) {
                 CommitType commitType = commitMessage.getCommitType();
-                if (commitType == CommitType.ARCHIVE || commitType == CommitType.ERASE) {
+                if (!isTechnicalRevision() && (commitType == CommitType.ARCHIVE || commitType == CommitType.ERASE)) {
                     super.setDeleted(true);
                     deleteStatusLoaded = true;
                 }
@@ -207,6 +207,12 @@ class LazyFileData extends FileData {
                 throw new IllegalStateException("Cannot get version name: " + e.getMessage(), e);
             }
             super.setVersion(version);
+
+            if (isTechnicalRevision()) {
+                FileData data = gitRepo.checkHistory(fullPath, version);
+                super.setDeleted(data == null || data.isDeleted());
+                deleteStatusLoaded = true;
+            }
 
             loaded = true;
         } catch (Exception e) {

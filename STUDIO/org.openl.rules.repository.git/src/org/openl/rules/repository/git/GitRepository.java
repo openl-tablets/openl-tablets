@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -88,7 +89,12 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.AuthorRevFilter;
+import org.eclipse.jgit.revwalk.filter.MessageRevFilter;
+import org.eclipse.jgit.revwalk.filter.OrRevFilter;
+import org.eclipse.jgit.revwalk.filter.PatternMatchRevFilter;
 import org.eclipse.jgit.revwalk.filter.RevFilter;
+import org.eclipse.jgit.revwalk.filter.SubStringRevFilter;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.FetchResult;
 import org.eclipse.jgit.transport.PushResult;
@@ -106,6 +112,8 @@ import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
 import org.eclipse.jgit.util.LfsFactory;
+import org.eclipse.jgit.util.RawCharSequence;
+import org.eclipse.jgit.util.RawParseUtils;
 import org.eclipse.jgit.util.io.NullOutputStream;
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.BranchRepository;
@@ -117,7 +125,9 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.SearchableRepository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
@@ -135,7 +145,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
-public class GitRepository implements FolderRepository, BranchRepository, Closeable {
+public class GitRepository implements FolderRepository, BranchRepository, SearchableRepository, Closeable {
     static final String DELETED_MARKER_FILE = ".archived";
 
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
@@ -496,7 +506,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     public List<FileData> listHistory(String name) throws IOException {
         initializeGit(true);
 
-        return iterateHistory(name, new ListHistoryVisitor());
+        return iterateHistory(name, new ListHistoryVisitor(), null, false, Pageable.unpaged());
+    }
+
+    @Override
+    public List<FileData> listHistory(String name, String globalFilter, boolean techRevs, Pageable page) throws IOException {
+        initializeGit(true);
+        return iterateHistory(name, new ListHistoryVisitor(), globalFilter, techRevs, page);
     }
 
     @Override
@@ -1721,7 +1737,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private <T> T iterateHistory(String name, HistoryVisitor<T> historyVisitor) throws IOException {
+    private <T> T iterateHistory(String name,
+            HistoryVisitor<T> historyVisitor,
+            String globalFilter,
+            boolean techRevs,
+            Pageable page) throws IOException {
         Lock readLock = repositoryLock.readLock();
         try {
             log.debug("iterateHistory(): lock");
@@ -1734,22 +1754,40 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             // We can't use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits
             // so some history elements aren't shown. So we iterate all commits and filter them out ourselves.
-            Iterator<RevCommit> iterator = git.log().add(resolveBranchId()).call().iterator();
+            Iterator<RevCommit> iterator = git.log()
+                .add(resolveBranchId())
+                .setRevFilter(buildGlobalRevisionFilter(globalFilter))
+                .call()
+                .iterator();
 
             List<Ref> tags = git.tagList().call();
 
             Repository repository = git.getRepository();
 
+            int totalProcessed = 0;
+            int processed = 0;
+            int skip = -1;
+            int maxCount = Integer.MAX_VALUE;
+            if (!page.isUnpaged()) {
+                skip = page.getOffset();
+                maxCount = page.getPageSize();
+            }
             try (ObjectReader or = repository.newObjectReader()) {
                 TreeWalk tw = createTreeWalk(or, name);
 
-                while (iterator.hasNext()) {
+                while (iterator.hasNext() && processed < maxCount) {
                     RevCommit commit = iterator.next();
-                    if (!hasChangesInPath(tw, commit, git)) {
+                    boolean hasChanges = hasChangesInPath(tw, commit, git);
+                    if (!techRevs && !hasChanges) {
                         continue;
                     }
-
+                    totalProcessed++;
+                    if (totalProcessed <= skip) {
+                        continue;
+                    }
                     boolean stop = historyVisitor.visit(name, commit, getVersionName(repository, tags, commit));
+                    historyVisitor.getLastVisited().setTechnicalRevision(!hasChanges);
+                    processed++;
                     if (stop) {
                         break;
                     }
@@ -1766,6 +1804,21 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             readLock.unlock();
             log.debug("iterateHistory(): unlock");
         }
+    }
+
+    private RevFilter buildGlobalRevisionFilter(String globalFilter) {
+        if (globalFilter == null || globalFilter.isBlank()) {
+            return RevFilter.ALL;
+        }
+        globalFilter = globalFilter.trim();
+        RevFilter idFilter;
+        if (SubStringRevFilter.safe(globalFilter)) {
+            idFilter = new SubStringIdRevFilter(globalFilter);
+        } else {
+            idFilter = new PatternIdRevFilter(globalFilter);
+        }
+        return OrRevFilter.create(
+            Arrays.asList(AuthorRevFilter.create(globalFilter), MessageRevFilter.create(globalFilter), idFilter));
     }
 
     private <T> T parseHistory(String name, String version, HistoryVisitor<T> historyVisitor) throws IOException {
@@ -2484,7 +2537,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).build();
+        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).setSearchable(true).build();
     }
 
     @Override
@@ -3008,8 +3061,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 try (var input = new FileInputStream(hookFile)) {
                     var content = new String(input.readAllBytes(), StandardCharsets.UTF_8);
                     if (content.contains("git lfs")) {
-                        // Rename pre-push hook otherwise we will be spammed with warning message (if native git with LFS is found)
-                        log.info("Rename pre-push hook to avoid conflict between LFS built-in hook and existing pre-push hook. Repo: {}", repository);
+                        // Rename pre-push hook otherwise we will be spammed with warning message (if native git with
+                        // LFS is found)
+                        log.info(
+                            "Rename pre-push hook to avoid conflict between LFS built-in hook and existing pre-push hook. Repo: {}",
+                            repository);
                         String from = hookFile.getPath();
                         String to = from + ".renamed";
                         boolean renamed = hookFile.renameTo(new File(to));
@@ -3057,6 +3113,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
          * Get accumulated result
          */
         T getResult();
+
+        default FileData getLastVisited() {
+            throw new IllegalStateException("Is not implemented!");
+        }
     }
 
     private class ListCommand implements WalkCommand<List<FileData>> {
@@ -3180,6 +3240,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private class ListHistoryVisitor implements HistoryVisitor<List<FileData>> {
         private final org.eclipse.jgit.lib.Repository repository;
         private final List<FileData> history = new ArrayList<>();
+        private FileData last;
 
         private ListHistoryVisitor() {
             repository = git.getRepository();
@@ -3189,11 +3250,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         public boolean visit(String fullPath, RevCommit commit, String commitVersion) throws IOException {
             RevTree tree = commit.getTree();
 
+            FileData data = null;
             try (TreeWalk rootWalk = buildTreeWalk(repository, fullPath, tree)) {
-                history.add(createFileData(rootWalk, commit));
+                data = createFileData(rootWalk, commit);
             } catch (FileNotFoundException e) {
                 log.debug("File '{}' is absent in the commit {}", fullPath, commitVersion, e);
-                FileData data = new LazyFileData(branch,
+                data = new LazyFileData(branch,
                     fullPath,
                     GitRepository.this,
                     commit,
@@ -3202,10 +3264,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     commitMessageParserOld);
                 // Must mark it as deleted explicitly because the file can be erased outside of WebStudio.
                 data.setDeleted(true);
-
-                history.add(data);
             }
 
+            last = data;
+            history.add(data);
             return false;
         }
 
@@ -3213,6 +3275,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         public List<FileData> getResult() {
             Collections.reverse(history);
             return history;
+        }
+
+        @Override
+        public FileData getLastVisited() {
+            return last;
         }
     }
 
@@ -3315,6 +3382,42 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         public FileItem getResult() {
             return result;
         }
+    }
+
+    private static class PatternIdRevFilter extends PatternMatchRevFilter {
+        public PatternIdRevFilter(String pattern) {
+            super(pattern, true, true, Pattern.CASE_INSENSITIVE);
+        }
+
+        @Override
+        protected CharSequence text(RevCommit cmit) {
+            return cmit.getId().getName();
+        }
+
+        @Override
+        public RevFilter clone() {
+            return new PatternIdRevFilter(pattern());
+        }
+    }
+
+    private static class SubStringIdRevFilter extends SubStringRevFilter {
+        public SubStringIdRevFilter(String patternText) {
+            super(patternText);
+        }
+
+        @Override
+        protected RawCharSequence text(RevCommit cmit) {
+            String id = cmit.getId().getName();
+            return new RawCharSequence(id.getBytes(StandardCharsets.UTF_8), 0, id.length());
+        }
+    }
+
+    static RawCharSequence textFor(RevCommit cmit) {
+        final byte[] raw = cmit.getRawBuffer();
+        final int b = RawParseUtils.commitMessage(raw, 0);
+        if (b < 0)
+            return RawCharSequence.EMPTY;
+        return new RawCharSequence(raw, b, raw.length);
     }
 
     static boolean isSame(URI a, URI b) {
