@@ -40,7 +40,7 @@ public interface IntExp extends Expression {
     }
 
     /**
-     * The smallest value of type int. Please notice that <code>MIN_VALUE == -MAX_VALUE</code> which is not true for
+     * The minimum value of the int type. Note that <code>MIN_VALUE == -MAX_VALUE</code> is not true for
      * <code>java.lang.Integer</code>.
      */
     int MIN_VALUE = -Integer.MAX_VALUE;

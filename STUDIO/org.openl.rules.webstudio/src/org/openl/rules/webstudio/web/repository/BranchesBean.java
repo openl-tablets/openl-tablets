@@ -128,13 +128,13 @@ public class BranchesBean {
                 return;
             }
             if (branchToMergeFrom.equals(branchToMergeTo)) {
-                showErrorMessage("Can't merge the branch '" + branchToMergeFrom + "' to itself.");
+                showErrorMessage("Cannot merge the branch '" + branchToMergeFrom + "' to itself.");
                 return;
             }
             // in case when UI check will not be fired
             if (isProjectLockedInBranch(currentProjectName, branchToMergeTo)) {
                 showErrorMessage(
-                    "The project is currently in editing in " + branchToMergeTo + " branch and merge can't be done .");
+                    "The project is currently in editing in " + branchToMergeTo + " branch and merge cannot be done .");
                 return;
             }
 

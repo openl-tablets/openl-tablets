@@ -23,10 +23,10 @@
 
                 <h:outputText
                     rendered="#{node.type eq 'project'}"
-                    value="Are you sure you want to delete the project '#{node.name}'?" />
+                    value="Are you sure you want to delete the '#{node.name}' project?" />
                 <h:outputText
                         rendered="#{node.type eq 'deployment'}"
-                        value="Are you sure you want to delete the deploy configuration '#{node.name}'?" />
+                        value="Are you sure you want to delete the '#{node.name}' deploy configuration?" />
                 <h:outputText rendered="#{node.type eq 'folder'}"
                     value="Are you sure you want to delete the folder '#{node.name}'?" />
                 <h:outputText rendered="#{node.type eq 'file'}"

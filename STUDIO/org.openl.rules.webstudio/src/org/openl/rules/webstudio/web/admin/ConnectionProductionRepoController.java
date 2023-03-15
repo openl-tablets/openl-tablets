@@ -122,7 +122,7 @@ public class ConnectionProductionRepoController {
                 CommonRepositorySettings s = (CommonRepositorySettings) settings;
                 if (s.isSecure() && (StringUtils.isEmpty(s.getLogin()) || StringUtils.isEmpty(s.getPassword()))) {
                     throw new RepositoryValidationException(
-                        "Invalid login or password. Please, check login and password");
+                        "Invalid login or password. Try again.");
                 }
             }
 

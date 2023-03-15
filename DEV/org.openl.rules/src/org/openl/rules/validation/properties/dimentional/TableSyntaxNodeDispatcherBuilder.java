@@ -393,7 +393,7 @@ class TableSyntaxNodeDispatcherBuilder {
         StringBuilder buf = new StringBuilder(250);
         buf.append(" Automatically created table to dispatch by dimensional properties values for method: ");
         MethodUtil.printMethod(getMember(), buf);
-        buf.append(". Please, edit original tables to make any change to the overloading logic.");
+        buf.append(". Edit the original tables to modify the overloading logic.");
         properties.setFieldValue("description", buf.toString());
     }
 

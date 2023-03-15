@@ -176,7 +176,7 @@ echo.
 @echo.
 @echo.
 @echo       To get more information about OpenL Tablets DEMO,
-@echo       please refer to "Demo Package Guide" on our site:
+@echo       see "Demo Package Guide"
 @echo.
 @echo       https://openl-tablets.org/documentation/user-guides
 @echo.

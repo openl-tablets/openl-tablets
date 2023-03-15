@@ -32,7 +32,7 @@ import org.springframework.validation.BindingResult;
 public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final String MUST_BE_LESS_THAN_25 = "Must be less than 25.";
-    private static final String CANNOT_BE_EMPTY = "Can not be empty.";
+    private static final String CANNOT_BE_EMPTY = "Cannot be empty.";
     private static final String SHOULD_NOT_END_WITH_DOT_AND_WHITESPACE = "The name should not end or begin with '.'.";
     private static final String CONSECUTIVE_DOT = "The name should not contain consecutive '.'.";
     private static final String MUST_NOT_CONTAIN_FOLLOWING_CHARS = "The name must not contain whitespaces and any of the following characters: / \\ : * ? \" < > | { } ~ ^ ; %";

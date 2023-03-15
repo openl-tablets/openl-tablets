@@ -18,7 +18,7 @@
         <h:outputText value="Listener period (sec):"/>
         <h:inputText value="#{settings.listenerTimerPeriod}" id="#{prependId}AzureListenerTimerPeriod"
                      title="Repository changes check interval. Must be greater than 0."
-                     validatorMessage="Please enter a value greater than 0">
+                     validatorMessage="Enter a value greater than 0.">
             <f:validateLongRange minimum="1"/>
         </h:inputText>
         <h:outputText value=""/>

@@ -105,7 +105,7 @@ public class TagTemplateService {
 
             final String tagTypeName = matcher.group(1);
             if (tagTypeDao.getByName(tagTypeName) == null) {
-                return "Can't find tag type '" + tagTypeName + "'.";
+                return "Cannot find tag type '" + tagTypeName + "'.";
             }
         }
         if (!hasTagTypes) {

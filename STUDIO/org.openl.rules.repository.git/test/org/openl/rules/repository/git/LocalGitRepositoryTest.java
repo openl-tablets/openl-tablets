@@ -136,7 +136,7 @@ public class LocalGitRepositoryTest {
             repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
             fail("Must fail when create a branch on empty repository");
         } catch (IOException e) {
-            assertEquals("Can't create a branch on the empty repository.", e.getMessage());
+            assertEquals("Cannot create a branch on the empty repository.", e.getMessage());
         }
 
         String text = "Some text";

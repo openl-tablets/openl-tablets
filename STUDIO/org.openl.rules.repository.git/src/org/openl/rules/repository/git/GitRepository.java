@@ -2563,7 +2563,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Search
             if (branchAbsents) {
                 // Checkout existing branch
                 if (isEmpty()) {
-                    throw new IOException("Can't create a branch on the empty repository.");
+                    throw new IOException("Cannot create a branch on the empty repository.");
                 }
                 checkoutForced(branch);
 

@@ -55,8 +55,8 @@
                         let dependencyNames = data.dependencies.filter(e => !e.localOnly && !e.openedForEditing && !e.opened && !e.deleted).map(e => e.name);
                         if (dependencyNames.length > 0) {
                             showDialog = true;
-                            message += "NOTE: Project data in the workspace will be replaced by data of the last version.\n" +
-                                "Would you like to open dependencies too? Project(s) to open: " + dependencyNames.join(", ");
+                            message += "NOTE: Project data in the workspace will be replaced with the data from the latest version.\n" +
+                                "Do you want to open dependencies? Project(s) to open: " + dependencyNames.join(", ");
                         }
                     }
 

@@ -185,7 +185,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             var settingsFile = getFile();
             var parent = settingsFile.getParentFile();
             if (!parent.mkdirs() && !parent.exists()) {
-                throw new FileNotFoundException("Can't create the folder " + parent.getAbsolutePath());
+                throw new FileNotFoundException("The folder cannot be created. " + parent.getAbsolutePath());
             }
             PropertiesUtils.store(settingsFile.toPath(), properties.entrySet());
         }

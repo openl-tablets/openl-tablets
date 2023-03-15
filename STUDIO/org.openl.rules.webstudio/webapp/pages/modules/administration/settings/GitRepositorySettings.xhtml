@@ -149,7 +149,7 @@
         <h:outputText value="Changes check interval (sec):" rendered="#{settings.remoteRepository}"/>
         <h:inputText value="#{settings.listenerTimerPeriod}" id="#{prependId}gitListenerTimerPeriod"
                      title="Repository changes check interval. Must be greater than zero."
-                     validatorMessage="Please, enter a value greater than zero."
+                     validatorMessage="Enter a value greater than zero."
                      converterMessage="Must be a number greater than zero."
                      rendered="#{settings.remoteRepository}">
             <f:validateLongRange minimum="1" />
@@ -163,7 +163,7 @@
         <h:outputText value="Connection timeout (sec):" rendered="#{settings.remoteRepository}"/>
         <h:inputText value="#{settings.connectionTimeout}" id="#{prependId}gitConnectionTimeout"
                      title="Repository connection timeout. Must be greater than zero."
-                     validatorMessage="Please, enter a value greater than zero."
+                     validatorMessage="Enter a value greater than zero."
                      converterMessage="Must be a number greater than zero."
                      rendered="#{settings.remoteRepository}">
             <f:validateLongRange minimum="1" />
