@@ -1,8 +1,21 @@
 package org.openl.rules.dt;
 
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
+import org.openl.domain.IIntIterator;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.Invokable;
@@ -13,13 +26,13 @@ import org.openl.vm.IRuntimeEnv;
  * Created by ymolchan on 05.02.2016.
  */
 public class ActionInvoker implements Invokable {
-
-    private final int[] rules;
+    private final List<Integer> firedRules = new ArrayList<>();
+    private final IIntIterator rulesIntIterator;
     private final IBaseAction[] actions;
     private final boolean returnEmptyResult;
 
-    ActionInvoker(int[] rules, IBaseAction[] actions, boolean returnEmptyResult) {
-        this.rules = rules;
+    ActionInvoker(IIntIterator rulesIntIterator, IBaseAction[] actions, boolean returnEmptyResult) {
+        this.rulesIntIterator = rulesIntIterator;
         this.actions = actions;
         this.returnEmptyResult = returnEmptyResult;
     }
@@ -129,6 +142,7 @@ public class ActionInvoker implements Invokable {
 
         for (IBaseAction action : actions) {
             if (action.isCollectReturnAction()) {
+                int[] rules = getRules();
                 if (returnValues == null) {
                     type = action.getType();
                     if (type.isArray()) {
@@ -141,16 +155,11 @@ public class ActionInvoker implements Invokable {
                         Arrays.fill(f, false);
                     }
                 }
-                for (int i = 0; i < rules.length; i++) {
-                    Object actionResult = action.executeAction(rules[i], target, params, env);
-                    if (isValidResult(actionResult) && (Array.get(returnValues, i) == null || !f[i])) {
-                        Array.set(returnValues, i, actionResult);
-                        f[i] = true;
-                    }
-                }
+                executeActionAndWriteValues(target, params, env, returnValues, f, action, rules);
                 retVal = returnValues;
                 isCollectReturn = true;
             } else if (action.isCollectReturnKeyAction()) {
+                int[] rules = getRules();
                 if (keyValues == null) {
                     keyValues = new Object[rules.length];
                     if (f == null) {
@@ -158,29 +167,29 @@ public class ActionInvoker implements Invokable {
                         Arrays.fill(f, false);
                     }
                 }
-                for (int i = 0; i < rules.length; i++) {
-                    Object actionResult = action.executeAction(rules[i], target, params, env);
-                    if (isValidResult(actionResult) && (Array.get(keyValues, i) == null || !f[i])) {
-                        Array.set(keyValues, i, actionResult);
-                        f[i] = true;
-                    }
-                }
+                executeActionAndWriteValues(target, params, env, keyValues, f, action, rules);
             } else {
-                int i;
                 Object actionResult = null;
-                for (i = 0; i < rules.length; i++) {
+                SmartIterator itr = new SmartIterator(firedRules.iterator(), rulesIntIterator);
+                List<Integer> newFiredRules = new ArrayList<>();
+                while (itr.hasNext()) {
+                    boolean g = itr.itr1.hasNext();
+                    int rule = itr.next();
+                    if (!g) {
+                        newFiredRules.add(rule);
+                    }
                     if (action.isReturnAction()) {
-                        actionResult = action.executeAction(rules[i], target, params, env);
+                        actionResult = action.executeAction(rule, target, params, env);
                         if (isValidResult(actionResult)) {
                             break;
                         }
                     } else {
-                        action.executeAction(rules[i], target, params, env);
+                        action.executeAction(rule, target, params, env);
                     }
                 }
+                firedRules.addAll(newFiredRules);
                 if (retVal == null && actionResult != null) {
                     retVal = actionResult;
-                    isCollectReturn = false;
                 }
             }
         }
@@ -190,7 +199,44 @@ public class ActionInvoker implements Invokable {
         return retVal;
     }
 
+    private void executeActionAndWriteValues(Object target,
+            Object[] params,
+            IRuntimeEnv env,
+            Object values,
+            boolean[] f,
+            IBaseAction action,
+            int[] rules) {
+        for (int i = 0; i < rules.length; i++) {
+            Object actionResult = action.executeAction(rules[i], target, params, env);
+            if (isValidResult(actionResult) && (Array.get(values, i) == null || !f[i])) {
+                Array.set(values, i, actionResult);
+                f[i] = true;
+            }
+        }
+    }
+
     public int[] getRules() {
-        return rules;
+        while (rulesIntIterator.hasNext()) {
+            firedRules.add(rulesIntIterator.nextInt());
+        }
+        return firedRules.stream().mapToInt(e -> e).toArray();
+    }
+
+    private static class SmartIterator {
+        Iterator<Integer> itr1;
+        IIntIterator itr2;
+
+        public SmartIterator(Iterator<Integer> itr1, IIntIterator itr2) {
+            this.itr1 = itr1;
+            this.itr2 = itr2;
+        }
+
+        public boolean hasNext() {
+            return itr1.hasNext() || itr2.hasNext();
+        }
+
+        public Integer next() {
+            return itr1.hasNext() ? itr1.next() : itr2.next();
+        }
     }
 }
