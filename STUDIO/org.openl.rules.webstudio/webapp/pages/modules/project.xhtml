@@ -168,7 +168,7 @@
                                           rendered="#{isModuleWithWildcard or !includedInWildcard}">
                                 <div>
                                     <h:panelGroup rendered="#{isModuleWithWildcard}">
-                                        #{empty module.name ? 'Multiple modules' : module.name}
+                                        Wildcard matched modules
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{!isModuleWithWildcard}">
                                         <a href="#{utils.toUrl(projectData.repository.id, projectData.name, module.name)}">#{module.name}</a>
@@ -226,7 +226,7 @@
                                     <h:panelGroup rendered="#{modulesNumber > 1 and projectBean.canDeleteModule(module)}">
                                         <a href="javascript:void(0)" title="Remove Module"
                                            class="editable-link-inner #{canCopyModule and editable ? 'third-button' : (editable ? 'second-button' : 'first-button')} delete-icon"
-                                           onclick="removeModule('#{i.index}', #{projectBean.isOnlySafeModuleRemove(module)})"/>
+                                           onclick="removeModule('#{i.index}', #{projectBean.isOnlySafeModuleRemove(module)}, #{isModuleWithWildcard})"/>
                                     </h:panelGroup>
                                 </h:panelGroup>
                             </h:panelGroup>
@@ -738,7 +738,9 @@
 
     <rich:popupPanel id="removeModulePopup" minWidth="290" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Remove Module"/>
+            <span id="removeModulePopupHeader">
+                <h:outputText value="Remove Module"/>
+            </span>
         </f:facet>
 
         <f:facet name="controls">
@@ -749,13 +751,12 @@
         <h:form prependId="false">
             <input type="hidden" id="moduleToRemove" name="moduleToRemove"/>
             <div style="padding-bottom: 1px;">
-                <p>
-                    Are you sure you want to remove this module?
+                <p id="removeModulePopupMessage">
                 </p>
 
                 <p id="leaveExcelFileConfirmation">
                     <span>
-                    <label for="leaveExcelFile">Remove the module from the project configuration and do not delete the file from the project.</label>
+                    <label for="leaveExcelFile" id="removeModulePopupLeaveExcelFile"/>
                     </span>
                     <span>
                     <input type="checkbox" id="leaveExcelFile" name="leaveExcelFile"/>
@@ -776,7 +777,7 @@
 
     <script>
         //<![CDATA[
-        function removeModule(module, moduleCanNotBeDeleted) {
+        function removeModule(module, moduleCanNotBeDeleted, isModuleWithWildcard) {
             if (!canOverwriteRevision()) {
                 return false;
             }
@@ -784,6 +785,10 @@
             $j("#moduleToRemove").val(module);
             $j("#leaveExcelFile").prop('disabled', moduleCanNotBeDeleted);
             $j("#leaveExcelFile").prop('checked', moduleCanNotBeDeleted);
+            $j("#removeModulePopupHeader").html(isModuleWithWildcard ? 'Remove modules' : 'Remove module');
+            $j("#removeModulePopupMessage").html(isModuleWithWildcard ? 'Are you sure you want to remove all modules matched by the wildcard path?' : 'Are you sure you want to remove this module?');
+            $j("#removeModulePopupLeaveExcelFile").html(isModuleWithWildcard ? 'Remove modules from the project configuration and do not delete files:' : 'Remove the module from the project configuration and do not delete the file:');
+
             ws.ui.show("removeModulePopup");
             $j("#removeModuleButton").focus();
         }
