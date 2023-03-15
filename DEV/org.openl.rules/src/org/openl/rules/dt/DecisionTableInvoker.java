@@ -1,8 +1,5 @@
 package org.openl.rules.dt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.openl.binding.MethodUtil;
 import org.openl.domain.IIntIterator;
 import org.openl.rules.dt.algorithm.FailOnMissException;
@@ -51,22 +48,13 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
         IDecisionTableAlgorithm algorithm = getInvokableMethod().getAlgorithm();
         IIntIterator rulesIntIterator = algorithm.checkedRules(target, params, env);
 
-        boolean atLeastOneRuleFired = false;
-        List<Integer> r = new ArrayList<>();
-        while (rulesIntIterator.hasNext()) {
-            atLeastOneRuleFired = true;
-            r.add(rulesIntIterator.nextInt());
-        }
-        int[] rules = new int[r.size()];
-        int i = 0;
-        for (Integer v : r) {
-            rules[i++] = v;
-        }
+        // Do not move this line, hasNext should be extracted before action is invoked
+        final boolean atLeastOneRuleFired = rulesIntIterator.hasNext();
 
         IBaseAction[] actions = getInvokableMethod().getActionRows();
 
         Object returnValue = Tracer
-            .invoke(new ActionInvoker(rules, actions, returnEmptyResult), target, params, env, this);
+            .invoke(new ActionInvoker(rulesIntIterator, actions, returnEmptyResult), target, params, env, this);
         if (!OpenClassUtils.isVoid(retType) && returnValue != null) {
             return returnValue;
         }
