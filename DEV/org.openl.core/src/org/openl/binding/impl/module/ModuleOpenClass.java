@@ -8,6 +8,7 @@ package org.openl.binding.impl.module;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -139,5 +140,36 @@ public class ModuleOpenClass extends ComponentOpenClass {
     @Override
     public IOpenClass findType(String name) {
         return internalTypes.get(name);
+    }
+
+    public boolean isDependencyModule(ModuleOpenClass module,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
+        return isDependencyModuleRec(module, this, cache);
+    }
+
+    private static boolean isDependencyModuleRec(ModuleOpenClass module,
+            ModuleOpenClass inModule,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
+        IdentityHashMap<ModuleOpenClass, Boolean> c = cache.computeIfAbsent(inModule, e -> new IdentityHashMap<>());
+        Boolean t = c.get(module);
+        if (t != null) {
+            return t;
+        }
+        if (module != inModule) {
+            t = false;
+            for (CompiledDependency compiledDependency : inModule.getDependencies()) {
+                if (compiledDependency.getCompiledOpenClass()
+                    .getOpenClassWithErrors() instanceof ModuleOpenClass && isDependencyModuleRec(module,
+                        (ModuleOpenClass) compiledDependency.getCompiledOpenClass().getOpenClassWithErrors(),
+                        cache)) {
+                    t = true;
+                    break;
+                }
+            }
+        } else {
+            t = true;
+        }
+        c.put(module, t);
+        return t;
     }
 }

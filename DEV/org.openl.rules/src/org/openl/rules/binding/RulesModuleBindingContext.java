@@ -19,6 +19,7 @@ import org.openl.binding.exception.TypesCombinationNotSupportedException;
 import org.openl.binding.impl.method.AOpenMethodDelegator;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.module.ModuleBindingContext;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.binding.impl.module.ModuleSpecificType;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.meta.TableMetaInfo;
@@ -625,7 +626,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         this.ignoreCustomSpreadsheetResultCompilation = ignoreCustomSpreadsheetResultCompilation;
     }
 
-    private final IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
+    private final IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
 
     protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
         return isComponentSpecificOpenClass(this, componentOpenClass, getModule(), cache);
@@ -634,7 +635,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static boolean isComponentSpecificOpenClass(IBindingContext bindingContext,
             IOpenClass componentOpenClass,
             XlsModuleOpenClass xlsModuleOpenClass,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
         if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
             if (componentOpenClass instanceof CustomSpreadsheetResultOpenClass) {
                 return xlsModuleOpenClass
