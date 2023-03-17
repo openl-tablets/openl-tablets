@@ -19,8 +19,8 @@ public class AddAllMethodCallerWrapper implements MethodCallerWrapper {
             JavaOpenMethod javaOpenMethod,
             IOpenClass[] callParams,
             ICastFactory castFactory) {
-        AddAllMethodDetails addAllMethodDetails = AddAllMethodFilter.resolve(callParams, castFactory);
-        return new AutoCastableResultOpenMethod(new MethodDetailsMethodCaller(methodCaller, addAllMethodDetails),
+        final AddAllMethodDetails addAllMethodDetails = AddAllMethodFilter.resolve(callParams, castFactory);
+        return new AutoCastableResultOpenMethod(new MethodDetailsMethodCaller(methodCaller, e -> addAllMethodDetails),
             addAllMethodDetails.getType(),
             JavaNoCast.getInstance());
     }
