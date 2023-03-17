@@ -111,8 +111,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
         return this;
     }
 
-    @Override
-    public String getBeanClassName() {
+    protected String getBeanClassName() {
         if (beanClassName == null) {
             synchronized (this) {
                 if (beanClassName == null) {
