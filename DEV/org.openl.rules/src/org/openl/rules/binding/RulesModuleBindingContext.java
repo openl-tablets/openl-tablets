@@ -637,11 +637,11 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
         if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams())) {
             if (componentOpenClass instanceof CustomSpreadsheetResultOpenClass) {
-                return !xlsModuleOpenClass
-                    .isExternalModule(((CustomSpreadsheetResultOpenClass) componentOpenClass).getModule(), cache);
+                return xlsModuleOpenClass
+                    .isDependencyModule(((CustomSpreadsheetResultOpenClass) componentOpenClass).getModule(), cache);
             } else if (componentOpenClass instanceof SpreadsheetResultOpenClass) {
-                return !xlsModuleOpenClass
-                    .isExternalModule(((SpreadsheetResultOpenClass) componentOpenClass).getModule(), cache);
+                return xlsModuleOpenClass
+                    .isDependencyModule(((SpreadsheetResultOpenClass) componentOpenClass).getModule(), cache);
             }
         }
         return false;

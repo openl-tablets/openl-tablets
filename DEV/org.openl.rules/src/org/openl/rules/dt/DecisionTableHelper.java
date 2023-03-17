@@ -653,7 +653,7 @@ public final class DecisionTableHelper {
             dim++;
         }
         if (g instanceof BelongsToModuleOpenClass) {
-            if (module.isExternalModule((XlsModuleOpenClass) ((BelongsToModuleOpenClass) g).getModule(), cache)) {
+            if (!module.isDependencyModule((XlsModuleOpenClass) ((BelongsToModuleOpenClass) g).getModule(), cache)) {
                 return ((BelongsToModuleOpenClass) g).getExternalRefName() + "[]".repeat(Math.max(0, dim));
             }
         }

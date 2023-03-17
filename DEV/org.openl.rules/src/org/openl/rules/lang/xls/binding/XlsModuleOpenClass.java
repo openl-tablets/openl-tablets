@@ -192,11 +192,11 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     public IOpenClass toModuleType(IOpenClass type) {
         if (type instanceof SpreadsheetResultOpenClass) {
             SpreadsheetResultOpenClass spreadsheetResultOpenClass = (SpreadsheetResultOpenClass) type;
-            if (!isExternalModule(spreadsheetResultOpenClass.getModule(), new IdentityHashMap<>())) {
+            if (isDependencyModule(spreadsheetResultOpenClass.getModule(), new IdentityHashMap<>())) {
                 return getSpreadsheetResultOpenClassWithResolvedFieldTypes();
             }
         } else if (type instanceof ModuleSpecificType) {
-            if (!isExternalModule((XlsModuleOpenClass) ((ModuleSpecificType) type).getModule(),
+            if (isDependencyModule((XlsModuleOpenClass) ((ModuleSpecificType) type).getModule(),
                 new IdentityHashMap<>())) {
                 if (type instanceof CombinedSpreadsheetResultOpenClass) {
                     return ((CombinedSpreadsheetResultOpenClass) type).convertToModuleType(this, false);
@@ -545,12 +545,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         addFieldToLowerCaseMap(f);
     }
 
-    public boolean isExternalModule(XlsModuleOpenClass module,
+    public boolean isDependencyModule(XlsModuleOpenClass module,
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
-        return isExternalModuleRec(module, this, cache);
+        return isDependencyModuleRec(module, this, cache);
     }
 
-    private static boolean isExternalModuleRec(XlsModuleOpenClass module,
+    private static boolean isDependencyModuleRec(XlsModuleOpenClass module,
             XlsModuleOpenClass inModule,
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
         IdentityHashMap<XlsModuleOpenClass, Boolean> c = cache.computeIfAbsent(inModule, e -> new IdentityHashMap<>());
@@ -559,18 +559,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             return t;
         }
         if (module != inModule) {
-            t = true;
+            t = false;
             for (CompiledDependency compiledDependency : inModule.getDependencies()) {
                 if (compiledDependency.getCompiledOpenClass()
-                    .getOpenClassWithErrors() instanceof XlsModuleOpenClass && !isExternalModuleRec(module,
+                    .getOpenClassWithErrors() instanceof XlsModuleOpenClass && isDependencyModuleRec(module,
                         (XlsModuleOpenClass) compiledDependency.getCompiledOpenClass().getOpenClassWithErrors(),
                         cache)) {
-                    t = false;
+                    t = true;
                     break;
                 }
             }
         } else {
-            t = false;
+            t = true;
         }
         c.put(module, t);
         return t;
