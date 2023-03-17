@@ -8,6 +8,7 @@ import org.openl.binding.impl.CastToWiderType;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.component.ComponentOpenClass;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.calc.element.SpreadsheetCellField;
@@ -184,7 +185,7 @@ public class SpreadsheetContext extends ComponentBindingContext {
         }
     }
 
-    private final IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
+    private final IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
 
     protected boolean isComponentSpecificOpenClass(IOpenClass componentOpenClass) {
         return RulesModuleBindingContext

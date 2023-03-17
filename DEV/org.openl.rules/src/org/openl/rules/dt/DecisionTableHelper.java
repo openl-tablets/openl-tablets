@@ -43,6 +43,7 @@ import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.NumericStringComparator;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
@@ -317,7 +318,7 @@ public final class DecisionTableHelper {
             IWritableGrid grid,
             boolean isSmartLookupAndResultTitleInFirstRow,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache,
             IBindingContext bindingContext) throws OpenLCompilationException {
         ILogicalTable uncutOriginalTable = null;
         if (isSmartLookupAndResultTitleInFirstRow) {
@@ -645,7 +646,7 @@ public final class DecisionTableHelper {
 
     private static String getTypeNameForCode(IOpenClass type,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
         IOpenClass g = type;
         int dim = 0;
         while (g.isArray()) {
@@ -653,7 +654,7 @@ public final class DecisionTableHelper {
             dim++;
         }
         if (g instanceof BelongsToModuleOpenClass) {
-            if (!module.isDependencyModule((XlsModuleOpenClass) ((BelongsToModuleOpenClass) g).getModule(), cache)) {
+            if (!module.isDependencyModule(((BelongsToModuleOpenClass) g).getModule(), cache)) {
                 return ((BelongsToModuleOpenClass) g).getExternalRefName() + "[]".repeat(Math.max(0, dim));
             }
         }
@@ -671,7 +672,7 @@ public final class DecisionTableHelper {
             String header,
             boolean lookupReturnHeader,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache,
             IBindingContext bindingContext) {
         grid.setCellValue(declaredReturn.getColumn(), 0, header);
         grid.setCellValue(declaredReturn.getColumn(), 1, declaredReturn.getStatement());
@@ -774,7 +775,7 @@ public final class DecisionTableHelper {
             Set<String> variableAssignments,
             StringBuilder sb,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
         if (fieldsChain == null) {
             return type;
         }
@@ -844,7 +845,7 @@ public final class DecisionTableHelper {
             Set<String> variableAssignments,
             StringBuilder sb,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache,
             IBindingContext bindingContext) {
         List<FuzzyDTHeader> fuzzyReturns = dtHeaders.stream()
             .filter(e -> e instanceof FuzzyDTHeader)
@@ -986,7 +987,7 @@ public final class DecisionTableHelper {
             IOpenClass compoundReturnType,
             String header,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache,
             IBindingContext bindingContext) throws OpenLCompilationException {
         validateCompoundReturnType(compoundReturnType);
 
@@ -1141,7 +1142,7 @@ public final class DecisionTableHelper {
             List<DTHeader> dtHeaders,
             DeclaredDTHeader lookupReturnDtHeader,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache,
             IBindingContext bindingContext) throws OpenLCompilationException {
         final boolean isCollect = isCollect(tableSyntaxNode);
 
@@ -1256,7 +1257,7 @@ public final class DecisionTableHelper {
             String header,
             int firstColumnHeight,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache,
             IBindingContext bindingContext) {
         int column = declaredDtHeader.getColumn();
         grid.setCellValue(column, 0, header);
@@ -1374,7 +1375,7 @@ public final class DecisionTableHelper {
             List<DTHeader> dtHeaders,
             int firstColumnHeight,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache,
             IBindingContext bindingContext) throws OpenLCompilationException {
         List<DTHeader> actions = dtHeaders.stream()
             .filter(DTHeader::isAction)
@@ -1501,7 +1502,7 @@ public final class DecisionTableHelper {
             int firstColumnForHCondition,
             WithVerticalTitles withVerticalTitles,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache,
             IBindingContext bindingContext) throws OpenLCompilationException {
 
         List<DTHeader> conditions = dtHeaders.stream()
@@ -3669,7 +3670,7 @@ public final class DecisionTableHelper {
             int firstColumnHeight,
             int numberOfColumnsUnderTitle,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache,
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache,
             IBindingContext bindingContext) {
         int column = condition.getColumn();
 
@@ -4106,7 +4107,7 @@ public final class DecisionTableHelper {
             boolean isArray,
             boolean isMoreThanOneColumnIsUsed,
             XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
         if (type.isArray() && type.getComponentClass().isArray()) {
             return Triple.of(new String[] { getTypeNameForCode(type, module, cache) }, type, condition.getStatement());
         }

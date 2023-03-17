@@ -573,7 +573,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
                         Map<String, List<IOpenField>> fieldsMap = new HashMap<>();
                         List<Pair<Point, IOpenField>> fields = getListOfFields();
-                        IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
+                        IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache = new IdentityHashMap<>();
                         addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, xmlNames, true, fieldsMap, cache);
                         addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, xmlNames, false, fieldsMap, cache);
                         sprStructureFieldNames = addSprStructureFields(beanClassBuilder,
@@ -654,12 +654,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     public boolean isExternalCustomSpreadsheetResultOpenClass(
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
         return !getModule().isDependencyModule(customSpreadsheetResultOpenClass.getModule(), cache);
     }
 
     public boolean isExternalSpreadsheetResultOpenClass(SpreadsheetResultOpenClass spreadsheetResultOpenClass,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
         return !getModule().isDependencyModule(spreadsheetResultOpenClass.getModule(), cache);
     }
 
@@ -669,7 +669,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             Map<String, String> usedXmlNames,
             boolean addFieldNameWithCollisions,
             Map<String, List<IOpenField>> beanFieldsMap,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
+            IdentityHashMap<ModuleOpenClass, IdentityHashMap<ModuleOpenClass, Boolean>> cache) {
         for (Pair<Point, IOpenField> pair : fields) {
             Point point = pair.getLeft();
             if (point == null) {

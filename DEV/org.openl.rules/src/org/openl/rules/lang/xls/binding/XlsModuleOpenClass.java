@@ -545,37 +545,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         addFieldToLowerCaseMap(f);
     }
 
-    public boolean isDependencyModule(XlsModuleOpenClass module,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
-        return isDependencyModuleRec(module, this, cache);
-    }
-
-    private static boolean isDependencyModuleRec(XlsModuleOpenClass module,
-            XlsModuleOpenClass inModule,
-            IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
-        IdentityHashMap<XlsModuleOpenClass, Boolean> c = cache.computeIfAbsent(inModule, e -> new IdentityHashMap<>());
-        Boolean t = c.get(module);
-        if (t != null) {
-            return t;
-        }
-        if (module != inModule) {
-            t = false;
-            for (CompiledDependency compiledDependency : inModule.getDependencies()) {
-                if (compiledDependency.getCompiledOpenClass()
-                    .getOpenClassWithErrors() instanceof XlsModuleOpenClass && isDependencyModuleRec(module,
-                        (XlsModuleOpenClass) compiledDependency.getCompiledOpenClass().getOpenClassWithErrors(),
-                        cache)) {
-                    t = true;
-                    break;
-                }
-            }
-        } else {
-            t = true;
-        }
-        c.put(module, t);
-        return t;
-    }
-
     private static String extractContextParameter(IMethodSignature methodSignature, int index) {
         if (methodSignature instanceof MethodSignature) {
             IParameterDeclaration parameterDeclaration = ((MethodSignature) methodSignature)
