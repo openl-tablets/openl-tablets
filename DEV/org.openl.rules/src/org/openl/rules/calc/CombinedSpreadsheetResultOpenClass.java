@@ -119,12 +119,15 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
                         .map(CustomSpreadsheetResultOpenClass::getName)
                         .map(this::spreadsheetResultNameToBeanName)
                         .sorted()
+                        .distinct()
                         .collect(Collectors.joining());
+                    name = getModule().generateUniqueCombinedSpreadsheetResultClassName(name);
                     if (name.length() > MAX_BEANCLASSNAME_LENGTH) {
                         name = "CombinedType" + getModule().getCombinedSpreadsheetResultOpenClassesCounter()
                             .incrementAndGet();
                     }
-                    beanClassName = getModule().getGlobalTableProperties().getSpreadsheetResultPackage() + "." + name;
+                    beanClassName = getModule().getGlobalTableProperties()
+                        .getSpreadsheetResultPackage() + ".combined." + name;
                 }
             }
         }
@@ -135,6 +138,7 @@ public class CombinedSpreadsheetResultOpenClass extends CustomSpreadsheetResultO
     public String getName() {
         StringBuilder sb = new StringBuilder();
         List<CustomSpreadsheetResultOpenClass> types = getCombinedTypes().stream()
+            .distinct()
             .sorted(Comparator.comparing(CustomSpreadsheetResultOpenClass::getName))
             .collect(Collectors.toList());
         for (CustomSpreadsheetResultOpenClass c : types) {
