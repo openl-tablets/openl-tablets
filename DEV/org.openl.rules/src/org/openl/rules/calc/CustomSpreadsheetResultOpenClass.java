@@ -893,7 +893,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return name;
     }
 
-    public String getBeanClassName() {
+    protected String getBeanClassName() {
         if (beanClassName == null) {
             synchronized (this) {
                 if (beanClassName == null) {
