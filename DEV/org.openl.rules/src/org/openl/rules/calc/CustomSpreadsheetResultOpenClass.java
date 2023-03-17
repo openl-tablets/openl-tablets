@@ -191,9 +191,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     @Override
     public IOpenClass getParentClass(ModuleSpecificType openClass) {
         if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-            if (!getModule().isExternalModule((XlsModuleOpenClass) openClass.getModule(), new IdentityHashMap<>())) {
-                return getModule().buildOrGetCombinedSpreadsheetResult(this,
-                    (CustomSpreadsheetResultOpenClass) openClass);
+            CustomSpreadsheetResultOpenClass csroc = (CustomSpreadsheetResultOpenClass) openClass;
+            if (getModule().isDependencyModule(csroc.getModule(), new IdentityHashMap<>())) {
+                return getModule().buildOrGetCombinedSpreadsheetResult(this, csroc);
             } else {
                 return AnySpreadsheetResultOpenClass.INSTANCE;
             }
@@ -215,7 +215,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     public boolean isAssignableFrom(IOpenClass ioc) {
         if (ioc instanceof CustomSpreadsheetResultOpenClass && !(ioc instanceof CombinedSpreadsheetResultOpenClass)) {
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) ioc;
-            return !getModule().isExternalModule(customSpreadsheetResultOpenClass.getModule(),
+            return getModule().isDependencyModule(customSpreadsheetResultOpenClass.getModule(),
                 new IdentityHashMap<>()) && this.getName().equals(customSpreadsheetResultOpenClass.getName());
         }
         return false;
@@ -655,12 +655,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     public boolean isExternalCustomSpreadsheetResultOpenClass(
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
-        return getModule().isExternalModule(customSpreadsheetResultOpenClass.getModule(), cache);
+        return !getModule().isDependencyModule(customSpreadsheetResultOpenClass.getModule(), cache);
     }
 
     public boolean isExternalSpreadsheetResultOpenClass(SpreadsheetResultOpenClass spreadsheetResultOpenClass,
             IdentityHashMap<XlsModuleOpenClass, IdentityHashMap<XlsModuleOpenClass, Boolean>> cache) {
-        return getModule().isExternalModule(spreadsheetResultOpenClass.getModule(), cache);
+        return !getModule().isDependencyModule(spreadsheetResultOpenClass.getModule(), cache);
     }
 
     private void addFieldsToJavaClassBuilder(JavaBeanClassBuilder beanClassBuilder,
