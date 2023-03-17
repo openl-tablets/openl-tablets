@@ -6,6 +6,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -142,7 +143,15 @@ public class CastFactory implements ICastFactory {
         }
 
         if (openClass1 instanceof ModuleSpecificType && openClass2 instanceof ModuleSpecificType) {
-            IOpenClass t = ((ModuleSpecificType) openClass1).getClosestClass((ModuleSpecificType) openClass2);
+            ModuleSpecificType moduleSpecificType1 = (ModuleSpecificType) openClass1;
+            ModuleSpecificType moduleSpecificType2 = (ModuleSpecificType) openClass2;
+            IOpenClass t;
+            if (moduleSpecificType1.getModule()
+                .isDependencyModule(moduleSpecificType2.getModule(), new IdentityHashMap<>())) {
+                t = moduleSpecificType1.getClosestClass(moduleSpecificType2);
+            } else {
+                t = moduleSpecificType2.getClosestClass(moduleSpecificType1);
+            }
             if (t != null) {
                 return t;
             }
