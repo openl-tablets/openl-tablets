@@ -47,8 +47,10 @@ public class FlattenMethodCallerWrapper implements MethodCallerWrapper {
         for (int i = 0; i < callParams.length; i++) {
             openCasts[i] = castFactory.getCast(rootComponentClasses[i], t);
         }
-        return new AutoCastableResultOpenMethod(new MethodDetailsMethodCaller(methodCaller,
-            new FlattenMethodDetails(t.getArrayType(1), dims, openCasts)), t.getArrayType(1), JavaNoCast.getInstance());
+        final FlattenMethodDetails flattenMethodDetails = new FlattenMethodDetails(t.getArrayType(1), dims, openCasts);
+        return new AutoCastableResultOpenMethod(new MethodDetailsMethodCaller(methodCaller, e -> flattenMethodDetails),
+            t.getArrayType(1),
+            JavaNoCast.getInstance());
     }
 
 }
