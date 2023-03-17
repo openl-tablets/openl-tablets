@@ -120,6 +120,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     public final Map<CustomSpreadsheetResultOpenClassesKey, CombinedSpreadsheetResultOpenClass> combinedSpreadsheetResultOpenClasses = new HashMap<>();
     private final AtomicLong combinedSpreadsheetResultOpenClassesCounter = new AtomicLong(0);
+    private final Set<String> uniqueCombinedSpreadsheetResultClassNames = new HashSet<>();
 
     private final OpenLMessageSource messageSource;
 
@@ -213,6 +214,17 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     public AtomicLong getCombinedSpreadsheetResultOpenClassesCounter() {
         return combinedSpreadsheetResultOpenClassesCounter;
+    }
+
+    public synchronized String generateUniqueCombinedSpreadsheetResultClassName(String name) {
+        String d = name;
+        int i = 0;
+        while (uniqueCombinedSpreadsheetResultClassNames.contains(d)) {
+            d = name + i;
+            i++;
+        }
+        uniqueCombinedSpreadsheetResultClassNames.add(d);
+        return d;
     }
 
     public Collection<CombinedSpreadsheetResultOpenClass> getCombinedSpreadsheetResultOpenClasses() {
