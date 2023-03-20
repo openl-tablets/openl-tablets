@@ -1,6 +1,7 @@
 package org.openl.rules.ui;
 
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
@@ -60,8 +61,11 @@ class TableValueFilter extends AGridFilter {
             cell.setObjectValue(v);
             if (v != null) {
                 try {
-                    IFormatter formatter = FormattersManager.getFormatter(v.getClass(),
-                        smartNumbers ? null : FormattersManager.DEFAULT_NUMBER_FORMAT);
+                    String format = null;
+                    if (NumberUtils.isNumberType(v.getClass()) && !smartNumbers) {
+                        format = FormattersManager.DEFAULT_NUMBER_FORMAT;
+                    }
+                    IFormatter formatter = FormattersManager.getFormatter(v.getClass(), format);
                     cell.setFormattedValue(formatter.format(v));
                 } catch (Exception | LinkageError | StackOverflowError e) {
                     Logger log = LoggerFactory.getLogger(getClass());
