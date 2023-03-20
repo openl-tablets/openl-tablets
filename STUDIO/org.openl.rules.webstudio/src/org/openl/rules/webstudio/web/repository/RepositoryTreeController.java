@@ -77,6 +77,7 @@ import org.openl.rules.webstudio.web.admin.ProjectTagsBean;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
+import org.openl.rules.webstudio.web.repository.event.ProjectDeletedEvent;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
@@ -114,6 +115,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
@@ -198,6 +200,9 @@ public class RepositoryTreeController {
 
     @Autowired
     private NodeVersionsBean nodeVersionsBean;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     private String repositoryId;
     private String projectName;
@@ -1079,6 +1084,7 @@ public class RepositoryTreeController {
                 nodeTypeName = "File";
             }
             WebStudioUtils.addInfoMessage(nodeTypeName + " was deleted successfully.");
+            eventPublisher.publishEvent(new ProjectDeletedEvent(projectArtefact));
         } catch (Exception e) {
             log.error("Failed to delete node.", e);
             WebStudioUtils.addErrorMessage("Failed to delete node.", e.getMessage());

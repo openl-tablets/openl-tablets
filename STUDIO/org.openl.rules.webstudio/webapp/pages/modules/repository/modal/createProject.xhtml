@@ -471,7 +471,11 @@
                 </h:form>
             </rich:tab>
 
-            <rich:tab header="Workspace" rendered="#{repositoryTreeController.canCreateNewProject}">
+            <rich:tab header="Workspace" rendered="#{repositoryTreeController.canCreateNewProject}"
+                      onenter="refreshUploadWorkspaceProjectForm()">
+                <a4j:jsFunction name="refreshUploadWorkspaceProjectForm"
+                                oncomplete="checkCreateWorkspacePanel()"
+                                render="uploadWorkspaceProjectForm"/>
                 <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px">
                     <div style="max-height: 286px;">
                         <div style="max-height: 250px; overflow:auto">
