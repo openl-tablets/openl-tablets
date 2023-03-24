@@ -139,4 +139,14 @@ public class UserProfileModel extends UserProfileBaseModel {
         return (UserProfileModel) super.setShowRealNumbers(showRealNumbers);
     }
 
+    @Override
+    public String getTreeView() {
+        return super.getTreeView();
+    }
+
+    @Override
+    public UserProfileModel setTreeView(String defaultOrder) {
+        return (UserProfileModel) super.setTreeView(defaultOrder);
+    }
+
 }

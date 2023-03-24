@@ -14,6 +14,7 @@ Content-Type: application/json
   "testsFailuresPerTest": 5,
   "showComplexResult": false,
   "showRealNumbers": false,
+  "treeView": "type",
   "externalFlags": {
     "firstNameExternal": false,
     "displayNameExternal": false,

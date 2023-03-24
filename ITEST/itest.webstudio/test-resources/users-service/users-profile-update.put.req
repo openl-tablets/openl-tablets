@@ -18,5 +18,6 @@ Content-Type: application/json
   "testsFailuresPerTest": 20,
   "showComplexResult": true,
   "showRealNumbers": true,
+  "treeView": "type",
   "email": "mjohnson@email"
 }

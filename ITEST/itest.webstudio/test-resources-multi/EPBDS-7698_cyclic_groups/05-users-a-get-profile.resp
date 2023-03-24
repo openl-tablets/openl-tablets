@@ -13,6 +13,7 @@ Content-Type: application/json
   "testsFailuresPerTest": 5,
   "showComplexResult": false,
   "showRealNumbers": false,
+  "treeView":"type",
   "username": "usera",
   "externalFlags": {
     "emailVerified": false,
