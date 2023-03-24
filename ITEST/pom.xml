@@ -82,6 +82,8 @@
                             <server.responses>${project.build.directory}/responses/</server.responses>
                             <http.timeout.connect>${http.timeout.connect}</http.timeout.connect>
                             <http.timeout.read>${http.timeout.read}</http.timeout.read>
+                            <!-- To disable JMX bean registration to prevent memory leak -->
+                            <log4j2.disable.jmx>true</log4j2.disable.jmx>
                             <!--
                                 Max connections to keep alive. Don't change it without special need.
                                 25 value is chosen because the max thread for parallel tests is 20 + default value 5
