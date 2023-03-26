@@ -198,7 +198,7 @@ Content-Type: application/json
               "format": "date-time"
             },
             "default": [
-              "2022-12-23T00:00:00+02:00", "2022-12-25T00:00:00+02:00"
+              "*", "*"
             ]
           }
         }
