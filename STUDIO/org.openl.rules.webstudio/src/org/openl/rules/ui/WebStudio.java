@@ -49,8 +49,8 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
@@ -769,6 +769,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
             doResetProjects();
         } catch (ValidationException e) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
+            throw e;
+        } catch (Message e) {
             throw e;
         } catch (Exception e) {
             log.error("Error while updating project in user workspace.", e);

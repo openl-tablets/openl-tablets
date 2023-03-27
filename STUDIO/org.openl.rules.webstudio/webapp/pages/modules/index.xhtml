@@ -614,9 +614,7 @@
                     var errorMessage = data.errorMessage;
                     if (errorMessage) {
                         // TODO Create mechanism to disable editing in UI when Excel file is opened.
-                        if (errorMessage.indexOf(".xls") > -1) {
-                            api.ui.info("#{msg['ws.common.error.save']}");
-                        } else if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
+                        if (data.errorName && data.errorName.indexOf("ViewExpiredException") > -1) {
                             api.nav.reload(true);
                         } else {
                             api.ui.info(errorMessage);
