@@ -3,8 +3,11 @@ package org.openl.rules.maven;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -79,28 +82,32 @@ public class VerifyMojo extends BaseOpenLMojo {
             .getFile()
             .getPath();
 
-        var openlJars = new HashSet<File>();
+        var openlJars = new HashMap<String, File>();
 
         // OpenL RuleServices Application dependencies
-        openlJars.addAll(getJars("org.openl.rules:org.openl.rules.ruleservice.ws"));
+        openlJars.putAll(getJars("org.openl.rules:org.openl.rules.ruleservice.ws"));
 
         // Transitive dependencies required to be added to the same classpath of RuleServices
-        openlJars.addAll(getTransitiveDependencies());
+        openlJars.putAll(getTransitiveDependencies());
 
         // Dependencies from the plugin section
         for (var dep : plugin.getPlugin().getDependencies()) {
-            openlJars.addAll(getJars(ArtifactUtils.versionlessKey(dep.getGroupId(), dep.getArtifactId())));
+            openlJars.putAll(getJars(ArtifactUtils.versionlessKey(dep.getGroupId(), dep.getArtifactId())));
         }
+
+        // Remove log4j due LOG4J2-3657 and needeless to log to the file.
+        openlJars.remove("org.apache.logging.log4j:log4j-core");
+        openlJars.remove("org.apache.logging.log4j:log4j-slf4j-impl");
 
         var jettyJars = new HashSet<URL>();
 
         // Jetty Server with annotations
-        for (var x : getJars("org.eclipse.jetty:jetty-annotations")) {
+        for (var x : getJars("org.eclipse.jetty:jetty-annotations").values()) {
             jettyJars.add(x.toURI().toURL());
         }
 
         // Enable logging in the Jetty server
-        for (var x : getJars("org.slf4j:slf4j-simple")) {
+        for (var x : getJars("org.slf4j:slf4j-simple").values()) {
             jettyJars.add(x.toURI().toURL());
         }
 
@@ -113,8 +120,8 @@ public class VerifyMojo extends BaseOpenLMojo {
             Thread.currentThread().setContextClassLoader(jettyClassLoader);
 
             var appClass = jettyClassLoader.loadClass("org.openl.rules.maven.AppServer");
-            var checkMethod = appClass.getDeclaredMethod("check", String.class, Set.class, String.class);
-            checkMethod.invoke(null, pathDeployment, openlJars, outputDirectory.getPath());
+            var checkMethod = appClass.getDeclaredMethod("check", String.class, Collection.class, String.class);
+            checkMethod.invoke(null, pathDeployment, openlJars.values(), outputDirectory.getPath());
 
             info(String.format("Verification is passed for '%s:%s' artifact.", project.getGroupId(), project.getArtifactId()));
         } catch (Exception e) {
@@ -131,7 +138,7 @@ public class VerifyMojo extends BaseOpenLMojo {
      * @return a set of downloaded jars
      * @throws DependencyResolutionException
      */
-    private Set<File> getJars(String artifactId) throws DependencyResolutionException {
+    private Map<String, File> getJars(String artifactId) throws DependencyResolutionException {
         // Find an artifact inside the openl-maven-plugin
         var artifact = pluginArtifacts.stream()
             .filter(x -> ArtifactUtils.versionlessKey(x).equals(artifactId))
@@ -142,13 +149,18 @@ public class VerifyMojo extends BaseOpenLMojo {
         var collectRequest = new CollectRequest();
         collectRequest.setRoot(new Dependency(artifact, JavaScopes.RUNTIME));
         var dependencyRequest = new DependencyRequest(collectRequest, null);
-        var openlArtifacts = repositorySystem.resolveDependencies(session, dependencyRequest).getArtifactResults();
+        var openlDependencies = repositorySystem.resolveDependencies(session, dependencyRequest).getArtifactResults();
 
+        var result = new HashMap<String, File>(openlDependencies.size());
+        for (var x : openlDependencies) {
+            var a = x.getArtifact();
+            result.put(ArtifactUtils.versionlessKey(a.getGroupId(), a.getArtifactId()), a.getFile());
+        }
 
-        return openlArtifacts.stream().map(x -> x.getArtifact().getFile()).collect(Collectors.toSet());
+        return result;
     }
 
-    private Set<File> getTransitiveDependencies() {
+    private Map<String, File> getTransitiveDependencies() {
         Set<String> pluginDependencies = plugin.getDependencies().stream()
                 .map(d -> ArtifactUtils.versionlessKey(d.getGroupId(), d.getArtifactId()))
                 .collect(Collectors.toSet());
@@ -175,7 +187,7 @@ public class VerifyMojo extends BaseOpenLMojo {
             String tr = artifact.getDependencyTrail().get(1);
             String key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
             return allowedDependencies.contains(key);
-        }).map(Artifact::getFile).collect(Collectors.toSet());
+        }).collect(Collectors.toMap(d -> ArtifactUtils.versionlessKey(d.getGroupId(), d.getArtifactId()), Artifact::getFile));
     }
 
     private Set<String> getAllowedDependencies() {
