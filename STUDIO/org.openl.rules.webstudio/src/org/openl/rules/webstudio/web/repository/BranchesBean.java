@@ -411,10 +411,6 @@ public class BranchesBean {
 
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
-            if (!userWorkspace.hasProject(currentRepositoryId, projectName)) {
-                return null;
-            }
-
             return userWorkspace.getProject(currentRepositoryId, projectName, false);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

@@ -542,12 +542,11 @@ public class CopyBean {
 
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
-            if (!userWorkspace.hasProject(repositoryId, currentProjectName)) {
+            RulesProject rulesProject = userWorkspace.getProject(repositoryId, currentProjectName, false);
+            if (rulesProject == null) {
                 currentProjectName = null;
-                return null;
             }
-
-            return userWorkspace.getProject(repositoryId, currentProjectName, false);
+            return rulesProject;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             return null;

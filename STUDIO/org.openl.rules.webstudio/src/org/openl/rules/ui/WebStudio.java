@@ -371,17 +371,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public RulesProject getProject(String repositoryId, String name) {
         UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-
-        if (userWorkspace.hasProject(repositoryId, name)) {
-            try {
-                return userWorkspace.getProject(repositoryId, name, false);
-            } catch (ProjectException e) {
-                // Should not occur
-                log.error(e.getMessage(), e);
-                return null;
-            }
+        try {
+            return userWorkspace.getProject(repositoryId, name, false);
+        } catch (ProjectException e) {
+            // Should not occur
+            log.error(e.getMessage(), e);
+            return null;
         }
-        return null;
     }
 
     public ProjectDescriptor getCurrentProjectDescriptor() {
