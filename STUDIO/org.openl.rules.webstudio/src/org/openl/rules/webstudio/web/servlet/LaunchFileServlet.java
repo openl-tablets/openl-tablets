@@ -23,7 +23,6 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.ExcelLauncher;
 import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.webstudio.web.util.Constants;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.StringUtils;
@@ -67,15 +66,14 @@ public class LaunchFileServlet extends HttpServlet {
         if (ws == null) {
             return;
         }
-        WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getCurrentProject();
+        RulesProject currentProject = ws.getCurrentProject();
         AProjectArtefact currentModule;
         try {
-            currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+            currentModule = currentProject.getArtefact(ws.getCurrentModule().getRulesRootPath().getPath());
         } catch (ProjectException e) {
             return;
         }
-        if (!studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.EDIT))) {
+        if (!ws.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.EDIT))) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
