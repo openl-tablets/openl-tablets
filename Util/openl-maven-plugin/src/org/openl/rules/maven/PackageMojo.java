@@ -40,7 +40,6 @@ import org.openl.util.ProjectPackager;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipArchiver;
 import org.openl.util.ZipUtils;
-import org.yaml.snakeyaml.DumperOptions;
 
 /**
  * Packages an OpenL Tablets project in a ZIP archive.
@@ -393,9 +392,6 @@ public final class PackageMojo extends BaseOpenLMojo {
         Map<String, Object> properties = new HashMap<>();
         properties.put("name", deploymentName);
         try (FileWriter writer = new FileWriter(new File(baseDir, DEPLOYMENT_YAML))) {
-            DumperOptions options = new DumperOptions();
-            options.setPrettyFlow(true);
-            options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
             YamlMapperFactory.getYamlMapper().writeValue(writer, properties);
         }
     }
