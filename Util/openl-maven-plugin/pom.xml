@@ -76,12 +76,6 @@
             <artifactId>org.openl.rules.ruleservice.ws</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>runtime</scope>
-            <version>2.0.5</version>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-annotations</artifactId>
         </dependency>
