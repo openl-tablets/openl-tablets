@@ -7,7 +7,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Set;
+import java.util.Collection;
 import java.util.stream.Collectors;
 
 import org.eclipse.jetty.server.Server;
@@ -28,7 +28,7 @@ public class AppServer {
      * @param workDir - folder location for temporary or working files
      * @throws Exception if any errors
      */
-    public static void check(String pathDeployment, Set<File> jars, String workDir) throws Exception {
+    public static void check(String pathDeployment, Collection<File> jars, String workDir) throws Exception {
         var libs = jars.stream().map(Resource::newResource).collect(Collectors.toList());
         var webAppContext = new WebAppContext();
         webAppContext.setResourceBase(""); // No resources
