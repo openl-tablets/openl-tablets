@@ -4,6 +4,7 @@ import org.openl.OpenL;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
+import org.openl.rules.dt.DTColumnsDefinitionField;
 import org.openl.types.IOpenField;
 
 class DecisionExprFieldDataType extends ComponentOpenClass {
@@ -22,8 +23,9 @@ class DecisionExprFieldDataType extends ComponentOpenClass {
             return new ExprDecisionRowField(decisionRowField, getOpenl());
         } else if (openField instanceof ConditionOrActionDirectParameterField) {
             return new ExprParameterField((ConditionOrActionDirectParameterField) openField);
-        }
-        if (openField == null && !name.startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN)) {
+        } else if (openField instanceof DTColumnsDefinitionField) {
+            return new ExprParameterDTColumnsDefinitionField((DTColumnsDefinitionField) openField);
+        } else if (openField == null && !name.startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN)) {
             openField = decisionTableDataType.getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + name, strictMatch);
             if (openField instanceof DecisionRowField) {
                 return new ExprConditionOrActionField((DecisionRowField) openField);
