@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
+import static org.openl.security.acl.permission.AclPermission.CREATE;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -7,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -27,10 +28,12 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
@@ -75,20 +78,14 @@ public class LocalUploadController {
 
     private static final String NONE_REPO = "none";
 
-    public LocalUploadController(PropertyResolver propertyResolver, ProjectTagsBean projectTagsBean) {
+    private final RepositoryAclService designRepositoryAclService;
+
+    public LocalUploadController(PropertyResolver propertyResolver,
+            ProjectTagsBean projectTagsBean,
+            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService) {
         this.propertyResolver = propertyResolver;
         this.projectTagsBean = projectTagsBean;
-    }
-
-    private RulesProject createProject(File baseFolder,
-        RulesUserSession rulesUserSession,
-        String comment,
-        String repositoryId) throws ProjectException, FileNotFoundException {
-        if (!baseFolder.isDirectory()) {
-            throw new FileNotFoundException(baseFolder.getName());
-        }
-
-        return rulesUserSession.getUserWorkspace().uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
+        this.designRepositoryAclService = designRepositoryAclService;
     }
 
     public List<UploadBean> getProjects4Upload() {
@@ -202,12 +199,19 @@ public class LocalUploadController {
                         UserWorkspace userWorkspace = WebStudioUtils.getRulesUserSession().getUserWorkspace();
                         if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, bean.getProjectName())) {
                             WebStudioUtils.addErrorMessage(
-                                "Cannot create project because project with such name already exists.");
+                                "It is not possible to create the project as a project with the same name already exists.");
                             return null;
                         }
-
-                        RulesProject createdProject = createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment,
-                            repositoryId);
+                        if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(CREATE))) {
+                            WebStudioUtils.addErrorMessage("There is no permission for creating a project.");
+                            return null;
+                        }
+                        File baseFolder = new File(workspacePath, bean.getProjectName());
+                        if (!baseFolder.isDirectory()) {
+                            throw new FileNotFoundException(baseFolder.getName());
+                        }
+                        RulesProject createdProject = rulesUserSession.getUserWorkspace()
+                            .uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
 
                         projectTagsBean.saveTags(createdProject);
 
@@ -219,7 +223,7 @@ public class LocalUploadController {
                                 .getProjectName() + "'! " + NameChecker.BAD_PROJECT_NAME_MSG;
                         } else if (e.getCause() instanceof FileNotFoundException) {
                             if (e.getMessage().contains(".xls")) {
-                                msg = "Failed to create the project. Close the module Excel file and try again.";
+                                msg = "Failed to create the project. Please, close Excel file and try again.";
                             } else {
                                 msg = "Failed to create the project because some resources are used";
                             }
@@ -228,7 +232,6 @@ public class LocalUploadController {
                             log.error(msg, e);
                         }
                         WebStudioUtils.addErrorMessage(msg);
-
                     }
                 }
             }

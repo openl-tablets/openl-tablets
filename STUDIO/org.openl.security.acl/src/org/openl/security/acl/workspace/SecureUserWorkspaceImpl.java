@@ -1,5 +1,6 @@
 package org.openl.security.acl.workspace;
 
+import static org.openl.security.acl.permission.AclPermission.CREATE;
 import static org.openl.security.acl.permission.AclPermission.EDIT;
 import static org.openl.security.acl.permission.AclPermission.VIEW;
 
@@ -172,10 +173,19 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
             String name,
             String projectFolder,
             String comment) throws ProjectException {
-        if (designRepositoryAclService.isGranted(repositoryId, projectFolder, List.of(EDIT))) {
-            return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
+        if (userWorkspace.hasProject(repositoryId, name)) {
+            String path = userWorkspace.getDesignTimeRepository().getRulesLocation() + name;
+            if (designRepositoryAclService.isGranted(repositoryId, path, List.of(EDIT))) {
+                return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
+            } else {
+                throw new ProjectException(String.format("There is no permission for modifying '%s'.", path));
+            }
         } else {
-            throw new ProjectException("There is no permission for uploading a project.");
+            if (designRepositoryAclService.isGranted(repositoryId, null, List.of(CREATE))) {
+                return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
+            } else {
+                throw new ProjectException("There is no permission for creating a project.");
+            }
         }
     }
 
