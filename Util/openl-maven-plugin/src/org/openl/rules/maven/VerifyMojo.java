@@ -1,11 +1,8 @@
 package org.openl.rules.maven;
 
 import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +19,7 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
+import org.codehaus.plexus.classworlds.ClassWorld;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.collection.CollectRequest;
@@ -99,24 +97,23 @@ public class VerifyMojo extends BaseOpenLMojo {
         openlJars.remove("org.apache.logging.log4j:log4j-core");
         openlJars.remove("org.apache.logging.log4j:log4j-slf4j-impl");
 
-        var jettyJars = new HashSet<URL>();
+        var world = new ClassWorld();
+        var jettyClassLoader = world.newRealm("jetty");
 
-        // Jetty Server with annotations
+        // JettysourcePathsourcePath Server with annotations
         for (var x : getJars("org.eclipse.jetty:jetty-annotations").values()) {
-            jettyJars.add(x.toURI().toURL());
+            jettyClassLoader.addURL(x.toURI().toURL());
         }
 
-        // Enable logging in the Jetty server
-        for (var x : getJars("org.slf4j:slf4j-simple").values()) {
-            jettyJars.add(x.toURI().toURL());
-        }
+        // Enable logging in the Jetty server via Maven logger API
+        jettyClassLoader.importFrom(plugin.getClassRealm(), "org.slf4j");
 
         // Required to provide runner AppServer class
-        jettyJars.add(plugin.getPluginArtifact().getFile().toURI().toURL());
+        jettyClassLoader.addURL(plugin.getPluginArtifact().getFile().toURI().toURL());
 
         // Instantiate and run Jetty server on clean classloader without Maven libraries
         var oldClassloader = Thread.currentThread().getContextClassLoader();
-        try (var jettyClassLoader = new URLClassLoader(jettyJars.toArray(new URL[0]))) {
+        try {
             Thread.currentThread().setContextClassLoader(jettyClassLoader);
 
             var appClass = jettyClassLoader.loadClass("org.openl.rules.maven.AppServer");
@@ -129,6 +126,7 @@ public class VerifyMojo extends BaseOpenLMojo {
                     .format("Verification is failed for '%s:%s' artifact.", project.getGroupId(), project.getArtifactId()), e);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassloader);
+            world.disposeRealm("jetty");
         }
     }
 
