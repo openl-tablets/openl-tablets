@@ -59,9 +59,9 @@ public class DecisionTableDataType extends ComponentOpenClass {
             for (IBaseAction action : decisionTable.getActionRows()) {
                 addParameterFields(decisionTable, (IDecisionRow) action);
             }
-            addField(new DecisionExprField(this, openl));
         }
 
+        addField(new DecisionExprField(this, openl));
         addField(new DecisionRuleIdField(this));
         addField(new DecisionRuleNameField(this, decisionTable != null ? decisionTable.getRuleRow() : null));
     }
