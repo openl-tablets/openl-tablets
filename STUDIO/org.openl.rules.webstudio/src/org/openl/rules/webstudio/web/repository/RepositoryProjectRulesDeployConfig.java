@@ -12,6 +12,7 @@ import javax.faces.context.FacesContext;
 import javax.xml.bind.JAXBException;
 
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.RulesDeploy;
@@ -95,6 +96,12 @@ public class RepositoryProjectRulesDeployConfig {
         UserWorkspaceProject project = getProject();
         if (hasRulesDeploy(project)) {
             try {
+                AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+                if (!designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
+                    WebStudioUtils.addErrorMessage(String.format("There is no permission for deleting '%s' file.",
+                        projectArtefact.getArtefactPath().getStringValue()));
+                    return;
+                }
                 project.deleteArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 repositoryTreeState.refreshSelectedNode();
                 studio.reset();
