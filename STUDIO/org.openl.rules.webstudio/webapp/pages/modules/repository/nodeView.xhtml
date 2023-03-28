@@ -280,10 +280,11 @@
          "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
          As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.
     --></ui:remove>
+        <c:set var="disableRevisions" value="#{node.type != 'project' and node.type != 'deployment'}" />
         <rich:tab id="revisions" name="Revisions" header="Revisions"
                   onenter="refreshVersionsContentProject()"
-                  disabled="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder'}"
-                  headerClass="#{node.type == 'prodproject' or node.type == 'prodfile' or node.type == 'prodfolder' ? 'hideHeader' : 'showHeader'}">
+                  disabled="#{disableRevisions}"
+                  headerClass="#{disableRevisions ? 'hideHeader' : 'showHeader'}">
             <ui:include src="/pages/modules/repository/node/versions.xhtml"/>
             <a4j:jsFunction name="refreshVersionsContentProject"
                             action="#{repositoryTreeController.forceUpdateVersionsBean}"
