@@ -2,7 +2,7 @@ package org.openl.rules.ui.tree.view;
 
 import org.openl.rules.ui.tree.*;
 
-public class CategoryDetailedView implements RulesTreeView {
+public class CategoryDetailedView extends CategoryDetailedProfile implements RulesTreeView {
 
     private final BaseTableTreeNodeBuilder[] sorters = { new ModulePropertiesTableNodeBuilder(),
             new CategoryNTreeNodeBuilder(0),
@@ -11,21 +11,6 @@ public class CategoryDetailedView implements RulesTreeView {
             new OpenMethodInstancesGroupTreeNodeBuilder(),
             new TableInstanceTreeNodeBuilder(),
             new TableVersionTreeNodeBuilder() };
-
-    @Override
-    public String getName() {
-        return "categoryDetailed";
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Category Detailed";
-    }
-
-    @Override
-    public String getDescription() {
-        return "Provides more detailed categorized view";
-    }
 
     @Override
     @SuppressWarnings("unchecked")

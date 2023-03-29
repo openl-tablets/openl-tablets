@@ -1,6 +1,7 @@
 package org.openl.rules.rest.model;
 
 import org.openl.rules.security.UserExternalFlags;
+import org.openl.rules.ui.tree.view.RulesProfile;
 
 import io.swagger.v3.oas.annotations.Parameter;
 
@@ -10,6 +11,8 @@ public class UserProfileModel extends UserProfileBaseModel {
     private String username;
 
     private UserExternalFlags externalFlags;
+
+    private RulesProfile[] profiles;
 
     public String getUsername() {
         return username;
@@ -140,13 +143,16 @@ public class UserProfileModel extends UserProfileBaseModel {
     }
 
     @Override
-    public String getTreeView() {
-        return super.getTreeView();
+    public UserProfileModel setTreeView(String treeView) {
+        return (UserProfileModel) super.setTreeView(treeView);
     }
 
-    @Override
-    public UserProfileModel setTreeView(String defaultOrder) {
-        return (UserProfileModel) super.setTreeView(defaultOrder);
+    public UserProfileModel setProfiles(RulesProfile[] profiles) {
+        this.profiles = profiles;
+        return this;
     }
 
+    public RulesProfile[] getProfiles() {
+        return profiles;
+    }
 }

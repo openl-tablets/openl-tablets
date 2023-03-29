@@ -21,5 +21,32 @@ Content-Type: application/json
     "lastNameExternal": false,
     "emailExternal": false,
     "displayNameExternal": false
-  }
+  },
+  "profiles": [
+    {
+      "displayName":"Type",
+      "name":"type",
+      "description":"Organize projects by component type"
+    },
+    {
+      "displayName":"File",
+      "name":"file",
+      "description":"Organize projects by physical location"
+    },
+    {
+      "displayName":"Category",
+      "name":"category",
+      "description":"Provides categorized view"
+    },
+    {
+      "displayName":"Category Detailed",
+      "name":"categoryDetailed",
+      "description":"Provides more detailed categorized view"
+    },
+    {
+      "displayName":"Category Inversed",
+      "name":"categoryInversed",
+      "description":"Provides inversed categorized view"
+    }
+  ]
 }

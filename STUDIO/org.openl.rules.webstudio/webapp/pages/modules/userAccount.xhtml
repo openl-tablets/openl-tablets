@@ -182,10 +182,22 @@
                                         <tr>
                                             <td class="titleColumn"><label>Default Order:</label></td>
                                             <td>
-                                                <select id="account-user-tree-view" name="account-user-tree-view" style="width:100%">
-                                                    <ui:repeat value="#{studio.treeViews}" var="treeView">
-                                                        <option value="#{treeView.name}" selected="">#{treeView.displayName}</option>
-                                                    </ui:repeat>
+                                                <select id="account-user-tree-view" name="account-user-tree-view"
+                                                        style="width:100%">
+                                                    <script>
+                                                        function populateTreeView(treeViews) {
+                                                            const treeViewDropDown = document.getElementById("account-user-tree-view")
+                                                            for (let i = treeViews.length; i >= 0; i--) {
+                                                                treeViewDropDown.remove(i);
+                                                            }
+                                                            for (let treeView of treeViews) {
+                                                                let option = document.createElement("option")
+                                                                option.setAttribute('value', treeView.name)
+                                                                option.appendChild(document.createTextNode(treeView.displayName))
+                                                                treeViewDropDown.appendChild(option)
+                                                            }
+                                                        }
+                                                    </script>
                                                 </select>
                                             </td>
                                         </tr>
@@ -302,7 +314,7 @@
                     lastName : accountUserIsLastNameExternal ? null : $j("#account-user-lastname").val().trim(),
                     showHeader : $j("#account-user-show-header").prop("checked"),
                     showFormulas : $j("#account-user-show-formulas").prop("checked"),
-                    defaultOrder: $j("#account-user-tree-view").val(),
+                    treeView: $j("#account-user-tree-view").val(),
                     testsPerPage : $j("#account-user-tests-per-page").val(),
                     testsFailuresOnly : $j("#account-user-failures-only").prop("checked"),
                     showComplexResult : $j("#account-user-complex-result").prop("checked"),
@@ -347,7 +359,6 @@
 
                 $j("#account-user-failures-only").prop("checked", data.testsFailuresOnly);
                 $j("#account-user-show-formulas").prop("checked", data.showFormulas);
-                $j("#account-user-tree-view").val(data.treeView);
                 $j("#account-user-show-real-numbers").prop("checked", data.showRealNumbers);
                 $j("#account-user-firstname-span").text(data.firstName);
                 $j("#account-user-display-name-span").text(data.displayName);
@@ -362,6 +373,9 @@
                 $j("#account-user-tests-per-page").val(data.testsPerPage);
                 $j("#account-user-failures-per-test").val(data.testsFailuresPerTest);
                 initAccountUserEmail(data);
+
+                populateTreeView(data.profiles);
+                $j("#account-user-tree-view").val(data.treeView);
 
                 $j.ajax({
                     type: "GET",

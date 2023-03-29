@@ -58,8 +58,8 @@ import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
 import org.openl.rules.ui.tree.view.CategoryView;
 import org.openl.rules.ui.tree.view.ExcelSheetView;
+import org.openl.rules.ui.tree.view.Profile;
 import org.openl.rules.ui.tree.view.RulesTreeView;
-import org.openl.rules.ui.tree.view.TypeView;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.Props;
@@ -124,18 +124,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public static final String TEST_FAILURES_PERTEST = "test.failures.pertest";
     public static final String TEST_RESULT_COMPLEX_SHOW = "test.result.complex.show";
     public static final String TRACE_REALNUMBERS_SHOW = "trace.realNumbers.show";
-
-    private final RulesTreeView typeView = new TypeView();
-    private final RulesTreeView excelSheetView = new ExcelSheetView();
-    private final RulesTreeView categoryView = new CategoryView();
-    private final RulesTreeView categoryDetailedView = new CategoryDetailedView();
-    private final RulesTreeView categoryInversedView = new CategoryInversedView();
-
-    private final RulesTreeView[] treeViews = { typeView,
-            excelSheetView,
-            categoryView,
-            categoryDetailedView,
-            categoryInversedView };
 
     private final WebStudioLinkBuilder linkBuilder = new WebStudioLinkBuilder(this);
 
@@ -242,7 +230,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public RulesTreeView[] getTreeViews() {
-        return treeViews;
+        return Profile.treeViews;
     }
 
     public void saveProject(HttpSession session) {
@@ -1103,7 +1091,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     private RulesTreeView getTreeView(String name) {
-        for (RulesTreeView mode : treeViews) {
+        for (RulesTreeView mode : Profile.treeViews) {
             if (name.equals(mode.getName())) {
                 return mode;
             }

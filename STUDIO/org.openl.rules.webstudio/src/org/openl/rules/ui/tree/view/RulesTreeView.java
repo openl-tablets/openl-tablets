@@ -5,13 +5,7 @@ import org.openl.rules.ui.tree.TreeNodeBuilder;
 /**
  * Interface that describes rules tree view mode.
  */
-public interface RulesTreeView {
-
-    String getName();
-
-    String getDisplayName();
-
-    String getDescription();
+public interface RulesTreeView extends RulesProfile {
 
     /**
      * Gets array of tree node builders.

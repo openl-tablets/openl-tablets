@@ -36,6 +36,7 @@ import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.User;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.tree.view.Profile;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.AdminUsers;
@@ -211,13 +212,13 @@ public class UsersController {
             !emailChanged && dbUser.getExternalFlags().isEmailVerified());
 
         updateUserSettings(userModel.isShowFormulas(),
-                userModel.isShowHeader(),
-                userModel.isShowRealNumbers(),
-                userModel.getTestsFailuresPerTest(),
-                userModel.isShowComplexResult(),
-                userModel.getTestsPerPage(),
-                userModel.isTestsFailuresOnly(),
-                userModel.getTreeView());
+            userModel.isShowHeader(),
+            userModel.isShowRealNumbers(),
+            userModel.getTestsFailuresPerTest(),
+            userModel.isShowComplexResult(),
+            userModel.getTestsPerPage(),
+            userModel.isTestsFailuresOnly(),
+            userModel.getTreeView());
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
             mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), request);
@@ -264,20 +265,22 @@ public class UsersController {
         User user = userManagementService.getUser(username);
 
         return new UserProfileModel().setFirstName(user.getFirstName())
-                .setLastName(user.getLastName())
-                .setEmail(user.getEmail())
-                .setShowHeader(IXlsTableNames.VIEW_DEVELOPER
-                        .equals(userSettingsManager.getStringProperty(user.getUsername(), TABLE_VIEW)))
-                .setShowFormulas(userSettingsManager.getBooleanProperty(user.getUsername(), TABLE_FORMULAS_SHOW))
-                .setTestsPerPage(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_TESTS_PERPAGE))
-                .setTestsFailuresOnly(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_FAILURES_ONLY))
-                .setTestsFailuresPerTest(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_FAILURES_PERTEST))
-                .setShowComplexResult(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_RESULT_COMPLEX_SHOW))
-                .setShowRealNumbers(userSettingsManager.getBooleanProperty(user.getUsername(), TRACE_REALNUMBERS_SHOW))
-                .setTreeView(userSettingsManager.getStringProperty(user.getUsername(), RULES_TREE_VIEW))
-                .setDisplayName(user.getDisplayName())
-                .setUsername(user.getUsername())
-                .setExternalFlags(user.getExternalFlags());
+            .setLastName(user.getLastName())
+            .setEmail(user.getEmail())
+            .setShowHeader(IXlsTableNames.VIEW_DEVELOPER
+                .equals(userSettingsManager.getStringProperty(user.getUsername(), TABLE_VIEW)))
+            .setShowFormulas(userSettingsManager.getBooleanProperty(user.getUsername(), TABLE_FORMULAS_SHOW))
+            .setTestsPerPage(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_TESTS_PERPAGE))
+            .setTestsFailuresOnly(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_FAILURES_ONLY))
+            .setTestsFailuresPerTest(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_FAILURES_PERTEST))
+            .setShowComplexResult(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_RESULT_COMPLEX_SHOW))
+            .setShowRealNumbers(userSettingsManager.getBooleanProperty(user.getUsername(), TRACE_REALNUMBERS_SHOW))
+            .setTreeView(userSettingsManager.getStringProperty(user.getUsername(), RULES_TREE_VIEW))
+            .setDisplayName(user.getDisplayName())
+            .setUsername(user.getUsername())
+            .setExternalFlags(user.getExternalFlags())
+            .setProfiles(Profile.profiles);
+
     }
 
     @Operation(description = "users.delete-user.desc", summary = "users.delete-user.summary")
