@@ -38,7 +38,7 @@ public class ProductionRepositoriesTreeController {
     }
 
     public boolean hasDeploymentRepository() {
-        return productionRepositoriesTreeState.getDeploymentManager().hasDeploymentRepository();
+        return !productionRepositoriesTreeState.getRepositories().isEmpty();
     }
 
     /**
