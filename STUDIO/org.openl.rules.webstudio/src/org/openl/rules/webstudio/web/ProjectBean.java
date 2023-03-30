@@ -1034,6 +1034,8 @@ public class ProjectBean {
             save(newProjectDescriptor);
         } catch (OpenApiGenerationException e) {
             throw new Message(e.getMessage(), e);
+        } catch (Message e) {
+            throw e;
         } catch (Exception e) {
             throw new Message(
                 String.format("Failed to %s OpenAPI file. Check compilation.", update ? "update" : "create"),
