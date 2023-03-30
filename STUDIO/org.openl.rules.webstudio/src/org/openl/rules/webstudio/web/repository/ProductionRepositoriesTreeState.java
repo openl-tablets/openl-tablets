@@ -14,11 +14,13 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.workspace.deploy.DeployUtils;
+import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
@@ -37,6 +39,10 @@ public class ProductionRepositoriesTreeState {
 
     @Autowired
     private PropertyResolver propertyResolver;
+
+    @Autowired
+    @Qualifier("productionRepositoryAclService")
+    private SimpleRepositoryAclService productionRepositoryAclService;
 
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeState.class);
     /**
@@ -105,16 +111,10 @@ public class ProductionRepositoriesTreeState {
 
     }
 
-    private Collection<RepositoryConfiguration> getRepositories() {
-        List<RepositoryConfiguration> repos = new ArrayList<>();
-        Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
-        for (String configName : repositoryConfigNames) {
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, propertyResolver);
-            repos.add(config);
-        }
-
+    public Collection<RepositoryConfiguration> getRepositories() {
+        List<RepositoryConfiguration> repos = new ArrayList<>(DeploymentRepositoriesUtil
+            .getRepositories(deploymentManager, propertyResolver, productionRepositoryAclService));
         repos.sort(RepositoryConfiguration.COMPARATOR);
-
         return repos;
     }
 
