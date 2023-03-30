@@ -661,7 +661,8 @@ public class ProjectBean {
             AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
             if (!designRepositoryAclService
                 .createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
-                String message = "Granting permissions to the module is failed.";
+                String message = String.format("Granting permissions to file '%s' is failed.",
+                    newProjectResource.getArtefactPath().getStringValue());
                 WebStudioUtils.addErrorMessage(message);
             }
         } catch (ProjectException e) {
@@ -1017,6 +1018,13 @@ public class ProjectBean {
                 } else {
                     validatePermissionForCreating(currentProject, openAPIType.getDefaultFileName());
                     currentProject.addResource(openAPIType.getDefaultFileName(), in);
+                    AProjectArtefact projectArtefact = currentProject.getArtefact(openAPIType.getDefaultFileName());
+                    if (!designRepositoryAclService
+                        .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                        String message = String.format("Granting permissions to file '%s' is failed.",
+                            projectArtefact.getArtefactPath().getStringValue());
+                        WebStudioUtils.addErrorMessage(message);
+                    }
                 }
             }
             ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentDescriptor);
@@ -1248,7 +1256,6 @@ public class ProjectBean {
                 validatePermissionForCreating(currentProject, groovyPath);
                 currentProject.addResource(groovyPath, IOUtils.toInputStream(groovyFile.getScriptText()));
             } catch (ProjectException e) {
-                log.error(e.getMessage(), e);
                 throw new Message("Failed to add generated annotation template class.");
             }
         }
@@ -1259,7 +1266,6 @@ public class ProjectBean {
                 currentProject.addResource(javaInterfacePath, IOUtils.toInputStream(groovyCommonFile.getScriptText()));
             }
         } catch (ProjectException e) {
-            log.error(e.getMessage(), e);
             throw new Message("Failed to add generated common classes.");
         }
     }
@@ -1270,7 +1276,6 @@ public class ProjectBean {
                 OpenAPIHelper.DEF_JAVA_CLASS_PATH + "/" + OpenAPIJavaClassGenerator.DEFAULT_OPEN_API_PATH.replace(".",
                     "/"));
         } catch (ProjectException e) {
-            log.error(e.getMessage(), e);
             throw new Message(
                 String.format("Failed to remove previously generated file for project %s.", currentProject.getName()));
         }
@@ -1350,7 +1355,6 @@ public class ProjectBean {
         try {
             openAPIFile = currentProject.getArtefactByPath(new ArtefactPathImpl(openAPIPath));
         } catch (ProjectException e) {
-            log.error("Error on reading OpenAPI file.", e);
             throw new Message("There is no openAPI file wasn't found with path " + openAPIPath + ".");
         }
         return openAPIFile;
@@ -1368,10 +1372,13 @@ public class ProjectBean {
             log.warn("Existing file wasn't found in module {}", existingModule.getName(), e);
         }
         if (artefact != null) {
+            if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.DELETE))) {
+                throw new Message(String.format("There is no permission for deleting '%s' file.",
+                    artefact.getArtefactPath().getStringValue()));
+            }
             try {
                 currentProject.deleteArtefact(artefact.getInternalPath());
             } catch (ProjectException e) {
-                log.error(errorMessage);
                 throw new Message(errorMessage);
             }
         }
@@ -1412,8 +1419,6 @@ public class ProjectBean {
                 }
             }
         } catch (ProjectException | IOException | JAXBException e) {
-            String message = "Failed to add 'rules-deploy.xml' file to the project.";
-            log.error(message, e);
             throw new Message("Failed to add 'rules-deploy.xml' file to the project.");
         }
     }
@@ -1425,7 +1430,6 @@ public class ProjectBean {
         try {
             projectModel = converter.extractProjectModel(workspacePath + "/" + internalOpenAPIPath);
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
             throw new Message("OpenAPI file is corrupted.");
         }
         return projectModel;
@@ -1469,6 +1473,14 @@ public class ProjectBean {
                 validatePermissionForCreating(project,
                     ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 project.addResource(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, inputStream);
+                AProjectArtefact projectArtefact = project
+                    .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+                if (!designRepositoryAclService
+                    .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                    String message = String.format("Granting permissions to file '%s' is failed.",
+                        projectArtefact.getArtefactPath().getStringValue());
+                    WebStudioUtils.addErrorMessage(message);
+                }
             }
             if (project.hasArtefact(RULES_DEPLOY_XML)) {
                 AProjectResource artifact = (AProjectResource) project.getArtefact(RULES_DEPLOY_XML);
@@ -1486,7 +1498,6 @@ public class ProjectBean {
         } catch (Message e) {
             throw e;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
             throw new Message("Error while saving the project.");
         } finally {
             IOUtils.closeQuietly(rulesDeployContent);

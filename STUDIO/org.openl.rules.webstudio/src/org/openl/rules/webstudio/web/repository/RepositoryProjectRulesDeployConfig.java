@@ -23,6 +23,7 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.permission.AclPermissionsSets;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -142,6 +143,13 @@ public class RepositoryProjectRulesDeployConfig {
                     return;
                 }
                 project.addResource(RULES_DEPLOY_CONFIGURATION_FILE, inputStream);
+                AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+                if (!designRepositoryAclService
+                    .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                    String message = String.format("Granting permissions to file '%s' is failed.",
+                        projectArtefact.getArtefactPath().getStringValue());
+                    WebStudioUtils.addErrorMessage(message);
+                }
                 repositoryTreeState.refreshSelectedNode();
                 studio.reset();
             }

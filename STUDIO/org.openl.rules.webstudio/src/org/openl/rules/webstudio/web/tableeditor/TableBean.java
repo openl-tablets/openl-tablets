@@ -360,6 +360,9 @@ public class TableBean {
     public boolean getCanRun() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject currentProject = studio.getCurrentProject();
+        if (currentProject == null) {
+            return false;
+        }
         AProjectArtefact currentModule;
         try {
             currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
@@ -372,6 +375,9 @@ public class TableBean {
     public boolean getCanBenchmark() {
         WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject currentProject = studio.getCurrentProject();
+        if (currentProject == null) {
+            return false;
+        }
         AProjectArtefact currentModule;
         try {
             currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());

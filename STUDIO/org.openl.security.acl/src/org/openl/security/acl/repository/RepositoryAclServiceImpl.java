@@ -129,7 +129,9 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
     @Override
     @Transactional
     public boolean isGranted(AProjectArtefact projectArtefact, List<Permission> permissions) {
-        Objects.requireNonNull(projectArtefact, "projectArtefact cannot be null");
+        if (projectArtefact == null) {
+            return false;
+        }
         if (LocalWorkspace.LOCAL_ID.equals(projectArtefact.getRepository().getId())) {
             return true;
         }
