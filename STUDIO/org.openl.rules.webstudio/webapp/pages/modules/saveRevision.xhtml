@@ -86,6 +86,7 @@
           openResolveConflictDialog(goToNewProject);
         } else if (successful) {
           RichFaces.$('modalSave').hide();
+          ws.ui.success('Project was saved successfully.');
           goToNewProject();
         }
       }
