@@ -811,15 +811,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public boolean getCanSaveDeployment() {
         ADeploymentProject selectedProject = (ADeploymentProject) getSelectedProject();
-        return selectedProject.isOpenedForEditing() && selectedProject.isModified() && deployConfigRepositoryAclService
-            .isGranted(selectedProject, List.of(AclPermission.EDIT)) && !isCurrentBranchProtected(selectedProject);
+        return selectedProject.isOpenedForEditing() && selectedProject
+            .isModified() && !isCurrentBranchProtected(selectedProject);
     }
 
     public boolean getCanSaveProject() {
         try {
             UserWorkspaceProject selectedProject = getSelectedProject();
-            return selectedProject != null && selectedProject.isModified() && designRepositoryAclService
-                .isGranted(selectedProject, List.of(AclPermission.EDIT)) && !isCurrentBranchProtected(selectedProject);
+            return selectedProject != null && selectedProject
+                .isModified() && !isCurrentBranchProtected(selectedProject);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
