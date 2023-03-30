@@ -44,14 +44,22 @@ public class SecureFolderRepository extends SecureRepository implements FolderRe
             ChangesetType changesetType) throws IOException {
         List<FileItem> newContentFileItems = new ArrayList<>();
         for (FileItem fileItem : files) {
-            checkSavePermissions(fileItem.getData().getName());
-            newContentFileItems.add(fileItem);
+            if (fileItem.getStream() != null) {
+                checkSavePermissions(fileItem.getData().getName());
+                newContentFileItems.add(fileItem);
+            } else {
+                if (!folderRepository.list(fileItem.getData().getName()).isEmpty()) {
+                    checkDeletePermission(fileItem.getData().getName());
+                }
+            }
         }
-        List<FileData> existingContentFileData = folderRepository.list(folderData.getName());
-        for (FileData fileData : existingContentFileData) {
-            if (newContentFileItems.stream()
-                .noneMatch(e -> Objects.equals(e.getData().getName(), fileData.getName()))) {
-                checkDeletePermission(fileData.getName());
+        if (changesetType == ChangesetType.FULL) {
+            List<FileData> existingContentFileData = folderRepository.list(folderData.getName());
+            for (FileData fileData : existingContentFileData) {
+                if (newContentFileItems.stream()
+                    .noneMatch(e -> Objects.equals(e.getData().getName(), fileData.getName()))) {
+                    checkDeletePermission(fileData.getName());
+                }
             }
         }
         return folderRepository.save(folderData, newContentFileItems, changesetType);
