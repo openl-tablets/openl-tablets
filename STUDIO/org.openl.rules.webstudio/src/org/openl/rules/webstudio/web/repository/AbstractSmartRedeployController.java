@@ -481,7 +481,8 @@ public abstract class AbstractSmartRedeployController {
                 if (!deployConfigRepositoryAclService.createAcl(deployConfiguration,
                     AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS,
                     true)) {
-                    String message = "Granting permissions to the deployment configuration is failed.";
+                    String message = String.format("Granting permissions to deployment configuration '%s' is failed.",
+                        deployConfiguration.getArtefactPath().getStringValue());
                     WebStudioUtils.addErrorMessage(message);
                 }
             }

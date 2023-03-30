@@ -588,7 +588,8 @@ public class RepositoryTreeController {
             ADeploymentProject newProject = userWorkspace.copyDDProject(project, newProjectName, comment);
             if (!deployConfigRepositoryAclService
                 .createAcl(newProject, AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS, true)) {
-                String message = "Granting permissions to the deployment configuration is failed.";
+                String message = String.format("Granting permissions to deployment configuration '%s' is failed.",
+                    newProject.getArtefactPath().getStringValue());
                 WebStudioUtils.addErrorMessage(message);
             }
             repositoryTreeState.addDeploymentProjectToTree(newProject);
@@ -631,7 +632,8 @@ public class RepositoryTreeController {
             ADeploymentProject createdProject = userWorkspace.createDDProject(projectName);
             if (!deployConfigRepositoryAclService
                 .createAcl(createdProject, AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS, true)) {
-                String message = "Granting permissions to the deployment configuration is failed.";
+                String message = String.format("Granting permissions to deployment configuration '%s' is failed.",
+                    createdProject.getArtefactPath().getStringValue());
                 WebStudioUtils.addErrorMessage(message);
             }
             createdProject.open();
@@ -1540,7 +1542,8 @@ public class RepositoryTreeController {
             AProjectResource addedFileResource = folder
                 .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
             if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
-                String message = "Granting permissions to the file is failed.";
+                String message = String.format("Granting permissions to file '%s' is failed.",
+                    addedFileResource.getArtefactPath().getStringValue());
                 WebStudioUtils.addErrorMessage(message);
             }
             fileName = addedFileResource.getName();
@@ -2209,7 +2212,8 @@ public class RepositoryTreeController {
             }
             AProjectResource addedFileResource = node.addResource(fileName, lastUploadedFile.getInput());
             if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
-                String message = "Granting permissions to the file is failed.";
+                String message = String.format("Granting permissions to file '%s' is failed.",
+                    addedFileResource.getArtefactPath().getStringValue());
                 WebStudioUtils.addErrorMessage(message);
             }
             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFileResource);
