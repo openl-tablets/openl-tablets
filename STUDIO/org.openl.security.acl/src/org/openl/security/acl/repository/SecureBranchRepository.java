@@ -46,11 +46,7 @@ public class SecureBranchRepository extends SecureFolderRepository implements Br
 
     @Override
     public void deleteBranch(String projectPath, String branch) throws IOException {
-        if (simpleRepositoryAclService.isGranted(getId(), null, List.of(AclPermission.DESIGN_REPOSITORY_DELETE))) {
-            branchRepository.deleteBranch(projectPath, branch);
-        } else {
-            throw new AccessDeniedException("There is no permission for deleting a branch.");
-        }
+        branchRepository.deleteBranch(projectPath, branch);
     }
 
     @Override
