@@ -129,10 +129,11 @@
                                id="verifyButton"
                                title="Verify" value="Verify"
                                rendered="#{!empty module and studio.manualCompileNeeded}" />
-                <h:commandLink styleClass="changes-listener" onclick="openSaveDialog('#{studio.currentRepositoryType}'); return false;" value="Save"
+                <h:commandLink styleClass="changes-listener"
+                               onclick="openSaveDialog('#{studio.currentRepositoryType}'); return false;" value="Save"
                                id="saveProjectButton"
                                title="Save the project changes in Design Repository as a new revision and make it available for editing to other users"
-                               rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editable}" />
+                               rendered="#{!empty rProject and rProject.openedForEditing and rProject.modified and studio.model.editableProject}"/>
                 <h:commandLink styleClass="changes-listener" onclick="openMergeBranchesDialog('#{rProject.repository.id}', '#{studio.currentRepositoryType}', '#{rProject.name}'); return false;"
                                value="Sync"
                                title="Synchronize updates"
