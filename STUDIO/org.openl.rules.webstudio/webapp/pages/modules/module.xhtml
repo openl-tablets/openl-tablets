@@ -7,7 +7,7 @@
     <ui:param name="module" value="#{studio.currentModule}" />
     <ui:param name="repositoryId" value="#{studio.currentRepositoryId}" />
 
-    <ui:param name="editable" value="#{studio.model.editableProject}" />
+    <ui:param name="editable" value="#{studio.model.editable}"/>
     <ui:param name="canCopyModule" value="#{projectBean.canCopyModule(module)}"/>
     <ui:param name="includedInWildcard" value="#{projectBean.isModuleMatchesSomePathPattern(module)}" />
 
