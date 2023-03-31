@@ -214,6 +214,30 @@ public class RepositoryProjectRulesDeployConfig {
         }
     }
 
+    public boolean isCanEditRulesDeploy() {
+        UserWorkspaceProject project = getProject();
+        try {
+            if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
+                AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+                return designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.EDIT));
+            } else {
+                return designRepositoryAclService.isGranted(project, List.of(AclPermission.ADD));
+            }
+        } catch (ProjectException e) {
+            return false;
+        }
+    }
+
+    public boolean isCanDeleteRulesDeploy() {
+        UserWorkspaceProject project = getProject();
+        try {
+            AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
+            return designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE));
+        } catch (ProjectException e) {
+            return false;
+        }
+    }
+
     public boolean isVersionSupported() {
         return getSupportedVersion().compareTo(SupportedVersion.V5_17) >= 0;
     }
