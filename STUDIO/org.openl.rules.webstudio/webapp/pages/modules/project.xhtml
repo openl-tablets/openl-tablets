@@ -759,6 +759,7 @@
                     <label for="leaveExcelFile" id="removeModulePopupLeaveExcelFile"/>
                     </span>
                     <span>
+                    <input type="hidden" id="leaveExcelFileDisabled" name="leaveExcelFile" value="on"/>
                     <input type="checkbox" id="leaveExcelFile" name="leaveExcelFile"/>
                     </span>
                 </p>
@@ -784,6 +785,7 @@
 
             $j("#moduleToRemove").val(module);
             $j("#leaveExcelFile").prop('disabled', moduleCanNotBeDeleted);
+            $j("#leaveExcelFileDisabled").prop('disabled', !moduleCanNotBeDeleted);
             $j("#leaveExcelFile").prop('checked', moduleCanNotBeDeleted);
             $j("#removeModulePopupHeader").html(isModuleWithWildcard ? 'Remove modules' : 'Remove module');
             $j("#removeModulePopupMessage").html(isModuleWithWildcard ? 'Are you sure you want to remove all modules matched by the wildcard path?' : 'Are you sure you want to remove this module?');
