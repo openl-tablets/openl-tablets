@@ -651,25 +651,22 @@ public class ProjectModel {
      * @return <code>true</code> if project is read only.
      */
     public boolean isEditable() {
-        if (!isCurrentBranchProtected()) {
-            RulesProject currentProject = getProject();
-            if (currentProject != null) {
-                AProjectArtefact currentModule = null;
-                try {
-                    if (studio.getCurrentModule() != null) {
-                        currentModule = currentProject
-                            .getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
-                    }
-                } catch (ProjectException e) {
+        RulesProject currentProject = getProject();
+        if (currentProject != null) {
+            AProjectArtefact currentModule = null;
+            try {
+                if (studio.getCurrentModule() != null) {
+                    currentModule = currentProject.getArtefact(studio.getCurrentModule().getRulesRootPath().getPath());
+                }
+            } catch (ProjectException e) {
+                return false;
+            }
+            if (currentModule != null) {
+                if (!studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.EDIT))) {
                     return false;
                 }
-                if (currentModule != null) {
-                    if (!studio.getDesignRepositoryAclService().isGranted(currentModule, List.of(AclPermission.EDIT))) {
-                        return false;
-                    }
-                }
-                return isEditableProject(currentProject);
             }
+            return isEditableProject(currentProject);
         }
         return false;
     }
@@ -691,7 +688,8 @@ public class ProjectModel {
     }
 
     private boolean isEditableProject(RulesProject rulesProject) {
-        return (rulesProject.isLocalOnly() || !rulesProject.isLocked() || rulesProject.isOpenedForEditing());
+        return !isCurrentBranchProtected() && (rulesProject.isLocalOnly() || !rulesProject.isLocked() || rulesProject
+            .isOpenedForEditing());
     }
 
     public boolean getCanUpdate() {
@@ -712,11 +710,9 @@ public class ProjectModel {
      * Return is editable current project
      */
     public boolean isEditableProject() {
-        if (!isCurrentBranchProtected()) {
-            RulesProject currentProject = getProject();
-            if (currentProject != null) {
-                return isEditableProject(currentProject);
-            }
+        RulesProject currentProject = getProject();
+        if (currentProject != null) {
+            return isEditableProject(currentProject);
         }
         return false;
     }
