@@ -351,19 +351,21 @@ public class CopyBean {
     }
 
     public void newProjectNameValidator(FacesContext context, UIComponent toValidate, Object value) {
-        if ((isSupportsBranches() && !isSeparateProjectSubmitted(context)) || ((String) value).isEmpty()) {
+        if (isSupportsBranches() && !isSeparateProjectSubmitted(context) || ((String) value).isEmpty()) {
             return;
         }
+
         String newProjectName = StringUtils.trim((String) value);
         WebStudioUtils.validate(NameChecker.checkName(newProjectName), NameChecker.BAD_PROJECT_NAME_MSG);
 
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
+
         String targetRepo = ((UIInput) context.getViewRoot().findComponent("copyProjectForm:repository"))
             .getSubmittedValue()
             .toString();
-        boolean projectExist = userWorkspace.getDesignTimeRepository().hasProject(targetRepo, newProjectName);
-        WebStudioUtils.validate(!projectExist, "Project with such name already exists.");
+        boolean projectExists = userWorkspace.getDesignTimeRepository().hasProject(targetRepo, newProjectName);
+        WebStudioUtils.validate(!projectExists, "Project with this name already exists.");
     }
 
     public void newBranchNameValidator(FacesContext context, UIComponent toValidate, Object value) {
@@ -371,7 +373,7 @@ public class CopyBean {
             return;
         }
         String newBranchName = (String) value;
-        WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
+        WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Branch name cannot be empty.");
         RepositorySettingsValidators.validateBranchName(newBranchName);
 
         String customRegex = propertyResolver
@@ -381,14 +383,13 @@ public class CopyBean {
         if (StringUtils.isNotBlank(customRegex)) {
             try {
                 Pattern customRegexPattern = Pattern.compile(customRegex);
-                customRegexError = StringUtils.isNotBlank(
-                    customRegexError) ? customRegexError
-                                      : "The branch name does not match the following pattern: " + customRegex;
+                customRegexError = StringUtils
+                    .isNotBlank(customRegexError) ? customRegexError
+                                                  : "Branch name must match the following pattern: " + customRegex;
                 WebStudioUtils.validate(customRegexPattern.matcher(newBranchName).matches(), customRegexError);
             } catch (PatternSyntaxException patternSyntaxException) {
                 LOG.debug(patternSyntaxException.getMessage(), patternSyntaxException);
-                WebStudioUtils.throwValidationError(
-                    String.format("Branch name pattern '%s' is not valid regular expression.", customRegex));
+                WebStudioUtils.throwValidationError("Invalid regex pattern for branch name.");
             }
         }
 
@@ -397,10 +398,10 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository(repositoryId);
-            WebStudioUtils.validate(designRepository.isValidBranchName(newBranchName),
-                "Invalid branch name. It should not contain reserved words or symbols.");
+            WebStudioUtils.validate(!designRepository.isValidBranchName(newBranchName),
+                "Branch name contains reserved words or symbols.");
             WebStudioUtils.validate(!designRepository.branchExists(newBranchName),
-                "Branch " + newBranchName + " already exists.");
+                "Branch " + newBranchName + " already exists in repository.");
             for (String branch : designRepository.getBranches(null)) {
                 String message = "Cannot create the branch '" + newBranchName + "' because the branch '" + branch + "' already exists.\n" + "Explanation: for example a branch 'foo/bar'exists. " + "That branch can be considered as a file 'bar' located in the folder 'foo'.\n" + "So you cannot create a branch 'foo/bar/baz' because you cannot create the folder 'foo/bar': " + "the file with such name already exists.";
                 WebStudioUtils.validate(!newBranchName.startsWith(branch + "/"), message);
@@ -437,7 +438,7 @@ public class CopyBean {
             .map(AProjectFolder::getRealPath)
             .map(Paths::get)
             .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
-            WebStudioUtils.throwValidationError("Path conflicts with an existed project.");
+            WebStudioUtils.throwValidationError("Path conflicts with an existing project.");
         }
     }
 
