@@ -371,7 +371,9 @@ public class RepositoryTreeController {
     public String closeProject() {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
-            if (!designRepositoryAclService.isGranted(repositoryProject, List.of(AclPermission.VIEW))) {
+            RepositoryAclService repositoryAclService = repositoryProject instanceof ADeploymentProject ? deployConfigRepositoryAclService
+                                                                                                        : designRepositoryAclService;
+            if (!repositoryAclService.isGranted(repositoryProject, List.of(AclPermission.VIEW))) {
                 WebStudioUtils.addErrorMessage(String.format("There is no permission for closing '%s' project.",
                     repositoryProject.getArtefactPath().getStringValue()));
                 return null;
@@ -1714,7 +1716,9 @@ public class RepositoryTreeController {
     public String openProject() {
         try {
             UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            RepositoryAclService repositoryAclService = project instanceof ADeploymentProject ? deployConfigRepositoryAclService
+                                                                                              : designRepositoryAclService;
+            if (!repositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
                 throw new Message(String.format("There is no permission for opening '%s' project.",
                     project.getArtefactPath().getStringValue()));
             }
@@ -1776,7 +1780,9 @@ public class RepositoryTreeController {
                 WebStudioUtils.addErrorMessage("Project version is not selected.");
                 return null;
             }
-            if (!designRepositoryAclService.isGranted(repositoryProject, List.of(AclPermission.VIEW))) {
+            RepositoryAclService repositoryAclService = repositoryProject instanceof ADeploymentProject ? deployConfigRepositoryAclService
+                                                                                                        : designRepositoryAclService;
+            if (!repositoryAclService.isGranted(repositoryProject, List.of(AclPermission.VIEW))) {
                 throw new Message(String.format("There is no permission for opening '%s' project.",
                     repositoryProject.getArtefactPath().getStringValue()));
             }
