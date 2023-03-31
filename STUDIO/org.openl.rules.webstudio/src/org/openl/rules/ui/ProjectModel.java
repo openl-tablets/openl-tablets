@@ -1,6 +1,8 @@
 package org.openl.rules.ui;
 
 import java.io.File;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -119,7 +121,7 @@ public class ProjectModel {
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Map<String, Set<XlsModuleSyntaxNode>> xlsModuleSyntaxNodesPerProject = new ConcurrentHashMap<>();
-    private final Collection<WorkbookSyntaxNode> workbookSyntaxNodes = ConcurrentHashMap.newKeySet();
+    private final Collection<XlsModuleSyntaxNode> xlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
 
     private Module moduleInfo;
     private long moduleLastModified;
@@ -506,12 +508,24 @@ public class ProjectModel {
      * 
      * @return all workbooks
      */
-    public Collection<WorkbookSyntaxNode> getAllWorkbookNodes() {
+    public Collection<WorkbookSyntaxNode> getAllEditableWorkbookNodes() {
         if (!isCompiledSuccessfully()) {
             return null;
         }
-
-        return workbookSyntaxNodes;
+        RulesProject rulesProject = getProject();
+        List<WorkbookSyntaxNode> ret = new ArrayList<>();
+        for (XlsModuleSyntaxNode xlsModuleSyntaxNode : xlsModuleSyntaxNodes) {
+            String s = URLDecoder.decode(xlsModuleSyntaxNode.getModule().getUri(), StandardCharsets.UTF_8);
+            s = s.substring(s.indexOf("/") + 1);
+            try {
+                if (studio.getDesignRepositoryAclService()
+                    .isGranted(rulesProject.getArtefact(s), List.of(AclPermission.EDIT))) {
+                    ret.addAll(List.of(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
+                }
+            } catch (ProjectException ignored) {
+            }
+        }
+        return ret;
     }
 
     public boolean isSourceModified() {
@@ -1068,7 +1082,7 @@ public class ProjectModel {
                 if (webStudioWorkspaceDependencyManager != null) {
                     webStudioWorkspaceDependencyManager.shutdown();
                     xlsModuleSyntaxNodesPerProject.clear();
-                    workbookSyntaxNodes.clear();
+                    xlsModuleSyntaxNodes.clear();
                 }
                 webStudioWorkspaceDependencyManager = null;
                 recentlyVisitedTables.clear();
@@ -1147,7 +1161,7 @@ public class ProjectModel {
         if (webStudioWorkspaceDependencyManager != null) {
             webStudioWorkspaceDependencyManager.shutdown();
             xlsModuleSyntaxNodesPerProject.clear();
-            workbookSyntaxNodes.clear();
+            xlsModuleSyntaxNodes.clear();
         }
         webStudioWorkspaceDependencyManager = null;
         xlsModuleSyntaxNode = null;
@@ -1166,7 +1180,7 @@ public class ProjectModel {
             if (xlsModuleSyntaxNode != null) {
                 getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).add(xlsModuleSyntaxNode);
                 if (!(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
-                    workbookSyntaxNodes.addAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
+                    xlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
                 }
             }
         }
@@ -1180,7 +1194,7 @@ public class ProjectModel {
             if (xlsModuleSyntaxNode != null) {
                 getModuleSyntaxNodesByProject(dependencyLoader.getProject().getName()).remove(xlsModuleSyntaxNode);
                 if (!(xlsModuleSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
-                    workbookSyntaxNodes.removeAll(Arrays.asList(xlsModuleSyntaxNode.getWorkbookSyntaxNodes()));
+                    xlsModuleSyntaxNodes.remove(xlsModuleSyntaxNode);
                 }
             }
         }
@@ -1330,7 +1344,7 @@ public class ProjectModel {
                 if (!allProjectCanBeReused) {
                     webStudioWorkspaceDependencyManager.shutdown();
                     xlsModuleSyntaxNodesPerProject.clear();
-                    workbookSyntaxNodes.clear();
+                    xlsModuleSyntaxNodes.clear();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                         .buildDependencyManager(this.moduleInfo.getProject());
                     webStudioWorkspaceDependencyManager
