@@ -694,6 +694,20 @@ public class ProjectModel {
         return (rulesProject.isLocalOnly() || !rulesProject.isLocked() || rulesProject.isOpenedForEditing());
     }
 
+    public boolean getCanUpdate() {
+        if (isEditable()) {
+            if (studio.getCurrentModule() == null) {
+                RulesProject currentProject = getProject();
+                return studio.getDesignRepositoryAclService()
+                    .isGranted(currentProject, List.of(AclPermission.EDIT)) || studio.getDesignRepositoryAclService()
+                        .isGranted(currentProject, List.of(AclPermission.ADD)) || studio.getDesignRepositoryAclService()
+                            .isGranted(currentProject, List.of(AclPermission.DELETE));
+            }
+            return true;
+        }
+        return false;
+    }
+
     /*
      * Return is editable current project
      */
