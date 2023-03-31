@@ -500,7 +500,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                                     currentNode.refresh();
                                 }
                             } catch (ProjectException | IOException e) {
-                                log.error("Cannot update selected node: {}", e.getMessage(), e);
+                                log.error("Failed to update selected node: {}", e.getMessage());
                             }
                         }
                     }
@@ -832,6 +832,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         if (selectedProject != null) {
             return !selectedProject.isLocalOnly() && selectedProject.isOpened();
         } else {
+            return false;
+        }
+    }
+
+    public boolean getCanDeleteNode(TreeNode el) {
+        try {
+            return designRepositoryAclService.isGranted(el.getData(), List.of(AclPermission.DELETE));
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return false;
         }
     }

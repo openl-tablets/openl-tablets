@@ -974,7 +974,7 @@ public class RepositoryTreeController {
                     return contains;
                 });
             }
-
+            boolean projectDescriptorChanged = !removedModuleNames.isEmpty();
             OpenAPI openAPI = projectDescriptor.getOpenapi();
             final FileData fileData = aProjectArtefact.getFileData();
             if (openAPI != null) {
@@ -992,16 +992,19 @@ public class RepositoryTreeController {
                     String filePath = name.substring(name.lastIndexOf(rootName) + rootName.length() + 1);
                     if (openAPI.getPath() != null && filePath.equals(openAPI.getPath())) {
                         projectDescriptor.setOpenapi(null);
+                        projectDescriptorChanged = true;
                     }
                 }
             }
-            String xmlString = serializer.serialize(projectDescriptor);
-            InputStream newContent = IOUtils.toInputStream(xmlString);
-            if (!designRepositoryAclService.isGranted(resource, List.of(AclPermission.EDIT))) {
-                throw new Message(String.format("There is no permission for modifying '%s' file.",
-                    resource.getArtefactPath().getStringValue()));
+            if (projectDescriptorChanged) {
+                String xmlString = serializer.serialize(projectDescriptor);
+                InputStream newContent = IOUtils.toInputStream(xmlString);
+                if (!designRepositoryAclService.isGranted(resource, List.of(AclPermission.EDIT))) {
+                    throw new Message(String.format("There is no permission for modifying '%s' file.",
+                        resource.getArtefactPath().getStringValue()));
+                }
+                resource.setContent(newContent);
             }
-            resource.setContent(newContent);
         }
     }
 
@@ -1010,11 +1013,18 @@ public class RepositoryTreeController {
         String childName = WebStudioUtils.getRequestParameter("element");
         AProjectArtefact childArtefact = ((TreeNode) repositoryTreeState.getSelectedNode()
             .getChild(RepositoryUtils.getTreeNodeId(artefact.getRepository().getId(), childName))).getData();
-
+        RepositoryAclService repositoryAclService = getSelectedProject() instanceof ADeploymentProject ? deployConfigRepositoryAclService
+                                                                                                       : designRepositoryAclService;
+        if (!repositoryAclService.isGranted(childArtefact, List.of(AclPermission.DELETE))) {
+            WebStudioUtils.addErrorMessage(String.format("There is no permission for deleting '%s' file.",
+                childArtefact.getArtefactPath().getStringValue()));
+            return null;
+        }
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
             unregisterArtifactInProjectDescriptor(childArtefact);
             childArtefact.delete();
+            repositoryAclService.deleteAcl(childArtefact);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
 
