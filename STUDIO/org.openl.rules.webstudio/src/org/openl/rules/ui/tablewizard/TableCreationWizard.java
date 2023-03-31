@@ -160,7 +160,7 @@ public abstract class TableCreationWizard extends BaseWizard {
         workbooks = new HashMap<>();
 
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
-        for (WorkbookSyntaxNode node : projectModel.getAllWorkbookNodes()) {
+        for (WorkbookSyntaxNode node : projectModel.getAllEditableWorkbookNodes()) {
             XlsWorkbookSourceCodeModule module = node.getWorkbookSourceCodeModule();
             workbooks.put(module.getDisplayName(), module);
         }
