@@ -14,6 +14,7 @@ import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductionDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.workspace.deploy.DeployUtils;
+import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.richfaces.component.UITree;
 import org.richfaces.event.TreeSelectionChangeEvent;
@@ -113,7 +114,7 @@ public class ProductionRepositoriesTreeState {
 
     public Collection<RepositoryConfiguration> getRepositories() {
         List<RepositoryConfiguration> repos = new ArrayList<>(DeploymentRepositoriesUtil
-            .getRepositories(deploymentManager, propertyResolver, productionRepositoryAclService));
+            .getRepositories(deploymentManager, propertyResolver, productionRepositoryAclService, AclPermission.VIEW));
         repos.sort(RepositoryConfiguration.COMPARATOR);
         return repos;
     }
