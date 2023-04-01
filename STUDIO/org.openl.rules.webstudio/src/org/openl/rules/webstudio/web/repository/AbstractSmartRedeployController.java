@@ -571,8 +571,10 @@ public abstract class AbstractSmartRedeployController {
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {
-        return DeploymentRepositoriesUtil
-            .getRepositories(deploymentManager, propertyResolver, productionRepositoryAclService);
+        return DeploymentRepositoriesUtil.getRepositories(deploymentManager,
+            propertyResolver,
+            productionRepositoryAclService,
+            AclPermission.VIEW, AclPermission.EDIT);
     }
 
     public String getRepositoryTypes() throws JsonProcessingException {
