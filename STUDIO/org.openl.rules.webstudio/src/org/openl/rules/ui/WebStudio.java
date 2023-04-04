@@ -56,7 +56,7 @@ import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
 import org.openl.rules.ui.tree.view.CategoryInversedView;
 import org.openl.rules.ui.tree.view.CategoryView;
-import org.openl.rules.ui.tree.view.FileView;
+import org.openl.rules.ui.tree.view.ExcelSheetView;
 import org.openl.rules.ui.tree.view.RulesTreeView;
 import org.openl.rules.ui.tree.view.TypeView;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
@@ -123,13 +123,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public static final String TRACE_REALNUMBERS_SHOW = "trace.realNumbers.show";
 
     private final RulesTreeView typeView = new TypeView();
-    private final RulesTreeView fileView = new FileView();
+    private final RulesTreeView excelSheetView = new ExcelSheetView();
     private final RulesTreeView categoryView = new CategoryView();
     private final RulesTreeView categoryDetailedView = new CategoryDetailedView();
     private final RulesTreeView categoryInversedView = new CategoryInversedView();
 
     private final RulesTreeView[] treeViews = { typeView,
-            fileView,
+            excelSheetView,
             categoryView,
             categoryDetailedView,
             categoryInversedView };
