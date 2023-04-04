@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -78,6 +79,7 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
+import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
@@ -720,6 +722,8 @@ public class ProjectModel {
                 OpenMethodsGroupTreeNodeBuilder tableTreeNodeBuilder = (OpenMethodsGroupTreeNodeBuilder) treeSorter;
                 tableTreeNodeBuilder.setOpenMethodGroupsDictionary(methodNodesDictionary);
             }
+            if(treeSorter instanceof WorksheetTreeNodeBuilder)
+                root.setElements(new LinkedHashMap<>(root.getElements()));
         }
 
         for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {

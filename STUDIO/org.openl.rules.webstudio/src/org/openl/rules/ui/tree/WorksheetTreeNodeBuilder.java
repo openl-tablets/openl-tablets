@@ -4,6 +4,8 @@ import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
 
+import java.util.LinkedHashMap;
+
 /**
  * Builds tree node for work sheet.
  */
@@ -44,6 +46,14 @@ public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      */
     @Override
     public Object makeObject(TableSyntaxNode tableSyntaxNode) {
-        return tableSyntaxNode.getModule();
+        return tableSyntaxNode.getXlsSheetSourceCodeModule();//getModule();
+    }
+
+    @Override
+    public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+        ProjectTreeNode treeNode = super.makeNode(tableSyntaxNode, i);
+        // Put spreadsheets in order as they defined in xls, not sort them alphabetically
+        treeNode.setElements(new LinkedHashMap<>(treeNode.getElements()));
+        return treeNode;
     }
 }
