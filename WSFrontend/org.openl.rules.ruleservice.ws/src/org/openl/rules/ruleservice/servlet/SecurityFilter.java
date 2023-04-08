@@ -29,9 +29,6 @@ public class SecurityFilter implements Filter {
 
     private final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
 
-    private static final String ADMIN_PATH = "/admin/";
-    private static final String RAPIDOC_PATH = "/rapi-doc/";
-
     private boolean authOn;
     private JWTValidator jwtValidator;
 
@@ -50,17 +47,11 @@ public class SecurityFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         if (securedUrl(httpRequest)) {
-            String jwtToken = httpRequest.getHeader("Authorization");
-            if (jwtToken != null) {
-                try {
-                    jwtValidator.validateToken(jwtToken);
-                } catch (Exception e) {
-                    httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    log.warn(e.getMessage());
-                    return;
-                }
-            } else {
+            try {
+                jwtValidator.validateToken(httpRequest);
+            } catch (Exception e) {
                 httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                log.warn(e.getMessage());
                 return;
             }
         }
@@ -77,16 +68,7 @@ public class SecurityFilter implements Filter {
             return false;
         }
         // Do not check static resources such as images, icons etc.
-        if (StaticResourceResolver.isResourceExists(pathInfo)) {
-            return false;
-        }
-        // Swagger and admin actions should be available without authorization.
-        // Admin actions such as downloading or deploying via UI should be removed.
-        if (pathInfo.startsWith(RAPIDOC_PATH) || pathInfo.startsWith(ADMIN_PATH)) {
-            return false;
-        }
-        // Access to openapi.json and openapi.yam should pass without authorization.
-        return !pathInfo.endsWith("openapi.json") && !pathInfo.endsWith("openapi.yaml");
+        return !StaticResourceResolver.isResourceExists(pathInfo);
     }
 
     @Override
