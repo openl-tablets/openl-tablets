@@ -1,4 +1,4 @@
-package org.openl.rules.ruleservice.oauth;
+package org.openl.rules.ruleservice.spring;
 
 import java.net.URL;
 import java.util.Arrays;
