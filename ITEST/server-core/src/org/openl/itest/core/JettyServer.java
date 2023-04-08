@@ -6,6 +6,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -59,11 +60,19 @@ public class JettyServer {
     }
 
     private String getExtraClasspath() {
-        try (Stream<Path> stream = Files.walk(Paths.get("libs"))) {
-            return stream.map(Path::toString).collect(Collectors.joining(","));
-        } catch (IOException e) {
-            return null;
+        var classPath = new ArrayList<String>();
+        var classes = Paths.get("target/classes");
+        if (Files.exists(classes)) {
+            classPath.add(classes.toString());
         }
+        try (Stream<Path> stream = Files.walk(Paths.get("libs"))) {
+
+            classPath.addAll( stream.map(Path::toString).collect(Collectors.toList()));
+        } catch (IOException ignored) {
+            // ignore
+        }
+
+        return classPath.isEmpty() ? null : String.join(",", classPath);
     }
 
     /**
