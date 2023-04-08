@@ -111,7 +111,7 @@ public class RunStoreLogDataITest {
         Map<String, String> params = Map.of("ruleservice.kafka.bootstrap.servers", KAFKA_CONTAINER.getBootstrapServers(),
                 "datastax-java-driver.basic.contact-points.0", CASSANDRA_CONTAINER.getHost() + ":" + CASSANDRA_CONTAINER.getFirstMappedPort(),
                 "hibernate.connection.url", dbUrl);
-        server = JettyServer.startSharingClassLoader(params);
+        server = JettyServer.start(params);
         client = server.client();
 
     }
