@@ -72,6 +72,12 @@ public class SecurityFilter implements Filter {
         if (pathInfo == null || pathInfo.equals("/")) {
             return true;
         }
+        // Skip authorization for informational and healthcheck urls
+        if (pathInfo.startsWith("/admin/healthcheck/") ||
+            pathInfo.startsWith("/admin/info/") ||
+            pathInfo.startsWith("/admin/config/")) {
+            return true;
+        }
         // Do not check static resources such as images, icons etc.
         return StaticResourceResolver.isResourceExists(pathInfo);
     }
