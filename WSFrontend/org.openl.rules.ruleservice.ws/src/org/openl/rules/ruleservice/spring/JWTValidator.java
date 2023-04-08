@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
@@ -49,7 +51,20 @@ public class JWTValidator {
         this.env = env;
     }
 
-    public void validateToken(String jwtToken) throws Exception {
+    public void validateToken(HttpServletRequest request) throws Exception {
+        String pathInfo = request.getPathInfo();
+        // Admin actions should be available without authorization.
+        // Admin actions such as downloading or deploying via UI should be removed.
+        if (pathInfo.startsWith("/admin/")) {
+            return;
+        }
+        // Access to openapi.json and openapi.yam should pass without authorization.
+        if (pathInfo.endsWith("openapi.json") || pathInfo.endsWith("openapi.yaml")) {
+            return;
+        }
+
+        String jwtToken = request.getHeader("Authorization");
+
         if (jwtToken == null) {
             throw new IllegalArgumentException("Authorization header is not present.");
         }
