@@ -1,0 +1,2 @@
+GET /admin/info/sys.json HTTP/1.1
+
