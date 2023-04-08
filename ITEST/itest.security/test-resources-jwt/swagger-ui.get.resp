@@ -1,0 +1,9 @@
+HTTP/1.1 200
+Content-Type: text/html
+
+<!DOCTYPE html>
+<html lang="en">
+*
+<title>Swagger UI</title>
+*
+</html>

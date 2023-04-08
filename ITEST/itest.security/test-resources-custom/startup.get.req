@@ -1,0 +1,2 @@
+GET /admin/healthcheck/startup HTTP/1.1
+
