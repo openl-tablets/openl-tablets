@@ -37,17 +37,25 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         super(springCacheBasedAclCache, aclService, rootId, objectIdentityClass, relevantSystemWideSid);
     }
 
+    private static String getRepoPath(FileData fileData) {
+        FileMappingData fileMappingData = fileData.getAdditionalData(FileMappingData.class);
+        if (fileMappingData != null) {
+            return fileMappingData.getInternalPath();
+        } else {
+            return fileData.getName();
+        }
+    }
+
     private String buildObjectIdentityId(AProjectArtefact projectArtefact) {
         if (projectArtefact.getRepository() instanceof LocalRepository) {
             LocalRepository localRepository = (LocalRepository) projectArtefact.getRepository();
             ProjectState projectState = localRepository
                 .getProjectState(projectArtefact.getProject().getFileData().getName());
-            FileData fileData = projectState.getFileData();
-            FileMappingData fileMappingData = fileData.getAdditionalData(FileMappingData.class);
-            String repoPath = fileMappingData.getInternalPath();
+            String repoPath = getRepoPath(projectState.getFileData());
             return concat(projectArtefact.getRepository().getId(), repoPath + "/" + projectArtefact.getInternalPath());
         } else {
-            return concat(projectArtefact.getRepository().getId(), projectArtefact.getFileData().getName());
+            String repoPath = getRepoPath(projectArtefact.getFileData());
+            return concat(projectArtefact.getRepository().getId(), repoPath);
         }
     }
 
