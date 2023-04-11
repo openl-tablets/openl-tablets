@@ -5,15 +5,18 @@
         xmlns:ui="http://java.sun.com/jsf/facelets"
         xmlns:oh="http://openl-tablets.sf.net/jsf/html">
 
-  <ui:param name="canEditRulesDeployConfig"
-            value="#{artefact.project.openedForEditing and repositoryProjectRulesDeployConfig.canEditRulesDeploy}"/>
-  <ui:param name="hasRulesDeploy" value="#{repositoryProjectRulesDeployConfig.rulesDeploy != null}" />
+    <ui:param name="canEditRulesDeployConfig"
+              value="#{artefact.project.openedForEditing and repositoryProjectRulesDeployConfig.canEditRulesDeploy}"/>
+    <ui:param name="canEditRulesDeployConfig"
+              value="#{artefact.project.openedForEditing and repositoryProjectRulesDeployConfig.canDeleteRulesDeploy}"/>
+
+    <ui:param name="hasRulesDeploy" value="#{repositoryProjectRulesDeployConfig.rulesDeploy != null}"/>
     <h:outputStylesheet>
         #publishers {
-            border-spacing: 0;
+        border-spacing: 0;
         }
         #publishers td:first-child {
-            padding-left: 0;
+        padding-left: 0;
         }
         #publishers label {
             padding-right: 15px;
@@ -141,7 +144,7 @@
                        styleClass="save-deploy-configuration-button button-primary"/>
     <a4j:commandButton value="Delete Configuration" action="#{repositoryProjectRulesDeployConfig.deleteRulesDeploy}"
                        immediate="true"
-                       rendered="#{repositoryProjectRulesDeployConfig.canDeleteRulesDeploy}"
+                       rendered="#{canEditRulesDeployConfig}"
                        execute="rulesDeployConfigurationContent"
                        render="projectTree nodeButtons propertiesContent elementsContent rulesDeployConfigurationContent"
                        onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the rules deploy configuration?')) {return false;}"/>
