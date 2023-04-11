@@ -3,6 +3,8 @@ package org.openl.rules.webstudio.web.admin;
 import java.util.Optional;
 
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.model.SSEAlgorithm;
+
 import org.openl.config.PropertiesHolder;
 
 public class AWSS3RepositorySettings extends RepositorySettings {
@@ -11,6 +13,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private String regionName;
     private String accessKey;
     private String secretKey;
+    private String sseAlgorithm;
     private Integer listenerTimerPeriod;
 
     private final String serviceEndpointPath;
@@ -18,6 +21,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private final String regionNamePath;
     private final String accessKeyPath;
     private final String secretKeyPath;
+    private final String sseAlgorithmPath;
     private final String listenerTimerPeriodPath;
 
     AWSS3RepositorySettings(PropertiesHolder properties, String configPrefix) {
@@ -27,6 +31,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         regionNamePath = configPrefix + ".region-name";
         accessKeyPath = configPrefix + ".access-key";
         secretKeyPath = configPrefix + ".secret-key";
+        sseAlgorithmPath = configPrefix + ".sse-algorithm";
         listenerTimerPeriodPath = configPrefix + ".listener-timer-period";
 
         load(properties);
@@ -38,6 +43,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         regionName = properties.getProperty(regionNamePath);
         accessKey = properties.getProperty(accessKeyPath);
         secretKey = properties.getProperty(secretKeyPath);
+        sseAlgorithm = properties.getProperty(sseAlgorithmPath);
         listenerTimerPeriod = Optional.ofNullable(properties.getProperty(listenerTimerPeriodPath))
             .map(Integer::parseInt)
             .orElse(null);
@@ -71,6 +77,10 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         return Regions.values();
     }
 
+    public SSEAlgorithm[] getAllSseAlgorithms() {
+        return SSEAlgorithm.values();
+    }
+
     public String getAccessKey() {
         return accessKey;
     }
@@ -95,6 +105,14 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
+    public String getSseAlgorithm() {
+        return sseAlgorithm;
+    }
+
+    public void setSseAlgorithm(String sseAlgorithm) {
+        this.sseAlgorithm = sseAlgorithm;
+    }
+
     @Override
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
@@ -104,6 +122,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(regionNamePath, regionName);
         propertiesHolder.setProperty(accessKeyPath, accessKey);
         propertiesHolder.setProperty(secretKeyPath, secretKey);
+        propertiesHolder.setProperty(sseAlgorithmPath, sseAlgorithm);
         propertiesHolder.setProperty(listenerTimerPeriodPath, listenerTimerPeriod);
     }
 
@@ -117,6 +136,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
                 regionNamePath,
                 accessKeyPath,
                 secretKeyPath,
+                sseAlgorithmPath,
                 listenerTimerPeriodPath
         );
         load(properties);

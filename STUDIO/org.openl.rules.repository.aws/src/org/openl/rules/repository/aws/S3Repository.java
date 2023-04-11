@@ -48,6 +48,7 @@ public class S3Repository implements Repository, Closeable {
     private String regionName;
     private String accessKey;
     private String secretKey;
+    private String sseAlgorithm;
     private int listenerTimerPeriod = 10;
 
     private AmazonS3 s3;
@@ -61,6 +62,14 @@ public class S3Repository implements Repository, Closeable {
 
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
+    }
+
+    public String getSseAlgorithm() {
+        return sseAlgorithm;
+    }
+
+    public void setSseAlgorithm(String sseAlgorithm) {
+        this.sseAlgorithm = sseAlgorithm;
     }
 
     public void setRegionName(String regionName) {
@@ -276,6 +285,9 @@ public class S3Repository implements Repository, Closeable {
     private ObjectMetadata createInsertFileMetadata(FileData data) {
         ObjectMetadata metaData = new ObjectMetadata();
         metaData.setContentType("application/zip");
+        if (!StringUtils.isBlank(sseAlgorithm)) {
+            metaData.setSSEAlgorithm(sseAlgorithm);
+        }
         if (data.getSize() != FileData.UNDEFINED_SIZE) {
             metaData.setContentLength(data.getSize());
         }

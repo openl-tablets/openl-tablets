@@ -29,6 +29,11 @@
         </h:inputText>
         <h:outputText value=""/>
         <h:message for="#{prependId}listenerTimerPeriod" styleClass="error"/>
+        <h:outputText value="SSE algorithm:"/>
+        <h:selectOneMenu value="#{settings.sseAlgorithm}" title="You can select server side encryption algorithm to encrypt data in S3 bucket.">
+            <f:selectItem itemLabel="None" itemValue="#{null}"/>
+            <f:selectItems value="#{settings.allSseAlgorithms}" var="algorithm" itemValue="#{algorithm.algorithm}" itemLabel="#{algorithm.algorithm}"/>
+        </h:selectOneMenu>
     </h:panelGrid>
     
     <h:panelGroup rendered="#{isDesignRepo}">
