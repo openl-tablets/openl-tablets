@@ -1071,6 +1071,12 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage("Failed to delete the project. The project does not exist in the branch.");
             return null;
         }
+        RepositoryAclService repositoryAclService = projectArtefact
+            .getProject() instanceof ADeploymentProject ? deployConfigRepositoryAclService : designRepositoryAclService;
+        if (!repositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
+            throw new Message(String.format("There is no permission for deleting '%s' project.",
+                projectArtefact.getArtefactPath().getStringValue()));
+        }
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
             String nodeType = selectedNode.getType();
@@ -1086,14 +1092,7 @@ public class RepositoryTreeController {
                     return null;
                 }
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
-                closeProjectForAllUsers(workspacesRoot, (RulesProject) projectArtefact);
-            }
-            RepositoryAclService repositoryAclService = projectArtefact
-                .getProject() instanceof ADeploymentProject ? deployConfigRepositoryAclService
-                                                            : designRepositoryAclService;
-            if (!repositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
-                throw new Message(String.format("There is no permission for deleting '%s' project.",
-                    projectArtefact.getArtefactPath().getStringValue()));
+                projectArtefact = closeProjectForAllUsers(workspacesRoot, (RulesProject) projectArtefact);
             }
             if (projectArtefact instanceof UserWorkspaceProject) {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
@@ -1230,7 +1229,7 @@ public class RepositoryTreeController {
     /**
      * Closes unlocked project for all users. All unsaved changes will be lost.
      */
-    private void closeProjectForAllUsers(File workspacesRoot, RulesProject project) throws ProjectException {
+    private RulesProject closeProjectForAllUsers(File workspacesRoot, RulesProject project) throws ProjectException {
         String projectName = project.getName();
         String businessName = project.getBusinessName();
         String branch = project.getBranch();
@@ -1284,6 +1283,9 @@ public class RepositoryTreeController {
                 }
             }
         }
+        return project.isLocalOnly() ? project
+                                     : userWorkspace
+                                         .getProject(repoId, project.getArtefactPath().getStringValue(), true);
     }
 
     public String unlockDeploymentConfiguration() {
