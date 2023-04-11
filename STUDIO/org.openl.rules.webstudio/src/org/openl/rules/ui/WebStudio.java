@@ -76,6 +76,7 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipWalker;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
@@ -312,7 +313,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     projectDescriptor.setName(project.getName());
                     if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
                         throw new Message(String.format("There is no permission for modifying '%s' file.",
-                            artefact.getArtefactPath().getStringValue()));
+                            ProjectArtifactUtils.extractResourceName(artefact)));
                     }
                     artefact.setContent(IOUtils.toInputStream(serializer.serialize(projectDescriptor)));
                     resetProjects();
@@ -750,7 +751,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 if (!rulesProject.hasArtefact(fileInZip) && !designRepositoryAclService.isGranted(rulesProject,
                     List.of(AclPermission.ADD))) {
                     throw new Message(String.format("There is no permission for creating '%s' file.",
-                        rulesProject.getArtefactPath().getStringValue() + "/" + fileInZip));
+                        ProjectArtifactUtils.extractResourceName(rulesProject) + "/" + fileInZip));
                 }
             }
             repository.delete(absentResources);

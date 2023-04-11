@@ -75,6 +75,7 @@ import org.openl.rules.webstudio.service.OpenAPIHelper;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
+import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclPermissionsSets;
@@ -661,8 +662,8 @@ public class ProjectBean {
             AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
             if (!designRepositoryAclService
                 .createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
-                String message = String.format("Granting permissions to file '%s' is failed.",
-                    newProjectResource.getArtefactPath().getStringValue());
+                String message = String.format("Granting permissions to a new file '%s' is failed.",
+                    ProjectArtifactUtils.extractResourceName(newProjectResource));
                 WebStudioUtils.addErrorMessage(message);
             }
         } catch (ProjectException e) {
@@ -760,7 +761,7 @@ public class ProjectBean {
             AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
             if (!designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
                 throw new Message(String.format("There is no permission for deleting '%s' file.",
-                    projectArtefact.getArtefactPath().getStringValue()));
+                    ProjectArtifactUtils.extractResourceName(projectArtefact)));
             }
         } catch (ProjectException ignored) {
         }
@@ -1021,8 +1022,8 @@ public class ProjectBean {
                     AProjectArtefact projectArtefact = currentProject.getArtefact(openAPIType.getDefaultFileName());
                     if (!designRepositoryAclService
                         .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
-                        String message = String.format("Granting permissions to file '%s' is failed.",
-                            projectArtefact.getArtefactPath().getStringValue());
+                        String message = String.format("Granting permissions to a new file '%s' is failed.",
+                            ProjectArtifactUtils.extractResourceName(projectArtefact));
                         WebStudioUtils.addErrorMessage(message);
                     }
                 }
@@ -1232,7 +1233,7 @@ public class ProjectBean {
     private void validatePermissionForEditing(AProjectArtefact artefact) {
         if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
             throw new Message(String.format("There is no permission for modifying '%s' file.",
-                artefact.getArtefactPath().getStringValue()));
+                ProjectArtifactUtils.extractResourceName(artefact)));
         }
     }
 
@@ -1241,7 +1242,7 @@ public class ProjectBean {
         if (!designRepositoryAclService
             .isGranted(currentProject.getRepository().getId(), p + "/" + path, List.of(AclPermission.ADD))) {
             throw new Message(String.format("There is no permission for creating '%s/%s' file.",
-                currentProject.getArtefactPath().getStringValue(),
+                ProjectArtifactUtils.extractResourceName(currentProject),
                 path));
         }
     }
@@ -1374,7 +1375,7 @@ public class ProjectBean {
         if (artefact != null) {
             if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.DELETE))) {
                 throw new Message(String.format("There is no permission for deleting '%s' file.",
-                    artefact.getArtefactPath().getStringValue()));
+                    ProjectArtifactUtils.extractResourceName(artefact)));
             }
             try {
                 currentProject.deleteArtefact(artefact.getInternalPath());
@@ -1477,8 +1478,8 @@ public class ProjectBean {
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
                 if (!designRepositoryAclService
                     .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
-                    String message = String.format("Granting permissions to file '%s' is failed.",
-                        projectArtefact.getArtefactPath().getStringValue());
+                    String message = String.format("Granting permissions to a new file '%s' is failed.",
+                        ProjectArtifactUtils.extractResourceName(projectArtefact));
                     WebStudioUtils.addErrorMessage(message);
                 }
             }

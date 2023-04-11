@@ -24,6 +24,7 @@ import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.repository.DeploymentProjectItem;
 import org.openl.rules.webstudio.web.repository.UiConst;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
+import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -328,8 +329,9 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                 if (!deployConfigRepositoryAclService.createAcl(deployConfiguration,
                     AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS,
                     true)) {
-                    String message = String.format("Granting permissions to deployment configuration '%s' is failed.",
-                        deployConfiguration.getArtefactPath().getStringValue());
+                    String message = String.format(
+                        "Granting permissions to a new deployment configuration '%s' is failed.",
+                        ProjectArtifactUtils.extractResourceName(deployConfiguration));
                     WebStudioUtils.addErrorMessage(message);
                 }
             }

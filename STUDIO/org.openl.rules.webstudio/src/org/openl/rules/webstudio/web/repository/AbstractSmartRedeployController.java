@@ -31,6 +31,7 @@ import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -482,8 +483,9 @@ public abstract class AbstractSmartRedeployController {
                 if (!deployConfigRepositoryAclService.createAcl(deployConfiguration,
                     AclPermissionsSets.NEW_DEPLOYMENT_CONFIGURATION_PERMISSIONS,
                     true)) {
-                    String message = String.format("Granting permissions to deployment configuration '%s' is failed.",
-                        deployConfiguration.getArtefactPath().getStringValue());
+                    String message = String.format(
+                        "Granting permissions to a new deployment configuration '%s' is failed.",
+                        ProjectArtifactUtils.extractResourceName(deployConfiguration));
                     WebStudioUtils.addErrorMessage(message);
                 }
             }
@@ -575,7 +577,8 @@ public abstract class AbstractSmartRedeployController {
         return DeploymentRepositoriesUtil.getRepositories(deploymentManager,
             propertyResolver,
             productionRepositoryAclService,
-            AclPermission.VIEW, AclPermission.EDIT);
+            AclPermission.VIEW,
+            AclPermission.EDIT);
     }
 
     public String getRepositoryTypes() throws JsonProcessingException {

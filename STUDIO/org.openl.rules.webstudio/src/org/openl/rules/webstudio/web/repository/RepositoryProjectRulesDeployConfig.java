@@ -21,6 +21,7 @@ import org.openl.rules.project.xml.SupportedVersion;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
+import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.permission.AclPermissionsSets;
@@ -100,7 +101,7 @@ public class RepositoryProjectRulesDeployConfig {
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 if (!designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for deleting '%s' file.",
-                        projectArtefact.getArtefactPath().getStringValue()));
+                        ProjectArtifactUtils.extractResourceName(projectArtefact)));
                     return;
                 }
                 project.deleteArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
@@ -131,14 +132,14 @@ public class RepositoryProjectRulesDeployConfig {
                 AProjectResource artefact = (AProjectResource) project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 if (!designRepositoryAclService.isGranted(artefact, List.of(AclPermission.EDIT))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for modifying '%s' file.",
-                        artefact.getArtefactPath().getStringValue()));
+                        ProjectArtifactUtils.extractResourceName(artefact)));
                     return;
                 }
                 artefact.setContent(inputStream);
             } else {
                 if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.ADD))) {
                     WebStudioUtils.addErrorMessage(String.format("There is no permission for creating '%s/%s' file.",
-                        project.getArtefactPath().getStringValue(),
+                        ProjectArtifactUtils.extractResourceName(project),
                         RULES_DEPLOY_CONFIGURATION_FILE));
                     return;
                 }
@@ -146,8 +147,8 @@ public class RepositoryProjectRulesDeployConfig {
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
                 if (!designRepositoryAclService
                     .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
-                    String message = String.format("Granting permissions to file '%s' is failed.",
-                        projectArtefact.getArtefactPath().getStringValue());
+                    String message = String.format("Granting permissions to a new file '%s' is failed.",
+                        ProjectArtifactUtils.extractResourceName(projectArtefact));
                     WebStudioUtils.addErrorMessage(message);
                 }
                 repositoryTreeState.refreshSelectedNode();

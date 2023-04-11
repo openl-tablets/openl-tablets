@@ -37,6 +37,7 @@ import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -293,8 +294,8 @@ public class CopyBean {
                     userWorkspace.getProjectsLockEngine());
                 if (!designRepositoryAclService
                     .createAcl(copiedProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS, true)) {
-                    String message = String.format("Granting permissions to project '%s' is failed.",
-                        copiedProject.getArtefactPath().getStringValue());
+                    String message = String.format("Granting permissions to a new project '%s' is failed.",
+                        ProjectArtifactUtils.extractResourceName(copiedProject));
                     WebStudioUtils.addErrorMessage(message);
                 }
                 if (!userWorkspace.isOpenedOtherProject(copiedProject)) {

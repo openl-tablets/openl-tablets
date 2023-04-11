@@ -9,6 +9,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
+import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermissionsSets;
@@ -135,7 +136,8 @@ public class ProjectUploader {
                 rulesProject.getDesignFolderName(),
                 AclPermissionsSets.NEW_PROJECT_PERMISSIONS,
                 true)) {
-                throw new ProjectException("Granting permissions to the project is failed.");
+                throw new ProjectException(String.format("Granting permissions to a new project '%s' is failed.",
+                    ProjectArtifactUtils.extractResourceName(rulesProject)));
             }
             createdProjectName = projectCreator.getCreatedProjectName();
             // Get just created project, because creator API doesn't create internals states for ProjectState
