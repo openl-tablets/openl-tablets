@@ -1,13 +1,12 @@
-package org.openl.itest;
+package org.openl.test;
 
 import org.junit.Test;
 import org.openl.itest.core.JettyServer;
 
-public class OAuth2SmokeITest {
+public class JWTValidatorTest {
 
     @Test
     public void test() throws Exception {
-        JettyServer.test("oauth");
+        JettyServer.test("jwt");
     }
-
 }

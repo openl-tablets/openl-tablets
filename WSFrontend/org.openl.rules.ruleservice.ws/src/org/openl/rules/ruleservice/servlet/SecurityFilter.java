@@ -1,7 +1,9 @@
 package org.openl.rules.ruleservice.servlet;
 
 import java.io.IOException;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -12,66 +14,71 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.rules.ruleservice.spring.JWTValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.env.Environment;
+import org.springframework.core.annotation.AnnotationAwareOrderComparator;
+
+import org.openl.rules.ruleservice.api.AuthorizationChecker;
 
 /**
- * Requests OAuth2 authentication for deployed OpenL projects.
- * Static web resources such as favicons, css and others supplement resources should be accessed without authentication.
+ * Requests authorization for deployed OpenL projects.
+ * Static web resources such as favicons, css and others supplement resources are accessed without authorization.
  *
- * @author ybiruk
+ * @author Yury Molchan
  */
 @WebFilter("/*")
 public class SecurityFilter implements Filter {
 
     private final Logger log = LoggerFactory.getLogger(SecurityFilter.class);
 
-    private boolean authOn;
-    private JWTValidator jwtValidator;
+    private List<AuthorizationChecker> authorizationCheckers;
 
     @Override
-    public void init(FilterConfig filterConfig) {
-        ApplicationContext applicationContext = SpringInitializer
-            .getApplicationContext(filterConfig.getServletContext());
-        Environment env = applicationContext.getEnvironment();
-        authOn = Boolean.parseBoolean(env.getProperty("ruleservice.authentication.enabled"));
-        jwtValidator = applicationContext.getBean(JWTValidator.class);
+    public void init(FilterConfig config) {
+        var applicationContext = SpringInitializer.getApplicationContext(config.getServletContext());
+        authorizationCheckers = new ArrayList<>(applicationContext.getBeansOfType(AuthorizationChecker.class).values());
+        authorizationCheckers.sort(AnnotationAwareOrderComparator.INSTANCE);
+        log.info("Available Authorization checkers: {}", Arrays.toString(authorizationCheckers.toArray()));
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-                                                                                              ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        HttpServletResponse httpResponse = (HttpServletResponse) response;
-        if (securedUrl(httpRequest)) {
-            try {
-                jwtValidator.validateToken(httpRequest);
-            } catch (Exception e) {
-                httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                log.warn(e.getMessage());
-                return;
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException, ServletException {
+        var request = (HttpServletRequest) req;
+        var response = (HttpServletResponse) resp;
+
+        if (authorizationCheckers.isEmpty() || skipAuthorization(request)) {
+            chain.doFilter(req, resp);
+            return;
+        }
+
+        try {
+            for (AuthorizationChecker validator : authorizationCheckers) {
+                if (validator.authorize(request)) {
+                    log.debug("Authorized: {} {}; by: {}", request.getMethod(), request.getRequestURL(), validator);
+                    chain.doFilter(req, resp);
+                    return;
+                }
             }
+            log.info("Unauthorized: {} {};", request.getMethod(), request.getRequestURL());
+        } catch (Exception e) {
+            log.warn("Unauthorized: {} {};", request.getMethod(), request.getRequestURL(), e);
         }
-        chain.doFilter(request, response);
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
     }
 
-    private boolean securedUrl(HttpServletRequest httpRequest) {
-        if (!authOn) {
-            return false;
-        }
+    private boolean skipAuthorization(HttpServletRequest httpRequest) {
         String pathInfo = httpRequest.getPathInfo();
         // Check if home url.
         if (pathInfo == null || pathInfo.equals("/")) {
-            return false;
+            return true;
         }
         // Do not check static resources such as images, icons etc.
-        return !StaticResourceResolver.isResourceExists(pathInfo);
+        return StaticResourceResolver.isResourceExists(pathInfo);
     }
 
     @Override
     public void destroy() {
+        authorizationCheckers.clear();
+        authorizationCheckers = null;
     }
 }

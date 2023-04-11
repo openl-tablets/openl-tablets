@@ -23,6 +23,7 @@
     <modules>
         <module>server-core</module>
         <module>itest.smoke</module>
+        <module>itest.security</module>
         <module>itest.spring-boot</module>
         <module>itest.local-zip-repository</module>
         <module>itest.ws-rest-rules-deploy</module>
