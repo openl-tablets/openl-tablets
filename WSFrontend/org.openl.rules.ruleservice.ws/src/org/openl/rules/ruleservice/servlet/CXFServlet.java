@@ -8,14 +8,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.cxf.Bus;
-import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.springframework.context.ApplicationContext;
 
 @WebServlet(urlPatterns = "/*", loadOnStartup = 1, initParams = {
-        @WebInitParam(name = "static-welcome-file", value = "/index.html"),
-        @WebInitParam(name = "static-resources-list", value = "/favicon.ico /openl-logo.svg /swagger-ui.html /rapi-doc/.*"),
         @WebInitParam(name = "service-list-path", value = "cxf-services"),
         @WebInitParam(name = "hide-service-list-page", value = "true") })
 public class CXFServlet extends CXFNonSpringServlet {
@@ -25,8 +22,6 @@ public class CXFServlet extends CXFNonSpringServlet {
         ApplicationContext ac = SpringInitializer.getApplicationContext(servletConfig.getServletContext());
         Bus cxf = ac.getBean("cxf", Bus.class);
         setBus(cxf);
-        ResourceManager resourceManager = cxf.getExtension(ResourceManager.class);
-        resourceManager.addResourceResolver(new StaticResourceResolver());
     }
 
     @Override
