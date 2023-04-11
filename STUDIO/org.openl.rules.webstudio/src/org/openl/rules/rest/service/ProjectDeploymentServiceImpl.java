@@ -319,7 +319,8 @@ public class ProjectDeploymentServiceImpl implements ProjectDeploymentService {
                     userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                     null,
                     List.of(AclPermission.CREATE))) {
-                    WebStudioUtils.addErrorMessage("There is no permission for creating deployment configuration.");
+                    WebStudioUtils
+                        .addErrorMessage("There is no permission for creating a new deployment configuration.");
                     return null;
                 }
                 // the same name, then create if absent

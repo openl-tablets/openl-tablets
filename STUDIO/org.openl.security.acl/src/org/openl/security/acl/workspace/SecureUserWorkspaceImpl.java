@@ -184,7 +184,7 @@ public class SecureUserWorkspaceImpl implements UserWorkspace {
             if (designRepositoryAclService.isGranted(repositoryId, null, List.of(CREATE))) {
                 return userWorkspace.uploadLocalProject(repositoryId, name, projectFolder, comment);
             } else {
-                throw new ProjectException("There is no permission for creating a project.");
+                throw new ProjectException("There is no permission for creating a new project.");
             }
         }
     }

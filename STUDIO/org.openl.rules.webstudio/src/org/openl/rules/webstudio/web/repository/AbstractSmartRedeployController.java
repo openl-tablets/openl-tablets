@@ -473,7 +473,8 @@ public abstract class AbstractSmartRedeployController {
                     userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(),
                     null,
                     List.of(AclPermission.CREATE))) {
-                    WebStudioUtils.addErrorMessage("There is no permission for creating deployment configuration.");
+                    WebStudioUtils
+                        .addErrorMessage("There is no permission for creating a new deployment configuration.");
                     return null;
                 }
                 // the same name, than create if absent

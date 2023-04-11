@@ -32,8 +32,8 @@ import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.stereotype.Service;
 
@@ -203,7 +203,7 @@ public class LocalUploadController {
                             return null;
                         }
                         if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(CREATE))) {
-                            WebStudioUtils.addErrorMessage("There is no permission for creating a project.");
+                            WebStudioUtils.addErrorMessage("There is no permission for creating a new project.");
                             return null;
                         }
                         File baseFolder = new File(workspacePath, bean.getProjectName());
