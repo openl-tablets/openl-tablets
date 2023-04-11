@@ -46,17 +46,24 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         }
     }
 
-    private String buildObjectIdentityId(AProjectArtefact projectArtefact) {
+    private String extractInternalPath(AProjectArtefact projectArtefact) {
         if (projectArtefact.getRepository() instanceof LocalRepository) {
             LocalRepository localRepository = (LocalRepository) projectArtefact.getRepository();
             ProjectState projectState = localRepository
                 .getProjectState(projectArtefact.getProject().getFileData().getName());
-            String repoPath = getRepoPath(projectState.getFileData());
-            return concat(projectArtefact.getRepository().getId(), repoPath + "/" + projectArtefact.getInternalPath());
+            return getRepoPath(projectState.getFileData()) + "/" + projectArtefact.getInternalPath();
         } else {
-            String repoPath = getRepoPath(projectArtefact.getFileData());
-            return concat(projectArtefact.getRepository().getId(), repoPath);
+            // Folders has empty file data
+            if (projectArtefact.getFileData() != null) {
+                return getRepoPath(projectArtefact.getFileData());
+            } else {
+                return extractInternalPath(projectArtefact.getProject()) + "/" + projectArtefact.getInternalPath();
+            }
         }
+    }
+
+    private String buildObjectIdentityId(AProjectArtefact projectArtefact) {
+        return concat(projectArtefact.getRepository().getId(), extractInternalPath(projectArtefact));
     }
 
     private ObjectIdentity buildObjectIdentity(AProjectArtefact projectArtefact) {
