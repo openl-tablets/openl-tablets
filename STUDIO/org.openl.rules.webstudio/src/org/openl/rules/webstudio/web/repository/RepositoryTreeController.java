@@ -720,6 +720,11 @@ public class RepositoryTreeController {
             return null;
         }
 
+        if (!designRepositoryAclService.isGranted(repositoryId, null, List.of(AclPermission.CREATE))) {
+            WebStudioUtils.addErrorMessage("There is no permission for creating a new project.");
+            return null;
+        }
+
         ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(repositoryId,
             projectName,
             projectFolder,
@@ -729,13 +734,12 @@ public class RepositoryTreeController {
             templateFiles);
         try {
             try {
-                RulesProject createdProject = projectCreator.createRulesProject();
-                if (designRepositoryAclService.createAcl(createdProject.getDesignRepository().getId(),
-                    createdProject.getDesignFolderName(),
-                    AclPermissionsSets.NEW_PROJECT_PERMISSIONS,
-                    true)) {
-                    // Get just created project, because creator API doesn't create internals states for ProjectState
-                    createdProject = userWorkspace.getProject(repositoryId, projectCreator.getCreatedProjectName());
+                projectCreator.createRulesProject();
+                // Get just created project, because creator API doesn't create internals states for ProjectState
+                RulesProject createdProject = userWorkspace.getProject(repositoryId,
+                    projectCreator.getCreatedProjectName());
+                if (designRepositoryAclService
+                    .createAcl(createdProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS, true)) {
                     if (!userWorkspace.isOpenedOtherProject(createdProject)) {
                         createdProject.open();
                     }
