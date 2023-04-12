@@ -22,7 +22,7 @@ public final class AclPermissionsSets {
         AclPermission.DEPLOY);
 
     public static final List<Permission> NEW_FILE_PERMISSIONS = List
-        .of(AclPermission.VIEW, AclPermission.EDIT, AclPermission.DELETE);
+        .of(AclPermission.VIEW, AclPermission.EDIT, AclPermission.DELETE, AclPermission.RUN, AclPermission.BENCHMARK);
 
     private AclPermissionsSets() {
     }
