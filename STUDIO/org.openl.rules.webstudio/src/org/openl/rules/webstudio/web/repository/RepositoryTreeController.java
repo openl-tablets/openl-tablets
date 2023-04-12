@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Stack;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -2235,6 +2236,20 @@ public class RepositoryTreeController {
                     fileName));
             }
             AProjectResource addedFileResource = node.addResource(fileName, lastUploadedFile.getInput());
+            TreeNode t = repositoryTreeState.getSelectedNode();
+            Stack<AProjectFolder> projectFolders = new Stack<>();
+            while (t.getData() instanceof AProjectFolder && !repositoryAclService.hasAcl(t.getData())) {
+                projectFolders.push((AProjectFolder) t.getData());
+                t = t.getParent();
+            }
+            while (!projectFolders.isEmpty()) {
+                AProjectFolder p = projectFolders.pop();
+                if (!repositoryAclService.createAcl(p, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                    String message = String.format("Granting permissions to a new folder '%s' is failed.",
+                        ProjectArtifactUtils.extractResourceName(p));
+                    WebStudioUtils.addErrorMessage(message);
+                }
+            }
             if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
                     ProjectArtifactUtils.extractResourceName(addedFileResource));
