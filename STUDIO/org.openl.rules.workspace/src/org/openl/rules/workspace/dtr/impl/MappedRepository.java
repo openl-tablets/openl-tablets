@@ -331,7 +331,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Sea
                 FileData data = delegate.check(project.getPath());
                 if (data == null) {
                     // It can be intermediate state: project is added to index, but not still committed.
-                    // Or project could be removed from repository, but index isn't updated. Will be updated later.
+                    // Or project could be removed from repository, but index is not updated. Will be updated later.
                     log.debug("Project {} is not found.", project.getPath());
                 } else {
                     if (delegate.supports().versions()) {
@@ -527,7 +527,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Sea
      * Check if mapping should be refreshed and if should, read it from file.
      *
      * @param withLock if true and refresh is needed then lock file will be created during reading. If false, lock
-     *            should be managed outside. If refresh isn't needed, lock file will not be created, this flag doesn't
+     *            should be managed outside. If refresh is not needed, lock file will not be created, this flag doesn't
      *            matter.
      */
     private ProjectIndex getUpToDateMapping(boolean withLock) throws IOException {

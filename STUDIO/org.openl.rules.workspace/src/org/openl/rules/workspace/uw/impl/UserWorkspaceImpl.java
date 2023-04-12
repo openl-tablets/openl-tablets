@@ -313,7 +313,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     try {
                         String realProjectName = getActualName(rPr);
                         if (!rPr.getLocalFolderName().equals(realProjectName)) {
-                            // We can't close and then open a project in workspace, we should rename the folder
+                            // We cannot close and then open a project in workspace, we should rename the folder
                             // in file system directly. Otherwise we will lose unsaved user changes.
                             File repoRoot = localWorkspace.getRepository(rPr.getRepository().getId()).getRoot();
                             String prevPath = rPr.getFolderPath();
@@ -323,7 +323,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                             if (renamed) {
                                 anyProjectRenamed = true;
                             } else {
-                                log.warn("Can't rename folder from " + prevPath + " to " + newPath);
+                                log.warn("Cannot rename folder from " + prevPath + " to " + newPath);
                             }
                         }
                     } catch (Exception e) {
@@ -565,7 +565,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                                 project.getHistoryVersion());
                         if (!project.isModified()) {
                             log.warn(
-                                    "The project '{}' isn't modified and will be closed because it absents in the history.",
+                                    "The project '{}' is not modified and will be closed because it absents in the history.",
                                     project.getName());
                             closeProject = true;
                         }
@@ -576,7 +576,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     try {
                         project.close();
                     } catch (ProjectException e) {
-                        log.warn("Can't close the project {}", project.getName(), e);
+                        log.warn("Cannot close the project {}", project.getName(), e);
                     }
                 }
                 userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase()), project);

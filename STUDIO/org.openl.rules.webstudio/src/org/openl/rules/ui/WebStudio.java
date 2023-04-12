@@ -322,7 +322,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     String newPath = prevPath.substring(0, index + 1) + logicalName;
                     boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
                     if (!renamed) {
-                        log.warn("Can't rename folder from " + prevPath + " to " + newPath);
+                        log.warn("Cannot rename folder from " + prevPath + " to " + newPath);
                     }
                 }
             }
@@ -971,7 +971,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
 
             if (project == null) {
-                log.warn("Projects descriptor is found but the project isn't found.");
+                log.warn("Projects descriptor is found but the project is not found.");
             }
             return project;
         } catch (Exception e) {
@@ -1034,7 +1034,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         if (mode != null) {
             setTreeView(mode);
         } else {
-            log.error("Can't find RulesTreeView for name {}", name);
+            log.error("Cannot find RulesTreeView for name {}", name);
         }
     }
 

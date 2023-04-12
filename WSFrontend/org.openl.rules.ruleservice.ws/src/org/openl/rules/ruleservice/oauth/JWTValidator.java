@@ -50,7 +50,7 @@ public class JWTValidator {
      * Url can be passed in token header or set in properties.
      *
      * @throws JOSEException If the RSA JWK extraction failed.
-     * @throws ParseException If the string couldn't be parsed to a valid signed JWT.
+     * @throws ParseException If the string could not be parsed to a valid signed JWT.
      * @throws BadJWTException If validation fails for some other reason.
      */
     public void validateToken(String jwtToken) throws ParseException, JOSEException, BadJWTException {

@@ -194,7 +194,7 @@ function resizePopupPanel(panelName) {
 }
 
 /**
- * To fix EPBDS-9950: if clear uploaded file in the pop-up, it can't be uploaded again.
+ * To fix EPBDS-9950: if clear uploaded file in the pop-up, it cannot be uploaded again.
  */
 function fixFileUpload() {
     if (!RichFaces.ui.FileUpload) {
@@ -224,7 +224,7 @@ function makePopupPanelsReallyResizable() {
         const self = this;
 
         if ($j.browser.msie) {
-            // ResizeObserver isn't supported by IE 11, so we use MutationObserver instead.
+            // ResizeObserver is not supported by IE 11, so we use MutationObserver instead.
             const observer = new MutationObserver(function () {
                 self.doResizeOrMove(RichFaces.ui.PopupPanel.Sizer.Diff.EMPTY);
             });

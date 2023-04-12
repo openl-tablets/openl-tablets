@@ -37,14 +37,14 @@ public class SessionListener implements HttpSessionActivationListener, HttpSessi
             try {
                 creationTime = session.getCreationTime();
             } catch (IllegalStateException e) {
-                log.debug("Session is invalidated, can't get Creation Time.");
+                log.debug("Session is invalidated, cannot get Creation Time.");
             }
 
             long lastAccessedTime = 0;
             try {
                 lastAccessedTime = session.getLastAccessedTime();
             } catch (IllegalStateException e) {
-                log.debug("Session is invalidated, can't get Last Accessed Time.");
+                log.debug("Session is invalidated, cannot get Last Accessed Time.");
             }
 
             log.debug(

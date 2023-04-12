@@ -320,7 +320,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     private String getDeployPath() {
         if (repository.supports().isLocal()) {
-            // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
+            // NOTE deployment path is not required for LocalRepository. It must be specified within URI
             return "";
         }
         return deployPath;

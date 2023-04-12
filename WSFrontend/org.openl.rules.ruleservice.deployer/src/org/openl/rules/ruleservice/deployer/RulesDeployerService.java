@@ -66,7 +66,7 @@ public class RulesDeployerService implements Closeable {
     public RulesDeployerService(Repository repository, String baseDeployPath) {
         this.deployRepo = repository;
         if (deployRepo.supports().isLocal()) {
-            // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
+            // NOTE deployment path is not required for LocalRepository. It must be specified within URI
             this.baseDeployPath = "";
         } else {
             this.baseDeployPath = baseDeployPath.isEmpty() || baseDeployPath.endsWith("/") ? baseDeployPath
@@ -88,7 +88,7 @@ public class RulesDeployerService implements Closeable {
     public RulesDeployerService(Function<String, String> properties) {
         this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties);
         if (deployRepo.supports().isLocal()) {
-            // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
+            // NOTE deployment path is not required for LocalRepository. It must be specified within URI
             this.baseDeployPath = "";
         } else {
             String deployPath = properties.apply("production-repository.base.path");

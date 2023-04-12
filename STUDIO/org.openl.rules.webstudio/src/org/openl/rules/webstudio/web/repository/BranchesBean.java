@@ -345,7 +345,7 @@ public class BranchesBean {
             }
 
             if (!existInCombobox && !branchesToMerge.isEmpty()) {
-                // Base branch can't be selected. Use a first available branch.
+                // Base branch cannot be selected. Use a first available branch.
                 branchToMerge = (String) (branchesToMerge.get(0).getValue());
             }
         }

@@ -115,7 +115,7 @@ public class ProjectTagsBean {
         // Validate
         tags.forEach(tag -> {
             final String tagName = tag.getName();
-            WebStudioUtils.validate(StringUtils.isNotBlank(tagName), "Can not be empty");
+            WebStudioUtils.validate(StringUtils.isNotBlank(tagName), "Cannot be empty");
 
             final TagType type = tag.getType();
 

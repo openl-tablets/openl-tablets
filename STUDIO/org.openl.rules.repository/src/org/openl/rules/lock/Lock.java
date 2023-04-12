@@ -48,7 +48,7 @@ public class Lock {
     public boolean tryLock(String lockedBy) {
         LockInfo info = getInfo();
         if (info.isLocked()) {
-            // If lockedBy is empty, will return false. Can't lock second time with empty user.
+            // If lockedBy is empty, will return false. Cannot lock second time with empty user.
             return !info.getLockedBy().isEmpty() && info.getLockedBy().equals(lockedBy);
         }
         boolean lockAcquired = false;
@@ -182,7 +182,7 @@ public class Lock {
                 os.append("user=").append(userName).write('\n');
                 os.append("date=").append(Instant.now().toString()).write('\n');
             } catch (FileAlreadyExistsException | AccessDeniedException | NoSuchFileException e) {
-                // Can't create lock file
+                // Cannot create lock file
                 return null;
             } catch (Exception e) {
                 // Lock file is created but with error. So delete it.

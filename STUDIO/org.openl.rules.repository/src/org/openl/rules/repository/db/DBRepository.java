@@ -567,7 +567,7 @@ abstract class DBRepository implements Repository, Closeable {
         try {
             initializeDatabase();
         } catch (Exception e) {
-            LOG.warn("Can't initialize database during Repository instantiation.", e);
+            LOG.warn("Cannot initialize database during Repository instantiation.", e);
         }
     }
 
