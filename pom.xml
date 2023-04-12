@@ -95,7 +95,7 @@
         <!-- Security -->
         <spring.security.version>5.8.2</spring.security.version>
         <opensaml.version>4.3.0</opensaml.version>
-        <nimbus-jose-jwt.version>9.31</nimbus-jose-jwt.version>
+        <jose4j.version>0.9.3</jose4j.version>
         <json-smart.version>2.4.10</json-smart.version>
 
         <!-- Bytecode manipulation -->
@@ -1122,9 +1122,9 @@
                 <version>${opensaml.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.nimbusds</groupId>
-                <artifactId>nimbus-jose-jwt</artifactId>
-                <version>${nimbus-jose-jwt.version}</version>
+                <groupId>org.bitbucket.b_c</groupId>
+                <artifactId>jose4j</artifactId>
+                <version>${jose4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.minidev</groupId>

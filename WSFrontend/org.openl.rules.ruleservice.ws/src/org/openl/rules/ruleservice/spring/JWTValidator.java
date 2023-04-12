@@ -1,34 +1,29 @@
 package org.openl.rules.ruleservice.spring;
 
+import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
+import javax.servlet.http.HttpServletRequest;
 
-import com.nimbusds.jose.jwk.JWKSet;
-
-import org.openl.rules.ruleservice.api.AuthorizationChecker;
-import org.openl.spring.config.ConditionalOnEnable;
-import org.openl.util.StringUtils;
-
-import org.cache2k.Cache;
-import org.cache2k.Cache2kBuilder;
+import org.jose4j.jwa.AlgorithmConstraints;
+import org.jose4j.jwk.HttpsJwks;
+import org.jose4j.jwk.JsonWebKeySet;
+import org.jose4j.jwt.consumer.JwtConsumer;
+import org.jose4j.jwt.consumer.JwtConsumerBuilder;
+import org.jose4j.keys.resolvers.HttpsJwksVerificationKeyResolver;
+import org.jose4j.keys.resolvers.JwksVerificationKeyResolver;
+import org.jose4j.keys.resolvers.VerificationKeyResolver;
+import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.crypto.ECDSAVerifier;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jose.jwk.JWK;
-import com.nimbusds.jose.jwk.KeyType;
-import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.jwt.proc.DefaultJWTClaimsVerifier;
-
-import javax.servlet.http.HttpServletRequest;
+import org.openl.rules.ruleservice.api.AuthorizationChecker;
+import org.openl.spring.config.ConditionalOnEnable;
+import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Check JWT with JWK and validate following claims: exp, iss, aud.
@@ -43,25 +38,48 @@ public class JWTValidator implements AuthorizationChecker {
 
     private final Logger log = LoggerFactory.getLogger(JWTValidator.class);
 
-    private final Cache<String, JWK> keyCache = Cache2kBuilder.of(String.class, JWK.class)
-            .entryCapacity(100)
-            .expiryPolicy((k, v, loadTime, previous) -> {
-                var d = v.getExpirationTime();
-                return d == null ? System.currentTimeMillis() + 60 * 60 * 1000 : d.getTime(); // 1 hour
-            })
-            .sharpExpiry(true)
-            .build();
-
-    private final Environment env;
+    private final JwtConsumer jwtConsumer;
 
     @Autowired
-    public JWTValidator(Environment env) {
-        this.env = env;
+    public JWTValidator(Environment env) throws JoseException, IOException {
+        var expectedIssuers = StringUtils.split(env.getProperty("ruleservice.authentication.iss"), ',');
+        if (CollectionUtils.isEmpty(expectedIssuers)) {
+            throw new IllegalArgumentException("The 'ruleservice.authentication.iss' property should contain an issuer id");
+        }
+
+        var jwkPropertyUrl = env.getProperty("ruleservice.authentication.jwks");
+        if (StringUtils.isEmpty(jwkPropertyUrl)) {
+            throw new IllegalArgumentException("The 'ruleservice.authentication.jwks' property should contain valid URL");
+        }
+
+        VerificationKeyResolver jwksResolver;
+        if (jwkPropertyUrl.startsWith("https:")) {
+            // This resolver do secure connection, correctly handles "cache-control" header, do caching of the keys,
+            // and multi-thread safe.
+            jwksResolver = new HttpsJwksVerificationKeyResolver(new HttpsJwks(jwkPropertyUrl));
+        } else {
+            try (var resource = new URL(jwkPropertyUrl).openStream()) {
+                var json = new String(resource.readAllBytes(), StandardCharsets.UTF_8);
+                var jwks = new JsonWebKeySet(json);
+                jwksResolver = new JwksVerificationKeyResolver(jwks.getJsonWebKeys());
+            }
+        }
+
+        var jwtConsumer = new JwtConsumerBuilder()
+                .setRequireExpirationTime() // the JWT must have an expiration time
+                .setAllowedClockSkewInSeconds(30) // allow some leeway in validating time based claims to account for clock skew
+                .setExpectedIssuer(env.getProperty("ruleservice.authentication.iss")) // whom the JWT needs to have been issued by
+                .setExpectedAudience(StringUtils.split(env.getProperty("ruleservice.authentication.aud"), ',')) // to whom the JWT is intended for
+                .setVerificationKeyResolver(jwksResolver) // verify the signature with the public key
+                .setJwsAlgorithmConstraints(AlgorithmConstraints.DISALLOW_NONE) // allow all algorithms
+                .build(); // create the JwtConsumer instance
+
+        this.jwtConsumer = jwtConsumer;
     }
 
     @Override
     public boolean authorize(HttpServletRequest httpRequest) {
-        String pathInfo = httpRequest.getPathInfo();
+        var pathInfo = httpRequest.getPathInfo();
         // Swagger and admin actions should be available without authorization.
         // Admin actions such as downloading or deploying via UI should be removed.
         if (pathInfo.startsWith("/admin/")) {
@@ -72,94 +90,25 @@ public class JWTValidator implements AuthorizationChecker {
             return true;
         }
 
-        String jwtToken = httpRequest.getHeader("Authorization");
-        if (jwtToken == null) {
+        var credentials = httpRequest.getHeader("Authorization");
+        if (credentials == null) {
             log.warn("Authorization header is not present.");
             return false;
         }
-        if (!jwtToken.regionMatches(true, 0, BEARER, 0, BEARER.length())) {
+        if (!credentials.regionMatches(true, 0, BEARER, 0, BEARER.length())) {
             log.warn("Bearer token is not present.");
             return false;
         }
 
         try {
-            SignedJWT jwsToken = SignedJWT.parse(jwtToken.substring(BEARER.length()));
-            String keyID = jwsToken.getHeader().getKeyID();
-
-            // Get public key
-            JWK jwk = getJWK(keyID);
-            if (jwk == null) {
-                log.warn("Unable to find JWK with id={}.", keyID);
-                return false;
-            }
-
-            JWSVerifier verifier;
-            var keyType = jwk.getKeyType();
-            if (KeyType.RSA.equals(keyType)) {
-                verifier = new RSASSAVerifier(jwk.toRSAKey());
-            } else if (KeyType.EC.equals(keyType)) {
-                verifier = new ECDSAVerifier(jwk.toECKey());
-            } else {
-                log.warn("Unsupported key type for JWK with id={}.", keyID);
-                return false;
-            }
-
-            if (!jwsToken.verify(verifier)) {
-                log.warn("Signature verification failed by JWK with id={}.", keyID);
-                return false;
-            }
-
-            var claimsVerifier = new DefaultJWTClaimsVerifier<>(
-
-                    // expected audience
-                    new HashSet<>(List.of(env.getProperty("ruleservice.authentication.aud"))),
-
-                    // exact match claims
-                    null,
-
-                    // names of required claims
-                    new HashSet<>(List.of("exp", "iss")),
-
-                    // names of prohibited claims
-                    Collections.singleton("nonce"));
-            claimsVerifier.verify(jwsToken.getJWTClaimsSet(), null);
-
-            var issuer = jwsToken.getJWTClaimsSet().getIssuer();
-            var issuers = StringUtils.split(env.getProperty("ruleservice.authentication.iss"), ',');
-            if (issuers == null || !Arrays.asList(issuers).contains(issuer)) {
-                log.warn("Invalid '{}' issuer.", issuer);
-                return false;
-            }
+            //  Validate the JWT and process it to the Claims
+            var jwtClaims = jwtConsumer.processToClaims(credentials.substring(BEARER.length()));
+            log.info("Authorized for JWT ID={}", jwtClaims.getJwtId());
         } catch (Exception e) {
             log.warn("Unexpected exception", e);
             return false;
         }
 
         return true;
-    }
-
-    private JWK getJWK(String keyID) throws Exception {
-        if (keyID == null) {
-            // No keyID -> no JWK
-            return null;
-        }
-        JWK jwk = keyCache.get(keyID);
-        if (jwk != null) {
-            // The cache contains only actual not expired keys
-            return jwk;
-        }
-
-        String jwkPropertyUrl = env.getProperty("ruleservice.authentication.jwks");
-        if (StringUtils.isBlank(jwkPropertyUrl)) {
-            throw new IllegalArgumentException("The 'ruleservice.authentication.jwks' property should contain valid URL");
-        }
-
-        // Update the cache by loading JWK public keys from the URL
-        JWKSet jwkSet = JWKSet.load(new URL(jwkPropertyUrl).openStream());
-        for (JWK key : jwkSet.getKeys()) {
-            keyCache.put(key.getKeyID(), key);
-        }
-
-        return keyCache.get(keyID);
     }
 }
