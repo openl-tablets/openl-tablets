@@ -11,6 +11,7 @@ import org.openl.rules.repository.api.Page;
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.SearchableRepository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.model.PageResponse;
 import org.openl.rules.rest.model.ProjectRevision;
 import org.openl.rules.rest.model.UserInfoModel;
@@ -62,8 +63,9 @@ public class HistoryRepositoryMapper {
     private ProjectRevision mapProjectRevision(FileData src) {
         ProjectRevision dest = new ProjectRevision();
         UserInfoModel userInfo = new UserInfoModel();
-        userInfo.setEmail(src.getAuthor().getEmail());
-        userInfo.setDisplayName(src.getAuthor().getName());
+        UserInfo author = src.getAuthor();
+        userInfo.setEmail(author != null ? author.getEmail() : null);
+        userInfo.setDisplayName(author != null ? author.getName() : null);
         dest.setAuthor(userInfo);
         dest.setCreatedAt(src.getModifiedAt());
         String revision = src.getVersion();
