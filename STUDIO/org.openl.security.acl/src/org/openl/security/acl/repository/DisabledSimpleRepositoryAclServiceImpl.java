@@ -95,6 +95,11 @@ public class DisabledSimpleRepositoryAclServiceImpl implements SimpleRepositoryA
     }
 
     @Override
+    public boolean hasAcl(String repositoryId, String path) {
+        return true;
+    }
+
+    @Override
     public Sid getOwner(String repositoryId, String path) {
         return null;
     }

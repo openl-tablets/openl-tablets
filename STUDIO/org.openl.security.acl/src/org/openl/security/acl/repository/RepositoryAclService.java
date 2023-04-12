@@ -33,6 +33,8 @@ public interface RepositoryAclService extends SimpleRepositoryAclService {
 
     boolean createAcl(AProjectArtefact projectArtefact, List<Permission> permissions, boolean force);
 
+    boolean hasAcl(AProjectArtefact projectArtefact);
+
     Sid getOwner(AProjectArtefact projectArtefact);
 
     boolean updateOwner(AProjectArtefact projectArtefact, Sid newOwner);

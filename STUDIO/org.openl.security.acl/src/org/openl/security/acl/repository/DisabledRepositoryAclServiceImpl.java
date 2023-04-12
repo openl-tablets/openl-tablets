@@ -63,6 +63,11 @@ public class DisabledRepositoryAclServiceImpl extends DisabledSimpleRepositoryAc
     }
 
     @Override
+    public boolean hasAcl(AProjectArtefact projectArtefact) {
+        return true;
+    }
+
+    @Override
     public Sid getOwner(AProjectArtefact projectArtefact) {
         return null;
     }
