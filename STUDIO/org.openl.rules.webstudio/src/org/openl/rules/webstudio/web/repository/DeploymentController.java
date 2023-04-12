@@ -23,13 +23,13 @@ import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
-import org.openl.rules.workspace.dtr.impl.MappedRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -473,7 +473,7 @@ public class DeploymentController {
             }
             Repository repo = workspace.getDesignTimeRepository().getRepository(deployment.getRepositoryId());
             if (repo.supports().mappedFolders() && StringUtils.isNotBlank(deployment.getPath())) {
-                String mappedName = ((MappedRepository) repo).getMappedName(deployment.getName(), deployment.getPath());
+                String mappedName = ((FolderMapper) repo).getMappedName(deployment.getName(), deployment.getPath());
                 try {
                     return workspace.getProject(deployment.getRepositoryId(), mappedName, false);
                 } catch (Exception e1) {
