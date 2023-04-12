@@ -23,11 +23,13 @@ import org.openl.rules.webstudio.web.admin.ProjectTagsBean;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.event.ProjectDeletedEvent;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
+import org.openl.rules.webstudio.web.util.ProjectArtifactUtils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
+import org.openl.security.acl.permission.AclPermissionsSets;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -212,9 +214,13 @@ public class LocalUploadController {
                         }
                         RulesProject createdProject = rulesUserSession.getUserWorkspace()
                             .uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
-
+                        if (!designRepositoryAclService
+                            .createAcl(createdProject, AclPermissionsSets.NEW_PROJECT_PERMISSIONS, true)) {
+                            String message = String.format("Granting permissions to a new project '%s' is failed.",
+                                ProjectArtifactUtils.extractResourceName(createdProject));
+                            WebStudioUtils.addErrorMessage(message);
+                        }
                         projectTagsBean.saveTags(createdProject);
-
                         WebStudioUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
                     } catch (Exception e) {
                         String msg;
