@@ -1,14 +1,5 @@
 package org.openl.rules.rest;
 
-import static org.openl.rules.ui.WebStudio.TABLE_FORMULAS_SHOW;
-import static org.openl.rules.ui.WebStudio.TABLE_VIEW;
-import static org.openl.rules.ui.WebStudio.TEST_FAILURES_ONLY;
-import static org.openl.rules.ui.WebStudio.TEST_FAILURES_PERTEST;
-import static org.openl.rules.ui.WebStudio.TEST_RESULT_COMPLEX_SHOW;
-import static org.openl.rules.ui.WebStudio.TEST_TESTS_PERPAGE;
-import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
-import static org.openl.rules.ui.WebStudio.RULES_TREE_VIEW;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -66,6 +57,8 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import static org.openl.rules.ui.WebStudio.*;
 
 @RestController
 @RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -243,7 +236,7 @@ public class UsersController {
             studio.setShowComplexResult(showComplexResult);
             studio.setTestsPerPage(testsPerPage);
             studio.setTestsFailuresOnly(testsFailuresOnly);
-            studio.setTreeView(treeView);
+            studio.setDefaultTreeView(treeView);
         } else {
             userSettingsManager.setProperty(username, TRACE_REALNUMBERS_SHOW, showRealNumbers);
             userSettingsManager.setProperty(username, TEST_FAILURES_PERTEST, testsFailuresPerTest);
@@ -254,7 +247,7 @@ public class UsersController {
                 TABLE_VIEW,
                 showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
             userSettingsManager.setProperty(username, TEST_FAILURES_ONLY, testsFailuresOnly);
-            userSettingsManager.setProperty(username, RULES_TREE_VIEW, treeView);
+            userSettingsManager.setProperty(username, RULES_TREE_VIEW_DEFAULT, treeView);
         }
     }
 
@@ -275,7 +268,7 @@ public class UsersController {
             .setTestsFailuresPerTest(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_FAILURES_PERTEST))
             .setShowComplexResult(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_RESULT_COMPLEX_SHOW))
             .setShowRealNumbers(userSettingsManager.getBooleanProperty(user.getUsername(), TRACE_REALNUMBERS_SHOW))
-            .setTreeView(userSettingsManager.getStringProperty(user.getUsername(), RULES_TREE_VIEW))
+            .setTreeView(userSettingsManager.getStringProperty(user.getUsername(), RULES_TREE_VIEW_DEFAULT))
             .setDisplayName(user.getDisplayName())
             .setUsername(user.getUsername())
             .setExternalFlags(user.getExternalFlags())

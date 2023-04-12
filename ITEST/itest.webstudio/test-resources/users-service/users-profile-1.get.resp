@@ -14,7 +14,7 @@ Content-Type: application/json
   "testsFailuresPerTest": 5,
   "showComplexResult": false,
   "showRealNumbers": false,
-  "treeView": "type",
+  "treeView": "excelSheet",
   "externalFlags": {
     "lastNameExternal": false,
     "emailExternal": false,
@@ -29,9 +29,9 @@ Content-Type: application/json
       "description":"Organize projects by component type"
     },
     {
-      "displayName":"File",
-      "name":"file",
-      "description":"Organize projects by physical location"
+      "displayName":"Excel Sheet",
+      "name":"excelSheet",
+      "description":"Organize projects by physical file structure"
     },
     {
       "displayName":"Category",
