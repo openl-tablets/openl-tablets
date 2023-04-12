@@ -48,6 +48,8 @@ public interface SimpleRepositoryAclService {
 
     boolean createAcl(String repositoryId, String path, List<Permission> permissions, boolean force);
 
+    boolean hasAcl(String repositoryId, String path);
+
     Sid getOwner(String repositoryId, String path);
 
     boolean updateOwner(String repositoryId, String path, Sid newOwner);

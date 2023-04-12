@@ -173,6 +173,13 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
 
     @Override
     @Transactional
+    public boolean hasAcl(AProjectArtefact projectArtefact) {
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
+        return hasAcl(oi);
+    }
+
+    @Override
+    @Transactional
     public Sid getOwner(AProjectArtefact projectArtefact) {
         ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         return getOwner(oi);

@@ -481,6 +481,23 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
         return createAcl(oi, permissions, force);
     }
 
+    @Override
+    @Transactional
+    public boolean hasAcl(String repositoryId, String path) {
+        Objects.requireNonNull(repositoryId, "repositoryId cannot be null");
+        ObjectIdentity oi = new ObjectIdentityImpl(getObjectIdentityClass(), concat(repositoryId, path));
+        return hasAcl(oi);
+    }
+
+    protected boolean hasAcl(ObjectIdentity oi) {
+        try {
+            aclService.readAclById(oi);
+            return true;
+        } catch (NotFoundException e) {
+            return false;
+        }
+    }
+
     protected boolean tryCreateAcl(ObjectIdentity oi, List<Permission> permissions) {
         try {
             aclService.readAclById(oi);
