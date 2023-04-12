@@ -292,7 +292,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                             .findFirst();
                         if (projectOptional.isPresent()) {
                             String realPath = projectOptional.get().getRealPath();
-                            projectPath = ((MappedRepository) repository).findMappedName(realPath);
+                            projectPath = ((FolderMapper) repository).findMappedName(realPath);
                         }
                     }
                     FileData fileData = repository.checkHistory(projectPath, repoVersion);
