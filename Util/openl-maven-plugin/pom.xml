@@ -201,6 +201,9 @@
                 <multimodule.timeoutInSeconds>60</multimodule.timeoutInSeconds>
                 <!-- this module could be failed from time to time previously as well -->
                 <gen-datatypes.timeoutInSeconds>35</gen-datatypes.timeoutInSeconds>
+                <!-- provided-dependency has 6 projects -->
+                <provided-dependency.mavenOpts>${jacoco.argLine} -Xms16m -Xmx64m -XX:MaxMetaspaceSize=192m</provided-dependency.mavenOpts>
+                <provided-dependency.timeoutInSeconds>90</provided-dependency.timeoutInSeconds>
             </properties>
         </profile>
     </profiles>
