@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.openl.internal</groupId>
+        <artifactId>openl-verify-provided-dependency</artifactId>
+        <version>0.0.0</version>
+    </parent>
+
+    <groupId>org.openl.internal.verify</groupId>
+    <artifactId>openl-deployment-3</artifactId>
+    <packaging>openl</packaging>
+
+    <name>OpenL Deployment with Provided Dependency #3</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.internal.verify</groupId>
+            <artifactId>openl-jar-library</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.camunda</groupId>
+                    <artifactId>zeebe-util</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>openl-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <dependenciesThreshold>1</dependenciesThreshold>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
