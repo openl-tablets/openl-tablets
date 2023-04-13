@@ -1,0 +1,12 @@
+<project>
+    <name>OpenL Deployment</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="groovy"/>
+        <entry path="lib/*.jar"/>
+    </classpath>
+</project>

@@ -42,6 +42,10 @@
     <modules>
         <module>openl-jar-library</module>
         <module>openl-deployment</module>
+        <module>openl-deployment-1</module>
+        <module>openl-deployment-2</module>
+        <module>openl-deployment-3</module>
+        <module>openl-deployment-4</module>
     </modules>
 
 </project>

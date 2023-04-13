@@ -46,7 +46,9 @@ public class AppServer {
         var server = new Server(0); // Random port
         server.setHandler(webAppContext);
 
+        var backupProperties = System.getProperties();
         try {
+            System.setProperty("groovy.use.classvalue", "false"); // Prevent memory leak via JDK ClassValue. See GROOVY-7591
             server.start();
 
             int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
@@ -68,6 +70,7 @@ public class AppServer {
         } finally {
             server.stop();
             server.destroy();
+            System.setProperties(backupProperties);
         }
     }
 }
