@@ -248,7 +248,7 @@ public class ProjectBean {
     public void validateProjectName(FacesContext context, UIComponent toValidate, Object value) {
         String name = (String) value;
 
-        WebStudioUtils.validate(StringUtils.isNotBlank(name), "Can not be empty");
+        WebStudioUtils.validate(StringUtils.isNotBlank(name), "Cannot be empty");
 
         if (!studio.getCurrentProjectDescriptor().getName().equals(name)) {
             WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_PROJECT_NAME_MSG);
@@ -905,7 +905,7 @@ public class ProjectBean {
             throw new Message(e.getMessage(), e);
         } catch (Exception e) {
             throw new Message(
-                String.format("Failed to %s OpenAPI file. Please check compilation.", update ? "update" : "create"),
+                String.format("Failed to %s OpenAPI file. Check compilation.", update ? "update" : "create"),
                 e);
         } finally {
             if (!currentProject.isModified()) {
@@ -1253,7 +1253,7 @@ public class ProjectBean {
                 }
             }
         } catch (ProjectException | IOException | JAXBException e) {
-            log.error("Can't add rules deploy file to the project.");
+            log.error("Cannot add rules deploy file to the project.");
             throw new Message("Failed to add rules deploy xml file.");
         }
     }

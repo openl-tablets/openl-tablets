@@ -160,7 +160,7 @@ public class DesignTimeRepositoryController {
         try {
             IOUtils.copyAndClose(file.getInputStream(), Files.newOutputStream(archiveTmp));
             if (!lock.tryLock(getUserName(), 15, TimeUnit.SECONDS)) {
-                throw new IllegalStateException("Can't create a lock.");
+                throw new IllegalStateException("Cannot create a lock.");
             }
             validationProvider.validate(model, createUpdateProjectModelValidator);
             validationProvider.validate(archiveTmp, zipArchiveValidator);

@@ -22,7 +22,6 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
-import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.module.ContextPropertyBinderUtils;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.classloader.OpenLClassLoader;
@@ -274,7 +273,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         IOpenClass superClass = dataType.getSuperClass();
         if (superClass != null && !datatypeClass.getSuperclass().getName().equals(superClass.getJavaName())) {
             String errorMessage = String.format(
-                "Invalid parent class in class '%s'. Please, update the class to be compatible with the datatype.",
+                "Invalid parent class in the '%s' class. Update the class so that it is compatible with the datatype.\n",
                 datatypeClassName);
             BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
         }
@@ -283,7 +282,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             datatypeClass.getConstructor();
         } catch (NoSuchMethodException e) {
             String errorMessage = String.format(
-                "Default constructor is not found in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                "Default constructor is not found in the '%s' class. \" + \" Update the class so that it is compatible with the datatype.",
                 datatypeClassName);
             BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
         }
@@ -307,9 +306,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 if (fieldDescription.isTransient() != Modifier.isTransient(field.getModifiers()) || (fieldDescription
                     .isTransient() && !field.isAnnotationPresent(XmlTransient.class)) || (!fieldDescription
                         .isTransient() && field.isAnnotationPresent(XmlTransient.class))) {
-                    String errorMessage = String.format("Field '%s' is " + (fieldDescription
+                    String errorMessage = String.format("The '%s' field is " + (fieldDescription
                         .isTransient() ? "not "
-                                       : "") + "transient in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                                       : "") + "transient in the '%s' class. "
+                                    + "Update the class so that it is compatible with the datatype.",
                         fieldName,
                         datatypeClassName);
                     BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
@@ -317,10 +317,11 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             } catch (NoSuchFieldException e) {
                 LOG.debug("Error occurred: ", e);
                 String errorMessage = String.format(
-                    "%s '%s' is not found in class '%s'. " + "Please, update the class to be compatible with the datatype.",
-                    dataType.isStatic() ? "Static field" : "Field",
-                    fieldName,
-                    datatypeClassName);
+                        "The '%s' %s is not found in the '%s' class. "
+                                + "Update the class so that it is compatible with the datatype.",
+                        fieldName,
+                        dataType.isStatic() ? "static field" : "field",
+                        datatypeClassName);
                 BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
             }
 
@@ -331,16 +332,16 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 if ((fieldDescription.isTransient() && !getterMethod
                     .isAnnotationPresent(XmlTransient.class)) || (!fieldDescription.isTransient() && getterMethod
                         .isAnnotationPresent(XmlTransient.class))) {
-                    String errorMessage = String.format("Field '%s' is " + (fieldDescription
+                    String errorMessage = String.format("The '%s' field is " + (fieldDescription
                         .isTransient() ? "not "
-                                       : "") + "transient in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                                       : "") + "transient in the '%s' class. " + "Update the class so that it is compatible with the datatype.",
                         fieldName,
                         datatypeClassName);
                     BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                 }
             } catch (NoSuchMethodException e) {
                 String errorMessage = String.format(
-                    "Method 'get%s' is not found in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                    "The 'get%s' method is not found in the '%s' class. Update the class so that it is compatible with the datatype.",
                     name,
                     datatypeClassName);
                 name = StringUtils.capitalize(fieldName); // Try old solution (before 5.21.7)
@@ -388,7 +389,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     }
                     if (f) {
                         String errorMessage = String.format(
-                            "Default value for field '%s' in class '%s' mismatches " + "default value is used in datatype '%s'. " + "Please, update the class to be compatible with the datatype.",
+                            "The default value for the '%s' field in the '%s' class "
+                                    + "mismatches the default value used in the '%s' datatype. "
+                                    + "Update the class so that it is compatible with the datatype.",
                             fieldEntry.getKey(),
                             datatypeClassName,
                             dataType.getName());
@@ -411,7 +414,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
             if (!found) {
                 String errorMessage = String.format(
-                    "Method '%s(%s)' is not found in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                    "The '%s(%s)' method is not found in the '%s' class. "
+                            + "Update the class so that it is compatible with the datatype.",
                     setterMethodName,
                     fieldDescription.getTypeName(),
                     datatypeClassName);
@@ -434,7 +438,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     Field f = datatypeClass.getSuperclass().getDeclaredField(fieldEntry.getKey());
                     if (!Modifier.isPublic(f.getModifiers()) && !Modifier.isProtected(f.getModifiers())) {
                         String errorMessage = String.format(
-                            "Invalid access modifier is found on field '%s' in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                            "An invalid access modifier is found for the '%s' field in the '%s' class. "
+                                    + "Update the class so that it is compatible with the datatype.",
                             fieldEntry.getKey(),
                             datatypeClass.getSuperclass().getTypeName());
                         BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
@@ -475,7 +480,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
             if (!g) {
                 String errorMessage = String.format(
-                    "Mandatory constructor with parameters is not found in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                    "A mandatory constructor with parameters is not found in the '%s' class. "
+                            + "Update the class so that it is compatible with the datatype.",
                     datatypeClass.getSuperclass().getTypeName());
                 BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
             }

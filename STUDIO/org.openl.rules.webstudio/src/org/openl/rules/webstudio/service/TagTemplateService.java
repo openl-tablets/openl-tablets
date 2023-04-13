@@ -105,7 +105,7 @@ public class TagTemplateService {
 
             final String tagTypeName = matcher.group(1);
             if (tagTypeDao.getByName(tagTypeName) == null) {
-                return "Can't find tag type '" + tagTypeName + "'.";
+                return "Cannot find tag type '" + tagTypeName + "'.";
             }
         }
         if (!hasTagTypes) {
@@ -135,7 +135,7 @@ public class TagTemplateService {
                 tagTypes.add(tagType);
                 regexPattern.append("(.+)"); // Capturing group order will be same as in groupTypes.
             } else {
-                LOG.warn("Can't find tag type '{}'. Skip it.", tagTypeName);
+                LOG.warn("Cannot find tag type '{}'. Skip it.", tagTypeName);
             }
 
             pos = matcher.end();

@@ -228,7 +228,7 @@ public class DataTableBindHelper {
                     char ch = fieldName.charAt(j);
                     arrayIndex = Character.isDigit(ch);
                     if (!arrayIndex) {
-                        break; // stop parsing if index isn't numeric
+                        break; // stop parsing if index is not numeric
                     }
                 }
                 if (!arrayIndex) {

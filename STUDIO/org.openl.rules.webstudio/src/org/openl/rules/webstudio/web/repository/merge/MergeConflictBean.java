@@ -277,7 +277,7 @@ public class MergeConflictBean {
             conflictResolutions.get(conflictedFile).setCustomResolutionFile(new ProjectFile(event.getUploadedFile()));
             uploadError = null;
         } catch (IOException e) {
-            uploadError = "Can't upload the file. " + e.getMessage();
+            uploadError = "Cannot upload the file. " + e.getMessage();
         }
     }
 

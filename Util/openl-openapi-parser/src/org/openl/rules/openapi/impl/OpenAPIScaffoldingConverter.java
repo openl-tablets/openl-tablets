@@ -665,7 +665,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                                 .findFirst();
                         }
                     }
-                    // the called spreadsheet isn't returned by the model
+                    // the called spreadsheet is not returned by the model
                     if (Objects.equals(foundSpr, Optional.empty())) {
                         foundSpr = models.stream().filter(sprModel -> {
                             boolean typesAreTheSame = sprModel.getReturnRef() != null && type

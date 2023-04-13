@@ -44,12 +44,12 @@ public final class RepositoryValidators {
     public static void validate(RepositoryConfiguration prodConfig,
             List<RepositoryConfiguration> productionRepositoryConfigurations) throws RepositoryValidationException {
         if (StringUtils.isEmpty(prodConfig.getName())) {
-            String msg = "Repository name is empty. Please, enter repository name.";
+            String msg = "Repository name is empty. Enter a repository name.";
             throw new RepositoryValidationException(msg);
         }
         if (!NameChecker.checkName(prodConfig.getName())) {
             String msg = String.format(
-                "Repository name '%s' contains illegal characters. Please, correct repository name.",
+                "The '%s' repository name contains unsupported characters. Modify the repository name and try again.",
                 prodConfig.getName());
             throw new RepositoryValidationException(msg);
         }
@@ -58,7 +58,7 @@ public final class RepositoryValidators {
         for (RepositoryConfiguration other : productionRepositoryConfigurations) {
             if (other != prodConfig) {
                 if (prodConfig.getName().equals(other.getName())) {
-                    String msg = String.format("Repository name '%s' already exists. Please, insert a new one.",
+                    String msg = String.format("The '%s' repository name already exists. Try another name.",
                         prodConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
@@ -73,7 +73,7 @@ public final class RepositoryValidators {
                     Path otherPath = Paths.get(((GitRepositorySettings) other.getSettings()).getLocalRepositoryPath());
                     if (path.equals(otherPath)) {
                         String msg = String.format(
-                            "Repository local path '%s' already exists. Please, insert a new one.",
+                            "The '%s' repository local path already exists. Try another value.",
                             path);
                         throw new RepositoryValidationException(msg);
                     }
@@ -94,7 +94,7 @@ public final class RepositoryValidators {
         CommonRepositorySettings settings = (CommonRepositorySettings) prodConfig.getSettings();
         String path = settings.getPath();
         if (StringUtils.isEmpty(path)) {
-            String msg = "Repository path is empty. Please, enter repository path.";
+            String msg = "The repository path is empty. Specify the repository path.";
             throw new RepositoryValidationException(msg);
         }
 
@@ -102,7 +102,7 @@ public final class RepositoryValidators {
         for (RepositoryConfiguration other : productionRepositoryConfigurations) {
             if (other != prodConfig) {
                 if (prodConfig.getName().equals(other.getName())) {
-                    String msg = String.format("Repository name '%s' already exists. Please, insert a new one.",
+                    String msg = String.format("The '%s' repository name already exists. Try another name.",
                         prodConfig.getName());
                     throw new RepositoryValidationException(msg);
                 }
@@ -113,7 +113,7 @@ public final class RepositoryValidators {
                         // Different users can access different schemas
                         String login = settings.getLogin();
                         if (!settings.isSecure() || login != null && login.equals(otherSettings.getLogin())) {
-                            String msg = String.format("Repository path '%s' already exists. Please, insert a new one.",
+                            String msg = String.format("The '%s' repository local path already exists. Try another value.",
                                 path);
                             throw new RepositoryValidationException(msg);
                         }
@@ -160,9 +160,9 @@ public final class RepositoryValidators {
 
         // Check for common cases.
         if (cause instanceof FailedLoginException) {
-            return "Invalid login or password. Please, check login and password.";
+            return "Invalid login or password. Try again.";
         } else if (cause instanceof ConnectException) {
-            return "Connection refused. Please, check repository URL.";
+            return "Connection refused. Check the repository URL and try again.";
         } else if (cause instanceof UnknownHostException) {
             final String message = cause.getMessage();
             return message != null ? String.format("Unknown host (%s).", message) : "Unknown host.";

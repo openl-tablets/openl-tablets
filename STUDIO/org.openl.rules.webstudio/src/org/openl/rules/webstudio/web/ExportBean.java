@@ -110,7 +110,7 @@ public class ExportBean {
             String message;
             if (e.getCause() instanceof FileNotFoundException) {
                 if (e.getMessage().contains(".xls")) {
-                    message = "Failed to export the project. Please close module Excel file and try again.";
+                    message = "Failed to save the changes. Close the module Excel file and try again.";
                 } else {
                     message = "Failed to export the project because some resources are used.";
                 }

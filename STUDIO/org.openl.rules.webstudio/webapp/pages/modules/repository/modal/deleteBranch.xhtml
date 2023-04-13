@@ -25,7 +25,7 @@
                 <h:panelGroup layout="block" rendered="#{project.modified}">
                     <p>
                         <h:graphicImage value="/images/warning.svg" alt="warning" style="height: 11px;"/>
-                        <span class="attention-text">WARNING!</span> Project '#{project.businessName}' is modified, if you delete branch, all changes will be lost.</p>
+                        <span class="attention-text">WARNING!</span> The '#{project.businessName}' project is modified. If you delete the branch, all changes will be lost.</p>
                 </h:panelGroup>
                 <h:panelGroup layout="block" rendered="#{not repositoryTreeController.isMergedIntoMain(project)}">
                     <p>

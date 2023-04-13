@@ -54,7 +54,7 @@ public class RulesProjectBuilder {
             try {
                 tempLocalRepositoryPath = Files.createTempDirectory("openl-create");
             } catch (IOException e) {
-                throw new IllegalStateException("Can't create temp folder");
+                throw new IllegalStateException("Cannot create temp folder");
             }
 
             LocalRepository localRepository = new LocalRepository(tempLocalRepositoryPath.toFile());

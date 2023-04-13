@@ -6619,7 +6619,7 @@ Content-Type: application/json
                 "properties": {
                   "path": {
                     "type": "string",
-                    "description": "Project path in target repository. This parameter is optional and can be provided only if Flat folder structure isn't enabled for target repository."
+                    "description": "Project path in target repository. This parameter is optional and can be provided only if Flat folder structure is not enabled for target repository."
                   },
                   "comment": {
                     "type": "string",

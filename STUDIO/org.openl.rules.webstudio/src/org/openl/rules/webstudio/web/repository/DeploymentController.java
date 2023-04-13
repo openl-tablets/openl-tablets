@@ -159,7 +159,7 @@ public class DeploymentController {
         try {
             ADeploymentProject selectedProject = getSelectedProject();
             if (selectedProject == null) {
-                WebStudioUtils.addErrorMessage("Deployment configuration isn't selected");
+                WebStudioUtils.addErrorMessage("Deployment configuration is not selected");
                 return null;
             }
             synchronized (selectedProject) {

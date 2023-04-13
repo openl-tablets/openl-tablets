@@ -1631,7 +1631,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 return historyVisitor.getResult();
             }
 
-            // We can't use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits
+            // We cannot use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits
             // so some history elements aren't shown. So we iterate all commits and filter them out ourselves.
             Iterator<RevCommit> iterator = git.log().add(resolveBranchId()).call().iterator();
 
@@ -1686,7 +1686,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     RevCommit commit = walk.parseCommit(id);
                     historyVisitor.visit(name, commit, getVersionName(git.getRepository(), tags, commit));
                 } else {
-                    log.warn("Can't find commit for version {}", version);
+                    log.warn("Cannot find commit for version {}", version);
                 }
                 return historyVisitor.getResult();
             }
@@ -1813,7 +1813,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     static RevCommit findFirstCommit(Git git, ObjectId startCommit, String path) throws IOException, GitAPIException {
-        // We can't use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits so
+        // We cannot use git.log().addPath(path) because jgit has some issues for some scenarios when merging commits so
         // some history elements aren't shown. So we iterate all commits and filter them out ourselves.
         Repository repository = git.getRepository();
         try (ObjectReader or = repository.newObjectReader()) {
@@ -2398,7 +2398,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             if (branchAbsents) {
                 // Checkout existing branch
                 if (isEmpty()) {
-                    throw new IOException("Can't create a branch on the empty repository.");
+                    throw new IOException("Cannot create a branch on the empty repository.");
                 }
                 checkoutForced(branch);
 
@@ -2807,7 +2807,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     /**
      * Returns Git repository that can safely be closed.<br/>
-     * If our instance of GitRepository isn't closed, returns Git object that reuses existing Repository instance. In
+     * If our instance of GitRepository is not closed, returns Git object that reuses existing Repository instance. In
      * this case close() method does nothing: Repository object is managed by GitRepository.<br/>
      * If our instance of GitRepository is closed, returns Git object with a new Repository instance so the caller must
      * close it.<br/>
@@ -2901,7 +2901,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         String to = from + ".renamed";
                         boolean renamed = hookFile.renameTo(new File(to));
                         if (!renamed) {
-                            log.warn("Can't rename '{}' to '{}'", from, to);
+                            log.warn("Cannot rename '{}' to '{}'", from, to);
                         }
                     }
                 }

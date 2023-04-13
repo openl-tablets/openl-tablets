@@ -137,7 +137,7 @@ public class LocalGitRepositoryTest {
             repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
             fail("Must fail when create a branch on empty repository");
         } catch (IOException e) {
-            assertEquals("Can't create a branch on the empty repository.", e.getMessage());
+            assertEquals("Cannot create a branch on the empty repository.", e.getMessage());
         }
 
         String text = "Some text";
@@ -386,7 +386,7 @@ public class LocalGitRepositoryTest {
             assertTrue(repo.isMergedInto(branch1, mainBranch));
             // Our project (project1) was modified in branch2 and then their changes were discarded when merged into
             // main. We should be able to retrieve their changes despite that they were discarded.
-            // So we expect that main branch isn't merged into branch1 (there are valuable changes in main branch).
+            // So we expect that main branch is not merged into branch1 (there are valuable changes in main branch).
             assertFalse(repo.isMergedInto(mainBranch, branch1));
 
             // Modify again in branch1.

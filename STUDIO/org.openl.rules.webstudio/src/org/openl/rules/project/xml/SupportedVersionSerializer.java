@@ -54,7 +54,7 @@ public class SupportedVersionSerializer {
             if (!file.exists() || file.delete()) {
                 return;
             }
-            // If the file exists and can't be deleted, proceed with version update.
+            // If the file exists and cannot be deleted, proceed with version update.
         }
 
         var properties = new HashMap<>();

@@ -107,7 +107,7 @@ public class EditProjectTagsBean {
     public void save() {
         try {
             // Validate
-            WebStudioUtils.validate(StringUtils.isNotBlank(tagName), "Can not be empty");
+            WebStudioUtils.validate(StringUtils.isNotBlank(tagName), "Cannot be empty");
 
             final TagType type = tagTypeService.getById(typeId);
 

@@ -54,7 +54,7 @@ public class RepositorySettingsValidators {
         WebStudioUtils.validate(newBranchName.matches("(.(?<![./]{2}))+"),
                 "Invalid branch name. Should not contain consecutive symbols '.' or '/'.");
         WebStudioUtils.validate(newBranchName.matches("^[^./].*[^./]"),
-                "Invalid branch name. Can not start with '.' or '/'.");
+                "Invalid branch name. Cannot start with '.' or '/'.");
         WebStudioUtils.validate(!newBranchName.contains(".lock/") && !newBranchName.endsWith(".lock") ,
                 "Invalid branch name. Should not contain '.lock/' or end with '.lock'.");
 

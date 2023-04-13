@@ -102,7 +102,7 @@ public class TestIntExpCard extends TestCase {
             IntExpArray array = new IntExpArray(C, 5, 0, 5, "array");
 
             IntExpCard card = new IntExpCard(C, array, array.max() + 1);
-            // there couldn't be elements with value greater then array.max()
+            // there could not be elements with value greater then array.max()
             assertEquals(0, card.value());
 
             IntExpCard card1 = new IntExpCard(C, array, array.min() - 1);

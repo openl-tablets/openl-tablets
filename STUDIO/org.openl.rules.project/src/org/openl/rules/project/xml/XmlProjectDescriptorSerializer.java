@@ -34,7 +34,7 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     private final JAXBSerializer jaxbSerializer;
 
     /**
-     * Create Project Descriptor Serializer Note: please consider using ProjectDescriptorSerializerFactory instead
+     * Create Project Descriptor Serializer Note: consider using ProjectDescriptorSerializerFactory instead.
      *
      */
     public XmlProjectDescriptorSerializer() {

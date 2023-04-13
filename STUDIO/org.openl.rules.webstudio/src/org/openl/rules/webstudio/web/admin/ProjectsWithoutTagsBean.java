@@ -57,7 +57,7 @@ public class ProjectsWithoutTagsBean {
             final List<Tag> tags = tagTemplateService.getTags(projectName);
 
             if (tags.isEmpty()) {
-                // Can't automatically fill tags.
+                // Cannot automatically fill tags.
                 continue;
             }
 

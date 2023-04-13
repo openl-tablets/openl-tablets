@@ -41,7 +41,7 @@
                 <h:panelGroup rendered="#{editable}">
                     <h:outputLink title="#{linkTitle}" value="#{studio.url('table')}"
                         onclick="if (!canOverwriteRevision()) return false; ws.nav.go(this.href.replace(/^.+#/, '')); return false;">
-                        <!-- If not use go(), we can't press "edit cell" repeatedly, only once -->
+                        <!-- If not use go(), we cannot press "edit cell" repeatedly, only once -->
                         <f:param name="id" value="#{messagesBean.tableId}" />
                         <f:param name="cell" value="#{messagesBean.errorCell}" />
                         <f:param name="mode" value="edit" />

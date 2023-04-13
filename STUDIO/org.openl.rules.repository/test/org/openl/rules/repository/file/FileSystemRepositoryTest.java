@@ -60,7 +60,7 @@ public class FileSystemRepositoryTest {
             assertDelete(repo, "folder1/text", true);
             assertFalse("Repo folder must be deleted when all files in it were deleted.", root.exists());
 
-            assertTrue("Repository's base folder must not be deleted: Repo isn't responsible for it.", base.exists());
+            assertTrue("Repository's base folder must not be deleted: Repo is not responsible for it.", base.exists());
         } finally {
             // Cleanup
             FileUtils.deleteQuietly(base);
