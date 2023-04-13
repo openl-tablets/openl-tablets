@@ -8,7 +8,7 @@
     </parent>
     <artifactId>org.openl.rules.webstudio</artifactId>
     <packaging>war</packaging>
-    <name>OpenL - STUDIO - WebStudio WAR</name>
+    <name>OpenL - STUDIO - WebStudio</name>
     <description>OpenL WebStudio</description>
     <url>https://openl-tablets.org</url>
     <organization>

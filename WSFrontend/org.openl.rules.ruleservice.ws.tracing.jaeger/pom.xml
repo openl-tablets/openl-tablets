@@ -8,7 +8,7 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws.tracing.jaeger</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - RuleService - Rule Services - OpenTracing Jaeger</name>
+    <name>OpenL - RuleService - OpenTracing Jaeger</name>
     <description>OpenL Rules WebService OpenTracing Jaeger</description>
     <url>https://openl-tablets.org</url>
 

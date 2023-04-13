@@ -5,6 +5,7 @@
         <groupId>org.openl.rules</groupId>
         <version>5.26.7-SNAPSHOT</version>
     </parent>
+    <name>OpenL - RuleService - Storage Hive Annotation</name>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive.annotation</artifactId>

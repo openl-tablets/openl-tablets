@@ -9,7 +9,7 @@
     </parent>
     <artifactId>openl-openapi-parser</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL OpenAPI Parser</name>
+    <name>OpenL - OpenAPI Parser</name>
     <url>https://openl-tablets.org</url>
     <organization>
         <name>OpenL Tablets</name>

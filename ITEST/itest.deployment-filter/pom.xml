@@ -10,7 +10,7 @@
 
     <artifactId>itest.deployment-filter</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - EPBDS-7721 Deployment Filter Test</name>
+    <name>ITEST - Deployment Filter</name>
     <url>https://openl-tablets.org</url>
 
     <dependencies>

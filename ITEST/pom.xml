@@ -11,7 +11,7 @@
     <groupId>org.openl.itest</groupId>
     <artifactId>itest</artifactId>
     <packaging>pom</packaging>
-    <name>ITEST - Parent POM</name>
+    <name>ITEST - POM</name>
 
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>

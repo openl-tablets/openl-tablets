@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>itest.spring-boot-web-app</artifactId>
-    <name>ITEST - Spring Boot: Application</name>
+    <name>ITEST - Spring Boot: Web Application</name>
 
     <dependencies>
         <dependency>

@@ -11,7 +11,7 @@
 
     <artifactId>itest.storelogdata</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - WS Store Log Data Test</name>
+    <name>ITEST - WS Store Log Data</name>
     <url>https://openl-tablets.org</url>
 
     <properties>

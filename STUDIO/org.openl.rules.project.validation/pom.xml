@@ -8,7 +8,7 @@
     </parent>
     <artifactId>org.openl.rules.project.validation</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - Project Validation</name>
+    <name>OpenL - Project - Validation Core</name>
     <description>OpenL Rules Project Validation</description>
     <url>https://openl-tablets.org</url>
     <dependencies>

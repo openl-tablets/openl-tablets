@@ -10,7 +10,7 @@
 
     <artifactId>itest.WebService-lazy</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - WebService (lazy instantiation)</name>
+    <name>ITEST - WebService (lazy compilation)</name>
     <url>https://openl-tablets.org</url>
 
     <dependencies>
