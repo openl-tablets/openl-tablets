@@ -8,7 +8,7 @@
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws.storelogdata.db</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - RuleService - Rule Services - Store Log Data Database</name>
+    <name>OpenL - RuleService - Storage DB</name>
     <description>OpenL Rules Webservice Store Log Data Database</description>
     <url>https://openl-tablets.org</url>
 

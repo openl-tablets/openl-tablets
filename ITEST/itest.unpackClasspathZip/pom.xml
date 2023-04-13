@@ -10,7 +10,7 @@
 
     <artifactId>itest.unpackClasspathZip</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - UnpackClasspathZip Test</name>
+    <name>ITEST - Unpack Classpath Zip</name>
     <url>https://openl-tablets.org</url>
 
     <dependencies>

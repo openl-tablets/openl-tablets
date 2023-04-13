@@ -11,7 +11,7 @@
 
     <artifactId>itest.tracing</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - WS Tracing Test</name>
+    <name>ITEST - WS Tracing</name>
     <url>https://openl-tablets.org</url>
 
     <properties>

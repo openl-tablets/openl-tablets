@@ -10,7 +10,7 @@
 
     <artifactId>org.openl.rules.profiler</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL - RuleService - Profiler</name>
+    <name>OpenL - Profiler</name>
     <url>https://openl-tablets.org</url>
     <organization>
         <name>OpenL Tablets</name>

@@ -10,7 +10,7 @@
 
     <artifactId>itest.local-zip-repository</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - Local ZIP Repository Test</name>
+    <name>ITEST - Local ZIP Repository</name>
     <url>https://openl-tablets.org</url>
 
     <dependencies>

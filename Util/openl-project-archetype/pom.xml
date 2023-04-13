@@ -11,7 +11,7 @@
 
     <artifactId>openl-project-archetype</artifactId>
     <packaging>maven-archetype</packaging>
-    <name>OpenL Rules Project archetype</name>
+    <name>OpenL - Rules Project Maven Archetype</name>
     <url>https://openl-tablets.org</url>
     <organization>
         <name>OpenL Tablets</name>

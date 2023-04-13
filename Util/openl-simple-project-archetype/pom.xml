@@ -9,7 +9,7 @@
     </parent>
     <artifactId>openl-simple-project-archetype</artifactId>
     <packaging>maven-archetype</packaging>
-    <name>OpenL Simple Project archetype</name>
+    <name>OpenL - Simple Project Maven Archetype</name>
     <url>https://openl-tablets.org</url>
     <organization>
         <name>OpenL Tablets</name>

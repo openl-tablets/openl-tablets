@@ -9,7 +9,7 @@
     </parent>
     <artifactId>openl-yaml</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL Yaml</name>
+    <name>OpenL - Project - YAML</name>
     <url>https://openl-tablets.org</url>
     <organization>
         <name>OpenL Tablets</name>

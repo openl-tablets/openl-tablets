@@ -9,7 +9,7 @@
     </parent>
     <artifactId>openl-openapi-model-scaffolding</artifactId>
     <packaging>jar</packaging>
-    <name>OpenL OpenAPI Model Scaffolding</name>
+    <name>OpenL - OpenAPI Model Scaffolding</name>
     <url>https://openl-tablets.org</url>
     <organization>
         <name>OpenL Tablets</name>

@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>itest.security</artifactId>
-    <name>ITEST - Authorization Test</name>
+    <name>ITEST - Authorization</name>
     <url>https://openl-tablets.org</url>
 
     <dependencies>
