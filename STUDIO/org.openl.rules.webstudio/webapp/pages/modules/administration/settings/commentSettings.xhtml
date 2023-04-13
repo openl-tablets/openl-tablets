@@ -23,7 +23,7 @@
     </div>
 
     <div id="#{prependId}invalidCommentMessageShowInfo" class="hidden">
-        This message is shown to user if user message isn't matched to message validation pattern.
+        This message is shown to user if user message is not matched to message validation pattern.
     </div>
 
     <div id="#{prependId}defaultCommentSaveShowInfo" class="hidden">
@@ -110,7 +110,7 @@
                 
                 <h:outputText value="Invalid user message hint:" styleClass="required"/>
                 <h:inputText value="#{settings.invalidCommentMessage}"
-                             title="This message is shown to user if user message isn't matched to regular expression that is used in validation pattern."
+                             title="This message is shown to user if user message is not matched to regular expression that is used in validation pattern."
                              id="#{prependId}invalidCommentMessage"
                              validator="#{validators.ivalidCommentMessage}"/>
                 <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}invalidCommentMessageShowInfo');return false;" title="Details"/>

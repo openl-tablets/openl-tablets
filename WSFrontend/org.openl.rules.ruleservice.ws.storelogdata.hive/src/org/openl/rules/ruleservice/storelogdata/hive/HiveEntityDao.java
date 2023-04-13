@@ -124,7 +124,7 @@ public class HiveEntityDao {
             preparedStatement.setDate(index, date == null ? null : new java.sql.Date(date.getTime()));
         } else {
             throw new UnsupportedFieldTypeException(
-                String.format("Field '%s' of class '%s' can not be stored. Unsupported field type '%s'.",
+                String.format("Field '%s' of class '%s' cannot be stored. Unsupported field type '%s'.",
                     field.getName(),
                     field.getType().getTypeName(),
                     field.getType()));

@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "ExpandTest (Expandable scheme in a parameter(root isn't))",
+    "title": "ExpandTest (Expandable scheme in a parameter(root is not))",
     "version": "1.0.0"
   },
   "paths": {

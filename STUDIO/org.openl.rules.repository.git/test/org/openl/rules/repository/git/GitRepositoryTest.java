@@ -455,7 +455,7 @@ public class GitRepositoryTest {
         // Check that old archived version is still deleted.
         assertTrue(repo.checkHistory(name, archived.getVersion()).isDeleted());
 
-        // Check that isDeleted() isn't broken for files: their status shouldn't be get from main branch.
+        // Check that isDeleted() is not broken for files: their status shouldn't be get from main branch.
         String filePath = "rules/project1/folder/file-new";
         String text = "text";
         FileData created = repo2.save(createFileData(filePath, text), IOUtils.toInputStream(text));
@@ -1205,7 +1205,7 @@ public class GitRepositoryTest {
         newBranchRepo.pull(new UserInfo("jsmith", "jsmith@email", "John Smith"));
 
         assertNotNull("The file '" + newPath + "' must exist in '" + newBranch + "'", newBranchRepo.check(newPath));
-        // Check that pull is invoked on correct branch and that 'new-branch' isn't merged into 'test'.
+        // Check that pull is invoked on correct branch and that 'new-branch' is not merged into 'test'.
         assertNull(
             "The file '" + newPath + "' must be absent in '" + BRANCH + "', because the branch '" + newBranch + "' wasn't merged yet.",
             repo.check(newPath));
@@ -1246,7 +1246,7 @@ public class GitRepositoryTest {
             "The file '" + path2 + "' must be absent in '" + BRANCH + "', because the branch '" + branch2 + "' wasn't merged yet.",
             repo.check(path2));
 
-        // Check that ''branch2' isn't merged into 'branch1'
+        // Check that ''branch2' is not merged into 'branch1'
         assertNotNull("The file '" + path1 + "' must exist in '" + branch1 + "'", branch1Repo.check(path1));
         assertNull("The file '" + path2 + "' must be absent in '" + branch1 + "'", branch1Repo.check(path2));
 

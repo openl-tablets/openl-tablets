@@ -244,7 +244,7 @@ public class TestDescription {
             }
         }
         if (foreignKeyField == null) {
-            // Couldn't find foreign key field in foreign Data Table or current Test Table - fallback to index field
+            // Could not find foreign key field in foreign Data Table or current Test Table - fallback to index field
             foreignKeyField = type == null ? null : type.getIndexField();
         }
 

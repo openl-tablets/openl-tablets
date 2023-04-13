@@ -97,7 +97,7 @@ public class SystemSettingsBean {
             for (RepositoryConfiguration configuration : designRepositoryEditor.getRepositoryConfigurations()) {
                 if (configuration.getErrorMessage() != null) {
                     log.error(configuration.getErrorMessage());
-                    WebStudioUtils.addErrorMessage("Incorrect design repository configuration '" + configuration.getName() + "', please fix it.");
+                    WebStudioUtils.addErrorMessage("Incorrect design repository configuration '\" + configuration.getName() + \"'. Fix the errors and try again.");
                 }
             }
         } catch (Exception e) {

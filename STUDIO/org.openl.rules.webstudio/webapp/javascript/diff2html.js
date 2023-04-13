@@ -758,7 +758,7 @@ OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
         backwardExhausted = true;
         return iterator();
       } // We tried to fit hunk before text beginning and beyond text length, then
-      // hunk can't fit on the text. Return undefined
+      // hunk cannot fit on the text. Return undefined
 
     };
   }

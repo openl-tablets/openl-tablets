@@ -117,7 +117,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
         String dataName = data.getName();
         File file = new File(root, dataName);
         if (!file.getParentFile().mkdirs() && !file.getParentFile().exists()) {
-            LOG.warn("Couldn't create the folder '{}'", file.getParentFile());
+            LOG.warn("Could not create the folder '{}'", file.getParentFile());
         }
 
         // Close only output stream. This class is not responsible for input stream: stream must be closed in the

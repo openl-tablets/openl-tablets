@@ -14,8 +14,8 @@ public class RepositoryValidatorsTest {
 
     @Test
     public void testCommonExceptionMessages() {
-        assertEquals("Invalid login or password. Please, check login and password.", getMostSpecificMessage(new IllegalArgumentException("Error:", new FailedLoginException())));
-        assertEquals("Connection refused. Please, check repository URL.", getMostSpecificMessage(new IllegalArgumentException("Error:", new ConnectException())));
+        assertEquals("Invalid login or password. Try again.", getMostSpecificMessage(new IllegalArgumentException("Error:", new FailedLoginException())));
+        assertEquals("Connection refused. Check the repository URL and try again.", getMostSpecificMessage(new IllegalArgumentException("Error:", new ConnectException())));
 
         IllegalArgumentException e1 = new IllegalArgumentException("Unable to execute HTTP request: test-bucket.someunserver.com", new UnknownHostException("test-bucket.someunserver.com"));
         assertEquals("Unknown host (test-bucket.someunserver.com).", getMostSpecificMessage(e1));

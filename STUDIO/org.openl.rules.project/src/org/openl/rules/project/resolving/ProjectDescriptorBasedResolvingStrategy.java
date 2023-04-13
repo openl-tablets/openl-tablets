@@ -84,7 +84,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
             return projectDescriptor;
         } catch (ValidationException ex) {
             throw new ProjectResolvingException(
-                "Project descriptor is wrong. Please, verify '" + PROJECT_DESCRIPTOR_FILE_NAME + "' file format.",
+                "Project descriptor is wrong. Verify the '\" + PROJECT_DESCRIPTOR_FILE_NAME + \"' file format.",
                 ex);
         } catch (FileNotFoundException e) {
             throw new ProjectResolvingException(

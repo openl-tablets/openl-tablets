@@ -32,16 +32,16 @@ public class ReadOnlyPropertiesHolder implements PropertiesHolder {
     }
 
     protected void doSetProperty(String key, String value) {
-        throw new UnsupportedOperationException("Editing isn't supported");
+        throw new UnsupportedOperationException("Editing is not supported");
     }
 
     @Override
     public void revertProperties(String... keys) {
-        throw new UnsupportedOperationException("Editing isn't supported");
+        throw new UnsupportedOperationException("Editing is not supported");
     }
 
     @Override
     public Map<String, String> getConfig() {
-        throw new UnsupportedOperationException("Editing isn't supported");
+        throw new UnsupportedOperationException("Editing is not supported");
     }
 }

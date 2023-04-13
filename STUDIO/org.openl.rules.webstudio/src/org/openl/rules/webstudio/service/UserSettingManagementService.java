@@ -35,7 +35,7 @@ public class UserSettingManagementService {
         String value = getStringProperty(login, key);
         if (value == null) {
             throw new IllegalArgumentException(
-                "Can't cast null to boolean. Probably default value for property " + key + " is absent.");
+                "Cannot cast null to Boolean. The default value for the \" + key + \" property might be missing.");
         }
 
         return Boolean.parseBoolean(value);
@@ -45,7 +45,7 @@ public class UserSettingManagementService {
         String value = getStringProperty(login, key);
         if (value == null) {
             throw new IllegalArgumentException(
-                "Can't cast null to int. Probably default value for property " + key + " is absent.");
+                "Cannot cast null to int. Probably default value for property " + key + " is absent.");
         }
 
         return Integer.parseInt(value);

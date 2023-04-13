@@ -219,7 +219,7 @@ public class LocalUploadController {
                                 .getProjectName() + "'! " + NameChecker.BAD_PROJECT_NAME_MSG;
                         } else if (e.getCause() instanceof FileNotFoundException) {
                             if (e.getMessage().contains(".xls")) {
-                                msg = "Failed to create the project. Please close module Excel file and try again.";
+                                msg = "Failed to create the project. Close the module Excel file and try again.";
                             } else {
                                 msg = "Failed to create the project because some resources are used";
                             }

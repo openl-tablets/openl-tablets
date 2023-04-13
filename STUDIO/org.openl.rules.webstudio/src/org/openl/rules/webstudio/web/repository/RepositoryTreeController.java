@@ -140,7 +140,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class RepositoryTreeController {
 
     private static final String CUSTOM_TEMPLATE_TYPE = "custom";
-    private static final String OPENED_OTHER_PROJECT = "WebStudio can't open two projects with the same name. Please close another project and open it again.";
+    private static final String OPENED_OTHER_PROJECT = "OpenL Tablets WebStudio cannot open two projects with the same name. Close the currently opened project and try again.";
     private static final String NONE_REPO = "none";
     public static final String OPENAPI_DEFAULT_DATA_MODULE_PATH = "openapi.default.data.module.path";
     public static final String OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH = "openapi.default.algorithm.module.path";
@@ -247,7 +247,7 @@ public class RepositoryTreeController {
      */
     public String addFile() {
         if (getLastUploadedFile() == null) {
-            WebStudioUtils.addErrorMessage("Please select file to be uploaded.");
+            WebStudioUtils.addErrorMessage("Select a file to upload.");
             return null;
         }
         if (StringUtils.isEmpty(fileName)) {
@@ -2107,7 +2107,7 @@ public class RepositoryTreeController {
 
             ProjectFile lastUploadedFile = getLastUploadedFile();
             if (lastUploadedFile == null) {
-                return "Please upload the file";
+                return "Upload the file";
             }
             AProjectResource addedFileResource = node.addResource(fileName, lastUploadedFile.getInput());
 
@@ -2833,7 +2833,7 @@ public class RepositoryTreeController {
             clearForm();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            WebStudioUtils.addErrorMessage("Can't import the project: " + e.getMessage());
+            WebStudioUtils.addErrorMessage("Cannot import the project: " + e.getMessage());
             clearForm();
         }
     }
@@ -2949,7 +2949,7 @@ public class RepositoryTreeController {
 
     public void checkBranchIsDeletable() {
         UserWorkspaceProject project = getSelectedProject();
-        String message = "Branch can't be deleted: ";
+        String message = "Branch cannot be deleted: ";
 
         if (project == null) {
             WebStudioUtils.addErrorMessage(message + " project for the branch is absent.");

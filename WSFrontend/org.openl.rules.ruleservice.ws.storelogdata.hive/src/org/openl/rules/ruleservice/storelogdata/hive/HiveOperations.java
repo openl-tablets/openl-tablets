@@ -45,7 +45,7 @@ public class HiveOperations implements RuleServicePublisherListener {
         try {
             return hiveDataSource.getConnection();
         } catch (SQLException e) {
-            throw new IllegalStateException("Can not get connection to Hive", e);
+            throw new IllegalStateException("Cannot get connection to Hive", e);
         }
     }
 

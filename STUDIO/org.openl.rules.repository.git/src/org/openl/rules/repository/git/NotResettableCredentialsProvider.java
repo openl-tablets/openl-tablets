@@ -119,7 +119,7 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
 
     @Override
     public void clear() {
-        // Do nothing to ensure that username and password isn't cleared.
+        // Do nothing to ensure that username and password is not cleared.
         LOG.warn("clear() method should never be invoked.");
     }
 }

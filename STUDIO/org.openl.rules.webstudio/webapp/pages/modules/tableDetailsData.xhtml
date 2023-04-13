@@ -34,7 +34,7 @@
 
             <tr class="#{(editable and !added) ? 'editableProp' : ''}#{prop.inheritedProperty ? ' inheritedProp' : ''}#{!empty prop.deprecation ? ' deprecatedProp' : ''}"
                 onmouseover="showRemoveBtn(this,#{!empty prop.deprecation})" onmouseout="hideRemoveBtn(this,#{!empty prop.deprecation})"
-                title="#{prop.inheritedProperty ? 'Inherited property' : (!empty prop.deprecation ? 'This property was deprecated. Please, remove it!' : '')}">
+                title="#{prop.inheritedProperty ? 'Inherited property' : (!empty prop.deprecation ? 'This property is deprecated and must be removed.' : '')}">
                 <td class="propName" onclick="#{editable ? 'editProperty(this.parentNode)' : ''}">
                     #{prop.displayName}
                 </td>

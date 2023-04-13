@@ -151,7 +151,7 @@ public class DeployClasspathJarsBean implements InitializingBean, DisposableBean
         }
         if (!rulesDeployerService.isReady()) {
             // Wait until it will be ready.
-            log.info("Rules deployer service isn't ready. Wait {} seconds...", retryPeriod);
+            log.info("Rules deployer service is not ready. Wait {} seconds...", retryPeriod);
             return;
         }
         try {

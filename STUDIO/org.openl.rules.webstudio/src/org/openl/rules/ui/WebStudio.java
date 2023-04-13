@@ -239,7 +239,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             Throwable cause = e.getCause();
             if (cause instanceof FileNotFoundException) {
                 if (e.getMessage().contains(".xls")) {
-                    msg = "Failed to save the project. Please close module Excel file and try again.";
+                    msg = "Failed to save the project. Close the module Excel file and try again.";
                 } else {
                     msg = "Failed to save the project because some resources are used";
                 }
@@ -322,7 +322,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                     String newPath = prevPath.substring(0, index + 1) + logicalName;
                     boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
                     if (!renamed) {
-                        log.warn("Can't rename folder from " + prevPath + " to " + newPath);
+                        log.warn("Cannot rename folder from " + prevPath + " to " + newPath);
                     }
                 }
             }
@@ -618,9 +618,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
             repository.save(data, stream);
             ProjectHistoryService.save(model.getHistoryStoragePath(), sourceFile);
         } catch (FileNotFoundException e) {
-            log.debug("Error while updating the module. Please close the module Excel file and try again.", e);
+            log.debug("An error occurred during the module update. Close the module Excel file and try again.", e);
             throw new IllegalStateException(
-                "Error while updating the module. Please close the module Excel file and try again.",
+                "An error occurred during the module update. Close the module Excel file and try again.",
                 e);
         } catch (Exception e) {
             log.error("Error updating file in user workspace.", e);
@@ -641,11 +641,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
         ProjectFile lastUploadedFile = getLastUploadedFile();
         if (lastUploadedFile == null) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
-            throw new IllegalArgumentException("No file has been uploaded. Please upload .zip file to update project");
+            throw new IllegalArgumentException("No file has been uploaded. Upload a .zip file to update the project.");
         }
         if (!FileTypeHelper.isZipFile(FilenameUtils.getName(lastUploadedFile.getName()))) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
-            throw new IllegalArgumentException("Wrong filename extension. Please upload .zip file");
+            throw new IllegalArgumentException("Wrong filename extension. Select a .zip file to upload.");
         }
         ProjectDescriptor projectDescriptor;
         try {
@@ -971,7 +971,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
 
             if (project == null) {
-                log.warn("Projects descriptor is found but the project isn't found.");
+                log.warn("Projects descriptor is found but the project is not found.");
             }
             return project;
         } catch (Exception e) {
@@ -1034,7 +1034,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         if (mode != null) {
             setTreeView(mode);
         } else {
-            log.error("Can't find RulesTreeView for name {}", name);
+            log.error("Cannot find RulesTreeView for name {}", name);
         }
     }
 
@@ -1367,7 +1367,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             AProject historic = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
             if (userWorkspace.isOpenedOtherProject(historic)) {
                 throw new ValidationException(
-                    "WebStudio can't open two projects with the same name. Please close another project and open it again.");
+                    "OpenL Tablets WebStudio cannot open two projects with the same name. Close the currently opened project and try again.");
             }
 
             if (project.isOpened()) {

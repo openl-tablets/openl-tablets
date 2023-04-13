@@ -35,7 +35,7 @@ Function getWorkbook(excelApp , wbPath, wbName )
             Set getWorkbook = wb
             Exit Function
         Else
-            MsgBox "Excel can not open two WorkBooks with the same name but in different directories!"
+            MsgBox "Excel cannot open two WorkBooks with the same name but in different directories!"
         End If
     
     End If

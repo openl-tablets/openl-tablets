@@ -190,7 +190,7 @@ public interface Repository extends AutoCloseable {
     /**
      * Validate underlying connection. Default implementation does nothing.
      * 
-     * @throws IOException if connection can't be established
+     * @throws IOException if connection cannot be established
      */
     default void validateConnection() throws IOException {
     }

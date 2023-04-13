@@ -203,7 +203,7 @@ public class OpenLJUnitTest {
                     .invoke(target, new Object[0], new SimpleRulesVM().getRuntimeEnv());
             }
         }
-        fail(String.format("Can't find '%s' test table,", testTableName));
+        fail(String.format("The '%s' test table is not found", testTableName));
         return null;
     }
 }

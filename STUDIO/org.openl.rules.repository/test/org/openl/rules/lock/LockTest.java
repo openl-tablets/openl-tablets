@@ -222,7 +222,7 @@ public class LockTest {
             assertFalse("forceLock() must not get a lock when it was interrupted", interrupted.get());
         }
 
-        // Make sure that the lock isn't overridden.
+        // Make sure that the lock is not overridden.
         LockInfo lockInfo = lock.info();
         assertEquals("user1", lockInfo.getLockedBy());
     }

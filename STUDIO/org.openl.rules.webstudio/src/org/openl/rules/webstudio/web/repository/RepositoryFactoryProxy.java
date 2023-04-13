@@ -36,7 +36,7 @@ public class RepositoryFactoryProxy {
                 repoListConfig = PRODUCTION_REPOSITORY_CONFIGS;
                 break;
             default:
-                throw new IllegalArgumentException("Repository mode " + mode + " isn't supported");
+                throw new IllegalArgumentException("Repository mode " + mode + " is not supported");
         }
         this.propertyResolver = propertyResolver;
     }
