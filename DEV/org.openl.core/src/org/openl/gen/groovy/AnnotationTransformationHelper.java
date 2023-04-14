@@ -46,7 +46,7 @@ public class AnnotationTransformationHelper {
 
             String readableValue = convertValue(value, imports);
             if (property.isType()) {
-                annotationText.append(Type.getType((String) value).getClassName()).append(".class");
+                annotationText.append(Type.getType((String) value).getClassName());
             } else if (property.isArray()) {
                 if (value.getClass().isArray()) {
                     annotationText.append("[");

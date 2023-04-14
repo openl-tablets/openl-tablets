@@ -11,7 +11,6 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
 
     private final Class<?> clazzInterface;
     private final ChainedGroovyScriptWriter writerChain;
-    private static final String IMPLEMENTS = "implements";
 
     public GroovyInterfaceImplGenerator(String beanFullName,
             Class<?> clazzInterface,
@@ -35,6 +34,17 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
         String[] defaultInterfaces = super.getDefaultInterfaces();
         String[] fullRes = new String[defaultInterfaces.length + 1];
         fullRes[0] = clazzInterface.getName();
+        // If type has generic parameters we have to generate them as Object
+        StringBuilder genericsPart = new StringBuilder();
+        for (int i = 0; i < clazzInterface.getTypeParameters().length; i++) {
+            if (genericsPart.length() > 0) {
+                genericsPart.append(", ");
+            }
+            genericsPart.append(Object.class.getSimpleName());
+        }
+        if (genericsPart.length() > 0) {
+            fullRes[0] = fullRes[0] + "<" + genericsPart + ">";
+        }
         System.arraycopy(defaultInterfaces, 0, fullRes, 1, fullRes.length - 1);
         return fullRes;
     }
@@ -53,11 +63,7 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
                 implementationChain.append(", ");
             }
         }
-        StringBuilder description = new StringBuilder(super.generateClassDescription()).append(" ")
-            .append(IMPLEMENTS)
-            .append(" ")
-            .append(implementationChain);
-        return description.toString();
+        return super.generateClassDescription() + " implements " + implementationChain;
     }
 
     protected String generateExtraMethods() {
@@ -69,14 +75,17 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
     }
 
     protected Set<String> getDefaultImports() {
-        Set<String> fullImports = new HashSet<>(super.getDefaultImports());
-        fullImports.addAll(Arrays.asList(getDefaultInterfaces()));
-        return fullImports;
+        Set<String> imports = new HashSet<>(super.getDefaultImports());
+        imports.addAll(Arrays.asList(getDefaultInterfaces()));
+        return imports;
     }
 
     protected String generateImports() {
         StringBuilder imports = new StringBuilder();
         for (String defaultImport : getDefaultImports()) {
+            // Remove Generic parameters to use in imports
+            defaultImport = defaultImport.indexOf("<") > 0 ? defaultImport.substring(0, defaultImport.indexOf("<"))
+                                                           : defaultImport;
             imports.append("import").append(" ").append(defaultImport);
             imports.append(GroovyMethodWriter.LINE_SEPARATOR);
         }
