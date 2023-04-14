@@ -1,5 +1,6 @@
 package org.openl.gen.groovy;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -13,8 +14,6 @@ import javax.xml.bind.annotation.XmlType;
 import org.openl.gen.AnnotationDescription;
 
 public class SimpleGroovyScriptGenerator {
-
-    private static final String CLASS = "class";
 
     private final String packageName;
     private final String simpleClassName;
@@ -31,25 +30,22 @@ public class SimpleGroovyScriptGenerator {
     }
 
     public String scriptText() {
-        StringBuilder scriptText = new StringBuilder("");
-        scriptText.append("package")
+        StringBuilder sb = new StringBuilder();
+        sb.append("package")
             .append(" ")
             .append(packageName)
             .append(GroovyMethodWriter.LINE_SEPARATOR)
             .append(GroovyMethodWriter.LINE_SEPARATOR);
 
-        scriptText.append(generateImports());
-        scriptText.append(generateJAXBAnnotations());
-        scriptText.append(generateClassDescription());
-        scriptText.append(" ")
-            .append("{")
-            .append(GroovyMethodWriter.LINE_SEPARATOR)
-            .append(GroovyMethodWriter.LINE_SEPARATOR);
+        sb.append(generateImports());
+        sb.append(generateJAXBAnnotations());
+        sb.append(generateClassDescription());
+        sb.append(" ").append("{").append(GroovyMethodWriter.LINE_SEPARATOR).append(GroovyMethodWriter.LINE_SEPARATOR);
 
-        scriptText.append(generateExtraMethods());
+        sb.append(generateExtraMethods());
 
-        scriptText.append("}");
-        return scriptText.toString();
+        sb.append("}");
+        return sb.toString();
     }
 
     protected String generateJAXBAnnotations() {
@@ -95,7 +91,7 @@ public class SimpleGroovyScriptGenerator {
     }
 
     protected String[] getDefaultInterfaces() {
-        return new String[] { "java.io.Serializable" };
+        return new String[] { Serializable.class.getName() };
     }
 
     protected Set<String> getDefaultImports() {
@@ -107,7 +103,7 @@ public class SimpleGroovyScriptGenerator {
     }
 
     protected String generateClassDescription() {
-        return new StringBuilder(CLASS).append(" ").append(getSimpleClassName()).toString();
+        return "class " + getSimpleClassName();
     }
 
     protected String generateImports() {
