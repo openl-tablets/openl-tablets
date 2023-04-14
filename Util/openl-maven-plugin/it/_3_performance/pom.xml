@@ -2,22 +2,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.internal</groupId>
-    <artifactId>openl-empty</artifactId>
+    <artifactId>_3_performance</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Empty Project</name>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.openl.version>@project.version@</org.openl.version>
-    </properties>
+    <name>Invoker: Performance measurement</name>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-maven-plugin</artifactId>
-                <version>${org.openl.version}</version>
+                <version>@project.version@</version>
                 <extensions>true</extensions>
             </plugin>
         </plugins>
     </build>
+
 </project>
