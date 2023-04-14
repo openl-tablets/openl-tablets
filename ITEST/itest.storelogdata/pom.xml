@@ -15,7 +15,8 @@
     <url>https://openl-tablets.org</url>
 
     <properties>
-        <surefire.argLine>-Xms128m -Xmx2048m -Xss256k</surefire.argLine>
+        <surefire.argLine.noPerf>-Xms64m -Xmx256m -Xss256k -XX:MaxMetaspaceSize=256m</surefire.argLine.noPerf>
+        <surefire.argLine.perf>-Xms64m -Xmx128m -Xss256k -XX:MaxMetaspaceSize=256m</surefire.argLine.perf>
         <dockerized>true</dockerized>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>

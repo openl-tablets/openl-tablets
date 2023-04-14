@@ -10,6 +10,10 @@
     <artifactId>itest.spring-boot-web-app</artifactId>
     <name>ITEST - Spring Boot: Web Application</name>
 
+    <properties>
+        <surefire.argLine.perf>-Xms8m -Xmx64m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.perf>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.openl.rules</groupId>
