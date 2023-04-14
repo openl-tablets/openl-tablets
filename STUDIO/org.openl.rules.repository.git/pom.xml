@@ -14,7 +14,8 @@
 
     <properties>
         <!-- For merge testing of XLSX  -->
-        <surefire.argLine.perf>-Xms8m -Xmx192m -Xss256k</surefire.argLine.perf>
+        <surefire.argLine.noPerf>-Xms8m -Xmx256m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.noPerf>
+        <surefire.argLine.perf>-Xms8m -Xmx192m -Xss256k -XX:MaxMetaspaceSize=128m</surefire.argLine.perf>
     </properties>
 
     <dependencies>
