@@ -17,20 +17,7 @@
     </organization>
     <properties>
         <!-- 512MB Should be enough to don't fall in OutOfMemoryError -->
-        <invoker.mavenOpts>-Xms16m -Xmx512m -XX:MaxMetaspaceSize=256m</invoker.mavenOpts>
-        <invoker.timeoutInSeconds>0</invoker.timeoutInSeconds>
-        <big-tableparts.mavenOpts>${invoker.mavenOpts}</big-tableparts.mavenOpts>
-        <big-tableparts.timeoutInSeconds>${invoker.timeoutInSeconds}</big-tableparts.timeoutInSeconds>
-        <big-testsuite.mavenOpts>${invoker.mavenOpts}</big-testsuite.mavenOpts>
-        <big-testsuite.timeoutInSeconds>${invoker.timeoutInSeconds}</big-testsuite.timeoutInSeconds>
-        <gen-spreadsheetresult.mavenOpts>${invoker.mavenOpts}</gen-spreadsheetresult.mavenOpts>
-        <gen-spreadsheetresult.timeoutInSeconds>${invoker.timeoutInSeconds}</gen-spreadsheetresult.timeoutInSeconds>
-        <recompile.timeoutInSeconds>${invoker.timeoutInSeconds}</recompile.timeoutInSeconds>
-        <multimodule.timeoutInSeconds>${invoker.timeoutInSeconds}</multimodule.timeoutInSeconds>
-        <multimodule.mavenOpts>${invoker.mavenOpts}</multimodule.mavenOpts>
-        <provided-dependency.mavenOpts>${invoker.mavenOpts}</provided-dependency.mavenOpts>
-        <provided-dependency.timeoutInSeconds>${invoker.timeoutInSeconds}</provided-dependency.timeoutInSeconds>
-        <gen-datatypes.timeoutInSeconds>${invoker.timeoutInSeconds}</gen-datatypes.timeoutInSeconds>
+        <invoker.mavenOpts>-Xms16m -Xmx512m -XX:MaxMetaspaceSize=256m -DnoPerf=true</invoker.mavenOpts>
         <skipTestsForQuick>true</skipTestsForQuick>
     </properties>
     <dependencies>
@@ -151,24 +138,24 @@
                     <pomIncludes>
                         <pomInclude>*/pom.xml</pomInclude>
                     </pomIncludes>
+                    <setupIncludes>
+                        <setupInclude>_1_setup/pom.xml</setupInclude>
+                        <setupInclude>_2_install/pom.xml</setupInclude>
+                        <setupInclude>_3_performance/pom.xml</setupInclude>
+                    </setupIncludes>
                     <preBuildHookScript>setup</preBuildHookScript>
                     <postBuildHookScript>verify</postBuildHookScript>
                     <goals>
                         <goal>clean</goal>
                         <goal>verify</goal>
                     </goals>
-                    <streamLogs>true</streamLogs>
+                    <streamLogsOnFailures>true</streamLogsOnFailures>
                     <useLocalRepository>true</useLocalRepository>
                     <properties>
                         <maven.compiler.release>11</maven.compiler.release>
                         <openl.info>main</openl.info>
                     </properties>
                     <showErrors>true</showErrors>
-                    <!-- Estimated test's time should not take more than 10 sec on 4х CPU (2GHz) -->
-                    <!-- with limited amount of memory. It allows to detect memory leaks. -->
-                    <!-- Special cases should be defined in invoker.properties file. -->
-                    <!-- !!! Don't increase these parameters without special need !!! -->
-                    <timeoutInSeconds>${invoker.timeoutInSeconds}</timeoutInSeconds>
                     <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts} -Dapple.awt.UIElement=true</mavenOpts>
                 </configuration>
             </plugin>
@@ -185,22 +172,6 @@
             <properties>
                 <!-- Fine tuned settings to detects memory and performance issues -->
                 <invoker.mavenOpts>-Xms16m -Xmx64m -XX:MaxMetaspaceSize=160m</invoker.mavenOpts>
-                <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
-                <big-tableparts.mavenOpts>${jacoco.argLine} -Xms32m -Xmx256m -XX:MaxMetaspaceSize=160m</big-tableparts.mavenOpts>
-                <big-tableparts.timeoutInSeconds>60</big-tableparts.timeoutInSeconds>
-                <big-testsuite.mavenOpts>${jacoco.argLine} -Xms32m -Xmx96m -XX:MaxMetaspaceSize=160m</big-testsuite.mavenOpts>
-                <big-testsuite.timeoutInSeconds>150</big-testsuite.timeoutInSeconds>
-                <gen-spreadsheetresult.mavenOpts>${jacoco.argLine} -Xms32m -Xmx256m -XX:MaxMetaspaceSize=160m</gen-spreadsheetresult.mavenOpts>
-                <gen-spreadsheetresult.timeoutInSeconds>60</gen-spreadsheetresult.timeoutInSeconds>
-                <!-- due double work of packaging: 30s * 2 -->
-                <recompile.timeoutInSeconds>60</recompile.timeoutInSeconds>
-                <!-- Multimodule has 4 projects -->
-                <multimodule.timeoutInSeconds>60</multimodule.timeoutInSeconds>
-                <!-- this module could be failed from time to time previously as well -->
-                <gen-datatypes.timeoutInSeconds>35</gen-datatypes.timeoutInSeconds>
-                <!-- provided-dependency has 6 projects -->
-                <provided-dependency.mavenOpts>${jacoco.argLine} -Xms16m -Xmx64m -XX:MaxMetaspaceSize=192m</provided-dependency.mavenOpts>
-                <provided-dependency.timeoutInSeconds>90</provided-dependency.timeoutInSeconds>
             </properties>
         </profile>
     </profiles>
