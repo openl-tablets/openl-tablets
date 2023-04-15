@@ -38,4 +38,8 @@ public final class OpenLInfoLogger {
         new EnvPropLogger().log();
         new JndiLogger().log();
     }
+
+    public static void memStat() {
+        new SysInfoLogger().memStat();
+    }
 }
