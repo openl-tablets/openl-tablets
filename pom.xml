@@ -145,7 +145,7 @@
         <maven.plugin.version>3.6.0</maven.plugin.version>
 
         <!-- DEMO & ITEST -->
-        <jetty.version>10.0.14</jetty.version>
+        <jetty.version>10.0.15</jetty.version>
 
         <!-- Request tracing -->
         <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
