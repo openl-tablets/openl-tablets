@@ -6,7 +6,7 @@
     <artifactId>openl-cross-project-dependencies</artifactId>
     <version>0.0.0</version>
     <packaging>pom</packaging>
-    <name>OpenL Plugin: Cross-project dependencies</name>
+    <name>Cross-project dependencies</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>

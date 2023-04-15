@@ -3,9 +3,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.internal</groupId>
-    <artifactId>openl-cross-project-dependencies</artifactId>
+    <artifactId>openl-verify-groovy</artifactId>
     <version>0.0.0</version>
     <packaging>pom</packaging>
+    <name>Verify Classpath</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

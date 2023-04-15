@@ -9,7 +9,7 @@
 
     <artifactId>openl-child-dependency</artifactId>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Child Project</name>
+    <name>Flat Multimodule: Child Project</name>
 
     <build>
         <plugins>

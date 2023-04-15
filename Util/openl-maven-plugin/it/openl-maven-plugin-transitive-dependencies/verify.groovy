@@ -11,9 +11,9 @@ try {
 
     def lines = new File(folder, 'build.log').readLines('UTF-8')
 
-    assert lines.any { it.contains('openl-maven-plugin-transitive-dependencies-parent-pom SUCCESS') }
-    assert lines.any { it.contains('openl-maven-plugin-transitive-dependencies-common .. SUCCESS') }
-    assert lines.any { it.contains('openl-maven-plugin-transitive-dependencies-rules ... SUCCESS') }
+    assert lines.any { it.contains('Transitive dependencies ............................ SUCCESS') }
+    assert lines.any { it.contains('Transitive dependencies: Common .................... SUCCESS') }
+    assert lines.any { it.contains('Transitive dependencies: Rules ..................... SUCCESS') }
 
     return true
 

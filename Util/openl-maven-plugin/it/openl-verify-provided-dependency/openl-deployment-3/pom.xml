@@ -13,7 +13,7 @@
     <artifactId>openl-deployment-3</artifactId>
     <packaging>openl</packaging>
 
-    <name>OpenL Deployment with Provided Dependency #3</name>
+    <name>Provided Dependencies: Deployment #3</name>
 
     <dependencies>
         <dependency>

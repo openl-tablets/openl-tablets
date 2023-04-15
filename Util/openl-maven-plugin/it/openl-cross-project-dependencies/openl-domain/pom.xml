@@ -11,7 +11,7 @@
     <artifactId>openl-domain</artifactId>
     <packaging>openl</packaging>
 
-    <name>OpenL Plugin: Domain</name>
+    <name>Cross-project dependencies: Domain</name>
 
     <build>
         <plugins>

@@ -25,18 +25,18 @@ try {
     })
 
     assert parentProjectZips.length == 2
-    def rulesArchive = parentProjectZips.find{ it.name == "openl-parent-project-0.0.0-deployment.zip"}
+    def rulesArchive = parentProjectZips.find{ it.name == "parent-project-0.0.0-deployment.zip"}
     assert rulesArchive != null
 
     def deploymentZip = new ZipFile(rulesArchive)
     assert deploymentZip.entries().findAll{ !it.directory && it.name == "deployment.yaml" }.size() == 1
-    assert deploymentZip.entries().findAll{ !it.directory && it.name == "openl-parent-project/rules.xml" }.size() == 1
-    assert deploymentZip.entries().findAll{ !it.directory && it.name == "openl-parent-project/Project1-Main.xlsx" }.size() == 1
-    assert deploymentZip.entries().findAll{ !it.directory && it.name == "openl-child-dependency/rules.xml" }.size() == 1
-    assert deploymentZip.entries().findAll{ !it.directory && it.name == "openl-child-dependency/Project2-Main.xlsx" }.size() == 1
+    assert deploymentZip.entries().findAll{ !it.directory && it.name == "parent-project/rules.xml" }.size() == 1
+    assert deploymentZip.entries().findAll{ !it.directory && it.name == "parent-project/Project1-Main.xlsx" }.size() == 1
+    assert deploymentZip.entries().findAll{ !it.directory && it.name == "child-dependency/rules.xml" }.size() == 1
+    assert deploymentZip.entries().findAll{ !it.directory && it.name == "child-dependency/Project2-Main.xlsx" }.size() == 1
     assert deploymentZip.entries().findAll{ !it.directory && it.name.contains("-Test.xlsx")}.size() == 0
 
-    rulesArchive = parentProjectZips.find{ it.name == "openl-parent-project-0.0.0.zip"}
+    rulesArchive = parentProjectZips.find{ it.name == "parent-project-0.0.0.zip"}
     assert rulesArchive != null
 
     def parentZip = new ZipFile(rulesArchive)
@@ -45,10 +45,10 @@ try {
     assert parentZip.entries().findAll{ !it.directory && it.name.contains("-Test.xlsx")}.size() == 0
 
     def lines = new File(folder, 'build.log').readLines('UTF-8')
-    assert lines.any { it.contains('OpenL Plugin: Multiple deployment .................. SUCCESS') }
-    assert lines.any { it.contains('OpenL Plugin: Child Project ........................ SUCCESS') }
+    assert lines.any { it.contains('Multiple deployment ................................ SUCCESS') }
+    assert lines.any { it.contains('Multiple deployment: Child Project ................. SUCCESS') }
     assert lines.any { it.contains("Running 'sayHelloTest' from module 'Child-Test'...") }
-    assert lines.any { it.contains('OpenL Plugin: Parent Project ....................... SUCCESS') }
+    assert lines.any { it.contains('Multiple deployment: Parent Project ................ SUCCESS') }
     assert lines.any { it.contains("Running 'spr' from module 'Parent-Test'...") }
 
     return true

@@ -11,7 +11,7 @@
     <artifactId>openl-global</artifactId>
     <packaging>openl</packaging>
 
-    <name>OpenL Plugin: Global</name>
+    <name>Cross-project dependencies: Global</name>
 
     <build>
         <plugins>

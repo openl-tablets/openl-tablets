@@ -3,10 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.openl.internal</groupId>
-    <artifactId>openl-maven-plugin-transitive-dependencies-parent-pom</artifactId>
+    <artifactId>openl-maven-plugin-transitive-dependencies</artifactId>
     <version>0.0.0</version>
     <packaging>pom</packaging>
 
+    <name>Transitive dependencies</name>
     <properties>
         <org.openl.version>@project.version@</org.openl.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

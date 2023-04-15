@@ -9,7 +9,7 @@
 
     <artifactId>openl-default-manifest</artifactId>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Default Manifest</name>
+    <name>Manifest Generation: Default Manifest</name>
 
     <organization>
         <name>OpenL Tablets</name>

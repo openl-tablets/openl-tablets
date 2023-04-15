@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.internal</groupId>
-        <artifactId>openl-simple-multimodule</artifactId>
+        <artifactId>openl-jar-packaging</artifactId>
         <version>0.0.0</version>
     </parent>
 
-    <artifactId>openl-simple-dependency</artifactId>
+    <artifactId>openl-jar-packaging-openl-simple-dependency</artifactId>
     <version>0.0.0</version>
     <packaging>openl-jar</packaging>
-    <name>OpenL Plugin: Simple Dependency Project</name>
+    <name>Jar Packaging: Dependency Project</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>
@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>org.openl.internal</groupId>
-            <artifactId>openl-simple</artifactId>
+            <artifactId>openl-jar-packaging-openl-simple</artifactId>
             <version>0.0.0</version>
         </dependency>
     </dependencies>

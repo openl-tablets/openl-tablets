@@ -7,9 +7,9 @@
         <version>0.0.0</version>
     </parent>
 
-    <artifactId>openl-child-dependency</artifactId>
+    <artifactId>child-dependency</artifactId>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Child Project</name>
+    <name>Multiple deployment: Child Project</name>
 
     <build>
         <plugins>

@@ -6,7 +6,7 @@
     <artifactId>openl-data-in-dependent-module</artifactId>
 	<version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>EPBDS-7727: Test compilation is failing when Data table is located in dependent module</name>
+    <name>Data table in dependent module</name>
 
     <properties>
         <org.openl.version>@project.version@</org.openl.version>

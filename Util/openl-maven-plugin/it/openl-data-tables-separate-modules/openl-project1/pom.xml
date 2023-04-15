@@ -9,7 +9,7 @@
 
     <artifactId>openl-project1</artifactId>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: First Project</name>
+    <name>Data Tables in separate modules: First Project</name>
 
     <build>
         <plugins>

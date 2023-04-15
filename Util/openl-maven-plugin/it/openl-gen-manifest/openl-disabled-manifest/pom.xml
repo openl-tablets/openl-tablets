@@ -9,7 +9,7 @@
 
     <artifactId>openl-disabled-manifest</artifactId>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Disabled Manifest</name>
+    <name>Manifest Generation: Disabled Manifest</name>
 
     <organization>
         <name>OpenL Tablets</name>
