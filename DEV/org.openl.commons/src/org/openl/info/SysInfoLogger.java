@@ -1,7 +1,11 @@
 package org.openl.info;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryPoolMXBean;
+import java.lang.management.MemoryUsage;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -29,11 +33,11 @@ final class SysInfoLogger extends OpenLLogger {
         }
         try {
             Runtime runtime = Runtime.getRuntime();
-            log("     ENV : {} CPU / Max={} MiB / Allocated={} MiB / Free={} MiB ",
+            log("     ENV : {} CPU    Memory : Max={}   Committed={}   Used={}",
                 Integer.toString(runtime.availableProcessors()),
                 toMiB(runtime.maxMemory()),
                 toMiB(runtime.totalMemory()),
-                toMiB(runtime.freeMemory()));
+                toMiB(runtime.totalMemory() - runtime.freeMemory()));
         } catch (Exception ignored) {
             log("##### Cannot access to the Runtime environment");
         }
@@ -58,7 +62,56 @@ final class SysInfoLogger extends OpenLLogger {
         }
     }
 
+    public void memStat() {
+        try {
+            System.gc();
+            Thread.sleep(100); // Wait GC performing
+            var runtime = Runtime.getRuntime();
+            log("Memory : Max={}   Committed={}   Used={}",
+                toMiB(runtime.maxMemory()),
+                toMiB(runtime.totalMemory()),
+                toMiB(runtime.totalMemory() - runtime.freeMemory()));
+
+        } catch (Exception ignored) {
+            log("##### Cannot access to the Runtime environment");
+        }
+
+        try {
+            var memPools = ManagementFactory.getMemoryPoolMXBeans();
+            memPools.sort(Comparator.comparing(MemoryPoolMXBean::getName));
+            log("----- Memory Usage in MiB -----     Init        Used    peak     Committed  peak         Max  ----- Type -----");
+            for (var pool : memPools) {
+                var usage = pool.getUsage();
+                if (usage == null) {
+                    continue;
+                }
+                var peak = pool.getPeakUsage();
+                peak = peak == null ? new MemoryUsage(0, 0, 0, 0) : peak;
+                log("{} {}     {} {}     {} {}     {}   {}",
+                    String.format("%-32s", pool.getName()),
+                    toMiBAlign(usage.getInit()),
+                    toMiBAlign(usage.getUsed()),
+                    toMiBAlign(peak.getUsed()),
+                    toMiBAlign(usage.getCommitted()),
+                    toMiBAlign(peak.getCommitted()),
+                    toMiBAlign(usage.getMax()),
+                    String.format("%15s", pool.getType()));
+            }
+        } catch (Exception ignored) {
+            log("##### Cannot access to the Runtime environment");
+        }
+    }
+
     private String toMiB(long bytes) {
-        return String.valueOf(bytes / 262144 / 4.0);
+        return String.format("%.1f MiB", bytes / 1024.0 / 1024.0);
+    }
+
+    private String toMiBAlign(long bytes) {
+        if (bytes < 0) {
+            return "       ";  // 7 spaces according to the bellow format
+        } else if (bytes == 0) {
+            return "     0 ";
+        }
+        return String.format("%7.1f", bytes / 1024.0 / 1024.0);
     }
 }
