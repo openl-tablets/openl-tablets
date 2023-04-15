@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.openl.info.OpenLInfoLogger;
+
 public class RedirectFilter implements Filter {
     private final Logger log = LoggerFactory.getLogger(RedirectFilter.class);
 
@@ -40,5 +42,6 @@ public class RedirectFilter implements Filter {
 
     @Override
     public void destroy() {
+        OpenLInfoLogger.memStat();
     }
 }

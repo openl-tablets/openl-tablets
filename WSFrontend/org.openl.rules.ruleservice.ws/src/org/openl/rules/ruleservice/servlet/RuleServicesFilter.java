@@ -21,6 +21,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.env.Environment;
 
+import org.openl.info.OpenLInfoLogger;
 import org.openl.rules.ruleservice.api.AuthorizationChecker;
 import org.openl.rules.ruleservice.core.RuleServiceRedeployLock;
 import org.openl.util.StringUtils;
@@ -197,7 +198,7 @@ public class RuleServicesFilter implements Filter {
 
     @Override
     public void destroy() {
+        OpenLInfoLogger.memStat();
         authorizationCheckers = null;
-
     }
 }
