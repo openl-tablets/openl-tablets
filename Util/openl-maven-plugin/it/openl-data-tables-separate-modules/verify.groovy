@@ -9,9 +9,9 @@ try {
 
     def lines = new File(folder, 'build.log').readLines('UTF-8')
 
-    assert lines.any { it.contains('OpenL Plugin: Data Tables in separate modules ...... SUCCESS') }
-    assert lines.any { it.contains('OpenL Plugin: First Project ........................ SUCCESS') }
-    assert lines.any { it.contains('OpenL Plugin: Second Project ....................... SUCCESS') }
+    assert lines.any { it.contains('Data Tables in separate modules .................... SUCCESS') }
+    assert lines.any { it.contains('Data Tables in separate modules: First Project ..... SUCCESS') }
+    assert lines.any { it.contains('Data Tables in separate modules: Second Project .... SUCCESS') }
 
     return true
 

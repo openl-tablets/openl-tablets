@@ -9,7 +9,7 @@
 
     <artifactId>openl-no-manifest</artifactId>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: No Manifest</name>
+    <name>Manifest Generation: No Manifest</name>
 
     <organization/>
 

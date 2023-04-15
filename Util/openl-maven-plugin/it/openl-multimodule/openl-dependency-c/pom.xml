@@ -11,7 +11,7 @@
     <groupId>org.openl.internal.multimodule</groupId>
     <artifactId>openl-dependency-c</artifactId>
 
-    <name>Dependency C</name>
+    <name>Multimodule project: Dependency C</name>
 
     <dependencies>
         <dependency>

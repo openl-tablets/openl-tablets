@@ -6,7 +6,7 @@
     <artifactId>openl-data-tables-separate-modules</artifactId>
     <version>0.0.0</version>
     <packaging>pom</packaging>
-    <name>OpenL Plugin: Data Tables in separate modules</name>
+    <name>Data Tables in separate modules</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

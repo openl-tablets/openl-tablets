@@ -2,10 +2,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.openl.internal</groupId>
-    <artifactId>openl-tests-failure</artifactId>
+    <artifactId>openl-tests-big-testsuite</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Tests big TestSuite EPBDS-7701</name>
+    <name>Tests big TestSuite EPBDS-7701</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>

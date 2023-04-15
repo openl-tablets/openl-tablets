@@ -4,11 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.openl.internal</groupId>
-        <artifactId>openl-cross-project-dependencies</artifactId>
+        <artifactId>openl-verify-groovy</artifactId>
         <version>0.0.0</version>
     </parent>
 
     <artifactId>java-integration</artifactId>
+    <name>Verify Classpath: Java Integration</name>
 
     <build>
         <plugins>

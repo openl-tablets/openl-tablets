@@ -5,7 +5,7 @@
     <artifactId>openl-custom-properties-file-name-processor</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Custom Properties File Name Processor</name>
+    <name>Custom Properties File Name Processor</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>

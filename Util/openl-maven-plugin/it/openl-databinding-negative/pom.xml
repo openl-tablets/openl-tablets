@@ -8,7 +8,7 @@
     <version>0.0.0</version>
     <packaging>openl</packaging>
 
-    <name>OpenL Plugin: OpenL Data Binding Negative Test</name>
+    <name>Data Binding Negative Test</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -6,7 +6,7 @@
     <artifactId>openl-mustnot-gen-datatypes</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Must not generate Datatypes</name>
+    <name>Must not generate Datatypes</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>

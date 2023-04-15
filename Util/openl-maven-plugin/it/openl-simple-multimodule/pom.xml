@@ -6,7 +6,7 @@
     <artifactId>openl-simple-multimodule</artifactId>
     <version>0.0.0</version>
     <packaging>pom</packaging>
-    <name>OpenL Plugin: simple multimodule project</name>
+    <name>Multimodule project</name>
     
     <modules>
         <module>openl-simple</module>

@@ -10,7 +10,7 @@
     <artifactId>openl-simple-dependency</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Simple Dependency Project</name>
+    <name>Multimodule project: Dependency Project</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>

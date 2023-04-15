@@ -12,7 +12,7 @@
     <artifactId>openl-rules-with-dependencies</artifactId>
     <packaging>openl</packaging>
 
-    <name>OpenL rules with dependencies</name>
+    <name>Multimodule project: OpenL rules with dependencies</name>
 
     <dependencies>
         <!-- Contains "runtime" transitive dependency. openl-dependency-a must appear in zip. -->

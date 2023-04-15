@@ -11,7 +11,7 @@
     <groupId>org.openl.internal.verify</groupId>
     <artifactId>openl-jar-library</artifactId>
 
-    <name>Jar Lib</name>
+    <name>Provided Dependencies: Jar Lib</name>
 
     <dependencies>
         <dependency>

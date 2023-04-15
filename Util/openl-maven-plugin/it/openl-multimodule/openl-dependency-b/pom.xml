@@ -11,7 +11,7 @@
     <groupId>org.openl.internal.multimodule</groupId>
     <artifactId>openl-dependency-b</artifactId>
 
-    <name>Dependency B</name>
+    <name>Multimodule project: Dependency B</name>
 
     <dependencies>
         <dependency>

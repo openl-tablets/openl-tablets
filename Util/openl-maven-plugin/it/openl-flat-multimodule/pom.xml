@@ -6,7 +6,7 @@
     <artifactId>openl-flat-multimodulet</artifactId>
     <version>0.0.0</version>
     <packaging>pom</packaging>
-    <name>OpenL Plugin: Flat Multimodule Project</name>
+    <name>Flat Multimodule</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

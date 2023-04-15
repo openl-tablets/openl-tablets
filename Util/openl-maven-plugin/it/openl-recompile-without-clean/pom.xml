@@ -5,7 +5,7 @@
     <artifactId>openl-recompile-without-clean</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Recompile the project without clean</name>
+    <name>Recompile the project without clean</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>

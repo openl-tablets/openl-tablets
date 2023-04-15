@@ -5,7 +5,7 @@
     <artifactId>openl-lib-threshold-increased</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Exceeding lib threshold</name>
+    <name>Exceeding increased lib threshold</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>

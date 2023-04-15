@@ -2,7 +2,7 @@ import java.util.zip.ZipFile
 
 try {
     File folder = basedir
-    def projectZipFile = new File(folder, 'openl-simple/target/openl-simple-0.0.0.jar')
+    def projectZipFile = new File(folder, 'openl-simple/target/openl-jar-packaging-openl-simple-0.0.0.jar')
     assert projectZipFile.exists()
 
     new ZipFile(projectZipFile).withCloseable { closeable ->
@@ -17,7 +17,7 @@ try {
         assert zf.entries().findAll { !it.directory }.size() == 4
     }
 
-    def project2ZipFile = new File(folder, 'openl-simple-dependency/target/openl-simple-dependency-0.0.0.jar')
+    def project2ZipFile = new File(folder, 'openl-simple-dependency/target/openl-jar-packaging-openl-simple-dependency-0.0.0.jar')
     assert project2ZipFile.exists()
 
     new ZipFile(project2ZipFile).withCloseable { closeable ->
@@ -32,7 +32,7 @@ try {
         assert zf.entries().findAll { !it.directory }.size() == 4
     }
 
-    def deploymentJarFile = new File(folder, 'openl-simple-dependency/target/openl-simple-dependency-0.0.0-deployment.jar')
+    def deploymentJarFile = new File(folder, 'openl-simple-dependency/target/openl-jar-packaging-openl-simple-dependency-0.0.0-deployment.jar')
     assert deploymentJarFile.exists()
 
     new ZipFile(deploymentJarFile).withCloseable { closeable ->
@@ -40,21 +40,21 @@ try {
         def fileNames = zf.entries().collect { it.name }
 
         assert fileNames.contains('deployment.yaml')
-        assert fileNames.contains('openl-simple-dependency/rules.xml')
-        assert fileNames.contains('openl-simple-dependency/META-INF/MANIFEST.MF')
-        assert fileNames.contains('openl-simple-dependency/rules/SimpleRulesTest.xlsx')
-        assert fileNames.contains('openl-simple-dependency/com/example/MyBean2.class')
-        assert fileNames.contains('openl-simple/rules.xml')
-        assert fileNames.contains('openl-simple/META-INF/MANIFEST.MF')
-        assert fileNames.contains('openl-simple/rules/SimpleRules.xlsx')
-        assert fileNames.contains('openl-simple/com/example/MyBean.class')
+        assert fileNames.contains('openl-jar-packaging-openl-simple-dependency/rules.xml')
+        assert fileNames.contains('openl-jar-packaging-openl-simple-dependency/META-INF/MANIFEST.MF')
+        assert fileNames.contains('openl-jar-packaging-openl-simple-dependency/rules/SimpleRulesTest.xlsx')
+        assert fileNames.contains('openl-jar-packaging-openl-simple-dependency/com/example/MyBean2.class')
+        assert fileNames.contains('openl-jar-packaging-openl-simple/rules.xml')
+        assert fileNames.contains('openl-jar-packaging-openl-simple/META-INF/MANIFEST.MF')
+        assert fileNames.contains('openl-jar-packaging-openl-simple/rules/SimpleRules.xlsx')
+        assert fileNames.contains('openl-jar-packaging-openl-simple/com/example/MyBean.class')
         // There must be no extra files
         assert zf.entries().findAll { !it.directory }.size() == 9
     }
 
     def lines = new File(folder, 'build.log').readLines('UTF-8')
-    assert lines.any { it.contains('[INFO] Verification is passed for \'org.openl.internal:openl-simple\' artifact') }
-    assert lines.any { it.contains('[INFO] Verification is passed for \'org.openl.internal:openl-simple-dependency\' artifact') }
+    assert lines.any { it.contains('[INFO] Verification is passed for \'org.openl.internal:openl-jar-packaging-openl-simple\' artifact') }
+    assert lines.any { it.contains('[INFO] Verification is passed for \'org.openl.internal:openl-jar-packaging-openl-simple-dependency\' artifact') }
 
     return true
 } catch (Throwable e) {
