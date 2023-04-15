@@ -58,6 +58,14 @@ public class Lock {
             if (prepareLock != null) {
                 lockAcquired = finishLockCreating(prepareLock);
             }
+            if (lockAcquired) {
+                // FIXME: Ensure that lock has been acquired. On some File Systems rename is not atomic operation.
+                //   This check decreases probability of false positive lock, but does not reduce it to the zero.
+                //   The issue was detected on Ubuntu 22.04.2 with heavy multi-thread test on Ext4 FS.
+                //   On Lenovo Legion 5 Pro 16ACH6H, AMD® Ryzen 7 5800h, 32GiB RAM.
+                Thread.yield();
+                lockAcquired = getInfo().getLockedBy().equals(lockedBy);
+            }
         } catch (Exception e) {
             LOG.info("Failure to create a lock file '{}'. Because of {} : {}",
                 lockPath,
