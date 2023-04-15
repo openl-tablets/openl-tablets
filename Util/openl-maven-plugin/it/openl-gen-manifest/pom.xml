@@ -6,7 +6,7 @@
     <artifactId>openl-gen-manifest</artifactId>
     <version>0.0.0</version>
     <packaging>pom</packaging>
-    <name>OpenL Plugin: Manifest Generation</name>
+    <name>Manifest Generation</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

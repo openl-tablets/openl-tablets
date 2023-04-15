@@ -37,7 +37,7 @@ try {
     assert customManifest.getValue('Build-Branch') == 'myBranch'
     assert customManifest.getValue('Created-By') ==~ /OpenL Maven Plugin v.+/
     assert customManifest.getValue('Built-By') == 'superuser'
-    assert customManifest.getValue('Name') == 'OpenL Plugin: Custom Manifest'
+    assert customManifest.getValue('Name') == 'Manifest Generation: Custom Manifest'
     assert LocalDateTime.parse(customManifest.getValue('Build-Date'), DateTimeFormatter.ofPattern('yyyy-MM-dd HH:mm')) != null
 
     def disabledManifest = readManifest('openl-disabled-manifest/target')

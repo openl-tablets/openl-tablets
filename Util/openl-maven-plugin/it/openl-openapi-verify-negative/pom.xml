@@ -8,7 +8,7 @@
     <version>0.0.0</version>
     <packaging>openl</packaging>
 
-    <name>OpenL Plugin: OpenL OpenAPI Verify Negative Test</name>
+    <name>OpenAPI Verify Negative Test</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

@@ -11,7 +11,7 @@
     <artifactId>openl-europe</artifactId>
     <packaging>openl</packaging>
 
-    <name>OpenL Plugin: Europe</name>
+    <name>Cross-project dependencies: Europe</name>
 
     <build>
         <plugins>

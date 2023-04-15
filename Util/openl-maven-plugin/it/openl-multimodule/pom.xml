@@ -6,7 +6,7 @@
     <artifactId>openl-multimodule</artifactId>
     <version>0.0.0</version>
     <packaging>pom</packaging>
-    <name>OpenL Plugin: multimodule project</name>
+    <name>Multimodule project</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>

@@ -11,7 +11,7 @@
     <artifactId>openl-api</artifactId>
     <packaging>openl</packaging>
 
-    <name>OpenL Plugin: API</name>
+    <name>Cross-project dependencies: API</name>
 
     <build>
         <plugins>

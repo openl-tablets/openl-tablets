@@ -4,12 +4,13 @@
 
     <parent>
         <groupId>org.openl.internal</groupId>
-        <artifactId>openl-maven-plugin-transitive-dependencies-parent-pom</artifactId>
+        <artifactId>openl-maven-plugin-transitive-dependencies</artifactId>
         <version>0.0.0</version>
     </parent>
 
     <artifactId>openl-maven-plugin-transitive-dependencies-rules</artifactId>
     <packaging>openl</packaging>
+    <name>Transitive dependencies: Rules</name>
 
     <build>
         <plugins>

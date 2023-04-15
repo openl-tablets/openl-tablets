@@ -5,7 +5,7 @@
     <artifactId>openl-test-user-error</artifactId>
     <version>0.0.0</version>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Test user error</name>
+    <name>Test user error</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.openl.version>@project.version@</org.openl.version>

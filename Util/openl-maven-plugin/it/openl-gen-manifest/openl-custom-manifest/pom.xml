@@ -9,7 +9,7 @@
 
     <artifactId>openl-custom-manifest</artifactId>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Custom Manifest</name>
+    <name>Manifest Generation: Custom Manifest</name>
 
     <properties>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>

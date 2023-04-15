@@ -9,7 +9,7 @@
 
     <artifactId>openl-parent-project</artifactId>
     <packaging>openl</packaging>
-    <name>OpenL Plugin: Parent Project</name>
+    <name>Flat Multimodule: Parent Project</name>
 
     <build>
         <sourceDirectory>src</sourceDirectory>
