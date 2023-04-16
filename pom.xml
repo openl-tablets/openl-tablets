@@ -102,6 +102,7 @@
         <asm.version>9.5</asm.version>
         <cglib.version>3.3.0</cglib.version>
         <cloning.version>1.10.3</cloning.version>
+        <objenesis.version>3.3</objenesis.version>
 
         <!-- Kafka -->
         <kafka.version>3.4.0</kafka.version>
@@ -1467,6 +1468,11 @@
                 <groupId>io.github.kostaskougios</groupId>
                 <artifactId>cloning</artifactId>
                 <version>${cloning.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>${objenesis.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-jxpath</groupId>
