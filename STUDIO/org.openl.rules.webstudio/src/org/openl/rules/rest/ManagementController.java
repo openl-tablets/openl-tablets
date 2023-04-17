@@ -248,7 +248,9 @@ public class ManagementController {
         DEPLOY_CONFIG_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(deployConfigPrivileges);
 
         BidiMap<Permission, String> productionPrivileges = new DualLinkedHashBidiMap<>();
+        productionPrivileges.put(AclPermission.VIEW, "DEPLOY_PROJECTS");
         productionPrivileges.put(AclPermission.EDIT, "DEPLOY_PROJECTS");
+        productionPrivileges.put(AclPermission.DELETE, "DEPLOY_PROJECTS");
         PRODUCTION_PRIVILEGES = UnmodifiableBidiMap.unmodifiableBidiMap(productionPrivileges);
 
         Map<String, String> privileges = new LinkedHashMap<>();
