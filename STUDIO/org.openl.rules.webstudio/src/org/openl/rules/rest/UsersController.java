@@ -272,7 +272,7 @@ public class UsersController {
             .setDisplayName(user.getDisplayName())
             .setUsername(user.getUsername())
             .setExternalFlags(user.getExternalFlags())
-            .setProfiles(Profile.profiles);
+            .setProfiles(Profile.PROFILES);
 
     }
 

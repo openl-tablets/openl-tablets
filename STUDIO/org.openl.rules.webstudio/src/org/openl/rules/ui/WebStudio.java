@@ -227,7 +227,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public RulesTreeView[] getTreeViews() {
-        return Profile.treeViews;
+        return Profile.TREE_VIEWS;
     }
 
     public void saveProject(HttpSession session) {
@@ -1092,7 +1092,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     private RulesTreeView getTreeView(String name) {
-        for (RulesTreeView mode : Profile.treeViews) {
+        for (RulesTreeView mode : Profile.TREE_VIEWS) {
             if (name.equals(mode.getName())) {
                 return mode;
             }
