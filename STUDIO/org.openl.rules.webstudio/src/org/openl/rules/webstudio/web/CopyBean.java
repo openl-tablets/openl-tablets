@@ -399,7 +399,7 @@ public class CopyBean {
             DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
 
             BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository(repositoryId);
-            WebStudioUtils.validate(!designRepository.isValidBranchName(newBranchName),
+            WebStudioUtils.validate(designRepository.isValidBranchName(newBranchName),
                 "Branch name contains reserved words or symbols.");
             WebStudioUtils.validate(!designRepository.branchExists(newBranchName),
                 "Branch " + newBranchName + " already exists in repository.");
