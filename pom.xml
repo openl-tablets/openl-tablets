@@ -88,7 +88,7 @@
 
         <!-- Managing dependencies versions -->
         <!-- Spring -->
-        <spring.framework.version>5.3.26</spring.framework.version>
+        <spring.framework.version>5.3.27</spring.framework.version>
         <spring.boot.version>2.7.10</spring.boot.version>
         <reactive-streams.version>1.0.4</reactive-streams.version>
 
@@ -154,8 +154,8 @@
         <okhttp.version>4.10.0</okhttp.version>
 
         <!-- Repositories -->
-        <amazonaws.version>1.12.447</amazonaws.version>
-        <azure.version>12.21.1</azure.version>
+        <amazonaws.version>1.12.450</amazonaws.version>
+        <azure.version>12.22.0</azure.version>
         <jgit.version>6.3.0.202209071007-openl-2</jgit.version>
 
         <!-- DB -->
