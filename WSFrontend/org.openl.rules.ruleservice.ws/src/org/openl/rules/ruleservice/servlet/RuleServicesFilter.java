@@ -1,7 +1,7 @@
 package org.openl.rules.ruleservice.servlet;
 
 import java.io.IOException;
-import java.net.URLConnection;
+import java.net.FileNameMap;
 import java.util.Arrays;
 import java.util.UUID;
 import javax.servlet.Filter;
@@ -42,6 +42,9 @@ public class RuleServicesFilter implements Filter {
 
     private final Logger log = LoggerFactory.getLogger(RuleServicesFilter.class);
 
+    // Mapping from the file extension to the MIME type.
+    private FileNameMap mimeMap;
+
     // MDC
     private static final String REQUEST_ID_KEY = "requestId";
     private String requestIdHeaderKey;
@@ -70,7 +73,10 @@ public class RuleServicesFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        ApplicationContext appContext = SpringInitializer.getApplicationContext(filterConfig.getServletContext());
+        var servletContext = filterConfig.getServletContext();
+        mimeMap = servletContext::getMimeType;
+
+        ApplicationContext appContext = SpringInitializer.getApplicationContext(servletContext);
         Environment env = appContext.getEnvironment();
 
         // MDC
@@ -128,7 +134,7 @@ public class RuleServicesFilter implements Filter {
             try (var resourceStream = getClass().getClassLoader().getResourceAsStream("static" + path)) {
                 if (resourceStream != null) {
                     response.setStatus(HttpServletResponse.SC_OK);
-                    var mimeType = URLConnection.getFileNameMap().getContentTypeFor(path);
+                    var mimeType = mimeMap.getContentTypeFor(path);
 
                     response.setContentType(mimeType);
                     resourceStream.transferTo(resp.getOutputStream());
@@ -143,7 +149,7 @@ public class RuleServicesFilter implements Filter {
             try (var resourceStream = getClass().getClassLoader().getResourceAsStream(SWAGGER_UI_PATH + resource)) {
                 if (resourceStream != null) {
                     response.setStatus(HttpServletResponse.SC_OK);
-                    var mimeType = URLConnection.getFileNameMap().getContentTypeFor(path);
+                    var mimeType = mimeMap.getContentTypeFor(path);
 
                     response.setContentType(mimeType);
                     resourceStream.transferTo(resp.getOutputStream());
@@ -231,5 +237,6 @@ public class RuleServicesFilter implements Filter {
     public void destroy() {
         OpenLInfoLogger.memStat();
         authorizationCheckers = null;
+        mimeMap = null;
     }
 }
