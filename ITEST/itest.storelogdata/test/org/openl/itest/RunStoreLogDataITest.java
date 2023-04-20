@@ -22,12 +22,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import javax.persistence.Entity;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -586,28 +586,35 @@ public class RunStoreLogDataITest {
     }
 
     private void testKafka(ProducerRecord<String, String> producerRecord, String outTopic, String expectedValue) {
-        try (KafkaProducer<String, String> producer = createKafkaProducer(KAFKA_CONTAINER.getBootstrapServers());
-             KafkaConsumer<String, String> consumer = createKafkaConsumer(KAFKA_CONTAINER.getBootstrapServers())) {
+        testKafka(producerRecord, outTopic, (response) -> {
+            if (expectedValue != null) {
+                assertEquals(expectedValue, response.value());
+                assertEquals(producerRecord.key(), response.key());
+            }
+        });
+    }
+
+    private void testKafka(ProducerRecord<String, String> producerRecord,
+            String outTopic,
+            Consumer<ConsumerRecord<String, String>> check ) {
+        var servers = KAFKA_CONTAINER.getBootstrapServers();
+        try (var producer = createKafkaProducer(servers); var consumer = createKafkaConsumer(servers)) {
             consumer.subscribe(Collections.singletonList(outTopic));
             producer.send(producerRecord);
-
-            checkKafkaResponse(consumer, producerRecord.key(), expectedValue);
+            checkKafkaResponse(consumer, check);
             consumer.unsubscribe();
         }
     }
 
-    private void checkKafkaResponse(KafkaConsumer<String, String> consumer, String expectedKey, String expectedValue) {
+    private void checkKafkaResponse(KafkaConsumer<String, String> consumer, Consumer<ConsumerRecord<String, String>> check) {
         given().ignoreExceptions().await().atMost(20, TimeUnit.SECONDS).until(() -> {
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+            var records = consumer.poll(Duration.ofMillis(1000));
             if (records.isEmpty()) {
                 return false;
             }
             assertEquals(1, records.count());
-            ConsumerRecord<String, String> response = records.iterator().next();
-            if (expectedValue != null) {
-                assertEquals(response.value(), expectedValue);
-                assertEquals(response.key(), expectedKey);
-            }
+            var response = records.iterator().next();
+            check.accept(response);
             return true;
         });
     }
