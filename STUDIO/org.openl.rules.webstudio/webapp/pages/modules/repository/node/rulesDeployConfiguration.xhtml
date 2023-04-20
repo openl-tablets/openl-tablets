@@ -7,8 +7,6 @@
 
     <ui:param name="canEditRulesDeployConfig"
               value="#{artefact.project.openedForEditing and repositoryProjectRulesDeployConfig.canEditRulesDeploy}"/>
-    <ui:param name="canEditRulesDeployConfig"
-              value="#{artefact.project.openedForEditing and repositoryProjectRulesDeployConfig.canDeleteRulesDeploy}"/>
 
     <ui:param name="hasRulesDeploy" value="#{repositoryProjectRulesDeployConfig.rulesDeploy != null}"/>
     <h:outputStylesheet>
