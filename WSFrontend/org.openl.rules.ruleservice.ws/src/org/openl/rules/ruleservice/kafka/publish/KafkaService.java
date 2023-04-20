@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -37,6 +38,7 @@ import org.openl.rules.ruleservice.core.interceptors.ServiceInvocationAdvice;
 import org.openl.rules.ruleservice.kafka.KafkaHeaders;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
+import org.openl.rules.ruleservice.servlet.RuleServicesFilter;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataException;
@@ -47,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import org.slf4j.MDC;
 
 public final class KafkaService implements Runnable {
 
@@ -61,6 +64,7 @@ public final class KafkaService implements Runnable {
 
     private volatile boolean flag = true;
     private final OpenLService service;
+    private final String requestIdHeaderKey;
     private final String inTopic;
     private final String outTopic;
     private final String dltTopic;
@@ -76,6 +80,7 @@ public final class KafkaService implements Runnable {
     private final SpreadsheetResultBeanPropertyNamingStrategy sprBeanPropertyNamingStrategy;
 
     public static KafkaService createService(OpenLService service,
+            String requestIdHeaderKey,
             String inTopic,
             String outTopic,
             String dltTopic,
@@ -88,6 +93,7 @@ public final class KafkaService implements Runnable {
             KafkaTracingProvider kafkaTracingProvider,
             RulesDeploy rulesDeploy) throws KafkaServiceException {
         return new KafkaService(service,
+            requestIdHeaderKey,
             inTopic,
             outTopic,
             dltTopic,
@@ -102,6 +108,7 @@ public final class KafkaService implements Runnable {
     }
 
     private KafkaService(OpenLService service,
+            String requestIdHeaderKey,
             String inTopic,
             String outTopic,
             String dltTopic,
@@ -114,6 +121,7 @@ public final class KafkaService implements Runnable {
             KafkaTracingProvider kafkaTracingProvider,
             RulesDeploy rulesDeploy) throws KafkaServiceException {
         this.service = Objects.requireNonNull(service);
+        this.requestIdHeaderKey = requestIdHeaderKey;
         this.inTopic = Objects.requireNonNull(inTopic);
         this.producer = Objects.requireNonNull(producer);
         this.consumer = Objects.requireNonNull(consumer);
@@ -229,7 +237,18 @@ public final class KafkaService implements Runnable {
                     for (ConsumerRecord<String, RequestMessage> consumerRecord : records) {
                         executor.submit(() -> {
                             StoreLogData storeLogData = isStoreLogDataEnabled() ? StoreLogDataHolder.get() : null;
+                            String requestIdHeader = null;
                             try {
+                                if (requestIdHeaderKey != null) {
+                                    var idHeader = consumerRecord.headers().lastHeader(requestIdHeaderKey);
+                                    if (idHeader != null) {
+                                        requestIdHeader = new String(idHeader.value(), StandardCharsets.UTF_8);
+                                    }
+                                    if (StringUtils.isBlank(requestIdHeader)) {
+                                        requestIdHeader = UUID.randomUUID().toString();
+                                    }
+                                    MDC.put(RuleServicesFilter.REQUEST_ID_KEY, requestIdHeader);
+                                }
                                 if (storeLogData != null) {
                                     storeLogData.setServiceClass(service.getServiceClass());
                                     storeLogData.setServiceName(service.getName());
@@ -269,6 +288,9 @@ public final class KafkaService implements Runnable {
                                             consumerRecord.key(),
                                             result);
                                     }
+                                    if (requestIdHeader != null) {
+                                        producerRecord.headers().add(requestIdHeaderKey, requestIdHeader.getBytes(StandardCharsets.UTF_8));
+                                    }
                                     forwardHeadersToOutput(consumerRecord, producerRecord);
 
                                     if (tracingEnabled) {
@@ -279,6 +301,7 @@ public final class KafkaService implements Runnable {
                                     if (storeLogData != null) {
                                         storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
                                     }
+                                    String finalRequestIdHeader = requestIdHeader;
                                     producer.send(producerRecord, (metadata, exception) -> {
                                         if (storeLogData != null) {
                                             storeLogData.setProducerRecord(producerRecord);
@@ -302,7 +325,7 @@ public final class KafkaService implements Runnable {
                                             } catch (Exception e) {
                                                 log.error("Unexpected error.", e);
                                             }
-                                            sendErrorToDlt(consumerRecord, exception, storeLogData);
+                                            sendErrorToDlt(consumerRecord, exception, storeLogData, finalRequestIdHeader);
                                         }
                                     });
                                 } else {
@@ -313,13 +336,16 @@ public final class KafkaService implements Runnable {
                                 }
                             } catch (InvocationTargetException | UndeclaredThrowableException e) {
                                 Throwable ex = e.getCause();
-                                sendError(consumerRecord, storeLogData, ex instanceof Exception ?  (Exception) ex : e);
+                                sendError(consumerRecord, storeLogData, ex instanceof Exception ?  (Exception) ex : e, requestIdHeader);
                             } catch (Exception e) {
-                                sendError(consumerRecord, storeLogData, e);
+                                sendError(consumerRecord, storeLogData, e, requestIdHeader);
                             } finally {
                                 countDownLatch.countDown();
                                 if (isStoreLogDataEnabled()) {
                                     StoreLogDataHolder.remove();
+                                }
+                                if (requestIdHeader != null) {
+                                    MDC.remove(RuleServicesFilter.REQUEST_ID_KEY);
                                 }
                             }
                         });
@@ -346,14 +372,14 @@ public final class KafkaService implements Runnable {
         }
     }
 
-    private void sendError(ConsumerRecord<String, RequestMessage> consumerRecord, StoreLogData storeLogData, Exception e) {
+    private void sendError(ConsumerRecord<String, RequestMessage> consumerRecord, StoreLogData storeLogData, Exception e, String requestIdHeader) {
         if (log.isErrorEnabled()) {
             log.error("Failed to process a message from input topic '{}'.", getInTopic(), e);
         }
         if (isTracingEnabled()) {
             kafkaTracingProvider.traceError(consumerRecord.headers(), service.getName(), e);
         }
-        sendErrorToDlt(consumerRecord, e, storeLogData);
+        sendErrorToDlt(consumerRecord, e, storeLogData, requestIdHeader);
     }
 
     private void forwardHeadersToDlt(ConsumerRecord<?, ?> originalRecord, ProducerRecord<?, ?> record) {
@@ -409,12 +435,15 @@ public final class KafkaService implements Runnable {
         }
     }
 
-    private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> record, Exception e, StoreLogData storeLogData) {
+    private void sendErrorToDlt(ConsumerRecord<String, RequestMessage> record, Exception e, StoreLogData storeLogData, String requestIdHeader) {
         final String dltTopic = getDltTopic(record);
         if (StringUtils.isEmpty(dltTopic)) {
             return;
         }
         try {
+            if (requestIdHeader != null) {
+                record.headers().add(requestIdHeaderKey, requestIdHeader.getBytes(StandardCharsets.UTF_8));
+            }
             ProducerRecord<String, byte[]> dltRecord;
             Header header = record.headers().lastHeader(KafkaHeaders.REPLY_DLT_PARTITION);
             if (header == null) {

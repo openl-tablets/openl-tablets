@@ -59,7 +59,13 @@ public class RunKafkaSmokeITest {
 
     @Test
     public void methodSimpleOk() {
-        testKafka("hello-in-topic", "hello-out-topic", "key1", "{\"hour\": 5}", "Good Morning");
+        var producerRecord = new ProducerRecord<>("hello-in-topic", "key1", "{\"hour\": 5}");
+        addHeader(producerRecord, "X-Id", "Zulu");
+        testKafka(producerRecord, "hello-out-topic", (response) -> {
+            assertEquals("Good Morning", response.value());
+            assertEquals(producerRecord.key(), response.key());
+            assertEquals("Zulu", getHeaderValue(response, "X-Id"));
+        });
     }
 
     @Test
@@ -73,6 +79,7 @@ public class RunKafkaSmokeITest {
             checkKafkaResponse(consumer, (response) -> {
                 assertEquals(response.value(), "5");
                 assertEquals(response.key(), "key1");
+                assertEquals(36, getHeaderValue(response, "X-Id").length());
             });
 
             producer.send(new ProducerRecord<>("hello-in-topic", "key1", "{\"hour\": 22}"));
@@ -92,14 +99,23 @@ public class RunKafkaSmokeITest {
             "key1",
             "{\"hour\": 5}");
         addHeader(producerRecord, KafkaHeaders.METHOD_NAME, "Hello");
-        testKafka(producerRecord, "hello-out-topic-2", "Good Morning");
+        testKafka(producerRecord, "hello-out-topic-2", (response) -> {
+            assertEquals("Good Morning", response.value());
+            assertEquals(producerRecord.key(), response.key());
+            assertEquals(36, getHeaderValue(response, "X-Id").length());
+        });
     }
 
     @Test
     public void serviceSimpleFail() {
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>("hello-in-topic-2", "key1", "5");
         addHeader(producerRecord, KafkaHeaders.METHOD_NAME, "Hello");
-        testKafka(producerRecord, "hello-dlt-topic-2", "5");
+        addHeader(producerRecord, "X-Id", "Yetty");
+        testKafka(producerRecord, "hello-dlt-topic-2", (response) -> {
+            assertEquals("5", response.value());
+            assertEquals(producerRecord.key(), response.key());
+            assertEquals("Yetty", getHeaderValue(response, "X-Id"));
+        });
     }
 
     @Test
@@ -107,7 +123,12 @@ public class RunKafkaSmokeITest {
         final String replyTopic = UUID.randomUUID().toString();
         ProducerRecord<String, String> producerRecord = new ProducerRecord<>("hello-in-topic", "key1", "{\"hour\": 5}");
         addHeader(producerRecord, KafkaHeaders.REPLY_TOPIC, replyTopic);
-        testKafka(producerRecord, replyTopic, "Good Morning");
+        addHeader(producerRecord, "X-Id", "x-ray");
+        testKafka(producerRecord, replyTopic, (response) -> {
+            assertEquals("Good Morning", response.value());
+            assertEquals(producerRecord.key(), response.key());
+            assertEquals("x-ray", getHeaderValue(response, "X-Id"));
+        });
     }
 
     @Test
@@ -193,10 +214,6 @@ public class RunKafkaSmokeITest {
 
     private static void addHeader(ProducerRecord<String, String> producerRecord, String key, String value) {
         producerRecord.headers().add(key, value.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static void testKafka(String inTopic, String outTopic, String key, String value, String expectedValue) {
-        testKafka(new ProducerRecord<>(inTopic, key, value), outTopic, expectedValue);
     }
 
     private static void testKafka(ProducerRecord<String, String> producerRecord,

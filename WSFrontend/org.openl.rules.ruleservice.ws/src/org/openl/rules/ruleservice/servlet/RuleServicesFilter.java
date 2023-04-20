@@ -46,7 +46,7 @@ public class RuleServicesFilter implements Filter {
     private FileNameMap mimeMap;
 
     // MDC
-    private static final String REQUEST_ID_KEY = "requestId";
+    public static final String REQUEST_ID_KEY = "requestId";
     private String requestIdHeaderKey;
 
     // Swagger UI
