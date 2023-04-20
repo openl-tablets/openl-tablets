@@ -1,5 +1,6 @@
 HTTP/1.1 200
 Content-Type: text/html
+X-Id: x-ray
 
 <!DOCTYPE html>
 <html lang="en">

@@ -102,11 +102,6 @@ public class RuleServicesFilter implements Filter {
 
         var request = (HttpServletRequest) req;
         var response = (HttpServletResponse) resp;
-        var method = request.getMethod();
-        var path = request.getPathInfo();
-        if (path == null || path.equals("/")) {
-            path = "/index.html";
-        }
 
         // MDC. Insert generated id in MDC for each request.
         if (requestIdHeaderKey != null) {
@@ -114,12 +109,24 @@ public class RuleServicesFilter implements Filter {
             if (StringUtils.isBlank(requestId)) {
                 requestId = UUID.randomUUID().toString();
             }
+            response.setHeader(requestIdHeaderKey, requestId);
             MDC.put(REQUEST_ID_KEY, requestId);
             try {
-                chain.doFilter(req, resp);
+                process(request, response, chain);
             } finally {
                 MDC.remove(REQUEST_ID_KEY);
             }
+        } else {
+            process(request, response, chain);
+        }
+    }
+
+    private void process(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+
+        var method = request.getMethod();
+        var path = request.getPathInfo();
+        if (path == null || path.equals("/")) {
+            path = "/index.html";
         }
 
         // UTF-8
@@ -137,7 +144,7 @@ public class RuleServicesFilter implements Filter {
                     var mimeType = mimeMap.getContentTypeFor(path);
 
                     response.setContentType(mimeType);
-                    resourceStream.transferTo(resp.getOutputStream());
+                    resourceStream.transferTo(response.getOutputStream());
                     return;
                 }
             }
@@ -152,7 +159,7 @@ public class RuleServicesFilter implements Filter {
                     var mimeType = mimeMap.getContentTypeFor(path);
 
                     response.setContentType(mimeType);
-                    resourceStream.transferTo(resp.getOutputStream());
+                    resourceStream.transferTo(response.getOutputStream());
                     return;
                 } else {
                     response.setStatus(HttpServletResponse.SC_NOT_FOUND);
