@@ -55,6 +55,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ResourceLoaderAware;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 
@@ -89,6 +90,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
     @Autowired
     private StoreLogDataManager storeLogDataManager;
+
+    @Autowired
+    private Environment env;
 
     private final Map<String, KafkaTracingProvider> tracingProviderMap = new HashMap<>();
 
@@ -512,7 +516,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
          * in creating and finishing spans.
          */
         Optional<KafkaTracingProvider> tracingProvider = tracingProviderMap.values().stream().findFirst();
+        var requestIdHeaderKey = org.openl.util.StringUtils.trimToNull(env.getProperty("log.request-id.header"));
         final KafkaService kafkaService = KafkaService.createService(service,
+            requestIdHeaderKey,
             mergedKafkaConfig.getInTopic(),
             mergedKafkaConfig.getOutTopic(),
             mergedKafkaConfig.getDltTopic(),
