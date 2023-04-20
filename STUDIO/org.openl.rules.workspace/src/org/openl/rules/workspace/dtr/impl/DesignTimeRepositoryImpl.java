@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
@@ -248,7 +249,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
-    public AProject getProject(String repositoryId, String name) throws RepositoryException {
+    public AProject getProject(String repositoryId, String name) throws ProjectException {
         synchronized (projects) {
             if (projectsRefreshNeeded) {
                 refreshProjects();
@@ -267,7 +268,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 if (project.isPresent()) {
                     return project.get();
                 }
-                throw new RepositoryException("Project '{0}' is not found.", null, name);
+                throw new ProjectException("Project '{0}' is not found.", null, name);
             }
         }
     }

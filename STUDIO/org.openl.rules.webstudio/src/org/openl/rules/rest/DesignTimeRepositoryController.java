@@ -20,17 +20,28 @@ import org.openl.rules.lock.Lock;
 import org.openl.rules.lock.LockManager;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.rest.exception.ForbiddenException;
 import org.openl.rules.rest.exception.NotFoundException;
-import org.openl.rules.rest.model.*;
+import org.openl.rules.rest.model.CreateUpdateProjectModel;
+import org.openl.rules.rest.model.GenericView;
+import org.openl.rules.rest.model.PageResponse;
+import org.openl.rules.rest.model.ProjectRevision;
+import org.openl.rules.rest.model.ProjectViewModel;
+import org.openl.rules.rest.model.RepositoryFeatures;
+import org.openl.rules.rest.model.RepositoryViewModel;
+import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.resolver.DesignRepository;
 import org.openl.rules.rest.resolver.PaginationDefault;
 import org.openl.rules.rest.service.HistoryRepositoryMapper;
 import org.openl.rules.rest.validation.BeanValidationProvider;
 import org.openl.rules.rest.validation.CreateUpdateProjectModelValidator;
 import org.openl.rules.rest.validation.ZipArchiveValidator;
-import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -45,7 +56,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.annotation.JsonView;
@@ -168,13 +184,18 @@ public class DesignTimeRepositoryController {
             @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String searchTerm,
             @Parameter(description = "repo.param.techRevs.desc") @RequestParam(name = "techRevs", required = false, defaultValue = "false") boolean techRevs,
             @PaginationDefault(size = 50) Pageable page) throws IOException, ProjectException {
-        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         if (branch.isPresent()) {
             repository = checkoutBranchIfPresent(repository, branch.get());
         }
-
-        if (!designTimeRepository.hasProject(repository.getId(), projectName)) {
+        AProject project;
+        try {
+            project = designTimeRepository.getProject(repository.getId(), projectName);
+        } catch (ProjectException e) {
             throw new NotFoundException("project.message", projectName);
+        }
+
+        if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
+            throw new SecurityException();
         }
 
         String fullPath;
