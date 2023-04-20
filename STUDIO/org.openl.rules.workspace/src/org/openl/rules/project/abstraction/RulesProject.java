@@ -297,7 +297,7 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     @Override
-    protected List<FileData> getHistoryFileDatas() {
+    public List<FileData> getHistoryFileDatas() {
         if (historyFileDatas == null) {
             try {
                 if (designFolderName != null) {

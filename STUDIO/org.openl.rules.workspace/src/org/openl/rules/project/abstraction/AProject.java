@@ -176,7 +176,7 @@ public class AProject extends AProjectFolder implements IProject {
         return getHistoryFileDatas().size();
     }
 
-    protected List<FileData> getHistoryFileDatas() {
+    public List<FileData> getHistoryFileDatas() {
         if (historyFileDatas == null) {
             try {
                 String folderPath = getFolderPath();

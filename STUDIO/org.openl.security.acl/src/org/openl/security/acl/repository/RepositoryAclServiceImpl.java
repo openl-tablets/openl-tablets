@@ -57,7 +57,13 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
             if (projectArtefact.getFileData() != null) {
                 return getRepoPath(projectArtefact.getFileData());
             } else {
-                return extractInternalPath(projectArtefact.getProject()) + "/" + projectArtefact.getInternalPath();
+                // For deleted project fileData is null
+                if (projectArtefact.getProject().getFileData() != null) {
+                    return extractInternalPath(projectArtefact.getProject()) + "/" + projectArtefact.getInternalPath();
+                } else {
+                    List<FileData> fileDatas = projectArtefact.getProject().getHistoryFileDatas();
+                    return getRepoPath(fileDatas.get(fileDatas.size() - 1));
+                }
             }
         }
     }
