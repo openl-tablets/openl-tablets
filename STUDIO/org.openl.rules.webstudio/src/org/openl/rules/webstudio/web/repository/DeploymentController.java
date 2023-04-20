@@ -472,6 +472,9 @@ public class DeploymentController {
                 throw e;
             }
             Repository repo = workspace.getDesignTimeRepository().getRepository(deployment.getRepositoryId());
+            if (repo == null) {
+                throw e;
+            }
             if (repo.supports().mappedFolders() && StringUtils.isNotBlank(deployment.getPath())) {
                 String mappedName = ((FolderMapper) repo).getMappedName(deployment.getName(), deployment.getPath());
                 try {
