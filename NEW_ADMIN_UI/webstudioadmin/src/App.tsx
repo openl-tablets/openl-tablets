@@ -29,6 +29,7 @@ import { RepoDesignPage } from './Pages/RepoDesignPage';
 import { RepoDeploymentPage } from './Pages/RepoDeploymentPage';
 import { UserPage } from './Pages/UserPage';
 import { RepoDeployConfPage } from './Pages/RepoDeployConfPage';
+import { GroupPage } from './Pages/GroupPage';
 
 
 function App() {
@@ -41,10 +42,10 @@ function App() {
                             <Route index element={<HeaderMenu />} />
                             <Route path="/admin" element={<CommonPage />} />
                             <Route path="/admin/common" element={<CommonPage />} />
-                            <Route path="/admin/repository" element={<RepositoryPage />} />
+                            {/* <Route path="/admin/repositor/design" element={<RepositoryPage />} /> */}
                             <Route path="/admin/system" element={<SystemPage />} />
                             <Route path="/admin/users" element={<UserPage />} />
-                            {/* <Route path="/admin/groups" element={<GroupPage />} /> */}
+                            <Route path="/admin/groups" element={<GroupPage />} />
                             <Route path="/admin/notification" element={<NotificationPage />} />
                             <Route path="/admin/tags" element={<TagsPage />} />
                             <Route path="/admin/mail" element={<MailPage />} />

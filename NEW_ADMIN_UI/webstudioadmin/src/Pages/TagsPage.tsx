@@ -1,7 +1,8 @@
 import { Card, Input, Divider, Button, Checkbox } from "antd";
 import TextArea from "antd/es/input/TextArea";
-import { AdminMenu } from "components/AdminMenu";
-import { HeaderMenu } from "components/HeaderMenu";
+import { AdminMenu } from "../components/AdminMenu";
+import { HeaderMenu } from "../components/HeaderMenu";
+import React from "react";
 
 
 export function TagsPage() {

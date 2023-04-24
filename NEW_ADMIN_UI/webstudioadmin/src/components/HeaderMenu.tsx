@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Col, Divider, Menu, MenuProps, Row } from 'antd';
 import { Link, useNavigate } from "react-router-dom";
+import { DownOutlined } from '@ant-design/icons';
 
 export function HeaderMenu() {
     const navigate = useNavigate();
@@ -34,8 +35,8 @@ export function HeaderMenu() {
                                     { label: "User Details", key: "/userdetails" },
                                     { label: "User Settings", key: "/usersettings" },
                                     { type: 'divider' },
-                                    { label: "Help", key: "/help" },
-                                ]
+                                    { label: "Help", key: "/help" }, 
+                                ], icon: <DownOutlined />
                             },
                         ]} ></Menu>
                 </Col>
