@@ -2,8 +2,14 @@ import React from "react";
 import { HeaderMenu } from "../components/HeaderMenu";
 import { AdminMenu } from "../components/AdminMenu";
 import { RepositoryPage } from "./RepositoryPage";
-import Icon from "@ant-design/icons";
+import Icon, { InfoCircleOutlined } from "@ant-design/icons";
 import { Form, Input, Tooltip, Cascader, AutoComplete, Row, Col, Button, Checkbox, Card } from "antd";
+import { RemoteRepoModal } from "../components/RemoteRepoModal";
+import { LocalPathModal } from "../components/LocalPathModal";
+import { ProtectedBranchesModal } from "../components/ProtectedBranchesModal";
+import { DefaultBranchModal } from "../components/DefaultBranchModal";
+import { BranchNamePatternModal } from "../components/BranchNamePatternModal";
+import { InvalidBranchModal } from "../components/InvalidBranchModal";
 
 
 export function RepoDesignPage() {
@@ -34,14 +40,19 @@ export function RepoDesignPage() {
 
     return (
         <div>
-
-            <RepositoryPage />
+            <div >
+                <HeaderMenu />
+            </div>
+            <div style={{ display: "flex", flexDirection: "row" }}>
+                <AdminMenu />
+                <RepositoryPage />
 
                 <Card bordered={true}
                     style={{
-                        width: 500, margin: 20
+                        width: 650, margin: 20
                     }}>
-                    <Form >
+                    <Form labelCol={{ span: 10 }}
+                        wrapperCol={{ span: 18 }}>
                         <Form.Item
                             label={
                                 <span>
@@ -61,25 +72,25 @@ export function RepoDesignPage() {
                         >
                             <Cascader options={typeOptions} placeholder="Git" />
                         </Form.Item>
-                        <Form.Item
+                        <Form.Item tooltip={{ title: 'Details', icon: <RemoteRepoModal />}}
                             label={
                                 <span>
                                     Remote repository &nbsp;
                                 </span>
                             }
                         >
-                            <Checkbox />
+                            <Checkbox/>
                         </Form.Item>
-                        <Form.Item
+                        <Form.Item tooltip={{ title: 'Details', icon: <LocalPathModal />}}
                             label={
                                 <span>
                                     Local path* &nbsp;
                                 </span>
                             }
                         >
-                            <Input placeholder="./openl-demo/repositories/design" />
+                            <Input placeholder="./openl-demo/repositories/design"  />
                         </Form.Item>
-                        <Form.Item
+                        <Form.Item tooltip={{ title: 'Details', icon: <ProtectedBranchesModal />}}
                             label={
                                 <span>
                                     Protected branches &nbsp;
@@ -89,7 +100,7 @@ export function RepoDesignPage() {
                             <Input />
                         </Form.Item>
                         <p><b>New branch:</b></p>
-                        <Form.Item
+                        <Form.Item tooltip={{ title: 'Details', icon: <DefaultBranchModal />}}
                             label={
                                 <span>
                                     Default branch name &nbsp;
@@ -98,7 +109,7 @@ export function RepoDesignPage() {
                         >
                             <Input placeholder="WebStudio/{project-name}/{username}/{current-date}" />
                         </Form.Item>
-                        <Form.Item
+                        <Form.Item tooltip={{ title: 'Details', icon: <BranchNamePatternModal />}}
                             label={
                                 <span>
                                     Branch name pattern &nbsp;
@@ -107,10 +118,10 @@ export function RepoDesignPage() {
                         >
                             <Input />
                         </Form.Item>
-                        <Form.Item
+                        <Form.Item tooltip={{ title: 'Details', icon: <InvalidBranchModal />}}
                             label={
                                 <span>
-                                    Invalid branch name message hint: &nbsp;
+                                    Invalid branch name message hint &nbsp;
                                 </span>
                             }
                         >
@@ -123,7 +134,7 @@ export function RepoDesignPage() {
                                 </span>
                             }
                         >
-                            <Checkbox />
+                            <Checkbox/>
                         </Form.Item>
                         <p>Folder structure configuration. If flat structure is used, all projects are stored in a given folder. If non-flat structure is used, projects locations can be modified.</p>
                         <Form.Item
@@ -133,7 +144,7 @@ export function RepoDesignPage() {
                                 </span>
                             }
                         >
-                            <Checkbox />
+                            <Checkbox/>
                         </Form.Item>
                         <Form.Item
                             label={
@@ -146,7 +157,7 @@ export function RepoDesignPage() {
                         </Form.Item>
                     </Form>
                 </Card>
-
+            </div>
         </div>
     )
 }

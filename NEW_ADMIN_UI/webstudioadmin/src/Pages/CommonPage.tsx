@@ -7,11 +7,11 @@ export function CommonPage() {
     return (
         <div>
             <div>
-            <HeaderMenu />
+                <HeaderMenu />
             </div>
-            <div style={{display: "flex", flexDirection: "row"}}>
-            <AdminMenu />
-                       
+            <div style={{ display: "flex", flexDirection: "row" }}>
+                <AdminMenu />
+
                 <Card style={{ width: 450, margin: 20 }}>
                     <p><b>User Workspace</b></p>
                     <p>Workspace Directory:</p>
@@ -27,14 +27,14 @@ export function CommonPage() {
                     <Checkbox
                     // onChange={onChange}
                     />
-                    <p>Date Format:</p>
+                    <p style={{marginTop: 15}}>Date Format:</p>
                     <Input placeholder="MM/dd/yyyy" />
-                    <p>Time Format:</p>
+                    <p style={{marginTop: 15}}>Time Format:</p>
                     <Input placeholder="hh:mm:ss a" />
                     <Divider />
                     <Button style={{ marginTop: 20 }}>Apply All and Restart</Button>
                 </Card>
-                </div>           
+            </div>
         </div>
     )
 }

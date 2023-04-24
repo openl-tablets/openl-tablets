@@ -20,7 +20,7 @@ export function AdminMenu() {
 
                 items={[
                     { label: "Common", key: "/admin/common", icon: <SolutionOutlined /> },
-                    { label: "Repository", key: "/admin/repository", icon: <FolderOutlined /> },
+                    { label: "Repository", key: "/admin/repository/design", icon: <FolderOutlined /> },
                     { label: "System", key: "/admin/system", icon: <SettingOutlined /> },
                     { label: "Users", key: "/admin/users", icon: <UserOutlined /> },
                     { label: "Groups & Privileges", key: "/admin/groups", icon: <UserOutlined /> },

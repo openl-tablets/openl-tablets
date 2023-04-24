@@ -2,11 +2,21 @@ import React from "react";
 import { HeaderMenu } from "../components/HeaderMenu";
 import { AdminMenu } from "../components/AdminMenu";
 import { Button, Card, Table, Tag } from 'antd';
+import { ModalNewUser } from "../components/ModalNewUser";
+import type { ColumnsType } from 'antd/es/table';
 
 
 export function UserPage() {
 
-    const userInfo = [
+    interface DataType {
+        key: React.Key;
+        username: string;
+        email: string;
+        displayName: string;
+        groups: string[];
+      }
+
+    const userInfo:DataType[] = [
         {
             key: "1",
             username: "a1",
@@ -20,7 +30,6 @@ export function UserPage() {
             email: "admin@example.com",
             displayName: "Admin",
             groups: ["Administrators"],
-            action: "",
         },
         {
             key: "3",
@@ -97,21 +106,20 @@ export function UserPage() {
             title: 'Groups',
             dataIndex: 'groups',
             key: 'groups',
-            // render: groups => (
-            //     <span>
-            //         {groups.map(group => {
-            //             let color = group.length > 10 ? 'red' : 'blue';
-            //             if (group === 'Administrators') {
-            //                 color = 'red';
-            //             }
-            //             return (
-            //                 <Tag color={color} key={group} >
-            //                     {group.toUppercase()}
-            //                 </Tag>
-            //             );
-            //         })}
-            //     </span>
-            // ),
+            render: (groups: string[]) => (
+                <>
+                    {groups.map(group => {
+                        let color = "grey";
+                        group === "Administrators" ? color = "red" :  color ="blue";
+
+                        return (
+                            <Tag color={color} key={group} >
+                                {group}
+                            </Tag>
+                        );
+                    })}
+                </>
+            ),
         },
         {
             title: 'Action',
@@ -133,7 +141,7 @@ export function UserPage() {
                 <AdminMenu />
                 <Card style={{ margin: 20 }}>
                     <Table columns={columns} dataSource={userInfo} />
-                    <Button>Add new user</Button>
+                    <ModalNewUser/>
                 </Card>
             </div>
         </div>
