@@ -15,8 +15,10 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
+import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
@@ -102,14 +104,11 @@ public class CopyBean {
         this.designRepositoryAclService = designRepositoryAclService;
     }
 
-    public boolean getCanCreate() {
-        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
-        for (Repository repository : userWorkspace.getDesignTimeRepository().getRepositories()) {
-            if (designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
-                return true;
-            }
+    public boolean getCanCopy(AProject project) {
+        if (getCanCreateNewProject()) {
+            return true;
         }
-        return false;
+        return getCanCopyToNewBranch(project);
     }
 
     public String getCurrentProjectName() {
@@ -126,7 +125,7 @@ public class CopyBean {
         }
         try {
             return getUserWorkspace().getProject(repositoryId, currentProjectName, false).getBusinessName();
-        } catch (Exception e) {
+        } catch (ProjectException e) {
             LOG.error(e.getMessage(), e);
         }
 
@@ -165,7 +164,15 @@ public class CopyBean {
     }
 
     public boolean isSeparateProject() {
-        return separateProject;
+        boolean canCreateNewProject = getCanCreateNewProject();
+        boolean canCopyToNewBranch = getCanCopyToNewBranch(getCurrentProject());
+        if (canCopyToNewBranch && canCreateNewProject) {
+            return separateProject;
+        }
+        if (canCopyToNewBranch) {
+            return false;
+        }
+        return canCreateNewProject;
     }
 
     public void setSeparateProject(boolean separateProject) {
@@ -243,7 +250,7 @@ public class CopyBean {
             if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.VIEW))) {
                 throw new Message("There is no permission for copying the project.");
             }
-            if (isSupportsBranches() && !separateProject) {
+            if (isSupportsBranches() && !isSeparateProject()) {
                 Repository designRepository = project.getDesignRepository();
                 ((BranchRepository) designRepository).createBranch(project.getDesignFolderName(), newBranchName);
             } else {
@@ -318,7 +325,7 @@ public class CopyBean {
     }
 
     private void switchToNewBranch() {
-        if (!(isSupportsBranches() && !separateProject)) {
+        if (!(isSupportsBranches() && !isSeparateProject())) {
             return;
         }
         try {
@@ -515,7 +522,30 @@ public class CopyBean {
     }
 
     public boolean getCanCreateNewProject() {
-        return !getAllowedRepositories().isEmpty();
+        if (getAllowedRepositories().isEmpty()) {
+            return false;
+        }
+        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+        for (Repository repository : userWorkspace.getDesignTimeRepository().getRepositories()) {
+            if (designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean getCanCopyToNewBranch(AProject project) {
+        if (designRepositoryAclService.isGranted(project,
+            List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+            return true;
+        }
+        for (AProjectArtefact artefact : project.getArtefacts()) {
+            if (designRepositoryAclService.isGranted(artefact,
+                List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isSupportsMappedFolders() {
@@ -538,7 +568,7 @@ public class CopyBean {
         }
     }
 
-    private RulesProject getCurrentProject() {
+    public RulesProject getCurrentProject() {
         if (StringUtils.isBlank(currentProjectName)) {
             return null;
         }

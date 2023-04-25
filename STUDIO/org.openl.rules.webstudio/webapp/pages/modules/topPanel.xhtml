@@ -38,10 +38,10 @@
     </h:panelGroup>
     <ui:include src="/pages/modules/compareRevisions.xhtml" />
 
-    <h:panelGroup rendered="#{!empty rProject and copyBean.canCreate}">
-        <ui:include src="/pages/modules/copyProject.xhtml" />
-        <ui:include src="/pages/modules/tags/createProjectTags.xhtml" />
-        <ui:include src="/pages/modules/repository/modal/selectFolder.xhtml" />
+    <h:panelGroup rendered="#{!empty rProject and copyBean.getCanCopy(rProject)}">
+        <ui:include src="/pages/modules/copyProject.xhtml"/>
+        <ui:include src="/pages/modules/tags/createProjectTags.xhtml"/>
+        <ui:include src="/pages/modules/repository/modal/selectFolder.xhtml"/>
     </h:panelGroup>
 
     <h:panelGroup rendered="#{studio.canMerge}">
@@ -143,10 +143,11 @@
                                title="Deploy the project"
                                rendered="#{studio.canRedeploy}">
                 </h:commandLink>
-                <h:commandLink styleClass="changes-listener" onclick="openCopyProjectDialog('#{rProject.repository.id}', '#{studio.currentRepositoryType}', '#{rProject.name}'); return false;"
+                <h:commandLink styleClass="changes-listener"
+                               onclick="openCopyProjectDialog('#{rProject.repository.id}', '#{studio.currentRepositoryType}', '#{rProject.name}'); return false;"
                                id="copyProjectButton"
                                value="Copy" title="Copy project"
-                               rendered="#{!empty rProject and copyBean.canCreate}" />
+                               rendered="#{!empty rProject and copyBean.getCanCopy(rProject)}"/>
                 <h:commandLink
                         onclick="if (!canOverwriteRevision()) return false; openUpdateProjectDialog();return false;"
                         id="updateProjectButton"
