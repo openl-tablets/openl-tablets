@@ -105,7 +105,7 @@
                         <h:commandButton rendered="#{repositoryTreeState.canMerge}" value="Sync" title="#{mergeMessage}"
                                          onclick="openMergeBranchesDialog('#{artefact.repository.id}', '#{repositoryTreeController.currentNodeRepositoryType}', '#{artefact.name}'); return false;"/>
 
-                        <h:commandButton id="copyId1" rendered="#{repositoryTreeState.canCreate}" value="Copy"
+                        <h:commandButton id="copyId1" rendered="#{copyBean.getCanCopy(artefact)}" value="Copy"
                                          onclick="openCopyProjectDialog('#{artefact.repository.id}', '#{repositoryTreeController.currentNodeRepositoryType}', '#{artefact.name}', function() {location.href = location.href;});return false;"
                                          title="#{copyMessage}"/>
                         <h:commandButton id="deleteId2" rendered="#{repositoryTreeState.canDelete}" value="Delete"

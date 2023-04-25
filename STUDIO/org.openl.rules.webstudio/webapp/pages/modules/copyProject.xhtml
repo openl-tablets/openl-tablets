@@ -4,7 +4,7 @@
         xmlns:a4j="http://richfaces.org/a4j"
         xmlns:rich="http://richfaces.org/rich"
         xmlns:ui="http://java.sun.com/jsf/facelets"
->
+        xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <rich:popupPanel id="modalCopyProject" minWidth="550" autosized="true">
         <f:facet name="header">
@@ -16,27 +16,35 @@
                             onclick="RichFaces.$('modalCopyProject').hide();"/>
         </f:facet>
 
+        <c:set value="#{copyBean.canCreateNewProject}" var="canCreateNewProject"/>
+        <c:set value="#{copyBean.getCanCopyToNewBranch(copyBean.getCurrentProject())}" var="canCopyToNewBranch"/>
+
         <h:form id="copyProjectForm">
             <h:panelGroup id="modalCopyProjectData">
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                     <h:outputLabel value="Project Name:"/>
-                    <h:outputText id="currentProjectName" value="#{copyBean.businessName}" />
+                    <h:outputText id="currentProjectName" value="#{copyBean.businessName}"/>
                 </h:panelGrid>
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                              rendered="#{copyBean.supportsBranches}">
-                    <h:outputLabel value="Don't link to origin project:" for="separateProjectCheckbox" rendered="#{copyBean.canCreateNewProject}"/>
-                    <h:selectBooleanCheckbox id="separateProjectCheckbox" value="#{copyBean.separateProject}" rendered="#{copyBean.canCreateNewProject}"
+                    <h:outputLabel value="Create a New Project:" for="separateProjectCheckbox"
+                                   rendered="#{canCreateNewProject and canCopyToNewBranch}"/>
+                    <h:selectBooleanCheckbox id="separateProjectCheckbox" value="#{copyBean.separateProject}"
+                                             rendered="#{canCreateNewProject and canCopyToNewBranch}"
                                              onclick="updateSeparateProjectState()">
                     </h:selectBooleanCheckbox>
                     <h:outputLabel for="currentBranchName" value="Current Branch:"/>
-                    <h:outputText id="currentBranchName" value="#{copyBean.currentBranchName}" />
-                    <h:outputLabel for="newBranchName" styleClass="required" value="New Branch Name:"/>
+                    <h:outputText id="currentBranchName" value="#{copyBean.currentBranchName}"/>
+                    <h:outputLabel for="newBranchName" styleClass="required" value="New Branch Name:"
+                                   rendered="#{canCopyToNewBranch}"/>
                     <h:inputText id="newBranchName" value="#{copyBean.newBranchName}"
-                                 validator="#{copyBean.newBranchNameValidator}"/>
+                                 validator="#{copyBean.newBranchNameValidator}" rendered="#{canCopyToNewBranch}"/>
                     <h:outputText value=""/>
-                    <h:message id="newBranchNameMessage" for="newBranchName" styleClass="error" style="white-space: pre-wrap;"/>
+                    <h:message id="newBranchNameMessage" for="newBranchName" styleClass="error"
+                               style="white-space: pre-wrap;"/>
                 </h:panelGrid>
-                <h:panelGrid id="newProject" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," rendered="#{copyBean.canCreateNewProject}">
+                <h:panelGrid id="newProject" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
+                             rendered="#{canCreateNewProject}">
                     <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name:"/>
                     <h:inputText id="newProjectName" maxlength="50" value="#{copyBean.newProjectName}"
                                  validator="#{copyBean.newProjectNameValidator}"/>
@@ -45,7 +53,8 @@
 
                     <h:outputLabel for="repository" value="Repository:" styleClass="required"/>
                     <h:selectOneMenu id="repository" value="#{copyBean.toRepositoryId}">
-                        <f:ajax event="change" execute="@form" render="newProject destRepositoryType" onevent="onRepositoryChange"/>
+                        <f:ajax event="change" execute="@form" render="newProject destRepositoryType"
+                                onevent="onRepositoryChange"/>
                         <f:selectItems value="#{copyBean.allowedRepositories}" var="repository"
                                        itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
                     </h:selectOneMenu>
