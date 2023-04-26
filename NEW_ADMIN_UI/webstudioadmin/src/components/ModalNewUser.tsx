@@ -4,6 +4,13 @@ import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 
 export function ModalNewUser() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [userName, setUserName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [displayName, setDisplayName] = useState("");
+    const [group, setGroup] = useState([]);
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -16,11 +23,6 @@ export function ModalNewUser() {
     const handleCancel = () => {
         setIsModalOpen(false);
     };
-
-
-    // const { visible, onCancel, onCreate, form } = this.props;
-
-    // const { getFieldDecorator } = form;
 
 
     const displayOrder = [
@@ -38,11 +40,35 @@ export function ModalNewUser() {
         },
 
     ]
-    
+
     const onChange = (checkedValues: CheckboxValueType[]) => {
         console.log('checked = ', checkedValues);
     };
 
+    const handleInputChange = (e:any) => {
+        const { id, value } = e.target;
+        if (id === "userName") {
+            setUserName(value);
+        }
+        if (id === "email") {
+            setEmail(value);
+        }
+        if (id === "password") {
+            setPassword(value);
+        }
+        if (id === "firstName") {
+            setFirstName(value);
+        }
+        if (id === "lastName") {
+            setLastName(value);
+        }
+        if (id === "displayName") {
+            setDisplayName(value);
+        }
+        if (id === "group") {
+            setGroup(value);
+        }
+    }
 
     return (
         <>
@@ -53,23 +79,23 @@ export function ModalNewUser() {
                 <Form layout="vertical">
                     <Form.Item><b>Account</b></Form.Item>
                     <Form.Item label="Username">
-                        <Input />
+                        <Input id="userName" value={userName} onChange={(e) => handleInputChange(e)} />
                     </Form.Item>
                     <Form.Item label="Email">
-                        <Input />
+                        <Input id="email" value={email} onChange={(e) => handleInputChange(e)}/>
                     </Form.Item>
                     <Form.Item label="Password">
-                        <Input />
+                        <Input id="password" value={password} onChange={(e) => handleInputChange(e)}/>
                     </Form.Item>
                     <Form.Item><b>Name</b></Form.Item>
                     <Form.Item label="First name (Given name):">
-                        <Input />
+                        <Input id="firstName" value={firstName} onChange={(e) => handleInputChange(e)}/>
                     </Form.Item>
                     <Form.Item label="Last name (Family name):">
-                        <Input />
+                        <Input id="lastName" value={lastName} onChange={(e) => handleInputChange(e)}/>
                     </Form.Item>
                     <Form.Item label="Display name:">
-                        <Cascader options={displayOrder} placeholder="First last" />
+                        <Cascader options={displayOrder} placeholder="First last" id="displayName"/>
                     </Form.Item>
                     <Form.Item><b>Group</b></Form.Item>
 

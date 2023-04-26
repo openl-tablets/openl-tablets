@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Button, Cascader, Checkbox, Col, Form, Input, Modal, Row } from 'antd';
-import type { CheckboxValueType } from 'antd/es/checkbox/Group';
-import Icon, { InfoCircleOutlined } from '@ant-design/icons';
+import { Button, Modal } from 'antd';
+import { InfoCircleOutlined } from '@ant-design/icons';
 
 export function ProtectedBranchesModal() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,7 +15,6 @@ export function ProtectedBranchesModal() {
 
     return (
         <>
-
             <InfoCircleOutlined onClick={showModal} />
 
             <Modal title="Details" open={isModalOpen} footer={[

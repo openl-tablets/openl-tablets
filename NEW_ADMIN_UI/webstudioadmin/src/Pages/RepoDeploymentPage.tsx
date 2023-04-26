@@ -1,9 +1,7 @@
 import React from "react";
-import { HeaderMenu } from "../components/HeaderMenu";
 import { AdminMenu } from "../components/AdminMenu";
 import { RepositoryPage } from "./RepositoryPage";
-import Icon from "@ant-design/icons";
-import { Form, Input, Tooltip, Cascader, AutoComplete, Row, Col, Button, Checkbox, Card } from "antd";
+import { Form, Input, Cascader, Checkbox, Card } from "antd";
 
 
 export function RepoDeploymentPage() {
@@ -38,9 +36,6 @@ export function RepoDeploymentPage() {
 
     return (
         <div>
-            <div>
-                <HeaderMenu />
-            </div>
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <AdminMenu />
                 <RepositoryPage />

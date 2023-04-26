@@ -1,14 +1,11 @@
 import React from 'react'
-import { Button, Card, Checkbox, Col, Divider, Grid, Input } from "antd";
-import { HeaderMenu } from "../components/HeaderMenu";
+import { Button, Card, Checkbox, Divider, Input } from "antd";
 import { AdminMenu } from "../components/AdminMenu";
 
 export function CommonPage() {
+    
     return (
         <div>
-            <div>
-                <HeaderMenu />
-            </div>
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <AdminMenu />
 

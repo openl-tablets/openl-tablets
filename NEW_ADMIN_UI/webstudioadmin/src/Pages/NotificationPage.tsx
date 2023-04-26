@@ -1,16 +1,13 @@
 import React from 'react';
-import { Card, Input, Button, Space, Grid, Col, Divider } from 'antd';
+import { Card, Input, Button } from 'antd';
 import { AdminMenu } from '../components/AdminMenu';
-import { HeaderMenu } from '../components/HeaderMenu';
 
 
 const { TextArea } = Input;
 
 export function NotificationPage() {
-    return (<div>
-        <div>
-            <HeaderMenu />
-        </div>
+    return (
+    <div>
         <div style={{ display: "flex", flexDirection: "row" }}>
             <AdminMenu />
 

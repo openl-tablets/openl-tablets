@@ -1,16 +1,13 @@
 import React from "react";
-import { HeaderMenu } from "../components/HeaderMenu";
 import { AdminMenu } from "../components/AdminMenu";
 import { RepositoryPage } from "./RepositoryPage";
-import Icon, { InfoCircleOutlined } from "@ant-design/icons";
-import { Form, Input, Tooltip, Cascader, AutoComplete, Row, Col, Button, Checkbox, Card } from "antd";
+import { Form, Input, Cascader, Checkbox, Card } from "antd";
 import { RemoteRepoModal } from "../components/RemoteRepoModal";
 import { LocalPathModal } from "../components/LocalPathModal";
 import { ProtectedBranchesModal } from "../components/ProtectedBranchesModal";
 import { DefaultBranchModal } from "../components/DefaultBranchModal";
 import { BranchNamePatternModal } from "../components/BranchNamePatternModal";
 import { InvalidBranchModal } from "../components/InvalidBranchModal";
-
 
 export function RepoDesignPage() {
 
@@ -40,9 +37,6 @@ export function RepoDesignPage() {
 
     return (
         <div>
-            <div >
-                <HeaderMenu />
-            </div>
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <AdminMenu />
                 <RepositoryPage />
