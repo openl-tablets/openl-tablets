@@ -1,7 +1,6 @@
 import React from "react";
-import { HeaderMenu } from "../components/HeaderMenu";
 import { AdminMenu } from "../components/AdminMenu";
-import { Card, Form, Input, Cascader, Checkbox } from "antd";
+import { Card, Form, Cascader, Checkbox } from "antd";
 import { RepositoryPage } from "./RepositoryPage";
 
 
@@ -15,9 +14,6 @@ export function RepoDeployConfPage() {
     ]
     return (
         <div>
-            <div>
-                <HeaderMenu />
-            </div>
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <AdminMenu />
                 <RepositoryPage />

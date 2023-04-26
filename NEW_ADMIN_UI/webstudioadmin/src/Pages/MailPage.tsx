@@ -1,15 +1,12 @@
 import { Card, Button, Checkbox, Row } from "antd";
 import React from "react";
-import { HeaderMenu } from "../components/HeaderMenu";
 import { AdminMenu } from "../components/AdminMenu";
 
 
 
 export function MailPage() {
-    return (<div>
-        <div>
-            <HeaderMenu />
-        </div>
+    return (
+    <div>
         <div style={{ display: "flex", flexDirection: "row" }}>
             <AdminMenu />
 

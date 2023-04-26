@@ -1,22 +1,19 @@
-import React from "react";
-import { HeaderMenu } from "../components/HeaderMenu";
+import React, { useState } from "react";
 import { AdminMenu } from "../components/AdminMenu";
 import { Button, Card, Table, Tag } from 'antd';
-import { ModalNewUser } from "../components/ModalNewUser";
-import type { ColumnsType } from 'antd/es/table';
-
+import { useNavigate } from "react-router-dom";
 
 export function UserPage() {
 
-    interface DataType {
-        key: React.Key;
-        username: string;
-        email: string;
-        displayName: string;
-        groups: string[];
-      }
+    const navigate = useNavigate();
+    const navigateCreateuser = () => {
+        let path = `/users/create`;
+        navigate(path);
+    }
 
-    const userInfo:DataType[] = [
+    const [userInfo, setUserInfo] = useState (
+    // :DataType[]
+    [
         {
             key: "1",
             username: "a1",
@@ -74,8 +71,22 @@ export function UserPage() {
             groups: ["Viewers"],
         }
 
-    ]
+    ]);
+   
 
+    // const addUser = (user) => {
+
+    // }
+
+    // interface DataType {
+    //     key: React.Key;
+    //     username: string;
+    //     email: string;
+    //     displayName: string;
+    //     groups: string[];
+    //   }
+
+    
     const columns = [
         {
             title: 'Username',
@@ -134,16 +145,15 @@ export function UserPage() {
 
     return (
         <div>
-            <div>
-                <HeaderMenu />
-            </div>
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <AdminMenu />
                 <Card style={{ margin: 20 }}>
                     <Table columns={columns} dataSource={userInfo} />
-                    <ModalNewUser/>
+                    <Button onClick={navigateCreateuser}>Add new user</Button>
                 </Card>
             </div>
         </div>
     )
 }
+
+

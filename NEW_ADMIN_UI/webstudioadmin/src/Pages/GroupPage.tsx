@@ -1,6 +1,4 @@
-
 import React from "react";
-import { HeaderMenu } from "../components/HeaderMenu";
 import { AdminMenu } from "../components/AdminMenu";
 import { Card, Table, Tag } from 'antd';
 import { ModalNewGroup } from "../components/ModalNewGroup";
@@ -105,9 +103,6 @@ export function GroupPage() {
 
     return (
         <div>
-            <div>
-                <HeaderMenu />
-            </div>
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <AdminMenu />
                 <Card style={{ margin: 20 }}>

@@ -1,15 +1,11 @@
 import { Card, Button, Checkbox, Row, Divider, Input } from "antd"
-import TextArea from "antd/es/input/TextArea"
 import React from "react"
 import { AdminMenu } from "../components/AdminMenu"
-import { HeaderMenu } from "../components/HeaderMenu"
 
 
 export function SystemPage() {
-    return (<div>
-        <div>
-            <HeaderMenu />
-        </div>
+    return (
+    <div>
         <div style={{ display: "flex", flexDirection: "row" }}>
             <AdminMenu />
 
@@ -26,7 +22,6 @@ export function SystemPage() {
                     // onChange={onChange}
                     />
                 </Row>
-                <p><b>Core</b></p>
                 <Row>
                     <p>Verify on Edit: &nbsp;</p>
                     <Checkbox

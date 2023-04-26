@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { Menu, MenuProps } from 'antd';
-import { Link, useNavigate, Route, Routes } from "react-router-dom";
+import React from 'react';
+import { Menu } from 'antd';
+import { useNavigate } from "react-router-dom";
 import { FolderOutlined, MailOutlined, NotificationOutlined, NumberOutlined, SettingOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons';
-import { HeaderMenu } from './HeaderMenu';
 
 
 export function AdminMenu() {
@@ -10,22 +9,21 @@ export function AdminMenu() {
 
     return (
         <div>
-            {/* <div>
-            <HheaderMenu />
-            </div> */}
-            <Menu 
+            <Menu
                 onClick={({ key }) => {
                     navigate(key);
                 }}
 
                 items={[
-                    { label: "Common", key: "/admin/common", icon: <SolutionOutlined /> },
-                    { label: "Repository", key: "/admin/repository/design", icon: <FolderOutlined /> },
-                    { label: "System", key: "/admin/system", icon: <SettingOutlined /> },
-                    { label: "Users", key: "/admin/users", icon: <UserOutlined /> },
-                    { label: "Groups & Privileges", key: "/admin/groups", icon: <UserOutlined /> },
-                    { label: "Notification", key: "/admin/notification", icon: <NotificationOutlined /> },
-                    { label: "Tags", key: "/admin/tags", icon: <NumberOutlined /> },
-                    { label: "Mail", key: "/admin/mail", icon: <MailOutlined /> },
-                ]} ></Menu></div>)
+                    { label: "Common", key: "/common", icon: <SolutionOutlined /> },
+                    { label: "Repository", key: "/repository/design", icon: <FolderOutlined /> },
+                    { label: "System", key: "/system", icon: <SettingOutlined /> },
+                    { label: "Users", key: "/users", icon: <UserOutlined /> },
+                    { label: "Groups & Privileges", key: "/groups", icon: <UserOutlined /> },
+                    { label: "Notification", key: "/notification", icon: <NotificationOutlined /> },
+                    { label: "Tags", key: "/tags", icon: <NumberOutlined /> },
+                    { label: "Mail", key: "/mail", icon: <MailOutlined /> },
+                ]} >
+            </Menu>
+        </div>)
 };

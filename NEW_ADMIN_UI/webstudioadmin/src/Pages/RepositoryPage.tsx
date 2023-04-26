@@ -1,24 +1,20 @@
 import { Card, Button, Divider } from "antd"
-import TextArea from "antd/es/input/TextArea"
 import React from "react"
-import { AdminMenu } from "../components/AdminMenu"
-import { HeaderMenu } from "../components/HeaderMenu"
-import { Link, useNavigate, Route, Routes } from "react-router-dom";
-import { RepoDesignPage } from "./RepoDesignPage"
+import { useNavigate} from "react-router-dom";
 
 
 export function RepositoryPage() {
     const navigate = useNavigate();
     const navigateDesign = () => {
-        let path = `/admin/repository/design`;
+        let path = `/repository/design`;
         navigate(path);
     }
     const navigateDeployConfig = () => {
-        let path = `/admin/repository/config`;
+        let path = `/repository/config`;
         navigate(path);
     }
     const navigateDeployment = () => {
-        let path = `/admin/repository/deployment`;
+        let path = `/repository/deployment`;
         navigate(path);
     }
 
