@@ -4,7 +4,7 @@ import { AdminMenu } from "../components/AdminMenu";
 import React from "react";
 
 
-export function TagsPage() {
+export const TagsPage:React.FC =() => {
     return (
         <div>
             <div style={{ display: "flex", flexDirection: "row" }}>
@@ -54,4 +54,4 @@ export function TagsPage() {
             </div>
         </div>
     )
-}
+};

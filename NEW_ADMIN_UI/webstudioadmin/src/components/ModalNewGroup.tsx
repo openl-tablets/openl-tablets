@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, } from 'antd';
 
-export function ModalNewGroup() {
+export const ModalNewGroup: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const showModal = () => {
@@ -16,10 +16,11 @@ export function ModalNewGroup() {
         setIsModalOpen(false);
     };
 
-    return(
+    return (
         <div>
             <Button onClick={showModal}>
                 Add new group
             </Button>
         </div>
-    )}
+    )
+};

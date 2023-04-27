@@ -2,7 +2,7 @@ import React from 'react'
 import { Button, Card, Checkbox, Divider, Input } from "antd";
 import { AdminMenu } from "../components/AdminMenu";
 
-export function CommonPage() {
+export const CommonPage:React.FC = () => {
     
     return (
         <div>
@@ -34,4 +34,4 @@ export function CommonPage() {
             </div>
         </div>
     )
-}
+};

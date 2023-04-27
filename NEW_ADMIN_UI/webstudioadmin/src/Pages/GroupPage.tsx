@@ -4,7 +4,7 @@ import { Card, Table, Tag } from 'antd';
 import { ModalNewGroup } from "../components/ModalNewGroup";
 
 
-export function GroupPage() {
+export const GroupPage:React.FC = () => {
 
     interface DataType {
         key: React.Key;
@@ -112,4 +112,5 @@ export function GroupPage() {
             </div>
         </div>
     )
-}
+};
+

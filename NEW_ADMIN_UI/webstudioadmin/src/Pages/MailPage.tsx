@@ -4,7 +4,7 @@ import { AdminMenu } from "../components/AdminMenu";
 
 
 
-export function MailPage() {
+export const MailPage:React.FC = () => {
     return (
     <div>
         <div style={{ display: "flex", flexDirection: "row" }}>
@@ -28,4 +28,4 @@ export function MailPage() {
         </div>
     </div>
     )
-}
+};

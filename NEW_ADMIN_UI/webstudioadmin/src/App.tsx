@@ -11,12 +11,13 @@ import { RepoDeploymentPage } from './Pages/RepoDeploymentPage';
 import { UserPage } from './Pages/UserPage';
 import { RepoDeployConfPage } from './Pages/RepoDeployConfPage';
 import { GroupPage } from './Pages/GroupPage';
-import NewUser from "./components/NewUser";
+import { NewUser } from "./components/NewUser";
 
 
 function App() {
 
     return (
+        
         <BrowserRouter>
                         <Routes>
                             <Route path="/" element={<CommonPage />} />
@@ -30,7 +31,9 @@ function App() {
                             <Route path='/repository/design' element={<RepoDesignPage/>} />
                             <Route path='/repository/config' element={<RepoDeployConfPage/>} />
                             <Route path='/repository/deployment' element={<RepoDeploymentPage/>} />
-                            <Route path='/users/create' element={<NewUser/>} />
+                            <Route path='/users/create' element={<NewUser addNewUser={function (newUser: any): void {
+                    throw new Error("Function not implemented.");
+                } }/>} />
                             </Routes>
         </BrowserRouter>
     );

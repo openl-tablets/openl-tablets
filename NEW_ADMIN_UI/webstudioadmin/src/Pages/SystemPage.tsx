@@ -3,7 +3,7 @@ import React from "react"
 import { AdminMenu } from "../components/AdminMenu"
 
 
-export function SystemPage() {
+export const SystemPage:React.FC = () => {
     return (
     <div>
         <div style={{ display: "flex", flexDirection: "row" }}>
@@ -43,4 +43,4 @@ export function SystemPage() {
         </div>
     </div>
     )
-}
+};

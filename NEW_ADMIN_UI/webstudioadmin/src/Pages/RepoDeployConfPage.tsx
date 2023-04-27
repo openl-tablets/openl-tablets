@@ -4,7 +4,7 @@ import { Card, Form, Cascader, Checkbox } from "antd";
 import { RepositoryPage } from "./RepositoryPage";
 
 
-export function RepoDeployConfPage() {
+export const RepoDeployConfPage:React.FC = () => {
 
     const options = [
         {
@@ -46,4 +46,4 @@ export function RepoDeployConfPage() {
             </div>
         </div>
     )
-}
+};

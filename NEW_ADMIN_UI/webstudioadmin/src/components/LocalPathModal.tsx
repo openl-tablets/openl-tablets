@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Modal } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 
-export function LocalPathModal() {
+export const LocalPathModal:React.FC =() =>{
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const showModal = () => {

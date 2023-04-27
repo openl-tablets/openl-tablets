@@ -1,18 +1,11 @@
 import React, { useState } from "react";
 import { AdminMenu } from "../components/AdminMenu";
 import { Button, Card, Table, Tag } from 'antd';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { NewUser } from "../components/NewUser";
 
-export function UserPage() {
 
-    const navigate = useNavigate();
-    const navigateCreateuser = () => {
-        let path = `/users/create`;
-        navigate(path);
-    }
-
-    const [userInfo, setUserInfo] = useState (
-    // :DataType[]
+const userInfo =
     [
         {
             key: "1",
@@ -71,20 +64,15 @@ export function UserPage() {
             groups: ["Viewers"],
         }
 
-    ]);
-   
+    ];
 
-    // const addUser = (user) => {
+export const UserPage:React.FC = () => {
 
-    // }
-
-    // interface DataType {
-    //     key: React.Key;
-    //     username: string;
-    //     email: string;
-    //     displayName: string;
-    //     groups: string[];
-    //   }
+    const navigate = useNavigate();
+    const navigateCreateuser = () => {
+        let path = `/users/create`;
+        navigate(path);
+    }
 
     
     const columns = [
@@ -121,7 +109,7 @@ export function UserPage() {
                 <>
                     {groups.map(group => {
                         let color = "grey";
-                        group === "Administrators" ? color = "red" :  color ="blue";
+                        group === "Administrators" ? color = "red" : color = "blue";
 
                         return (
                             <Tag color={color} key={group} >
@@ -142,18 +130,24 @@ export function UserPage() {
         },
 
     ]
+    const [data, setData] = useState(userInfo);
+
+    const addNewUser = (newUser) => {
+        setData((data) => [...data,newUser]);
+    }
 
     return (
         <div>
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <AdminMenu />
                 <Card style={{ margin: 20 }}>
-                    <Table columns={columns} dataSource={userInfo} />
+                    <Table columns={columns} dataSource={data} />
                     <Button onClick={navigateCreateuser}>Add new user</Button>
+                    <NewUser addNewUser={addNewUser} />
                 </Card>
             </div>
         </div>
     )
-}
+};
 
 

@@ -5,7 +5,7 @@ import { AdminMenu } from '../components/AdminMenu';
 
 const { TextArea } = Input;
 
-export function NotificationPage() {
+export const NotificationPage:React.FC = () => {
     return (
     <div>
         <div style={{ display: "flex", flexDirection: "row" }}>
@@ -26,4 +26,4 @@ export function NotificationPage() {
         </div>
     </div>
     )
-}
+};
