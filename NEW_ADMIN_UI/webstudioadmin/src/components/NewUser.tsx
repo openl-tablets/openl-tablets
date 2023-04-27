@@ -2,10 +2,8 @@ import { Button, Card, Cascader, Checkbox, Col, Form, Input, Row } from "antd";
 import React, { useState } from "react";
 import { AdminMenu } from "./AdminMenu";
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
-import { UserPage } from "../Pages/UserPage";
-import { Link } from "react-router-dom";
 
-const NewUser = () => {
+export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addNewUser }) => {
 
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
@@ -13,20 +11,20 @@ const NewUser = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [displayName, setDisplayName] = useState("");
-    const [group, setGroup] = useState([]);
+    const [group, setGroup] = useState<CheckboxValueType[]>([]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const addUser = {
-            userName: userName,
-            email: email,
-            password: password,
-            firstname: firstName,
-            lastName: lastName,
-            displayName: displayName,
-            group: group
-        }
-        console.log(addUser);
+        const newUser = {
+            userName,
+            email,
+            password,
+            firstName,
+            lastName,
+            displayName,
+            groups: group
+        };
+        addNewUser(newUser);
         setUserName("");
         setEmail("");
         setPassword("");
@@ -34,11 +32,12 @@ const NewUser = () => {
         setLastName("");
         setDisplayName("");
         setGroup([]);
-    }
+    };
 
     const onChange = (checkedValues: CheckboxValueType[]) => {
-        console.log('checked = ', checkedValues);
-        setGroup([]);
+        // console.log('checked = ', checkedValues);
+        setGroup(checkedValues);
+        // console.log(group);
     };
 
     const displayOrder = [
@@ -56,6 +55,14 @@ const NewUser = () => {
         },
 
     ];
+
+
+
+    // const App: React.FC = () => {
+    //     const [checkedList, setCheckedList] = useState<CheckboxValueType[]>(defaultCheckedList);
+    //     const [indeterminate, setIndeterminate] = useState(true);
+    //     const [checkAll, setCheckAll] = useState(false);
+
 
 
 
@@ -92,6 +99,9 @@ const NewUser = () => {
                                 <Form.Item label="Display name:">
                                     <Cascader options={displayOrder} placeholder="First last" id="displayName" />
                                 </Form.Item>
+                                <Form.Item>
+                                    {displayName === "first last" ? { firstName } + " " + { lastName } : displayName === "Last first" ? { lastName } + " " + { firstName } : "asd"}
+                                </Form.Item>
                             </Col>
 
                             <Col span={8} style={{ padding: 12 }}>
@@ -101,10 +111,10 @@ const NewUser = () => {
 
                                         <Row>
                                             <Col span={9} style={{ padding: 5 }}>
-                                                <Checkbox value="Administrators">Administrators</Checkbox>
+                                                <Checkbox value={group}>Administrators</Checkbox>
                                             </Col>
                                             <Col span={9} style={{ padding: 5 }}>
-                                                <Checkbox value="Analysts">Analysts</Checkbox>
+                                                <Checkbox value={group}>Analysts</Checkbox>
                                             </Col>
                                             <Col span={9} style={{ padding: 5 }}>
                                                 <Checkbox value="Deployers">Deployers</Checkbox>
@@ -132,5 +142,4 @@ const NewUser = () => {
             </div>
         </div >
     );
-}
-export default NewUser;
+};

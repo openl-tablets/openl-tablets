@@ -3,7 +3,7 @@ import React from "react"
 import { useNavigate} from "react-router-dom";
 
 
-export function RepositoryPage() {
+export const RepositoryPage:React.FC = () => {
     const navigate = useNavigate();
     const navigateDesign = () => {
         let path = `/repository/design`;
@@ -42,4 +42,4 @@ export function RepositoryPage() {
     </div>
 
     )
-}
+};

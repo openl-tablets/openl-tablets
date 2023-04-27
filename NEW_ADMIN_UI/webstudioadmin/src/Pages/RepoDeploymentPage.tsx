@@ -4,7 +4,7 @@ import { RepositoryPage } from "./RepositoryPage";
 import { Form, Input, Cascader, Checkbox, Card } from "antd";
 
 
-export function RepoDeploymentPage() {
+export const RepoDeploymentPage:React.FC = () => {
 
     const typeOptions = [
         {
@@ -87,4 +87,4 @@ export function RepoDeploymentPage() {
             </div>
         </div>
     )
-}
+};

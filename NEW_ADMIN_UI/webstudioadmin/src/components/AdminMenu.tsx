@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { FolderOutlined, MailOutlined, NotificationOutlined, NumberOutlined, SettingOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons';
 
 
-export function AdminMenu() {
+export const AdminMenu: React.FC = () => {
     const navigate = useNavigate();
 
     return (

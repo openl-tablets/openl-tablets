@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Modal } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 
-export function BranchNamePatternModal() {
+export const BranchNamePatternModal: React.FC =() => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const showModal = () => {
@@ -27,4 +27,4 @@ export function BranchNamePatternModal() {
             </Modal>
         </>
     )
-}
+};

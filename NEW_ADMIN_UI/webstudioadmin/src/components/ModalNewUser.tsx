@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Cascader, Checkbox, Col, Form, Input, Modal, Row } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 
-export function ModalNewUser() {
+export const ModalNewUser:React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
@@ -128,3 +128,4 @@ export function ModalNewUser() {
         </>
     );
 };
+

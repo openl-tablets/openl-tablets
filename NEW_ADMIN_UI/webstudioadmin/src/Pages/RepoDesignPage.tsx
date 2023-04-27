@@ -9,7 +9,7 @@ import { DefaultBranchModal } from "../components/DefaultBranchModal";
 import { BranchNamePatternModal } from "../components/BranchNamePatternModal";
 import { InvalidBranchModal } from "../components/InvalidBranchModal";
 
-export function RepoDesignPage() {
+export const RepoDesignPage:React.FC = () => {
 
     const typeOptions = [
         {
@@ -154,4 +154,5 @@ export function RepoDesignPage() {
             </div>
         </div>
     )
-}
+};
+
