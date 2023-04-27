@@ -101,7 +101,7 @@
         <!-- Bytecode manipulation -->
         <asm.version>9.5</asm.version>
         <cglib.version>3.3.0</cglib.version>
-        <cloning.version>1.10.3</cloning.version>
+        <cloning.version>1.11.1</cloning.version>
         <objenesis.version>3.3</objenesis.version>
 
         <!-- Kafka -->
@@ -1460,7 +1460,7 @@
             </dependency>
             <!-- Java library which deep-clones objects. -->
             <dependency>
-                <groupId>io.github.kostaskougios</groupId>
+                <groupId>design.aem</groupId>
                 <artifactId>cloning</artifactId>
                 <version>${cloning.version}</version>
             </dependency>
