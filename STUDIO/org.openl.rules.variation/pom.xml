@@ -17,7 +17,7 @@
             <artifactId>commons-jxpath</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.github.kostaskougios</groupId>
+            <groupId>design.aem</groupId>
             <artifactId>cloning</artifactId>
         </dependency>
         <dependency>

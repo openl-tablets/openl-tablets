@@ -50,7 +50,7 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.github.kostaskougios</groupId>
+            <groupId>design.aem</groupId>
             <artifactId>cloning</artifactId>
         </dependency>
         <!-- Required for Java11. -->
