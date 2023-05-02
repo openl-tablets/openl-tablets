@@ -9,56 +9,72 @@ const userInfo =
     [
         {
             key: "1",
-            username: "a1",
+            userName: "a1",
+            firstName: "",
+            lastName: "",
             email: "a1@example.com",
             displayName: "A1",
             groups: ["Administrators"],
         },
         {
             key: "2",
-            username: "admin",
+            userName: "admin",
+            firstName: "",
+            lastName: "",
             email: "admin@example.com",
             displayName: "Admin",
             groups: ["Administrators"],
         },
         {
             key: "3",
-            username: "u0",
+            userName: "u0",
+            firstName: "",
+            lastName: "",
             email: "u0@example.com",
             displayName: "U0",
             groups: ["Testers"],
         },
         {
             key: "4",
-            username: "u1",
+            userName: "u1",
+            firstName: "",
+            lastName: "",
             email: "u1@example.com",
             displayName: "U1",
             groups: ["Analyst", "Developers"],
         },
         {
             key: "5",
-            username: "u2",
+            userName: "u2",
+            firstName: "",
+            lastName: "",
             email: "u2@example.com",
             displayName: "U2",
             groups: ["Viewers"],
         },
         {
             key: "6",
-            username: "u3",
+            userName: "u3",
+            firstName: "",
+            lastName: "",
             email: "u3@example.com",
             displayName: "U3",
             groups: ["Viewers"],
         },
         {
             key: "7",
-            username: "u4",
+            userName: "u4",
+            firstName: "",
+            lastName: "",
             email: "u4@example.com",
             displayName: "U4",
             groups: ["Deployers"],
         },
         {
             key: "8",
-            username: "user",
+            userName: "user",
+            firstName: "",
+            lastName: "",
             email: "user@example.com",
             displayName: "User",
             groups: ["Viewers"],
@@ -78,18 +94,18 @@ export const UserPage:React.FC = () => {
     const columns = [
         {
             title: 'Username',
-            dataIndex: 'username',
-            key: 'username',
+            dataIndex: 'userName',
+            key: 'userName',
         },
         {
             title: 'First name',
-            dataIndex: 'first name',
-            key: 'first name',
+            dataIndex: 'firstName',
+            key: 'firstName',
         },
         {
             title: 'Last name',
-            dataIndex: 'last name',
-            key: 'last name',
+            dataIndex: 'lastName',
+            key: 'lastName',
         },
         {
             title: 'Email',
@@ -112,7 +128,7 @@ export const UserPage:React.FC = () => {
                         group === "Administrators" ? color = "red" : color = "blue";
 
                         return (
-                            <Tag color={color} key={group} >
+                            <Tag color={color} key={group} style={{margin:2}}>
                                 {group}
                             </Tag>
                         );
@@ -132,7 +148,7 @@ export const UserPage:React.FC = () => {
     ]
     const [data, setData] = useState(userInfo);
 
-    const addNewUser = (newUser) => {
+    const addNewUser = (newUser: { key: string; userName: string; firstName: string; lastName: string; email: string; displayName: string; groups: string[]}) => {
         setData((data) => [...data,newUser]);
     }
 

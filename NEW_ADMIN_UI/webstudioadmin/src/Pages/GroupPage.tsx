@@ -82,7 +82,7 @@ export const GroupPage:React.FC = () => {
                         privilege === "Administrate" ? color = "red" : ((privilege === "Developers") || (privilege === "Testers") || (privilege ==="Viewers")) ? color ="blue" : color = "default";
 
                         return (
-                            <Tag color={color} key={privilege} >
+                            <Tag color={color} key={privilege} style={{margin:2}}>
                                 {privilege}
                             </Tag>
                         );

@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { AdminMenu } from "../components/AdminMenu";
 import { RepositoryPage } from "./RepositoryPage";
 import { Form, Input, Cascader, Checkbox, Card } from "antd";
 
 
-export const RepoDeploymentPage:React.FC = () => {
+export const RepoDeploymentPage: React.FC = () => {
+    const [active, setActive] = useState(true);
 
     const typeOptions = [
         {
@@ -39,51 +40,119 @@ export const RepoDeploymentPage:React.FC = () => {
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <AdminMenu />
                 <RepositoryPage />
+                {active && (
+                    <Card bordered={true}
+                        style={{
+                            width: 500, margin: 20
+                        }}>
+                        <Form labelCol={{ span: 7 }}
+                            wrapperCol={{ span: 18 }}>
+                            <Form.Item
+                                label={
+                                    <span>
+                                        Name &nbsp;
+                                    </span>
+                                }
+                            >
+                                <Input defaultValue="Deployment" />
+                            </Form.Item>
 
-                <Card bordered={true}
-                    style={{
-                        width: 500, margin: 20
-                    }}>
-                    <Form >
-                        <Form.Item
-                            label={
-                                <span>
-                                    Name &nbsp;
-                                </span>
-                            }
-                        >
-                            <Input placeholder="Deployment" />
-                        </Form.Item>
+                            <Form.Item
+                                label={
+                                    <span>
+                                        Type &nbsp;
+                                    </span>
+                                }
+                            >
+                                <Cascader options={typeOptions} placeholder="Database (JDBC)" />
+                            </Form.Item>
+                            <Form.Item
+                                label={
+                                    <span>
+                                        URL* &nbsp;
+                                    </span>
+                                }
+                            >
+                                <Input defaultValue="jdbc:h2:./openl-demo/repositories/deployment/db;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=20" />
+                            </Form.Item>
+                            <Form.Item
+                                label={
+                                    <span>
+                                        Secure connection &nbsp;
+                                    </span>
+                                }
+                            >
+                                <Checkbox onChange={() => setActive(!active)} />
+                            </Form.Item>
+                        </Form>
+                    </Card>
+                )}
+                {!active && (
+                    <Card bordered={true}
+                        style={{
+                            width: 500, margin: 20
+                        }}>
+                        <Form labelCol={{ span: 7 }}
+                            wrapperCol={{ span: 18 }}>
+                            <Form.Item
+                                label={
+                                    <span>
+                                        Name &nbsp;
+                                    </span>
+                                }
+                            >
+                                <Input defaultValue="Deployment" />
+                            </Form.Item>
 
-                        <Form.Item
-                            label={
-                                <span>
-                                    Type &nbsp;
-                                </span>
-                            }
-                        >
-                            <Cascader options={typeOptions} placeholder="Database (JDBC)" />
-                        </Form.Item>
-                        <Form.Item
-                            label={
-                                <span>
-                                    URL* &nbsp;
-                                </span>
-                            }
-                        >
-                            <Input placeholder="jdbc:h2:./openl-demo/repositories/deployment/db;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=20" />
-                        </Form.Item>
-                        <Form.Item
-                            label={
-                                <span>
-                                    Secure connection &nbsp;
-                                </span>
-                            }
-                        >
-                            <Checkbox />
-                        </Form.Item>
-                    </Form>
-                </Card>
+                            <Form.Item
+                                label={
+                                    <span>
+                                        Type &nbsp;
+                                    </span>
+                                }
+                            >
+                                <Cascader options={typeOptions} placeholder="Database (JDBC)" />
+                            </Form.Item>
+                            <Form.Item
+                                label={
+                                    <span>
+                                        URL* &nbsp;
+                                    </span>
+                                }
+                            >
+                                <Input defaultValue="jdbc:h2:./openl-demo/repositories/deployment/db;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=20" />
+                            </Form.Item>
+                            <Form.Item
+                                label={
+                                    <span>
+                                        Secure connection &nbsp;
+                                    </span>
+                                }
+                            >
+                                <Checkbox checked onChange={() => setActive(!active)} />
+                            </Form.Item>
+                            <Form.Item
+                                label={
+                                    <span>
+                                        Login &nbsp;
+                                    </span>
+                                }
+                            >
+                                <Input defaultValue="admin" />
+                            </Form.Item>
+                            <Form.Item
+                                label={
+                                    <span>
+                                        Password &nbsp;
+                                    </span>
+                                }
+                            >
+                                <Input.Password />
+                            </Form.Item>
+                        </Form>
+                    </Card>
+
+                )}
             </div>
         </div>
     )
