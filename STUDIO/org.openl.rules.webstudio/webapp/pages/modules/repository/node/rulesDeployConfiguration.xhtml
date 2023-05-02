@@ -142,7 +142,7 @@
                        styleClass="save-deploy-configuration-button button-primary"/>
     <a4j:commandButton value="Delete Configuration" action="#{repositoryProjectRulesDeployConfig.deleteRulesDeploy}"
                        immediate="true"
-                       rendered="#{canEditRulesDeployConfig}"
+                       rendered="#{artefact.project.openedForEditing and repositoryProjectRulesDeployConfig.canDeleteRulesDeploy}"
                        execute="rulesDeployConfigurationContent"
                        render="projectTree nodeButtons propertiesContent elementsContent rulesDeployConfigurationContent"
                        onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the rules deploy configuration?')) {return false;}"/>
