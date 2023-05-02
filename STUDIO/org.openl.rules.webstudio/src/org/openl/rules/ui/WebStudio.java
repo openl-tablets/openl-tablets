@@ -1385,7 +1385,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 return false;
             }
 
-            return getDesignRepositoryAclService().isGranted(project, List.of(AclPermission.EDIT));
+            return getDesignRepositoryAclService().isGranted(project,
+                List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD));
         } catch (IOException e) {
             return false;
         }
