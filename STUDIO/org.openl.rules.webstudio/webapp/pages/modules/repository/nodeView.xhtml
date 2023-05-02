@@ -280,7 +280,7 @@
          "render" attribute cannot be used for rich:tab (NullPointerException will be thrown in some cases).
          As a workaround "disabled" attribute in conjunction with "hideHeader"/"showHeader" styles is used.
     --></ui:remove>
-        <c:set var="disableRevisions" value="#{node.type != 'project' and node.type != 'deployment'}" />
+        <c:set var="disableRevisions" value="#{(node.type != 'project' and node.type != 'deployment') or artefact.localOnly}" />
         <rich:tab id="revisions" name="Revisions" header="Revisions"
                   onenter="refreshVersionsContentProject()"
                   disabled="#{disableRevisions}"
