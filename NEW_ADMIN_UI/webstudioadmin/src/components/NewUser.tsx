@@ -1,7 +1,8 @@
 import { Button, Card, Cascader, Checkbox, Col, Form, Input, Row } from "antd";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AdminMenu } from "./AdminMenu";
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
+import { useNavigate } from "react-router-dom";
 
 export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addNewUser }) => {
 
@@ -12,8 +13,17 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
     const [lastName, setLastName] = useState("");
     const [displayName, setDisplayName] = useState("");
     const [group, setGroup] = useState<CheckboxValueType[]>([]);
+    const [checkedValues, setCheckedValues] = useState<CheckboxValueType[]>([]);
 
-    const handleSubmit = (e) => {
+
+    const navigate = useNavigate();
+    const navigateUserList = () => {
+        let path = `/users`;
+        navigate(path);
+    }
+
+
+    const handleSubmit = (e: React.SyntheticEvent) => {
         e.preventDefault();
         const newUser = {
             userName,
@@ -22,7 +32,7 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
             firstName,
             lastName,
             displayName,
-            groups: group
+            groups: group,
         };
         addNewUser(newUser);
         setUserName("");
@@ -32,38 +42,40 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
         setLastName("");
         setDisplayName("");
         setGroup([]);
+        setCheckedValues([]);
+        navigateUserList();
     };
 
     const onChange = (checkedValues: CheckboxValueType[]) => {
-        // console.log('checked = ', checkedValues);
         setGroup(checkedValues);
-        // console.log(group);
     };
+
+
 
     const displayOrder = [
         {
-            value: "First last",
+            value: ({ firstName } + " " + { lastName }),
             label: "First last",
         },
         {
-            value: "Last first",
+            value: ({ lastName } + " " + { firstName }),
             label: "Last first",
         },
         {
-            value: "Other",
+            value: " ",
             label: "Other",
         },
 
     ];
 
+    const onChange2 = (value: string[]) => {
+        console.log(value);
+        // setDisplayName({firstName} + " " + {lastName});
+    };
 
-
-    // const App: React.FC = () => {
-    //     const [checkedList, setCheckedList] = useState<CheckboxValueType[]>(defaultCheckedList);
-    //     const [indeterminate, setIndeterminate] = useState(true);
-    //     const [checkAll, setCheckAll] = useState(false);
-
-
+    const App: React.FC = () => (
+        <Cascader options={displayOrder} onChange={onChange} placeholder="Please select" />
+    );
 
 
     return (
@@ -83,8 +95,8 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
                                 <Form.Item label="Email">
                                     <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                                 </Form.Item>
-                                <Form.Item label="Password">
-                                    <Input id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                                <Form.Item label="Password" >
+                                    <Input.Password id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                                 </Form.Item>
                             </Col>
 
@@ -98,12 +110,9 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
                                 </Form.Item>
                                 <Form.Item label="Display name:">
                                     <Cascader options={displayOrder} placeholder="First last" id="displayName" />
-                                </Form.Item>
-                                <Form.Item>
-                                    {displayName === "first last" ? { firstName } + " " + { lastName } : displayName === "Last first" ? { lastName } + " " + { firstName } : "asd"}
+                                    {/* <Input>{displayName === "first last" ? { firstName } + " " + { lastName } : displayName === "Last first" ? { lastName } + " " + { firstName } : "asd"}</Input> */}
                                 </Form.Item>
                             </Col>
-
                             <Col span={8} style={{ padding: 12 }}>
                                 <Form.Item><b>Group</b></Form.Item>
                                 <Form.Item className="user-create-form_last-form-item" id="group" >
@@ -111,10 +120,10 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
 
                                         <Row>
                                             <Col span={9} style={{ padding: 5 }}>
-                                                <Checkbox value={group}>Administrators</Checkbox>
+                                                <Checkbox value="Administrators">Administrators</Checkbox>
                                             </Col>
                                             <Col span={9} style={{ padding: 5 }}>
-                                                <Checkbox value={group}>Analysts</Checkbox>
+                                                <Checkbox value="Analysts">Analysts</Checkbox>
                                             </Col>
                                             <Col span={9} style={{ padding: 5 }}>
                                                 <Checkbox value="Deployers">Deployers</Checkbox>
@@ -135,7 +144,7 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
                             </Col>
                         </Row>
                         <Row style={{ float: "right" }}>
-                            <Button onClick={handleSubmit}>Create</Button>
+                            <Button onClick={handleSubmit} >Create</Button>
                         </Row>
                     </Form>
                 </Card>

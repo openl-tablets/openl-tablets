@@ -12,22 +12,21 @@ export const CommonPage:React.FC = () => {
                 <Card style={{ width: 450, margin: 20 }}>
                     <p><b>User Workspace</b></p>
                     <p>Workspace Directory:</p>
-                    <Input placeholder="Workspace directory" />
+                    <Input defaultValue="./openl-demo/user-workspace" />
                     <Divider />
                     <p><b>History</b></p>
                     <p>The maximum count of saved changes for each project per user:</p>
-                    <Input placeholder="Insert max number of changes" />
+                    <Input defaultValue="100" />
                     <Button style={{ marginTop: 20 }}>Clear all history</Button>
                     <Divider />
                     <p><b>Other</b></p>
                     <p>Update table properties ('createdOn', 'modifiedBy' etc.) on editing:</p>
                     <Checkbox
-                    // onChange={onChange}
                     />
                     <p style={{marginTop: 15}}>Date Format:</p>
-                    <Input placeholder="MM/dd/yyyy" />
+                    <Input defaultValue="MM/dd/yyyy" />
                     <p style={{marginTop: 15}}>Time Format:</p>
-                    <Input placeholder="hh:mm:ss a" />
+                    <Input defaultValue="hh:mm:ss a" />
                     <Divider />
                     <Button style={{ marginTop: 20 }}>Apply All and Restart</Button>
                 </Card>

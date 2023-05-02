@@ -1,9 +1,9 @@
-import { Card, Button, Divider } from "antd"
+import { Card, Button, Divider, Col, Row } from "antd"
 import React from "react"
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
-export const RepositoryPage:React.FC = () => {
+export const RepositoryPage: React.FC = () => {
     const navigate = useNavigate();
     const navigateDesign = () => {
         let path = `/repository/design`;
@@ -29,13 +29,26 @@ export const RepositoryPage:React.FC = () => {
 
         >
             <p><b>Design repositories</b></p>
-            <Button onClick={navigateDesign} >Design</Button>
+            <Col >
+                <Row style={{
+                    margin: 5
+                }}><Button  type="dashed" onClick={navigateDesign}>Design</Button></Row>
+                <Row style={{
+                    margin: 5
+                }}><Button onClick={navigateDesign}>Add repository</Button></Row>
+            </Col>
+
             <Divider />
             <p><b>Deploy Configuration repository</b></p>
             <Button onClick={navigateDeployConfig}>Deploy configuration</Button>
             <Divider />
             <p><b>Deployment repositories</b></p>
-            <Button onClick={navigateDeployment}>Deployment</Button>
+            <Row style={{
+                margin: 5
+            }}><Button type="dashed" onClick={navigateDeployment}>Deployment</Button></Row>
+            <Row style={{
+                margin: 5
+            }}><Button onClick={navigateDesign}>Add repository</Button></Row>
             <Divider />
             <Button>Apply All and Restart</Button>
         </Card>
