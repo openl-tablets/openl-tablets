@@ -19,6 +19,7 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +43,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -1810,7 +1812,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Search
         if (globalFilter == null || globalFilter.isBlank()) {
             return RevFilter.ALL;
         }
-        globalFilter = globalFilter.trim();
+        globalFilter = safeEscapeFilter(globalFilter.trim());
         RevFilter idFilter;
         if (SubStringRevFilter.safe(globalFilter)) {
             idFilter = new SubStringIdRevFilter(globalFilter);
@@ -1819,6 +1821,21 @@ public class GitRepository implements FolderRepository, BranchRepository, Search
         }
         return OrRevFilter.create(
             Arrays.asList(AuthorRevFilter.create(globalFilter), MessageRevFilter.create(globalFilter), idFilter));
+    }
+
+    private String safeEscapeFilter(String globalFilter) {
+        if (SubStringRevFilter.safe(globalFilter)) {
+            // in this case JGit uses substring filter, so nothing to escape
+            return globalFilter;
+        }
+        // in this case JGit uses Pattern filter, so let's validate if filter can be compiled, and escape it if not;
+        try {
+            var ignore = Pattern.compile(globalFilter).matcher("");
+            return globalFilter;
+        } catch (PatternSyntaxException e) {
+            log.debug(e.getMessage(), e);
+            return String.format("\\Q%s\\E", globalFilter);
+        }
     }
 
     private <T> T parseHistory(String name, String version, HistoryVisitor<T> historyVisitor) throws IOException {
