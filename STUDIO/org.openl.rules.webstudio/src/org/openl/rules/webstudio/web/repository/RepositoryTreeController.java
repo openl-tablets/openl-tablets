@@ -1918,7 +1918,7 @@ public class RepositoryTreeController {
             if (node instanceof TreeProject) {
                 RulesProject project = (RulesProject) node.getData();
                 if (project.getBusinessName().equals(businessName) && repositoryId
-                        .equals(project.getRepository().getId())) {
+                    .equals(project.getRepository().getId())) {
                     repositoryTreeState.setSelectedNode(node);
                     return true;
                 }
@@ -2513,7 +2513,8 @@ public class RepositoryTreeController {
             if (project.isLocalOnly()) {
                 return false;
             }
-            if (!designRepositoryAclService.isGranted(project, List.of(AclPermission.DELETE))) {
+            if (!designRepositoryAclService.isGranted(project,
+                List.of(AclPermission.ADD, AclPermission.EDIT, AclPermission.DELETE))) {
                 return false;
             }
             boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
@@ -2758,7 +2759,7 @@ public class RepositoryTreeController {
 
             List<String> branches = new ArrayList<>(((BranchRepository) userWorkspace.getDesignTimeRepository()
                 .getRepository(selectedProject.getRepository().getId()))
-                    .getBranches(((RulesProject) selectedProject).getDesignFolderName()));
+                .getBranches(((RulesProject) selectedProject).getDesignFolderName()));
             String projectBranch = getProjectBranch();
             if (projectBranch != null && !branches.contains(projectBranch)) {
                 branches.add(projectBranch);
@@ -3131,17 +3132,25 @@ public class RepositoryTreeController {
         String message = "Branch cannot be deleted: ";
 
         if (project == null) {
-            WebStudioUtils.addErrorMessage(message + " project for the branch is absent.");
+            WebStudioUtils.addErrorMessage(message + " project associated with this branch is absent.");
         } else if (project.isLocalOnly()) {
-            WebStudioUtils.addErrorMessage(message + " project for the branch is local.");
+            WebStudioUtils.addErrorMessage(message + " project associated with this branch is local.");
         } else if (project.isDeleted()) {
-            WebStudioUtils.addErrorMessage(message + " project for the branch is archived.");
+            WebStudioUtils.addErrorMessage(message + " project associated with this branch is archived.");
+        } else if (!designRepositoryAclService.isGranted(project,
+            List.of(AclPermission.ADD, AclPermission.EDIT, AclPermission.DELETE))) {
+            WebStudioUtils.addErrorMessage(message + " access denied.");
         }
     }
 
     public boolean isBranchDeletable() {
         UserWorkspaceProject project = getSelectedProject();
-        return project != null && !project.isLocalOnly() && !project.isDeleted();
+        boolean f = project != null && !project.isLocalOnly() && !project.isDeleted();
+        if (!f) {
+            return false;
+        }
+        return designRepositoryAclService.isGranted(project,
+            List.of(AclPermission.ADD, AclPermission.EDIT, AclPermission.DELETE));
     }
 
     public boolean isHasTags() {
