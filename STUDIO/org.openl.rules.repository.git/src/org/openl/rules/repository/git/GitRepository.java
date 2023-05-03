@@ -1526,6 +1526,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Search
                             allCanAutoResolve = false;
                         }
                     }
+                } catch (Exception e) {
+                    throw new MergeConflictException(diffs, baseCommit, ourCommit, theirCommit, Collections.emptyMap());
                 } finally {
                     IOUtils.closeQuietly(baseConflictedFile);
                     IOUtils.closeQuietly(ourConflictedFile);
@@ -1545,12 +1547,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Search
                     ourBranch = branchFrom;
                     theirBranch = branch;
                 }
-                ConflictResolveData conflictResolveData = autoResolveConflicts(toAutoResolve,
-                    ourCommit,
-                    ourBranch,
-                    theirCommit,
-                    theirBranch);
-                resolveConflict(mergeResult, conflictResolveData, userInfo);
+                try {
+                    ConflictResolveData conflictResolveData = autoResolveConflicts(toAutoResolve,
+                            ourCommit,
+                            ourBranch,
+                            theirCommit,
+                            theirBranch);
+                    resolveConflict(mergeResult, conflictResolveData, userInfo);
+                } catch (Exception e) {
+                    throw new MergeConflictException(diffs, baseCommit, ourCommit, theirCommit, Collections.emptyMap());
+                }
             }
         }
     }
