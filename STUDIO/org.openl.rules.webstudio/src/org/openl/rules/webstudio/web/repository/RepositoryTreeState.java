@@ -872,7 +872,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             if (selectedProject.isLocalOnly()) {
                 return false;
             }
-            if (!designRepositoryAclService.isGranted(selectedProject, List.of(AclPermission.DELETE))) {
+            if (!designRepositoryAclService.isGranted(selectedProject,
+                List.of(AclPermission.ADD, AclPermission.EDIT, AclPermission.DELETE))) {
                 return false;
             }
             boolean unlocked = !selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser());
