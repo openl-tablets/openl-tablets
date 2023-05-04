@@ -4,7 +4,7 @@ import { AdminMenu } from "../components/AdminMenu";
 import React from "react";
 
 
-export const TagsPage:React.FC =() => {
+export const TagsPage: React.FC = () => {
     return (
         <div>
             <div style={{ display: "flex", flexDirection: "row" }}>

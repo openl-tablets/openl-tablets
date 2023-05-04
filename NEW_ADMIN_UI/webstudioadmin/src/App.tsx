@@ -12,29 +12,31 @@ import { UserPage } from './Pages/UserPage';
 import { RepoDeployConfPage } from './Pages/RepoDeployConfPage';
 import { GroupPage } from './Pages/GroupPage';
 import { NewUser } from "./components/NewUser";
+import { NewGroup } from "./components/NewGroup";
 
 
 function App() {
 
     return (
-        
+
         <BrowserRouter>
-                        <Routes>
-                            <Route path="/" element={<CommonPage />} />
-                            <Route path="/common" element={<CommonPage />} />
-                            <Route path="/system" element={<SystemPage />} />
-                            <Route path="/users" element={<UserPage />} />
-                            <Route path="/groups" element={<GroupPage />} />
-                            <Route path="/notification" element={<NotificationPage />} />
-                            <Route path="/tags" element={<TagsPage />} />
-                            <Route path="/mail" element={<MailPage />} />
-                            <Route path='/repository/design' element={<RepoDesignPage/>} />
-                            <Route path='/repository/config' element={<RepoDeployConfPage/>} />
-                            <Route path='/repository/deployment' element={<RepoDeploymentPage/>} />
-                            <Route path='/users/create' element={<NewUser addNewUser={function (newUser: any): void {
+            <Routes>
+                <Route path="/" element={<CommonPage />} />
+                <Route path="/common" element={<CommonPage />} />
+                <Route path="/system" element={<SystemPage />} />
+                <Route path="/users" element={<UserPage />} />
+                <Route path="/groups" element={<GroupPage />} />
+                <Route path="/notification" element={<NotificationPage />} />
+                <Route path="/tags" element={<TagsPage />} />
+                <Route path="/mail" element={<MailPage />} />
+                <Route path='/repository/design' element={<RepoDesignPage />} />
+                <Route path='/repository/config' element={<RepoDeployConfPage />} />
+                <Route path='/repository/deployment' element={<RepoDeploymentPage />} />
+                <Route path='/groups/create' element={<NewGroup />} />
+                <Route path='/users/create' element={<NewUser addNewUser={function (newUser: any): void {
                     throw new Error("Function not implemented.");
-                } }/>} />
-                            </Routes>
+                }} />} />
+            </Routes>
         </BrowserRouter>
     );
 };

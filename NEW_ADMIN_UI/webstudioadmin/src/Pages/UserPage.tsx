@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { AdminMenu } from "../components/AdminMenu";
 import { Button, Card, Table, Tag } from 'antd';
 import { useNavigate, Link } from "react-router-dom";
 import { NewUser } from "../components/NewUser";
-
+import { CloseOutlined, DeleteOutlined } from "@ant-design/icons";
 
 const userInfo =
     [
@@ -15,6 +15,7 @@ const userInfo =
             email: "a1@example.com",
             displayName: "A1",
             groups: ["Administrators"],
+            action: "",
         },
         {
             key: "2",
@@ -24,6 +25,7 @@ const userInfo =
             email: "admin@example.com",
             displayName: "Admin",
             groups: ["Administrators"],
+            action: "",
         },
         {
             key: "3",
@@ -33,6 +35,7 @@ const userInfo =
             email: "u0@example.com",
             displayName: "U0",
             groups: ["Testers"],
+            action: "",
         },
         {
             key: "4",
@@ -42,6 +45,7 @@ const userInfo =
             email: "u1@example.com",
             displayName: "U1",
             groups: ["Analyst", "Developers"],
+            action: "",
         },
         {
             key: "5",
@@ -51,6 +55,7 @@ const userInfo =
             email: "u2@example.com",
             displayName: "U2",
             groups: ["Viewers"],
+            action: "",
         },
         {
             key: "6",
@@ -60,6 +65,7 @@ const userInfo =
             email: "u3@example.com",
             displayName: "U3",
             groups: ["Viewers"],
+            action: "",
         },
         {
             key: "7",
@@ -69,6 +75,7 @@ const userInfo =
             email: "u4@example.com",
             displayName: "U4",
             groups: ["Deployers"],
+            action: "",
         },
         {
             key: "8",
@@ -78,11 +85,12 @@ const userInfo =
             email: "user@example.com",
             displayName: "User",
             groups: ["Viewers"],
+            action: "",
         }
 
     ];
 
-export const UserPage:React.FC = () => {
+export const UserPage: React.FC = () => {
 
     const navigate = useNavigate();
     const navigateCreateuser = () => {
@@ -90,7 +98,8 @@ export const UserPage:React.FC = () => {
         navigate(path);
     }
 
-    
+    const [userData, setUserData] = useState(userInfo);
+
     const columns = [
         {
             title: 'Username',
@@ -128,7 +137,7 @@ export const UserPage:React.FC = () => {
                         group === "Administrators" ? color = "red" : color = "blue";
 
                         return (
-                            <Tag color={color} key={group} style={{margin:2}}>
+                            <Tag color={color} key={group} style={{ margin: 2 }}>
                                 {group}
                             </Tag>
                         );
@@ -140,16 +149,20 @@ export const UserPage:React.FC = () => {
             title: 'Action',
             dataIndex: 'Action',
             key: 'Action',
-            // render: <span>
-            //     <a>Delete</a>
-            // </span>
+            render: (key: string) => (
+                <Button
+                    type="text"
+                    icon={<CloseOutlined />}
+                    onClick={() => setUserData(userData.filter(item => item.key !== key))}
+                >
+                </Button>
+            ),
         },
-
     ]
-    const [data, setData] = useState(userInfo);
+    // const [data, setData] = useState(userInfo);
 
-    const addNewUser = (newUser: { key: string; userName: string; firstName: string; lastName: string; email: string; displayName: string; groups: string[]}) => {
-        setData((data) => [...data,newUser]);
+    const addNewUser = (newUser: { key: string; userName: string; firstName: string; lastName: string; email: string; displayName: string; groups: string[]; action: "" }) => {
+        setUserData((data) => [...data, newUser]);
     }
 
     return (
@@ -157,7 +170,7 @@ export const UserPage:React.FC = () => {
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <AdminMenu />
                 <Card style={{ margin: 20 }}>
-                    <Table columns={columns} dataSource={data} />
+                    <Table columns={columns} dataSource={userData} />
                     <Button onClick={navigateCreateuser}>Add new user</Button>
                     <NewUser addNewUser={addNewUser} />
                 </Card>

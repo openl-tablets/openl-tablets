@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Cascader, Checkbox, Col, Form, Input, Modal, Row } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 
-export const ModalNewUser:React.FC = () => {
+export const ModalNewUser: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [userName, setUserName] = useState("");
     const [email, setEmail] = useState("");
@@ -45,7 +45,7 @@ export const ModalNewUser:React.FC = () => {
         console.log('checked = ', checkedValues);
     };
 
-    const handleInputChange = (e:any) => {
+    const handleInputChange = (e: any) => {
         const { id, value } = e.target;
         if (id === "userName") {
             setUserName(value);
@@ -82,20 +82,20 @@ export const ModalNewUser:React.FC = () => {
                         <Input id="userName" value={userName} onChange={(e) => handleInputChange(e)} />
                     </Form.Item>
                     <Form.Item label="Email">
-                        <Input id="email" value={email} onChange={(e) => handleInputChange(e)}/>
+                        <Input id="email" value={email} onChange={(e) => handleInputChange(e)} />
                     </Form.Item>
                     <Form.Item label="Password">
-                        <Input id="password" value={password} onChange={(e) => handleInputChange(e)}/>
+                        <Input id="password" value={password} onChange={(e) => handleInputChange(e)} />
                     </Form.Item>
                     <Form.Item><b>Name</b></Form.Item>
                     <Form.Item label="First name (Given name):">
-                        <Input id="firstName" value={firstName} onChange={(e) => handleInputChange(e)}/>
+                        <Input id="firstName" value={firstName} onChange={(e) => handleInputChange(e)} />
                     </Form.Item>
                     <Form.Item label="Last name (Family name):">
-                        <Input id="lastName" value={lastName} onChange={(e) => handleInputChange(e)}/>
+                        <Input id="lastName" value={lastName} onChange={(e) => handleInputChange(e)} />
                     </Form.Item>
                     <Form.Item label="Display name:">
-                        <Cascader options={displayOrder} placeholder="First last" id="displayName"/>
+                        <Cascader options={displayOrder} placeholder="First last" id="displayName" />
                     </Form.Item>
                     <Form.Item><b>Group</b></Form.Item>
 
