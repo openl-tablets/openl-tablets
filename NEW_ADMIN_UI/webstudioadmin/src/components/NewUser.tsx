@@ -1,5 +1,5 @@
 import { Button, Card, Cascader, Checkbox, Col, Form, Input, Row } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, } from "react";
 import { AdminMenu } from "./AdminMenu";
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import { useNavigate } from "react-router-dom";
@@ -50,8 +50,6 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
         setGroup(checkedValues);
     };
 
-
-
     const displayOrder = [
         {
             value: ({ firstName } + " " + { lastName }),
@@ -68,22 +66,12 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
 
     ];
 
-    const onChange2 = (value: string[]) => {
-        console.log(value);
-        // setDisplayName({firstName} + " " + {lastName});
-    };
-
-    const App: React.FC = () => (
-        <Cascader options={displayOrder} onChange={onChange} placeholder="Please select" />
-    );
-
-
     return (
         <div>
 
             <div style={{ display: "flex", flexDirection: "row" }}>
-                <AdminMenu />
-                <Card style={{ margin: 20, width: 1200 }}>
+                {/* <AdminMenu /> */}
+                <Card style={{ margin: 20, width: 1200 }} title="Create new user">
                     <Form layout="vertical" >
                         <Row>
 
@@ -110,7 +98,6 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
                                 </Form.Item>
                                 <Form.Item label="Display name:">
                                     <Cascader options={displayOrder} placeholder="First last" id="displayName" />
-                                    {/* <Input>{displayName === "first last" ? { firstName } + " " + { lastName } : displayName === "Last first" ? { lastName } + " " + { firstName } : "asd"}</Input> */}
                                 </Form.Item>
                             </Col>
                             <Col span={8} style={{ padding: 12 }}>

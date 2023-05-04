@@ -1,10 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { AdminMenu } from "../components/AdminMenu";
-import { Card, Table, Tag } from 'antd';
+import { Button, Card, Table, Tag } from 'antd';
 import { ModalNewGroup } from "../components/ModalNewGroup";
+import { useNavigate } from "react-router-dom";
+import { CloseOutlined } from "@ant-design/icons";
 
 
-export const GroupPage:React.FC = () => {
+export const GroupPage: React.FC = () => {
+
+    const navigate = useNavigate();
+    const navigateCreateGroup = () => {
+        let path = `/groups/create`;
+        navigate(path);
+    }
 
     interface DataType {
         key: React.Key;
@@ -12,9 +20,9 @@ export const GroupPage:React.FC = () => {
         description: string;
         privileges: string[];
         action: string;
-      }
+    }
 
-    const groupInfo:DataType[] = [
+    const groupInfo: DataType[] = [
         {
             key: "1",
             name: "Administrators",
@@ -40,14 +48,14 @@ export const GroupPage:React.FC = () => {
             key: "4",
             name: "Developers",
             description: "",
-            privileges: ["Viewers", "Create Projects","Create Tables","Erase Projects", "Remove Tables", "Edit Projects", "Edit Tables", "Delete Projects"],
+            privileges: ["Viewers", "Create Projects", "Create Tables", "Erase Projects", "Remove Tables", "Edit Projects", "Edit Tables", "Delete Projects"],
             action: "",
         },
         {
             key: "5",
             name: "Testers",
             description: "",
-            privileges: ["Viewers","Trace Tables","Benchmark Tables", "Run Tables"],
+            privileges: ["Viewers", "Trace Tables", "Benchmark Tables", "Run Tables"],
             action: "",
         },
         {
@@ -79,10 +87,10 @@ export const GroupPage:React.FC = () => {
                     {privileges.map(privilege => {
                         let color = "grey";
                         // privilege === "Administrate" ? color = "red" : privilege === ("Developers" || "Testers" || "Viewers") ? color ="blue" : color = "grey";
-                        privilege === "Administrate" ? color = "red" : ((privilege === "Developers") || (privilege === "Testers") || (privilege ==="Viewers")) ? color ="blue" : color = "default";
+                        privilege === "Administrate" ? color = "red" : ((privilege === "Developers") || (privilege === "Testers") || (privilege === "Viewers")) ? color = "blue" : color = "default";
 
                         return (
-                            <Tag color={color} key={privilege} style={{margin:2}}>
+                            <Tag color={color} key={privilege} style={{ margin: 2 }}>
                                 {privilege}
                             </Tag>
                         );
@@ -94,20 +102,32 @@ export const GroupPage:React.FC = () => {
             title: 'Action',
             dataIndex: 'Action',
             key: 'Action',
-            // render: <span>
-            //     <a>Delete</a>
-            // </span>
+            render: (key: string) => (
+                <Button
+                    type="text"
+                    icon={<CloseOutlined />}
+                    onClick={() => setData(data.filter(item => item.key !== key))}
+                >
+                </Button>
+            ),
         },
 
     ]
+
+    const [data, setData ] = useState(groupInfo);
+
+    const addNewGroup = (newGroup: { key: string; name: string; description: string; privileges: []; action: "" }) => {
+        setData((data) => [...data, newGroup]);
+    }
+
 
     return (
         <div>
             <div style={{ display: "flex", flexDirection: "row" }}>
                 <AdminMenu />
                 <Card style={{ margin: 20 }}>
-                    <Table columns={columns} dataSource={groupInfo} />
-                    <ModalNewGroup/>
+                    <Table columns={columns} dataSource={data} />
+                    <Button onClick={navigateCreateGroup}>Add new group</Button>
                 </Card>
             </div>
         </div>
