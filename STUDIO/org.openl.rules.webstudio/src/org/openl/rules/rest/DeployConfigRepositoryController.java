@@ -1,6 +1,7 @@
 package org.openl.rules.rest;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.openl.rules.repository.api.Pageable;
 import org.openl.rules.repository.api.Repository;
@@ -11,9 +12,11 @@ import org.openl.rules.rest.model.RepositoryFeatures;
 import org.openl.rules.rest.model.UserInfoModel;
 import org.openl.rules.rest.resolver.PaginationDefault;
 import org.openl.rules.rest.service.HistoryRepositoryMapper;
-import org.openl.rules.security.Privileges;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.RepositoryAclService;
 import org.springframework.beans.factory.annotation.Lookup;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,9 +38,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class DeployConfigRepositoryController {
 
     private final DesignTimeRepository designTimeRepository;
+    private final RepositoryAclService deployConfigRepositoryAclService;
 
-    public DeployConfigRepositoryController(DesignTimeRepository designTimeRepository) {
+    public DeployConfigRepositoryController(DesignTimeRepository designTimeRepository,
+            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService) {
         this.designTimeRepository = designTimeRepository;
+        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
     }
 
     @Lookup
@@ -48,9 +54,12 @@ public class DeployConfigRepositoryController {
     @GetMapping("/features")
     @Operation(summary = "repos.get-features.summary", description = "repos.get-features.desc")
     public RepositoryFeatures getFeatures() {
-        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
-        var supports = getDeployConfigRepository().supports();
-        return new RepositoryFeatures(false, supports.searchable());
+        if (deployConfigRepositoryAclService
+            .isGranted(getDeployConfigRepository().getId(), null, List.of(AclPermission.VIEW))) {
+            var supports = getDeployConfigRepository().supports();
+            return new RepositoryFeatures(false, supports.searchable());
+        }
+        throw new SecurityException();
     }
 
     @GetMapping("/configs/{config-name}/history")
@@ -63,12 +72,14 @@ public class DeployConfigRepositoryController {
             @Parameter(description = "deploy-repo.param.config-name.desc") @PathVariable("config-name") String name,
             @Parameter(description = "repo.param.search.desc") @RequestParam(value = "search", required = false) String searchTerm,
             @PaginationDefault(size = 50) Pageable page) throws IOException {
-        SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         Repository repository = getDeployConfigRepository();
         if (!designTimeRepository.hasDDProject(name)) {
             throw new NotFoundException("project.message", name);
         }
         String fullPath = designTimeRepository.getDeployConfigLocation() + name;
+        if (!deployConfigRepositoryAclService.isGranted(repository.getId(), fullPath, List.of(AclPermission.VIEW))) {
+            throw new SecurityException();
+        }
         return getHistoryRepositoryMapper(repository).getProjectHistory(fullPath, searchTerm, false, page);
     }
 
