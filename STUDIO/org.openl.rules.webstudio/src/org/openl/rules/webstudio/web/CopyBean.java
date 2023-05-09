@@ -535,14 +535,21 @@ public class CopyBean {
     }
 
     public boolean getCanCopyToNewBranch(AProject project) {
-        if (designRepositoryAclService.isGranted(project,
-            List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
-            return true;
+        boolean branchesSupported = project.getRepository().supports().branches();
+        if (project instanceof RulesProject) {
+            RulesProject rulesProject = (RulesProject) project;
+            branchesSupported = rulesProject.isSupportsBranches();
         }
-        for (AProjectArtefact artefact : project.getArtefacts()) {
-            if (designRepositoryAclService.isGranted(artefact,
+        if (branchesSupported) {
+            if (designRepositoryAclService.isGranted(project,
                 List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
                 return true;
+            }
+            for (AProjectArtefact artefact : project.getArtefacts()) {
+                if (designRepositoryAclService.isGranted(artefact,
+                    List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                    return true;
+                }
             }
         }
         return false;
