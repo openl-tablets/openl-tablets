@@ -51,19 +51,20 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
             LocalRepository localRepository = (LocalRepository) projectArtefact.getRepository();
             ProjectState projectState = localRepository
                 .getProjectState(projectArtefact.getProject().getFileData().getName());
-            return getRepoPath(projectState.getFileData()) + "/" + projectArtefact.getInternalPath();
+            if (projectState.getFileData() != null) {
+                return getRepoPath(projectState.getFileData()) + "/" + projectArtefact.getInternalPath();
+            }
+        }
+        // Folders has empty file data
+        if (projectArtefact.getFileData() != null) {
+            return getRepoPath(projectArtefact.getFileData());
         } else {
-            // Folders has empty file data
-            if (projectArtefact.getFileData() != null) {
-                return getRepoPath(projectArtefact.getFileData());
+            // For deleted project fileData is null
+            if (projectArtefact.getProject().getFileData() != null) {
+                return extractInternalPath(projectArtefact.getProject()) + "/" + projectArtefact.getInternalPath();
             } else {
-                // For deleted project fileData is null
-                if (projectArtefact.getProject().getFileData() != null) {
-                    return extractInternalPath(projectArtefact.getProject()) + "/" + projectArtefact.getInternalPath();
-                } else {
-                    List<FileData> fileDatas = projectArtefact.getProject().getHistoryFileDatas();
-                    return getRepoPath(fileDatas.get(fileDatas.size() - 1));
-                }
+                List<FileData> fileDatas = projectArtefact.getProject().getHistoryFileDatas();
+                return getRepoPath(fileDatas.get(fileDatas.size() - 1));
             }
         }
     }
