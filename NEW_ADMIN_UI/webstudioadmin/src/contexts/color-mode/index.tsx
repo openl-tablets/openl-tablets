@@ -1,7 +1,7 @@
-import { PropsWithChildren, createContext, useEffect, useState } from "react";
-import { ConfigProvider, theme } from "antd";
-import { RefineThemes } from "@refinedev/antd";
-import React from "react";
+import { PropsWithChildren, createContext, useEffect, useState } from 'react';
+import { ConfigProvider, theme } from 'antd';
+import { RefineThemes } from '@refinedev/antd';
+import React from 'react';
 
 type ColorModeContextType = {
     mode: string;

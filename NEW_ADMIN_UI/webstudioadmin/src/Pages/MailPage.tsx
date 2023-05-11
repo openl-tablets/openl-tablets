@@ -1,17 +1,12 @@
-import { Card, Button, Checkbox, Row, Form, Input } from "antd";
-import React, { useState } from "react";
-import { AdminMenu } from "../components/AdminMenu";
-
-
+import { Card, Button, Checkbox, Row, Form, Input } from 'antd';
+import React, { useState } from 'react';
+import DefaultLayout from '../components/DefaultLayout';
 
 export const MailPage: React.FC = () => {
     const [active, setActive] = useState(true);
 
     return (
-        <div>
-            <div style={{ display: "flex", flexDirection: "row" }}>
-                <AdminMenu />
-
+        <DefaultLayout>
                 <Card bordered={true}
                     style={{
                         width: 300, margin: 20
@@ -56,7 +51,6 @@ export const MailPage: React.FC = () => {
                     )}
                     <Button style={{ marginTop: 20, marginRight: 15 }}>Apply All and Restart</Button>
                 </Card>
-            </div>
-        </div>
+            </DefaultLayout>
     )
 };
