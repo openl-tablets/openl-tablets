@@ -132,8 +132,7 @@ public class ProjectUploader {
                 uploadedFiles.toArray(new ProjectFile[0]);
             }
             RulesProject rulesProject = projectCreator.createRulesProject();
-            if (!designRepositoryAclService.createAcl(rulesProject.getDesignRepository().getId(),
-                rulesProject.getDesignFolderName(),
+            if (!designRepositoryAclService.createAcl(rulesProject,
                 AclPermissionsSets.NEW_PROJECT_PERMISSIONS,
                 true)) {
                 throw new ProjectException(String.format("Granting permissions to a new project '%s' is failed.",
