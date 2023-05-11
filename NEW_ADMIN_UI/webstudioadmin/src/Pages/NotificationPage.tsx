@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, Input, Button } from 'antd';
-import { AdminMenu } from '../components/AdminMenu';
-
+import DefaultLayout from '../components/DefaultLayout';
 
 const { TextArea } = Input;
 
@@ -17,9 +16,7 @@ export const NotificationPage: React.FC = () => {
     };
 
     return (
-        <div>
-            <div style={{ display: "flex", flexDirection: "row" }}>
-                <AdminMenu />
+      <DefaultLayout>
 
                 <Card
                     bordered={true}
@@ -33,7 +30,6 @@ export const NotificationPage: React.FC = () => {
                     <Button style={{ marginTop: 20, marginRight: 15 }}>Post</Button>
                     <Button onClick={handleRemove}>Remove</Button>
                 </Card>
-            </div>
-        </div>
+            </DefaultLayout>
     )
 };

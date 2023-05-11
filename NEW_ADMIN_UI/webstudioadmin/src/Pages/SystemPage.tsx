@@ -1,13 +1,10 @@
-import { Card, Button, Checkbox, Row, Divider, Input } from "antd"
-import React from "react"
-import { AdminMenu } from "../components/AdminMenu"
-
+import { Card, Button, Checkbox, Row, Divider, Input } from 'antd';
+import React from 'react';
+import DefaultLayout from '../components/DefaultLayout';
 
 export const SystemPage:React.FC = () => {
     return (
-    <div>
-        <div style={{ display: "flex", flexDirection: "row" }}>
-            <AdminMenu />
+   <DefaultLayout>
 
             <Card
                 bordered={true}
@@ -40,7 +37,6 @@ export const SystemPage:React.FC = () => {
                 <Divider />
                 <Button style={{ marginTop: 20, marginRight: 15 }}>Apply All and Restart</Button>
             </Card>
-        </div>
-    </div>
+        </DefaultLayout>
     )
 };

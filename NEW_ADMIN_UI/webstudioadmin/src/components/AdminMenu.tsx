@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Menu } from 'antd';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FolderOutlined, MailOutlined, NotificationOutlined, NumberOutlined, SettingOutlined, SolutionOutlined, UserOutlined } from '@ant-design/icons';
 
 export const AdminMenu: React.FC = () => {

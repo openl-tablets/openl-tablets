@@ -1,96 +1,16 @@
-import React, { useState, useContext } from "react";
-import { AdminMenu } from "../components/AdminMenu";
+import React, { useState, useContext } from 'react';
 import { Button, Card, Table, Tag } from 'antd';
-import { useNavigate, Link } from "react-router-dom";
-import { NewUser } from "../components/NewUser";
-import { CloseOutlined, DeleteOutlined } from "@ant-design/icons";
-
-const userInfo =
-    [
-        {
-            key: "1",
-            userName: "a1",
-            firstName: "",
-            lastName: "",
-            email: "a1@example.com",
-            displayName: "A1",
-            groups: ["Administrators"],
-            action: "",
-        },
-        {
-            key: "2",
-            userName: "admin",
-            firstName: "",
-            lastName: "",
-            email: "admin@example.com",
-            displayName: "Admin",
-            groups: ["Administrators"],
-            action: "",
-        },
-        {
-            key: "3",
-            userName: "u0",
-            firstName: "",
-            lastName: "",
-            email: "u0@example.com",
-            displayName: "U0",
-            groups: ["Testers"],
-            action: "",
-        },
-        {
-            key: "4",
-            userName: "u1",
-            firstName: "",
-            lastName: "",
-            email: "u1@example.com",
-            displayName: "U1",
-            groups: ["Analyst", "Developers"],
-            action: "",
-        },
-        {
-            key: "5",
-            userName: "u2",
-            firstName: "",
-            lastName: "",
-            email: "u2@example.com",
-            displayName: "U2",
-            groups: ["Viewers"],
-            action: "",
-        },
-        {
-            key: "6",
-            userName: "u3",
-            firstName: "",
-            lastName: "",
-            email: "u3@example.com",
-            displayName: "U3",
-            groups: ["Viewers"],
-            action: "",
-        },
-        {
-            key: "7",
-            userName: "u4",
-            firstName: "",
-            lastName: "",
-            email: "u4@example.com",
-            displayName: "U4",
-            groups: ["Deployers"],
-            action: "",
-        },
-        {
-            key: "8",
-            userName: "user",
-            firstName: "",
-            lastName: "",
-            email: "user@example.com",
-            displayName: "User",
-            groups: ["Viewers"],
-            action: "",
-        }
-
-    ];
+import { useNavigate } from 'react-router-dom';
+import { NewUser } from '../views/users/NewUser';
+import { CloseOutlined } from '@ant-design/icons';
+import { DataContext } from '../components/DataContext';
+import DefaultLayout from '../components/DefaultLayout';
+import TableUserInfo from 'views/users/TableUserInfo';
 
 export const UserPage: React.FC = () => {
+
+    const { users } = useContext(DataContext);
+
 
     const navigate = useNavigate();
     const navigateCreateuser = () => {
@@ -98,38 +18,38 @@ export const UserPage: React.FC = () => {
         navigate(path);
     }
 
-    const [userData, setUserData] = useState(userInfo);
+    const [userData, setUserData] = useState(TableUserInfo);
 
     const columns = [
         {
-            title: 'Username',
-            dataIndex: 'userName',
-            key: 'userName',
+            title: "Username",
+            dataIndex: "userName",
+            key: "userName",
         },
         {
-            title: 'First name',
-            dataIndex: 'firstName',
-            key: 'firstName',
+            title: "First name",
+            dataIndex: "firstName",
+            key: "firstName",
         },
         {
-            title: 'Last name',
-            dataIndex: 'lastName',
-            key: 'lastName',
+            title: "Last name",
+            dataIndex: "lastName",
+            key: "lastName",
         },
         {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
+            title: "Email",
+            dataIndex: "email",
+            key: "email",
         },
         {
-            title: 'Display Name',
-            dataIndex: 'displayName',
-            key: 'displayName',
+            title: "Display Name",
+            dataIndex: "displayName",
+            key: "displayName",
         },
         {
-            title: 'Groups',
-            dataIndex: 'groups',
-            key: 'groups',
+            title: "Groups",
+            dataIndex: "groups",
+            key: "groups",
             render: (groups: string[]) => (
                 <>
                     {groups.map(group => {
@@ -146,9 +66,9 @@ export const UserPage: React.FC = () => {
             ),
         },
         {
-            title: 'Action',
-            dataIndex: 'Action',
-            key: 'Action',
+            title: "Action",
+            dataIndex: "Action",
+            key: "Action",
             render: (key: string) => (
                 <Button
                     type="text"
@@ -166,16 +86,13 @@ export const UserPage: React.FC = () => {
     }
 
     return (
-        <div>
-            <div style={{ display: "flex", flexDirection: "row" }}>
-                <AdminMenu />
-                <Card style={{ margin: 20 }}>
-                    <Table columns={columns} dataSource={userData} />
-                    <Button onClick={navigateCreateuser}>Add new user</Button>
-                    <NewUser addNewUser={addNewUser} />
-                </Card>
-            </div>
-        </div>
+        <DefaultLayout>
+            <Card style={{ margin: 20 }}>
+                <Table columns={columns} dataSource={userData} pagination={{ hideOnSinglePage: true }} />
+                <Button onClick={navigateCreateuser} style={{ marginTop: 10 }}>Add new user</Button>
+                <NewUser addNewUser={addNewUser} />
+            </Card>
+        </DefaultLayout>
     )
 };
 

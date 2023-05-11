@@ -1,8 +1,33 @@
 import { Button, Card, Cascader, Checkbox, Col, Form, Input, Row } from "antd";
-import React, { useEffect, useState, } from "react";
-import { AdminMenu } from "./AdminMenu";
-import type { CheckboxValueType } from 'antd/es/checkbox/Group';
+import React, { useContext, useEffect, useState, } from "react";
+import type { CheckboxValueType } from "antd/es/checkbox/Group";
 import { useNavigate } from "react-router-dom";
+import { DataContext } from "../../components/DataContext";
+
+
+const userInfo =
+    [
+        {
+            key: "1",
+            userName: "a1",
+            firstName: "",
+            lastName: "",
+            email: "a1@example.com",
+            displayName: "A1",
+            groups: ["Administrators"],
+            action: "",
+        },
+        {
+            key: "2",
+            userName: "admin",
+            firstName: "",
+            lastName: "",
+            email: "admin@example.com",
+            displayName: "Admin",
+            groups: ["Administrators"],
+            action: "",
+        },
+    ];
 
 export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addNewUser }) => {
 
@@ -14,14 +39,13 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
     const [displayName, setDisplayName] = useState("");
     const [group, setGroup] = useState<CheckboxValueType[]>([]);
     const [checkedValues, setCheckedValues] = useState<CheckboxValueType[]>([]);
-
+    // const {setUsers} = useContext(DataContext);
 
     const navigate = useNavigate();
     const navigateUserList = () => {
         let path = `/users`;
         navigate(path);
     }
-
 
     const handleSubmit = (e: React.SyntheticEvent) => {
         e.preventDefault();
@@ -44,7 +68,9 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
         setGroup([]);
         setCheckedValues([]);
         navigateUserList();
+        // setUsers((userInfo: User[]) => [...userInfo,newUser]);
     };
+
 
     const onChange = (checkedValues: CheckboxValueType[]) => {
         setGroup(checkedValues);

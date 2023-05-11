@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
-import { Button, Modal } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import React, { useState } from "react";
+import { Button, Modal } from "antd";
+import { InfoCircleOutlined } from "@ant-design/icons";
 
-export const InvalidBranchModal:React.FC = () => {
+interface InfoFieldModalProps {
+    text: React.ReactNode;
+}
+
+export const InfoFieldModal: React.FC<InfoFieldModalProps> = ({ text }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const showModal = () => {
@@ -18,14 +22,17 @@ export const InvalidBranchModal:React.FC = () => {
             <InfoCircleOutlined onClick={showModal} />
 
             <Modal title="Details" open={isModalOpen} footer={[
-                <Button key="back" onClick={handleClose}>
+                <Button onClick={handleClose}>
                     OK
                 </Button>]} >
                 <div>
-                    <p>An error message that will be shown to the user when trying to create a new branch with a name that does not match the additional regular expression.
-</p>
+                    <p>
+                        {text}
+                    </p>
                 </div>
             </Modal>
         </>
     )
 };
+
+export default InfoFieldModal;
