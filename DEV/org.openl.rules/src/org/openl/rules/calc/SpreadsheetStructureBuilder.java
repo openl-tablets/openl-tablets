@@ -783,9 +783,10 @@ public class SpreadsheetStructureBuilder {
                     IMetaInfo typeMeta = type.getMetaInfo();
                     if (typeMeta != null) {
                         SimpleNodeUsage nodeUsage = new SimpleNodeUsage(identifier,
-                                typeMeta.getDisplayName(INamedThing.SHORT),
-                                typeMeta.getSourceUrl(),
-                                NodeType.DATATYPE);
+                            typeMeta.getDisplayName(INamedThing.SHORT),
+                            typeMeta.getSourceUrl(),
+                            type,
+                            NodeType.DATATYPE);
                         nodeUsages.add(nodeUsage);
                     }
                 }

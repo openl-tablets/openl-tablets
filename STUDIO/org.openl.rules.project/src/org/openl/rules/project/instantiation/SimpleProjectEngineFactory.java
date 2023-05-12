@@ -192,19 +192,12 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             Collection<ProjectDescriptor> projectsInWorkspace) {
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor dependencyDescriptor : project.getDependencies()) {
-                boolean found = false;
                 for (ProjectDescriptor projectDescriptor : projectsInWorkspace) {
                     if (dependencyDescriptor.getName().equals(projectDescriptor.getName())) {
                         projectDescriptors.add(projectDescriptor);
                         addDependentProjects(projectDescriptors, projectDescriptor, projectsInWorkspace);
-                        found = true;
                         break;
                     }
-                }
-                if (!found) {
-                    log.warn("Dependency '{}' for project '{}' is not found.",
-                        dependencyDescriptor.getName(),
-                        project.getName());
                 }
             }
         }

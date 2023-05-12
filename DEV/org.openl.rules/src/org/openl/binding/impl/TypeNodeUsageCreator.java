@@ -64,11 +64,13 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
             if (typeMeta == null) {
                 return Optional.empty();
             }
-            return Optional.of(new SimpleNodeUsage(pstart,
+            SimpleNodeUsage simpleNodeUsage = new SimpleNodeUsage(pstart,
                 pend,
                 typeMeta.getDisplayName(INamedThing.SHORT),
                 typeMeta.getSourceUrl(),
-                NodeType.DATATYPE));
+                componentOpenClass,
+                NodeType.DATATYPE);
+            return Optional.of(simpleNodeUsage);
         }
     }
 

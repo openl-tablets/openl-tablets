@@ -586,8 +586,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     SimpleNodeUsage nodeUsage = new SimpleNodeUsage(paramNodes[0],
                         metaInfo.getDisplayName(INamedThing.SHORT),
                         metaInfo.getSourceUrl(),
+                        typeForLink,
                         NodeType.DATATYPE);
-
                     return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
                 }
             }

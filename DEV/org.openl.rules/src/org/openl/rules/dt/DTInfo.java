@@ -5,18 +5,21 @@ public class DTInfo {
     private final int numberHConditions;
     private final int numberVConditions;
     private DTScale scale = DTScale.STANDARD;
+    private boolean transposed;
 
-    DTInfo(int numberHConditions, int numberVConditions, DTScale scale) {
+    DTInfo(int numberHConditions, int numberVConditions, DTScale scale, boolean transposed) {
         super();
         this.numberHConditions = numberHConditions;
         this.numberVConditions = numberVConditions;
         this.scale = scale;
+        this.transposed = transposed;
     }
 
-    DTInfo(int numberHConditions, int numberVConditions) {
+    DTInfo(int numberHConditions, int numberVConditions, boolean transposed) {
         super();
         this.numberHConditions = numberHConditions;
         this.numberVConditions = numberVConditions;
+        this.transposed = transposed;
     }
 
     public DTScale getScale() {
@@ -31,4 +34,7 @@ public class DTInfo {
         return numberVConditions;
     }
 
+    public boolean isTransposed() {
+        return transposed;
+    }
 }
