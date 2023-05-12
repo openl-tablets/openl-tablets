@@ -119,9 +119,6 @@ public class DesignTimeRepositoryController {
     @GetMapping("/{repo-name}/features")
     @Operation(summary = "repos.get-features.summary", description = "repos.get-features.desc")
     public RepositoryFeatures getFeatures(@DesignRepository("repo-name") Repository repository) {
-        if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.VIEW))) {
-            throw new SecurityException();
-        }
         var supports = repository.supports();
         return new RepositoryFeatures(supports.branches(), supports.searchable());
     }
