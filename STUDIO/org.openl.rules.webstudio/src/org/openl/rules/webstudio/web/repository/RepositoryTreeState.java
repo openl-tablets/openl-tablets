@@ -872,15 +872,19 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             if (selectedProject.isLocalOnly()) {
                 return false;
             }
-            if (!designRepositoryAclService.isGranted(selectedProject,
-                List.of(AclPermission.ADD, AclPermission.EDIT, AclPermission.DELETE))) {
+            if (selectedProject.isLocked() && !selectedProject.isLockedByUser(userWorkspace.getUser())) {
                 return false;
             }
-            boolean unlocked = !selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser());
-            if (!unlocked) {
+            if (isMainBranch(selectedProject) || isCurrentBranchProtected(selectedProject)) {
                 return false;
             }
-            return !isMainBranch(selectedProject) && !isCurrentBranchProtected(selectedProject);
+            for (AProjectArtefact artefact : selectedProject.getArtefacts()) {
+                if (designRepositoryAclService.isGranted(artefact,
+                    List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                    return true;
+                }
+            }
+            return false;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
