@@ -1031,7 +1031,9 @@ public class RepositoryTreeController {
             studio.getModel().clearModuleInfo(); // Release resources like jars
             unregisterArtifactInProjectDescriptor(childArtefact);
             childArtefact.delete();
-            repositoryAclService.deleteAcl(childArtefact);
+            if (getSelectedProject() instanceof ADeploymentProject) {
+                repositoryAclService.deleteAcl(childArtefact);
+            }
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
 
@@ -1562,7 +1564,9 @@ public class RepositoryTreeController {
             }
             AProjectResource addedFileResource = folder
                 .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
-            if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+            if ((selectedProject instanceof ADeploymentProject || !designRepositoryAclService
+                .hasAcl(addedFileResource)) && !repositoryAclService
+                    .createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
                     ProjectArtifactUtils.extractResourceName(addedFileResource));
                 WebStudioUtils.addErrorMessage(message);
@@ -2244,13 +2248,16 @@ public class RepositoryTreeController {
             }
             while (!projectFolders.isEmpty()) {
                 AProjectFolder p = projectFolders.pop();
-                if (!repositoryAclService.createAcl(p, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+                if ((node.getProject() instanceof ADeploymentProject || !repositoryAclService
+                    .hasAcl(p)) && !repositoryAclService.createAcl(p, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                     String message = String.format("Granting permissions to a new folder '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(p));
                     WebStudioUtils.addErrorMessage(message);
                 }
             }
-            if (!repositoryAclService.createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
+            if ((node.getProject() instanceof ADeploymentProject || !repositoryAclService
+                .hasAcl(addedFileResource)) && !repositoryAclService
+                    .createAcl(addedFileResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
                     ProjectArtifactUtils.extractResourceName(addedFileResource));
                 WebStudioUtils.addErrorMessage(message);

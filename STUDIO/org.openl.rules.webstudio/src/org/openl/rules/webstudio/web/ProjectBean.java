@@ -660,7 +660,7 @@ public class ProjectBean {
         validatePermissionForCreating(currentProject, path);
         try {
             AProjectResource newProjectResource = currentProject.addResource(path, oldProjectResource.getContent());
-            if (!designRepositoryAclService
+            if (!designRepositoryAclService.hasAcl(newProjectResource) && !designRepositoryAclService
                 .createAcl(newProjectResource, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                 String message = String.format("Granting permissions to a new file '%s' is failed.",
                     ProjectArtifactUtils.extractResourceName(newProjectResource));
@@ -771,7 +771,6 @@ public class ProjectBean {
         try {
             AProjectArtefact projectArtefact = currentProject.getArtefact(module.getRulesRootPath().getPath());
             projectArtefact.delete();
-            designRepositoryAclService.deleteAcl(projectArtefact);
         } catch (ProjectException e) {
             throw new Message(String.format("Cannot delete '%s' module.", module.getName()), e);
         }
@@ -1020,7 +1019,7 @@ public class ProjectBean {
                     validatePermissionForCreating(currentProject, openAPIType.getDefaultFileName());
                     currentProject.addResource(openAPIType.getDefaultFileName(), in);
                     AProjectArtefact projectArtefact = currentProject.getArtefact(openAPIType.getDefaultFileName());
-                    if (!designRepositoryAclService
+                    if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
                         .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                         String message = String.format("Granting permissions to a new file '%s' is failed.",
                             ProjectArtifactUtils.extractResourceName(projectArtefact));
@@ -1476,7 +1475,7 @@ public class ProjectBean {
                 project.addResource(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME, inputStream);
                 AProjectArtefact projectArtefact = project
                     .getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
-                if (!designRepositoryAclService
+                if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
                     .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                     String message = String.format("Granting permissions to a new file '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(projectArtefact));

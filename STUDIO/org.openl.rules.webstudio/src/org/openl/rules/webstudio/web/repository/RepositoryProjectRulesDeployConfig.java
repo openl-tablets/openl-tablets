@@ -145,7 +145,7 @@ public class RepositoryProjectRulesDeployConfig {
                 }
                 project.addResource(RULES_DEPLOY_CONFIGURATION_FILE, inputStream);
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
-                if (!designRepositoryAclService
+                if (!designRepositoryAclService.hasAcl(projectArtefact) && !designRepositoryAclService
                     .createAcl(projectArtefact, AclPermissionsSets.NEW_FILE_PERMISSIONS, true)) {
                     String message = String.format("Granting permissions to a new file '%s' is failed.",
                         ProjectArtifactUtils.extractResourceName(projectArtefact));
