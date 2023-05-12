@@ -66,6 +66,7 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
                             ? ""
                             : ("\n" + getAdditionalMetaInfoForTableReturnType())),
                     metaInfo.getSourceUrl(),
+                    type,
                     NodeType.DATATYPE)
             );
         }
@@ -89,6 +90,7 @@ public abstract class AMethodMetaInfoReader<T extends AMethodBasedNode> extends 
                         end,
                         metaInfo.getDisplayName(INamedThing.SHORT),
                         metaInfo.getSourceUrl(),
+                        parameterType,
                         NodeType.DATATYPE));
                 }
             }

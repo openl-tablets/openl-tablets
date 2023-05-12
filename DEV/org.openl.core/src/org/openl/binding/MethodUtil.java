@@ -76,7 +76,7 @@ public final class MethodUtil {
             method.getParameterTypes());
     }
 
-    private static void printMethod(IOpenMethodHeader methodHeader,
+    public static void printMethod(IOpenMethodHeader methodHeader,
             StringBuilder buf,
             Function<IOpenClass, String> typeConverter) {
         startPrintingMethodName(methodHeader.getName(), buf);
