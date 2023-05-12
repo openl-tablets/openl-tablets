@@ -26,10 +26,12 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
 import org.openl.security.acl.repository.SimpleRepositoryAclService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.domain.SpringCacheBasedAclCache;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.Sid;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,9 +70,11 @@ public class RepositoryAclServiceController {
 
     private final UserDao userDao;
     private final GroupDao groupDao;
+    private final SpringCacheBasedAclCache springCacheBasedAclCache;
 
     public RepositoryAclServiceController(UserDao userDao,
             GroupDao groupDao,
+            @Autowired(required = false) SpringCacheBasedAclCache springCacheBasedAclCache,
             @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
             @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
             @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService,
@@ -81,6 +85,7 @@ public class RepositoryAclServiceController {
         this.groupDao = groupDao;
         this.productionRepositoryAclService = productionRepositoryAclService;
         this.deploymentManager = deploymentManager;
+        this.springCacheBasedAclCache = springCacheBasedAclCache;
     }
 
     public static class SidPermissionsDto {
@@ -430,6 +435,12 @@ public class RepositoryAclServiceController {
                 } catch (Exception e) {
                     throw new BadRequestException(String.format("Bad command at line %s: ", lineNum) + e.getMessage());
                 }
+            }
+        } finally {
+            // If one command fails to execute, the cache should be cleared to avoid inconsistent
+            // because the cache is not transactional and if transaction is rolled back, the cache is not cleared.
+            if (springCacheBasedAclCache != null) {
+                springCacheBasedAclCache.clearCache();
             }
         }
         return ret.toString();
