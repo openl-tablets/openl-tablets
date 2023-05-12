@@ -2513,15 +2513,21 @@ public class RepositoryTreeController {
             if (project.isLocalOnly()) {
                 return false;
             }
-            if (!designRepositoryAclService.isGranted(project,
-                List.of(AclPermission.ADD, AclPermission.EDIT, AclPermission.DELETE))) {
-                return false;
-            }
             boolean unlocked = !project.isLocked() || project.isLockedByUser(userWorkspace.getUser());
             if (!unlocked) {
                 return false;
             }
-            return !isMainBranch(project) && !isCurrentBranchProtected(project);
+            if (isMainBranch(project) || isCurrentBranchProtected(project)) {
+                return false;
+            }
+            for (AProjectArtefact artefact : project.getArtefacts()) {
+                if (designRepositoryAclService.isGranted(artefact,
+                    List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                    return true;
+                }
+            }
+            return false;
+
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
