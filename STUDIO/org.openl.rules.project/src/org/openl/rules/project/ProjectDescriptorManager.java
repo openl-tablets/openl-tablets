@@ -63,14 +63,14 @@ public class ProjectDescriptorManager {
         this.serializer = serializer;
     }
 
-    private ProjectDescriptor readDescriptorInternal(InputStream source) throws JAXBException {
+    public ProjectDescriptor readDescriptor(InputStream source) throws JAXBException {
         return serializer.deserialize(source);
     }
 
     public ProjectDescriptor readDescriptor(Path file) throws IOException, ValidationException, JAXBException {
         ProjectDescriptor descriptor;
         try (InputStream inputStream = Files.newInputStream(file)) {
-            descriptor = readDescriptorInternal(inputStream);
+            descriptor = readDescriptor(inputStream);
         }
 
         postProcess(descriptor, file);
@@ -88,7 +88,7 @@ public class ProjectDescriptorManager {
             File filename) throws IOException, ValidationException, JAXBException {
         ProjectDescriptor descriptor;
         try (FileInputStream inputStream = new FileInputStream(filename)) {
-            descriptor = readDescriptorInternal(inputStream);
+            descriptor = readDescriptor(inputStream);
         }
 
         validator.validate(descriptor);

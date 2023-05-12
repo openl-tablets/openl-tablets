@@ -478,7 +478,7 @@ public class DecisionTableLoader {
                 DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor();
                 IGridTable convertedTable = dtlc.convertTable(toParse);
                 toParse = LogicalTableHelper.logicalTable(convertedTable);
-                tableStructure.info = new DTInfo(nHConditions, nVConditions, dtlc.getScale());
+                tableStructure.info = new DTInfo(nHConditions, nVConditions, dtlc.getScale(), transpose);
             } catch (OpenLCompilationException e) {
                 throw SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
             } catch (Exception e) {
@@ -492,7 +492,7 @@ public class DecisionTableLoader {
         }
 
         if (tableStructure.info == null) {
-            tableStructure.info = new DTInfo(nHConditions, nVConditions);
+            tableStructure.info = new DTInfo(nHConditions, nVConditions, transpose);
         }
         decisionTable.setDtInfo(tableStructure.info);
         tableStructure.columnsNumber = toParse.getWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;

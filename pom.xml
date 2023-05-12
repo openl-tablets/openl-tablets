@@ -202,6 +202,8 @@
         <jcodemodel.version>3.4.1</jcodemodel.version>
         <istack.version>3.0.12</istack.version>
         <activiti.version>5.18.0</activiti.version>
+        <picocli.version>4.7.3</picocli.version>
+        <me.tongfei.progressbar.version>0.9.4</me.tongfei.progressbar.version>
         <x-forwarded-filter.version>1.0</x-forwarded-filter.version>
 
         <!-- It needs to detect memory leaks. -->
@@ -232,6 +234,7 @@
         <module>Util/openl-simple-project-archetype</module>
         <module>Util/openl-project-archetype</module>
         <module>Util/openl-yaml</module>
+        <module>Util/openl2text</module>
     </modules>
     <build>
         <defaultGoal>clean verify</defaultGoal>
@@ -255,6 +258,11 @@
         </testResources>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.2.4</version>
+                </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-archetype-plugin</artifactId>
@@ -1784,6 +1792,17 @@
                 <version>${netty.version}</version>
             </dependency>
             <!-- //hive -->
+            <!-- picocli -->
+            <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>me.tongfei</groupId>
+                <artifactId>progressbar</artifactId>
+                <version>${me.tongfei.progressbar.version}</version>
+            </dependency>
             <!-- OpenL modules -->
             <!-- DEV -->
             <dependency>
@@ -1915,6 +1934,11 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.variation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.project.ai</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
