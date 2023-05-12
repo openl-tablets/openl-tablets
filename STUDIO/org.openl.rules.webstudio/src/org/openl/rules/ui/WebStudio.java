@@ -34,6 +34,7 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
@@ -1384,9 +1385,13 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (branches.size() < 2) {
                 return false;
             }
-
-            return getDesignRepositoryAclService().isGranted(project,
-                List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD));
+            for (AProjectArtefact artefact : project.getArtefacts()) {
+                if (designRepositoryAclService.isGranted(artefact,
+                    List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                    return true;
+                }
+            }
+            return false;
         } catch (IOException e) {
             return false;
         }

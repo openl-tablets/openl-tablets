@@ -1131,8 +1131,14 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             if (branches.size() < 2) {
                 return false;
             }
-            return designRepositoryAclService.isGranted(project,
-                List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD));
+
+            for (AProjectArtefact artefact : project.getArtefacts()) {
+                if (designRepositoryAclService.isGranted(artefact,
+                    List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                    return true;
+                }
+            }
+            return false;
         } catch (IOException e) {
             return false;
         }
