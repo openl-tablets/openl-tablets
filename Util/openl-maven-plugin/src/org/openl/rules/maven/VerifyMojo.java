@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import org.apache.maven.RepositoryUtils;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -90,7 +89,7 @@ public class VerifyMojo extends BaseOpenLMojo {
 
         // Dependencies from the plugin section
         for (var dep : plugin.getPlugin().getDependencies()) {
-            openlJars.putAll(getJars(ArtifactUtils.versionlessKey(dep.getGroupId(), dep.getArtifactId())));
+            openlJars.putAll(getJars(versionlessKey(dep.getGroupId(), dep.getArtifactId(), dep.getClassifier())));
         }
 
         // Remove log4j due LOG4J2-3657 and needeless to log to the file.
@@ -139,7 +138,7 @@ public class VerifyMojo extends BaseOpenLMojo {
     private Map<String, File> getJars(String artifactId) throws DependencyResolutionException {
         // Find an artifact inside the openl-maven-plugin
         var artifact = pluginArtifacts.stream()
-            .filter(x -> ArtifactUtils.versionlessKey(x).equals(artifactId))
+            .filter(x -> versionlessKey(x.getGroupId(), x.getArtifactId(), x.getClassifier()).equals(artifactId))
             .map(RepositoryUtils::toArtifact)
             .findFirst().get();
 
@@ -152,7 +151,7 @@ public class VerifyMojo extends BaseOpenLMojo {
         var result = new HashMap<String, File>(openlDependencies.size());
         for (var x : openlDependencies) {
             var a = x.getArtifact();
-            result.put(ArtifactUtils.versionlessKey(a.getGroupId(), a.getArtifactId()), a.getFile());
+            result.put(versionlessKey(a.getGroupId(), a.getArtifactId(), a.getClassifier()), a.getFile());
         }
 
         return result;
@@ -160,7 +159,7 @@ public class VerifyMojo extends BaseOpenLMojo {
 
     private Map<String, File> getTransitiveDependencies() {
         Set<String> pluginDependencies = plugin.getDependencies().stream()
-                .map(d -> ArtifactUtils.versionlessKey(d.getGroupId(), d.getArtifactId()))
+                .map(d -> versionlessKey(d.getGroupId(), d.getArtifactId(), null))
                 .collect(Collectors.toSet());
         Set<String> allowedDependencies = getAllowedDependencies();
         return getDependentNonOpenLProjects().stream().filter(artifact -> {
@@ -180,12 +179,12 @@ public class VerifyMojo extends BaseOpenLMojo {
                 return false;
             }
             return true;
-        }).filter(artifact -> !pluginDependencies.contains(ArtifactUtils.versionlessKey(artifact)))
+        }).filter(a -> !pluginDependencies.contains(versionlessKey(a.getGroupId(), a.getArtifactId(), a.getClassifier())))
           .filter(artifact -> {
             String tr = artifact.getDependencyTrail().get(1);
             String key = tr.substring(0, tr.indexOf(':', tr.indexOf(':') + 1));
             return allowedDependencies.contains(key);
-        }).collect(Collectors.toMap(d -> ArtifactUtils.versionlessKey(d.getGroupId(), d.getArtifactId()), Artifact::getFile));
+        }).collect(Collectors.toMap(d -> versionlessKey(d.getGroupId(), d.getArtifactId(), d.getClassifier()), Artifact::getFile));
     }
 
     private Set<String> getAllowedDependencies() {
@@ -195,7 +194,15 @@ public class VerifyMojo extends BaseOpenLMojo {
                 return false;
             }
             return true;
-        }).map(dep -> ArtifactUtils.versionlessKey(dep.getGroupId(), dep.getArtifactId())).collect(Collectors.toSet());
+        }).map(d -> versionlessKey(d.getGroupId(), d.getArtifactId(), d.getClassifier())).collect(Collectors.toSet());
+    }
+
+    private static String versionlessKey(String groupId, String artifactId, String classifier) {
+        if (classifier == null) {
+            return groupId + ":" + artifactId;
+        } else {
+            return groupId + ":" + artifactId + ":" + classifier;
+        }
     }
 
     private static boolean skipToProcess(String scope, String group) {
