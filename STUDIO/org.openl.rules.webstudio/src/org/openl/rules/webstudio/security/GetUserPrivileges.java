@@ -3,19 +3,30 @@ package org.openl.rules.webstudio.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
+import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimplePrivilege;
+import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
+import org.openl.security.acl.permission.AclPermission;
+import org.openl.security.acl.repository.RepositoryAclService;
+import org.openl.security.acl.repository.SimpleRepositoryAclService;
 import org.openl.util.StringUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
  * Get all privileges for the given user.
@@ -24,12 +35,24 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
     private final String defaultGroup;
+    private final RepositoryAclService deployConfigRepositoryAclService;
+    private final RepositoryAclService designRepositoryAclService;
+    private final SimpleRepositoryAclService productionRepositoryAclService;
+    private final GrantedAuthority relevantSystemWideGrantedAuthority;
 
     public GetUserPrivileges(UserManagementService userManagementService,
-            GroupManagementService groupManagementService) {
+            GroupManagementService groupManagementService,
+            GrantedAuthority relevantSystemWideGrantedAuthority,
+            @Qualifier("deployConfigRepositoryAclService") RepositoryAclService deployConfigRepositoryAclService,
+            @Qualifier("designRepositoryAclService") RepositoryAclService designRepositoryAclService,
+            @Qualifier("productionRepositoryAclService") SimpleRepositoryAclService productionRepositoryAclService) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
         this.defaultGroup = Props.text("security.default-group");
+        this.deployConfigRepositoryAclService = deployConfigRepositoryAclService;
+        this.designRepositoryAclService = designRepositoryAclService;
+        this.productionRepositoryAclService = productionRepositoryAclService;
+        this.relevantSystemWideGrantedAuthority = relevantSystemWideGrantedAuthority;
     }
 
     public Collection<Privilege> apply(String user, Collection<? extends GrantedAuthority> authorities) {
@@ -81,7 +104,24 @@ public class GetUserPrivileges implements BiFunction<String, Collection<? extend
         groupManagementService.updateGroup(defaultGroup,
             Collections.emptySet(),
             Collections.singleton(Privileges.VIEW_PROJECTS.getAuthority()));
-        return groupManagementService.getGroupByName(defaultGroup);
+        group = groupManagementService.getGroupByName(defaultGroup);
+        Authentication oldAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        try {
+            SimpleGroup group1 = new SimpleGroup();
+            group1.setName(relevantSystemWideGrantedAuthority.getAuthority());
+            SimpleUser principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group1)).build();
+            SecurityContextHolder.getContext()
+                .setAuthentication(new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities()));
+            deployConfigRepositoryAclService.addRootPermissions(List.of(AclPermission.VIEW),
+                List.of(new GrantedAuthoritySid(group.getName())));
+            designRepositoryAclService.addRootPermissions(List.of(AclPermission.VIEW),
+                List.of(new GrantedAuthoritySid(group.getName())));
+            productionRepositoryAclService.addRootPermissions(List.of(AclPermission.VIEW),
+                List.of(new GrantedAuthoritySid(group.getName())));
+        } finally {
+            SecurityContextHolder.getContext().setAuthentication(oldAuthentication);
+        }
+        return group;
 
     }
 
