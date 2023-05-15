@@ -3,7 +3,7 @@ Content-Type: application/json
 
 [
   {
-    "groupId": 8,
+    "groupId": 7,
     "groupName": "Group1",
     "permissions": ["DELETE", "ERASE"]
   }, {

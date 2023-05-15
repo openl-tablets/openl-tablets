@@ -2,6 +2,6 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-  "groupId": 8,
+  "groupId": 7,
   "groupName": "Group1"
 }
