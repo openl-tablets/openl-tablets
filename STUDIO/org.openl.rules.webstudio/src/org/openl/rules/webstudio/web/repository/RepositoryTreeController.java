@@ -3150,10 +3150,24 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage(message + " project associated with this branch is local.");
         } else if (project.isDeleted()) {
             WebStudioUtils.addErrorMessage(message + " project associated with this branch is archived.");
-        } else if (!designRepositoryAclService.isGranted(project,
-            List.of(AclPermission.ADD, AclPermission.EDIT, AclPermission.DELETE))) {
-            WebStudioUtils.addErrorMessage(message + " access denied.");
+        } else {
+            if (!hasPermissionsForArtefactsInProject(project)) {
+                WebStudioUtils.addErrorMessage(message + " access denied.");
+            }
         }
+    }
+
+    private boolean hasPermissionsForArtefactsInProject(UserWorkspaceProject project) {
+        if (project == null) {
+            return false;
+        }
+        for (AProjectArtefact artefact : project.getArtefacts()) {
+            if (designRepositoryAclService.isGranted(artefact,
+                List.of(AclPermission.EDIT, AclPermission.DELETE, AclPermission.ADD))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isBranchDeletable() {
@@ -3162,8 +3176,7 @@ public class RepositoryTreeController {
         if (!f) {
             return false;
         }
-        return designRepositoryAclService.isGranted(project,
-            List.of(AclPermission.ADD, AclPermission.EDIT, AclPermission.DELETE));
+        return hasPermissionsForArtefactsInProject(project);
     }
 
     public boolean isHasTags() {
