@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { RepositoryPage } from './RepositoryPage';
 import { Form, Input, Card, Button, List, Col, Row, Select} from 'antd';
 import DefaultLayout from '../components/DefaultLayout';
-import typeOptions from 'views/repoDeployment/TypeOptions';
+import {typeOptions} from 'views/repoDeployment/TypeOptions';
 import { TypeGitDesign } from 'views/repoDesign/TypeGitDesign';
 import { TypeAzure } from 'views/repoDesign/TypeAzure';
 import { TypeAWSS3 } from 'views/repoDesign/TypeAWSS3';
@@ -33,12 +33,6 @@ export const RepoDesignPage: React.FC = () => {
                                     </List.Item>
                                 </List>
                                 <Button >Add repository</Button>
-                            </Row>
-                            <Row >
-                                <Button
-                                    style={{ color: "red", marginTop: 50 }}>
-                                    Apply all and restart
-                                </Button>
                             </Row>
                         </Col>
                     </Card>

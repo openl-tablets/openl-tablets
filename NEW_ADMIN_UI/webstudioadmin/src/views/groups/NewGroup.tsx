@@ -2,13 +2,15 @@ import { Button, Card, Col, Form, Input, Row, Table } from 'antd';
 import React, { useState } from 'react';
 import { AdminMenu } from '../../components/AdminMenu';
 import CreateGroupDataSource from './CreateGroupDataSource';
+import type { CheckboxValueType } from 'antd/es/checkbox/Group';
+
 
 export const NewGroup: React.FC = () => {
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
-    const [privileges, setPrivileges] = useState([]);
     const [selectionType, setSelectionType] = useState<"checkbox">("checkbox");
-
+    const [privileges, setPrivileges] = useState<CheckboxValueType[]>([]);
+    const [selectedPrivileges, setSelectedPrivileges] = useState<React.Key[]>([]);
 
 
     const handleSubmit = (e: React.SyntheticEvent) => {
@@ -61,6 +63,10 @@ export const NewGroup: React.FC = () => {
         },
     ];
 
+    const onChange = (checkedValues: CheckboxValueType[]) => {
+        setPrivileges(checkedValues);
+    };
+
     return (
         <div>
             <div style={{ display: "flex", flexDirection: "row" }}>
@@ -80,13 +86,12 @@ export const NewGroup: React.FC = () => {
                             </Col>
                         </Row>
                     </Form>
-                    {/* <Divider /> */}
                     <Table rowSelection={{
                         type: selectionType,
                     }}
                         dataSource={CreateGroupDataSource} columns={columns} />
                     <Row style={{ float: "right" }}>
-                        <Button onClick={handleSubmit} >Save</Button>
+                        <Button onClick={handleSubmit}>Save</Button>
                     </Row>
 
                 </Card></div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Row } from 'antd';
+import { Button, Menu, Row } from 'antd';
 
 export const RepositoryPage: React.FC = () => {
     const location = useLocation();
@@ -13,7 +13,7 @@ export const RepositoryPage: React.FC = () => {
 
     return (
         <div>
-            <Row style={{ margin: 20 }} >
+            <Row style={{ margin: 20, width: 1200 }} >
                 <Menu
                     onClick={({ key }) => {
                         setSelectedKeys([key]);
@@ -31,6 +31,7 @@ export const RepositoryPage: React.FC = () => {
                     <Menu.Item key="/repository/deployment">
                         Deployment repositories
                     </Menu.Item>
+                    <Menu.Item><Button style={{color:"green", borderColor:"green"}}>Apply All and Restart</Button></Menu.Item>
                 </Menu>
             </Row>
         </div>

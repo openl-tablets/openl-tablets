@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Checkbox, Divider } from 'antd';
 import InfoFieldModal from 'components/modal/InfoFieldModal';
-import { Comments } from './Comments';
+import { Comments } from '../repoDesign/Comments';
 
 
 export const TypeGitDeployment = () => {

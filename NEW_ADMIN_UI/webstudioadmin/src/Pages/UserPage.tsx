@@ -1,22 +1,14 @@
 import React, { useState, useContext } from 'react';
 import { Button, Card, Table, Tag } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { NewUser } from '../views/users/NewUser';
 import { CloseOutlined } from '@ant-design/icons';
 import { DataContext } from '../components/DataContext';
 import DefaultLayout from '../components/DefaultLayout';
 import TableUserInfo from 'views/users/TableUserInfo';
+import { ModalNewUser } from 'views/users/NewUserModal';
 
 export const UserPage: React.FC = () => {
 
     const { users } = useContext(DataContext);
-
-
-    const navigate = useNavigate();
-    const navigateCreateuser = () => {
-        let path = `/users/create`;
-        navigate(path);
-    }
 
     const [userData, setUserData] = useState(TableUserInfo);
 
@@ -89,8 +81,7 @@ export const UserPage: React.FC = () => {
         <DefaultLayout>
             <Card style={{ margin: 20 }}>
                 <Table columns={columns} dataSource={userData} pagination={{ hideOnSinglePage: true }} />
-                <Button onClick={navigateCreateuser} style={{ marginTop: 10 }}>Add new user</Button>
-                <NewUser addNewUser={addNewUser} />
+                <ModalNewUser addNewUser={addNewUser} />
             </Card>
         </DefaultLayout>
     )

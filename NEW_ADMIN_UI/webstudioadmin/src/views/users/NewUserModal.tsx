@@ -1,0 +1,128 @@
+import React, { useState } from 'react';
+import { Button, Checkbox, Col, Form, Input, Modal, Row, Select } from 'antd';
+import type { CheckboxValueType } from 'antd/es/checkbox/Group';
+
+export const ModalNewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addNewUser }) => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [userName, setUserName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [displayName, setDisplayName] = useState("");
+    const [group, setGroup] = useState<CheckboxValueType[]>([]);
+    const [order, setOrder] = useState("");
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
+
+    const displayOrder = [
+        {
+            value: "First last",
+            label: "First last",
+        },
+        {
+            value: "Last first",
+            label: "Last first",
+        },
+        {
+            value: "Other",
+            label: "Other",
+        }
+    ]
+
+    const onChange = (checkedValues: CheckboxValueType[]) => {
+        setGroup(checkedValues);
+    };
+
+    const handleSubmit = (e: React.SyntheticEvent) => {
+        e.preventDefault();
+        const newUser = {
+            userName,
+            email,
+            password,
+            firstName,
+            lastName,
+            displayName,
+            groups: group,
+        };
+        addNewUser(newUser);
+        setUserName("");
+        setEmail("");
+        setPassword("");
+        setFirstName("");
+        setLastName("");
+        setDisplayName("");
+        setGroup([]);
+        setIsModalOpen(false);
+    };
+
+    return (
+        <>
+            <Button onClick={showModal} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
+                Add new user
+            </Button>
+            <Modal title="Create new user" open={isModalOpen} onOk={handleSubmit} onCancel={handleCancel}>
+                <Form layout="vertical">
+                    <Form.Item><b>Account</b></Form.Item>
+                    <Form.Item label="Username">
+                        <Input id="userName" value={userName} onChange={(e) => setUserName(e.target.value)} />
+                    </Form.Item>
+                    <Form.Item label="Email">
+                        <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </Form.Item>
+                    <Form.Item label="Password">
+                        <Input id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                    </Form.Item>
+                    <Form.Item><b>Name</b></Form.Item>
+                    <Form.Item label="First name (Given name):">
+                        <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                    </Form.Item>
+                    <Form.Item label="Last name (Family name):">
+                        <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                    </Form.Item>
+                    <Form.Item label="Display name:">
+                        <Select
+                            value={displayName}
+                            onChange={(order) => setDisplayName(order)}
+                            options={displayOrder}
+                            defaultActiveFirstOption={true}
+                        >
+                        </Select>
+                    </Form.Item>
+                    <Form.Item><b>Group</b></Form.Item>
+
+                    <Form.Item className="user-create-form_last-form-item">
+                        <Checkbox.Group onChange={onChange}>
+                            <Row>
+                                <Col span={8}>
+                                    <Checkbox value="Administrators">Administrators</Checkbox>
+                                </Col>
+                                <Col span={8}>
+                                    <Checkbox value="Analysts">Analysts</Checkbox>
+                                </Col>
+                                <Col span={8}>
+                                    <Checkbox value="Deployers">Deployers</Checkbox>
+                                </Col>
+                                <Col span={8}>
+                                    <Checkbox value="Developers">Developers</Checkbox>
+                                </Col>
+                                <Col span={8}>
+                                    <Checkbox value="Testers">Testers</Checkbox>
+                                </Col>
+                                <Col span={8}>
+                                    <Checkbox value="Viewers">Viewers</Checkbox>
+                                </Col>
+                            </Row>
+                        </Checkbox.Group>
+                    </Form.Item>
+                </Form>
+            </Modal>
+        </>
+    );
+};
