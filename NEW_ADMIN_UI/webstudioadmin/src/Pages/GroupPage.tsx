@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Button, Card, Table, Tag } from 'antd';
+import { Button, Card, Table, Tag, Form, Input, Divider, Row, Col } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { CloseOutlined } from '@ant-design/icons';
 import DefaultLayout from '../components/DefaultLayout';
 import TableGroupInfo from 'views/groups/TableGroupInfo';
+import { NewGroupModal } from 'views/groups/NewGroupModal';
 
 export const GroupPage: React.FC = () => {
 
@@ -66,12 +67,26 @@ export const GroupPage: React.FC = () => {
         setData((data) => [...data, newGroup]);
     }
 
-
     return (
         <DefaultLayout>
             <Card style={{ margin: 20 }}>
+                <Form>
+                    <Form.Item label={
+                        <span>
+                            Default group for all users * &nbsp;
+                        </span>
+                    }
+                    >
+                        <Row>
+                            <Col flex="auto"><Input /></Col>
+                            <Col offset={1}><Button style={{ color: "green", borderColor: "green" }}>Apply and Restart</Button></Col>
+                        </Row>
+                    </Form.Item>
+                </Form>
+                <Divider />
                 <Table columns={columns} dataSource={data} pagination={{ hideOnSinglePage: true }} />
-                <Button onClick={navigateCreateGroup} style={{ marginTop: 10 }}>Add new group</Button>
+                <NewGroupModal addNewGroup={addNewGroup} />
+                {/* <Button onClick={navigateCreateGroup} style={{ marginTop: 10 }}>Add new group</Button> */}
             </Card>
         </DefaultLayout>
     )

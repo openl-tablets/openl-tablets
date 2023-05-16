@@ -6,7 +6,6 @@ export const CommonPage: React.FC = () => {
 
     return (
         <DefaultLayout>
-
             <Card style={{ width: 450, margin: 20 }}>
                 <p><b>User Workspace</b></p>
                 <p>Workspace Directory:</p>
@@ -19,14 +18,13 @@ export const CommonPage: React.FC = () => {
                 <Divider />
                 <p><b>Other</b></p>
                 <p>Update table properties ('createdOn', 'modifiedBy' etc.) on editing:</p>
-                <Checkbox
-                />
+                <Checkbox/>
                 <p style={{ marginTop: 15 }}>Date Format:</p>
                 <Input defaultValue="MM/dd/yyyy" />
                 <p style={{ marginTop: 15 }}>Time Format:</p>
                 <Input defaultValue="hh:mm:ss a" />
                 <Divider />
-                <Button style={{ marginTop: 20 }}>Apply All and Restart</Button>
+                <Button style={{ marginTop: 5, color:"green", borderColor:"green" }}>Apply All and Restart</Button>
             </Card>
         </DefaultLayout>
     )

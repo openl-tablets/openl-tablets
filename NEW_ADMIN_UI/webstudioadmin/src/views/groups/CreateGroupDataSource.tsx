@@ -1,4 +1,3 @@
-
 interface DataType {
     key: React.Key;
     privilege: string;
@@ -13,7 +12,7 @@ interface DataType {
 
 const CreateGroupDataSource: DataType[] = [
     {
-        key: "1",
+        key: "View projects",
         privilege: "View projects",
         administrators: "",
         analysts: "✓",
@@ -21,9 +20,10 @@ const CreateGroupDataSource: DataType[] = [
         developers: "✓",
         testers: "✓",
         viewers: "✓",
+        
     },
     {
-        key: "2",
+        key: "Create projects",
         privilege: "Create projects",
         administrators: "",
         analysts: "✓",
@@ -33,7 +33,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "3",
+        key: "Edit projects",
         privilege: "Edit projects",
         administrators: "",
         analysts: "✓",
@@ -43,7 +43,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "4",
+        key: "Erase projects",
         privilege: "Erase projects",
         administrators: "",
         analysts: "✓",
@@ -53,7 +53,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "5",
+        key: "Delete projects",
         privilege: "Delete projects",
         administrators: "",
         analysts: "✓",
@@ -63,7 +63,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "6",
+        key: "Unlock projects",
         privilege: "Unlock projects",
         administrators: "",
         analysts: "",
@@ -73,7 +73,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "7",
+        key: "Deploy projects",
         privilege: "Deploy projects",
         administrators: "",
         analysts: "",
@@ -83,7 +83,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "8",
+        key: "Create deploy configuration",
         privilege: "Create deploy configuration",
         administrators: "",
         analysts: "",
@@ -93,7 +93,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "9",
+        key: "Edit deploy configuration",
         privilege: "Edit deploy configuration",
         administrators: "",
         analysts: "",
@@ -103,7 +103,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "10",
+        key: "Delete deploy configuration",
         privilege: "Delete deploy configuration",
         administrators: "",
         analysts: "",
@@ -113,7 +113,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "11",
+        key: "Erase deploy configuration",
         privilege: "Erase deploy configuration",
         administrators: "",
         analysts: "",
@@ -123,7 +123,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "12",
+        key: "Unlock deploy configuration",
         privilege: "Unlock deploy configuration",
         administrators: "",
         analysts: "",
@@ -132,7 +132,7 @@ const CreateGroupDataSource: DataType[] = [
         testers: "",
         viewers: "",
     }, {
-        key: "13",
+        key: "Create tables",
         privilege: "Create tables",
         administrators: "",
         analysts: "✓",
@@ -142,7 +142,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "14",
+        key: "Edit tables",
         privilege: "Edit tables",
         administrators: "",
         analysts: "✓",
@@ -152,7 +152,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "15",
+        key: "Remove tables",
         privilege: "Remove tables",
         administrators: "",
         analysts: "✓",
@@ -162,7 +162,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "16",
+        key: "Run tables",
         privilege: "Run tables",
         administrators: "",
         analysts: "✓",
@@ -172,7 +172,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "17",
+        key: "Trace tables",
         privilege: "Trace tables",
         administrators: "",
         analysts: "✓",
@@ -182,7 +182,7 @@ const CreateGroupDataSource: DataType[] = [
         viewers: "",
     },
     {
-        key: "18",
+        key: "Benchamark tables",
         privilege: "Benchamark tables",
         administrators: "",
         analysts: "✓",
@@ -191,7 +191,7 @@ const CreateGroupDataSource: DataType[] = [
         testers: "✓",
         viewers: "",
     }, {
-        key: "19",
+        key: "Administrate",
         privilege: "Administrate",
         administrators: "✓",
         analysts: "",

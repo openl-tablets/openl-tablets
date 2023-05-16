@@ -19,7 +19,8 @@ export const MailPage: React.FC = () => {
                     </Row>
                     {!active && (
                         <Form labelCol={{ span: 8 }}
-                            wrapperCol={{ span: 16 }}>
+                            wrapperCol={{ span: 16 }}
+                            labelAlign="left">
                             <Form.Item
                                 label={
                                     <span>
@@ -49,7 +50,7 @@ export const MailPage: React.FC = () => {
                             </Form.Item>
                         </Form>
                     )}
-                    <Button style={{ marginTop: 20, marginRight: 15 }}>Apply All and Restart</Button>
+                    <Button style={{ marginTop: 15, marginRight: 15, color:"green", borderColor:"green" }}>Apply All and Restart</Button>
                 </Card>
             </DefaultLayout>
     )

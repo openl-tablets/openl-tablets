@@ -1,11 +1,10 @@
-import { Card, Button, Checkbox, Row, Divider, Input } from 'antd';
+import { Card, Button, Checkbox, Row, Divider, Input, Form } from 'antd';
 import React from 'react';
 import DefaultLayout from '../components/DefaultLayout';
 
-export const SystemPage:React.FC = () => {
+export const SystemPage: React.FC = () => {
     return (
-   <DefaultLayout>
-
+        <DefaultLayout>
             <Card
                 bordered={true}
                 style={{
@@ -13,18 +12,21 @@ export const SystemPage:React.FC = () => {
                 }}
             >
                 <p><b>Core</b></p>
-                <Row>
-                    <p>Dispatching Validation: &nbsp;</p>
-                    <Checkbox
-                    // onChange={onChange}
-                    />
-                </Row>
-                <Row>
-                    <p>Verify on Edit: &nbsp;</p>
-                    <Checkbox
-                    // onChange={onChange}
-                    />
-                </Row>
+                <Form
+                    labelCol={{ span: 15 }}
+                    wrapperCol={{ span: 18 }}
+                    labelAlign="left"
+                >
+                    <Form.Item label="Dispatching Validation:">
+                        <Checkbox
+                        />
+                    </Form.Item>
+                    <Form.Item label="Verify on Edit:">
+                        <Checkbox
+                        />
+                    </Form.Item>
+
+                </Form>
                 <Divider />
                 <p><b>Testing</b></p>
                 <p>Thread number for tests:</p>
@@ -33,10 +35,11 @@ export const SystemPage:React.FC = () => {
                 <p><b>WebStudio Settings</b></p>
                 <p> <b>WARNING!</b> If you click this button, all settings will be restored to default values. All user defined values, such as repository settings, will be lost. Use this button only if you understand the consequences.
                 </p>
-                <Button danger style={{ marginTop: 20 }}>Restore Defaults and Restart</Button>
+                <Button danger style={{ marginTop: 15 }}>Restore Defaults and Restart</Button>
                 <Divider />
-                <Button style={{ marginTop: 20, marginRight: 15 }}>Apply All and Restart</Button>
+                <Button style={{ marginTop: 5, marginRight: 15, color: "green", borderColor: "green" }}>Apply All and Restart</Button>
             </Card>
         </DefaultLayout>
     )
 };
+

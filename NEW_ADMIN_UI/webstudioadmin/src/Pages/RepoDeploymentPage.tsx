@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { RepositoryPage } from './RepositoryPage';
 import { Form, Input, Card, Button, Col, List, Row, Select } from 'antd';
 import DefaultLayout from '../components/DefaultLayout';
-import typeOptions from 'views/repoDeployment/TypeOptions';
+import { deploymentTypeOptions } from 'views/repoDeployment/TypeOptions';
 import { TypeAWSS3 } from 'views/repoDesign/TypeAWSS3';
 import { TypeAzure } from 'views/repoDesign/TypeAzure';
 import { TypeDatabaseJDBC } from 'views/repoDesign/TypeDatabaseJDBC';
 import { TypeDatabaseJNDI } from 'views/repoDesign/TypeDatabaseJNDI';
-import { TypeGitDeployment } from 'views/repoDesign/TypeGitDeployment';
+import { TypeGitDeployment } from 'views/repoDeployment/TypeGitDeployment';
+import { TypeLocal } from 'views/repoDeployment/TypeLocal';
 
 
 export const RepoDeploymentPage: React.FC = () => {
@@ -31,12 +32,6 @@ export const RepoDeploymentPage: React.FC = () => {
                                     </List.Item>
                                 </List>
                                 <Button >Add repository</Button>
-                            </Row>
-                            <Row >
-                                <Button
-                                    style={{ color: "red", marginTop: 50 }}>
-                                    Apply all and restart
-                                </Button>
                             </Row>
                         </Col>
                     </Card>
@@ -68,7 +63,7 @@ export const RepoDeploymentPage: React.FC = () => {
                                     <Select
                                         value={type}
                                         onChange={(value) => setType(value)}
-                                        options={typeOptions}
+                                        options={deploymentTypeOptions}
                                         defaultActiveFirstOption={true}
                                     >
                                     </Select>
@@ -78,7 +73,8 @@ export const RepoDeploymentPage: React.FC = () => {
                                         type === "DatabaseJNDI" ? <TypeDatabaseJNDI /> :
                                             type === "AWSS3" ? <TypeAWSS3 /> :
                                                 type === "AzureBlobStorage" ? <TypeAzure /> :
-                                                    <TypeGitDeployment />}
+                                                    type === "Local" ? <TypeLocal /> :
+                                                        <TypeGitDeployment />}
                             </Form>
                         </Card>
                     )}
