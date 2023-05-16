@@ -12,19 +12,31 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
     const [privileges, setPrivileges] = useState<CheckboxValueType[]>([]);
     const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
 
-    const handleColumnSelect = (column: string) => {
-        if (selectedColumns.includes(column)) {
-            setSelectedColumns(selectedColumns.filter((c) => c !== column));
-        } else {
-            setSelectedColumns([...selectedColumns, column]);
-        }
+    // const handleColumnSelect = (column: string) => {
+    //     if (selectedColumns.includes(column)) {
+    //         setSelectedColumns(selectedColumns.filter((c) => c !== column));
+    //     } else {
+    //         setSelectedColumns([...selectedColumns, column]);
+    //     }
+    // };
+
+    interface DataType {
+        key: React.Key;
+        privilege: string;
+        administrators: string;
+        analysts: string;
+        deployers: string;
+        developers: string;
+        testers: string;
+        viewers: string;
+        [key: string]: string | React.Key;
     };
 
-    const rowSelection = {
-        onChange: (selectedRows: any) => {
-            setPrivileges(selectedRows);
-        }
-    }
+    // const rowSelection = {
+    //     onChange: (selectedRows: DataType[]) => {
+    //         setPrivileges(selectedRows);
+    //     }
+    // };
 
     const handleSubmit = (e: React.SyntheticEvent) => {
         e.preventDefault();
@@ -42,9 +54,22 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
         setIsModalOpen(false);
     };
 
-    const selectPrivileges = () => {
-        return (<div> a</div>)
+    const selectPrivileges = (privilege: string) => {
+        const selectedRows = CreateGroupDataSource.filter((row) => row[privilege] === "✓");
+        const privileges = selectedRows.map((row) => row.key) as CheckboxValueType[];
+        setPrivileges(privileges);
+        console.log(privileges);
     };
+
+    const rowSelection = {
+        onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
+            const privileges = selectedRows.map((row) => row.key) as CheckboxValueType[];
+            setPrivileges(privileges);
+            console.log(privileges);
+
+        }
+    };
+
 
     const columns = [
         {
@@ -55,74 +80,74 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
         {
             title: (
                 <div>
-                    <Button type="text" style={{ width: 95 }} onClick={selectPrivileges}>
+                    <Button type="text" style={{ width: 95 }} onClick={() => selectPrivileges("administrators")}>
                         Administrators
                     </Button>
                 </div>
             ),
             dataIndex: "administrators",
             key: "administrators",
-            align: 'center' as AlignType,
+            align: "center" as AlignType,
         },
         {
             title: (
                 <div>
-                    <Button type="text" style={{ width: 70 }}>
+                    <Button type="text" style={{ width: 70 }} onClick={() => selectPrivileges("analysts")}>
                         Analysts
                     </Button>
                 </div>
             ),
             dataIndex: "analysts",
             key: "analysts",
-            align: 'center' as AlignType,
+            align: "center" as AlignType,
         },
         {
             title: (
                 <div>
-                    <Button type="text" style={{ width: 70 }} >
+                    <Button type="text" style={{ width: 70 }} onClick={() => selectPrivileges("deployers")} >
                         Deployers
                     </Button>
                 </div>
             ),
             dataIndex: "deployers",
             key: "deployers",
-            align: 'center' as AlignType,
+            align: "center" as AlignType,
         },
         {
             title: (
                 <div>
-                    <Button type="text" style={{ width: 70 }}>
+                    <Button type="text" style={{ width: 70 }} onClick={() => selectPrivileges("developers")}>
                         Developers
                     </Button>
                 </div>
             ),
             dataIndex: "developers",
             key: "developers",
-            align: 'center' as AlignType,
+            align: "center" as AlignType,
         },
         {
             title: (
                 <div>
-                    <Button type="text" style={{ width: 70 }}>
+                    <Button type="text" style={{ width: 70 }} onClick={() => selectPrivileges("testers")}>
                         Testers
                     </Button>
                 </div>
             ),
             dataIndex: "testers",
             key: "testers",
-            align: 'center' as AlignType,
+            align: "center" as AlignType,
         },
         {
             title: (
                 <div>
-                    <Button type="text" style={{ width: 70 }} >
+                    <Button type="text" style={{ width: 70 }} onClick={() => selectPrivileges("viewers")}>
                         Viewers
                     </Button>
                 </div>
             ),
             dataIndex: "viewers",
             key: "viewers",
-            align: 'center' as AlignType,
+            align: "center" as AlignType,
         },
     ];
 
