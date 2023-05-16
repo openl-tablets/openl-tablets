@@ -7,6 +7,7 @@ interface DataType {
     developers: string;
     testers: string;
     viewers: string;
+    [key: string]: string | React.Key;
 }
 
 
@@ -20,7 +21,7 @@ const CreateGroupDataSource: DataType[] = [
         developers: "✓",
         testers: "✓",
         viewers: "✓",
-        
+
     },
     {
         key: "Create projects",
