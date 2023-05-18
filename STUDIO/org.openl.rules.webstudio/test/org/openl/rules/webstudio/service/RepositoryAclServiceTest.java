@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -33,7 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 @TestPropertySource(properties = { "db.url = jdbc:h2:mem:temp;MODE=LEGACY;DB_CLOSE_DELAY=-1",
         "db.user =",
         "db.password =" })
-@WithMockUser(value = "admin", authorities = "Administrators")
+@WithMockUser(value = "admin", authorities = "ADMIN")
 public class RepositoryAclServiceTest {
 
     private static final String DEVELOPERS_JUNIT = "DEVELOPERS_JUNIT";
@@ -104,7 +105,7 @@ public class RepositoryAclServiceTest {
     }
 
     @Test
-    @WithMockUser(value = "admin", authorities = "Administrators")
+    @WithMockUser(value = "admin", authorities = "ADMIN")
     @Transactional
     @Rollback
     public void permissionDuplicateChecking() {
@@ -361,9 +362,10 @@ public class RepositoryAclServiceTest {
 
     private Authentication setAdminAuthenticationToContext() {
         Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
-        SimpleGroup group = new SimpleGroup();
-        group.setName("Administrators");
-        SimpleUser principal = SimpleUser.builder().setUsername("admin").setPrivileges(List.of(group)).build();
+        SimpleUser principal = SimpleUser.builder()
+            .setUsername("admin")
+            .setPrivileges(List.of(Privileges.ADMIN))
+            .build();
         Authentication auth = new UsernamePasswordAuthenticationToken(principal,
             "password",
             principal.getAuthorities());

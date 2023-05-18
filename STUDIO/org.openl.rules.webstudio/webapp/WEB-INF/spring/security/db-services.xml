@@ -46,7 +46,7 @@
         <constructor-arg name="groupManagementService" ref="groupManagementService"/>
         <constructor-arg name="relevantSystemWideGrantedAuthority">
             <bean class="org.springframework.security.core.authority.SimpleGrantedAuthority">
-                <constructor-arg name="role" value="Administrators"/>
+                <constructor-arg name="role" value="ADMIN"/>
             </bean>
         </constructor-arg>
     </bean>
