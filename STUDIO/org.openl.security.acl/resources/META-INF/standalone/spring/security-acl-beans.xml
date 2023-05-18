@@ -6,7 +6,7 @@
     <import resource="classpath:META-INF/standalone/spring/security-hibernate-beans.xml"/>
 
     <bean name="relevantSystemWideSid" class="org.springframework.security.acls.domain.GrantedAuthoritySid">
-        <constructor-arg name="grantedAuthority" value="Administrators"/>
+        <constructor-arg name="grantedAuthority" value="ADMIN"/>
     </bean>
 
     <bean name="designRepositoryAclService" class="org.openl.security.acl.repository.RepositoryAclServiceImpl">
@@ -68,14 +68,14 @@
         </constructor-arg>
     </bean>
 
-    <bean id="aclAuthorizationStrategy" class="org.springframework.security.acls.domain.AclAuthorizationStrategyImpl">
+    <bean id="aclAuthorizationStrategy" class="org.openl.security.acl.AclAuthorizationStrategyImpl">
         <constructor-arg name="auths" ref="relevantSystemWideGrantedAuthority"/>
         <property name="sidRetrievalStrategy" ref="sidRetrievalStrategy"/>
     </bean>
 
     <bean id="relevantSystemWideGrantedAuthority"
           class="org.springframework.security.core.authority.SimpleGrantedAuthority">
-        <constructor-arg name="role" value="Administrators"/>
+        <constructor-arg name="role" value="ADMIN"/>
     </bean>
 
     <bean name="aclCache" class="org.springframework.security.acls.domain.SpringCacheBasedAclCache">
