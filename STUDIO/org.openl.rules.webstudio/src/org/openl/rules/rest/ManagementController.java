@@ -198,8 +198,11 @@ public class ManagementController {
                 .map(PRODUCTION_PRIVILEGES::getKey)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-            productionRepositoryAclService.addRootPermissions(productionPermissions,
-                Collections.singletonList(grantedAuthoritySid));
+            if (!productionPermissions.isEmpty()) {
+                productionRepositoryAclService.addRootPermissions(
+                    List.of(AclPermission.VIEW, AclPermission.EDIT, AclPermission.DELETE),
+                    Collections.singletonList(grantedAuthoritySid));
+            }
 
         }
     }
