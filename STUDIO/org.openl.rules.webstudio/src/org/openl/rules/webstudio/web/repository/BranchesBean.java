@@ -12,8 +12,8 @@ import org.openl.rules.lock.LockInfo;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
@@ -413,7 +413,6 @@ public class BranchesBean {
             UserWorkspace userWorkspace = getUserWorkspace();
             return userWorkspace.getProject(currentRepositoryId, projectName, false);
         } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
             return null;
         }
     }
