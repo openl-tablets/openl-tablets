@@ -549,7 +549,7 @@ public class SimpleRepositoryAclServiceImpl implements SimpleRepositoryAclServic
 
     protected Sid getOwner(ObjectIdentity oi) {
         try {
-            MutableAcl acl = (MutableAcl) aclService.readAclById(oi);
+            MutableAcl acl = getOrCreateAcl(oi);
             return acl.getOwner();
         } catch (NotFoundException e) {
             return null;
