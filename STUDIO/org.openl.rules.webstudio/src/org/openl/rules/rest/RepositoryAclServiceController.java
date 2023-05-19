@@ -174,7 +174,9 @@ public class RepositoryAclServiceController {
                 throw new NotFoundException("repository.permission.message", permission);
             }
             if (!supportedPermissions.contains(aclPermission)) {
-                throw new BadRequestException(String.format("Permission %s is not supported for repository type '%s'.", AclPermission.toString(aclPermission), repositoryType));
+                throw new BadRequestException(String.format("Permission %s is not supported for repository type '%s'.",
+                    AclPermission.toString(aclPermission),
+                    repositoryType));
             }
             permissionsList.add(aclPermission);
         }
@@ -658,8 +660,8 @@ public class RepositoryAclServiceController {
             sidDto = new SidDto(principalSid.getPrincipal());
         } else if (sid instanceof GrantedAuthoritySid) {
             GrantedAuthoritySid grantedAuthoritySid = (GrantedAuthoritySid) sid;
-            sidDto = new SidDto(groupDao.getGroupByName(grantedAuthoritySid.getGrantedAuthority()).getId(),
-                grantedAuthoritySid.getGrantedAuthority());
+            Group group = groupDao.getGroupByName(grantedAuthoritySid.getGrantedAuthority());
+            sidDto = new SidDto(group == null ? null : group.getId(), grantedAuthoritySid.getGrantedAuthority());
         } else {
             throw new IllegalStateException("Unsupported sid type.");
         }
