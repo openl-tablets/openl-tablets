@@ -1101,7 +1101,7 @@ public class RepositoryTreeController {
                     return null;
                 }
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
-                projectArtefact = closeProjectForAllUsers(workspacesRoot, (RulesProject) projectArtefact);
+                closeProjectForAllUsers(workspacesRoot, (RulesProject) projectArtefact);
             }
             if (projectArtefact instanceof UserWorkspaceProject) {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
@@ -1238,7 +1238,7 @@ public class RepositoryTreeController {
     /**
      * Closes unlocked project for all users. All unsaved changes will be lost.
      */
-    private RulesProject closeProjectForAllUsers(File workspacesRoot, RulesProject project) throws ProjectException {
+    private void closeProjectForAllUsers(File workspacesRoot, RulesProject project) throws ProjectException {
         String projectName = project.getName();
         String businessName = project.getBusinessName();
         String branch = project.getBranch();
@@ -1292,9 +1292,6 @@ public class RepositoryTreeController {
                 }
             }
         }
-        return project.isLocalOnly() ? project
-                                     : userWorkspace
-                                         .getProject(repoId, project.getArtefactPath().getStringValue(), true);
     }
 
     public String unlockDeploymentConfiguration() {
