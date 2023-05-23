@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:c="http://java.sun.com/jsp/jstl/core">
 
     <style>
         #notificationPanel {
@@ -42,12 +43,21 @@
             float: right;
         }
 
+        #footerX .ask_help {
+            float: left;
+        }
     </style>
     <div id="notificationPanel" style="display: none;"/>
     <div id="footerX" class="invisible">
+        <c:if test="#{not request.requestURI.endsWith('login.xhtml')}">
+            <span class="ask_help">
+                <ui:include src="/pages/modules/smartAssistant.xhtml"/>
+            </span>
+        </c:if>
         <span class="copyright">© {year}</span>
         <a class="site" href="{url}" target="_blank">OpenL Tablets</a>
-        <a class="email" href="https://github.com/openl-tablets/openl-tablets/issues/" target="_blank">Report a problem</a>
+        <a class="email" href="https://github.com/openl-tablets/openl-tablets/issues/" target="_blank">Report a
+            problem</a>
         <span class="version" title="Built on {buildDate}">v{version}</span>
     </div>
     <script>

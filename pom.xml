@@ -122,6 +122,9 @@
         <cxf.version>3.6.2</cxf.version>
         <stax-ex.version>1.8.3</stax-ex.version>
 
+        <!-- GRPC -->
+        <grpc.version>1.55.1</grpc.version>
+
         <!-- OpenAPI -->
         <swagger.core.version>2.2.20</swagger.core.version>
         <swagger.parser.version>2.1.20</swagger.parser.version>
@@ -661,6 +664,22 @@
     </profiles>
     <dependencyManagement>
         <dependencies>
+            <!-- GRPC -->
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-netty-shaded</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-protobuf</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.grpc</groupId>
+                <artifactId>grpc-stub</artifactId>
+                <version>${grpc.version}</version>
+            </dependency>
             <!-- Testing -->
             <dependency>
                 <groupId>junit</groupId>
@@ -1956,6 +1975,11 @@
                 <artifactId>org.openl.rules.webstudio</artifactId>
                 <type>war</type>
                 <scope>runtime</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.webstudio.ai</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

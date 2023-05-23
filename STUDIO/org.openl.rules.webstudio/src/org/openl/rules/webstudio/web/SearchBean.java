@@ -6,17 +6,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 import javax.faces.model.SelectItem;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.def.DefaultPropertyDefinitions;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.WebStudioFormats;
+import org.openl.rules.webstudio.web.search.AISearch;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -60,7 +65,10 @@ public class SearchBean {
 
     private List<IOpenLTable> searchResults;
 
-    public SearchBean() {
+    private final AISearch aiSearch;
+
+    public SearchBean(AISearch aiSearch) {
+        this.aiSearch = aiSearch;
         initProperties();
         initSearchQuery();
         search();
@@ -116,7 +124,7 @@ public class SearchBean {
             String spaceToRemove = Character.toString((char) 160);
             query = query.replaceAll(spaceToRemove, " ");
 
-            this.query = UriEncoder.encode(query);
+            this.query = query;
         }
 
         if (StringUtils.isNotBlank(tableTypes)) {
@@ -154,7 +162,7 @@ public class SearchBean {
     private void search() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
 
-        Predicate<TableSyntaxNode> selectors = new CellValueSelector(query != null? UriEncoder.decode(query): null);
+        Predicate<TableSyntaxNode> selectors = (e) -> true;
 
         if (CollectionUtils.isNotEmpty(tableTypes)) {
             selectors = selectors.and(new TableTypeSelector(tableTypes));
@@ -169,7 +177,24 @@ public class SearchBean {
             selectors = selectors.and(new TablePropertiesSelector(properties));
         }
 
-        searchResults = projectModel.search(selectors, searchScope);
+        List<TableSyntaxNode> tnses = projectModel.getSearchScopeData(searchScope)
+                .stream()
+                .filter(tableSyntaxNode -> !XlsNodeTypes.XLS_TABLEPART.toString().equals(tableSyntaxNode.getType()))
+                .filter(tsn -> !projectModel.isGapOverlap(tsn))
+                .filter(selectors)
+                .collect(Collectors.toList());
+        String q = query != null ? UriEncoder.decode(query) : null;
+        Predicate<TableSyntaxNode> cellValueSelector = new CellValueSelector(q);
+        List<TableSyntaxNode> filteredByCellValueTableSyntaxNodes = tnses.stream()
+                .filter(cellValueSelector)
+                .collect(Collectors.toList());
+
+        if (filteredByCellValueTableSyntaxNodes.isEmpty() && StringUtils.isNotBlank(q)) {
+            tnses = aiSearch.filter(q, tnses);
+        } else {
+            tnses = filteredByCellValueTableSyntaxNodes;
+        }
+        searchResults = tnses.stream().map(TableSyntaxNodeAdapter::new).collect(Collectors.toList());
     }
 
 }
