@@ -265,24 +265,6 @@ public class CopyBean {
                 FileMappingData mappingData = new FileMappingData(designPath, projectFolder + newProjectName);
                 WorkspaceUser user = userWorkspace.getUser();
 
-                if (copyOldRevisions && repositoryId.equals(toRepositoryId)) {
-                    List<ProjectVersion> versions = project.getVersions();
-                    int start = versions.size() - revisionsCount;
-                    for (int i = start; i < versions.size(); i++) {
-                        ProjectVersion version = versions.get(i);
-                        String createdBy = version.getVersionInfo().getCreatedBy();
-                        FileData fileData = new FileData();
-                        fileData.setName(designPath);
-                        fileData.setAuthor(
-                            new UserInfo(createdBy, version.getVersionInfo().getEmailCreatedBy(), createdBy));
-                        fileData.setComment(version.getVersionComment());
-                        if (designRepository.supports().mappedFolders()) {
-                            fileData.addAdditionalData(mappingData);
-                        }
-                        designRepository.copyHistory(project.getDesignFolderName(), fileData, version.getRevision());
-                    }
-                }
-
                 AProject designProject = new AProject(designRepository, designData);
                 AProject localProject = new AProject(project.getRepository(), project.getFolderPath());
                 if (designRepository.supports().mappedFolders()) {
@@ -305,6 +287,25 @@ public class CopyBean {
                         ProjectArtifactUtils.extractResourceName(copiedProject));
                     WebStudioUtils.addErrorMessage(message);
                 }
+
+                if (copyOldRevisions && repositoryId.equals(toRepositoryId)) {
+                    List<ProjectVersion> versions = project.getVersions();
+                    int start = versions.size() - revisionsCount;
+                    for (int i = start; i < versions.size(); i++) {
+                        ProjectVersion version = versions.get(i);
+                        String createdBy = version.getVersionInfo().getCreatedBy();
+                        FileData fileData = new FileData();
+                        fileData.setName(designPath);
+                        fileData.setAuthor(
+                            new UserInfo(createdBy, version.getVersionInfo().getEmailCreatedBy(), createdBy));
+                        fileData.setComment(version.getVersionComment());
+                        if (designRepository.supports().mappedFolders()) {
+                            fileData.addAdditionalData(mappingData);
+                        }
+                        designRepository.copyHistory(project.getDesignFolderName(), fileData, version.getRevision());
+                    }
+                }
+
                 if (!userWorkspace.isOpenedOtherProject(copiedProject)) {
                     copiedProject.open();
                 }
@@ -318,6 +319,7 @@ public class CopyBean {
 
             switchToNewBranch();
             currentProjectName = null;
+            WebStudioUtils.addInfoMessage("Project copied successfully.");
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             errorMessage = "Cannot copy the project: " + e.getMessage();
