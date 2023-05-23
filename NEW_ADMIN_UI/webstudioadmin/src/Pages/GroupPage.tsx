@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Card, Table, Tag, Form, Input, Divider, Row, Col } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { CloseOutlined } from '@ant-design/icons';
+import { CloseCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import DefaultLayout from '../components/DefaultLayout';
 import TableGroupInfo from 'views/groups/TableGroupInfo';
 import { NewGroupModal } from 'views/groups/NewGroupModal';
@@ -52,7 +52,7 @@ export const GroupPage: React.FC = () => {
             render: (key: string) => (
                 <Button
                     type="text"
-                    icon={<CloseOutlined />}
+                    icon={<CloseCircleOutlined />}
                     onClick={() => setData(data.filter(item => item.key !== key))}
                 >
                 </Button>
@@ -69,7 +69,7 @@ export const GroupPage: React.FC = () => {
 
     return (
         <DefaultLayout>
-            <Card style={{ margin: 20 }}>
+            <Card style={{ margin: 20, width: 900 }}>
                 <Form>
                     <Form.Item label={
                         <span>

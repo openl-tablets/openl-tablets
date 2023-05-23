@@ -34,8 +34,8 @@ export const GitNewBranch = () => {
     return (<div>
 
         <Form
-            labelCol={{ span: 10 }}
-            wrapperCol={{ span: 18 }}
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 20 }}
             labelAlign="left">
             <p><b>New branch:</b></p>
             <Form.Item tooltip={{ title: 'Details', icon: DefaultBranchModal }}

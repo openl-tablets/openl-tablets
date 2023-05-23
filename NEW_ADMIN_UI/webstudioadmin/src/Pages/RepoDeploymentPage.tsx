@@ -9,6 +9,7 @@ import { TypeDatabaseJDBC } from 'views/repoDesign/TypeDatabaseJDBC';
 import { TypeDatabaseJNDI } from 'views/repoDesign/TypeDatabaseJNDI';
 import { TypeGitDeployment } from 'views/repoDeployment/TypeGitDeployment';
 import { TypeLocal } from 'views/repoDeployment/TypeLocal';
+import { CloseCircleOutlined, CloseCircleTwoTone, CloseOutlined } from '@ant-design/icons';
 
 
 export const RepoDeploymentPage: React.FC = () => {
@@ -23,12 +24,22 @@ export const RepoDeploymentPage: React.FC = () => {
                     <Card style={{ width: 205, marginLeft: 20 }}>
                         <Col>
                             <Row>
-                                <List>
+                                <List style={{ justifyContent: "left", alignContent: "middle" }}>
                                     <List.Item>
-                                        <p>List item</p>
+                                        <div>Deployment repository 1</div>
+                                        <Button
+                                            type="text"
+                                            icon={<CloseCircleOutlined/>}
+                                        >
+                                        </Button>
                                     </List.Item>
                                     <List.Item>
-                                        <p>Another list item</p>
+                                        <div>Deployment repository 2</div>
+                                        <Button
+                                            type="text"
+                                            icon={<CloseCircleOutlined />}
+                                        >
+                                        </Button>
                                     </List.Item>
                                 </List>
                                 <Button >Add repository</Button>
@@ -38,10 +49,10 @@ export const RepoDeploymentPage: React.FC = () => {
                     {active && (
                         <Card bordered={true}
                             style={{
-                                width: 550, marginLeft: 20
+                                width: 675, marginLeft: 20
                             }}>
-                            <Form labelCol={{ span: 10 }}
-                                wrapperCol={{ span: 18 }}
+                            <Form labelCol={{ span: 8 }}
+                                wrapperCol={{ span: 20 }}
                                 labelAlign="left">
                                 <Form.Item
                                     label={

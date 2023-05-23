@@ -1,14 +1,27 @@
 import React, { useState, useContext } from 'react';
-import { Button, Card, Table, Tag } from 'antd';
-import { CloseOutlined } from '@ant-design/icons';
-import { DataContext } from '../components/DataContext';
+import { Button, Card, Modal, Table, Tag } from 'antd';
+import { CloseCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import DefaultLayout from '../components/DefaultLayout';
 import TableUserInfo from 'views/users/TableUserInfo';
 import { ModalNewUser } from 'views/users/NewUserModal';
+import { ModalEditUser } from 'views/users/EditUserModal';
 
 export const UserPage: React.FC = () => {
 
-    const { users } = useContext(DataContext);
+    const [editModalVisible, setEditModalVisible] = useState(false);
+    const showModal = () => {
+        setEditModalVisible(true);
+    };
+
+    const handleOk = () => {
+        setEditModalVisible(false);
+    };
+
+    const handleCancel = () => {
+        setEditModalVisible(false);
+    };
+   
+    const [selectedUser, setSelectedUser] = useState<any>({});
 
     const [userData, setUserData] = useState(TableUserInfo);
 
@@ -64,24 +77,64 @@ export const UserPage: React.FC = () => {
             render: (key: string) => (
                 <Button
                     type="text"
-                    icon={<CloseOutlined />}
+                    icon={<CloseCircleOutlined />}
                     onClick={() => setUserData(userData.filter(item => item.key !== key))}
                 >
                 </Button>
             ),
         },
-    ]
-    // const [data, setData] = useState(userInfo);
+    ];
 
     const addNewUser = (newUser: { key: string; userName: string; firstName: string; lastName: string; email: string; displayName: string; groups: string[]; action: "" }) => {
         setUserData((data) => [...data, newUser]);
-    }
+    };
+
+    const updateUser = (updatedUser: any) => {
+        setUserData((userData) =>
+            userData.map((user) => (user.key === updatedUser.key ? updatedUser : user)
+            ));
+    };
+
+
+    const handleDoubleRowClick = (record: any) => {
+        setSelectedUser(record);
+        setEditModalVisible(true);
+        console.log('Clicked row:', record);
+    };
 
     return (
         <DefaultLayout>
-            <Card style={{ margin: 20 }}>
-                <Table columns={columns} dataSource={userData} pagination={{ hideOnSinglePage: true }} />
+            <Card style={{ margin: 20, width: 900 }}>
+                <Table
+                    columns={columns}
+                    dataSource={userData}
+                    pagination={{ hideOnSinglePage: true }}
+                    onRow={(record) => ({
+                        onDoubleClick: () => handleDoubleRowClick(record),
+                    })} />
                 <ModalNewUser addNewUser={addNewUser} />
+                <Modal
+                    open={editModalVisible}
+                    onCancel={handleCancel}
+                    footer={[
+                        <Button key="back" onClick={handleCancel}>
+                            Back
+                        </Button>,
+                        <Button key="submit" onClick={handleOk} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
+                            Save
+                        </Button>
+                        ]}
+                >
+                    {editModalVisible && (
+                        <ModalEditUser
+                            user={selectedUser}
+                            updateUser={updateUser}
+                            // onClick={() => setEditModalVisible(false)}
+                            onUpdateUserData={setUserData}
+                        />
+                    )}
+                </Modal>
+
             </Card>
         </DefaultLayout>
     )

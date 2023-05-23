@@ -54,8 +54,8 @@ export const TypeGitDeployment = () => {
             {active && (
 
                 <Form
-                    labelCol={{ span: 10 }}
-                    wrapperCol={{ span: 18 }}
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 20 }}
                     labelAlign="left">
 
                     <Form.Item tooltip={{ title: 'Details', icon: RemoteRepoModal }}
@@ -68,8 +68,8 @@ export const TypeGitDeployment = () => {
                         <Checkbox onChange={() => setOpen(!open)} />
                     </Form.Item>
                     {open && (
-                        <Form labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 18 }}
+                        <Form labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 20 }}
                             labelAlign="left">
                             <Form.Item tooltip={{ title: 'Details', icon: LocalPathModal }}
                                 label={
@@ -94,8 +94,8 @@ export const TypeGitDeployment = () => {
 
                     {!open && (
                         <Form
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 18 }}
+                            labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 20 }}
                             labelAlign="left">
                             <Form.Item tooltip={{ title: 'Details', icon: URLModal }}
                                 label={

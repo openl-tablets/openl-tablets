@@ -54,8 +54,8 @@ export const TypeGitDesign = () => {
             {active && (
 
                 <Form
-                    labelCol={{ span: 10 }}
-                    wrapperCol={{ span: 18 }}
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 20 }}
                     labelAlign="left">
 
                     <Form.Item tooltip={{ title: 'Details', icon: RemoteRepoModal }}
@@ -71,8 +71,8 @@ export const TypeGitDesign = () => {
 
                     {!open && (
                         <Form
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 18 }}
+                            labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 20 }}
                             labelAlign="left">
                             <Form.Item tooltip={{ title: 'Details', icon: URLModal }}
                                 label={

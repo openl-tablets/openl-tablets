@@ -11,8 +11,8 @@ export const TypeDatabaseJDBC = () => {
             {active && (
 
                 <Form
-                    labelCol={{ span: 10 }}
-                    wrapperCol={{ span: 18 }}
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 20 }}
                     labelAlign="left">
 
                     <Form.Item label={
@@ -37,8 +37,8 @@ export const TypeDatabaseJDBC = () => {
 
                     {!open && (
                         <Form
-                            labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 18 }}
+                            labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 20 }}
                             labelAlign="left">
                             <Form.Item label={
                                 <span>

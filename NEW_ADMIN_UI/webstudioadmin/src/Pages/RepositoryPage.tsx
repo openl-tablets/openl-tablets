@@ -13,7 +13,7 @@ export const RepositoryPage: React.FC = () => {
 
     return (
         <div>
-            <Row style={{ margin: 20, width: 1200 }} >
+            <Row style={{ margin: 20, width: 900 }} >
                 <Menu
                     onClick={({ key }) => {
                         setSelectedKeys([key]);

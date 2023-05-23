@@ -12,14 +12,6 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
     const [privileges, setPrivileges] = useState<CheckboxValueType[]>([]);
     const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
 
-    // const handleColumnSelect = (column: string) => {
-    //     if (selectedColumns.includes(column)) {
-    //         setSelectedColumns(selectedColumns.filter((c) => c !== column));
-    //     } else {
-    //         setSelectedColumns([...selectedColumns, column]);
-    //     }
-    // };
-
     interface DataType {
         key: React.Key;
         privilege: string;
@@ -32,11 +24,6 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
         [key: string]: string | React.Key;
     };
 
-    // const rowSelection = {
-    //     onChange: (selectedRows: DataType[]) => {
-    //         setPrivileges(selectedRows);
-    //     }
-    // };
 
     const handleSubmit = (e: React.SyntheticEvent) => {
         e.preventDefault();
@@ -69,7 +56,6 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
 
         }
     };
-
 
     const columns = [
         {
@@ -164,7 +150,14 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
             <Button onClick={showModal} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
                 Add new group
             </Button>
-            <Modal title="Create new group" open={isModalOpen} onOk={handleSubmit} onCancel={handleCancel} width={850}>
+            <Modal title="Create new group" open={isModalOpen} onCancel={handleCancel} width={850}
+                footer={[
+                    <Button key="back" onClick={handleCancel}>
+                        Cancel
+                    </Button>,
+                    <Button key="submit" onClick={handleSubmit} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
+                        Create
+                    </Button>]}>
                 <div >
                     <Form layout="vertical" style={{ width: 800 }}>
                         <Form.Item><b>Account</b></Form.Item>
@@ -181,9 +174,7 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
                                     rowSelection={rowSelection}
                                     dataSource={CreateGroupDataSource} columns={columns} />
                             </Form.Item>
-                            <Row style={{ float: "right" }}>
-                                <Button onClick={handleSubmit}>Save</Button>
-                            </Row>
+
                         </Form.Item>
                     </Form>
                 </div>

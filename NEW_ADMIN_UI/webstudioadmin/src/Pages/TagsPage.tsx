@@ -6,7 +6,7 @@ import DefaultLayout from '../components/DefaultLayout';
 export const TagsPage: React.FC = () => {
     return (
         <DefaultLayout>
-            <Card style={{ margin: 20 }}>
+            <Card style={{ margin: 20, width: 900 }}>
                 <h2>Tag Types and Values</h2>
                 <p><b>Tag type</b> is a category that includes tag values of the same group. For example, the Product tag type can include tags Auto, Life, and Home.
 

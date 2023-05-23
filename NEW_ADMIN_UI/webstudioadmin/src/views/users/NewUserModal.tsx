@@ -67,7 +67,15 @@ export const ModalNewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({
             <Button onClick={showModal} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
                 Add new user
             </Button>
-            <Modal title="Create new user" open={isModalOpen} onOk={handleSubmit} onCancel={handleCancel}>
+            <Modal title="Create new user" open={isModalOpen}
+            footer={[
+                <Button key="back" onClick={handleCancel}>
+                  Cancel
+                </Button>,
+                <Button key="submit"  onClick={handleSubmit} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
+                  Create
+                </Button>]}
+                >
                 <Form layout="vertical">
                     <Form.Item><b>Account</b></Form.Item>
                     <Form.Item label="Username">
