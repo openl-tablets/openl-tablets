@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package org.openl.rules.webstudio.ai;
+
+service WebstudioAIService {
+  rpc editCell (EditCellRequest) returns (EditCellReply) {}
+  rpc search (SearchRequest) returns (SearchReply) {}
+  rpc chat (ChatRequest) returns (ChatReply) {}
+  rpc recreateKnowledgeBase (Empty) returns (Empty) {}
+}
+
+message Empty {}
+
+message EditCellRequest {
+  string table = 1;
+  string refTypes = 2;
+  string refMethods = 3;
+  string inputText = 4;
+  TableSyntaxNode tableSyntaxNode = 5;
+}
+
+message EditCellReply {
+  repeated string options = 1;
+}
+
+message SearchRequest {
+  string query = 1;
+  int32 limit = 2;
+  bool llmFiltering = 3;
+  repeated TableSyntaxNode tableSyntaxNodes = 4;
+}
+
+message TableSyntaxNode {
+  string table = 1;
+  string type = 2;
+  string uri = 3;
+}
+
+message SearchReply {
+  repeated string uris = 1;
+}
+
+message ChatRequest {
+  string message = 1;
+  repeated TableSyntaxNode tableSyntaxNodes = 2;
+  ChatType chatType = 3;
+  repeated ChatMessage history = 4;
+  repeated string refTypes = 5;
+  repeated string refMethods = 6;
+}
+
+enum MessageType {
+  USER = 0;
+  ASSISTANT = 1;
+}
+
+enum ChatType {
+  KNOWLEDGE = 0;
+}
+
+message ChatMessage {
+  MessageType type = 1;
+  string text = 2;
+  repeated Ref refs = 3;
+}
+
+message ChatReply {
+  repeated ChatMessage messages = 1;
+}
+
+message Ref {
+  string title = 1;
+  string url = 2;
+}

@@ -63,6 +63,9 @@ public class WebResourceFilter implements Filter {
                 case "css":
                     response.setContentType("text/css");
                     break;
+                case "svg":
+                    response.setContentType("image/svg+xml");
+                    break;
                 case "js":
                     response.setContentType("text/javascript");
                     break;
@@ -71,9 +74,6 @@ public class WebResourceFilter implements Filter {
                     break;
                 case "png":
                     response.setContentType("image/png");
-                    break;
-                case "svg":
-                    response.setContentType("image/svg+xml");
                     break;
                 default:
                     // Do not process other resources, such as .class or .properties
