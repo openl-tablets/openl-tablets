@@ -39,7 +39,7 @@ public class DefaultPropertyLoader implements ApplicationContextInitializer<Conf
             ConfigLog.LOG.info("Loading OpenL System Info properties...");
             propertySources.addFirst(new SysInfoPropertySource());
             ConfigLog.LOG.info("Register reference property processor...");
-            propertySources.addLast(new RefPropertySource(propertySources));
+            propertySources.addLast(new RefPropertySource(environment, propertySources));
         }
     }
 

@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.openl.util.StringUtils;
+
+import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.env.PropertySources;
 
@@ -13,10 +15,12 @@ public class RefPropertySource extends PropertySource<Object> {
     static final String REF = ".$ref";
     private static final int MAX_REF_DEPTH = 2;
 
+    private final PropertyResolver resolver;
     private final PropertySources propertySources;
 
-    public RefPropertySource(PropertySources propertySources) {
+    public RefPropertySource(PropertyResolver resolver, PropertySources propertySources) {
         super(PROPS_NAME);
+        this.resolver = resolver;
         this.propertySources = propertySources;
     }
 
@@ -59,7 +63,7 @@ public class RefPropertySource extends PropertySource<Object> {
                 value = propertySource.getProperty(ref);
             }
             if (value != null) {
-                return value.toString();
+                return resolver.resolveRequiredPlaceholders(value.toString());
             }
         }
         return null;
