@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Form, Checkbox, Input, Col, List, Row, Select } from 'antd';
+import { Card, Form, Checkbox, Input, Col, Select } from 'antd';
 import { RepositoryPage } from './RepositoryPage';
 import DefaultLayout from '../components/DefaultLayout';
 import {typeOptions} from 'views/repoDeployment/TypeOptions';
@@ -32,10 +32,10 @@ export const RepoDeployConfPage: React.FC = () => {
                 {active && (
                     <Card bordered={true}
                         style={{
-                            width: 550, marginLeft: 20
+                            width: 900, marginLeft: 20
                         }}>
-                        <Form labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 18 }}
+                        <Form labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 20 }}
                             labelAlign="left">
                             <Form.Item
                                 label={
@@ -63,10 +63,10 @@ export const RepoDeployConfPage: React.FC = () => {
                 {!active && hide && (
                     <Card bordered={true}
                         style={{
-                            width: 550, marginLeft: 20
+                            width: 900, marginLeft: 20
                         }}>
-                        <Form labelCol={{ span: 10 }}
-                            wrapperCol={{ span: 18 }}
+                        <Form labelCol={{ span: 8 }}
+                            wrapperCol={{ span: 20 }}
                             labelAlign="left">
                             <Form.Item
                                 label={
@@ -120,7 +120,6 @@ export const RepoDeployConfPage: React.FC = () => {
                         </Form>
                     </Card>
                 )}
-
             </Col>
         </DefaultLayout>
     )

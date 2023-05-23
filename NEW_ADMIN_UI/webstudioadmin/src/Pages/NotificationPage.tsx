@@ -21,7 +21,7 @@ export const NotificationPage: React.FC = () => {
                 <Card
                     bordered={true}
                     style={{
-                        width: 300, margin: 20
+                        width: 900, margin: 20
                     }}
                 >
                     <p><b>Notify all active users</b></p>

@@ -1,30 +1,50 @@
 import React from 'react';
-import { Button, Card, Checkbox, Divider, Input } from 'antd';
-import  DefaultLayout from '../components/DefaultLayout';
+import { Button, Card, Checkbox, Divider, Input, Form } from 'antd';
+import DefaultLayout from '../components/DefaultLayout';
 
 export const CommonPage: React.FC = () => {
 
     return (
         <DefaultLayout>
-            <Card style={{ width: 450, margin: 20 }}>
+            <Card style={{ width: 900, margin: 20 }}>
                 <p><b>User Workspace</b></p>
-                <p>Workspace Directory:</p>
-                <Input defaultValue="./openl-demo/user-workspace" />
+                <Form labelCol={{ span: 7 }}
+                    wrapperCol={{ span: 18 }}
+                    labelAlign="left">
+                    <Form.Item label="Workspace Directory:">
+                        <Input defaultValue="./openl-demo/user-workspace" />
+                    </Form.Item>
+                </Form>
                 <Divider />
                 <p><b>History</b></p>
-                <p>The maximum count of saved changes for each project per user:</p>
-                <Input defaultValue="100" />
-                <Button style={{ marginTop: 20 }}>Clear all history</Button>
+                <Form labelCol={{ span: 7 }}
+                    wrapperCol={{ span: 18 }}
+                    labelAlign="left"
+                    labelWrap
+                >
+                    <Form.Item label="The maximum count of saved changes for each project per user:">
+                        <Input defaultValue="100" />
+                    </Form.Item>
+                </Form>
+                <Button>Clear all history</Button>
                 <Divider />
                 <p><b>Other</b></p>
-                <p>Update table properties ('createdOn', 'modifiedBy' etc.) on editing:</p>
-                <Checkbox/>
-                <p style={{ marginTop: 15 }}>Date Format:</p>
-                <Input defaultValue="MM/dd/yyyy" />
-                <p style={{ marginTop: 15 }}>Time Format:</p>
-                <Input defaultValue="hh:mm:ss a" />
+                <Form labelCol={{ span: 7 }}
+                    wrapperCol={{ span: 18 }}
+                    labelAlign="left"
+                    labelWrap>
+                    <Form.Item label="Update table properties ('createdOn', 'modifiedBy' etc.) on editing:">
+                        <Checkbox />
+                    </Form.Item>
+                    <Form.Item label="Date Format:">
+                        <Input defaultValue="MM/dd/yyyy" />
+                    </Form.Item>
+                    <Form.Item label="Time Format:">
+                        <Input defaultValue="hh:mm:ss a" />
+                    </Form.Item>
+                </Form>
                 <Divider />
-                <Button style={{ marginTop: 5, color:"green", borderColor:"green" }}>Apply All and Restart</Button>
+                <Button style={{ marginTop: 5, color: "green", borderColor: "green" }}>Apply All and Restart</Button>
             </Card>
         </DefaultLayout>
     )

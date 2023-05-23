@@ -5,30 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { DataContext } from "../../components/DataContext";
 
 
-const userInfo =
-    [
-        {
-            key: "1",
-            userName: "a1",
-            firstName: "",
-            lastName: "",
-            email: "a1@example.com",
-            displayName: "A1",
-            groups: ["Administrators"],
-            action: "",
-        },
-        {
-            key: "2",
-            userName: "admin",
-            firstName: "",
-            lastName: "",
-            email: "admin@example.com",
-            displayName: "Admin",
-            groups: ["Administrators"],
-            action: "",
-        },
-    ];
-
 export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addNewUser }) => {
 
     const [userName, setUserName] = useState("");
@@ -39,7 +15,6 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
     const [displayName, setDisplayName] = useState("");
     const [group, setGroup] = useState<CheckboxValueType[]>([]);
     const [checkedValues, setCheckedValues] = useState<CheckboxValueType[]>([]);
-    // const {setUsers} = useContext(DataContext);
 
     const navigate = useNavigate();
     const navigateUserList = () => {
@@ -68,7 +43,6 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
         setGroup([]);
         setCheckedValues([]);
         navigateUserList();
-        // setUsers((userInfo: User[]) => [...userInfo,newUser]);
     };
 
 
@@ -96,7 +70,6 @@ export const NewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addN
         <div>
 
             <div style={{ display: "flex", flexDirection: "row" }}>
-                {/* <AdminMenu /> */}
                 <Card style={{ margin: 20, width: 1200 }} title="Create new user">
                     <Form layout="vertical" >
                         <Row>

@@ -8,12 +8,12 @@ export const SystemPage: React.FC = () => {
             <Card
                 bordered={true}
                 style={{
-                    width: 300, margin: 20
+                    width: 900, margin: 20
                 }}
             >
                 <p><b>Core</b></p>
                 <Form
-                    labelCol={{ span: 15 }}
+                    labelCol={{ span: 5 }}
                     wrapperCol={{ span: 18 }}
                     labelAlign="left"
                 >
@@ -29,8 +29,11 @@ export const SystemPage: React.FC = () => {
                 </Form>
                 <Divider />
                 <p><b>Testing</b></p>
-                <p>Thread number for tests:</p>
-                <Input placeholder="4" />
+                <Form>
+                    <Form.Item label="Thread number for tests:">
+                        <Input placeholder="4" />
+                    </Form.Item>
+                </Form>
                 <Divider />
                 <p><b>WebStudio Settings</b></p>
                 <p> <b>WARNING!</b> If you click this button, all settings will be restored to default values. All user defined values, such as repository settings, will be lost. Use this button only if you understand the consequences.
