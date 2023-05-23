@@ -14,7 +14,6 @@ import javax.sql.DataSource;
 
 import org.flywaydb.core.Flyway;
 import org.openl.util.PropertiesUtils;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
@@ -95,7 +94,6 @@ public class DBTestConfiguration {
         flyway.setBaselineOnMigrate(true);
         flyway.setTable("openl_security_flyway");
         flyway.setPlaceholders(placeholders);
-
         flyway.setLocations(locations);
 
         return flyway;
