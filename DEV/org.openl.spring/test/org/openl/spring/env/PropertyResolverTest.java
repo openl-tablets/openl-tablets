@@ -36,5 +36,24 @@ public class PropertyResolverTest {
         assertNull(propertyResolver.getProperty("key+3"));// not allowed by default
         assertNull(propertyResolver.getProperty("key:3"));// not allowed by default
         assertNull(propertyResolver.getProperty("key4"));// denied in firewall.properties
+
+        assertEquals("value1", propertyResolver.getProperty("prop1"));
+        assertEquals("my.value1.val", propertyResolver.getProperty("prop2"));
+        assertEquals("my.def.val", propertyResolver.getProperty("prop3"));
+        assertEquals("v1", propertyResolver.getProperty("index"));
+        assertEquals("Indexed", propertyResolver.getProperty("prop4"));
+        assertNull(propertyResolver.getProperty("loop.v1.val"));
+
+        assertEquals("NoDriver", propertyResolver.getProperty("database.driver"));
+        System.setProperty("driver.type", "mssql");
+        assertEquals("mssql.Driver", propertyResolver.getProperty("database.driver"));
+        System.setProperty("driver.type", "postgres");
+        assertEquals("PostgresDriver", propertyResolver.getProperty("database.driver"));
+        System.setProperty("driver.type", "unknown");
+        assertNull(propertyResolver.getProperty("database.driver"));
+        System.setProperty("driver.type", "");
+        assertNull(propertyResolver.getProperty("database.driver"));
+        System.clearProperty("driver.type");
+        assertEquals("NoDriver", propertyResolver.getProperty("database.driver"));
     }
 }

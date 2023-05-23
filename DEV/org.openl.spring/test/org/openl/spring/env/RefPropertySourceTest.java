@@ -9,11 +9,12 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySourcesPropertyResolver;
 
 public class RefPropertySourceTest {
     @Test
     public void noSources() {
-        RefPropertySource ref = new RefPropertySource(new MutablePropertySources());
+        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), new MutablePropertySources());
         Assert.assertNull(ref.getProperty(""));
         Assert.assertNull(ref.getProperty("."));
         Assert.assertNull(ref.getProperty(".b"));
@@ -34,7 +35,7 @@ public class RefPropertySourceTest {
                 put(".ghi", "3");
             }
         }));
-        RefPropertySource ref = new RefPropertySource(propertySources);
+        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
         propertySources.addLast(ref);
         Assert.assertNull(ref.getProperty(""));
         Assert.assertNull(ref.getProperty("."));
@@ -70,7 +71,7 @@ public class RefPropertySourceTest {
                 put("mno.www.y", "2");
             }
         }));
-        RefPropertySource ref = new RefPropertySource(propertySources);
+        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
         propertySources.addLast(ref);
         assertEquals("A", ref.getProperty("xyz"));
         assertEquals("B", ref.getProperty("xyz.def"));
@@ -115,7 +116,7 @@ public class RefPropertySourceTest {
             }
         }));
 
-        RefPropertySource ref = new RefPropertySource(propertySources);
+        RefPropertySource ref = new RefPropertySource(new PropertySourcesPropertyResolver(null), propertySources);
         propertySources.addLast(ref);
 
         assertEquals("1", ref.getProperty("q"));

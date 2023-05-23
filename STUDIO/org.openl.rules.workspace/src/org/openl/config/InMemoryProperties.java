@@ -73,7 +73,7 @@ public class InMemoryProperties extends ReadOnlyPropertiesHolder {
         MutablePropertySources delegateSources = ((ConfigurableEnvironment) delegate).getPropertySources();
         delegateSources.forEach(propertySource -> {
             if (propertySource instanceof RefPropertySource) {
-                sources.addLast(new RefPropertySource(sources));
+                sources.addLast(new RefPropertySource(delegate, sources));
             } else {
                 sources.addLast(propertySource);
             }

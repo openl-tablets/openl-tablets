@@ -101,7 +101,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         propertySources.addBefore(DynamicPropertySource.PROPS_NAME, new DisablePropertySource(propertySources));
 
         ConfigLog.LOG.info("Register reference property processor...");
-        propertySources.addLast(new RefPropertySource(propertySources));
+        propertySources.addLast(new RefPropertySource(props, propertySources));
 
         ConfigLog.LOG.info("Activating a firewall against insecure properties keys...");
         props.initFirewall();
