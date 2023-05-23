@@ -114,7 +114,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
         assertFieldError("repoName", "Cannot be empty.", null, bindingResult.getFieldError("repoName"));
         assertFieldError("author", "Cannot be empty.", null, bindingResult.getFieldError("author"));
         assertFieldError("projectName",
-            "Project name must not be empty.",
+            "The project name cannot be empty.",
             null,
             bindingResult.getFieldError("projectName"));
     }
@@ -133,11 +133,11 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
         assertEquals(2, bindingResult.getFieldErrorCount());
         assertEquals(0, bindingResult.getGlobalErrorCount());
         assertFieldError("path",
-            "Path in repository cannot start with '/'.",
+            "The path in the repository cannot start with '/'.",
             model.getPath(),
             bindingResult.getFieldError("path"));
         assertFieldError("projectName",
-            "Specified name is not a valid project name. Name cannot contain forbidden characters (\\, /, :, ;, <, >, ?, *, %, ', [, ], |, \"), start with space, end with space or dot.",
+            "The specified name is not a valid project name. Name cannot contain forbidden characters (\\, /, :, ;, <, >, ?, *, %, ', [, ], |, \"), start with space, end with space or dot.",
             model.getProjectName(),
             bindingResult.getFieldError("projectName"));
     }
@@ -157,7 +157,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
         assertEquals(0, bindingResult.getGlobalErrorCount());
         assertFieldError("path", "'COM6' is a reserved word.", model.getPath(), bindingResult.getFieldError("path"));
         assertFieldError("projectName",
-            "Specified project name is a reserved word.",
+            "The specified project name is a reserved word.",
             model.getProjectName(),
             bindingResult.getFieldError("projectName"));
     }
@@ -196,7 +196,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
             validateAndGetResult(model, validator);
             fail("Ooops...");
         } catch (ConflictException e) {
-            assertEquals("Cannot create project because project with such name already exists.", getLocalMessage(e));
+            assertEquals("Cannot create a project because the project with such name already exists.", getLocalMessage(e));
         }
     }
 
@@ -217,7 +217,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
             fail("Ooops...");
         } catch (ConflictException e) {
             assertEquals(
-                "Cannot create the project because a project with such path already exists. Try to import that project from repository or create new project with another path or name.",
+                "Cannot create a project because the project with such path already exists. Try importing that project from the repository or use another path or name for a new project.",
                 getLocalMessage(e));
         }
     }
@@ -242,7 +242,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
             validateAndGetResult(model, validator);
             fail("Ooops...");
         } catch (ConflictException e) {
-            assertEquals("Cannot create the project because a path conflicts with an existed project.", getLocalMessage(e));
+            assertEquals("Cannot create a project because the path conflicts with the existing project.", getLocalMessage(e));
         }
     }
 
@@ -266,7 +266,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
             validateAndGetResult(model, validator);
             fail("Ooops...");
         } catch (ConflictException e) {
-            assertEquals("Cannot create the project because a path conflicts with an existed project.", getLocalMessage(e));
+            assertEquals("Cannot create a project because the path conflicts with the existing project.", getLocalMessage(e));
         }
     }
 
@@ -285,7 +285,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
         assertEquals(0, bindingResult.getGlobalErrorCount());
 
         assertFieldError("path",
-            "Design Repository doesn't support folders. Path must be empty.",
+            "Design Repository does not support folders. The path must be empty.",
             model.getPath(),
             bindingResult.getFieldError("path"));
 
@@ -324,8 +324,8 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
         BindingResult bindingResult = validateAndGetResult(model, validator);
         assertEquals(2, bindingResult.getFieldErrorCount());
         assertEquals(0, bindingResult.getGlobalErrorCount());
-        assertTrue(bindingResult.getFieldErrors("path").stream().anyMatch(error -> "Path in repository cannot end with '/'.".equals(error.getDefaultMessage())));
-        assertTrue(bindingResult.getFieldErrors("path").stream().anyMatch(error -> "Path in repository cannot start with '/'.".equals(error.getDefaultMessage())));
+        assertTrue(bindingResult.getFieldErrors("path").stream().anyMatch(error -> "The path in the repository cannot end with '/'.".equals(error.getDefaultMessage())));
+        assertTrue(bindingResult.getFieldErrors("path").stream().anyMatch(error -> "The path in the repository cannot start with '/'.".equals(error.getDefaultMessage())));
     }
 
     @Test
@@ -350,7 +350,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
             validateAndGetResult(model, validator);
             fail("Ooops...");
         } catch (NotFoundException e) {
-            assertEquals("Project 'Example 1 - Bank Rating' is not found.", getLocalMessage(e));
+            assertEquals("The 'Example 1 - Bank Rating' project is not found.", getLocalMessage(e));
         }
 
         when(mockProject.getRealPath()).thenAnswer(inwok -> {
@@ -360,7 +360,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
             validateAndGetResult(model, validator);
             fail("Ooops...");
         } catch (NotFoundException e) {
-            assertEquals("Project 'Example 1 - Bank Rating' is not found.", getLocalMessage(e));
+            assertEquals("The 'Example 1 - Bank Rating' project is not found.", getLocalMessage(e));
         }
     }
 

@@ -6,7 +6,7 @@ Content-Type: application/json
   "fields": [
     {
       "code": "openl.error.Pattern",
-      "message": "The name should not end or begin with '.'.",
+      "message": "The name cannot start or end with '.'.",
       "field": "username",
       "rejectedValue": ".aa"
     }

@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.400.invalid.name.message",
-  "message": "Name cannot contain forbidden characters (*), start with space, end with space or dot."
+  "message": "The name cannot contain forbidden characters (*), or start with a space, or end with a space or dot."
 }

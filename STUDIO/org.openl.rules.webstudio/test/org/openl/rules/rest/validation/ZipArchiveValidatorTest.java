@@ -38,12 +38,12 @@ public class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
         BindingResult bindingResult = validateAndGetResult(Paths.get("test-resources/test/export/trivial"), validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
         assertEquals(1, bindingResult.getGlobalErrorCount());
-        assertObjectError("Provided file is not an archive.", bindingResult.getGlobalError());
+        assertObjectError("The provided file is not an archive.", bindingResult.getGlobalError());
 
         bindingResult = validateAndGetResult(Paths.get("test-resources/log4j2-test.properties"), validator);
         assertEquals(0, bindingResult.getFieldErrorCount());
         assertEquals(1, bindingResult.getGlobalErrorCount());
-        assertObjectError("Provided file is not an archive.", bindingResult.getGlobalError());
+        assertObjectError("The provided file is not an archive.", bindingResult.getGlobalError());
     }
 
     @Test

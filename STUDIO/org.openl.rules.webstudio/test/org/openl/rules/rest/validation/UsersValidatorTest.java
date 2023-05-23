@@ -33,9 +33,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
     private static final String MUST_BE_LESS_THAN_25 = "Must be less than 25.";
     private static final String CANNOT_BE_EMPTY = "Cannot be empty.";
-    private static final String SHOULD_NOT_END_WITH_DOT_AND_WHITESPACE = "The name should not end or begin with '.'.";
-    private static final String CONSECUTIVE_DOT = "The name should not contain consecutive '.'.";
-    private static final String MUST_NOT_CONTAIN_FOLLOWING_CHARS = "The name must not contain whitespaces and any of the following characters: / \\ : * ? \" < > | { } ~ ^ ; %";
+    private static final String MUST_NOT_CONTAIN_FOLLOWING_CHARS = "The name cannot contain spaces and any of the following characters: / \\ : * ? \" < > | { } ~ ^ ; %";
 
     @Autowired
     private UserManagementService userManagementService;
@@ -91,7 +89,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         UserInfoModel userInfoModel = getValidUserInfoModel();
         userInfoModel.setEmail("wrongEmail");
         BindingResult bindingResult = validateAndGetResult(userInfoModel);
-        assertFieldError("email", "Email address is invalid.", "wrongEmail", bindingResult.getFieldError("email"));
+        assertFieldError("email", "The email address is invalid.", "wrongEmail", bindingResult.getFieldError("email"));
     }
 
     @Test
@@ -178,19 +176,19 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
 
         userCreateModel.setUsername("a..aa");
         bindingResult = validateAndGetResult(userCreateModel);
-        assertFieldError("username", CONSECUTIVE_DOT, "a..aa", bindingResult.getFieldError("username"));
+        assertFieldError("username", "The name cannot contain consecutive '.'.", "a..aa", bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername(".aa");
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("username",
-            SHOULD_NOT_END_WITH_DOT_AND_WHITESPACE,
+            "The name cannot start or end with '.'.",
             ".aa",
             bindingResult.getFieldError("username"));
 
         userCreateModel.setUsername("aa.");
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("username",
-            SHOULD_NOT_END_WITH_DOT_AND_WHITESPACE,
+            "The name cannot start or end with '.'.",
             "aa.",
             bindingResult.getFieldError("username"));
 
@@ -284,7 +282,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         when(userManagementService.existsByName(anyString())).thenReturn(Boolean.TRUE);
         bindingResult = validateAndGetResult(userCreateModel);
         assertFieldError("username",
-            "User with such username already exists.",
+            "A user with such username already exists.",
             "jsmith",
             bindingResult.getFieldError("username"));
 
@@ -328,7 +326,7 @@ public class UsersValidatorTest extends AbstractConstraintValidatorTest {
         userProfileEditModel.setChangePassword(changePasswordModel);
         bindingResult = validateAndGetResult(userProfileEditModel);
         assertFieldError("changePassword",
-            "New password and confirm password do not match.",
+            "The new password and confirmed password do not match.",
             changePasswordModel,
             bindingResult.getFieldError("changePassword"));
 

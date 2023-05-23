@@ -70,7 +70,7 @@ public class MailConfigValidatorTest extends AbstractConstraintValidatorTest {
         MailConfigModel mailConfigModel = getValidMailConfigModel();
         mailConfigModel.setUrl(null);
         BindingResult bindingResult = validateAndGetResult(mailConfigModel);
-        assertEquals("Email server config fields could not be empty.", bindingResult.getGlobalError().getDefaultMessage());
+        assertEquals("Email server configuration fields cannot be empty.", bindingResult.getGlobalError().getDefaultMessage());
     }
 
     @Test

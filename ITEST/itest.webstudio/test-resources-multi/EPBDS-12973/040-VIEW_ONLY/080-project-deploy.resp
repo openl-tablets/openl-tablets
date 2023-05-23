@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.403.default.message",
-  "message": "You don't have privileges to do that."
+  "message": "You do not have the required privileges to do that."
 }

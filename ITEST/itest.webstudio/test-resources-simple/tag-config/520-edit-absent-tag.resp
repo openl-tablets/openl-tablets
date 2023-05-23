@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.404.tag.message",
-  "message": "Tag is not found."
+  "message": "The tag is not found."
 }

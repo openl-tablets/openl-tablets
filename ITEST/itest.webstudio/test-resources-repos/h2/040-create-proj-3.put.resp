@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.409.duplicated.project.message",
-  "message": "Cannot create project because project with such name already exists."
+  "message": "Cannot create a project because the project with such name already exists."
 }

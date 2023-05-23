@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.409.project.open.conflict.message",
-  "message": "Cannot open local or already opened project."
+  "message": "Cannot open a local or already opened project."
 }

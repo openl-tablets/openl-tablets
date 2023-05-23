@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.404.users.message",
-  "message": "User 'a1!@#$&()_-+='.,' is not found!"
+  "message": "The 'a1!@#$&()_-+='.,' user is not found."
 }

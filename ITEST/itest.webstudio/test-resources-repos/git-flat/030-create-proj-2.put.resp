@@ -8,7 +8,7 @@ Content-Type: application/json
       "code": "openl.error.repo.not-supported.path.message",
       "field": "path",
       "rejectedValue": "foo",
-      "message": "Design Repository doesn't support folders. Path must be empty."
+      "message": "Design Repository does not support folders. The path must be empty."
     }
   ]
 }

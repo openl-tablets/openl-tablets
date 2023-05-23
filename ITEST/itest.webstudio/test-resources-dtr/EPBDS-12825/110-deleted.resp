@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.409.project.deploy.deleted.message",
-  "message": "Cannot deploy deleted project."
+  "message": "Cannot deploy a deleted project."
 }

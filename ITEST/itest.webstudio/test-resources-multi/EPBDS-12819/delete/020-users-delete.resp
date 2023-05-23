@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.404.users.message",
-  "message": "User 'фы漢語,汉语ęął' is not found!"
+  "message": "The 'фы漢語,汉语ęął' user is not found."
 }

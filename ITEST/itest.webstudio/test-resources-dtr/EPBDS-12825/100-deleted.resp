@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.409.project.open.deleted.message",
-  "message": "Cannot open deleted project."
+  "message": "Cannot open a deleted project."
 }
