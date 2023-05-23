@@ -250,6 +250,15 @@
                 </div>
             </h:panelGroup>
             <h:panelGroup id="testSelector" layout="block" styleClass="hidden b-run b-benchmark b-trace scrollable">
+                <c:if test="#{fn:length(tableBean.tests) gt 20}"><!-- Use range only for the huge tests -->
+                    <input type="checkbox" id="useTestRanges" checked="checked" style="display: none"/>
+                    <div id="testRangeSetting" title="Define ranges like: 2-4,7,10-12 or id3-id7">
+                        <span>Range of IDs</span>
+                        <input type="text" id="testRanges" value="#{tableBean.tests[0].id}"/>
+                    </div>
+                </c:if>
+
+                <c:if test="#{fn:length(tableBean.tests) le 20}"><!-- Display checkbox only when the count of the tests not greater than 20 -->
                 <div title="Define a range of IDs instead of checkboxes">
                     <span>Use the Range</span>
                     <input type="checkbox" id="useTestRanges"
@@ -292,6 +301,7 @@
                 </ui:repeat>
                 </tbody>
             </table>
+                </c:if>
             </h:panelGroup>
             <div style="padding: 6px 5px">
                 <a4j:commandButton id="testButton" value="Test"
@@ -745,6 +755,7 @@
     </c:if>
 
     <script>
+        const testIds = [undefined<c:forEach items="#{tableBean.tests}" var="test">, "#{test.id}"</c:forEach>];
         //<![CDATA[
         const itemStatuses = function () {
             class ItemStatusesHandler {
@@ -975,13 +986,11 @@
             // Validate the range of entered IDs
             if ($j("#useTestRanges").is(":checked")) {
                 var ranges = testRangesParam.trim().split(/,/);
-                var allowed = $j(".test-id")
-                        .map(function() { return $j(this).val(); })
-                        .get();
+                var allowed = testIds;
                 for (var i = 0; i < ranges.length; i++) {
                     if (!ranges[i] || 0 === ranges[i].trim().length) {
                         if ($j.inArray(",", allowed ) === -1) {
-                            ws.ui.error("Wrong [","] ID in the Range of IDs");
+                            ws.ui.error('Wrong [","] ID in the Range of IDs');
                             return false;
                         }
                         continue;
@@ -993,7 +1002,7 @@
                         }
                         if ((!edges[0] || 0 === edges[0].trim().length) && (!edges[edges.length - 1] || 0 === edges[edges.length - 1].trim().length)){
                             if ($j.inArray("-", allowed ) === -1) {
-                                ws.ui.error("Wrong ["-"] ID in the Range of IDs");
+                                ws.ui.error('Wrong ["-"] ID in the Range of IDs');
                                 return false;
                             }
                         } else {
