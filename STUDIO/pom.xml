@@ -32,6 +32,7 @@
         <module>org.openl.rules.project.validation.openapi</module>
         <module>org.openl.rules.webstudio.web</module>
         <module>org.openl.rules.webstudio</module>
+        <module>org.openl.rules.webstudio.ai</module>
         <module>org.openl.rules.demo</module>
         <module>org.openl.security</module>
         <module>org.openl.security.standalone</module>

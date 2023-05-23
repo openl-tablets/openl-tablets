@@ -1,0 +1,378 @@
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+>
+    <style>
+        #smartAssistantChatPopup {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 600px;
+            height: 800px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            visibility: hidden;
+            z-index: 9999; /* Set a high z-index value */
+            display: flex;
+            flex-direction: column;
+        }
+
+        #smartAssistantChatBody {
+            padding-left: 10px;
+            padding-right: 10px;
+            flex: 1; /* Make chatBody take up remaining space */
+            overflow-y: auto; /* Add scrolling */
+            display: flex; /* Add this */
+            flex-direction: column; /* Add this */
+        }
+
+        #smartAssistantChatHeader {
+            padding-left: 10px;
+            padding-right: 10px;
+            background-color: #efefef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #smartAssistantChatMessages {
+            flex: 1; /* Make chatMessages take up remaining space */
+            /*overflow-y: auto;*/ /* Add scrolling */
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+        }
+
+        #smartAssistantRegenerateLastMessage {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+            visibility: hidden;
+        }
+
+        .smartAssistantRegenerateButton {
+            display: block;
+            text-align: center;
+            padding: 4px 8px;
+            background-color: #ececec;
+            color: #555;
+            font-size: 10px;
+            text-decoration: none;
+            border-radius: 15px;
+            margin: 0 auto;
+            /* margin-bottom: 10px; */
+            width: 100px;
+        }
+
+        .smartAssistantRegenerateButton:hover {
+            background-color: #d0d0d0;
+        }
+
+        #smartAssistantUserInputContainer {
+            display: flex;
+            align-items: center;
+            margin: 10px;
+        }
+
+        #smartAssistantUserInputContainer button {
+            margin-top: auto; /* Push the button to the bottom of the container */
+        }
+
+        #smartAssistantUserInput {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        .smartAssistantSent {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .smartAssistantSent div {
+            background-color: #e5f0ff;
+            color: #000;
+            text-align: left;
+            margin-right: 10%;
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: fit-content;
+        }
+
+        .smartAssistantReceived {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .smartAssistantReceived div {
+            background-color: #f8f8f8;
+            color: #000;
+            margin-left: 10%;
+            text-align: left;
+            margin-top: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            width: fit-content;
+        }
+
+        .smartAssistantSent div p {
+            margin: 0;
+            padding: 0 0 5px;
+        }
+
+        .smartAssistantReceived div p {
+            margin: 0;
+            padding: 0 0 5px;
+        }
+
+        .smartAssistantReceivedHref {
+            margin-right: 10px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        #smartAssistantResizeGrip {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            cursor: nw-resize;
+        }
+
+    </style>
+
+    <img style="margin-left: 3px; width: 16px; height: 16px; cursor: pointer;"
+         src="#{contextPath}/webresource/images/msg-question.svg" title="Smart Assistant"
+         alt="Smart Assistant" onclick="smartAssistantOpenChat()"/>
+
+    <div id="smartAssistantChatPopup">
+        <div id="smartAssistantResizeGrip"></div>
+        <div id="smartAssistantChatHeader">
+            <h4>Smart Assistant</h4>
+            <span>
+                <button onclick="smartAssistantCleanChat()">Clean</button>
+                <button onclick="smartAssistantCloseChat()">Close</button>
+            </span>
+        </div>
+        <div id="smartAssistantChatBody">
+            <div id="smartAssistantChatMessages">
+                <div class="smartAssistantReceived">
+                    <div>
+                        <p><b>Assistant: </b></p>
+                        <p>Hi, how can I help you?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="smartAssistantRegenerateLastMessage">
+            <a href="javascript: void(0)" onclick="smartAssistantRegenerateLastMessage()"
+               class="smartAssistantRegenerateButton">Regenerate</a>
+        </div>
+        <div id="smartAssistantUserInputContainer">
+            <textarea id="smartAssistantUserInput" placeholder="Type your message..."
+                      style="resize: none; height: 60px; padding: 5px;"
+                      onkeydown="smartAssistantSendMessageOnEnter(event)"
+                      oninput="smartAssistantCheckInput()"></textarea>
+            <button id="smartAssistantSendButton" onclick="smartAssistantSendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        //<![CDATA[
+        function smartAssistantCheckInput() {
+            const userInput = document.getElementById('smartAssistantUserInput');
+            const sendButton = document.getElementById('smartAssistantSendButton');
+            // Enable the button if the textarea has text, disable it otherwise
+            sendButton.disabled = userInput.value.trim() === '';
+        }
+
+
+        function smartAssistantRegenerateLastMessage() {
+            var chatMessages = document.getElementById("smartAssistantChatMessages");
+            // while last message in messageHistory is not USER type - remove it
+            while (smartAssistantHistory.length > 0 && smartAssistantHistory[smartAssistantHistory.length - 1].type !== "USER") {
+                smartAssistantHistory.pop();
+                chatMessages.removeChild(chatMessages.lastChild);
+            }
+            smartAssistantCallAjax();
+        }
+
+        function displaySmartAssistantRegenerateLastMessage(show) {
+            var regenerateLastMessage = document.getElementById("smartAssistantRegenerateLastMessage");
+            regenerateLastMessage.style.visibility = show ? "visible" : "hidden";
+        }
+
+        function smartAssistantCleanChat() {
+            displaySmartAssistantRegenerateLastMessage(false);
+            // clean chatMessages
+            var chatMessages = document.getElementById("smartAssistantChatMessages");
+            chatMessages.innerHTML = "";
+            // clean messageHistory
+            smartAssistantHistory = [];
+            // add first message
+            smartAssistantAddMessage("Hi, how can I help you?", null)
+        }
+
+        function smartAssistantOpenChat() {
+            var chatPopup = document.getElementById("smartAssistantChatPopup");
+            if (chatPopup.style.visibility === "visible") {
+                chatPopup.style.visibility = "hidden";
+                return;
+            }
+            chatPopup.style.visibility = "visible";
+        }
+
+        function smartAssistantCloseChat() {
+            var chatPopup = document.getElementById("smartAssistantChatPopup");
+            chatPopup.style.visibility = "hidden";
+        }
+
+        function smartAssistantAddMessage(receivedMessage, refs) {
+            var chatMessages = document.getElementById("smartAssistantChatMessages");
+            var receivedWrapper = document.createElement("div")
+            receivedWrapper.classList.add("smartAssistantReceived")
+            var receivedMessageElement = document.createElement("div");
+            receivedWrapper.appendChild(receivedMessageElement);
+            var hrefs = "";
+            if (refs) {
+                refs.forEach((ref) => {
+                    hrefs += "<a class=\"smartAssistantReceivedHref\" href='" + ref.url + "' target='_blank'>" + ref.title + "</a>";
+                });
+            }
+            receivedMessageElement.innerHTML = "<p><b>Assistant: </b></p>" + "<p>" + receivedMessage + "</p>";
+            // if hrefs is not null and length > 0
+            if (hrefs !== "") {
+                receivedMessageElement.innerHTML += "<p>" + hrefs + "</p>";
+            }
+
+            chatMessages.appendChild(receivedWrapper);
+
+            // Automatically scroll to the bottom of the chatBody
+            var chatBody = document.getElementById("smartAssistantChatBody");
+            chatBody.scrollTop = chatBody.scrollHeight;
+            displaySmartAssistantRegenerateLastMessage(true);
+        }
+
+        var smartAssistantHistory = []
+
+        function formattedMessage(inputText) {
+            var text = inputText.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            // Split the 'text' into an array of paragraphs based on line breaks
+            const paragraphs = text.split('\n');
+
+            // Initialize an empty variable to hold the formatted text
+            let formattedMessage = "";
+
+            // Loop through each paragraph and wrap it with <p>...</p> tags
+            for (const paragraph of paragraphs) {
+                // Remove leading and trailing white spaces from each paragraph
+                const trimmedParagraph = paragraph.trim();
+
+                // Skip empty paragraphs (optional)
+                if (trimmedParagraph !== "") {
+                    // Wrap the paragraph with <p>...</p> tags and append to the formatted text
+                    formattedMessage += "<p>" + trimmedParagraph + "</p>";
+                }
+            }
+            return formattedMessage;
+        }
+
+        function smartAssistantSendMessage() {
+            var userInput = document.getElementById("smartAssistantUserInput");
+            var chatMessages = document.getElementById("smartAssistantChatMessages");
+            var message = userInput.value.trim();
+
+            if (message !== "") {
+                var sentWrapper = document.createElement("div")
+                var sentMessageElement = document.createElement("div");
+                sentWrapper.appendChild(sentMessageElement);
+                sentWrapper.classList.add("smartAssistantSent")
+                // Escape message
+                sentMessageElement.innerHTML = "<p><b>You:</b></p>" + formattedMessage(message);
+                chatMessages.appendChild(sentWrapper);
+                userInput.value = "";
+
+                // Add message to history
+                smartAssistantHistory.push({text: message, type: "USER"});
+                smartAssistantCallAjax();
+            }
+        }
+
+        function smartAssistantCallAjax() {
+            const data = JSON.stringify({"messages": smartAssistantHistory.filter((message) => message.text !== "")});
+
+            fetch('#{contextPath}/web/assistant/ask_help', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                body: data
+            })
+                .then(response => response.json())
+                .then(response => {
+                    response.forEach((receivedMessage) => {
+                        smartAssistantHistory.push({text: receivedMessage["text"], type: "ASSISTANT"});
+                        // visibility of smartAssistantRegenerateLastMessage
+                        smartAssistantAddMessage(formattedMessage(receivedMessage["text"]), receivedMessage["refs"]);
+                    });
+                }).catch(() => {
+                smartAssistantHistory.push({text: "", type: "ASSISTANT"});
+                smartAssistantAddMessage("Something went wrong. Please try again later.", null, "received");
+            });
+        }
+
+        function smartAssistantSendMessageOnEnter(event) {
+            if (event.keyCode === 13) {
+                smartAssistantSendMessage();
+            }
+        }
+
+        var isSmartAssistantResizingChatPopup = false;
+
+        document.getElementById("smartAssistantResizeGrip").addEventListener('mousedown', function (e) {
+            isSmartAssistantResizingChatPopup = true;
+        });
+
+        var CHAT_POPUP_MIN_WIDTH = 300; // Define the minimum width for the chatPopup
+        var CHAT_POPUP_MIN_HEIGHT = 400; // Define the minimum height for the chatPopup
+
+        document.addEventListener('mousemove', function (e) {
+            if (!isSmartAssistantResizingChatPopup) {
+                return;
+            }
+
+            let chatPopup = document.getElementById("smartAssistantChatPopup");
+
+            // Calculate the new width and height
+            let newWidth = chatPopup.offsetWidth - (e.clientX - chatPopup.getBoundingClientRect().left);
+            let newHeight = chatPopup.offsetHeight - (e.clientY - chatPopup.getBoundingClientRect().top);
+
+            // Get the window width and height
+            let windowWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            let windowHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
+            // Apply maximum width and height to not exceed the window size
+            newWidth = Math.min(newWidth, windowWidth - 40);
+            newHeight = Math.min(newHeight, windowHeight - 40);
+
+            // Apply minimum width and height
+            newWidth = Math.max(newWidth, CHAT_POPUP_MIN_WIDTH);
+            newHeight = Math.max(newHeight, CHAT_POPUP_MIN_HEIGHT);
+
+            // Update the element
+            chatPopup.style.width = newWidth + 'px';
+            chatPopup.style.height = newHeight + 'px';
+        });
+
+        document.addEventListener('mouseup', function () {
+            isSmartAssistantResizingChatPopup = false;
+        });
+        //]]>
+    </script>
+</ui:composition>

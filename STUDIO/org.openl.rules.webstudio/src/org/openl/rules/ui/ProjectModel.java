@@ -10,10 +10,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -79,9 +79,9 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
-import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.ui.tree.WorksheetTreeNodeBuilder;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
@@ -785,7 +785,7 @@ public class ProjectModel {
                 OpenMethodsGroupTreeNodeBuilder tableTreeNodeBuilder = (OpenMethodsGroupTreeNodeBuilder) treeSorter;
                 tableTreeNodeBuilder.setOpenMethodGroupsDictionary(methodNodesDictionary);
             }
-            if(treeSorter instanceof WorksheetTreeNodeBuilder)
+            if (treeSorter instanceof WorksheetTreeNodeBuilder)
                 root.setElements(new LinkedHashMap<>(root.getElements()));
         }
 
@@ -897,12 +897,21 @@ public class ProjectModel {
         return false;
     }
 
-    private boolean isGapOverlap(TableSyntaxNode tsn) {
+    public boolean isGapOverlap(TableSyntaxNode tsn) {
         String tableType = tsn.getType();
         if (XlsNodeTypes.XLS_DT.toString().equals(tableType)) {
             return DispatcherTablesBuilder.isDispatcherTable(tsn);
         }
         return false;
+    }
+
+    public synchronized List<IOpenLTable> search(Predicate<TableSyntaxNode> selectors, SearchScope searchScope) {
+        return getSearchScopeData(searchScope).stream()
+                .filter(tableSyntaxNode -> !XlsNodeTypes.XLS_TABLEPART.toString().equals(tableSyntaxNode.getType()))
+                .filter(tsn -> !isGapOverlap(tsn))
+                .filter(selectors)
+                .map(TableSyntaxNodeAdapter::new)
+                .collect(Collectors.toList());
     }
 
     private TreeNode build(ProjectTreeNode root) {
@@ -1130,18 +1139,9 @@ public class ProjectModel {
         }
     }
 
-    public synchronized List<IOpenLTable> search(Predicate<TableSyntaxNode> selectors, SearchScope searchScope) {
-        return getSearchScopeData(searchScope).stream()
-            .filter(tableSyntaxNode -> !XlsNodeTypes.XLS_TABLEPART.toString().equals(tableSyntaxNode.getType()))
-            .filter(tsn -> !isGapOverlap(tsn))
-            .filter(selectors)
-            .map(TableSyntaxNodeAdapter::new)
-            .collect(Collectors.toList());
-    }
-
     // Logic in this block of code implemented with a recursion to achieve sorting of each dataset by comparator
     // and place this sets in the proper order.
-    private Set<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
+    public synchronized Set<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
         if (searchScope == SearchScope.ALL) {
             Set<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
             getAllTableSyntaxNodes().stream().sorted(DEFAULT_NODE_CMP).forEach(nodes::add);

@@ -287,7 +287,6 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-
         <!-- OpenL dependencies -->
         <dependency>
             <groupId>org.openl.rules</groupId>
@@ -344,6 +343,10 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.project.ai</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.jackson</artifactId>
         </dependency>
         <dependency>
@@ -381,6 +384,10 @@
         <dependency>
             <groupId>org.openl</groupId>
             <artifactId>org.openl.spring</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.webstudio.ai</artifactId>
         </dependency>
     </dependencies>
 </project>
