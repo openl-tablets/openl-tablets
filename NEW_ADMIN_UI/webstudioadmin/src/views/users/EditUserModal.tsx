@@ -31,43 +31,41 @@ interface EditUserProps {
         groups: CheckboxValueType[];
     }
     updateUser: (updatedUser: any) => void;
-    onUpdateUserData: (userData: any[]) => void;
-};
+    onUpdateUserData: (userData: any[]) => any[];
+    onSave: () => void;
+}
 
-export const ModalEditUser: React.FC<EditUserProps> = ({ user, updateUser, onUpdateUserData }) => {
+export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onUpdateUserData, onSave }) => {
+    const { userName: initialUserName, email: initialEmail, password: initialPassword, firstName: initialFirstName, lastName: initialLastName } = user
     const [editModalVisible, setEditModalVisible] = useState(true);
-    const [userName, setUserName] = useState(user.userName);
-    const [email, setEmail] = useState(user.email);
-    const [password, setPassword] = useState(user.password);
-    const [firstName, setFirstName] = useState(user.firstName);
-    const [lastName, setLastName] = useState(user.lastName);
+    const [userName, setUserName] = useState(initialUserName);
+    const [email, setEmail] = useState(initialEmail);
+    const [password, setPassword] = useState(initialPassword);
+    const [firstName, setFirstName] = useState(initialFirstName);
+    const [lastName, setLastName] = useState(initialLastName);
     const [displayName, setDisplayName] = useState(user.displayName);
     const [groups, setGroups] = useState<CheckboxValueType[]>(user.groups);
-    const [state, setState] = useState("")
+    const [editedUser, setEditedUser] = useState(user);
+
     const [userData, setUserData] = useState(TableUserInfo);
 
     const handleUserNameInputChange = (e: any) => {
-        user.userName = e.target.value;
         setUserName(e.target.value);
     };
 
     const handleEmailInputChange = (e: any) => {
-        user.email = e.target.value;
         setEmail(e.target.value);
     };
 
     const handlePasswordInputChange = (e: any) => {
-        user.password = e.target.value;
         setPassword(e.target.value);
     };
 
     const handleFirstNameInputChange = (e: any) => {
-        user.firstName = e.target.value;
         setFirstName(e.target.value);
     };
 
     const handleLastNameInputChange = (e: any) => {
-        user.lastName = e.target.value;
         setLastName(e.target.value);
     };
 
@@ -77,116 +75,116 @@ export const ModalEditUser: React.FC<EditUserProps> = ({ user, updateUser, onUpd
         navigate(path);
     }
 
-    // const handleEditSubmit = (e: React.SyntheticEvent) => {
-    //     e.preventDefault();
+    const handleSave = () => {
+        const editedUser = {
+            ...user,
+            userName: userName,
+            email: email,
+            password: password,
+            firstName: firstName,
+            lastName: lastName,
+            displayName: displayName,
+            groups: groups,
+        };
 
-    //     const editedUser = {
-    //         ...user,
-    //         userName,
-    //         email,
-    //         password,
-    //         firstName,
-    //         lastName,
-    //         displayName,
-    //         groups,
+        updateUser(editedUser);
+        onUpdateUserData = (userData: any[]): any[] => {
+            return userData.map((user: any) => (user.key === editedUser.key ? editedUser : user));
+        };
+        setEditModalVisible(false);
+        onSave();
 
-    //     };
-    //     console.log("1");
-    //     updateUser(editedUser);
-    //     console.log("2" + editedUser);
-    //     onUpdateUserData(userData);
-    //     console.log("3" + userData);
-    //     navigateUserList();
-    //     setEditModalVisible(false);
-    //     console.log("4" + editModalVisible);
-    // };
-
-
-    const onChange = (checkedValues: CheckboxValueType[]) => {
-        setGroups(checkedValues);
+        console.log(editedUser);
     };
 
-    // const handleCancel = () => {
-    //     setEditModalVisible(false);
-    // };
-
     return (
-        <>
-            <div>
-                <Form layout="vertical" >
-                    <Form.Item><b>Account</b></Form.Item>
-                    <Form.Item label="Username">
-                        <Input id="userName"
-                            value={user.userName}
-                            onChange={handleUserNameInputChange}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Email">
-                        <Input id="email"
-                            value={user.email}
-                            onChange={handleEmailInputChange}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Password">
-                        <Input id="password"
-                            value={user.password}
-                            onChange={handlePasswordInputChange}
-                        />
-                    </Form.Item>
-                    <Form.Item><b>Name</b></Form.Item>
-                    <Form.Item label="First name (Given name):">
-                        <Input id="firstName"
-                            value={user.firstName}
-                            onChange={handleFirstNameInputChange}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Last name (Family name):">
-                        <Input id="lastName"
-                            value={user.lastName}
-                            onChange={handleLastNameInputChange}
-                        />
-                    </Form.Item>
-                    <Form.Item label="Display name:">
-                        <Select
-                            value={displayName}
-                            onChange={(order) => setDisplayName(order)}
-                            options={displayOrder}
-                            defaultActiveFirstOption={true}
+        <div>
+            <Form layout="vertical">
+                <Form.Item><b>Account</b></Form.Item>
+                <Form.Item label="Username">
+                    <Input
+                        id="userName"
+                        value={userName}
+                        onChange={handleUserNameInputChange}
+                    />
+                </Form.Item>
+                <Form.Item label="Email">
+                    <Input
+                        id="email"
+                        value={email}
+                        onChange={handleEmailInputChange}
+                    />
+                </Form.Item>
+                <Form.Item label="Password">
+                    <Input
+                        id="password"
+                        value={password}
+                        onChange={handlePasswordInputChange}
+                    />
+                </Form.Item>
+                <Form.Item><b>Name</b></Form.Item>
+                <Form.Item label="First name (Given name):">
+                    <Input
+                        id="firstName"
+                        value={firstName}
+                        onChange={handleFirstNameInputChange}
+                    />
+                </Form.Item>
+                <Form.Item label="Last name (Family name):">
+                    <Input
+                        id="lastName"
+                        value={lastName}
+                        onChange={handleLastNameInputChange}
+                    />
+                </Form.Item>
+                <Form.Item label="Display name:">
+                    <Select
+                        value={displayName}
+                        onChange={(order) => setDisplayName(order)}
+                        options={displayOrder}
+                        defaultActiveFirstOption={true}
+                    />
+                </Form.Item>
+                <Form.Item><b>Group</b></Form.Item>
+                <Form.Item className="user-create-form_last-form-item">
+                    <Checkbox.Group onChange={setGroups} value={groups}>
+                        <Row>
+                            <Col span={8}>
+                                <Checkbox value="Administrators">Administrators</Checkbox>
+                            </Col>
+                            <Col span={8}>
+                                <Checkbox value="Analysts">Analysts</Checkbox>
+                            </Col>
+                            <Col span={8}>
+                                <Checkbox value="Deployers">Deployers</Checkbox>
+                            </Col>
+                            <Col span={8}>
+                                <Checkbox value="Developers">Developers</Checkbox>
+                            </Col>
+                            <Col span={8}>
+                                <Checkbox value="Testers">Testers</Checkbox>
+                            </Col>
+                            <Col span={8}>
+                                <Checkbox value="Viewers">Viewers</Checkbox>
+                            </Col>
+                        </Row>
+                    </Checkbox.Group>
+                    <Row style={{ float: "right" }}>
+                        <Button
+                            key="submit"
+                            onClick={handleSave}
+                            style={{
+                                marginLeft: 15,
+                                marginTop: 15,
+                                color: "green",
+                                borderColor: "green"
+                            }}
                         >
-                        </Select>
-                    </Form.Item>
-                    <Form.Item><b>Group</b></Form.Item>
-                    <Form.Item className="user-create-form_last-form-item">
-                        <Checkbox.Group onChange={setGroups} value={groups}>
-                            <Row>
-                                <Col span={8}>
-                                    <Checkbox value="Administrators">Administrators</Checkbox>
-                                </Col>
-                                <Col span={8}>
-                                    <Checkbox value="Analysts">Analysts</Checkbox>
-                                </Col>
-                                <Col span={8}>
-                                    <Checkbox value="Deployers">Deployers</Checkbox>
-                                </Col>
-                                <Col span={8}>
-                                    <Checkbox value="Developers">Developers</Checkbox>
-                                </Col>
-                                <Col span={8}>
-                                    <Checkbox value="Testers">Testers</Checkbox>
-                                </Col>
-                                <Col span={8}>
-                                    <Checkbox value="Viewers">Viewers</Checkbox>
-                                </Col>
-                            </Row>
-                        </Checkbox.Group>
-                    </Form.Item>
-                    {/* <Row style={{ float: "right" }}>
-                        <Button key="submit" onClick={handleEditSubmit} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
-                            Save!
+                            Save
                         </Button>
-                    </Row> */}
-                </Form>
-            </div>
-        </>
+                    </Row>
+                </Form.Item>
+            </Form>
+        </div>
     );
 };
