@@ -1,10 +1,7 @@
-CREATE SEQUENCE ace_entry_row_num_1;
-ALTER SEQUENCE ace_entry_row_num_1 RESTART WITH 1;
-
 INSERT INTO acl_entry (acl_object_identity, sid, mask, granting, audit_success, audit_failure, ace_order)
-    SELECT e.bid, e.aid, e.mask, true, false, false, (SELECT count(*) FROM acl_entry d WHERE e.bid = d.acl_object_identity) + nextval('ace_entry_row_num_1') - 1
+    SELECT e.bid, e.aid, e.mask, 1, 0, 0, (SELECT count(*) FROM acl_entry d WHERE e.bid = d.acl_object_identity) + ROW_NUMBER() OVER (ORDER BY e.aid, e.bid)
     FROM (
-        SELECT DISTINCT b.id as bid, a.id as aid, c.mask as mask
+        SELECT DISTINCT b.id bid, a.id aid, c.mask mask
         FROM acl_sid a,
              acl_object_identity b,
              acl_permission_mapping c,
@@ -13,9 +10,7 @@ INSERT INTO acl_entry (acl_object_identity, sid, mask, granting, audit_success, 
         WHERE b.object_id_identity = c.object_id_identity
           AND b.object_id_class  = d.id
           AND d.class = c.class
-          AND a.principal = false
+          AND a.principal = 0
           AND c.authority = t1.authority
           AND a.sid = t2.groupName
-        ) as e;
-
-DROP SEQUENCE ace_entry_row_num_1;
+        ) e;

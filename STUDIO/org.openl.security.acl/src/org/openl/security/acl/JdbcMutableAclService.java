@@ -37,8 +37,14 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
             setClassIdentityQuery("select currval(pg_get_serial_sequence('acl_class', 'id'))");
             setSidIdentityQuery("select currval(pg_get_serial_sequence('acl_sid', 'id'))");
         } else if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:mysql")) {
-            setClassIdentityQuery("SELECT @@IDENTITY");
-            setSidIdentityQuery("SELECT @@IDENTITY");
+            setClassIdentityQuery("select @@IDENTITY");
+            setSidIdentityQuery("select @@IDENTITY");
+        } else if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:oracle")) {
+            setClassIdentityQuery("select acl_class_sequence.currval from dual");
+            setSidIdentityQuery("select acl_sid_sequence.currval from dual");
+        } else if (jdbcUrl != null && jdbcUrl.startsWith("jdbc:sqlserver")) {
+            setClassIdentityQuery("select ident_current('acl_class')");
+            setSidIdentityQuery("select ident_current('acl_sid')");
         }
     }
 
