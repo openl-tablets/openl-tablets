@@ -1,29 +1,23 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useMemo } from 'react'
 import { Button, Card, Modal, Table, Tag } from 'antd';
-import { CloseCircleOutlined, CloseOutlined } from '@ant-design/icons';
+import { CloseCircleOutlined } from '@ant-design/icons';
 import DefaultLayout from '../components/DefaultLayout';
 import TableUserInfo from 'views/users/TableUserInfo';
 import { ModalNewUser } from 'views/users/NewUserModal';
-import { ModalEditUser } from 'views/users/EditUserModal';
+import { EditUserModal } from 'views/users/EditUserModal';
 
 export const UserPage: React.FC = () => {
-
     const [editModalVisible, setEditModalVisible] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<any>({});
+    const [userData, setUserData] = useState(TableUserInfo);
+
     const showModal = () => {
         setEditModalVisible(true);
     };
 
-    const handleOk = () => {
+    const hideModal = () => {
         setEditModalVisible(false);
     };
-
-    const handleCancel = () => {
-        setEditModalVisible(false);
-    };
-   
-    const [selectedUser, setSelectedUser] = useState<any>({});
-
-    const [userData, setUserData] = useState(TableUserInfo);
 
     const columns = [
         {
@@ -85,22 +79,38 @@ export const UserPage: React.FC = () => {
         },
     ];
 
+
     const addNewUser = (newUser: { key: string; userName: string; firstName: string; lastName: string; email: string; displayName: string; groups: string[]; action: "" }) => {
         setUserData((data) => [...data, newUser]);
     };
 
+
     const updateUser = (updatedUser: any) => {
         setUserData((userData) =>
-            userData.map((user) => (user.key === updatedUser.key ? updatedUser : user)
-            ));
+            userData.map((user) => (user.key === updatedUser.key ? updatedUser : user))
+        );
+        setSelectedUser(updatedUser);
     };
 
 
     const handleDoubleRowClick = (record: any) => {
-        setSelectedUser(record);
-        setEditModalVisible(true);
+        setSelectedUser({ ...record });
+        showModal();
         console.log('Clicked row:', record);
     };
+
+
+    const userModalKey = useMemo(() => {
+        return selectedUser.key + editModalVisible
+    }, [selectedUser, editModalVisible])
+
+
+    const handleEditUserSave = () => {
+        updateUser(selectedUser);
+        setEditModalVisible(false);
+        console.log(selectedUser);
+    };
+
 
     return (
         <DefaultLayout>
@@ -114,30 +124,26 @@ export const UserPage: React.FC = () => {
                     })} />
                 <ModalNewUser addNewUser={addNewUser} />
                 <Modal
+                    key={userModalKey}
                     open={editModalVisible}
-                    onCancel={handleCancel}
+                    onCancel={hideModal}
                     footer={[
-                        <Button key="back" onClick={handleCancel}>
-                            Back
-                        </Button>,
-                        <Button key="submit" onClick={handleOk} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
-                            Save
-                        </Button>
-                        ]}
+                        // <Button key="back" onClick={handleCancel}>
+                        //     Back
+                        // </Button>,
+                        // <Button key="submit" onClick={handleEditUserSave} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
+                        //     Save
+                        // </Button>
+                    ]}
                 >
-                    {editModalVisible && (
-                        <ModalEditUser
-                            user={selectedUser}
-                            updateUser={updateUser}
-                            // onClick={() => setEditModalVisible(false)}
-                            onUpdateUserData={setUserData}
-                        />
-                    )}
+                    <EditUserModal
+                        user={selectedUser}
+                        updateUser={updateUser}
+                        onUpdateUserData={setUserData}
+                        onSave={handleEditUserSave}
+                    />
                 </Modal>
-
             </Card>
         </DefaultLayout>
     )
 };
-
-
