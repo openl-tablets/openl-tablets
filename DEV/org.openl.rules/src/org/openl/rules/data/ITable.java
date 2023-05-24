@@ -6,7 +6,7 @@
 
 package org.openl.rules.data;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 import org.openl.binding.IBindingContext;
@@ -64,7 +64,7 @@ public interface ITable {
 
     Map<String, Integer> makeUniqueIndex(int idx, IBindingContext cxt);
 
-    List<Object> getUniqueValues(int colIdx) throws SyntaxNodeException;
+    Collection<Object> getUniqueValues(int colIdx) throws SyntaxNodeException;
 
     void populate(IDataBase db, IBindingContext bindingContext) throws Exception;
 
