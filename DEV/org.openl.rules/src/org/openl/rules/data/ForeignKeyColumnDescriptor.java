@@ -554,15 +554,15 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         if (getField() == null) {
             return null;
         }
-        final List<Object> foreignTableValues = foreignTable.getUniqueValues(foreignKeyIndex);
+        final Collection<Object> foreignTableValues = foreignTable.getUniqueValues(foreignKeyIndex);
 
         IOpenClass columnType = foreignTable.getColumnType(foreignKeyIndex);
         if (columnType == null || !columnType.isSimple()) {
             columnType = JavaOpenClass.OBJECT;
         }
         Object[] foreignArray = new Object[foreignTableValues.size()];
-        for (int i = 0; i < foreignTableValues.size(); i++) {
-            Object foreignValue = foreignTableValues.get(i);
+        int i = 0;
+        for (Object foreignValue : foreignTableValues) {
             foreignArray[i] = foreignValue;
 
             // If String - no need to convert to Object and later format back.
@@ -574,7 +574,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     foreignArray[i] = convertor.convert(foreignValue);
                 }
             }
-
+            i++;
         }
         EnumDomain<Object> domain = new EnumDomain<>(foreignArray);
         return new DomainOpenClass(getField().getName(), columnType, domain, null, null);
