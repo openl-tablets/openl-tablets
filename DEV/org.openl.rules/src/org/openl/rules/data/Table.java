@@ -3,9 +3,11 @@ package org.openl.rules.data;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +31,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
 import org.openl.util.BiMap;
 import org.openl.util.MessageUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -239,9 +240,9 @@ public class Table implements ITable {
     }
 
     @Override
-    public List<Object> getUniqueValues(int colIdx) throws SyntaxNodeException {
+    public Collection<Object> getUniqueValues(int colIdx) throws SyntaxNodeException {
 
-        List<Object> values = new ArrayList<>();
+        var values = new LinkedHashSet<>();
 
         if (dataIdxToTableRowNum == null || dataIdxToTableRowNum.isEmpty()) {
             return Collections.emptyList();
@@ -257,13 +258,11 @@ public class Table implements ITable {
                     new GridCellSourceCodeModule(gridTable));
             }
 
-            if (values.contains(value)) {
+            if (!values.add(value)) {
                 throw SyntaxNodeExceptionUtils.createError(
                     MessageUtils.getDuplicatedKeyIndexErrorMessage(String.valueOf(value)),
                     new GridCellSourceCodeModule(gridTable));
             }
-
-            values.add(value);
         }
 
         return values;
