@@ -38,11 +38,11 @@ INSERT INTO acl_permission_mapping (class, object_id_identity, mask, authority) 
 INSERT INTO acl_permission_mapping (class, object_id_identity, mask, authority) VALUES ('org.openl.security.acl.repository.Root', '3', 67108884, 'DEPLOY_PROJECTS');
 INSERT INTO acl_permission_mapping (class, object_id_identity, mask, authority) VALUES ('org.openl.security.acl.repository.Root', '3', 83886088, 'DEPLOY_PROJECTS');
 
-INSERT INTO acl_sid (principal, sid) VALUES (false, 'ADMIN');
+INSERT INTO acl_sid (principal, sid) VALUES (${false}, 'ADMIN');
 INSERT INTO acl_sid (principal, sid)
-    SELECT DISTINCT false, t2.groupName
+    SELECT DISTINCT ${false}, t2.groupName
     FROM OpenL_Group_Authorities t1 INNER JOIN OpenL_Groups t2 ON t1.groupID = t2.id
-    WHERE authority in (SELECT apm.authority FROM acl_permission_mapping AS apm);
+    WHERE authority in (SELECT authority FROM acl_permission_mapping);
 
 INSERT INTO acl_class (class, class_id_type) VALUES ('org.openl.security.acl.repository.Root', 'java.lang.String');
 INSERT INTO acl_class (class, class_id_type) VALUES ('org.openl.security.acl.repository.ProjectArtifact', 'java.lang.String');
@@ -50,10 +50,10 @@ INSERT INTO acl_class (class, class_id_type) VALUES ('org.openl.security.acl.rep
 INSERT INTO acl_class (class, class_id_type) VALUES ('org.openl.security.acl.repository.RepositoryObjectIdentity', 'java.lang.String');
 
 INSERT INTO acl_object_identity (object_id_class, object_id_identity, parent_object, owner_sid, entries_inheriting)
-SELECT a.id, d.object_id_identity, null, b.id, true
+SELECT a.id, d.object_id_identity, null, b.id, ${true}
 FROM acl_class a,
      acl_sid b,
      acl_repo_root d
 WHERE a.class = 'org.openl.security.acl.repository.Root'
-  AND b.principal = false
+  AND b.principal = ${false}
   AND b.sid = 'ADMIN';
