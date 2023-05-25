@@ -13,8 +13,8 @@ public class JdbcMutableAclService extends org.springframework.security.acls.jdb
     public final String jdbcUrl;
 
     private String deleteSidQuery = "delete from acl_sid where id=?";
-    private String updateOwnerQuery = "update acl_object_identity aoi set aoi.owner_sid = ? where aoi.owner_sid = ?";
-    private String deleteEntriesBySidQuery = "delete from acl_entry ace where ace.sid=?";
+    private String updateOwnerQuery = "update acl_object_identity set owner_sid = ? where owner_sid = ?";
+    private String deleteEntriesBySidQuery = "delete from acl_entry where sid=?";
     private String updateSidQuery = "update acl_sid set sid = ? where sid = ? and principal=?";
 
     private final AclCache aclCache;
