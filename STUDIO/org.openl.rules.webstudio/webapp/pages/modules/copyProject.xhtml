@@ -256,7 +256,9 @@
         function copyProjectWithRequiredInfo(originalSubmit, projectName) {
             let afterAction = () => $j('#copyProjectForm\\:copyButton').click();
 
-            if (#{hasTags}) {
+            if (#{hasTags} && #{canCreateNewProject}
+        )
+            {
                 var $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
                 if ($separateProjectCheckbox.length === 0 || $separateProjectCheckbox.is(':checked')) {
                     afterAction = () => createProjectTags(projectName, originalSubmit);
