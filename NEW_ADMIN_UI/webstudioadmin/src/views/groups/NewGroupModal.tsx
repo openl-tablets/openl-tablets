@@ -4,8 +4,14 @@ import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import CreateGroupDataSource from './CreateGroupDataSource';
 import { AlignType } from 'rc-table/lib/interface'
 
+const JSON_HEADERS = {
+    "Content-Type": "application/json",
+};
 
 export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> = ({ addNewGroup }) => {
+
+    const apiURL = "https://demo.openl-tablets.org/nightly/webstudio/rest";
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
@@ -22,6 +28,30 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
         testers: string;
         viewers: string;
         [key: string]: string | React.Key;
+    };
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const hideModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const createGroup = () => {
+        fetch(`${apiURL}/admin/management/groups`, {
+            method: "PUT",
+            headers: JSON_HEADERS,
+            body: JSON.stringify({
+                name,
+                description,
+                privileges,
+                selectedColumns,
+            }),
+        }).then(applyResult);
+    };
+    const applyResult = (result: any) => {
+        hideModal();
+
     };
 
 
@@ -137,25 +167,18 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
         },
     ];
 
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
-
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
 
     return (
         <div >
             <Button onClick={showModal} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
                 Add new group
             </Button>
-            <Modal title="Create new group" open={isModalOpen} onCancel={handleCancel} width={850}
+            <Modal title="Create new group" open={isModalOpen} onCancel={hideModal} width={850}
                 footer={[
-                    <Button key="back" onClick={handleCancel}>
+                    <Button key="back" onClick={hideModal}>
                         Cancel
                     </Button>,
-                    <Button key="submit" onClick={handleSubmit} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
+                    <Button key="submit" onClick={createGroup} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
                         Create
                     </Button>]}>
                 <div >
@@ -174,7 +197,6 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
                                     rowSelection={rowSelection}
                                     dataSource={CreateGroupDataSource} columns={columns} />
                             </Form.Item>
-
                         </Form.Item>
                     </Form>
                 </div>

@@ -25,7 +25,7 @@ export const AdminMenu: React.FC = () => {
                 <Menu.Item key="/repository/design" icon={<FolderOutlined />} >Repository</Menu.Item>
                 <Menu.Item key="/system" icon={<SettingOutlined />} >System</Menu.Item>
                 <Menu.Item key="/users" icon={<UserOutlined />} >Users</Menu.Item>
-                <Menu.Item key="/groups" icon={<UserOutlined />} >Groups & Privileges</Menu.Item>
+                <Menu.Item key="/admin/management/groups" icon={<UserOutlined />} >Groups & Privileges</Menu.Item>
                 <Menu.Item key="/notification" icon={<NotificationOutlined />} >Notification</Menu.Item>
                 <Menu.Item key="/tags" icon={<NumberOutlined />} >Tags</Menu.Item>
                 <Menu.Item key="/mail" icon={<MailOutlined />} >Mail</Menu.Item>

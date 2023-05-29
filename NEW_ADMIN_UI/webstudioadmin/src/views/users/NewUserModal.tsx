@@ -1,24 +1,56 @@
 import React, { useState } from 'react';
 import { Button, Checkbox, Col, Form, Input, Modal, Row, Select } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
+import { NavLink, useHref } from "react-router-dom";
 
-export const ModalNewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({ addNewUser }) => {
+
+const JSON_HEADERS = {
+    "Content-Type": "application/json",
+};
+
+export const ModalNewUser: React.FC = () => {
+    // React.FC<{ addNewUser: (newUser: any) => void }> = ({ addNewUser }) => {
+
+    // const apiURL = "https://demo.openl-tablets.org/nightly/webstudio/rest";
+   const apiURL=""
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [userName, setUserName] = useState("");
+    const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [displayName, setDisplayName] = useState("");
-    const [group, setGroup] = useState<CheckboxValueType[]>([]);
-    const [order, setOrder] = useState("");
+    const [groups, setGroups] = useState<CheckboxValueType[]>([]);
 
     const showModal = () => {
         setIsModalOpen(true);
     };
 
-    const handleCancel = () => {
+    const hideModal = () => {
         setIsModalOpen(false);
+    };
+
+    const createUser = async () => {
+        try {
+            await fetch(`${apiURL}/users`, {
+                method: "PUT",
+                headers: JSON_HEADERS,
+                body: JSON.stringify({
+                    username,
+                    email,
+                    password,
+                    firstName,
+                    lastName,
+                    groups,
+                }),
+            }).then(applyResult);
+        } catch (error) {
+            console.log("Error:" + error);
+        }
+    };
+
+    const applyResult = (result: any) => {
+        hideModal();
     };
 
     const displayOrder = [
@@ -34,33 +66,33 @@ export const ModalNewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({
             value: "Other",
             label: "Other",
         }
-    ]
+    ];
 
     const onChange = (checkedValues: CheckboxValueType[]) => {
-        setGroup(checkedValues);
+        setGroups(checkedValues);
     };
 
-    const handleSubmit = (e: React.SyntheticEvent) => {
-        e.preventDefault();
-        const newUser = {
-            userName,
-            email,
-            password,
-            firstName,
-            lastName,
-            displayName,
-            groups: group,
-        };
-        addNewUser(newUser);
-        setUserName("");
-        setEmail("");
-        setPassword("");
-        setFirstName("");
-        setLastName("");
-        setDisplayName("");
-        setGroup([]);
-        setIsModalOpen(false);
-    };
+    // const handleSubmit = (e: React.SyntheticEvent) => {
+    //     e.preventDefault();
+    //     const newUser = {
+    //         username,
+    //         email,
+    //         password,
+    //         firstName,
+    //         lastName,
+    //         displayName,
+    //         groups: groups,
+    //     };
+    //     addNewUser(newUser);
+    //     setUsername("");
+    //     setEmail("");
+    //     setPassword("");
+    //     setFirstName("");
+    //     setLastName("");
+    //     setDisplayName("");
+    //     setGroups([]);
+    //     setIsModalOpen(false);
+    // };
 
     return (
         <>
@@ -68,18 +100,20 @@ export const ModalNewUser: React.FC<{ addNewUser: (newUser: any) => void }> = ({
                 Add new user
             </Button>
             <Modal title="Create new user" open={isModalOpen}
-            footer={[
-                <Button key="back" onClick={handleCancel}>
-                  Cancel
-                </Button>,
-                <Button key="submit"  onClick={handleSubmit} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
-                  Create
-                </Button>]}
-                >
+                onCancel={hideModal}
+
+                footer={[
+                    <Button key="back" onClick={hideModal}>
+                        Cancel
+                    </Button>,
+                    <Button key="submit" onClick={createUser} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
+                        Create
+                    </Button>]}
+            >
                 <Form layout="vertical">
                     <Form.Item><b>Account</b></Form.Item>
                     <Form.Item label="Username">
-                        <Input id="userName" value={userName} onChange={(e) => setUserName(e.target.value)} />
+                        <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
                     </Form.Item>
                     <Form.Item label="Email">
                         <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} />
