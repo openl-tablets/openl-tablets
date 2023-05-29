@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Card, Checkbox, Col, Form, Input, Modal, Row, Select } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
-import TableUserInfo from './TableUserInfo';
+// import TableUserInfo from './TableUserInfo';
 import { useNavigate } from 'react-router-dom';
 
 const displayOrder = [
@@ -22,7 +22,7 @@ const displayOrder = [
 interface EditUserProps {
     user: {
         key: string;
-        userName: string;
+        username: string;
         email: string;
         password: string;
         firstName: string;
@@ -34,11 +34,17 @@ interface EditUserProps {
     onUpdateUserData: (userData: any[]) => any[];
     onSave: () => void;
 }
+const JSON_HEADERS = {
+    "Content-Type": "application/json",
+};
+
 
 export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onUpdateUserData, onSave }) => {
-    const { userName: initialUserName, email: initialEmail, password: initialPassword, firstName: initialFirstName, lastName: initialLastName } = user
-    const [editModalVisible, setEditModalVisible] = useState(true);
-    const [userName, setUserName] = useState(initialUserName);
+    const apiURL = "https://demo.openl-tablets.org/nightly/webstudio/rest";
+
+    const { username: initialUsername, email: initialEmail, password: initialPassword, firstName: initialFirstName, lastName: initialLastName } = user
+    const [isModalOpen, setIsModalOpen] = useState(true);
+    const [username, setUsername] = useState(initialUsername);
     const [email, setEmail] = useState(initialEmail);
     const [password, setPassword] = useState(initialPassword);
     const [firstName, setFirstName] = useState(initialFirstName);
@@ -47,10 +53,22 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onUpd
     const [groups, setGroups] = useState<CheckboxValueType[]>(user.groups);
     const [editedUser, setEditedUser] = useState(user);
 
-    const [userData, setUserData] = useState(TableUserInfo);
+    // const [userData, setUserData] = useState(TableUserInfo);
+    const [userData, setUserData] = useState([]);
 
-    const handleUserNameInputChange = (e: any) => {
-        setUserName(e.target.value);
+    const updateUser1 = () => {
+        fetch(
+            `${apiURL}/users/{username}`,
+            {
+                method: "PUT",
+                headers: JSON_HEADERS,
+                body: JSON.stringify(userData),
+            }
+        )
+    };
+
+    const handleUsernameInputChange = (e: any) => {
+        setUsername(e.target.value);
     };
 
     const handleEmailInputChange = (e: any) => {
@@ -78,7 +96,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onUpd
     const handleSave = () => {
         const editedUser = {
             ...user,
-            userName: userName,
+            username: username,
             email: email,
             password: password,
             firstName: firstName,
@@ -87,11 +105,11 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onUpd
             groups: groups,
         };
 
-        updateUser(editedUser);
+        // updateUser1(editedUser);
         onUpdateUserData = (userData: any[]): any[] => {
             return userData.map((user: any) => (user.key === editedUser.key ? editedUser : user));
         };
-        setEditModalVisible(false);
+        setIsModalOpen(false);
         onSave();
 
         console.log(editedUser);
@@ -103,9 +121,9 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onUpd
                 <Form.Item><b>Account</b></Form.Item>
                 <Form.Item label="Username">
                     <Input
-                        id="userName"
-                        value={userName}
-                        onChange={handleUserNameInputChange}
+                        id="username"
+                        value={username}
+                        onChange={handleUsernameInputChange}
                     />
                 </Form.Item>
                 <Form.Item label="Email">
@@ -172,7 +190,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onUpd
                     <Row style={{ float: "right" }}>
                         <Button
                             key="submit"
-                            onClick={handleSave}
+                            onClick={updateUser1}
                             style={{
                                 marginLeft: 15,
                                 marginTop: 15,

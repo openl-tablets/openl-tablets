@@ -1,15 +1,23 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { Button, Card, Modal, Table, Tag } from 'antd';
 import { CloseCircleOutlined } from '@ant-design/icons';
 import DefaultLayout from '../components/DefaultLayout';
-import TableUserInfo from 'views/users/TableUserInfo';
+// import TableUserInfo from 'views/users/TableUserInfo';
 import { ModalNewUser } from 'views/users/NewUserModal';
 import { EditUserModal } from 'views/users/EditUserModal';
 
+const JSON_HEADERS = {
+    "Content-Type": "application/json",
+};
+
 export const UserPage: React.FC = () => {
+
+    // const apiURL = "https://demo.openl-tablets.org/nightly/webstudio/rest";
+    const apiURL = "http://localhost:8080/webstudio/rest"
     const [editModalVisible, setEditModalVisible] = useState(false);
     const [selectedUser, setSelectedUser] = useState<any>({});
-    const [userData, setUserData] = useState(TableUserInfo);
+    // const [userData, setUserData] = useState(TableUserInfo);
+    const [userData, setUserData] = useState([]);
 
     const showModal = () => {
         setEditModalVisible(true);
@@ -17,6 +25,23 @@ export const UserPage: React.FC = () => {
 
     const hideModal = () => {
         setEditModalVisible(false);
+    };
+
+    const fetchUsers = async () => {
+        fetch(`${apiURL}/users`)
+            .then((response) => response.json())
+            .then((jsonResponse) => setUserData(jsonResponse));
+    };
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const removeUser = (username: any) => {
+        fetch(`${apiURL}/users/` + username, {
+            method: "DELETE",
+        })
+            .then(fetchUsers);
     };
 
     const columns = [
@@ -49,20 +74,20 @@ export const UserPage: React.FC = () => {
             title: "Groups",
             dataIndex: "groups",
             key: "groups",
-            render: (groups: string[]) => (
-                <>
-                    {groups.map(group => {
-                        let color = "grey";
-                        group === "Administrators" ? color = "red" : color = "blue";
+            // render: (groups: string[]) => (
+            //     <>
+            //         {groups.map(group => {
+            //             let color = "grey";
+            //             group === "Administrators" ? color = "red" : color = "blue";
 
-                        return (
-                            <Tag color={color} key={group} style={{ margin: 2 }}>
-                                {group}
-                            </Tag>
-                        );
-                    })}
-                </>
-            ),
+            //             return (
+            //                 <Tag color={color} key={group} style={{ margin: 2 }}>
+            //                     {group}
+            //                 </Tag>
+            //             );
+            //         })}
+            //     </>
+            // ),
         },
         {
             title: "Action",
@@ -72,26 +97,25 @@ export const UserPage: React.FC = () => {
                 <Button
                     type="text"
                     icon={<CloseCircleOutlined />}
-                    onClick={() => setUserData(userData.filter(item => item.key !== key))}
+                // onClick={() => setUserData(userData.filter(item => item.key !== key))}
+
+                // IDĖTI IŠTRYNIMO FUNKCIJĄ
                 >
                 </Button>
             ),
         },
     ];
 
+    // const addNewUser = (newUser: { key: string; userName: string; firstName: string; lastName: string; email: string; displayName: string; groups: string[]; action: "" }) => {
+    //     setUserData((data) => [...data, newUser]);
+    // };
 
-    const addNewUser = (newUser: { key: string; userName: string; firstName: string; lastName: string; email: string; displayName: string; groups: string[]; action: "" }) => {
-        setUserData((data) => [...data, newUser]);
-    };
-
-
-    const updateUser = (updatedUser: any) => {
-        setUserData((userData) =>
-            userData.map((user) => (user.key === updatedUser.key ? updatedUser : user))
-        );
-        setSelectedUser(updatedUser);
-    };
-
+    // const updateUser = (updatedUser: any) => {
+    //     setUserData((userData) =>
+    //         userData.map((user) => (user.key === updatedUser.key ? updatedUser : user))
+    //     );
+    //     setSelectedUser(updatedUser);
+    // };
 
     const handleDoubleRowClick = (record: any) => {
         setSelectedUser({ ...record });
@@ -99,30 +123,31 @@ export const UserPage: React.FC = () => {
         console.log('Clicked row:', record);
     };
 
-
     const userModalKey = useMemo(() => {
         return selectedUser.key + editModalVisible
     }, [selectedUser, editModalVisible])
 
 
-    const handleEditUserSave = () => {
-        updateUser(selectedUser);
-        setEditModalVisible(false);
-        console.log(selectedUser);
-    };
-
+    // const handleEditUserSave = () => {
+    //     updateUser(selectedUser);
+    //     setEditModalVisible(false);
+    //     console.log(selectedUser);
+    // };
 
     return (
         <DefaultLayout>
             <Card style={{ margin: 20, width: 900 }}>
                 <Table
+                    // rowKey={(record) => record.username}
                     columns={columns}
                     dataSource={userData}
                     pagination={{ hideOnSinglePage: true }}
                     onRow={(record) => ({
                         onDoubleClick: () => handleDoubleRowClick(record),
                     })} />
-                <ModalNewUser addNewUser={addNewUser} />
+                <ModalNewUser
+                // addNewUser={addNewUser}
+                />
                 <Modal
                     key={userModalKey}
                     open={editModalVisible}
@@ -136,12 +161,12 @@ export const UserPage: React.FC = () => {
                         // </Button>
                     ]}
                 >
-                    <EditUserModal
+                    {/* <EditUserModal
                         user={selectedUser}
                         updateUser={updateUser}
                         onUpdateUserData={setUserData}
                         onSave={handleEditUserSave}
-                    />
+                    /> */}
                 </Modal>
             </Card>
         </DefaultLayout>

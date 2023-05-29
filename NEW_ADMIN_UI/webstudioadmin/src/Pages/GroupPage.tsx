@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Card, Table, Tag, Form, Input, Divider, Row, Col } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { CloseCircleOutlined, CloseOutlined } from '@ant-design/icons';
@@ -8,11 +8,34 @@ import { NewGroupModal } from 'views/groups/NewGroupModal';
 
 export const GroupPage: React.FC = () => {
 
+    const apiURL = "https://demo.openl-tablets.org/nightly/webstudio/rest";
+    const [groupData, setGroupData] = useState([]);
+    // const [data, setData] = useState(TableGroupInfo);
+
     const navigate = useNavigate();
     const navigateCreateGroup = () => {
         let path = `/groups/create`;
         navigate(path);
-    }
+    };
+
+    const fetchGroups = () => {
+        fetch(`${apiURL}/admin/management/groups`)
+            .then((response) => response.json())
+            .then((jsonResponse) => setGroupData(jsonResponse));
+        console.log(groupData);
+    };
+
+    useEffect(() => {
+        fetchGroups();
+    },[]);
+
+    // const removeGroup = (username: any) => {
+    //     fetch(`${apiURL}/admin/management/groups/` + username, {
+    //         method: "DELETE",
+    //     })
+    //         .then(fetchGroups);
+    // };
+
 
     const columns = [
         {
@@ -29,43 +52,40 @@ export const GroupPage: React.FC = () => {
             title: "Privileges",
             dataIndex: "privileges",
             key: "privileges",
-            render: (privileges: string[]) => (
-                <>
-                    {privileges.map(privilege => {
-                        let color = "grey";
-                        // privilege === "Administrate" ? color = "red" : privilege === ("Developers" || "Testers" || "Viewers") ? color ="blue" : color = "grey";
-                        privilege === "Administrate" ? color = "red" : ((privilege === "Developers") || (privilege === "Testers") || (privilege === "Viewers")) ? color = "blue" : color = "default";
+            // render: (privileges: string[]) => (
+            //     <>
+            //         {privileges.map(privilege => {
+            //             let color = "grey";
+            //             // privilege === "Administrate" ? color = "red" : privilege === ("Developers" || "Testers" || "Viewers") ? color ="blue" : color = "grey";
+            //             privilege === "Administrate" ? color = "red" : ((privilege === "Developers") || (privilege === "Testers") || (privilege === "Viewers")) ? color = "blue" : color = "default";
 
-                        return (
-                            <Tag color={color} key={privilege} style={{ margin: 2 }}>
-                                {privilege}
-                            </Tag>
-                        );
-                    })}
-                </>
-            ),
+            //             return (
+            //                 <Tag color={color} key={privilege} style={{ margin: 2 }}>
+            //                     {privilege}
+            //                 </Tag>
+            //             );
+            //         })}
+            //     </>
+            // ),
         },
         {
             title: "Action",
             dataIndex: "Action",
             key: "Action",
-            render: (key: string) => (
-                <Button
-                    type="text"
-                    icon={<CloseCircleOutlined />}
-                    onClick={() => setData(data.filter(item => item.key !== key))}
-                >
-                </Button>
-            ),
+            // render: (key: string) => (
+            //     <Button
+            //         type="text"
+            //         icon={<CloseCircleOutlined />}
+            //         onClick={() => setData(data.filter(item => item.key !== key))}
+            //     >
+            //     </Button>
+            // ),
         },
-
     ]
 
-    const [data, setData] = useState(TableGroupInfo);
-
-    const addNewGroup = (newGroup: { key: string; name: string; description: string; privileges: []; action: "" }) => {
-        setData((data) => [...data, newGroup]);
-    }
+    // const addNewGroup = (newGroup: { key: string; name: string; description: string; privileges: []; action: "" }) => {
+    //     setData((data) => [...data, newGroup]);
+    // };
 
     return (
         <DefaultLayout>
@@ -84,8 +104,12 @@ export const GroupPage: React.FC = () => {
                     </Form.Item>
                 </Form>
                 <Divider />
-                <Table columns={columns} dataSource={data} pagination={{ hideOnSinglePage: true }} />
-                <NewGroupModal addNewGroup={addNewGroup} />
+                <Table
+                    columns={columns}
+                    dataSource={groupData}
+                    pagination={{ hideOnSinglePage: true }}
+                />
+                {/* <NewGroupModal addNewGroup={addNewGroup} /> */}
                 {/* <Button onClick={navigateCreateGroup} style={{ marginTop: 10 }}>Add new group</Button> */}
             </Card>
         </DefaultLayout>
