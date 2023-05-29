@@ -54,12 +54,8 @@ public class DeployConfigRepositoryController {
     @GetMapping("/features")
     @Operation(summary = "repos.get-features.summary", description = "repos.get-features.desc")
     public RepositoryFeatures getFeatures() {
-        if (deployConfigRepositoryAclService
-            .isGranted(getDeployConfigRepository().getId(), null, List.of(AclPermission.VIEW))) {
-            var supports = getDeployConfigRepository().supports();
-            return new RepositoryFeatures(false, supports.searchable());
-        }
-        throw new SecurityException();
+        var supports = getDeployConfigRepository().supports();
+        return new RepositoryFeatures(false, supports.searchable());
     }
 
     @GetMapping("/configs/{config-name}/history")

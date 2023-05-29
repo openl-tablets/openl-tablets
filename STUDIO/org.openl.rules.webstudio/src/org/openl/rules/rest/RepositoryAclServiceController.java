@@ -275,6 +275,14 @@ public class RepositoryAclServiceController {
             .toArray(String[]::new);
     }
 
+    private String getDeployConfigRepo(HttpSession session) {
+        UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
+        if (userWorkspace.getDesignTimeRepository().hasDeployConfigRepo()) {
+            return userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId();
+        }
+        return null;
+    }
+
     @Transactional
     @PostMapping(value = { "/runScript" }, consumes = { MediaType.TEXT_PLAIN })
     @Operation(summary = "mgmt.acl.run-script.summary", description = "mgmt.acl.run-script.desc")
@@ -283,6 +291,7 @@ public class RepositoryAclServiceController {
             @Parameter(description = "repo.acl.param.content.desc", content = @Content(examples = @ExampleObject("-- this line prevents system from accidental changes\n# List all permissions for all design repositories\nlist:design:\n\n# List all permissions for Example 1 - Bank Rating in 'design' repo\nlistAll:design/design:DESIGN/rules/Example 1 - Bank Rating\n\n# Add VIEW, EDIT, and DELETE permissions to Example 1 - Bank Rating for the user with username 'user'\nadd:design/design:DESIGN/rules/Example 1 - Bank Rating:user:user:VIEW,EDIT,DELETE\n\n# Set VIEW permission to Example 1 - Bank Rating for group with name 'Viewers'\nset:design::group:Viewers:VIEW\n\n# Remove VIEW permission from Example 1 - Bank Rating for group with name 'Viewers'\nremove:design::group:Viewers:VIEW"))) @RequestBody String content,
             HttpSession session) {
         StringBuilder ret = new StringBuilder();
+        final String defaultDeployConfigRepo = getDeployConfigRepo(session);
         try (Scanner scanner = new Scanner(content)) {
             int lineNum = 0;
             while (scanner.hasNextLine()) {
@@ -295,7 +304,7 @@ public class RepositoryAclServiceController {
                     continue;
                 }
                 try {
-                    AclCommandSupport.AclCommand command = AclCommandSupport.toCommand(line);
+                    AclCommandSupport.AclCommand command = AclCommandSupport.toCommand(line, defaultDeployConfigRepo);
                     if (AclCommandSupport.Action.ADD == command.action || AclCommandSupport.Action.SET == command.action) {
                         if (AclCommandSupport.SidType.USERNAME == command.sidType) {
                             if (AclCommandSupport.Action.SET == command.action) {
