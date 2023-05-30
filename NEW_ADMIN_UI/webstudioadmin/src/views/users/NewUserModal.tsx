@@ -8,11 +8,10 @@ const JSON_HEADERS = {
     "Content-Type": "application/json",
 };
 
-export const ModalNewUser: React.FC = () => {
+export const ModalNewUser: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers }) => {
     // React.FC<{ addNewUser: (newUser: any) => void }> = ({ addNewUser }) => {
 
-    // const apiURL = "https://demo.openl-tablets.org/nightly/webstudio/rest";
-   const apiURL=""
+    const apiURL = "http://localhost:8080/webstudio/rest";
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -32,20 +31,39 @@ export const ModalNewUser: React.FC = () => {
 
     const createUser = async () => {
         try {
+            const requestBody = {
+                email,
+                displayName,
+                firstName,
+                lastName,
+                password,
+                groups: groups.map(group => group.toString()),
+                username,
+                internalPassword: {
+                    password: password
+                }
+            };
+
             await fetch(`${apiURL}/users`, {
                 method: "PUT",
-                headers: JSON_HEADERS,
-                body: JSON.stringify({
-                    username,
-                    email,
-                    password,
-                    firstName,
-                    lastName,
-                    groups,
-                }),
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Basic YWRtaW46YWRtaW4="
+                },
+                body: JSON.stringify(requestBody)
             }).then(applyResult);
+            setUsername("");
+            setEmail("");
+            setPassword("");
+            setFirstName("");
+            setLastName("");
+            setDisplayName("");
+            setGroups([]);
+            setIsModalOpen(false);
+            console.log("Created User:", requestBody);
+            fetchUsers();
         } catch (error) {
-            console.log("Error:" + error);
+            console.error("Error creating user:", error);
         }
     };
 
@@ -72,27 +90,10 @@ export const ModalNewUser: React.FC = () => {
         setGroups(checkedValues);
     };
 
-    // const handleSubmit = (e: React.SyntheticEvent) => {
-    //     e.preventDefault();
-    //     const newUser = {
-    //         username,
-    //         email,
-    //         password,
-    //         firstName,
-    //         lastName,
-    //         displayName,
-    //         groups: groups,
-    //     };
-    //     addNewUser(newUser);
-    //     setUsername("");
-    //     setEmail("");
-    //     setPassword("");
-    //     setFirstName("");
-    //     setLastName("");
-    //     setDisplayName("");
-    //     setGroups([]);
-    //     setIsModalOpen(false);
-    // };
+    const handleSubmit = (e: React.SyntheticEvent) => {
+        e.preventDefault();
+        createUser();
+    };
 
     return (
         <>
@@ -106,7 +107,7 @@ export const ModalNewUser: React.FC = () => {
                     <Button key="back" onClick={hideModal}>
                         Cancel
                     </Button>,
-                    <Button key="submit" onClick={createUser} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
+                    <Button key="submit" onClick={handleSubmit} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
                         Create
                     </Button>]}
             >
@@ -137,10 +138,10 @@ export const ModalNewUser: React.FC = () => {
                         >
                         </Select>
                     </Form.Item>
-                    <Form.Item><b>Group</b></Form.Item>
+                    <Form.Item><b>Groups</b></Form.Item>
 
                     <Form.Item className="user-create-form_last-form-item">
-                        <Checkbox.Group onChange={onChange}>
+                        <Checkbox.Group value={groups} onChange={onChange}>
                             <Row>
                                 <Col span={8}>
                                     <Checkbox value="Administrators">Administrators</Checkbox>
