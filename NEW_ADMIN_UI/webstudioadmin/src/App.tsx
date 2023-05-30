@@ -11,7 +11,6 @@ import { RepoDeploymentPage } from 'Pages/RepoDeploymentPage';
 import { UserPage } from 'Pages/UserPage';
 import { RepoDeployConfPage } from 'Pages/RepoDeployConfPage';
 import { GroupPage } from 'Pages/GroupPage';
-import { NewUser } from "./views/users/NewUser";
 import { NewGroup } from "./views/groups/NewGroup";
 // import DataProvider from "./components/DataContext";
 
@@ -33,9 +32,6 @@ function App() {
                 <Route path='/repository/config' element={<RepoDeployConfPage />} />
                 <Route path='/repository/deployment' element={<RepoDeploymentPage />} />
                 <Route path='/groups/create' element={<NewGroup />} />
-                <Route path='/users/create' element={<NewUser addNewUser={function (newUser: any): void {
-                    throw new Error("Function not implemented.");
-                }} />} />
             </Routes>
         </BrowserRouter>
     );

@@ -6,49 +6,69 @@ import DefaultLayout from '../components/DefaultLayout';
 import { ModalNewUser } from 'views/users/NewUserModal';
 import { EditUserModal } from 'views/users/EditUserModal';
 
-const JSON_HEADERS = {
-    "Content-Type": "application/json",
-};
-
 export const UserPage: React.FC = () => {
 
-    // const apiURL = "https://demo.openl-tablets.org/nightly/webstudio/rest";
-    const apiURL = "http://localhost:8080/webstudio/rest"
-    const [editModalVisible, setEditModalVisible] = useState(false);
+    const apiURL = "http://localhost:8080/webstudio/rest";
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<any>({});
-    // const [userData, setUserData] = useState(TableUserInfo);
     const [userData, setUserData] = useState([]);
 
-    const showModal = () => {
-        setEditModalVisible(true);
+    const showNewUserModal = () => {
+        setIsModalOpen(true);
     };
 
-    const hideModal = () => {
-        setEditModalVisible(false);
+    const hideNewUserModal = () => {
+        setIsModalOpen(false);
     };
+
 
     const fetchUsers = async () => {
-        fetch(`${apiURL}/users`)
-            .then((response) => response.json())
-            .then((jsonResponse) => setUserData(jsonResponse));
+        try {
+            const response = await fetch(`${apiURL}/users`, {
+                headers: {
+                    Authorization: "Basic YWRtaW46YWRtaW4="
+                }
+            });
+            if (response.ok) {
+                const jsonResponse = await response.json();
+                setUserData(jsonResponse.map((user: any, index: any) => ({ ...user, key: index })));
+                console.log(jsonResponse)
+            } else {
+                console.error("Failed to fetch users:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Error fetching users:", error);
+        }
     };
 
     useEffect(() => {
         fetchUsers();
     }, []);
 
-    const removeUser = (username: any) => {
-        fetch(`${apiURL}/users/` + username, {
-            method: "DELETE",
-        })
-            .then(fetchUsers);
+    const removeUser = (username: string) => {
+        Modal.confirm({
+            title: 'Confirm Deletion',
+            content: 'Are you sure you want to delete this user?',
+
+            onOk: () => {
+                fetch(`${apiURL}/users/${username}`, {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: "Basic YWRtaW46YWRtaW4="
+                    }
+                })
+                    .then(fetchUsers);
+            },
+            onCancel: () => {
+            }
+        });
     };
 
     const columns = [
         {
             title: "Username",
-            dataIndex: "userName",
-            key: "userName",
+            dataIndex: "username",
+            key: "username",
         },
         {
             title: "First name",
@@ -75,7 +95,7 @@ export const UserPage: React.FC = () => {
             dataIndex: "groups",
             key: "groups",
             // render: (groups: string[]) => (
-            //     <>
+            //     <div>
             //         {groups.map(group => {
             //             let color = "grey";
             //             group === "Administrators" ? color = "red" : color = "blue";
@@ -86,29 +106,22 @@ export const UserPage: React.FC = () => {
             //                 </Tag>
             //             );
             //         })}
-            //     </>
+            //     </div>
             // ),
         },
         {
             title: "Action",
             dataIndex: "Action",
             key: "Action",
-            render: (key: string) => (
+            render: (text: string, record: any) => (
                 <Button
                     type="text"
                     icon={<CloseCircleOutlined />}
-                // onClick={() => setUserData(userData.filter(item => item.key !== key))}
-
-                // IDĖTI IŠTRYNIMO FUNKCIJĄ
-                >
-                </Button>
+                    onClick={() => removeUser(record.username)}
+                />
             ),
         },
     ];
-
-    // const addNewUser = (newUser: { key: string; userName: string; firstName: string; lastName: string; email: string; displayName: string; groups: string[]; action: "" }) => {
-    //     setUserData((data) => [...data, newUser]);
-    // };
 
     // const updateUser = (updatedUser: any) => {
     //     setUserData((userData) =>
@@ -119,13 +132,13 @@ export const UserPage: React.FC = () => {
 
     const handleDoubleRowClick = (record: any) => {
         setSelectedUser({ ...record });
-        showModal();
+        showNewUserModal();
         console.log('Clicked row:', record);
     };
 
     const userModalKey = useMemo(() => {
-        return selectedUser.key + editModalVisible
-    }, [selectedUser, editModalVisible])
+        return selectedUser.key + isModalOpen
+    }, [selectedUser, isModalOpen])
 
 
     // const handleEditUserSave = () => {
@@ -138,7 +151,7 @@ export const UserPage: React.FC = () => {
         <DefaultLayout>
             <Card style={{ margin: 20, width: 900 }}>
                 <Table
-                    // rowKey={(record) => record.username}
+                    rowKey={(record) => record.username}
                     columns={columns}
                     dataSource={userData}
                     pagination={{ hideOnSinglePage: true }}
@@ -146,12 +159,12 @@ export const UserPage: React.FC = () => {
                         onDoubleClick: () => handleDoubleRowClick(record),
                     })} />
                 <ModalNewUser
-                // addNewUser={addNewUser}
+                    fetchUsers={fetchUsers}
                 />
                 <Modal
                     key={userModalKey}
-                    open={editModalVisible}
-                    onCancel={hideModal}
+                    open={isModalOpen}
+                    onCancel={hideNewUserModal}
                     footer={[
                         // <Button key="back" onClick={handleCancel}>
                         //     Back
@@ -167,8 +180,12 @@ export const UserPage: React.FC = () => {
                         onUpdateUserData={setUserData}
                         onSave={handleEditUserSave}
                     /> */}
+
                 </Modal>
+
             </Card>
+
         </DefaultLayout>
+
     )
 };
