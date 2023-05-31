@@ -1,4 +1,4 @@
-package org.openl.rules.lang.xls.classes.test;
+package org.openl.rules.ui.tablewizard.test;
 
 public class TestBean {
 

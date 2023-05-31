@@ -1,16 +1,23 @@
 package org.openl.rules.ui.tablewizard;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.openl.base.INamedThing;
-import org.openl.rules.lang.xls.classes.ClassFinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -24,6 +31,8 @@ import org.slf4j.LoggerFactory;
  * @author Aliaksandr Antonik.
  */
 public final class WizardUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WizardUtils.class);
 
     private WizardUtils() {
     }
@@ -109,14 +118,13 @@ public final class WizardUtils {
         Set<IOpenClass> classes = new TreeSet<>(
             (o1, o2) -> o1.getDisplayName(INamedThing.SHORT).compareToIgnoreCase(o2.getDisplayName(INamedThing.SHORT)));
 
-        ClassFinder finder = new ClassFinder();
         for (String packageName : WebStudioUtils.getProjectModel().getXlsModuleNode().getImports()) {
             if ("org.openl.rules.enumeration".equals(packageName)) {
                 // This package is added automatically in XlsLoader.addInnerImports() for inner usage, not for user.
                 continue;
             }
             ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
-            for (Class<?> type : finder.getClasses(packageName, classLoader)) {
+            for (Class<?> type : getClasses(packageName, classLoader)) {
                 IOpenClass openType;
                 try {
                     openType = JavaOpenClass.getOpenClass(type);
@@ -156,4 +164,125 @@ public final class WizardUtils {
         return !openType.getFields().isEmpty();
 
     }
+
+
+    /**
+     * Scans all classes accessible from the given class loader which belong to the given package.
+     *
+     * @param packageName The package
+     * @param classLoader Class Loader
+     * @return The classes
+     */
+    static Set<Class<?>> getClasses(String packageName, ClassLoader classLoader) {
+        String path = packageName.replace('.', '/');
+        Enumeration<URL> resources;
+        try {
+            resources = classLoader.getResources(path);
+        } catch (IOException e) {
+            LOG.debug(e.getMessage(), e);
+            return Collections.emptySet();
+        }
+
+        Set<Class<?>> classes = new HashSet<>();
+
+        while (resources.hasMoreElements()) {
+            URL resource = resources.nextElement();
+            String protocol = resource.getProtocol();
+
+            if (protocol != null) {
+                switch (protocol.toLowerCase()) {
+                    case "file":
+                        loadFromDirectory(classes, packageName, classLoader, resource);
+                        break;
+                    case "jar":
+                    case "zip": // Used by BEA WebLogic Server
+                    case "wsjar": // Used by IBM WebSphere
+                        loadFromJar(classes, packageName, classLoader, resource);
+                        break;
+                    default:
+                        LOG.warn("A ClassLocator for protocol '{}' is not found.", protocol);
+                }
+            }
+        }
+        return classes;
+    }
+
+    private static void loadFromJar(Set<Class<?>> classes, String packageName, ClassLoader classLoader, URL pathURL) {
+        String jarPath = pathURL.getFile().split("!")[0];
+        URL jar;
+        try {
+            jar = new URL(jarPath);
+        } catch (MalformedURLException e) {
+            LOG.error(e.getMessage(), e);
+            return;
+        }
+
+        ZipInputStream zip = null;
+        try {
+            zip = new ZipInputStream(jar.openStream());
+            ZipEntry entry;
+
+            while ((entry = zip.getNextEntry()) != null) {
+                if (entry.getName().endsWith(".class")) {
+                    String fullClassName = entry.getName().replace(".class", "").replace('/', '.');
+                    if (fullClassName.startsWith(packageName)) {
+                        String className = fullClassName.substring(packageName.length() + 1);
+                        if (!className.contains(".") && !className.contains("$")) {
+                            try {
+                                classes.add(Class.forName(fullClassName, true, classLoader));
+                            } catch (Exception | LinkageError e) {
+                                LOG.debug(e.getMessage(), e);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOG.error(e.getMessage(), e);
+        } finally {
+            if (zip != null) {
+                try {
+                    zip.close();
+                } catch (IOException e) {
+                    LOG.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    private static void loadFromDirectory(Set<Class<?>> classes, String packageName, ClassLoader classLoader, URL pathURL) {
+        File directory;
+
+        try {
+            directory = new File(pathURL.toURI());
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return;
+        }
+
+        if (!directory.exists()) {
+            return;
+        }
+
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                String fileName = file.getName();
+                if (!file.isDirectory()) {
+                    String suffix = ".class";
+                    if (fileName.endsWith(suffix) && !fileName.contains("$")) {
+                        try {
+                            String className = fileName.substring(0, fileName.length() - suffix.length());
+                            String fullClassName = packageName + '.' + className;
+                            Class<?> type = Class.forName(fullClassName, true, classLoader);
+                            classes.add(type);
+                        } catch (Exception | LinkageError e) {
+                            LOG.debug(e.getMessage(), e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
