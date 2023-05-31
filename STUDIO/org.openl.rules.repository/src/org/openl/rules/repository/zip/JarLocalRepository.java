@@ -4,19 +4,20 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 
+import org.openl.util.ClassUtils;
 import org.openl.util.FileUtils;
-import org.openl.util.ZipUtils;
 
 /**
  * Read only implementation of Jar Repository to support deploying of jars from classpath as it is without
@@ -30,22 +31,16 @@ import org.openl.util.ZipUtils;
  */
 public class JarLocalRepository extends AbstractArchiveRepository {
 
-    private static final String PROJECT_DESCRIPTOR_FILE = "rules.xml";
-    private static final String DEPLOYMENT_DESCRIPTOR_XML_FILE = "deployment.xml";
-    private static final String DEPLOYMENT_DESCRIPTOR_YAML_FILE = "deployment.yaml";
-
     private final PathMatchingResourcePatternResolver resourceResolver = new PathMatchingResourcePatternResolver();
 
     public void initialize() {
         final Map<String, Path> localStorage = new HashMap<>();
-        final Consumer<Resource> collector = res -> {
+        final Consumer<String> collector = urlString -> {
             try {
-                final URI uri = res.getURI();
                 final String name;
                 final Path path;
-                if (uri.getScheme().startsWith("vfs")) {
+                if (urlString.startsWith("vfs")) {
                     // JBoss VFS Support
-                    String urlString = res.getURL().toString();
                     int extPos = urlString.lastIndexOf(".jar");
                     if (extPos < 0) {
                         extPos = urlString.lastIndexOf(".zip");
@@ -55,29 +50,36 @@ public class JarLocalRepository extends AbstractArchiveRepository {
                     path = vfsFile.getFile().toPath().getParent().resolve(vfsFile.getName());
                     name = FileUtils.getBaseName(vfsFile.getName());
                 } else {
-                    path = ZipUtils.toPath(uri);
-                    name = FileUtils.getBaseName(path.getFileName().toString());
+                    URL a = new URL(urlString);
+                    URI b = a.toURI();
+                    FileSystem c = FileSystems.newFileSystem(b, Collections.emptyMap());
+                    Path d = c.getPath("/");
+                    String e = FileUtils.getName(urlString);
+                    path = d;
+                    name = FileUtils.getBaseName(e);
                 }
                 if (localStorage.containsKey(name)) {
                     throw new IllegalStateException(String.format("The resource with name '%s' already exits.", name));
                 }
                 localStorage.put(name, path);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new IllegalStateException("Failed to initialize a repository.", e);
             }
         };
 
         try {
-            getResources(PROJECT_DESCRIPTOR_FILE).forEach(collector);
-            getResources(DEPLOYMENT_DESCRIPTOR_XML_FILE).forEach(collector);
-            getResources(DEPLOYMENT_DESCRIPTOR_YAML_FILE).forEach(collector);
-            Stream<Resource> archives;
+            getResources("rules.xml", collector);
+            getResources("deployment.xml", collector);
+            getResources("deployment.yaml", collector);
+            URL resource = ClassUtils.getCurrentClassLoader(getClass()).getResource("/openl/");
             try {
-                archives = Stream.of(resourceResolver.getResources("/openl/*.zip"));
-            } catch (FileNotFoundException ignored) {
-                archives = Stream.empty();// OK
+                var archives = resourceResolver.getResources("/openl/*.zip");
+                for (Resource res : archives) {
+                    collector.accept(res.getURL().toExternalForm());
+                }
+            } catch (FileNotFoundException ignore) {
+                // Nothing to add
             }
-            archives.forEach(collector);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to initialize a repository.", e);
         }
@@ -91,9 +93,12 @@ public class JarLocalRepository extends AbstractArchiveRepository {
         setRoot(root);
     }
 
-    private Stream<Resource> getResources(String fileName) throws IOException {
-        String locationPattern = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + fileName;
-        return Stream.of(resourceResolver.getResources(locationPattern));
+    private void getResources(String fileName, Consumer<String> collector) throws IOException {
+        var urls = ClassUtils.getCurrentClassLoader(getClass()).getResources(fileName);
+        while (urls.hasMoreElements()) {
+            var url = urls.nextElement().toExternalForm();
+            collector.accept(url.substring(0, url.length() - fileName.length() - 2));
+        }
     }
 
 }
