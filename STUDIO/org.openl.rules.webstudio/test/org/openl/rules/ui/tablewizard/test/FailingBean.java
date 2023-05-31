@@ -1,4 +1,4 @@
-package org.openl.rules.lang.xls.classes.test;
+package org.openl.rules.ui.tablewizard.test;
 
 public class FailingBean {
     public static FailingBean instance = new FailingBean();
