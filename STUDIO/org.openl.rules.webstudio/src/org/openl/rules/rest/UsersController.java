@@ -1,5 +1,14 @@
 package org.openl.rules.rest;
 
+import static org.openl.rules.ui.WebStudio.RULES_TREE_VIEW_DEFAULT;
+import static org.openl.rules.ui.WebStudio.TABLE_FORMULAS_SHOW;
+import static org.openl.rules.ui.WebStudio.TABLE_VIEW;
+import static org.openl.rules.ui.WebStudio.TEST_FAILURES_ONLY;
+import static org.openl.rules.ui.WebStudio.TEST_FAILURES_PERTEST;
+import static org.openl.rules.ui.WebStudio.TEST_RESULT_COMPLEX_SHOW;
+import static org.openl.rules.ui.WebStudio.TEST_TESTS_PERPAGE;
+import static org.openl.rules.ui.WebStudio.TRACE_REALNUMBERS_SHOW;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -57,8 +66,6 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
-import static org.openl.rules.ui.WebStudio.*;
 
 @RestController
 @RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
