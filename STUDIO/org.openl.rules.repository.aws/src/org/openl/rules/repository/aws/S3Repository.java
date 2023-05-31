@@ -497,6 +497,11 @@ public class S3Repository implements Repository, Closeable {
         // Create new version of modification marker file with new id
         ObjectMetadata metaData = new ObjectMetadata();
         metaData.setContentLength(0);
+
+        if (!StringUtils.isBlank(sseAlgorithm)) {
+            metaData.setSSEAlgorithm(sseAlgorithm);
+        }
+
         s3.putObject(bucketName, MODIFICATION_FILE, InputStream.nullInputStream(), metaData);
 
         // Invoke listener if exist
