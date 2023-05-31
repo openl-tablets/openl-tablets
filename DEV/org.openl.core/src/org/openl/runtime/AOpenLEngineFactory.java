@@ -7,6 +7,7 @@ import org.openl.OpenL;
 import org.openl.conf.IUserContext;
 import org.openl.conf.UserContext;
 import org.openl.types.IOpenMember;
+import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 import org.slf4j.Logger;
@@ -58,25 +59,11 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
         if (userContext == null) {
             synchronized (this) {
                 if (userContext == null) {
-                    userContext = new UserContext(getDefaultUserClassLoader(), userHome);
+                    userContext = new UserContext(ClassUtils.getCurrentClassLoader(getClass()), userHome);
                 }
             }
         }
         return userContext;
-    }
-
-    private ClassLoader getDefaultUserClassLoader() {
-        ClassLoader userClassLoader = Thread.currentThread().getContextClassLoader();
-
-        try {
-            // checking if classloader has openl, sometimes it does not
-            userClassLoader.loadClass(this.getClass().getName());
-        } catch (ClassNotFoundException cnfe) {
-            LOG.debug("Error occurred: ", cnfe);
-            userClassLoader = this.getClass().getClassLoader();
-        }
-
-        return userClassLoader;
     }
 
     @Override

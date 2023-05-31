@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.openl.util.ClassUtils;
 import org.openl.util.PropertiesUtils;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.EnumerablePropertySource;
-import org.springframework.util.ClassUtils;
 
 /**
  * OpenL default property sources. Collects all openl-default.properties files.
@@ -28,10 +28,7 @@ public class DefaultPropertySource extends EnumerablePropertySource<Map<String, 
         super(PROPS_NAME, new HashMap<>());
 
         try {
-            ClassLoader classLoader = ClassUtils.getDefaultClassLoader();
-            if (classLoader == null) {
-                classLoader = getClass().getClassLoader();
-            }
+            var classLoader = ClassUtils.getCurrentClassLoader(getClass());
             Enumeration<URL> resources = classLoader.getResources("openl-default.properties");
             while (resources.hasMoreElements()) {
                 URL url = resources.nextElement();
