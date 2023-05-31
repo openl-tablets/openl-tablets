@@ -6,6 +6,8 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.openl.spring.env.PropertySourcesLoader;
+import org.openl.util.ClassUtils;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -32,7 +34,7 @@ public final class SpringInitializer implements ServletContextListener {
         // So to prevent it we set current classloader which is usually a Web application root class loader.
         // We don't use classloader of this class because of this class can be packaged outside of the application.
         // e.g. as a common dependency for the Spring Boot application.
-        applicationContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+        applicationContext.setClassLoader(ClassUtils.getCurrentClassLoader(getClass()));
 
         applicationContext.setConfigLocations("classpath:openl-ruleservice-ws-beans.xml");
         new PropertySourcesLoader().initialize(applicationContext, servletContext);

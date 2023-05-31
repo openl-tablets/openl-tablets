@@ -10,7 +10,7 @@ import org.openl.OpenL;
  * @author snshor
  */
 
-public class OpenLConfigurator extends Configurator {
+public class OpenLConfigurator {
 
     public static final String OPENL_ALT_CONFIG_ROOT = "lang.config";
 

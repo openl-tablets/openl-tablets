@@ -7,6 +7,8 @@ import java.net.URLClassLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.openl.util.ClassUtils;
+
 final class ClasspathLogger extends OpenLLogger {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClasspathLogger.class);
@@ -19,10 +21,7 @@ final class ClasspathLogger extends OpenLLogger {
     @Override
     protected void discover() {
         log("Libs in the classpath:");
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        if (classLoader == null) {
-            classLoader = ClasspathLogger.class.getClassLoader();
-        }
+        var classLoader = ClassUtils.getCurrentClassLoader(getClass());
         while (classLoader != null) {
             log(getClassLoaderName(classLoader));
             if (classLoader instanceof URLClassLoader) {
