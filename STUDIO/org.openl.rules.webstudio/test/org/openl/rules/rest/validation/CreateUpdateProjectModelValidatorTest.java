@@ -285,7 +285,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
         assertEquals(0, bindingResult.getGlobalErrorCount());
 
         assertFieldError("path",
-            "Design Repository does not support folders. The path must be empty.",
+            "Design repository does not support folders. The path must be empty.",
             model.getPath(),
             bindingResult.getFieldError("path"));
 
@@ -350,7 +350,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
             validateAndGetResult(model, validator);
             fail("Ooops...");
         } catch (NotFoundException e) {
-            assertEquals("The 'Example 1 - Bank Rating' project is not found.", getLocalMessage(e));
+            assertEquals("The project 'Example 1 - Bank Rating' is not found.", getLocalMessage(e));
         }
 
         when(mockProject.getRealPath()).thenAnswer(inwok -> {
@@ -360,7 +360,7 @@ public class CreateUpdateProjectModelValidatorTest extends AbstractConstraintVal
             validateAndGetResult(model, validator);
             fail("Ooops...");
         } catch (NotFoundException e) {
-            assertEquals("The 'Example 1 - Bank Rating' project is not found.", getLocalMessage(e));
+            assertEquals("The project 'Example 1 - Bank Rating' is not found.", getLocalMessage(e));
         }
     }
 
