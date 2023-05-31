@@ -1,27 +1,21 @@
 package org.openl.rules.project.resolving;
 
+import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.PathEntry;
+import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
-import java.nio.file.FileVisitOption;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.openl.rules.project.model.Module;
-import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.util.FileTypeHelper;
-import org.openl.util.FileUtils;
-import org.openl.util.ZipUtils;
 
 /**
  * Resolver for simple OpenL project with only xls file.
@@ -102,10 +96,11 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setProjectFolder(folder.toRealPath());
         Path fileName = folder.getFileName();
-        if (folder.getFileName() == null) {
-            fileName = ZipUtils.toPath(folder.toUri()).getFileName();
+        if (fileName != null) {
+            project.setName(fileName.toString());
+        } else {
+            project.setName(FileUtils.getName(folder.getFileSystem().toString()));
         }
-        project.setName(fileName.toString());
         return project;
     }
 
