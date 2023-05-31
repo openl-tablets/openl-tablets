@@ -7,6 +7,7 @@
 package org.openl;
 
 import org.openl.conf.*;
+import org.openl.util.ClassUtils;
 
 /**
  * This class describes OpenL engine context abstraction that used during compilation process.
@@ -60,7 +61,7 @@ public class OpenL {
      */
     // TODO: Do not use this method! Should be removed!
     public static synchronized OpenL getInstance(String name) {
-        return getInstance(name, new UserContext(config.getClassLoader(), DEFAULT_USER_HOME));
+        return getInstance(name, new UserContext(ClassUtils.getCurrentClassLoader(config.getClass()), DEFAULT_USER_HOME));
     }
 
     /**

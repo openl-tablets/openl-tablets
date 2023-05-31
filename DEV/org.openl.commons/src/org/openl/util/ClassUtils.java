@@ -105,6 +105,29 @@ public final class ClassUtils {
         return clazz;
     }
 
+    public static ClassLoader getCurrentClassLoader(Class<?> clazz) {
+        ClassLoader cl = null;
+        try {
+            cl = Thread.currentThread().getContextClassLoader();
+        } catch (Throwable ex) {
+            // Cannot access thread context ClassLoader.
+        }
+
+        // The following code is added to reduce the cases when something go wrong.
+        // It is a candidate for deletion and refactoring, but not now.
+        if (cl == null && clazz != null) {
+            // Use a class loader of the given class.
+            cl = clazz.getClassLoader();
+        }
+        if (cl == null) {
+            // getClassLoader() returning null indicates the bootstrap ClassLoader
+            // It is very exceptional case.
+            cl = ClassLoader.getSystemClassLoader();
+        }
+
+        return cl;
+    }
+
     /**
      * <p>
      * Converts the specified primitive Class object to its corresponding wrapper Class object.
