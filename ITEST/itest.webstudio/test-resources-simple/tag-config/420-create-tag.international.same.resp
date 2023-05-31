@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.409.duplicated.tag.message",
-  "message": "The tag with the \"*\" name already exists."
+  "message": "The tag with the '*' name already exists."
 }

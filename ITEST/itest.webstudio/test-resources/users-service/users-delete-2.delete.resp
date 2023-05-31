@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.404.users.message",
-  "message": "The 'jsmith' user is not found."
+  "message": "The user 'jsmith' is not found."
 }

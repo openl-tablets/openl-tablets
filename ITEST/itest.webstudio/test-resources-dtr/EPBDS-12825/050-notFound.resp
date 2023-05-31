@@ -3,5 +3,5 @@ Content-Type: application/json
 
 {
   "code": "openl.error.404.project.message",
-  "message": "The 'unknown' project is not found."
+  "message": "The project 'unknown' is not found."
 }
