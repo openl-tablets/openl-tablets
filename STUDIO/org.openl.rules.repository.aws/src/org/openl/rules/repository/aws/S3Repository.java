@@ -499,7 +499,6 @@ public class S3Repository implements Repository, Closeable {
         metaData.setContentLength(0);
 
         if (StringUtils.isNotBlank(sseAlgorithm)) {
-
             metaData.setSSEAlgorithm(sseAlgorithm);
         }
 
