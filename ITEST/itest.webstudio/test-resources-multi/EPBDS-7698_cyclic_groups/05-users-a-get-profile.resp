@@ -24,27 +24,27 @@ Content-Type: application/json
   },
   "profiles": [
     {
-      "displayName":"Type",
+      "displayName":"By Type",
       "name":"type",
       "description":"Organize projects by component type"
     },
     {
-      "displayName":"Excel Sheet",
+      "displayName":"By Excel Sheet",
       "name":"excelSheet",
       "description":"Organize projects by physical file structure"
     },
     {
-      "displayName":"Category",
+      "displayName":"By Category",
       "name":"category",
       "description":"Provides categorized view"
     },
     {
-      "displayName":"Category Detailed",
+      "displayName":"By Category Detailed",
       "name":"categoryDetailed",
       "description":"Provides more detailed categorized view"
     },
     {
-      "displayName":"Category Inversed",
+      "displayName":"By Category Inversed",
       "name":"categoryInversed",
       "description":"Provides inversed categorized view"
     }

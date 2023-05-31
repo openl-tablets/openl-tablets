@@ -8,7 +8,7 @@ public class CategoryInversedProfile implements RulesProfile {
 
     @Override
     public String getDisplayName() {
-        return "Category Inversed";
+        return "By Category Inversed";
     }
 
     @Override

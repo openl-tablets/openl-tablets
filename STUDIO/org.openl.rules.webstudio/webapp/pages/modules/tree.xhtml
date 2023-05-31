@@ -29,11 +29,11 @@
                 <h:panelGroup rendered="#{studio.currentProject != null}" id="rulesTreeView" columns="2" layout="block" styleClass="filter-tables">
                     <div class="filter-view">
                         <span class="dropdown">
-                            <a class="dropdown-toggle link-text" data-toggle="dropdown" href="#">By #{studio.treeView.displayName}</a>
+                            <a class="dropdown-toggle link-text" data-toggle="dropdown" href="#">#{studio.treeView.displayName}</a>
                             <ul class="dropdown-menu link-dropdown-menu" role="menu">
                                 <ui:repeat value="#{studio.treeViews}" var="treeView">
                                 <li>
-                                    <h:commandLink tabindex="-1" value="By #{treeView.displayName}" action="#{treeBean.setCurrentView(treeView.name)}">
+                                    <h:commandLink tabindex="-1" value="#{treeView.displayName}" action="#{treeBean.setCurrentView(treeView.name)}">
                                         <f:ajax render="@form :rulesTree" />
                                     </h:commandLink>
                                 </li>

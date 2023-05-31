@@ -8,7 +8,7 @@ public class CategoryProfile implements RulesProfile {
 
     @Override
     public String getDisplayName() {
-        return "Category";
+        return "By Category";
     }
 
     @Override

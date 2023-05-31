@@ -8,7 +8,7 @@ public class ExcelSheetProfile implements RulesProfile {
 
     @Override
     public String getDisplayName() {
-        return "Excel Sheet";
+        return "By Excel Sheet";
     }
 
     @Override

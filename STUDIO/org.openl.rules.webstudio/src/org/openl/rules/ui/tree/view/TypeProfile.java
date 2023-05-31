@@ -8,7 +8,7 @@ public class TypeProfile implements RulesProfile {
 
     @Override
     public String getDisplayName() {
-        return "Type";
+        return "By Type";
     }
 
     @Override
