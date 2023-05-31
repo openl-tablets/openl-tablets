@@ -320,6 +320,24 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>3.2.5</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <openl.home>${openl.home}</openl.home>
+                            <openl.info>${openl.info}</openl.info>
+                            <openl.config.location />
+                            <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
+                        </systemPropertyVariables>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>com.bazaarvoice.maven.plugins</groupId>
+                    <artifactId>process-exec-maven-plugin</artifactId>
+                    <version>0.7</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>3.4.0</version>
                     <configuration>
@@ -520,6 +538,7 @@
                 <maven.test.skip>${skipTestsForQuick}</maven.test.skip>
                 <archetype.test.skip>${skipTestsForQuick}</archetype.test.skip>
                 <invoker.skip>${skipTestsForQuick}</invoker.skip>
+                <exec.skip>${skipTestsForQuick}</exec.skip>
             </properties>
         </profile>
         <profile>
@@ -533,6 +552,7 @@
                 <maven.test.skip>true</maven.test.skip>
                 <archetype.test.skip>true</archetype.test.skip>
                 <invoker.skip>true</invoker.skip>
+                <exec.skip>true</exec.skip>
             </properties>
         </profile>
         <profile>
