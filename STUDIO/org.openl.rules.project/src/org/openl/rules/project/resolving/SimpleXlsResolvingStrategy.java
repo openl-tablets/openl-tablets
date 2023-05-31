@@ -21,7 +21,6 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
-import org.openl.util.ZipUtils;
 
 /**
  * Resolver for simple OpenL project with only xls file.
@@ -102,10 +101,11 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setProjectFolder(folder.toRealPath());
         Path fileName = folder.getFileName();
-        if (folder.getFileName() == null) {
-            fileName = ZipUtils.toPath(folder.toUri()).getFileName();
+        if (fileName != null) {
+            project.setName(fileName.toString());
+        } else {
+            project.setName(FileUtils.getName(folder.getFileSystem().toString()));
         }
-        project.setName(fileName.toString());
         return project;
     }
 
