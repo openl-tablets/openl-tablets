@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { DBTestConfiguration.class, AclServiceTestConfiguration.class })
-@TestPropertySource(properties = { "db.url = jdbc:h2:mem:temp;MODE=LEGACY;DB_CLOSE_DELAY=-1",
+@TestPropertySource(properties = { "db.url = jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1",
         "db.user =",
         "db.password =" })
 public class SecurityAnnotationsSupportTest {
