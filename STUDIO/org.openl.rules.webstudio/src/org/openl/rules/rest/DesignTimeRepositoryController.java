@@ -216,17 +216,13 @@ public class DesignTimeRepositoryController {
             @Parameter(description = "repos.create-project-from-zip.param.overwrite.desc") @RequestParam(value = "overwrite", required = false, defaultValue = "false") Boolean overwrite) throws IOException,
                                                                                                                                                                                            JAXBException {
         if (overwrite) {
-            if (!designRepositoryAclService
-                .isGranted(repository.getId(),
-                    repository.supports().mappedFolders() && !StringUtils.isBlank(path) ? RepositoryAclServiceImpl
-                        .concatPaths(path, projectName) : projectName,
-                    List.of(AclPermission.EDIT))) {
+            String pathInRepo = repository.supports().mappedFolders() && StringUtils
+                .isNotBlank(path) ? RepositoryAclServiceImpl.concatPaths(path, projectName) : projectName;
+            if (!designRepositoryAclService.isGranted(repository.getId(), pathInRepo, List.of(AclPermission.EDIT))) {
                 throw new SecurityException();
             }
-        } else {
-            if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
-                throw new SecurityException();
-            }
+        } else if (!designRepositoryAclService.isGranted(repository.getId(), null, List.of(AclPermission.CREATE))) {
+            throw new SecurityException();
         }
 
         allowedToPush(repository);
