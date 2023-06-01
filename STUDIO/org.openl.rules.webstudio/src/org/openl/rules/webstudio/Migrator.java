@@ -119,7 +119,7 @@ public class Migrator {
             .contains("production");
 
         // Default Repository URI and Factory in the previous 5.26.0 version
-        final var defaultUri = "jdbc:h2:mem:repo;MODE=LEGACY;DB_CLOSE_DELAY=-1";
+        final var defaultUri = "jdbc:h2:mem:repo;DB_CLOSE_DELAY=-1";
         final var defaultFactory = "repo-jdbc";
 
         // Check, if URI for repository with id "production" was changed
