@@ -512,6 +512,9 @@ public class RepositoryAclServiceController {
                 List.of(new PrincipalSid(username)));
         } else {
             validateRepositoryId(session, repositoryType, repositoryId);
+            if (userDao.getUserByName(username) == null) {
+                throw new NotFoundException("users.message", username);
+            }
             getRepositoryAclService(repositoryType).removePermissions(repositoryId,
                 path,
                 buildPermissions(repositoryType, permissions),
