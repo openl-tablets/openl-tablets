@@ -5,7 +5,6 @@
     <skipCheckOnStartup>true</skipCheckOnStartup>
     <properties>
         <smallCacheCapacity>6_000</smallCacheCapacity>
-        <userHome>${env.HOME}</userHome>
     </properties>
     <defaults>
         <cache>

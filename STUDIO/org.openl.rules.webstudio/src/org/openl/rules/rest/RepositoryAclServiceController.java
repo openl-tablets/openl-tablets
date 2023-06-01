@@ -6,8 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.BadRequestException;
@@ -21,7 +19,6 @@ import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.webstudio.web.repository.DeploymentManager;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.security.acl.permission.AclPermission;
 import org.openl.security.acl.repository.RepositoryAclService;
@@ -92,10 +89,7 @@ public class RepositoryAclServiceController {
         private Long groupId;
         private String username;
         private String groupName;
-        private String[] permissions;
-
-        public SidPermissionsDto() {
-        }
+        private final String[] permissions;
 
         public SidPermissionsDto(Long groupId, String groupName, String[] permissions) {
             this.groupId = groupId;
@@ -158,16 +152,12 @@ public class RepositoryAclServiceController {
             return Collections.emptyList();
         }
         List<Permission> permissionsList = new ArrayList<>();
-        Collection<AclPermission> supportedPermissions;
-        if (REPO_TYPE_DESIGN.equalsIgnoreCase(repositoryType)) {
-            supportedPermissions = AclPermission.ALL_SUPPORTED_DESIGN_REPO_PERMISSIONS;
-        } else if (REPO_TYPE_PROD.equalsIgnoreCase(repositoryType)) {
-            supportedPermissions = AclPermission.ALL_SUPPORTED_PROD_REPO_PERMISSIONS;
-        } else if (REPO_TYPE_DEPLOY_CONFIG.equalsIgnoreCase(repositoryType)) {
-            supportedPermissions = AclPermission.ALL_SUPPORTED_DEPLOY_CONFIG_REPO_PERMISSIONS;
-        } else {
-            throw new IllegalStateException("Unknown repository type: " + repositoryType);
+        AclCommandSupport.RepoType repoType = AclCommandSupport.RepoType.fromString(repositoryType);
+        if (repoType == null) {
+            throw new NotFoundException("repository.type.message", repositoryType);
         }
+        Collection<AclPermission> supportedPermissions = AclCommandSupport.listAllSupportedPermissions(repoType);
+
         for (String permission : permissions) {
             AclPermission aclPermission = AclPermission.getPermission(permission);
             if (aclPermission == null) {
@@ -184,14 +174,16 @@ public class RepositoryAclServiceController {
     }
 
     private SimpleRepositoryAclService getRepositoryAclService(String repositoryType) {
-        if (REPO_TYPE_PROD.equals(repositoryType)) {
-            return productionRepositoryAclService;
-        } else if (REPO_TYPE_DESIGN.equals(repositoryType)) {
-            return designRepositoryAclService;
-        } else if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType)) {
-            return deployConfigRepositoryAclService;
+        switch (repositoryType) {
+            case REPO_TYPE_PROD:
+                return productionRepositoryAclService;
+            case REPO_TYPE_DESIGN:
+                return designRepositoryAclService;
+            case REPO_TYPE_DEPLOY_CONFIG:
+                return deployConfigRepositoryAclService;
+            default:
+                throw new NotFoundException("repository.type.message", repositoryType);
         }
-        throw new NotFoundException("repository.type.message", repositoryType);
     }
 
     private void validateRepositoryId(HttpSession session, String repositoryType, String repositoryId) {
@@ -218,56 +210,6 @@ public class RepositoryAclServiceController {
         }
     }
 
-    @GetMapping(value = { "/artifacts/{repositoryType}/{repo-id}" })
-    @Operation(summary = "mgmt.acl.list-artifacts.summary", description = "mgmt.acl.list-artifacts.desc")
-    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = MediaType.APPLICATION_JSON))
-    public List<String> listArtifacts(
-            @Parameter(description = "repo.acl.param.repository-type.desc") @PathVariable("repositoryType") String repositoryType,
-            @Parameter(description = "repo.acl.param.repository-id.desc") @PathVariable(value = "repo-id") String repositoryId,
-            HttpSession session) {
-        if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType)) {
-            UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
-            if (!userWorkspace.getDesignTimeRepository().hasDeployConfigRepo() || !Objects
-                .equals(userWorkspace.getDesignTimeRepository().getDeployConfigRepository().getId(), repositoryId)) {
-                throw new NotFoundException("repository.message", repositoryId);
-            }
-            try {
-                return userWorkspace.getDesignTimeRepository()
-                    .getDDProjects()
-                    .stream()
-                    .map(e -> e.getFileData().getName())
-                    .collect(Collectors.toList());
-            } catch (RepositoryException ignored) {
-            }
-        } else if (REPO_TYPE_DESIGN.equals(repositoryType)) {
-            UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
-            if (userWorkspace.getDesignTimeRepository()
-                .getRepositories()
-                .stream()
-                .noneMatch(e -> Objects.equals(e.getId(), repositoryId))) {
-                throw new NotFoundException("repository.message", repositoryId);
-            }
-            return userWorkspace.getDesignTimeRepository()
-                .getProjects()
-                .stream()
-                .filter(e -> Objects.equals(e.getRepository().getId(), repositoryId))
-                .map(e -> e.getFileData().getName())
-                .collect(Collectors.toList());
-        }
-        throw new BadRequestException("Invalid repository");
-    }
-
-    private static String toRepoTypeString(AclCommandSupport.RepoType repoType) {
-        if (AclCommandSupport.RepoType.PROD == repoType) {
-            return REPO_TYPE_PROD;
-        } else if (AclCommandSupport.RepoType.DESIGN == repoType) {
-            return REPO_TYPE_DESIGN;
-        } else if (AclCommandSupport.RepoType.DEPLOY_CONFIG == repoType) {
-            return REPO_TYPE_DEPLOY_CONFIG;
-        }
-        throw new IllegalStateException("Unsupported repository type");
-    }
-
     private static String[] listAllSupportedPermissions(AclCommandSupport.RepoType repoType) {
         return AclCommandSupport.listAllSupportedPermissions(repoType)
             .stream()
@@ -292,10 +234,10 @@ public class RepositoryAclServiceController {
             HttpSession session) {
         StringBuilder ret = new StringBuilder();
         final String defaultDeployConfigRepo = getDeployConfigRepo(session);
-        try (Scanner scanner = new Scanner(content)) {
-            int lineNum = 0;
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
+        String[] lines = content.lines().toArray(String[]::new);
+        int lineNum = 0;
+        try {
+            for (String line : lines) {
                 lineNum++;
                 if (line.contains("#")) {
                     line = line.substring(0, line.indexOf("#"));
@@ -308,33 +250,29 @@ public class RepositoryAclServiceController {
                     if (AclCommandSupport.Action.ADD == command.action || AclCommandSupport.Action.SET == command.action) {
                         if (AclCommandSupport.SidType.USERNAME == command.sidType) {
                             if (AclCommandSupport.Action.SET == command.action) {
-                                deleteUserPermissions(toRepoTypeString(command.repoType),
+                                deleteUserPermissions(command.repoType.getName(),
                                     command.sid,
                                     listAllSupportedPermissions(command.repoType),
                                     command.repo,
                                     command.resource,
                                     session);
                             }
-                            addUserPermissions(toRepoTypeString(command.repoType),
-                                command.sid,
-                                command.permissions,
-                                command.repo,
-                                command.resource,
-                                session);
+                            addUserPermissions(command.repoType
+                                .getName(), command.sid, command.permissions, command.repo, command.resource, session);
                         } else if (AclCommandSupport.SidType.GROUP_NAME == command.sidType) {
                             Group group = groupDao.getGroupByName(command.sid);
                             if (group == null) {
                                 throw new NotFoundException("group.message");
                             }
                             if (AclCommandSupport.Action.SET == command.action) {
-                                deleteGroupPermissions(toRepoTypeString(command.repoType),
+                                deleteGroupPermissions(command.repoType.getName(),
                                     group.getId(),
                                     listAllSupportedPermissions(command.repoType),
                                     command.repo,
                                     command.resource,
                                     session);
                             }
-                            addGroupPermissions(toRepoTypeString(command.repoType),
+                            addGroupPermissions(command.repoType.getName(),
                                 group.getId(),
                                 command.permissions,
                                 command.repo,
@@ -342,14 +280,14 @@ public class RepositoryAclServiceController {
                                 session);
                         } else if (AclCommandSupport.SidType.GROUP_ID == command.sidType) {
                             if (AclCommandSupport.Action.SET == command.action) {
-                                deleteGroupPermissions(toRepoTypeString(command.repoType),
+                                deleteGroupPermissions(command.repoType.getName(),
                                     Long.valueOf(command.sid),
                                     listAllSupportedPermissions(command.repoType),
                                     command.repo,
                                     command.resource,
                                     session);
                             }
-                            addGroupPermissions(toRepoTypeString(command.repoType),
+                            addGroupPermissions(command.repoType.getName(),
                                 Long.valueOf(command.sid),
                                 command.permissions,
                                 command.repo,
@@ -358,25 +296,21 @@ public class RepositoryAclServiceController {
                         }
                     } else if (AclCommandSupport.Action.REMOVE == command.action) {
                         if (AclCommandSupport.SidType.USERNAME == command.sidType) {
-                            deleteUserPermissions(toRepoTypeString(command.repoType),
-                                command.sid,
-                                command.permissions,
-                                command.repo,
-                                command.resource,
-                                session);
+                            deleteUserPermissions(command.repoType
+                                .getName(), command.sid, command.permissions, command.repo, command.resource, session);
                         } else if (AclCommandSupport.SidType.GROUP_NAME == command.sidType) {
                             Group group = groupDao.getGroupByName(command.sid);
                             if (group == null) {
                                 throw new NotFoundException("group.message");
                             }
-                            deleteGroupPermissions(toRepoTypeString(command.repoType),
+                            deleteGroupPermissions(command.repoType.getName(),
                                 group.getId(),
                                 command.permissions,
                                 command.repo,
                                 command.resource,
                                 session);
                         } else if (AclCommandSupport.SidType.GROUP_ID == command.sidType) {
-                            deleteGroupPermissions(toRepoTypeString(command.repoType),
+                            deleteGroupPermissions(command.repoType.getName(),
                                 Long.valueOf(command.sid),
                                 command.permissions,
                                 command.repo,
@@ -408,7 +342,7 @@ public class RepositoryAclServiceController {
                             if (repo == null || AclCommandSupport.Action.LIST_ALL != command.action) {
                                 f = true;
                             }
-                            List<SidPermissionsDto> permissions = list(toRepoTypeString(command.repoType),
+                            List<SidPermissionsDto> permissions = list(command.repoType.getName(),
                                 repo,
                                 resource,
                                 session);
@@ -459,12 +393,12 @@ public class RepositoryAclServiceController {
 
     private static String toResourceLocationString(AclCommandSupport.RepoType repoType, String repo, String resource) {
         StringBuilder sb = new StringBuilder();
-        sb.append(toRepoTypeString(repoType));
-        if (!StringUtils.isBlank(repo)) {
+        sb.append(repoType.getName());
+        if (StringUtils.isNotBlank(repo)) {
             sb.append("/").append(repo);
         }
         sb.append(":");
-        if (!StringUtils.isBlank(resource)) {
+        if (StringUtils.isNotBlank(resource)) {
             if (!resource.startsWith("/")) {
                 sb.append("/");
             }

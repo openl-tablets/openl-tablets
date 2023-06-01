@@ -63,6 +63,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class ManagementController {
 
     private static final String SECURITY_DEF_GROUP_PROP = "security.default-group";
+    private static final Set<String> DATABASE_PRIVILEGES = Arrays.stream(Privileges.values())
+        .map(Privileges::getName)
+        .collect(Collectors.toSet());
 
     private final GroupDao groupDao;
     private final GroupManagementService groupManagementService;
@@ -167,37 +170,26 @@ public class ManagementController {
         } else {
             groupManagementService.updateGroup(oldName, name, description);
         }
-        final Set<String> databasePrivileges = Arrays.stream(Privileges.values())
-            .map(Privileges::getName)
-            .collect(Collectors.toSet());
+
         groupManagementService.updateGroup(name,
             roles,
             privileges == null ? null
-                               : privileges.stream().filter(databasePrivileges::contains).collect(Collectors.toSet()));
+                               : privileges.stream().filter(DATABASE_PRIVILEGES::contains).collect(Collectors.toSet()));
         GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(name);
         designRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
         deployConfigRepositoryAclService.removeRootPermissions(Collections.singletonList(grantedAuthoritySid));
         productionRepositoryAclService.removeRootPermissions(List.of(AclPermission.EDIT),
             Collections.singletonList(grantedAuthoritySid));
         if (privileges != null) {
-            List<Permission> designPermissions = privileges.stream()
-                .map(DESIGN_PRIVILEGES::getKey)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            List<Permission> designPermissions = toPermissions(privileges, DESIGN_PRIVILEGES::getKey);
             designRepositoryAclService.addRootPermissions(designPermissions,
                 Collections.singletonList(grantedAuthoritySid));
 
-            List<Permission> deployConfigPermissions = privileges.stream()
-                .map(DEPLOY_CONFIG_PRIVILEGES::getKey)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            List<Permission> deployConfigPermissions = toPermissions(privileges, DEPLOY_CONFIG_PRIVILEGES::getKey);
             deployConfigRepositoryAclService.addRootPermissions(deployConfigPermissions,
                 Collections.singletonList(grantedAuthoritySid));
 
-            List<Permission> productionPermissions = privileges.stream()
-                .map(PRODUCTION_PRIVILEGES::getKey)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+            List<Permission> productionPermissions = toPermissions(privileges, PRODUCTION_PRIVILEGES::getKey);
             if (!productionPermissions.isEmpty()) {
                 productionRepositoryAclService.addRootPermissions(
                     List.of(AclPermission.VIEW, AclPermission.EDIT, AclPermission.DELETE),
@@ -205,6 +197,13 @@ public class ManagementController {
             }
 
         }
+    }
+
+    private static List<Permission> toPermissions(Set<String> privileges, Function<String, Permission> mapper) {
+        return privileges.stream()
+            .map(PRODUCTION_PRIVILEGES::getKey)
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     @Operation(description = "mgmt.save-settings.desc", summary = "mgmt.save-settings.summary")

@@ -21,13 +21,44 @@ public class AclCommandSupport {
         SET,
         LIST,
         LIST_ALL,
-        REMOVE
+        REMOVE;
+
+        public static Action fromString(String value) {
+            if ("add".equalsIgnoreCase(value)) {
+                return Action.ADD;
+            } else if ("set".equalsIgnoreCase(value)) {
+                return Action.SET;
+            } else if ("remove".equalsIgnoreCase(value)) {
+                return Action.REMOVE;
+            } else if ("list".equalsIgnoreCase(value)) {
+                return Action.LIST;
+            } else if ("listAll".equalsIgnoreCase(value)) {
+                return Action.LIST_ALL;
+            }
+            return null;
+        }
     }
 
     public enum SidType {
         USERNAME,
         GROUP_NAME,
         GROUP_ID;
+
+        public static SidType fromString(String value) {
+            if (value == null) {
+                return null;
+            }
+            switch (value.toLowerCase()) {
+                case "user":
+                    return SidType.USERNAME;
+                case "group":
+                    return SidType.GROUP_NAME;
+                case "groupid":
+                    return SidType.GROUP_ID;
+                default:
+                    return null;
+            }
+        }
     }
 
     public enum RepoType {
@@ -41,8 +72,25 @@ public class AclCommandSupport {
             this.name = name;
         }
 
+        /**
+         * Get repository type name in correct case to show in user messages.
+         * 
+         * @return repository type name.
+         */
         public String getName() {
             return name;
+        }
+
+        public static RepoType fromString(String value) {
+            if (RepoType.DESIGN.getName().equalsIgnoreCase(value)) {
+                return RepoType.DESIGN;
+            } else if (RepoType.PROD.getName().equalsIgnoreCase(value)) {
+                return RepoType.PROD;
+            } else if (RepoType.DEPLOY_CONFIG.getName().equalsIgnoreCase(value)) {
+                return RepoType.DEPLOY_CONFIG;
+            } else {
+                return null;
+            }
         }
     }
 
@@ -70,30 +118,21 @@ public class AclCommandSupport {
             this.resource = resource;
             this.permissions = permissions;
         }
-
-        public String getResourceString() {
-            if (StringUtils.isBlank(repo)) {
-                return repoType.toString().toLowerCase();
-            } else {
-                String r = repoType.toString().toLowerCase() + "/" + repo;
-                if (StringUtils.isBlank(resource)) {
-                    return r;
-                } else {
-                    return r + resource;
-                }
-            }
-        }
     }
 
     public static Collection<AclPermission> listAllSupportedPermissions(RepoType repoType) {
-        if (RepoType.DESIGN == repoType) {
-            return AclPermission.ALL_SUPPORTED_DESIGN_REPO_PERMISSIONS;
-        } else if (RepoType.DEPLOY_CONFIG == repoType) {
-            return AclPermission.ALL_SUPPORTED_DEPLOY_CONFIG_REPO_PERMISSIONS;
-        } else if (RepoType.PROD == repoType) {
-            return AclPermission.ALL_SUPPORTED_PROD_REPO_PERMISSIONS;
-        } else {
-            throw new IllegalArgumentException("Unknown repo type: " + repoType);
+        if (repoType == null) {
+            throw new IllegalArgumentException("repoType argument can't be null.");
+        }
+        switch (repoType) {
+            case DESIGN:
+                return AclPermission.ALL_SUPPORTED_DESIGN_REPO_PERMISSIONS;
+            case PROD:
+                return AclPermission.ALL_SUPPORTED_PROD_REPO_PERMISSIONS;
+            case DEPLOY_CONFIG:
+                return AclPermission.ALL_SUPPORTED_DEPLOY_CONFIG_REPO_PERMISSIONS;
+            default:
+                throw new IllegalArgumentException("Unknown repo type: " + repoType);
         }
     }
 
@@ -123,8 +162,8 @@ public class AclCommandSupport {
         }
         if (Action.ADD == action || Action.REMOVE == action || Action.SET == action) {
             SidType sidType = toSidType(split[3].trim());
-            String sid = split[4].trim();
-            String[] permissions = split[5].trim().split(",");
+            String sid = split[4];
+            String[] permissions = StringUtils.split(split[5], ',');
             permissions = Arrays.stream(permissions)
                 .map(String::trim)
                 .map(String::toUpperCase)
@@ -159,32 +198,19 @@ public class AclCommandSupport {
     }
 
     private static Action toAction(String command) throws CommandFormatException {
-        if ("add".equalsIgnoreCase(command)) {
-            return Action.ADD;
-        } else if ("set".equalsIgnoreCase(command)) {
-            return Action.SET;
-        } else if ("remove".equalsIgnoreCase(command)) {
-            return Action.REMOVE;
-        } else if ("list".equalsIgnoreCase(command)) {
-            return Action.LIST;
-        } else if ("listAll".equalsIgnoreCase(command)) {
-            return Action.LIST_ALL;
-        } else {
-            throw new CommandFormatException(String.format(MSG5, command));
+        Action action = Action.fromString(command);
+        if (action != null) {
+            return action;
         }
+        throw new CommandFormatException(String.format(MSG5, command));
     }
 
     private static SidType toSidType(String sidType) throws CommandFormatException {
-        switch (sidType.toLowerCase()) {
-            case "user":
-                return SidType.USERNAME;
-            case "group":
-                return SidType.GROUP_NAME;
-            case "groupid":
-                return SidType.GROUP_ID;
-            default:
-                throw new CommandFormatException(String.format(MSG6, sidType));
+        SidType type = SidType.fromString(sidType);
+        if (type != null) {
+            return type;
         }
+        throw new CommandFormatException(String.format(MSG6, sidType));
     }
 
     private static RepoType toRepoType(String type) throws CommandFormatException {
@@ -192,14 +218,10 @@ public class AclCommandSupport {
         if (index > 0) {
             type = type.substring(0, index).trim();
         }
-        if (RepoType.DESIGN.getName().equalsIgnoreCase(type)) {
-            return RepoType.DESIGN;
-        } else if (RepoType.PROD.getName().equalsIgnoreCase(type)) {
-            return RepoType.PROD;
-        } else if (RepoType.DEPLOY_CONFIG.getName().equalsIgnoreCase(type)) {
-            return RepoType.DEPLOY_CONFIG;
-        } else {
-            throw new CommandFormatException(String.format(MSG7, type));
+        RepoType repoType = RepoType.fromString(type);
+        if (repoType != null) {
+            return repoType;
         }
+        throw new CommandFormatException(String.format(MSG7, type));
     }
 }
