@@ -246,7 +246,11 @@ public class RepositoryAclServiceController {
                     continue;
                 }
                 try {
-                    AclCommandSupport.AclCommand command = AclCommandSupport.toCommand(line, defaultDeployConfigRepo);
+                    AclCommandSupport.AclCommand command = AclCommandSupport.toCommand(line);
+                    if (command.repoType == AclCommandSupport.RepoType.DEPLOY_CONFIG && StringUtils
+                        .isNotBlank(command.resource)) {
+                        command.repo = defaultDeployConfigRepo;
+                    }
                     if (AclCommandSupport.Action.ADD == command.action || AclCommandSupport.Action.SET == command.action) {
                         if (AclCommandSupport.SidType.USERNAME == command.sidType) {
                             if (AclCommandSupport.Action.SET == command.action) {

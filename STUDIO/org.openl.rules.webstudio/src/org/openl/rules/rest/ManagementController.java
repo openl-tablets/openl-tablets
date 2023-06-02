@@ -201,7 +201,7 @@ public class ManagementController {
 
     private static List<Permission> toPermissions(Set<String> privileges, Function<String, Permission> mapper) {
         return privileges.stream()
-            .map(PRODUCTION_PRIVILEGES::getKey)
+            .map(mapper)
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
     }

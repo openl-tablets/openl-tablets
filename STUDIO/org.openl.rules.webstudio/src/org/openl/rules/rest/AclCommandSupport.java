@@ -136,7 +136,7 @@ public class AclCommandSupport {
         }
     }
 
-    public static AclCommand toCommand(String line, String deployConfigRepo) throws CommandFormatException {
+    public static AclCommand toCommand(String line) throws CommandFormatException {
         String[] split = line.split(":");
         if (line.endsWith(":")) {
             String[] t = new String[split.length + 1];
@@ -153,11 +153,8 @@ public class AclCommandSupport {
         }
         RepoType repoType = toRepoType(split[1].trim());
         String repo = toRepo(split[1].trim());
-        if (StringUtils.isBlank(repo) && !StringUtils.isBlank(deployConfigRepo) && RepoType.DEPLOY_CONFIG == repoType) {
-            repo = deployConfigRepo;
-        }
         String resource = split[2].trim();
-        if (repo == null && !resource.isEmpty()) {
+        if (repo == null && !resource.isEmpty() && RepoType.DEPLOY_CONFIG != repoType) {
             throw new CommandFormatException(MSG4);
         }
         if (Action.ADD == action || Action.REMOVE == action || Action.SET == action) {
