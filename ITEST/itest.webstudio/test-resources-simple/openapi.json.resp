@@ -955,6 +955,20 @@ Content-Type: application/json
         },
         "type": "object"
       },
+      "RulesProfile": {
+        "type": "object",
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
       "UserProfileEditModel": {
         "properties": {
           "changePassword": {
@@ -1017,6 +1031,10 @@ Content-Type: application/json
             "description": "***",
             "format": "int32",
             "type": "integer"
+          },
+          "treeView": {
+            "type":"string",
+            "description":"Default order"
           }
         },
         "type": "object"
@@ -1087,6 +1105,16 @@ Content-Type: application/json
           "username": {
             "description": "***",
             "type": "string"
+          },
+          "treeView": {
+            "type":"string",
+            "description":"Default order"
+          },
+          "profiles": {
+            "type":"array",
+            "items": {
+              "$ref":"#/components/schemas/RulesProfile"
+            }
           }
         },
         "type": "object"
