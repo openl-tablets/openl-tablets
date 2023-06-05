@@ -755,7 +755,7 @@
     </c:if>
 
     <script>
-        const testIds = [undefined<c:forEach items="#{tableBean.tests}" var="test">, "#{test.id}"</c:forEach>];
+        const testIds = [undefined<c:forEach items="#{tableBean.tests}" var="test">, "#{utils.toJSText(test.id)}"</c:forEach>];
         //<![CDATA[
         const itemStatuses = function () {
             class ItemStatusesHandler {
