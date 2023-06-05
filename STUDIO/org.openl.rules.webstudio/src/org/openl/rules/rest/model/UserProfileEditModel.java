@@ -125,4 +125,9 @@ public class UserProfileEditModel extends UserProfileBaseModel {
     public UserProfileEditModel setShowRealNumbers(boolean showRealNumbers) {
         return (UserProfileEditModel) super.setShowRealNumbers(showRealNumbers);
     }
+
+    @Override
+    public UserProfileEditModel setTreeView(String defaultOrder) {
+        return (UserProfileEditModel) super.setTreeView(defaultOrder);
+    }
 }

@@ -179,6 +179,28 @@
                                             <td><input id="account-user-show-formulas" name="account-user-show-formulas"
                                                        type="checkbox"/></td>
                                         </tr>
+                                        <tr>
+                                            <td class="titleColumn"><label>Default Order:</label></td>
+                                            <td>
+                                                <select id="account-user-tree-view" name="account-user-tree-view"
+                                                        style="width:100%">
+                                                    <script>
+                                                        function populateTreeView(treeViews) {
+                                                            const treeViewDropDown = document.getElementById("account-user-tree-view")
+                                                            for (let i = treeViews.length; i >= 0; i--) {
+                                                                treeViewDropDown.remove(i);
+                                                            }
+                                                            for (let treeView of treeViews) {
+                                                                let option = document.createElement("option")
+                                                                option.setAttribute('value', treeView.name)
+                                                                option.appendChild(document.createTextNode(treeView.displayName))
+                                                                treeViewDropDown.appendChild(option)
+                                                            }
+                                                        }
+                                                    </script>
+                                                </select>
+                                            </td>
+                                        </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -292,6 +314,7 @@
                     lastName : accountUserIsLastNameExternal ? null : $j("#account-user-lastname").val().trim(),
                     showHeader : $j("#account-user-show-header").prop("checked"),
                     showFormulas : $j("#account-user-show-formulas").prop("checked"),
+                    treeView: $j("#account-user-tree-view").val(),
                     testsPerPage : $j("#account-user-tests-per-page").val(),
                     testsFailuresOnly : $j("#account-user-failures-only").prop("checked"),
                     showComplexResult : $j("#account-user-complex-result").prop("checked"),
@@ -350,6 +373,9 @@
                 $j("#account-user-tests-per-page").val(data.testsPerPage);
                 $j("#account-user-failures-per-test").val(data.testsFailuresPerTest);
                 initAccountUserEmail(data);
+
+                populateTreeView(data.profiles);
+                $j("#account-user-tree-view").val(data.treeView);
 
                 $j.ajax({
                     type: "GET",
@@ -472,7 +498,7 @@
             $j("#account-user-username, #account-user-lastname-span, #account-user-firstname-span, #account-user-email-span, #account-user-display-name-span").text("");
             $j("#account-user-lastname, #account-user-new-password, #account-user-email, #account-user-firstname, #account-user-display-name, #account-user-current-password, #account-user-confirm-password").val("");
             $j("#account-user-show-header, #account-user-show-real-numbers, #account-user-show-formulas, #account-user-failures-only, #account-user-complex-result").removeAttr("checked");
-            $j("#account-user-tests-per-page, #account-user-failures-per-test").val(-1);
+            $j("#account-user-tests-per-page, #account-user-failures-per-test, #account-user-tree-view").val(-1);
             $j("#account-user-email-resend, #account-user-email-verified").hide();
             $j("#account-user-email-verified").removeClass("warning-icon").addClass("yes-icon").prop("title", "Email verified");
         }

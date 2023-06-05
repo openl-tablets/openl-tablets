@@ -54,12 +54,8 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.testmethod.TestSuiteExecutor;
-import org.openl.rules.ui.tree.view.CategoryDetailedView;
-import org.openl.rules.ui.tree.view.CategoryInversedView;
-import org.openl.rules.ui.tree.view.CategoryView;
-import org.openl.rules.ui.tree.view.ExcelSheetView;
+import org.openl.rules.ui.tree.view.Profile;
 import org.openl.rules.ui.tree.view.RulesTreeView;
-import org.openl.rules.ui.tree.view.TypeView;
 import org.openl.rules.webstudio.service.UserSettingManagementService;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.Props;
@@ -117,6 +113,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         .comparing(ProjectDescriptor::getName, String.CASE_INSENSITIVE_ORDER);
 
     public static final String RULES_TREE_VIEW = "rules.tree.view";
+    public static final String RULES_TREE_VIEW_DEFAULT = "rules.tree.view.default";
     public static final String TABLE_VIEW = "table.view";
     public static final String TABLE_FORMULAS_SHOW = "table.formulas.show";
     public static final String TEST_TESTS_PERPAGE = "test.tests.perpage";
@@ -124,18 +121,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public static final String TEST_FAILURES_PERTEST = "test.failures.pertest";
     public static final String TEST_RESULT_COMPLEX_SHOW = "test.result.complex.show";
     public static final String TRACE_REALNUMBERS_SHOW = "trace.realNumbers.show";
-
-    private final RulesTreeView typeView = new TypeView();
-    private final RulesTreeView excelSheetView = new ExcelSheetView();
-    private final RulesTreeView categoryView = new CategoryView();
-    private final RulesTreeView categoryDetailedView = new CategoryDetailedView();
-    private final RulesTreeView categoryInversedView = new CategoryInversedView();
-
-    private final RulesTreeView[] treeViews = { typeView,
-            excelSheetView,
-            categoryView,
-            categoryDetailedView,
-            categoryInversedView };
 
     private final WebStudioLinkBuilder linkBuilder = new WebStudioLinkBuilder(this);
 
@@ -231,7 +216,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private void initUserSettings() {
         String userName = rulesUserSession.getUserName();
 
-        treeView = getTreeView(userSettingsManager.getStringProperty(userName, RULES_TREE_VIEW));
+        treeView = getTreeView(userSettingsManager.getStringProperty(userName, RULES_TREE_VIEW_DEFAULT));
         tableView = userSettingsManager.getStringProperty(userName, TABLE_VIEW);
         showFormulas = userSettingsManager.getBooleanProperty(userName, TABLE_FORMULAS_SHOW);
         testsPerPage = userSettingsManager.getIntegerProperty(userName, TEST_TESTS_PERPAGE);
@@ -242,7 +227,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public RulesTreeView[] getTreeViews() {
-        return treeViews;
+        return Profile.TREE_VIEWS;
     }
 
     public void saveProject(HttpSession session) {
@@ -1089,6 +1074,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         userSettingsManager.setProperty(rulesUserSession.getUserName(), RULES_TREE_VIEW, treeView.getName());
     }
 
+    private void setDefaultTreeView(RulesTreeView treeView) {
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), RULES_TREE_VIEW_DEFAULT, treeView.getName());
+    }
+
     public String getCurrentUsername() {
         return rulesUserSession.getUserName();
     }
@@ -1103,12 +1092,21 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     private RulesTreeView getTreeView(String name) {
-        for (RulesTreeView mode : treeViews) {
+        for (RulesTreeView mode : Profile.TREE_VIEWS) {
             if (name.equals(mode.getName())) {
                 return mode;
             }
         }
         return null;
+    }
+
+    public void setDefaultTreeView(String name) {
+        RulesTreeView mode = getTreeView(name);
+        if (mode != null) {
+            setDefaultTreeView(mode);
+        } else {
+            log.error("Can't find RulesTreeView for name {}", name);
+        }
     }
 
     public void setTableUri(String tableUri) {

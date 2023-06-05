@@ -25,6 +25,9 @@ public class UserProfileBaseModel extends UserInfoModel {
     @Parameter(description = "trace.field.showRealNumbers")
     private boolean showRealNumbers;
 
+    @Parameter(description = "Default order")
+    private String treeView;
+
     @Override
     public String getFirstName() {
         return super.getFirstName();
@@ -125,6 +128,15 @@ public class UserProfileBaseModel extends UserInfoModel {
 
     public UserProfileBaseModel setShowRealNumbers(boolean showRealNumbers) {
         this.showRealNumbers = showRealNumbers;
+        return this;
+    }
+
+    public String getTreeView() {
+        return treeView;
+    }
+
+    public UserProfileBaseModel setTreeView(String treeView) {
+        this.treeView = treeView;
         return this;
     }
 }

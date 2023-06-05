@@ -14,11 +14,39 @@ Content-Type: application/json
   "testsFailuresPerTest": 5,
   "showComplexResult": false,
   "showRealNumbers": false,
+  "treeView": "excelSheet",
   "externalFlags": {
     "firstNameExternal": false,
     "displayNameExternal": false,
     "emailExternal": false,
     "lastNameExternal": false,
     "emailVerified": true
-  }
+  },
+  "profiles": [
+    {
+      "displayName":"By Type",
+      "name":"type",
+      "description":"Organize projects by component type"
+    },
+    {
+      "displayName":"By Excel Sheet",
+      "name":"excelSheet",
+      "description":"Organize projects by physical file structure"
+    },
+    {
+      "displayName":"By Category",
+      "name":"category",
+      "description":"Provides categorized view"
+    },
+    {
+      "displayName":"By Category Detailed",
+      "name":"categoryDetailed",
+      "description":"Provides more detailed categorized view"
+    },
+    {
+      "displayName":"By Category Inversed",
+      "name":"categoryInversed",
+      "description":"Provides inversed categorized view"
+    }
+  ]
 }

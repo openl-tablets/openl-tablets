@@ -1,5 +1,6 @@
 package org.openl.rules.rest;
 
+import static org.openl.rules.ui.WebStudio.RULES_TREE_VIEW_DEFAULT;
 import static org.openl.rules.ui.WebStudio.TABLE_FORMULAS_SHOW;
 import static org.openl.rules.ui.WebStudio.TABLE_VIEW;
 import static org.openl.rules.ui.WebStudio.TEST_FAILURES_ONLY;
@@ -35,6 +36,7 @@ import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.User;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.tree.view.Profile;
 import org.openl.rules.webstudio.mail.MailSender;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.AdminUsers;
@@ -215,7 +217,8 @@ public class UsersController {
             userModel.getTestsFailuresPerTest(),
             userModel.isShowComplexResult(),
             userModel.getTestsPerPage(),
-            userModel.isTestsFailuresOnly());
+            userModel.isTestsFailuresOnly(),
+            userModel.getTreeView());
 
         if (StringUtils.isNotBlank(userModel.getEmail()) && emailChanged) {
             mailSender.sendVerificationMail(userManagementService.getUser(currentUserInfo.getUserName()), request);
@@ -228,7 +231,8 @@ public class UsersController {
             int testsFailuresPerTest,
             boolean showComplexResult,
             int testsPerPage,
-            boolean testsFailuresOnly) {
+            boolean testsFailuresOnly,
+            String treeView) {
         WebStudio studio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         String username = currentUserInfo.getUserName();
         if (studio != null) {
@@ -239,6 +243,7 @@ public class UsersController {
             studio.setShowComplexResult(showComplexResult);
             studio.setTestsPerPage(testsPerPage);
             studio.setTestsFailuresOnly(testsFailuresOnly);
+            studio.setDefaultTreeView(treeView);
         } else {
             userSettingsManager.setProperty(username, TRACE_REALNUMBERS_SHOW, showRealNumbers);
             userSettingsManager.setProperty(username, TEST_FAILURES_PERTEST, testsFailuresPerTest);
@@ -249,6 +254,7 @@ public class UsersController {
                 TABLE_VIEW,
                 showHeader ? IXlsTableNames.VIEW_DEVELOPER : IXlsTableNames.VIEW_BUSINESS);
             userSettingsManager.setProperty(username, TEST_FAILURES_ONLY, testsFailuresOnly);
+            userSettingsManager.setProperty(username, RULES_TREE_VIEW_DEFAULT, treeView);
         }
     }
 
@@ -269,9 +275,12 @@ public class UsersController {
             .setTestsFailuresPerTest(userSettingsManager.getIntegerProperty(user.getUsername(), TEST_FAILURES_PERTEST))
             .setShowComplexResult(userSettingsManager.getBooleanProperty(user.getUsername(), TEST_RESULT_COMPLEX_SHOW))
             .setShowRealNumbers(userSettingsManager.getBooleanProperty(user.getUsername(), TRACE_REALNUMBERS_SHOW))
+            .setTreeView(userSettingsManager.getStringProperty(user.getUsername(), RULES_TREE_VIEW_DEFAULT))
             .setDisplayName(user.getDisplayName())
             .setUsername(user.getUsername())
-            .setExternalFlags(user.getExternalFlags());
+            .setExternalFlags(user.getExternalFlags())
+            .setProfiles(Profile.PROFILES);
+
     }
 
     @Operation(description = "users.delete-user.desc", summary = "users.delete-user.summary")
