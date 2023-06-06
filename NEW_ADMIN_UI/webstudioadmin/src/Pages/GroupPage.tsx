@@ -1,47 +1,108 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Table, Tag, Form, Input, Divider, Row, Col } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { CloseCircleOutlined, CloseOutlined } from '@ant-design/icons';
+import { Button, Card, Table, Tag, Form, Input, Divider, Row, Col, Modal } from 'antd';
+import { CloseCircleOutlined } from '@ant-design/icons';
 import DefaultLayout from '../components/DefaultLayout';
-import TableGroupInfo from 'views/groups/TableGroupInfo';
 import { NewGroupModal } from 'views/groups/NewGroupModal';
+import { EditGroupModal } from 'views/groups/EditGroupModal';
+
+type Group = {
+    name: string;
+    id: number;
+    description: string;
+    roles: string[];
+    privileges: string[];
+};
 
 export const GroupPage: React.FC = () => {
 
-    const apiURL = "https://demo.openl-tablets.org/nightly/webstudio/rest";
-    const [groupData, setGroupData] = useState([]);
-    // const [data, setData] = useState(TableGroupInfo);
+    const apiURL = process.env.REACT_APP_API_URL;
+    const authorization = process.env.REACT_APP_AUTHORIZATION;
 
-    const navigate = useNavigate();
-    const navigateCreateGroup = () => {
-        let path = `/groups/create`;
-        navigate(path);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [groupData, setGroupData] = useState<Group[]>([]);
+    const [selectedGroup, setSelectedGroup] = useState<any>({});
+    const [selecetedGroupPrivileges, setSelectedGroupPrivileges] = useState([]);
+
+    const showEditGroupModal = () => {
+        setIsModalOpen(true);
     };
 
-    const fetchGroups = () => {
-        fetch(`${apiURL}/admin/management/groups`)
-            .then((response) => response.json())
-            .then((jsonResponse) => setGroupData(jsonResponse));
-        console.log(groupData);
+    const hideEditGroupModal = () => {
+        setIsModalOpen(false);
+    };
+
+    // const headers = new Headers();
+    // headers.append('Authorization', authorization || '');
+
+    const fetchGroups = async () => {
+        try {
+            const headers = new Headers();
+            headers.append('Authorization', authorization || '');
+
+            const response = await fetch(`${apiURL}/admin/management/groups`, {
+                headers
+            });
+            if (response.ok) {
+                const responseObject = await response.json();
+                const groups = Object.entries(responseObject).map(([groupName, group]: [string, unknown]) => ({
+                    groupName,
+                    ...(group as Group),
+                    privileges: (group as Group).privileges || [],
+                }));
+                setGroupData(groups);
+                console.log('8.', responseObject)
+            } else {
+                console.error("9. Failed to fetch groups:", response.statusText);
+            }
+        } catch (error) {
+            console.error("10. Error fetching groups:", error);
+        }
     };
 
     useEffect(() => {
         fetchGroups();
-    },[]);
+    }, []);
 
-    // const removeGroup = (username: any) => {
-    //     fetch(`${apiURL}/admin/management/groups/` + username, {
-    //         method: "DELETE",
-    //     })
-    //         .then(fetchGroups);
-    // };
+    const removeGroup = (id: number) => {
+        Modal.confirm({
+            title: "Confirm Deletion",
+            content: "Are you sure you want to delete this group?",
 
+            onOk: () => {
+                const headers = new Headers();
+                headers.append('Authorization', authorization || '');
+
+                fetch(`${apiURL}/admin/management/groups/${id}`, {
+                    method: "DELETE",
+                    headers
+                })
+                    .then(fetchGroups);
+            },
+            onCancel: () => {
+            }
+        });
+    };
+
+    const updateGroup = (updatedGroup: any) => {
+        setGroupData((groupData) =>
+            groupData.map((group: any) => (group.key === updatedGroup.key ? updatedGroup : group))
+        );
+    };
+
+    const handleDoubleRowClick = (record: any) => {
+        setSelectedGroup({ ...record });
+        setSelectedGroupPrivileges(record.privileges);
+        showEditGroupModal();
+        console.log('11. Clicked row:', record);
+        console.log('12. Privileges:', record.privileges);
+    };
 
     const columns = [
         {
             title: "Name",
-            dataIndex: "name",
+            dataIndex: "groupName",
             key: "name",
+            render: (text: string) => <span>{text}</span>,
         },
         {
             title: "Description",
@@ -49,43 +110,58 @@ export const GroupPage: React.FC = () => {
             key: "description",
         },
         {
-            title: "Privileges",
-            dataIndex: "privileges",
-            key: "privileges",
-            // render: (privileges: string[]) => (
-            //     <>
-            //         {privileges.map(privilege => {
-            //             let color = "grey";
-            //             // privilege === "Administrate" ? color = "red" : privilege === ("Developers" || "Testers" || "Viewers") ? color ="blue" : color = "grey";
-            //             privilege === "Administrate" ? color = "red" : ((privilege === "Developers") || (privilege === "Testers") || (privilege === "Viewers")) ? color = "blue" : color = "default";
+            title: "Roles",
+            key: "roles",
+            render: (data: { roles: string[], privileges: string[] }) => (
+                <div>
+                    {data.roles &&
+                        data.roles.length > 0 &&
+                        data.roles.map((role: string) => {
+                            let color = "default";
+                            if (["Administrators"].includes(role)) {
+                                color = "red";
+                            } else if (["Developers", "Testers", "Viewers", "Deployers", "Analysts"].includes(role)) {
+                                color = "blue";
+                            }
+                            return (
+                                <Tag color={color} key={role} style={{ margin: 2 }}>
+                                    {role}
+                                </Tag>
+                            );
+                        })}
 
-            //             return (
-            //                 <Tag color={color} key={privilege} style={{ margin: 2 }}>
-            //                     {privilege}
-            //                 </Tag>
-            //             );
-            //         })}
-            //     </>
-            // ),
+                    {data.privileges &&
+                        data.privileges.length > 0 &&
+                        data.privileges.map((privilege: string) => {
+                            let color = "";
+                            if (["ADMIN", "Administrate"].includes(privilege)) {
+                                color = "red";
+                            } else {
+                                color = "default"
+                            }
+                            return (
+                                <Tag color={color} key={privilege} style={{ margin: 2 }}>
+                                    {privilege}
+                                </Tag>
+                            );
+                        })}
+                </div>
+            ),
         },
         {
             title: "Action",
             dataIndex: "Action",
             key: "Action",
-            // render: (key: string) => (
-            //     <Button
-            //         type="text"
-            //         icon={<CloseCircleOutlined />}
-            //         onClick={() => setData(data.filter(item => item.key !== key))}
-            //     >
-            //     </Button>
-            // ),
+            render: (text: string, record: any) => (
+                <Button
+                    type="text"
+                    icon={<CloseCircleOutlined />}
+                    onClick={() => removeGroup(record.id)}
+                />
+            ),
         },
     ]
 
-    // const addNewGroup = (newGroup: { key: string; name: string; description: string; privileges: []; action: "" }) => {
-    //     setData((data) => [...data, newGroup]);
-    // };
 
     return (
         <DefaultLayout>
@@ -108,9 +184,25 @@ export const GroupPage: React.FC = () => {
                     columns={columns}
                     dataSource={groupData}
                     pagination={{ hideOnSinglePage: true }}
+                    onRow={(record) => ({
+                        onDoubleClick: () => handleDoubleRowClick(record),
+                    })}
                 />
-                {/* <NewGroupModal addNewGroup={addNewGroup} /> */}
-                {/* <Button onClick={navigateCreateGroup} style={{ marginTop: 10 }}>Add new group</Button> */}
+                <NewGroupModal fetchGroups={fetchGroups} />
+                <Modal
+                    open={isModalOpen}
+                    onCancel={hideEditGroupModal}
+                    footer={null}
+                    style={{ width: 850 }}
+                >
+                    {isModalOpen && (
+                        <EditGroupModal
+                            group={selectedGroup}
+                            updateGroup={updateGroup}
+                            onSave={hideEditGroupModal}
+                        />
+                    )}
+                </Modal>
             </Card>
         </DefaultLayout>
     )

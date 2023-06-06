@@ -5,7 +5,7 @@ const DefaultLayout = ({ children }: { children: React.ReactNode }) => {
     return (
         <div>
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                <AdminMenu />
+                <AdminMenu key="admin-menu"/>
                 {children}
             </div>
         </div>

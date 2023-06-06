@@ -9,7 +9,7 @@ import { TypeDatabaseJDBC } from 'views/repoDesign/TypeDatabaseJDBC';
 import { TypeDatabaseJNDI } from 'views/repoDesign/TypeDatabaseJNDI';
 import { TypeGitDeployment } from 'views/repoDeployment/TypeGitDeployment';
 import { TypeLocal } from 'views/repoDeployment/TypeLocal';
-import { CloseCircleOutlined, CloseCircleTwoTone, CloseOutlined } from '@ant-design/icons';
+import { CloseCircleOutlined } from '@ant-design/icons';
 
 
 export const RepoDeploymentPage: React.FC = () => {
