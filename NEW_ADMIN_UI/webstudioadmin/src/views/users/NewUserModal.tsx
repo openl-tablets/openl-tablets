@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
 import { Button, Checkbox, Col, Form, Input, Modal, Row, Select } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
-import { NavLink, useHref } from "react-router-dom";
 
+const displayOrder = [
+    {
+        value: "First last",
+        label: "First last",
+    },
+    {
+        value: "Last first",
+        label: "Last first",
+    },
+    {
+        value: "Other",
+        label: "Other",
+    }
+];
 
-const JSON_HEADERS = {
-    "Content-Type": "application/json",
-};
-
-export const ModalNewUser: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers }) => {
-    // React.FC<{ addNewUser: (newUser: any) => void }> = ({ addNewUser }) => {
+export const NewUserModal: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers }) => {
 
     const apiURL = "http://localhost:8080/webstudio/rest";
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -29,11 +38,15 @@ export const ModalNewUser: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers 
         setIsModalOpen(false);
     };
 
-    const createUser = async () => {
+    // const headers = new Headers();
+    // headers.append('Authorization', authorization || '');
+    // headers.append('Content-Type', 'application/json');
+
+    const createUser = async (constructedDisplayName: string) => {
         try {
             const requestBody = {
                 email,
-                displayName,
+                displayName: constructedDisplayName,
                 firstName,
                 lastName,
                 password,
@@ -71,38 +84,34 @@ export const ModalNewUser: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers 
         hideModal();
     };
 
-    const displayOrder = [
-        {
-            value: "First last",
-            label: "First last",
-        },
-        {
-            value: "Last first",
-            label: "Last first",
-        },
-        {
-            value: "Other",
-            label: "Other",
-        }
-    ];
-
     const onChange = (checkedValues: CheckboxValueType[]) => {
         setGroups(checkedValues);
     };
 
     const handleSubmit = (e: React.SyntheticEvent) => {
         e.preventDefault();
-        createUser();
+        let constructedDisplayName = "";
+        if (displayName === "First last") {
+            constructedDisplayName = `${firstName} ${lastName}`;
+        } else if (displayName === "Last first") {
+            constructedDisplayName = `${lastName} ${firstName}`;
+        } else {
+            constructedDisplayName = displayName;
+        }
+        createUser(constructedDisplayName);
     };
 
     return (
         <>
-            <Button onClick={showModal} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
+            <Button
+                onClick={showModal}
+                style={{ marginTop: 15, color: "green", borderColor: "green" }}>
                 Add new user
             </Button>
-            <Modal title="Create new user" open={isModalOpen}
+            <Modal
+                title="Create new user"
+                open={isModalOpen}
                 onCancel={hideModal}
-
                 footer={[
                     <Button key="back" onClick={hideModal}>
                         Cancel
@@ -135,8 +144,16 @@ export const ModalNewUser: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers 
                             onChange={(order) => setDisplayName(order)}
                             options={displayOrder}
                             defaultActiveFirstOption={true}
-                        >
-                        </Select>
+                        />
+                        <Input style={{ marginTop: 15 }}
+                            value={
+                                displayName === "First last"
+                                    ? `${firstName} ${lastName}`
+                                    : displayName === "Last first"
+                                        ? `${lastName} ${firstName}`
+                                        : displayName
+                            }
+                        />
                     </Form.Item>
                     <Form.Item><b>Groups</b></Form.Item>
 

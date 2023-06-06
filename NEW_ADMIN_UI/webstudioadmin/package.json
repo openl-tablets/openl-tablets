@@ -14,6 +14,7 @@
     "@refinedev/simple-rest": "^4.0.0",
     "antd": "^5.0.5",
     "final-form": "^4.20.9",
+    "querystring": "^0.2.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-final-form": "^6.5.9",
@@ -56,5 +57,4 @@
       "last 1 safari version"
     ]
   }
-
 }

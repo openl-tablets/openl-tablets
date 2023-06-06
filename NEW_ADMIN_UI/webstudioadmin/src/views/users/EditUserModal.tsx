@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Card, Checkbox, Col, Form, Input, Modal, Row, Select } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
-// import TableUserInfo from './TableUserInfo';
-import { useNavigate } from 'react-router-dom';
+import { stringify } from 'querystring';
+
 
 const displayOrder = [
     {
@@ -16,181 +16,232 @@ const displayOrder = [
     {
         value: "Other",
         label: "Other",
-    }
+    },
+];
+
+const groupOptions = [
+    {
+        value: "Administrators",
+        label: "Administrators",
+    },
+    {
+        value: "Analysts",
+        label: "Analysts",
+    },
+    {
+        value: "Deployers",
+        label: "Deployers",
+    },
+    {
+        value: "Developers",
+        label: "Developers",
+    },
+    {
+        value: "Testers",
+        label: "Testers",
+    },
+    {
+        value: "Viewers",
+        label: "Viewers",
+    },
 ];
 
 interface EditUserProps {
     user: {
-        key: string;
-        username: string;
         email: string;
-        password: string;
+        displayName: string;
         firstName: string;
         lastName: string;
-        displayName: string;
-        groups: CheckboxValueType[];
-    }
+        password: string;
+        groups: string[];
+        username: string;
+        internalPassword: {
+            password: string;
+        };
+        currentUser: boolean;
+        superUser: boolean;
+        unsafePassword: boolean;
+        externalFlags: {
+            firstNameExternal: boolean;
+            displayNameExternal: boolean;
+            emailExternal: boolean;
+            lastNameExternal: boolean;
+            emailVerified: boolean;
+        };
+        notMatchedExternalGroupsCount: number;
+        online: boolean;
+        userGroups: {
+            name: string;
+            type: "ADMIN" | "DEFAULT" | "EXTERNAL";
+        }[];
+    };
     updateUser: (updatedUser: any) => void;
-    onUpdateUserData: (userData: any[]) => any[];
     onSave: () => void;
 }
-const JSON_HEADERS = {
-    "Content-Type": "application/json",
-};
 
 
-export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onUpdateUserData, onSave }) => {
-    const apiURL = "https://demo.openl-tablets.org/nightly/webstudio/rest";
 
-    const { username: initialUsername, email: initialEmail, password: initialPassword, firstName: initialFirstName, lastName: initialLastName } = user
+export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onSave }) => {
+    const apiURL = "http://localhost:8080/webstudio/rest";
+
     const [isModalOpen, setIsModalOpen] = useState(true);
-    const [username, setUsername] = useState(initialUsername);
-    const [email, setEmail] = useState(initialEmail);
-    const [password, setPassword] = useState(initialPassword);
-    const [firstName, setFirstName] = useState(initialFirstName);
-    const [lastName, setLastName] = useState(initialLastName);
+    const [username, setUsername] = useState(user.username);
+    const [email, setEmail] = useState(user.email);
+    const [password, setPassword] = useState(user.password);
+    const [firstName, setFirstName] = useState(user.firstName);
+    const [lastName, setLastName] = useState(user.lastName);
     const [displayName, setDisplayName] = useState(user.displayName);
-    const [groups, setGroups] = useState<CheckboxValueType[]>(user.groups);
-    const [editedUser, setEditedUser] = useState(user);
+    // const [selectedGroupValues, setSelectedGroupValues] = useState<CheckboxValueType[]>(user.userGroups.map((group) => group.name));
+    const [selectedGroupValues, setSelectedGroupValues] = useState<string[]>(user.userGroups.map((group) => group.name));
 
-    // const [userData, setUserData] = useState(TableUserInfo);
-    const [userData, setUserData] = useState([]);
 
-    const updateUser1 = () => {
-        fetch(
-            `${apiURL}/users/{username}`,
-            {
-                method: "PUT",
-                headers: JSON_HEADERS,
-                body: JSON.stringify(userData),
-            }
-        )
-    };
+    useEffect(() => {
+        setUsername(user.username);
+        setEmail(user.email);
+        setPassword(user.password);
+        setFirstName(user.firstName);
+        setLastName(user.lastName);
+        setDisplayName(user.displayName);
+        setSelectedGroupValues(user.userGroups.map((group) => group.name));
+    }, [user]);
 
-    const handleUsernameInputChange = (e: any) => {
+    const handleUsernameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setUsername(e.target.value);
     };
 
-    const handleEmailInputChange = (e: any) => {
+    const handleEmailInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
     };
 
-    const handlePasswordInputChange = (e: any) => {
+    const handlePasswordInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setPassword(e.target.value);
     };
 
-    const handleFirstNameInputChange = (e: any) => {
+    const handleFirstNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFirstName(e.target.value);
     };
 
-    const handleLastNameInputChange = (e: any) => {
+    const handleLastNameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLastName(e.target.value);
     };
 
-    const navigate = useNavigate();
-    const navigateUserList = () => {
-        let path = `/users`;
-        navigate(path);
-    }
-
-    const handleSave = () => {
-        const editedUser = {
+    const handleSave = async () => {
+        // const updatedUser = {
+        //     ...user,
+        //     username: username,
+        //     email: email,
+        //     password: password,
+        //     firstName: firstName,
+        //     lastName: lastName,
+        //     displayName: displayName,
+        //     // userGroups: selectedGroupValues.map((group) => ({
+        //     //     name: group,
+        //     //     type: "DEFAULT" 
+        //     // })),
+        //     groups: selectedGroupValues.map((value) => value),
+        // };
+        const updatedUser = {
             ...user,
-            username: username,
             email: email,
-            password: password,
+            displayName: displayName,
             firstName: firstName,
             lastName: lastName,
-            displayName: displayName,
-            groups: groups,
+            password: password,
+            groups: selectedGroupValues,
         };
 
-        // updateUser1(editedUser);
-        onUpdateUserData = (userData: any[]): any[] => {
-            return userData.map((user: any) => (user.key === editedUser.key ? editedUser : user));
-        };
-        setIsModalOpen(false);
-        onSave();
+        try {
+            const response = await fetch(`${apiURL}/users/${user.username}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Basic YWRtaW46YWRtaW4="
+                },
+                body: JSON.stringify(updatedUser),
+            });
+            console.log("12. Response: ", response);
+            if (response.ok) {
+                const responseText = await response.text();
+                if (responseText) {
+                    const userData = JSON.parse(responseText)
+                    // const userData = await response.json();
+                    console.log("13. Response.JSON: ", response.json)
+                    setUsername(userData.username);
+                    setEmail(userData.email);
+                    setPassword(userData.password);
+                    setFirstName(userData.firstName);
+                    setLastName(userData.lastName);
+                    setDisplayName(userData.displayName);
+                    setSelectedGroupValues(userData.groups.map((group: any) => group.name));
 
-        console.log(editedUser);
+                    updateUser(updatedUser);
+                    setIsModalOpen(false);
+                    console.log(userData);
+                    console.log(updatedUser);
+                    onSave();
+                } else {
+                    console.error("Empty response from the server");
+                }
+            } else {
+                console.error("Error updating user:", response.statusText);
+            }
+        } catch (error) {
+            console.error("Error updating user:", error);
+        }
+    };
+
+    const handleUserGroupChange = (selectedGroupValues: CheckboxValueType[]) => {
+        const groupValues = selectedGroupValues.map((value) => value.toString());
+        setSelectedGroupValues(groupValues);
+        console.log(selectedGroupValues);
     };
 
     return (
         <div>
             <Form layout="vertical">
-                <Form.Item><b>Account</b></Form.Item>
+                <Form.Item>
+                    <b>Account</b>
+                </Form.Item>
                 <Form.Item label="Username">
-                    <Input
-                        id="username"
-                        value={username}
-                        onChange={handleUsernameInputChange}
-                    />
+                    <Input id="username" value={username} onChange={handleUsernameInputChange} />
                 </Form.Item>
                 <Form.Item label="Email">
-                    <Input
-                        id="email"
-                        value={email}
-                        onChange={handleEmailInputChange}
-                    />
+                    <Input id="email" value={email} onChange={handleEmailInputChange} />
                 </Form.Item>
                 <Form.Item label="Password">
-                    <Input
-                        id="password"
-                        value={password}
-                        onChange={handlePasswordInputChange}
-                    />
+                    <Input id="password" value={password} onChange={handlePasswordInputChange} />
                 </Form.Item>
-                <Form.Item><b>Name</b></Form.Item>
+                <Form.Item>
+                    <b>Name</b>
+                </Form.Item>
                 <Form.Item label="First name (Given name):">
-                    <Input
-                        id="firstName"
-                        value={firstName}
-                        onChange={handleFirstNameInputChange}
-                    />
+                    <Input id="firstName" value={firstName} onChange={handleFirstNameInputChange} />
                 </Form.Item>
                 <Form.Item label="Last name (Family name):">
-                    <Input
-                        id="lastName"
-                        value={lastName}
-                        onChange={handleLastNameInputChange}
-                    />
+                    <Input id="lastName" value={lastName} onChange={handleLastNameInputChange} />
                 </Form.Item>
                 <Form.Item label="Display name:">
-                    <Select
-                        value={displayName}
-                        onChange={(order) => setDisplayName(order)}
-                        options={displayOrder}
-                        defaultActiveFirstOption={true}
-                    />
+                    <Select value={displayName} onChange={(order) => setDisplayName(order)} options={displayOrder} defaultActiveFirstOption={true} />
                 </Form.Item>
-                <Form.Item><b>Group</b></Form.Item>
+                <Form.Item>
+                    <b>Group</b>
+                </Form.Item>
                 <Form.Item className="user-create-form_last-form-item">
-                    <Checkbox.Group onChange={setGroups} value={groups}>
+                    <Checkbox.Group onChange={handleUserGroupChange} value={selectedGroupValues}>
                         <Row>
-                            <Col span={8}>
-                                <Checkbox value="Administrators">Administrators</Checkbox>
-                            </Col>
-                            <Col span={8}>
-                                <Checkbox value="Analysts">Analysts</Checkbox>
-                            </Col>
-                            <Col span={8}>
-                                <Checkbox value="Deployers">Deployers</Checkbox>
-                            </Col>
-                            <Col span={8}>
-                                <Checkbox value="Developers">Developers</Checkbox>
-                            </Col>
-                            <Col span={8}>
-                                <Checkbox value="Testers">Testers</Checkbox>
-                            </Col>
-                            <Col span={8}>
-                                <Checkbox value="Viewers">Viewers</Checkbox>
-                            </Col>
+                            {groupOptions.map((option) => (
+                                <Col span={8} key={option.value}>
+                                    <Checkbox value={option.value}>{option.label}</Checkbox>
+                                </Col>
+                            ))}
                         </Row>
                     </Checkbox.Group>
+                </Form.Item>
+                <Form.Item>
                     <Row style={{ float: "right" }}>
                         <Button
                             key="submit"
-                            onClick={updateUser1}
+                            onClick={handleSave}
                             style={{
                                 marginLeft: 15,
                                 marginTop: 15,

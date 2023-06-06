@@ -1,22 +1,23 @@
 import React, { useState } from 'react';
-import { Button, Checkbox, Form, Input, Modal, Row, Table } from 'antd';
+import { Button, Form, Input, Modal, Table } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import CreateGroupDataSource from './CreateGroupDataSource';
 import { AlignType } from 'rc-table/lib/interface'
+import { stringify } from 'querystring';
 
-const JSON_HEADERS = {
-    "Content-Type": "application/json",
-};
 
-export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> = ({ addNewGroup }) => {
+export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGroups }) => {
 
-    const apiURL = "https://demo.openl-tablets.org/nightly/webstudio/rest";
+    const apiURL = process.env.REACT_APP_API_URL;
+    const authorization = process.env.REACT_APP_AUTHORIZATION;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
     const [privileges, setPrivileges] = useState<CheckboxValueType[]>([]);
     const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
+    const [privilegesArray, setPrivilegesArray] = useState<string[]>([]);
+
 
     interface DataType {
         key: React.Key;
@@ -29,6 +30,7 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
         viewers: string;
         [key: string]: string | React.Key;
     };
+
     const showModal = () => {
         setIsModalOpen(true);
     };
@@ -37,54 +39,72 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
         setIsModalOpen(false);
     };
 
-    const createGroup = () => {
-        fetch(`${apiURL}/admin/management/groups`, {
-            method: "PUT",
-            headers: JSON_HEADERS,
-            body: JSON.stringify({
+    const headers = new Headers();
+    headers.append('Authorization', authorization || '');
+    headers.append('Content-Type', 'application/x-www-form-urlencoded');
+
+    const createGroup = async () => {
+        try {
+            const requestBody = {
                 name,
                 description,
-                privileges,
+                privileges: privileges.map((privilege) => privilege.toString()),
                 selectedColumns,
-            }),
-        }).then(applyResult);
+            };
+
+            const encodedBody = stringify(requestBody);
+            console.log("1.Request BODY", requestBody);
+
+            await fetch(`${apiURL}/admin/management/groups`, {
+                method: "POST",
+                headers,
+                body: encodedBody,
+
+            }).then(applyResult);
+            setName("");
+            setDescription("");
+            setPrivileges([]);
+            setSelectedColumns([]);
+            console.log("2.ENCODED BODY", encodedBody);
+
+            setIsModalOpen(false);
+            console.log("3.Created Group:", requestBody);
+            console.log("4.Added privileges:", requestBody.privileges)
+            fetchGroups();
+        } catch (error) {
+            console.error("5.Error creating group:", error);
+        }
     };
+
     const applyResult = (result: any) => {
         hideModal();
-
     };
-
 
     const handleSubmit = (e: React.SyntheticEvent) => {
         e.preventDefault();
-        const newGroup = {
-            name,
-            description,
-            privileges,
-            selectedColumns,
-        };
-        addNewGroup(newGroup);
-        setName("");
-        setDescription("");
-        setPrivileges([]);
-        setSelectedColumns([]);
-        setIsModalOpen(false);
+        createGroup();
     };
 
     const selectPrivileges = (privilege: string) => {
         const selectedRows = CreateGroupDataSource.filter((row) => row[privilege] === "✓");
         const privileges = selectedRows.map((row) => row.key) as CheckboxValueType[];
+        // setPrivilegesArray(privileges.map(String));
         setPrivileges(privileges);
-        console.log(privileges);
+        console.log('6. ', privileges);
     };
 
     const rowSelection = {
         onChange: (selectedRowKeys: React.Key[], selectedRows: DataType[]) => {
             const privileges = selectedRows.map((row) => row.key) as CheckboxValueType[];
+            // setPrivilegesArray(privileges.map(String));
             setPrivileges(privileges);
-            console.log(privileges);
-
+            console.log('7.', privileges);
+            // console.log('7.1', privilegesArray);
         }
+    };
+
+    const onChange = (checkedValues: CheckboxValueType[]) => {
+        setPrivileges(checkedValues);
     };
 
     const columns = [
@@ -167,18 +187,21 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
         },
     ];
 
-
     return (
         <div >
             <Button onClick={showModal} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
                 Add new group
             </Button>
-            <Modal title="Create new group" open={isModalOpen} onCancel={hideModal} width={850}
+            <Modal
+                title="Create new group"
+                open={isModalOpen}
+                onCancel={hideModal}
+                width={850}
                 footer={[
                     <Button key="back" onClick={hideModal}>
                         Cancel
                     </Button>,
-                    <Button key="submit" onClick={createGroup} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
+                    <Button key="submit" onClick={handleSubmit} style={{ marginTop: 15, color: "green", borderColor: "green" }}>
                         Create
                     </Button>]}>
                 <div >
@@ -195,7 +218,8 @@ export const NewGroupModal: React.FC<{ addNewGroup: (newGroup: any) => void }> =
                             <Form.Item>
                                 <Table
                                     rowSelection={rowSelection}
-                                    dataSource={CreateGroupDataSource} columns={columns} />
+                                    dataSource={CreateGroupDataSource}
+                                    columns={columns} />
                             </Form.Item>
                         </Form.Item>
                     </Form>

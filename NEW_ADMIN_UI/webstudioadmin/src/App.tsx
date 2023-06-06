@@ -11,8 +11,6 @@ import { RepoDeploymentPage } from 'Pages/RepoDeploymentPage';
 import { UserPage } from 'Pages/UserPage';
 import { RepoDeployConfPage } from 'Pages/RepoDeployConfPage';
 import { GroupPage } from 'Pages/GroupPage';
-import { NewGroup } from "./views/groups/NewGroup";
-// import DataProvider from "./components/DataContext";
 
 function App() {
 
@@ -31,7 +29,6 @@ function App() {
                 <Route path='/repository/design' element={<RepoDesignPage />} />
                 <Route path='/repository/config' element={<RepoDeployConfPage />} />
                 <Route path='/repository/deployment' element={<RepoDeploymentPage />} />
-                <Route path='/groups/create' element={<NewGroup />} />
             </Routes>
         </BrowserRouter>
     );
