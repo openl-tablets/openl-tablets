@@ -23,7 +23,7 @@ export const CommonPage: React.FC = () => {
                     labelWrap
                 >
                     <Form.Item label="The maximum count of saved changes for each project per user:">
-                        <Input defaultValue="100" />
+                        <Input defaultValue="100" style={{ marginTop: 7 }} />
                     </Form.Item>
                 </Form>
                 <Button>Clear all history</Button>
@@ -34,7 +34,7 @@ export const CommonPage: React.FC = () => {
                     labelAlign="left"
                     labelWrap>
                     <Form.Item label="Update table properties ('createdOn', 'modifiedBy' etc.) on editing:">
-                        <Checkbox />
+                        <Checkbox style={{ marginTop: 12 }} />
                     </Form.Item>
                     <Form.Item label="Date Format:">
                         <Input defaultValue="MM/dd/yyyy" />

@@ -21,7 +21,6 @@ const CreateGroupDataSource: DataType[] = [
         developers: "✓",
         testers: "✓",
         viewers: "✓",
-
     },
     {
         key: "Create projects",

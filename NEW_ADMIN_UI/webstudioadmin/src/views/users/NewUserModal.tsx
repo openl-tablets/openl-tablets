@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Checkbox, Col, Form, Input, Modal, Row, Select } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
+import './newUserModal.css';
 
 const displayOrder = [
     {
@@ -109,6 +110,7 @@ export const NewUserModal: React.FC<{ fetchUsers: () => void }> = ({ fetchUsers 
                 Add new user
             </Button>
             <Modal
+                className='new-user-modal'
                 title="Create new user"
                 open={isModalOpen}
                 onCancel={hideModal}
