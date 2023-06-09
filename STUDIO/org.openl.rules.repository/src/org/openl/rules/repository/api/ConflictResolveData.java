@@ -1,6 +1,7 @@
 package org.openl.rules.repository.api;
 
 import java.util.Iterator;
+import java.util.function.Function;
 
 public class ConflictResolveData implements AdditionalData<ConflictResolveData> {
     private final String commitToMerge;
@@ -26,7 +27,7 @@ public class ConflictResolveData implements AdditionalData<ConflictResolveData> 
     }
 
     @Override
-    public ConflictResolveData convertPaths(final PathConverter converter) {
+    public ConflictResolveData convertPaths(final Function<String, String> converter) {
         Iterable<FileItem> convertedFolders = () -> new Iterator<FileItem>() {
             private final Iterator<FileItem> delegate = resolvedFiles.iterator();
 
@@ -39,7 +40,7 @@ public class ConflictResolveData implements AdditionalData<ConflictResolveData> 
             public FileItem next() {
                 FileItem oldPath = delegate.next();
                 FileData data = oldPath.getData();
-                data.setName(converter.convert(oldPath.getData().getName()));
+                data.setName(converter.apply(oldPath.getData().getName()));
                 return new FileItem(data, oldPath.getStream());
             }
 
