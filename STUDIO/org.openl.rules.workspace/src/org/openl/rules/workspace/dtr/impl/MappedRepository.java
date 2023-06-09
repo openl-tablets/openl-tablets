@@ -1,26 +1,49 @@
 package org.openl.rules.workspace.dtr.impl;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.openl.rules.dataformat.yaml.YamlMapperFactory;
-import org.openl.rules.repository.api.*;
-import org.openl.util.IOUtils;
-import org.openl.util.StringUtils;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.openl.rules.dataformat.yaml.YamlMapperFactory;
+import org.openl.rules.project.abstraction.ArtefactProperties;
+import org.openl.rules.repository.api.AdditionalData;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.ConflictResolveData;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderMapper;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Pageable;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.api.SearchableRepository;
+import org.openl.rules.repository.api.UserInfo;
+import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 
 public class MappedRepository implements BranchRepository, Closeable, FolderMapper {
     private static final Logger log = LoggerFactory.getLogger(MappedRepository.class);

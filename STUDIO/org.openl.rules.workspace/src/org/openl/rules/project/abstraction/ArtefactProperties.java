@@ -1,4 +1,4 @@
-package org.openl.rules.repository.api;
+package org.openl.rules.project.abstraction;
 
 public interface ArtefactProperties {
     // Deployment Descriptor
