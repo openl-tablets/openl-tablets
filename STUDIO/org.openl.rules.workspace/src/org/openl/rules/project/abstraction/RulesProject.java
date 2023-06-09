@@ -16,7 +16,7 @@ import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderMapper;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;

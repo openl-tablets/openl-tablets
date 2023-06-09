@@ -62,7 +62,7 @@ import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderMapper;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
