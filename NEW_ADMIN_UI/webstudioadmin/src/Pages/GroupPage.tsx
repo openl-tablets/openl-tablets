@@ -4,6 +4,9 @@ import { CloseCircleOutlined } from '@ant-design/icons';
 import DefaultLayout from '../components/DefaultLayout';
 import { NewGroupModal } from 'views/groups/NewGroupModal';
 import { EditGroupModal } from 'views/groups/EditGroupModal';
+import './groupPage.css';
+import { NewGroupModal1 } from 'views/groups/NewGroupModal1';
+
 
 type Group = {
     name: string;
@@ -21,7 +24,9 @@ export const GroupPage: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [groupData, setGroupData] = useState<Group[]>([]);
     const [selectedGroup, setSelectedGroup] = useState<any>({});
+    const [privileges, setPrivileges] = useState([]);
     const [selecetedGroupPrivileges, setSelectedGroupPrivileges] = useState([]);
+    const [allPrivileges, setAllPrivileges] = useState([]);
 
     const showEditGroupModal = () => {
         setIsModalOpen(true);
@@ -65,6 +70,7 @@ export const GroupPage: React.FC = () => {
 
     const removeGroup = (id: number) => {
         Modal.confirm({
+            className: "confirm-group-modal",
             title: "Confirm Deletion",
             content: "Are you sure you want to delete this group?",
 
@@ -88,6 +94,26 @@ export const GroupPage: React.FC = () => {
             groupData.map((group: any) => (group.key === updatedGroup.key ? updatedGroup : group))
         );
     };
+
+    // const fetchPrivileges = async () => {
+    //     try {
+    //         const headers = new Headers();
+    //         headers.append('Authorization', authorization || '');
+
+    //         const response = await fetch(`${apiURL}/admin/management/privileges`, {
+    //             headers
+    //         });
+
+    //         if (response.ok) {
+    //             const jsonResponse = await response.json();
+    //             setAllPrivileges(jsonResponse);
+    //         } else {
+    //             console.error("15. Failed to fetch privileges:", response.statusText);
+    //         }
+    //     } catch (error) {
+    //         console.error("16. Error fetching privileges:", error);
+    //     }
+    // };
 
     const handleDoubleRowClick = (record: any) => {
         setSelectedGroup({ ...record });
@@ -162,7 +188,6 @@ export const GroupPage: React.FC = () => {
         },
     ]
 
-
     return (
         <DefaultLayout>
             <Card style={{ margin: 20, width: 900 }}>
@@ -189,11 +214,12 @@ export const GroupPage: React.FC = () => {
                     })}
                 />
                 <NewGroupModal fetchGroups={fetchGroups} />
+                <NewGroupModal1 fetchGroups={fetchGroups} />
                 <Modal
+                    className='edit-group-modal'
                     open={isModalOpen}
                     onCancel={hideEditGroupModal}
                     footer={null}
-                    style={{ width: 850 }}
                 >
                     {isModalOpen && (
                         <EditGroupModal

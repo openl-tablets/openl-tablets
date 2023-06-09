@@ -4,7 +4,7 @@ import { CloseCircleOutlined } from '@ant-design/icons';
 import DefaultLayout from '../components/DefaultLayout';
 import { NewUserModal } from 'views/users/NewUserModal';
 import { EditUserModal } from 'views/users/EditUserModal';
-import './UserPage.css';
+import './userPage.css';
 
 export const UserPage: React.FC = () => {
 
@@ -52,10 +52,10 @@ export const UserPage: React.FC = () => {
 
     const removeUser = (username: string) => {
         Modal.confirm({
-            className: "confirm-modal",
+            className: "confirm-user-modal",
             title: "Confirm Deletion",
             content: "Are you sure you want to delete this user?",
-            
+
             onOk: () => {
                 fetch(`${apiURL}/users/${username}`, {
                     method: "DELETE",
@@ -167,6 +167,7 @@ export const UserPage: React.FC = () => {
                     fetchUsers={fetchUsers}
                 />
                 <Modal
+                    className='edit-user-modal'
                     open={isModalOpen}
                     onCancel={hideEditUserModal}
                     footer={null}

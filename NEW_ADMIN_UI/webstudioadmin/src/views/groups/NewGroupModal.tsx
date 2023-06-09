@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Form, Input, Modal, Table } from 'antd';
 import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import CreateGroupDataSource from './CreateGroupDataSource';
 import { AlignType } from 'rc-table/lib/interface'
 import { stringify } from 'querystring';
-
+import './newGroupModal.css';
 
 export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGroups }) => {
 
@@ -17,6 +17,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
     const [privileges, setPrivileges] = useState<CheckboxValueType[]>([]);
     const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
     const [privilegesArray, setPrivilegesArray] = useState<string[]>([]);
+    const [allPrivileges, setAllPrivileges] = useState([]);
 
 
     interface DataType {
@@ -193,6 +194,7 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
                 Add new group
             </Button>
             <Modal
+                className='new-group-modal'
                 title="Create new group"
                 open={isModalOpen}
                 onCancel={hideModal}
@@ -219,7 +221,9 @@ export const NewGroupModal: React.FC<{ fetchGroups: () => void }> = ({ fetchGrou
                                 <Table
                                     rowSelection={rowSelection}
                                     dataSource={CreateGroupDataSource}
-                                    columns={columns} />
+                                    columns={columns}
+                                    pagination={false}
+                                />
                             </Form.Item>
                         </Form.Item>
                     </Form>

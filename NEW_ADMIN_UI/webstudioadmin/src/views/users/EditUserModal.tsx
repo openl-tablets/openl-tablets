@@ -79,8 +79,6 @@ interface EditUserProps {
     onSave: () => void;
 }
 
-
-
 export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onSave }) => {
     const apiURL = "http://localhost:8080/webstudio/rest";
 
@@ -91,9 +89,8 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onSav
     const [firstName, setFirstName] = useState(user.firstName);
     const [lastName, setLastName] = useState(user.lastName);
     const [displayName, setDisplayName] = useState(user.displayName);
-    // const [selectedGroupValues, setSelectedGroupValues] = useState<CheckboxValueType[]>(user.userGroups.map((group) => group.name));
-    const [selectedGroupValues, setSelectedGroupValues] = useState<string[]>(user.userGroups.map((group) => group.name));
-
+    const [selectedGroupValues, setSelectedGroupValues] = useState<CheckboxValueType[]>(user.userGroups.map((group) => group.name));
+    // const [selectedGroupValues, setSelectedGroupValues] = useState<String[]>(user.userGroups.map((group) => group.name));
 
     useEffect(() => {
         setUsername(user.username);
@@ -105,10 +102,7 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onSav
         setSelectedGroupValues(user.userGroups.map((group) => group.name));
     }, [user]);
 
-    const handleUsernameInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setUsername(e.target.value);
-    };
-
+   
     const handleEmailInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
     };
@@ -203,7 +197,8 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onSav
                     <b>Account</b>
                 </Form.Item>
                 <Form.Item label="Username">
-                    <Input id="username" value={username} onChange={handleUsernameInputChange} />
+                    <p><b>{username}</b></p>
+                    {/* <Input id="username" value={username} onChange={handleUsernameInputChange} /> */}
                 </Form.Item>
                 <Form.Item label="Email">
                     <Input id="email" value={email} onChange={handleEmailInputChange} />

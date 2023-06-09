@@ -4,7 +4,6 @@ import type { CheckboxValueType } from 'antd/es/checkbox/Group';
 import CreateGroupDataSource from './CreateGroupDataSource';
 import { AlignType } from 'rc-table/lib/interface'
 import { stringify } from 'querystring';
-import './EditGroupModal.css';
 
 interface EditGroupProps {
     group: {
