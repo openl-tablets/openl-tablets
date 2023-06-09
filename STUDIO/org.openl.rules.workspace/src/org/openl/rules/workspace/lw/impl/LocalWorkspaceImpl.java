@@ -16,7 +16,7 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderMapper;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;

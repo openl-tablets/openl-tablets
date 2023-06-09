@@ -2,8 +2,8 @@ package org.openl.security.acl.repository;
 
 import java.io.IOException;
 
-import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 
 public class SecureMappedRepository extends SecureBranchRepository implements FolderMapper {
