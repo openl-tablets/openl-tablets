@@ -84,11 +84,14 @@ export const NewGroupModal1: React.FC<{ fetchGroups: () => void }> = ({ fetchGro
                     },
                     ...groups.map((group) => ({
                         title: group.groupName,
-                        dataIndex: group.groupName,
+                        // dataIndex: group.groupName,
                         key: `column_${group.groupName}`,
                         render: (value: any, record: Group, index: number) => {
+                            
                             const privilegeValues = allPrivileges.map(privilege => privilege.value);
                             const hasPrivilege = privilegeValues.includes(value);
+                            console.log("555", privilegeValues, hasPrivilege )
+                            console.log("666", allPrivileges, value);
                             return hasPrivilege ? <CheckOutlined /> : null;
                         }
                     })),
@@ -211,19 +214,6 @@ export const NewGroupModal1: React.FC<{ fetchGroups: () => void }> = ({ fetchGro
         const privileges = selectedRows.map((row) => row.privilege) as CheckboxValueType[];
         setPrivileges(privileges);
     };
-
-    // const handleCheckboxChange = (privilegeIndex: number, groupName: string) => {
-    //     const updatedGroupData = [...groupData];
-    //     const groupIndex = updatedGroupData.findIndex((group) => group.name === groupName);
-    //     const selectedPrivileges = [...updatedGroupData[groupIndex].privileges];
-    //     const privilegeToRemove = allPrivileges[privilegeIndex].privilege as string;
-    //     if (selectedPrivileges.includes(privilegeToRemove)) {
-    //         updatedGroupData[groupIndex].privileges = selectedPrivileges.filter((privilege) => privilege !== privilegeToRemove);
-    //     } else {
-    //         updatedGroupData[groupIndex].privileges = [...selectedPrivileges, privilegeToRemove];
-    //     }
-    //     setGroupData(updatedGroupData);
-    // };
 
     return (
         <div >
