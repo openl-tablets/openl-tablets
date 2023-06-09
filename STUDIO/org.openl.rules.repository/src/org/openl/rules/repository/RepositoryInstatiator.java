@@ -43,14 +43,14 @@ public class RepositoryInstatiator {
         for (RepositoryFactory factory : factories) {
             repos.add(factory.getRefID());
             if (factory.accept(factoryId)) {
-                return factory.create(key -> {
+                return new PathCheckedRepository(factory.create(key -> {
                     if ("id".equals(key)) {
                         // FIXME: Remove assumption that id is the last part of the prefix.
                         int dot = prefix.lastIndexOf('.');
                         return prefix.substring(dot + 1);
                     }
                     return props.apply(prefix + '.' + key);
-                });
+                }));
             }
         }
         throw new IllegalArgumentException(String.format(

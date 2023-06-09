@@ -2,6 +2,7 @@ package org.openl.rules.repository.api;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.InvalidPathException;
 import java.util.List;
 
 /**
@@ -18,6 +19,7 @@ import java.util.List;
  * <li>The path to the folder MUST be ended with '/'</li>
  * <li>The path to the file MUST NOT be ended with '/'</li>
  * <li>The path to the root folder is the empty path</li>
+ * <li>The path must be normalized, without '..' and '.'</li>
  * </ol>
  *
  * Examples:
@@ -226,5 +228,34 @@ public interface Repository extends AutoCloseable {
      * @throws IOException if connection cannot be established
      */
     default void validateConnection() throws IOException {
+    }
+
+    /**
+     * Checks the path against path traversal vulnerability.
+     *
+     * @param path the path to validate
+     * @throws InvalidPathException
+     */
+    static void validatePath(String path) throws InvalidPathException{
+        if (path == null || path.isEmpty()) {
+            return;
+        }
+        if (path.charAt(0) == '/') {
+            throw new InvalidPathException(path, "The path cannot be absolute.");
+        }
+        if (path.startsWith("../") ||
+                path.equals("..") ||
+                path.equals(".") ||
+                path.startsWith("./") ||
+                path.endsWith("/..") ||
+                path.endsWith("/.") ||
+                path.contains("/../") ||
+                path.contains("//") ||
+                path.contains("/./")) {
+            throw new InvalidPathException(path, "The path must be normalized.");
+        }
+        if (path.indexOf('\\') >= 0) {
+            throw new InvalidPathException(path, "The path cannot contain '\\' symbol. Only '/' symbol is allowed as a folder separator");
+        }
     }
 }
