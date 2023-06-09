@@ -10,7 +10,7 @@ import javax.inject.Inject;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
-import org.openl.rules.repository.api.FolderMapper;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.rest.exception.NotFoundException;

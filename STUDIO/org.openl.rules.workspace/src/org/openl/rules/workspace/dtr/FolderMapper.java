@@ -1,6 +1,8 @@
-package org.openl.rules.repository.api;
+package org.openl.rules.workspace.dtr;
 
 import java.io.IOException;
+
+import org.openl.rules.repository.api.FolderRepository;
 
 public interface FolderMapper {
     FolderRepository getDelegate();

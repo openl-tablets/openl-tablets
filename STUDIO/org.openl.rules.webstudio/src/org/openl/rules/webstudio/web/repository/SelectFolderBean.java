@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.openl.rules.repository.api.FolderMapper;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.filter.AllFilter;
