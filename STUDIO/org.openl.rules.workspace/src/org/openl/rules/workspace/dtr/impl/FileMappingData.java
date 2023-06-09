@@ -1,7 +1,8 @@
 package org.openl.rules.workspace.dtr.impl;
 
+import java.util.function.Function;
+
 import org.openl.rules.repository.api.AdditionalData;
-import org.openl.rules.repository.api.PathConverter;
 import org.openl.util.StringUtils;
 
 public class FileMappingData implements AdditionalData<FileMappingData> {
@@ -14,7 +15,7 @@ public class FileMappingData implements AdditionalData<FileMappingData> {
     }
 
     @Override
-    public FileMappingData convertPaths(PathConverter converter) {
+    public FileMappingData convertPaths(Function<String, String> converter) {
         // We don't need to convert internalPath so return this.
         return this;
     }

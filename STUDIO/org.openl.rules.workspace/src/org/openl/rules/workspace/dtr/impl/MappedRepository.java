@@ -22,7 +22,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.openl.rules.dataformat.yaml.YamlMapperFactory;
 import org.openl.rules.repository.api.AdditionalData;
-import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.project.abstraction.ArtefactProperties;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.ConflictResolveData;
