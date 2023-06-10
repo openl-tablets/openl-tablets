@@ -24,7 +24,6 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.IOUtils;
@@ -82,12 +81,12 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void test_deploy_singleDeployment_whenFoldersSupports() throws Exception {
-        init(FolderRepository.class, false);
+        init(Repository.class, false);
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
         }
         verify(mockedDeployRepo, never()).save(any(FileData.class), any(InputStream.class));
-        verify((FolderRepository) mockedDeployRepo, times(1))
+        verify(mockedDeployRepo, times(1))
             .save(fileDataCaptor.capture(), fileChangesFromZipCaptor.capture(), eq(ChangesetType.FULL));
         assertNotNull(fileChangesFromZipCaptor.getValue());
         assertNotNull(fileDataCaptor.getValue());
@@ -235,7 +234,7 @@ public class RulesDeployerServiceTest {
     @Test
     public void testMultiDeploymentFolderSupport_CustomName_mustNotApplied() throws IOException,
                                                                              RulesDeployInputException {
-        init(FolderRepository.class, true);
+        init(Repository.class, true);
         try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy("EPBDS-10894.zip", is, true);
         }
@@ -246,7 +245,7 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void testMultiDeploymentFolderSupport_NoDeploymentName() throws IOException, RulesDeployInputException {
-        init(FolderRepository.class, true);
+        init(Repository.class, true);
         try (InputStream is = getResourceAsStream("noname-multiple-deployment.zip")) {
             deployer.deploy("customName-deployment", is, true);
         }
@@ -257,7 +256,7 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void testWrongFile() throws IOException {
-        init(FolderRepository.class, true);
+        init(Repository.class, true);
         try {
             deployer.deploy("customName-deployment", new ByteArrayInputStream("foo".getBytes()), true);
             fail("Everything went different before...");
@@ -295,7 +294,7 @@ public class RulesDeployerServiceTest {
         ArgumentCaptor<FileData> captor1 = ArgumentCaptor.forClass(fileDataClass);
         ArgumentCaptor<List<FileItem>> captor2 = ArgumentCaptor.forClass(listClass);
 
-        verify((FolderRepository) mockedDeployRepo, times(1)).save(captor1.capture(), captor2.capture(), eq(ChangesetType.FULL));
+        verify((Repository) mockedDeployRepo, times(1)).save(captor1.capture(), captor2.capture(), eq(ChangesetType.FULL));
         return captor1.getValue();
     }
 

@@ -19,7 +19,6 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentManifestBuilder;
@@ -119,8 +118,8 @@ class FileChangesToDeploy implements Iterable<FileItem>, Closeable {
                     if (baseRepo.supports().folders()) {
                         // Project in design repository is stored as a folder
                         String srcProjectPath = rulesPath + projectName + "/";
-                        FolderRepository repository = RepositoryUtils
-                            .getRepositoryForVersion((FolderRepository) baseRepo, rulesPath, projectName, version);
+                        Repository repository = RepositoryUtils
+                            .getRepositoryForVersion(baseRepo, rulesPath, projectName, version);
                         List<FileData> files = repository.listFiles(srcProjectPath, version);
                         if (files.isEmpty()) {
                             LOG.warn("Cannot find files in project {}", projectName);

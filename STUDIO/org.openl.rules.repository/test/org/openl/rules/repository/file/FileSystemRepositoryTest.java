@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -165,7 +164,7 @@ public class FileSystemRepositoryTest {
         }
     }
 
-    private void assertSave(FolderRepository repo,
+    private void assertSave(Repository repo,
             String folderName,
             String text,
             Date modifiedAt,

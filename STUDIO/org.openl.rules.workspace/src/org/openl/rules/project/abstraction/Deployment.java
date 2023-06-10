@@ -10,7 +10,6 @@ import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
 import org.openl.rules.common.impl.RepositoryVersionInfoImpl;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +87,7 @@ public class Deployment extends AProjectFolder implements IDeployment {
     @Override
     protected Map<String, AProjectArtefact> createInternalArtefacts() {
         if (getRepository().supports().folders()) {
-            FolderRepository repository = (FolderRepository) getRepository();
+            Repository repository = getRepository();
             List<FileData> fileDataList;
             try {
                 String folderPath = getFolderPath();

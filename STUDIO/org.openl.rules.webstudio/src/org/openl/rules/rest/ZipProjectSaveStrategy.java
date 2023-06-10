@@ -31,7 +31,6 @@ import org.openl.rules.repository.api.AdditionalData;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.FileChangesFromFolder;
@@ -96,9 +95,9 @@ public class ZipProjectSaveStrategy {
                     if (checkIfRequiredProjectDescriptorCreation(model, root)) {
                         FileItem descriptor = createVirtualProjectDescriptor(model, projectData.getName());
                         Iterable<FileItem> files = () -> concat(changes, Stream.of(descriptor)).iterator();
-                        return ((FolderRepository) repository).save(projectData, files, ChangesetType.FULL);
+                        return repository.save(projectData, files, ChangesetType.FULL);
                     } else {
-                        return ((FolderRepository) repository).save(projectData, changes, ChangesetType.FULL);
+                        return repository.save(projectData, changes, ChangesetType.FULL);
                     }
                 }
             } else {

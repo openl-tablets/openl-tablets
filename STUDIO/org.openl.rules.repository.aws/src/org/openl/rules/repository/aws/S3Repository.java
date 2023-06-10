@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -483,6 +484,21 @@ public class S3Repository implements Repository, Closeable {
         } catch (SdkClientException e) {
             throw new IOException(e);
         }
+    }
+
+    @Override
+    public List<FileData> listFolders(String path) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<FileData> listFiles(String path, String version) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException {
+        throw new UnsupportedOperationException();
     }
 
     @Override

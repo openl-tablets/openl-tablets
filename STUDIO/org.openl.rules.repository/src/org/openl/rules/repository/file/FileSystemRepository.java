@@ -19,8 +19,8 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.util.FileUtils;
 
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yury Molchan
  */
-public class FileSystemRepository implements FolderRepository, Closeable {
+public class FileSystemRepository implements Repository, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(FileSystemRepository.class);
 
     private File root;
@@ -246,7 +246,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(this).setVersions(false).build();
+        return new FeaturesBuilder(this).setVersions(false).setFolders(true).build();
     }
 
     private void listFiles(Collection<FileData> files, File directory) {

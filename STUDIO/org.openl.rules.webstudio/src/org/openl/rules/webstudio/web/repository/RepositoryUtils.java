@@ -17,7 +17,7 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentOutputStream;
 import org.openl.util.IOUtils;
@@ -59,7 +59,7 @@ public final class RepositoryUtils {
         return null;
     }
 
-    public static void archive(FolderRepository folderRepository,
+    public static void archive(Repository folderRepository,
             String rulesPath,
             String projectName,
             String version,
@@ -121,7 +121,7 @@ public final class RepositoryUtils {
         }
     }
 
-    static FolderRepository getRepositoryForVersion(FolderRepository folderRepo,
+    static Repository getRepositoryForVersion(Repository folderRepo,
             String rulesPath,
             String projectName,
             String version) throws IOException {
@@ -138,7 +138,7 @@ public final class RepositoryUtils {
                     BranchRepository secondaryBranch = branchRepository.forBranch(branch);
                     FileData fileData = secondaryBranch.checkHistory(srcProjectPath, version);
                     if (fileData != null) {
-                        return (FolderRepository) secondaryBranch;
+                        return secondaryBranch;
                     }
                 }
 

@@ -113,7 +113,6 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.RepositorySettings;
@@ -130,7 +129,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
-public class GitRepository implements FolderRepository, BranchRepository, Closeable {
+public class GitRepository implements BranchRepository, Closeable {
     static final String DELETED_MARKER_FILE = ".archived";
 
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
@@ -2372,7 +2371,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).build();
+        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).setFolders(true).build();
     }
 
     @Override

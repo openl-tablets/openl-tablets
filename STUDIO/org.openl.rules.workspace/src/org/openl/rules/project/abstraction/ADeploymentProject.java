@@ -26,7 +26,6 @@ import org.openl.rules.lock.LockInfo;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.util.IOUtils;
@@ -158,7 +157,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
                     FileItem change = new FileItem(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
                         new ByteArrayInputStream(out.toByteArray()));
-                    setFileData(((FolderRepository) getRepository())
+                    setFileData(getRepository()
                         .save(fileData, Collections.singletonList(change), ChangesetType.FULL));
                 } catch (IOException e) {
                     throw new ProjectException(e.getMessage(), e);

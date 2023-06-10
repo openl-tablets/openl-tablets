@@ -33,7 +33,6 @@ import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.FileChangesFromFolder;
@@ -163,8 +162,7 @@ public class RulesDeployerService implements Closeable {
                 // OK
             }
             final boolean isDeployment = hasDeploymentDescriptor(fullDeployPath);
-            final boolean isMultiProject = isDeployment || ((FolderRepository) deployRepo).listFolders(fullDeployPath)
-                .size() > 1;
+            final boolean isMultiProject = isDeployment || deployRepo.listFolders(fullDeployPath).size() > 1;
 
             final String basePath = (isMultiProject ? fullDeployPath
                                                     : baseDeployPath + projectsPath.iterator().next()) + "/";
@@ -280,7 +278,7 @@ public class RulesDeployerService implements Closeable {
             dest.setAuthor(new UserInfo(DEFAULT_AUTHOR_NAME));
             dest.setSize(attrs.size());
             try (FileChangesFromFolder changes = new FileChangesFromFolder(root, dest.getName())) {
-                ((FolderRepository) deployRepo).save(dest, changes, ChangesetType.FULL);
+                deployRepo.save(dest, changes, ChangesetType.FULL);
             }
         } else {
             // split zip to single-project deployment if repository doesn't support folders
@@ -357,7 +355,7 @@ public class RulesDeployerService implements Closeable {
             FileData dest = fileData.get();
             if (deployRepo.supports().folders()) {
                 try (FileChangesFromFolder changes = new FileChangesFromFolder(root, dest.getName())) {
-                    ((FolderRepository) deployRepo).save(dest, changes, ChangesetType.FULL);
+                    deployRepo.save(dest, changes, ChangesetType.FULL);
                 }
             } else {
                 BasicFileAttributes attrs = Files.readAttributes(pathToArchive, BasicFileAttributes.class);

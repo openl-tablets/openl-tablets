@@ -27,7 +27,6 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.model.CreateUpdateProjectModel;
 import org.openl.rules.security.SimpleUser;
@@ -98,7 +97,7 @@ public class ZipProjectSaveStrategyTest {
             "foo/Project 1",
             "Bar",
             false);
-        FolderRepository repo = (FolderRepository) designTimeRepositoryMock.getRepository(model.getRepoName());
+        Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
         Path expected = Paths.get("test-resources/upload/zip/project.zip");
@@ -126,7 +125,7 @@ public class ZipProjectSaveStrategyTest {
             null,
             "Bar",
             false);
-        FolderRepository repo = (FolderRepository) designTimeRepositoryMock.getRepository(model.getRepoName());
+        Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
         Path expected = Paths.get("test-resources/upload/zip/project.zip");
@@ -179,7 +178,7 @@ public class ZipProjectSaveStrategyTest {
             "custom-name",
             "Bar",
             false);
-        FolderRepository repo = (FolderRepository) designTimeRepositoryMock.getRepository(model.getRepoName());
+        Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
         Path expected = Paths.get("test-resources/upload/zip/project.zip");
@@ -213,7 +212,7 @@ public class ZipProjectSaveStrategyTest {
             "custom-name",
             "Bar",
             false);
-        FolderRepository repo = (FolderRepository) designTimeRepositoryMock.getRepository(model.getRepoName());
+        Repository repo = designTimeRepositoryMock.getRepository(model.getRepoName());
         Map<String, FileItem> actualFileItems = captureFileItems(repo);
 
         Path expected = Paths.get("test-resources/upload/zip/excel-only-project.zip");
@@ -296,7 +295,7 @@ public class ZipProjectSaveStrategyTest {
         }
     }
 
-    private Map<String, FileItem> captureFileItems(FolderRepository repo) throws IOException {
+    private Map<String, FileItem> captureFileItems(Repository repo) throws IOException {
         Map<String, FileItem> actualFileItems = new HashMap<>();
         when(repo.save(any(FileData.class), any(), eq(ChangesetType.FULL))).thenAnswer(a -> {
             // noinspection unchecked
@@ -335,8 +334,9 @@ public class ZipProjectSaveStrategyTest {
 
         FeaturesBuilder featuresBuilder = new FeaturesBuilder(mockedRepo);
         if (MappedRepository.class.isAssignableFrom(tClass)) {
-            when(((MappedRepository) mockedRepo).getDelegate()).thenReturn(((MappedRepository) mockedRepo));
+            when(((MappedRepository) mockedRepo).getDelegate()).thenReturn(mockedRepo);
             featuresBuilder.setMappedFolders(true);
+            featuresBuilder.setFolders(true);
         }
         featureConfig.accept(featuresBuilder);
         when(mockedRepo.supports()).thenReturn(featuresBuilder.build());
