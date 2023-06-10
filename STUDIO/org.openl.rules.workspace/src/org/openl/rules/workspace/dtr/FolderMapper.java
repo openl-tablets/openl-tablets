@@ -2,10 +2,10 @@ package org.openl.rules.workspace.dtr;
 
 import java.io.IOException;
 
-import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 
 public interface FolderMapper {
-    FolderRepository getDelegate();
+    Repository getDelegate();
 
     void addMapping(String internal) throws IOException;
 

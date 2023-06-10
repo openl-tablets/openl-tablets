@@ -31,7 +31,6 @@ import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositorySettings;
@@ -44,11 +43,11 @@ import org.xml.sax.InputSource;
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
-public class MappedRepository implements FolderRepository, BranchRepository, Closeable, FolderMapper {
+public class MappedRepository implements BranchRepository, Closeable, FolderMapper {
     private static final Logger log = LoggerFactory.getLogger(MappedRepository.class);
     private static final String SEPARATOR = ":";
 
-    private FolderRepository delegate;
+    private Repository delegate;
 
     private volatile ProjectIndex externalToInternal = new ProjectIndex();
 
@@ -58,7 +57,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     private Date settingsSyncDate = new Date();
     private final YAMLMapper mapper = YamlMapperFactory.getYamlMapper();
 
-    public static Repository create(FolderRepository delegate,
+    public static Repository create(Repository delegate,
             String baseFolder,
             RepositorySettings repositorySettings) throws IOException {
         MappedRepository mappedRepository = null;
@@ -84,11 +83,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     }
 
     @Override
-    public FolderRepository getDelegate() {
+    public Repository getDelegate() {
         return delegate;
     }
 
-    public void setDelegate(FolderRepository delegate) {
+    public void setDelegate(Repository delegate) {
         this.delegate = delegate;
     }
 
@@ -356,6 +355,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     public Features supports() {
         return new FeaturesBuilder(delegate).setVersions(delegate.supports().versions())
             .setMappedFolders(true)
+            .setFolders(delegate.supports().folders())
             .setSupportsUniqueFileId(delegate.supports().uniqueFileId())
             .build();
     }
@@ -414,7 +414,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
         MappedRepository mappedRepository = null;
         try {
             mappedRepository = new MappedRepository();
-            mappedRepository.setDelegate((FolderRepository) delegateForBranch);
+            mappedRepository.setDelegate(delegateForBranch);
             mappedRepository.setConfigFile(configFile);
             mappedRepository.setBaseFolder(baseFolder);
             mappedRepository.setRepositorySettings(repositorySettings);
@@ -685,7 +685,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
      * @return loaded mapping
      * @throws IOException if it was any error during operation
      */
-    private ProjectIndex readExternalToInternalMap(FolderRepository delegate,
+    private ProjectIndex readExternalToInternalMap(Repository delegate,
             String configFile,
             String baseFolder) throws IOException {
         baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
@@ -710,7 +710,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
         return new ProjectIndex();
     }
 
-    private boolean syncProjectIndex(FolderRepository delegate, ProjectIndex projectIndex) throws IOException {
+    private boolean syncProjectIndex(Repository delegate, ProjectIndex projectIndex) throws IOException {
         boolean modified = false;
         for (Iterator<ProjectInfo> iterator = projectIndex.getProjects().iterator(); iterator.hasNext();) {
             ProjectInfo project = iterator.next();
@@ -800,7 +800,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
      * @param baseFolder virtual base folder. WebStudio will think that projects can be found in this folder.
      * @return generated mapping
      */
-    private ProjectIndex generateExternalToInternalMap(FolderRepository delegate,
+    private ProjectIndex generateExternalToInternalMap(Repository delegate,
             String baseFolder) throws IOException {
         ProjectIndex externalToInternal = new ProjectIndex();
         List<FileData> allFiles = delegate.list("");

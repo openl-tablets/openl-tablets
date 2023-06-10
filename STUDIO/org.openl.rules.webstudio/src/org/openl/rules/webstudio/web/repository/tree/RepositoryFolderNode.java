@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.SelectFolderBean;
@@ -17,11 +17,11 @@ public class RepositoryFolderNode extends TreeFolder {
     private final Logger log = LoggerFactory.getLogger(RepositoryFolderNode.class);
 
     private Map<Object, TreeNode> elements;
-    private final FolderRepository repository;
+    private final Repository repository;
     private final String path;
     private final SelectFolderBean selectFolderBean;
 
-    public RepositoryFolderNode(FolderRepository repository, String name, String path, SelectFolderBean selectFolderBean) {
+    public RepositoryFolderNode(Repository repository, String name, String path, SelectFolderBean selectFolderBean) {
         super(RepositoryUtils.getTreeNodeId(repository.getId(), name), name, new AllFilter<>());
         this.repository = repository;
         this.path = path;

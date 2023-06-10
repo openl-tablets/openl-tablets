@@ -25,7 +25,6 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
@@ -472,7 +471,7 @@ public class AProject extends AProjectFolder implements IProject {
             stream = new ZipInputStream(fileItem.getStream());
             FileData fileData = getFileData();
             fileData.setAuthor(user == null ? null : user.getUserInfo());
-            return ((FolderRepository) repositoryTo)
+            return repositoryTo
                 .save(fileData, new FileChangesFromZip(stream, folderTo), ChangesetType.FULL);
         } catch (IOException e) {
             throw new ProjectException(e.getMessage(), e);

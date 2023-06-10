@@ -27,8 +27,8 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.util.StringUtils;
@@ -62,7 +62,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
  * 
  * @author Nail Samatov
  */
-public class AzureBlobRepository implements FolderRepository {
+public class AzureBlobRepository implements Repository {
     private static final String UNSUPPORTED_IN_FOLDER_REPOSITORY = "Unsupported in folder repository";
     static final String VERSION_FILE = "versions.yaml";
 
@@ -542,7 +542,7 @@ public class AzureBlobRepository implements FolderRepository {
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).build();
+        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).setFolders(true).build();
     }
 
     @Override

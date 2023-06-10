@@ -46,6 +46,6 @@ public class LocalRepository extends FileSystemRepository {
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(this).setVersions(false).setLocal(true).build();
+        return new FeaturesBuilder(this).setVersions(false).setLocal(true).setFolders(true).build();
     }
 }

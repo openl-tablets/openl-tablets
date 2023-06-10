@@ -8,7 +8,6 @@ import java.util.Map;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 
 public final class DeployUtils {
@@ -29,7 +28,7 @@ public final class DeployUtils {
         Collection<FileData> fileDatas;
         if (repository.supports().folders()) {
             // All deployments
-            fileDatas = ((FolderRepository) repository).listFolders(deployPath);
+            fileDatas = repository.listFolders(deployPath);
         } else {
             // Projects inside all deployments
             fileDatas = repository.list(deployPath);
@@ -58,7 +57,7 @@ public final class DeployUtils {
                 String folderPath = deployPath + deploymentFolderName;
                 boolean folderStructure;
                 if (repository.supports().folders()) {
-                    folderStructure = !((FolderRepository) repository).listFolders(folderPath + "/").isEmpty();
+                    folderStructure = !repository.listFolders(folderPath + "/").isEmpty();
                 } else {
                     folderStructure = false;
                 }

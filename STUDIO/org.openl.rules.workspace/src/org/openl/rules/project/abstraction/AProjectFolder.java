@@ -19,7 +19,6 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.util.IOUtils;
@@ -181,8 +180,8 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                 ChangesetType changesetType;
                 String fromProjectVersion = null;
 
-                FolderRepository fromRepository = (FolderRepository) from.getRepository();
-                FolderRepository toRepository = (FolderRepository) getRepository();
+                Repository fromRepository = from.getRepository();
+                Repository toRepository = getRepository();
                 if (fromRepository.supports().uniqueFileId() && toRepository.supports().uniqueFileId()) {
                     changesetType = ChangesetType.DIFF;
 
@@ -268,7 +267,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                 if (fromProjectVersion != null) {
                     fileData.setVersion(fromProjectVersion);
                 }
-                setFileData(((FolderRepository) getRepository()).save(fileData, changes, changesetType));
+                setFileData(getRepository().save(fileData, changes, changesetType));
             } catch (IOException e) {
                 throw new ProjectException(e.getMessage(), e);
             } finally {
@@ -337,7 +336,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                 if (getRepository().supports().folders()) {
                     FileData fileData = getFileData();
                     if (fileData != null) {
-                        fileDatas = ((FolderRepository) getRepository()).listFiles(path, fileData.getVersion());
+                        fileDatas = getRepository().listFiles(path, fileData.getVersion());
                     }
                 } else {
                     throw new UnsupportedOperationException(

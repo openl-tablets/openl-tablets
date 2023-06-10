@@ -28,7 +28,6 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositorySettings;
@@ -167,8 +166,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
-                FolderRepository delegate = (FolderRepository) repo;
-                repo = MappedRepository.create(delegate, baseFolder, repositorySettings);
+                repo = MappedRepository.create(repo, baseFolder, repositorySettings);
             }
 
             return repo;
@@ -233,7 +231,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         try {
             String path = deploymentConfigurationLocation;
             if (repository.supports().folders()) {
-                fileDatas = ((FolderRepository) repository).listFolders(path);
+                fileDatas = repository.listFolders(path);
             } else {
                 fileDatas = repository.list(path);
             }
@@ -399,7 +397,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             try {
                 String path = rulesLocation;
                 if (repository.supports().folders()) {
-                    fileDatas = ((FolderRepository) repository).listFolders(path);
+                    fileDatas = repository.listFolders(path);
                 } else {
                     fileDatas = repository.list(path);
                 }

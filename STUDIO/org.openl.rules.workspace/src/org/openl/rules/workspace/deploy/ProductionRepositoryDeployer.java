@@ -28,7 +28,6 @@ import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.CombinedFileChanges;
@@ -198,7 +197,7 @@ public class ProductionRepositoryDeployer {
                                 fi.getData().getName())).collect(Collectors.toList());
 
 
-                        ((FolderRepository) deployRepo).save(folderData, new CombinedFileChanges(iterableList), ChangesetType.FULL);
+                        deployRepo.save(folderData, new CombinedFileChanges(iterableList), ChangesetType.FULL);
                     }
                 } else {
                     deployRepo.save(fileItems);
@@ -253,8 +252,7 @@ public class ProductionRepositoryDeployer {
     private void doDeploy(Repository deployRepo, FileData dest, File zipFile) throws IOException {
         if (deployRepo.supports().folders()) {
             try (ZipInputStream stream = new ZipInputStream(new FileInputStream(zipFile))) {
-                ((FolderRepository) deployRepo)
-                    .save(dest, new FileChangesFromZip(stream, dest.getName()), ChangesetType.FULL);
+                deployRepo.save(dest, new FileChangesFromZip(stream, dest.getName()), ChangesetType.FULL);
             }
         } else {
             try (InputStream stream = new FileInputStream(zipFile)) {

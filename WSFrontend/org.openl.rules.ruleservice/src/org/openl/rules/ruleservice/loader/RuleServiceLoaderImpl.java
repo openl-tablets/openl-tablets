@@ -36,7 +36,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.zip.ZippedLocalRepository;
@@ -133,7 +132,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             try {
                 data = repository.check(getDeployPath() + deploymentName);
                 if (data != null && data.getPath() != null) {
-                    return buildLocalDeployment(version, data, (FolderRepository) repository);
+                    return buildLocalDeployment(version, data, repository);
                 }
             } catch (IOException e) {
                 throw RuntimeExceptionWrapper.wrap(e);
@@ -176,7 +175,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         try {
             if (repository.supports().folders()) {
                 // All deployments
-                fileData = ((FolderRepository) repository).listFolders(getDeployPath());
+                fileData = repository.listFolders(getDeployPath());
             } else {
                 // Projects inside all deployments
                 fileData = repository.list(getDeployPath());
@@ -200,7 +199,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             IDeployment deployment;
             if (isLocalZipFile(fd)) {
                 try {
-                    deployment = buildLocalDeployment(commonVersion, fd, (FolderRepository) repository);
+                    deployment = buildLocalDeployment(commonVersion, fd, repository);
                 } catch (IOException e) {
                     throw RuntimeExceptionWrapper.wrap(e);
                 }
@@ -241,7 +240,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     private LocalDeployment buildLocalDeployment(CommonVersion commonVersion,
             FileData deploymentFolder,
-            FolderRepository repository) throws IOException {
+            Repository repository) throws IOException {
         LocalDeployment deployment;
         if (isSimpleProjectDeployment(deploymentFolder)) {
             Map<String, IProjectArtefact> resourceMap = gatherProjectResources(deploymentFolder, repository);
@@ -308,7 +307,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         boolean folderStructure;
         try {
             if (repository.supports().folders()) {
-                folderStructure = !((FolderRepository) repository).listFolders(deploymentFolderPath + "/").isEmpty();
+                folderStructure = !repository.listFolders(deploymentFolderPath + "/").isEmpty();
             } else {
                 folderStructure = false;
             }

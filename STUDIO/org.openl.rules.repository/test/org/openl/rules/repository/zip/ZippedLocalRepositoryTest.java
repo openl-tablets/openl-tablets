@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -37,7 +37,7 @@ public class ZippedLocalRepositoryTest {
     private static final String REPOSITORY_ROOT = "target/test-zip-repository/";
 
     private File repositoryRoot;
-    private FolderRepository repository;
+    private Repository repository;
     private Map<String, byte[]> singleDeployment;
     private Map<String, byte[]> multiDeployment;
 
