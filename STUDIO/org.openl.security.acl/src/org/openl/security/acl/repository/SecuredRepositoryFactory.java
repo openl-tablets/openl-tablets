@@ -1,7 +1,6 @@
 package org.openl.security.acl.repository;
 
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.dtr.impl.MappedRepository;
 
@@ -18,8 +17,6 @@ public final class SecuredRepositoryFactory {
             return new SecureMappedRepository((MappedRepository) repository, simpleRepositoryAclService);
         } else if (repository instanceof BranchRepository) {
             return new SecureBranchRepository((BranchRepository) repository, simpleRepositoryAclService);
-        } else if (repository instanceof FolderRepository) {
-            return new SecureFolderRepository((FolderRepository) repository, simpleRepositoryAclService);
         } else {
             return new SecureRepository(repository, simpleRepositoryAclService);
         }

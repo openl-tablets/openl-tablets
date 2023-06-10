@@ -2557,7 +2557,7 @@ public class GitRepository implements BranchRepository, Closeable {
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).setSearchable(true).build();
+        return new FeaturesBuilder(this).setSupportsUniqueFileId(true).setSearchable(true).setFolders(true).build();
     }
 
     @Override

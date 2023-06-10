@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.web.repository.tree.RepositoryFolderNode;
@@ -62,7 +61,7 @@ public class SelectFolderBean {
 
         TreeFolder base = new TreeFolder("", "", new AllFilter<>());
         this.root = base;
-        RepositoryFolderNode folder = new RepositoryFolderNode((FolderRepository) repository, "/", "/", this);
+        RepositoryFolderNode folder = new RepositoryFolderNode(repository, "/", "/", this);
         base.add(folder);
 
 

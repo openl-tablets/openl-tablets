@@ -4,11 +4,11 @@ package org.openl.rules.repository.api;
  * Example of usage: if (repository.supports().branches()) return ((BranchRepository) repository).getBranch();
  *
  * @see BranchRepository
- * @see FolderRepository
  * @see FeaturesBuilder
  */
-public class Features {
-    private final Repository repository;
+public final class Features {
+    private final boolean folders;
+    private final boolean branches;
     private final boolean versions;
     private final boolean mappedFolders;
     private final boolean uniqueFileId;
@@ -18,8 +18,9 @@ public class Features {
     /**
      * Don't use this constructor directly. Use {@link FeaturesBuilder} instead.
      */
-    Features(Repository repository, boolean versions, boolean mappedFolders, boolean uniqueFileId, boolean local, boolean searchable) {
-        this.repository = repository;
+    Features(boolean folders, boolean branches, boolean versions, boolean mappedFolders, boolean uniqueFileId, boolean local, boolean searchable) {
+        this.folders = folders;
+        this.branches = branches;
         this.versions = versions;
         this.mappedFolders = mappedFolders;
         this.uniqueFileId = uniqueFileId;
@@ -28,10 +29,10 @@ public class Features {
     }
 
     /**
-     * If true, repository can be casted to {@link FolderRepository}
+     * If true, repository can use Folders features
      */
     public boolean folders() {
-        return repository instanceof FolderRepository;
+        return folders;
     }
 
     /**
@@ -47,7 +48,7 @@ public class Features {
      * If true, repository can be casted to {@link BranchRepository}
      */
     public boolean branches() {
-        return repository instanceof BranchRepository;
+        return branches;
     }
 
     /**

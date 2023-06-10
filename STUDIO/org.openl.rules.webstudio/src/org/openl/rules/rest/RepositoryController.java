@@ -41,7 +41,6 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.folder.FileChangesFromZip;
@@ -202,7 +201,7 @@ public class RepositoryController {
                 final String rulesPath = getDesignTimeRepository().getRulesLocation();
 
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                RepositoryUtils.archive((FolderRepository) repository, rulesPath, name, version, out, null);
+                RepositoryUtils.archive(repository, rulesPath, name, version, out, null);
                 entity = new ByteArrayInputStream(out.toByteArray());
             } else {
                 FileItem fileItem = repository.readHistory(projectPath, version);
@@ -424,8 +423,7 @@ public class RepositoryController {
             FileData save;
             if (repository.supports().folders()) {
                 try (ZipInputStream stream = new ZipInputStream(zipFile)) {
-                    save = ((FolderRepository) repository)
-                        .save(data, new FileChangesFromZip(stream, fileName), ChangesetType.FULL);
+                    save = repository.save(data, new FileChangesFromZip(stream, fileName), ChangesetType.FULL);
                 }
             } else {
                 data.setSize(zipSize);

@@ -1,7 +1,9 @@
 package org.openl.rules.repository.api;
 
 public class FeaturesBuilder {
-    private final Repository repository;
+
+    private boolean folders;
+    private boolean branches;
     private boolean versions = true;
     private boolean mappedFolders;
     private boolean uniqueFileId;
@@ -9,7 +11,17 @@ public class FeaturesBuilder {
     private boolean searchable;
 
     public FeaturesBuilder(Repository repository) {
-        this.repository = repository;
+        this.branches = repository instanceof BranchRepository;
+    }
+
+    public FeaturesBuilder setBranches(boolean branches) {
+        this.branches = branches;
+        return this;
+    }
+
+    public FeaturesBuilder setFolders(boolean folders) {
+        this.folders = folders;
+        return this;
     }
 
     public FeaturesBuilder setVersions(boolean versions) {
@@ -38,6 +50,6 @@ public class FeaturesBuilder {
     }
 
     public Features build() {
-        return new Features(repository, versions, mappedFolders, uniqueFileId, local, searchable);
+        return new Features(folders, branches, versions, mappedFolders, uniqueFileId, local, searchable);
     }
 }

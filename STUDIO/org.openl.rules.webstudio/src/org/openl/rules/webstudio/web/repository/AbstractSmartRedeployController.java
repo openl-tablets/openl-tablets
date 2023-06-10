@@ -25,7 +25,6 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.BranchRepository;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
@@ -136,7 +135,7 @@ public abstract class AbstractSmartRedeployController {
         boolean folderStructure;
 
         if (deployRepo.supports().folders()) {
-            folderStructure = !((FolderRepository) deployRepo)
+            folderStructure = !deployRepo
                 .listFolders(deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName))
                 .isEmpty();
         } else {

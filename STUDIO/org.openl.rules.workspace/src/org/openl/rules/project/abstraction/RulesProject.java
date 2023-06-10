@@ -17,7 +17,6 @@ import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
@@ -446,7 +445,7 @@ public class RulesProject extends UserWorkspaceProject {
 
     private void updateUniqueId() {
         if (designRepository.supports().folders()) {
-            FolderRepository fromRepository = (FolderRepository) designRepository;
+            Repository fromRepository = designRepository;
             if (fromRepository.supports().uniqueFileId()) {
                 try {
                     localRepository.deleteAllFileProperties(localFolderName);

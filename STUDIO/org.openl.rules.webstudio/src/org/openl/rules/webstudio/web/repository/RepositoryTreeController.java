@@ -70,7 +70,6 @@ import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
@@ -2999,7 +2998,7 @@ public class RepositoryTreeController {
             if (!mappedRepo.supports().mappedFolders()) {
                 throw new IllegalArgumentException("Repository " + repositoryId + " has flat folder structure.");
             }
-            FolderRepository repository = ((FolderMapper) mappedRepo).getDelegate();
+            Repository repository = ((FolderMapper) mappedRepo).getDelegate();
             FileData fileData = repository.check(projectFolder);
             if (fileData == null) {
                 WebStudioUtils.addErrorMessage("Project doesn't exist in the path " + projectFolder + ".");

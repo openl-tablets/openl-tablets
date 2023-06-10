@@ -9,7 +9,7 @@ import java.util.Objects;
 import org.openl.rules.repository.api.*;
 import org.openl.security.acl.permission.AclPermission;
 
-public class SecureBranchRepository extends SecureFolderRepository implements BranchRepository {
+public class SecureBranchRepository extends SecureRepository implements BranchRepository {
     private final BranchRepository branchRepository;
 
     public SecureBranchRepository(BranchRepository repository, SimpleRepositoryAclService simpleRepositoryAclService) {

@@ -126,6 +126,21 @@ class ZipFolderRepository implements Repository {
     }
 
     @Override
+    public List<FileData> listFolders(String path) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<FileData> listFiles(String path, String version) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public FileData save(FileData folderData, Iterable<FileItem> files, ChangesetType changesetType) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Features supports() {
         return new FeaturesBuilder(this).setVersions(false).build();
     }

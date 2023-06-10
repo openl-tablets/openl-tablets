@@ -26,7 +26,6 @@ import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentManifestBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -100,7 +99,6 @@ public class DeploymentManager implements InitializingBean {
 
             String rulesPath = designRepository.getRulesLocation();
             if (deployRepo.supports().folders()) {
-                FolderRepository folderRepo = (FolderRepository) deployRepo;
 
                 try (FileChangesToDeploy changes = new FileChangesToDeploy(projectDescriptors,
                     designRepository,
@@ -111,7 +109,7 @@ public class DeploymentManager implements InitializingBean {
                     deploymentData.setName(deploymentName);
                     deploymentData.setAuthor(user.getUserInfo());
                     deploymentData.setComment(project.getFileData().getComment());
-                    folderRepo.save(deploymentData, changes, ChangesetType.FULL);
+                    deployRepo.save(deploymentData, changes, ChangesetType.FULL);
                 }
             } else {
                 List<FileData> existingProjects = deployRepo.list(deploymentPath);
@@ -154,7 +152,7 @@ public class DeploymentManager implements InitializingBean {
                         if (designProject != null) {
                             technicalName = designProject.getName();
                         }
-                        archiveAndSave((FolderRepository) designRepo,
+                        archiveAndSave(designRepo,
                             rulesPath,
                             technicalName,
                             version,
@@ -195,7 +193,7 @@ public class DeploymentManager implements InitializingBean {
         }
     }
 
-    private void archiveAndSave(FolderRepository designRepo,
+    private void archiveAndSave(Repository designRepo,
             String rulesPath,
             String projectName,
             String version,

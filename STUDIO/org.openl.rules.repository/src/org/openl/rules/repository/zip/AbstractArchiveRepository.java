@@ -32,8 +32,8 @@ import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.util.FileSignatureHelper;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
@@ -50,7 +50,7 @@ import org.openl.util.ZipUtils;
  *
  * @author Vladyslav Pikus
  */
-abstract class AbstractArchiveRepository implements FolderRepository, Closeable {
+abstract class AbstractArchiveRepository implements Repository, Closeable {
 
     private final Map<Path, FileSystem> openedFileSystems = new HashMap<>();
 
@@ -358,7 +358,7 @@ abstract class AbstractArchiveRepository implements FolderRepository, Closeable 
 
     @Override
     public Features supports() {
-        return new FeaturesBuilder(this).setVersions(false).setLocal(true).build();
+        return new FeaturesBuilder(this).setVersions(false).setLocal(true).setFolders(true).build();
     }
 
     @Override

@@ -31,7 +31,6 @@ import org.openl.rules.repository.api.ConflictResolveData;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.workspace.dtr.FolderMapper;
-import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
@@ -586,7 +585,7 @@ public class MergeConflictBean {
                 folderData.setAuthor(getUserWorkspace().getUser().getUserInfo());
                 folderData.setComment(mergeMessage);
                 folderData.setBranch(branch);
-                ((FolderRepository) repository).save(folderData, files, ChangesetType.DIFF);
+                repository.save(folderData, files, ChangesetType.DIFF);
             }
         }
     }
