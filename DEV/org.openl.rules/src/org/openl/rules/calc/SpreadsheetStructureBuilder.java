@@ -49,11 +49,9 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.lang.xls.types.meta.SpreadsheetMetaInfoReader;
 import org.openl.rules.table.ICell;
-import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.table.LogicalTableHelper;
-import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -106,8 +104,6 @@ public class SpreadsheetStructureBuilder {
             XlsModuleOpenClass xlsModuleOpenClass) {
         this.tableSyntaxNode = tableSyntaxNode;
         this.tableBody = tableSyntaxNode.getTableBody();
-        this.columnNamesTable = tableSyntaxNode.getTableBody().getRow(0).getColumns(1);
-        this.rowNamesTable = tableSyntaxNode.getTableBody().getColumn(0).getRows(1);
         this.bindingContext = bindingContext;
         this.spreadsheetHeader = spreadsheetHeader;
         this.xlsModuleOpenClass = xlsModuleOpenClass;
@@ -248,19 +244,16 @@ public class SpreadsheetStructureBuilder {
             return;
         }
 
-        ILogicalTable cell = LogicalTableHelper.mergeBounds(
-            rowNamesTable.getRow(rowIndex),
-            columnNamesTable.getColumn(columnIndex));
-
-        IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell.getSource(), spreadsheetBindingContext);
-        String code = StringUtils.trimToNull(source.getCode());
+        ICell cell = tableBody.getCell(columnIndex + 1, rowIndex + 1);
+        var source = new CellSourceCodeModule(cell, tableBody);
+        var code = source.getCode();
 
         String name = getSpreadsheetCellFieldName(columnHeaders.get(columnIndex).getDefinitionName(),
             rowHeaders.get(rowIndex).getDefinitionName());
 
         IOpenClass type = spreadsheetCell.getType();
 
-        if (code == null) {
+        if (StringUtils.isBlank(code)) {
             spreadsheetCell.setValue(type.nullObject());
         } else if (SpreadsheetExpressionMarker.isFormula(code)) {
 
@@ -294,7 +287,7 @@ public class SpreadsheetStructureBuilder {
                 spreadsheetCell.setType(NullOpenClass.the);
                 String message = String.format("Cannot parse cell value '%s' to the necessary type.", code);
                 spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils
-                    .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
+                    .createError(message, e, LocationUtils.createTextInterval(code), source));
             }
 
         } else if (spreadsheetCell.isConstantCell()) {
@@ -315,13 +308,12 @@ public class SpreadsheetStructureBuilder {
 
             try {
                 IBindingContext bindingContext = getColumnContext(columnIndex, rowIndex, rowBindingContext);
-                ICell theCellValue = cell.getCell(0, 0);
                 Object result = null;
                 if (String.class == instanceClass) {
                     result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
                 } else {
-                    if (theCellValue.hasNativeType()) {
-                        result = RuleRowHelper.loadNativeValue(theCellValue, type);
+                    if (cell.hasNativeType()) {
+                        result = RuleRowHelper.loadNativeValue(cell, type);
                     }
                     if (result == null) {
                         result = String2DataConvertorFactory.parse(instanceClass, code, bindingContext);
@@ -413,10 +405,7 @@ public class SpreadsheetStructureBuilder {
     }
 
     private SpreadsheetCell buildCell(int rowIndex, int columnIndex, boolean autoType) {
-        ILogicalTable cell = LogicalTableHelper.mergeBounds(
-            rowNamesTable.getRow(rowIndex),
-            columnNamesTable.getColumn(columnIndex));
-        ICell sourceCell = cell.getSource().getCell(0, 0);
+        ICell sourceCell = tableBody.getCell(columnIndex + 1, rowIndex + 1);
 
         String cellCode = sourceCell.getStringValue();
 
@@ -699,11 +688,10 @@ public class SpreadsheetStructureBuilder {
     private void addRowHeaders() {
         int height = getHeight();
         for (int row = 0; row < height; row++) {
-            IGridTable cell = rowNamesTable.getRow(row).getColumn(0).getSource();
-            var value = cell.getCell(0, 0).getStringValue();
+            ICell cell = tableBody.getCell(0, row + 1);
+            var value = cell.getStringValue();
             if (value != null) {
-                IOpenSourceCodeModule source = new GridCellSourceCodeModule(cell, bindingContext);
-                parseHeader(source, row, true);
+                parseHeader(new CellSourceCodeModule(cell, tableBody), row, true);
             }
         }
     }
@@ -711,11 +699,10 @@ public class SpreadsheetStructureBuilder {
     private void addColumnHeaders() {
         int width = getWidth();
         for (int col = 0; col < width; col++) {
-            IGridTable cell = columnNamesTable.getColumn(col).getRow(0).getSource();
-            var value = cell.getCell(0, 0).getStringValue();
+            ICell cell = tableBody.getCell(col + 1, 0);
+            var value = cell.getStringValue();
             if (value != null) {
-                GridCellSourceCodeModule source = new GridCellSourceCodeModule(cell, bindingContext);
-                parseHeader(source, col, false);
+                parseHeader(new CellSourceCodeModule(cell, tableBody), col, false);
             }
         }
     }
@@ -824,18 +811,18 @@ public class SpreadsheetStructureBuilder {
                 SpreadsheetMetaInfoReader metaInfoReader = (SpreadsheetMetaInfoReader) tableSyntaxNode
                         .getMetaInfoReader();
                 List<NodeUsage> nodeUsages = new ArrayList<>();
-                ILogicalTable cell;
+                ICell cell;
                 if (headerDefinition.getRow() >= 0) {
-                    cell = rowNamesTable.getRow(headerDefinition.getRow());
+                    cell = tableBody.getCell(0, 1 + headerDefinition.getRow());
                 } else {
-                    cell = columnNamesTable.getColumn(headerDefinition.getColumn());
+                    cell = tableBody.getCell(1 + headerDefinition.getColumn(), 0);
                 }
                 if (headerDefinition.getDefinition().isAsteriskPresented()) {
                     String s = removeWrongSymbols(headerDefinition.getDefinitionName());
                     if (org.apache.commons.lang3.StringUtils.isEmpty(s)) {
                         s = "Empty string";
                     }
-                    String stringValue = cell.getCell(0, 0).getStringValue();
+                    String stringValue = cell.getStringValue();
                     int d = stringValue.lastIndexOf(SpreadsheetSymbols.ASTERISK.toString());
                     SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0, d, s, null, NodeType.OTHER);
                     nodeUsages.add(nodeUsage);
@@ -859,8 +846,7 @@ public class SpreadsheetStructureBuilder {
                 }
                 if (!nodeUsages.isEmpty()) {
                     CellMetaInfo cellMetaInfo = new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages);
-                    ICell c = cell.getCell(0, 0);
-                    metaInfoReader.addHeaderMetaInfo(c.getAbsoluteRow(), c.getAbsoluteColumn(), cellMetaInfo);
+                    metaInfoReader.addHeaderMetaInfo(cell.getAbsoluteRow(), cell.getAbsoluteColumn(), cellMetaInfo);
                 }
             }
         }
@@ -1112,16 +1098,6 @@ public class SpreadsheetStructureBuilder {
         return !Boolean.FALSE.equals(spreadsheet.getMethodProperties().getCalculateAllCells());
     }
 
-    /**
-     * table representing column section in the spreadsheet
-     **/
-    private final ILogicalTable columnNamesTable;
-
-    /**
-     * table representing row section in the spreadsheet
-     **/
-    private final ILogicalTable rowNamesTable;
-
     private int getWidth() {
         return tableBody.getWidth() - 1;
     }
@@ -1130,4 +1106,10 @@ public class SpreadsheetStructureBuilder {
         return tableBody.getHeight() - 1;
     }
 
+    private static class CellSourceCodeModule extends StringSourceCodeModule {
+
+        public CellSourceCodeModule(ICell cell, ILogicalTable table) {
+            super(cell.getStringValue(), table.getSource().getUri(cell.getColumn(), cell.getRow() - 1));
+        }
+    }
 }
