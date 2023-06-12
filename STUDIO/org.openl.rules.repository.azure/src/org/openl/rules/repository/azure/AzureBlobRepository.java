@@ -187,12 +187,8 @@ public class AzureBlobRepository implements FolderRepository {
 
         final FileData fileData;
         try {
-            AzureCommit commit = new AzureCommit();
-            commit.setAuthor(folderData.getAuthor().getUsername());
-            commit.setComment(folderData.getComment());
 
             final ArrayList<FileInfo> commitFiles = new ArrayList<>();
-            commit.setFiles(commitFiles);
 
             if (changesetType == ChangesetType.FULL) {
                 for (FileItem file : files) {
@@ -231,6 +227,11 @@ public class AzureBlobRepository implements FolderRepository {
                     }
                 }
             }
+
+            AzureCommit commit = new AzureCommit();
+            commit.setAuthor(folderData.getAuthor().getUsername());
+            commit.setComment(folderData.getComment());
+            commit.setFiles(commitFiles);
             commit.setModifiedAt(new Date());
 
             saveCommit(commit, path);
@@ -453,27 +454,25 @@ public class AzureBlobRepository implements FolderRepository {
                     return false;
                 }
 
-                AzureCommit commit = new AzureCommit();
-                commit.setAuthor(data.getAuthor().getUsername());
-                commit.setComment(data.getComment());
-                commit.setModifiedAt(new Date());
-
-                boolean found = false;
+                List<FileInfo> foundFiles = null;
                 final ListIterator<FileData> listIterator = history.listIterator(history.size());
                 while (listIterator.hasPrevious()) {
                     final FileData fileData = listIterator.previous();
                     if (!fileData.isDeleted()) {
                         final AzureCommit oldCommit = getCommit(path, fileData.getVersion());
-                        if (oldCommit == null) {
-                            continue;
+                        if (oldCommit != null) {
+                            foundFiles = oldCommit.getFiles();
+                            break;
                         }
-                        commit.setFiles(oldCommit.getFiles());
-                        found = true;
-                        break;
                     }
                 }
 
-                if (found) {
+                if (foundFiles != null) {
+                    AzureCommit commit = new AzureCommit();
+                    commit.setAuthor(data.getAuthor().getUsername());
+                    commit.setComment(data.getComment());
+                    commit.setModifiedAt(new Date());
+                    commit.setFiles(foundFiles);
                     saveCommit(commit, path);
                 } else {
                     return false;
@@ -498,12 +497,7 @@ public class AzureBlobRepository implements FolderRepository {
             String path = destData.getName();
 
             final FileData fileData;
-            AzureCommit commit = new AzureCommit();
-            commit.setAuthor(destData.getAuthor().getUsername());
-            commit.setComment(destData.getComment());
             final ArrayList<FileInfo> commitFiles = new ArrayList<>();
-            commit.setFiles(commitFiles);
-            commit.setModifiedAt(new Date());
 
             for (FileData data : fileDataList) {
                 final FileItem file = readHistory(data.getName(), data.getVersion());
@@ -526,6 +520,12 @@ public class AzureBlobRepository implements FolderRepository {
                 fileInfo.setRevision(response.getValue().getVersionId());
                 commitFiles.add(fileInfo);
             }
+
+            AzureCommit commit = new AzureCommit();
+            commit.setAuthor(destData.getAuthor().getUsername());
+            commit.setComment(destData.getComment());
+            commit.setFiles(commitFiles);
+            commit.setModifiedAt(new Date());
 
             saveCommit(commit, path);
             fileData = createFileData(destData.getName(), commit);
