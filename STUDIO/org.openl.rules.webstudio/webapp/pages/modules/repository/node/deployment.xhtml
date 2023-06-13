@@ -33,6 +33,15 @@
                 </c:otherwise>
             </c:choose>
         </h:panelGroup>
+
+        <h:outputText value="Repository:"/>
+        <h:panelGroup>
+            <h:outputText value="#{artefact.repository.name}"/>
+            <ui:param name="fullPath" value="#{repositoryTreeController.getFullPath(artefact)}"/>
+            <c:if test="#{not empty fullPath}">
+                <a href="#" title="#{fullPath}" onclick="copyToClipboard('#{fullPath}')">Copy full path to clipboard</a>
+            </c:if>
+        </h:panelGroup>
     </h:panelGrid>
 
 </ui:composition>

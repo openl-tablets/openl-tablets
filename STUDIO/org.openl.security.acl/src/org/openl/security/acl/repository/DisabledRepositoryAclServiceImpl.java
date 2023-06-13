@@ -81,4 +81,9 @@ public class DisabledRepositoryAclServiceImpl extends DisabledSimpleRepositoryAc
     public String getPath(AProjectArtefact projectArtefact) {
         return null;
     }
+
+    @Override
+    public String getFullPath(AProjectArtefact projectArtefact) {
+        return null;
+    }
 }

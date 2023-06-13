@@ -69,7 +69,6 @@ import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
@@ -109,6 +108,7 @@ import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.FolderMapper;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -2923,6 +2923,15 @@ public class RepositoryTreeController {
             log.error("Error during getting project design version", e);
             return version.getVersionName();
         }
+    }
+
+    public String getFullPath(AProjectArtefact artefact) {
+        if (artefact == null) {
+            return null;
+        }
+        RepositoryAclService repositoryAclService = artefact instanceof ADeploymentProject ? deployConfigRepositoryAclService
+                                                                                           : designRepositoryAclService;
+        return repositoryAclService.getFullPath(artefact);
     }
 
     public void setEraseProjectComment(String eraseProjectComment) {

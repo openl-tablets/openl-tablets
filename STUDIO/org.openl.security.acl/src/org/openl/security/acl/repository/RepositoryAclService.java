@@ -40,4 +40,6 @@ public interface RepositoryAclService extends SimpleRepositoryAclService {
     boolean updateOwner(AProjectArtefact projectArtefact, Sid newOwner);
 
     String getPath(AProjectArtefact projectArtefact);
+
+    String getFullPath(AProjectArtefact projectArtefact);
 }

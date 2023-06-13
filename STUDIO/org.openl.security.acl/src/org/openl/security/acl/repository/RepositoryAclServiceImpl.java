@@ -212,4 +212,10 @@ public class RepositoryAclServiceImpl extends SimpleRepositoryAclServiceImpl imp
         ObjectIdentity oi = buildObjectIdentity(projectArtefact);
         return cutRepositoryId((String) oi.getIdentifier());
     }
+
+    @Override
+    public String getFullPath(AProjectArtefact projectArtefact) {
+        ObjectIdentity oi = buildObjectIdentity(projectArtefact);
+        return (String) oi.getIdentifier();
+    }
 }
