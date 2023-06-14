@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.openl.util.FileUtils;
-
 import org.springframework.util.AntPathMatcher;
 
 /**
@@ -72,6 +71,9 @@ public class WebResourceFilter implements Filter {
                     break;
                 case "png":
                     response.setContentType("image/png");
+                    break;
+                case "svg":
+                    response.setContentType("image/svg+xml");
                     break;
                 default:
                     // Do not process other resources, such as .class or .properties

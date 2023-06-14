@@ -74,6 +74,7 @@ import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.rest.RepositoryAclServiceController;
+import org.openl.rules.security.Privileges;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.TagTypeService;
@@ -2924,6 +2925,10 @@ public class RepositoryTreeController {
             log.error("Error during getting project design version", e);
             return version.getVersionName();
         }
+    }
+
+    public boolean isShowFullPath() {
+        return isGranted(Privileges.ADMIN);
     }
 
     public String getFullPath(AProjectArtefact artefact) {

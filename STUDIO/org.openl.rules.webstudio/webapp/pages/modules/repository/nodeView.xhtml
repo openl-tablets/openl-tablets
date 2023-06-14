@@ -254,10 +254,15 @@
                             </td>
                             <td>
                                 <h:outputText value="#{artefact.repository.name}"/>
-                                <ui:param name="fullPath" value="#{repositoryTreeController.getFullPath(artefact)}"/>
-                                <c:if test="#{not empty fullPath}">
-                                    <a href="#" title="#{fullPath}" onclick="copyToClipboard('#{fullPath}')">Copy full
-                                        path to clipboard</a>
+                                <c:if test="#{repositoryTreeController.showFullPath and environment.getProperty('user.mode') != 'single'}">
+                                    <ui:param name="fullPath"
+                                              value="#{repositoryTreeController.getFullPath(artefact)}"/>
+                                    <c:if test="#{not empty fullPath}">
+                                        <img style="margin-left: 3px; width: 16px; height: 16px;"
+                                             src="#{contextPath}/webresource/images/copy.svg"
+                                             title="Copy as path" alt="Copy as path"
+                                             onclick="copyToClipboard('#{fullPath}')"/>
+                                    </c:if>
                                 </c:if>
                             </td>
                     </tr>
