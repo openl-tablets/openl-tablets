@@ -73,6 +73,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.UserInfo;
 import org.openl.rules.repository.git.MergeConflictException;
 import org.openl.rules.rest.ProjectHistoryService;
+import org.openl.rules.rest.RepositoryAclServiceController;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.service.TagTypeService;
@@ -2931,7 +2932,9 @@ public class RepositoryTreeController {
         }
         RepositoryAclService repositoryAclService = artefact instanceof ADeploymentProject ? deployConfigRepositoryAclService
                                                                                            : designRepositoryAclService;
-        return repositoryAclService.getFullPath(artefact);
+        return (artefact instanceof ADeploymentProject ? RepositoryAclServiceController.REPO_TYPE_DEPLOY_CONFIG
+                                                       : RepositoryAclServiceController.REPO_TYPE_DESIGN) + "/" + repositoryAclService
+                                                           .getFullPath(artefact);
     }
 
     public void setEraseProjectComment(String eraseProjectComment) {
