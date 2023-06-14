@@ -21,10 +21,8 @@ export const UserPage: React.FC = () => {
 
     const hideEditUserModal = () => {
         setIsModalOpen(false);
+        fetchUsers();
     };
-
-    // const headers = new Headers();
-    // headers.append('Authorization', authorization || '');
 
     const fetchUsers = async () => {
         try {
@@ -130,11 +128,19 @@ export const UserPage: React.FC = () => {
             ),
         },
     ];
+
+    // const updateUser = (updatedUser: any) => {
+    //     setUserData((userData) =>
+    //         userData.map((user: any) => (user.key === updatedUser.key ? updatedUser : user))
+    //     );
+    // };
+
     const updateUser = (updatedUser: any) => {
         setUserData((userData) =>
-            userData.map((user: any) => (user.key === updatedUser.key ? updatedUser : user))
+            userData.map((user: any) => (user.username === updatedUser.username ? updatedUser : user))
         );
     };
+
 
     const handleDoubleRowClick = (record: any) => {
         setSelectedUser({ ...record });

@@ -233,7 +233,10 @@ export const EditGroupModal: React.FC<EditGroupProps> = ({ group, updateGroup, o
                         <Table
                             rowSelection={rowSelection}
                             dataSource={CreateGroupDataSource}
-                            columns={columns} />
+                            columns={columns}
+                            pagination={false}
+                            scroll={{ x: "max-content" }}
+                        />
                     </Form.Item>
                 </Form.Item>
                 <Form.Item>

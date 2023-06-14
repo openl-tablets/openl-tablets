@@ -89,8 +89,10 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onSav
     const [firstName, setFirstName] = useState(user.firstName);
     const [lastName, setLastName] = useState(user.lastName);
     const [displayName, setDisplayName] = useState(user.displayName);
-    const [selectedGroupValues, setSelectedGroupValues] = useState<CheckboxValueType[]>(user.userGroups.map((group) => group.name));
-    // const [selectedGroupValues, setSelectedGroupValues] = useState<String[]>(user.userGroups.map((group) => group.name));
+    // const [selectedGroupValues, setSelectedGroupValues] = useState<CheckboxValueType[]>(user.userGroups.map((group) => group.name));
+    // const [selectedGroupValues, setSelectedGroupValues] = useState<string[]>(user.userGroups.map((group) => group.name));
+    const [selectedGroupValues, setSelectedGroupValues] = useState<string[]>(user.groups);
+
 
     useEffect(() => {
         setUsername(user.username);
@@ -99,10 +101,10 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onSav
         setFirstName(user.firstName);
         setLastName(user.lastName);
         setDisplayName(user.displayName);
-        setSelectedGroupValues(user.userGroups.map((group) => group.name));
+        setSelectedGroupValues(user.groups);
+        // setSelectedGroupValues(user.userGroups.map((group) => group.name));
     }, [user]);
 
-   
     const handleEmailInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
     };
@@ -120,67 +122,47 @@ export const EditUserModal: React.FC<EditUserProps> = ({ user, updateUser, onSav
     };
 
     const handleSave = async () => {
-        // const updatedUser = {
-        //     ...user,
-        //     username: username,
-        //     email: email,
-        //     password: password,
-        //     firstName: firstName,
-        //     lastName: lastName,
-        //     displayName: displayName,
-        //     // userGroups: selectedGroupValues.map((group) => ({
-        //     //     name: group,
-        //     //     type: "DEFAULT" 
-        //     // })),
-        //     groups: selectedGroupValues.map((value) => value),
-        // };
         const updatedUser = {
-            ...user,
             email: email,
             displayName: displayName,
             firstName: firstName,
             lastName: lastName,
             password: password,
-            groups: selectedGroupValues,
+            groups: selectedGroupValues
         };
 
         try {
-            const response = await fetch(`${apiURL}/users/${user.username}`, {
-                method: "PUT",
+            const response = await fetch(`${apiURL}/users/${username}`, {
+                method: 'PUT',
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": "Basic YWRtaW46YWRtaW4="
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic YWRtaW46YWRtaW4='
                 },
-                body: JSON.stringify(updatedUser),
+                body: JSON.stringify(updatedUser)
             });
-            console.log("12. Response: ", response);
-            if (response.ok) {
+            console.log('12. Response:', response);
+            console.log('Response status:', response.status);
+            if (response.status === 204) {
+                console.log('User updated successfully!');
+                setEmail(updatedUser.email);
+                setPassword(updatedUser.password);
+                setFirstName(updatedUser.firstName);
+                setLastName(updatedUser.lastName);
+                setDisplayName(updatedUser.displayName);
+                setSelectedGroupValues(updatedUser.groups);
+                updateUser(updatedUser);
+                setIsModalOpen(false);
+                onSave();
+                return;
+            }
+            else {
+                console.log('Response status:', response.status);
+                console.error('Error updating user:', response.statusText);
                 const responseText = await response.text();
-                if (responseText) {
-                    const userData = JSON.parse(responseText)
-                    // const userData = await response.json();
-                    console.log("13. Response.JSON: ", response.json)
-                    setUsername(userData.username);
-                    setEmail(userData.email);
-                    setPassword(userData.password);
-                    setFirstName(userData.firstName);
-                    setLastName(userData.lastName);
-                    setDisplayName(userData.displayName);
-                    setSelectedGroupValues(userData.groups.map((group: any) => group.name));
-
-                    updateUser(updatedUser);
-                    setIsModalOpen(false);
-                    console.log(userData);
-                    console.log(updatedUser);
-                    onSave();
-                } else {
-                    console.error("Empty response from the server");
-                }
-            } else {
-                console.error("Error updating user:", response.statusText);
+                console.log('Response Text:', responseText);
             }
         } catch (error) {
-            console.error("Error updating user:", error);
+            console.error('Error updating user:', error);
         }
     };
 

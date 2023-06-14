@@ -5,10 +5,9 @@ import DefaultLayout from '../components/DefaultLayout';
 import { NewGroupModal } from 'views/groups/NewGroupModal';
 import { EditGroupModal } from 'views/groups/EditGroupModal';
 import './groupPage.css';
-import { NewGroupModal1 } from 'views/groups/NewGroupModal1';
 
 
-type Group = {
+interface Group {
     name: string;
     id: number;
     description: string;
@@ -41,20 +40,22 @@ export const GroupPage: React.FC = () => {
 
     const fetchGroups = async () => {
         try {
-            const headers = new Headers();
-            headers.append('Authorization', authorization || '');
 
             const response = await fetch(`${apiURL}/admin/management/groups`, {
-                headers
+                headers: {
+                    "Authorization": "Basic YWRtaW46YWRtaW4="
+                }
             });
             if (response.ok) {
                 const responseObject = await response.json();
+                console.log("response objecttt - ", responseObject);
                 const groups = Object.entries(responseObject).map(([groupName, group]: [string, unknown]) => ({
                     groupName,
                     ...(group as Group),
                     privileges: (group as Group).privileges || [],
                 }));
                 setGroupData(groups);
+                console.log("groupsss", groups)
                 console.log('8.', responseObject)
             } else {
                 console.error("9. Failed to fetch groups:", response.statusText);
@@ -214,7 +215,6 @@ export const GroupPage: React.FC = () => {
                     })}
                 />
                 <NewGroupModal fetchGroups={fetchGroups} />
-                <NewGroupModal1 fetchGroups={fetchGroups} />
                 <Modal
                     className='edit-group-modal'
                     open={isModalOpen}
