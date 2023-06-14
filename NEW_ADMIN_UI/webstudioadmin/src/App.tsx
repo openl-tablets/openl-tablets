@@ -1,16 +1,16 @@
 import "@refinedev/antd/dist/reset.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import React from 'react';
-import { NotificationPage } from "Pages/NotificationPage";
-import { SystemPage } from 'Pages/SystemPage';
-import { CommonPage } from 'Pages/CommonPage';
-import { MailPage } from 'Pages/MailPage';
-import { TagsPage } from 'Pages/TagsPage';
-import { RepoDesignPage } from 'Pages/RepoDesignPage';
-import { RepoDeploymentPage } from 'Pages/RepoDeploymentPage';
-import { UserPage } from 'Pages/UserPage';
-import { RepoDeployConfPage } from 'Pages/RepoDeployConfPage';
-import { GroupPage } from 'Pages/GroupPage';
+import { NotificationPage } from "pages2/NotificationPage";
+import { SystemPage } from 'pages2/SystemPage';
+import { CommonPage } from 'pages2/CommonPage';
+import { MailPage } from 'pages2/MailPage';
+import { TagsPage } from 'pages2/TagsPage';
+import { RepoDesignPage } from 'pages2/RepoDesignPage';
+import { RepoDeploymentPage } from 'pages2/RepoDeploymentPage';
+import { UserPage } from 'pages2/UserPage';
+import { RepoDeployConfPage } from 'pages2/RepoDeployConfPage';
+import { GroupPage } from 'pages2/GroupPage';
 
 function App() {
 
