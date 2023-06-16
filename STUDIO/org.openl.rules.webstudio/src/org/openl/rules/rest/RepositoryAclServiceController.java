@@ -418,6 +418,9 @@ public class RepositoryAclServiceController {
             @PathVariable(value = "repo-id", required = false) String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
+        if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType) && StringUtils.isNotBlank(path)) {
+            repositoryId = getDeployConfigRepo(session);
+        }
         Map<Sid, List<Permission>> permissions;
         SimpleRepositoryAclService simpleRepositoryAclService = getRepositoryAclService(repositoryType);
         if (StringUtils.isBlank(repositoryId)) {
@@ -440,6 +443,9 @@ public class RepositoryAclServiceController {
             @RequestParam(required = false) String path,
             HttpSession session) {
         if (userDao.existsByName(username)) {
+            if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType) && StringUtils.isNotBlank(path)) {
+                repositoryId = getDeployConfigRepo(session);
+            }
             if (StringUtils.isBlank(repositoryId)) {
                 getRepositoryAclService(repositoryType).addRootPermissions(
                     buildPermissions(repositoryType, permissions),
@@ -468,6 +474,9 @@ public class RepositoryAclServiceController {
             HttpSession session) {
         Group group = groupDao.getGroupById(id);
         if (group != null) {
+            if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType) && StringUtils.isNotBlank(path)) {
+                repositoryId = getDeployConfigRepo(session);
+            }
             if (StringUtils.isBlank(repositoryId)) {
                 getRepositoryAclService(repositoryType).addRootPermissions(
                     buildPermissions(repositoryType, permissions),
@@ -493,6 +502,9 @@ public class RepositoryAclServiceController {
             @RequestParam(required = false) String path,
             HttpSession session) {
         SimpleRepositoryAclService repositoryAclService = getRepositoryAclService(repositoryType);
+        if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType) && StringUtils.isNotBlank(path)) {
+            repositoryId = getDeployConfigRepo(session);
+        }
         if (StringUtils.isBlank(repositoryId)) {
             repositoryAclService.removeRootPermissions();
         } else {
@@ -513,6 +525,9 @@ public class RepositoryAclServiceController {
             HttpSession session) {
         if (userDao.getUserByName(username) == null) {
             throw new NotFoundException("users.message", username);
+        }
+        if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType) && StringUtils.isNotBlank(path)) {
+            repositoryId = getDeployConfigRepo(session);
         }
         if (StringUtils.isBlank(repositoryId)) {
             getRepositoryAclService(repositoryType).removeRootPermissions(buildPermissions(repositoryType, permissions),
@@ -536,6 +551,9 @@ public class RepositoryAclServiceController {
             @PathVariable(value = "repo-id", required = false) String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
+        if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType) && StringUtils.isNotBlank(path)) {
+            repositoryId = getDeployConfigRepo(session);
+        }
         Group group = groupDao.getGroupById(id);
         if (group != null) {
             if (StringUtils.isBlank(repositoryId)) {
@@ -602,6 +620,9 @@ public class RepositoryAclServiceController {
             @PathVariable("repo-id") String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
+        if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType) && StringUtils.isNotBlank(path)) {
+            repositoryId = getDeployConfigRepo(session);
+        }
         validateRepositoryId(session, repositoryType, repositoryId);
         Sid sid = getRepositoryAclService(repositoryType).getOwner(repositoryId, path);
         SidDto sidDto;
@@ -626,6 +647,9 @@ public class RepositoryAclServiceController {
             @PathVariable("repo-id") String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
+        if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType) && StringUtils.isNotBlank(path)) {
+            repositoryId = getDeployConfigRepo(session);
+        }
         validateRepositoryId(session, repositoryType, repositoryId);
         if (userDao.getUserByName(username) != null) {
             if (!getRepositoryAclService(repositoryType).updateOwner(repositoryId, path, new PrincipalSid(username))) {
@@ -644,6 +668,9 @@ public class RepositoryAclServiceController {
             @PathVariable("repo-id") String repositoryId,
             @RequestParam(required = false) String path,
             HttpSession session) {
+        if (REPO_TYPE_DEPLOY_CONFIG.equals(repositoryType) && StringUtils.isNotBlank(path)) {
+            repositoryId = getDeployConfigRepo(session);
+        }
         validateRepositoryId(session, repositoryType, repositoryId);
         Group group = groupDao.getGroupById(id);
         if (group != null) {
