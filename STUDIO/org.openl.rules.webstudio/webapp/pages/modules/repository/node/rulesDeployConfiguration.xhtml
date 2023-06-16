@@ -6,7 +6,7 @@
         xmlns:oh="http://openl-tablets.sf.net/jsf/html">
 
     <ui:param name="canEditRulesDeployConfig"
-              value="#{artefact.project.openedForEditing and repositoryProjectRulesDeployConfig.canEditRulesDeploy}"/>
+              value="#{repositoryProjectRulesDeployConfig.canEditRulesDeploy}"/>
 
     <ui:param name="hasRulesDeploy" value="#{repositoryProjectRulesDeployConfig.rulesDeploy != null}"/>
     <h:outputStylesheet>

@@ -18,6 +18,8 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.RulesDeploySerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
@@ -215,8 +217,19 @@ public class RepositoryProjectRulesDeployConfig {
         }
     }
 
+    private boolean isCurrentBranchProtected(UserWorkspaceProject selectedProject) {
+        Repository repo = selectedProject.getDesignRepository();
+        if (repo != null && repo.supports().branches()) {
+            return ((BranchRepository) repo).isBranchProtected(selectedProject.getBranch());
+        }
+        return false;
+    }
+
     public boolean isCanEditRulesDeploy() {
         UserWorkspaceProject project = getProject();
+        if (!project.isOpenedForEditing() || isCurrentBranchProtected(project)) {
+            return false;
+        }
         try {
             if (project.hasArtefact(RULES_DEPLOY_CONFIGURATION_FILE)) {
                 AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
@@ -231,6 +244,9 @@ public class RepositoryProjectRulesDeployConfig {
 
     public boolean isCanDeleteRulesDeploy() {
         UserWorkspaceProject project = getProject();
+        if (!project.isOpenedForEditing() || isCurrentBranchProtected(project)) {
+            return false;
+        }
         try {
             AProjectArtefact projectArtefact = project.getArtefact(RULES_DEPLOY_CONFIGURATION_FILE);
             return designRepositoryAclService.isGranted(projectArtefact, List.of(AclPermission.DELETE));
